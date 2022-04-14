@@ -3,6 +3,8 @@ github.com/aybabtme/flatjson v0.1.1/go.mod h1:2oPC+j5XSGNN4+4zllTuLZ4z31CeflutT0
 github.com/aybabtme/orderedjson v0.1.0 h1:cWe8j5xRWhP70MmEPTpicyUwG+A/15y+hdhtJpLyWF0=
 github.com/aybabtme/orderedjson v0.1.0/go.mod h1:7zJ7kWvWuzOKY/RhqjU4wlK2GLXM8N+Jj8B/OR+0sMY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
+github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/mitchellh/mapstructure v1.4.3 h1:OVowDSCllw/YjdLkam3/sm7wEtOy59d8ndGgCcyj8cs=
 github.com/mitchellh/mapstructure v1.4.3/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

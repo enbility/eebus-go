@@ -11,6 +11,7 @@ require (
 
 require (
 	github.com/aybabtme/flatjson v0.1.1 // indirect
+	github.com/gorilla/websocket v1.5.0
 	github.com/virtuald/go-ordered-json v0.0.0-20170621173500-b18e6e673d74
 	github.com/wk8/go-ordered-map v0.2.0
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
