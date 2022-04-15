@@ -1,12 +1,12 @@
 package ship
 
-type MsgType uint
+type MsgType byte
 
 const (
-	MsgTypeInit    MsgType = 0
-	MsgTypeControl MsgType = 1
-	MsgTypeData    MsgType = 1
-	MsgTypeEnd     MsgType = 2
+	MsgTypeInit    byte = 0
+	MsgTypeControl byte = 1
+	MsgTypeData    byte = 2
+	MsgTypeEnd     byte = 3
 )
 
 type ConnectionHelloPhaseType string

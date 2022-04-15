@@ -743,6 +743,14 @@ type FeatureSpecificUsageType FeatureSpecificUsageEnumType
 
 type FeatureSpecificUsageEnumType string
 
+const (
+// FeatureDirectControlSpecificUsageEnumType
+// FeatureHvacSpecificUsageEnumType
+// FeatureMeasurementSpecificUsageEnumType
+// FeatureSetpointSpecificUsageEnumType
+// FeatureSmartEnergyManagementPsSpecificUsageEnumType
+)
+
 type FeatureDirectControlSpecificUsageEnumType string
 
 const (
