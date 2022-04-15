@@ -111,7 +111,7 @@ func sendModel(ws *websocket.Conn, model interface{}) error {
 	fmt.Println("Send: ", string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
-	shipMsg := []byte{byte(ship.MsgTypeControl)}
+	shipMsg := []byte{ship.MsgTypeControl}
 	shipMsg = append(shipMsg, eebusMsg...)
 	err = ws.WriteMessage(websocket.BinaryMessage, shipMsg)
 	if err != nil {
@@ -161,7 +161,7 @@ func readModel[T any](ws *websocket.Conn, t T) (interface{}, error) {
 
 func shipHandshake(ws *websocket.Conn) error {
 	// CMI_STATE_CLIENT_SEND
-	shipInit := []byte{byte(ship.MsgTypeInit), 0x00}
+	shipInit := []byte{ship.MsgTypeInit, 0x00}
 
 	err := ws.WriteMessage(websocket.BinaryMessage, shipInit)
 	if err != nil {
@@ -175,7 +175,7 @@ func shipHandshake(ws *websocket.Conn) error {
 	}
 
 	// CMI_STATE_CLIENT_EVALUATE
-	if msg[0] != byte(ship.MsgTypeInit) {
+	if msg[0] != ship.MsgTypeInit {
 		log.Fatal("Expected init message")
 	}
 
