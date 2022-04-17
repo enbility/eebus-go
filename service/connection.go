@@ -62,12 +62,6 @@ func (c *ConnectionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// conn.SetCloseHandler(func(code int, text string) error {
-	// 	fmt.Println("Connection closed: ", code, text)
-	// 	c.shutdown()
-	// 	return nil
-	// })
-
 	c.conn = conn
 
 	// check if the client supports the ship sub protocol
