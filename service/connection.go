@@ -41,8 +41,6 @@ type ConnectionHandler struct {
 
 	conn *websocket.Conn
 
-	shipHandshakeComplete bool
-
 	readChannel chan []byte
 }
 
@@ -86,7 +84,6 @@ func (c *ConnectionHandler) startup() {
 			fmt.Println("SHIP handshake error: ", err)
 			c.shutdown()
 		}
-		c.shipHandshakeComplete = true
 	}()
 }
 
