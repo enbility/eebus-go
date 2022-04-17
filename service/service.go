@@ -1,11 +1,14 @@
 package service
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -15,6 +18,9 @@ import (
 
 const defaultPort int = 4711
 const shipWebsocketSubProtocol = "ship" // SHIP 10.2: sub protocol is required for websocket connections
+const shipWebsocketPath = "/ship/"
+const shipZeroConfServiceType = "_ship._tcp"
+const shipZeroConfDomain = "local."
 
 var ciperSuites = []uint16{
 	tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, // SHIP 9.1: required cipher suite
@@ -24,15 +30,46 @@ var ciperSuites = []uint16{
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSService struct {
-	ManufacturerData model.DeviceClassificationManufacturerDataType
-	DeviceType       model.DeviceTypeEnumType
-	Port             int
-	Certificate      tls.Certificate
+	// The brand of the device
+	DeviceBrand string
 
+	// The device model
+	DeviceModel string
+
+	// The EEBUS device type of the device model
+	DeviceType model.DeviceTypeType
+
+	// Serial number of the device
+	DeviceSerialNumber string
+
+	// The mDNS service identifier
+	// Optional, if not set will be  generated using "DeviceBrand-DeviceModel-DeviceSerialNumber"
+	DeviceIdentifier string
+
+	// Network interface to use for the service
+	// Optional, if not set all detected interfaces will be used
+	Interfaces []string
+
+	// The port address of the websocket server
+	Port int
+
+	// The certificate used for the service and its connections
+	Certificate tls.Certificate
+
+	// The service SKI
+	SKI string
+
+	// Wether remote devices should be automatically accepted
+	RemoteDeviceAutoAccept bool
+
+	// Connection Registrations
 	connectionsHub *ConnectionsHub
 
+	// The web server for handling incoming websocket connections
 	httpServer *http.Server
-	zc         *zeroconf.Server
+
+	// The zeroconf service for mDNS related tasks
+	zc *zeroconf.Server
 
 	// contains a websocket connection per connected SKI
 	connectedServices map[string]*websocket.Conn
@@ -44,11 +81,26 @@ func (s *EEBUSService) Start() {
 		s.Port = defaultPort
 	}
 
+	leaf, err := x509.ParseCertificate(s.Certificate.Certificate[0])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	ski, err := s.skiFromCertificate(leaf)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	s.SKI = ski
+
+	fmt.Println("Local SKI: ", ski)
+
 	s.connectionsHub = newConnectionsHub()
 	go s.connectionsHub.run()
 
 	go func() {
-		if err := s.startServer(); err != nil {
+		if err := s.startWebsocketServer(); err != nil {
 			fmt.Println("Error during websocket server starting: ", err)
 		}
 	}()
@@ -60,7 +112,7 @@ func (s *EEBUSService) Shutdown() {
 }
 
 // Connect to another EEBUS service
-func (s *EEBUSService) ConnectToService(host, port string) error {
+func (s *EEBUSService) connectToService(host, port string) error {
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 5 * time.Second,
@@ -108,7 +160,7 @@ func (s *EEBUSService) ConnectToService(host, port string) error {
 }
 
 // start the ship websocket server
-func (s *EEBUSService) startServer() error {
+func (s *EEBUSService) startWebsocketServer() error {
 	addr := fmt.Sprintf(":%d", s.Port)
 	fmt.Println("Starting websocket server on ", addr)
 
@@ -148,7 +200,7 @@ func (s *EEBUSService) startServer() error {
 	return nil
 }
 
-// Handling incoming connection requests
+// HTTP Server callback for handling incoming connection requests
 func (s *EEBUSService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  maxMessageSize,
@@ -186,7 +238,7 @@ func (s *EEBUSService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	connectionHandler := &ConnectionHandler{
 		Role:           ShipRoleServer,
 		ConnectionsHub: s.connectionsHub,
-		SKI:            fmt.Sprintf("%0x", ski),
+		SKI:            ski,
 	}
 
 	connectionHandler.handleConnection(conn)
@@ -200,4 +252,97 @@ func (s *EEBUSService) skiFromCertificate(cert *x509.Certificate) (string, error
 	}
 
 	return fmt.Sprintf("%0x", subjectKeyId), nil
+}
+
+// Announces the service to the network via mDNS
+// A CEM service should always invoke this on startup
+// Any other service should only invoke this when it is not connected to a CEM service and on startup
+func (s *EEBUSService) MdnsAnnounce() error {
+	var ifaces []net.Interface = nil
+	if len(s.Interfaces) > 0 {
+		ifaces = make([]net.Interface, len(s.Interfaces))
+		for i, iface := range s.Interfaces {
+			ifaceInt, err := net.InterfaceByName(iface)
+			if err != nil {
+				return err
+			}
+			ifaces[i] = *ifaceInt
+		}
+	}
+
+	serviceIdentifier := fmt.Sprintf("%s-%s-%s", s.DeviceBrand, s.DeviceModel, s.DeviceSerialNumber)
+	if len(s.DeviceIdentifier) > 0 {
+		serviceIdentifier = s.DeviceIdentifier
+	}
+
+	mDNSServer, err := zeroconf.Register(
+		serviceIdentifier,
+		shipZeroConfServiceType,
+		shipZeroConfDomain,
+		s.Port,
+		[]string{ // SHIP 7.3.2
+			"txtvers=1",
+			"path=" + shipWebsocketPath,
+			"id=" + serviceIdentifier,
+			"ski=" + s.SKI,
+			"brand=" + s.DeviceBrand,
+			"model=" + s.DeviceModel,
+			"type=" + string(s.DeviceType),
+			"register=" + fmt.Sprintf("%v", (s.RemoteDeviceAutoAccept == true)),
+		},
+		ifaces,
+	)
+
+	if err != nil {
+		return fmt.Errorf("mDNS: registration failed: %w", err)
+	}
+
+	s.zc = mDNSServer
+
+	return nil
+}
+
+// Stops the mDNS announcement on the network
+// A CEM service should only invoke this on the service shutdown
+// Any other service should invoke this always when it connected to a CEM and on shutdown
+func (s *EEBUSService) MdnsShutdown() {
+	if s.zc != nil {
+		s.zc.Shutdown()
+	}
+}
+
+func (s *EEBUSService) ConnectToSKI(ski string) error {
+	fmt.Println("Searching for ski: ", ski)
+
+	entries := make(chan *zeroconf.ServiceEntry)
+	go func(results <-chan *zeroconf.ServiceEntry) {
+		for entry := range results {
+			for _, typ := range entry.Text {
+				if typ == fmt.Sprintf("ski=%s", ski) {
+					fmt.Println("Service discovered: ", entry.ServiceInstanceName())
+
+					fmt.Printf("Connecting to %s:%d\n", entry.HostName, entry.Port)
+					s.connectToService(entry.HostName, strconv.Itoa(int(entry.Port)))
+					fmt.Printf("\n\n")
+				}
+			}
+		}
+		fmt.Println("No more entries.")
+	}(entries)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	defer cancel()
+
+	resolver, err := zeroconf.NewResolver(nil)
+	if err != nil {
+		return err
+	}
+
+	if err = resolver.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, entries); err != nil {
+		return err
+	}
+
+	<-ctx.Done()
+
+	return nil
 }

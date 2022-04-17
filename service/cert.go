@@ -8,13 +8,17 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"fmt"
 	"math/big"
 	"time"
 )
 
 // Create a ship compatible self signed certificate
-func CreateCertificate() (tls.Certificate, error) {
+// organizationalUnit is the OU of the certificate
+// organization is the O of the certificate
+// country is the C of the certificate
+// commonName is the CN of the certificate
+// Example for commonName: "deviceModel-deviceSerialNumber"
+func (s *EEBUSService) CreateCertificate(organizationalUnit, organization, country, commonName string) (tls.Certificate, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return tls.Certificate{}, err
@@ -28,18 +32,24 @@ func CreateCertificate() (tls.Certificate, error) {
 	// SHIP 12.2: Required to be created according to RFC 3280 4.2.1.2
 	ski := sha1.Sum(asn1)
 
-	skiString := fmt.Sprintf("%0x", ski)
-	fmt.Println("Local SKI: ", skiString)
-
 	subject := pkix.Name{
-		OrganizationalUnit: []string{"Demo"},
-		Organization:       []string{"Demo"},
-		Country:            []string{"DE"},
+		OrganizationalUnit: []string{organizationalUnit},
+		Organization:       []string{organization},
+		Country:            []string{country},
+		CommonName:         commonName,
+	}
+
+	// Create a random serial big int value
+	maxValue := new(big.Int)
+	maxValue.Exp(big.NewInt(2), big.NewInt(130), nil).Sub(maxValue, big.NewInt(1))
+	serialNumber, err := rand.Int(rand.Reader, maxValue)
+	if err != nil {
+		return tls.Certificate{}, err
 	}
 
 	template := x509.Certificate{
 		SignatureAlgorithm:    x509.ECDSAWithSHA256,
-		SerialNumber:          big.NewInt(1),
+		SerialNumber:          serialNumber,
 		Subject:               subject,
 		NotBefore:             time.Now(),                                // Valid starting now
 		NotAfter:              time.Now().Add(time.Hour * 24 * 365 * 10), // Valid for 10 years
