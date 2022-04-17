@@ -1,16 +1,10 @@
 package service
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/sha1"
 	"crypto/tls"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"errors"
 	"fmt"
-	"math/big"
 	"net/http"
 	"time"
 
@@ -94,10 +88,10 @@ func (s *EEBUSService) ConnectToService(host, port string) error {
 		return errors.New("Could not get remote SKI")
 	}
 
-	if len(remoteCerts[0].SubjectKeyId) != 20 {
+	if _, err := s.skiFromCertificate(remoteCerts[0]); err != nil {
 		// Close connection as the remote SKI can't be correct
 		conn.Close()
-		return errors.New("Remote SKI does not have the proper length")
+		return err
 	}
 
 	remoteSKI := fmt.Sprintf("%0x", remoteCerts[0].SubjectKeyId)
@@ -111,56 +105,6 @@ func (s *EEBUSService) ConnectToService(host, port string) error {
 	connectionHandler.handleConnection(conn)
 
 	return nil
-}
-
-// Create a ship compatible self signed certificate
-func CreateCertificate() (tls.Certificate, error) {
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-
-	// Create the EEBUS service SKI using the private key
-	asn1, err := x509.MarshalECPrivateKey(privateKey)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-	// SHIP 12.2: Required to be created according to RFC 3280 4.2.1.2
-	ski := sha1.Sum(asn1)
-
-	skiString := fmt.Sprintf("%0x", ski)
-	fmt.Println("Local SKI: ", skiString)
-
-	subject := pkix.Name{
-		OrganizationalUnit: []string{"Demo"},
-		Organization:       []string{"Demo"},
-		Country:            []string{"DE"},
-	}
-
-	template := x509.Certificate{
-		SignatureAlgorithm:    x509.ECDSAWithSHA256,
-		SerialNumber:          big.NewInt(1),
-		Subject:               subject,
-		NotBefore:             time.Now(),                                // Valid starting now
-		NotAfter:              time.Now().Add(time.Hour * 24 * 365 * 10), // Valid for 10 years
-		KeyUsage:              x509.KeyUsageDigitalSignature,
-		BasicConstraintsValid: true,
-		IsCA:                  true,
-		SubjectKeyId:          ski[:],
-	}
-
-	certBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-
-	tlsCertificate := tls.Certificate{
-		Certificate:                  [][]byte{certBytes},
-		PrivateKey:                   privateKey,
-		SupportedSignatureAlgorithms: []tls.SignatureScheme{tls.ECDSAWithP256AndSHA256},
-	}
-
-	return tlsCertificate, nil
 }
 
 // start the ship websocket server
@@ -183,7 +127,7 @@ func (s *EEBUSService) startServer() error {
 						return err
 					}
 
-					if len(cert.SubjectKeyId) == 20 {
+					if _, err := s.skiFromCertificate(cert); err == nil {
 						skiFound = true
 						break
 					}
@@ -233,17 +177,27 @@ func (s *EEBUSService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	subjectKeyId := r.TLS.PeerCertificates[0].SubjectKeyId
-	if len(subjectKeyId) == 0 {
-		fmt.Println("Client certificate does not provide a SKI")
+	ski, err := s.skiFromCertificate(r.TLS.PeerCertificates[0])
+	if err != nil {
+		fmt.Println(err)
 		conn.Close()
 	}
 
 	connectionHandler := &ConnectionHandler{
 		Role:           ShipRoleServer,
 		ConnectionsHub: s.connectionsHub,
-		SKI:            fmt.Sprintf("%0x", subjectKeyId),
+		SKI:            fmt.Sprintf("%0x", ski),
 	}
 
 	connectionHandler.handleConnection(conn)
+}
+
+func (s *EEBUSService) skiFromCertificate(cert *x509.Certificate) (string, error) {
+	// check if the clients certificate provides a SKI
+	subjectKeyId := cert.SubjectKeyId
+	if len(subjectKeyId) != 20 {
+		return "", errors.New("Client certificate does not provide a SKI")
+	}
+
+	return fmt.Sprintf("%0x", subjectKeyId), nil
 }
