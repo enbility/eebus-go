@@ -167,14 +167,10 @@ func CreateCertificate() (tls.Certificate, error) {
 func (s *EEBUSService) startServer() error {
 	addr := fmt.Sprintf(":%d", s.Port)
 	fmt.Println("Starting websocket server on ", addr)
-	connectionHandler := &ConnectionHandler{
-		Role:           ShipRoleServer,
-		ConnectionsHub: s.connectionsHub,
-	}
 
 	s.httpServer = &http.Server{
 		Addr:    addr,
-		Handler: connectionHandler,
+		Handler: s,
 		TLSConfig: &tls.Config{
 			Certificates: []tls.Certificate{s.Certificate},
 			ClientAuth:   tls.RequireAnyClientCert, // SHIP 9: Client authentication is required
@@ -206,4 +202,48 @@ func (s *EEBUSService) startServer() error {
 	}
 
 	return nil
+}
+
+// Handling incoming connection requests
+func (s *EEBUSService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  maxMessageSize,
+		WriteBufferSize: maxMessageSize,
+		CheckOrigin:     func(r *http.Request) bool { return true },
+		Subprotocols:    []string{shipWebsocketSubProtocol}, // SHIP 10.2: Sub protocol "ship" is required
+	}
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		fmt.Println("Error during connection upgrading: ", err)
+		return
+	}
+
+	// check if the client supports the ship sub protocol
+	if conn.Subprotocol() != shipWebsocketSubProtocol {
+		fmt.Println("Client does not support the ship sub protocol")
+		conn.Close()
+		return
+	}
+
+	// check if the clients certificate provides a SKI
+	if len(r.TLS.PeerCertificates) == 0 {
+		fmt.Println("Client does not provide a certificate")
+		conn.Close()
+		return
+	}
+
+	subjectKeyId := r.TLS.PeerCertificates[0].SubjectKeyId
+	if len(subjectKeyId) == 0 {
+		fmt.Println("Client certificate does not provide a SKI")
+		conn.Close()
+	}
+
+	connectionHandler := &ConnectionHandler{
+		Role:           ShipRoleServer,
+		ConnectionsHub: s.connectionsHub,
+		SKI:            fmt.Sprintf("%0x", subjectKeyId),
+	}
+
+	connectionHandler.handleConnection(conn)
 }

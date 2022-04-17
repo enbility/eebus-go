@@ -26,11 +26,14 @@ func (h *ConnectionsHub) run() {
 		case c := <-h.register:
 			h.connections[c.SKI] = c
 			fmt.Println("Connection registered: ", c.SKI)
+			fmt.Printf("Registered connections: %#v\n", h.connections)
 		case c := <-h.unregister:
+			fmt.Println("Connection unregistered: ", c.SKI)
 			if _, ok := h.connections[c.SKI]; ok {
 				delete(h.connections, c.SKI)
 				fmt.Println("Connection unregistered: ", c.SKI)
 			}
+			fmt.Printf("Remaining connections: %#v\n", h.connections)
 		}
 	}
 }

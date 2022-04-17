@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/ship"
@@ -45,56 +44,6 @@ type ConnectionHandler struct {
 	shipHandshakeComplete bool
 
 	readChannel chan []byte
-}
-
-// Handling incoming connection requests
-func (c *ConnectionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	upgrader := websocket.Upgrader{
-		ReadBufferSize:  maxMessageSize,
-		WriteBufferSize: maxMessageSize,
-		CheckOrigin:     func(r *http.Request) bool { return true },
-		Subprotocols:    []string{shipWebsocketSubProtocol}, // SHIP 10.2: Sub protocol "ship" is required
-	}
-
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Error during connection upgrading: ", err)
-		return
-	}
-
-	c.conn = conn
-
-	// check if the client supports the ship sub protocol
-	if conn.Subprotocol() != shipWebsocketSubProtocol {
-		fmt.Println("Client does not support the ship sub protocol")
-		c.shutdown()
-		return
-	}
-
-	// check if the clients certificate provides a SKI
-	if len(r.TLS.PeerCertificates) == 0 {
-		fmt.Println("Client does not provide a certificate")
-		c.shutdown()
-		return
-	}
-
-	subjectKeyId := r.TLS.PeerCertificates[0].SubjectKeyId
-	if len(subjectKeyId) == 0 {
-		fmt.Println("Client certificate does not provide a SKI")
-		c.shutdown()
-	}
-
-	c.SKI = fmt.Sprintf("%0x", subjectKeyId)
-
-	if c.ConnectionsHub.ConnectionForSKI(c.SKI) != nil {
-		fmt.Println("Client with SKI already connected")
-		c.shutdown()
-		return
-	}
-
-	c.ConnectionsHub.register <- c
-
-	c.startup()
 }
 
 // Connection handler when the service initiates a connection to a remote service
@@ -143,6 +92,8 @@ func (c *ConnectionHandler) startup() {
 
 // shutdown the connection and all internals
 func (c *ConnectionHandler) shutdown() {
+	fmt.Println("shutting down connection ", c.SKI)
+
 	if c.conn != nil {
 		fmt.Println("closing websocket connection")
 		c.conn.Close()
@@ -153,6 +104,7 @@ func (c *ConnectionHandler) shutdown() {
 		close(c.readChannel)
 	}
 
+	fmt.Println("unregistering connection")
 	c.ConnectionsHub.unregister <- c
 }
 
