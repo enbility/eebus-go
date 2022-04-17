@@ -94,6 +94,12 @@ func (s *EEBUSService) ConnectToService(host, port string) error {
 		return errors.New("Could not get remote SKI")
 	}
 
+	if len(remoteCerts[0].SubjectKeyId) != 20 {
+		// Close connection as the remote SKI can't be correct
+		conn.Close()
+		return errors.New("Remote SKI does not have the proper length")
+	}
+
 	remoteSKI := fmt.Sprintf("%0x", remoteCerts[0].SubjectKeyId)
 
 	connectionHandler := &ConnectionHandler{
@@ -102,7 +108,7 @@ func (s *EEBUSService) ConnectToService(host, port string) error {
 		ConnectionsHub: s.connectionsHub,
 	}
 
-	connectionHandler.HandleConnection(conn)
+	connectionHandler.handleConnection(conn)
 
 	return nil
 }

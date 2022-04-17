@@ -104,10 +104,10 @@ func (c *ConnectionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Connection handler when the service initiates a connection to a remote service
-func (c *ConnectionHandler) HandleConnection(conn *websocket.Conn) {
+func (c *ConnectionHandler) handleConnection(conn *websocket.Conn) {
 	c.conn = conn
 
-	if len(c.SKI) != 40 {
+	if len(c.SKI) == 0 {
 		fmt.Println("SKI is not set")
 		c.shutdown()
 		return
