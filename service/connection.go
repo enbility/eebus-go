@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/service/util"
 	"github.com/DerAndereAndi/eebus-go/ship"
 	"github.com/gorilla/websocket"
 )
@@ -183,7 +184,7 @@ func (c *ConnectionHandler) sendModel(model interface{}) error {
 		return err
 	}
 
-	eebusMsg, err := c.jsonIntoEEBUSJson(msg)
+	eebusMsg, err := util.JsonIntoEEBUSJson(msg)
 	if err != nil {
 		return err
 	}
@@ -216,7 +217,7 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	}
 
 	if jsonFormat {
-		return shipHeaderByte, c.jsonFromEEBUSJson(msg)
+		return shipHeaderByte, util.JsonFromEEBUSJson(msg)
 	}
 
 	return shipHeaderByte, msg

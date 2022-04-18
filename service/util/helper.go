@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	ordered "gitlab.com/c0b/go-ordered-json"
+	"gitlab.com/c0b/go-ordered-json"
 )
 
-// process incoming json strings and transform it to match the model structure
+// convert incoming EEBUS json format into standard json format
 func JsonFromEEBUSJson(json []byte) []byte {
 	var result = bytes.ReplaceAll(json, []byte("[{"), []byte("{"))
 	result = bytes.ReplaceAll(result, []byte("},{"), []byte(","))
@@ -49,6 +49,7 @@ func process_eebus_json_hierarchie_level(data interface{}) interface{} {
 	}
 }
 
+// convert json into the EEBUS json format
 func JsonIntoEEBUSJson(data []byte) (string, error) {
 	// EEBUS defines the items to be ordered in the array,
 	// so we can't use map[string]interface{} as that would
