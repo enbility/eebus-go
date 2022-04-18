@@ -242,6 +242,7 @@ func (s *EEBUSService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	connectionHandler := &ConnectionHandler{
 		Role:           ShipRoleServer,
 		ConnectionsHub: s.connectionsHub,
+		ShipID:         s.DeviceIdentifier,
 		SKI:            ski,
 	}
 
