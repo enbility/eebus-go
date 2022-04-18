@@ -139,6 +139,10 @@ const (
 	ConnectionCloseReasonTypeRemovedconnection ConnectionCloseReasonType = "removedConnection"
 )
 
+type ConnectionClose struct {
+	ConnectionClose ConnectionCloseType `json:"connectionClose"`
+}
+
 type ConnectionCloseType struct {
 	Phase   ConnectionClosePhaseType   `json:"phase"`
 	MaxTime *uint                      `json:"maxTime,omitempty"`

@@ -108,7 +108,10 @@ func (s *EEBUSService) Start() {
 
 // Shutdown all services and stop the server.
 func (s *EEBUSService) Shutdown() {
-	s.zc.Shutdown()
+	s.MdnsShutdown()
+
+	// Shut down all running connections
+	s.connectionsHub.Shutdown()
 }
 
 // Connect to another EEBUS service

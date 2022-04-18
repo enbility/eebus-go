@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
@@ -17,6 +18,7 @@ type ShipRole uint
 const (
 	writeWait               = 10 * time.Second
 	cmiTimeout              = 10 * time.Second // SHIP 4.2
+	cmiCloseTimeout         = 100 * time.Millisecond
 	tHelloInit              = 60 * time.Second
 	tHelloProlongThrInc     = 30 * time.Second
 	tHelloProlongWaitingGap = 15 * time.Second
@@ -54,6 +56,11 @@ type ConnectionHandler struct {
 	// The read channel for incoming messages
 	readChannel chan []byte
 
+	// The shutdown channel
+	shutdownChannel chan struct{}
+
+	shutdownMux sync.Mutex
+
 	// Indicates wether the ship handshake has been completed
 	shipHandshakeComplete bool
 }
@@ -89,6 +96,7 @@ func (c *ConnectionHandler) skiFromX509Certificate(cert *x509.Certificate) (stri
 
 func (c *ConnectionHandler) startup() {
 	c.readChannel = make(chan []byte, 1) // Listen to incoming websocket messages
+	c.shutdownChannel = make(chan struct{})
 
 	go c.readPump()
 
@@ -98,14 +106,35 @@ func (c *ConnectionHandler) startup() {
 			fmt.Println("SHIP handshake error: ", err)
 			c.shutdown()
 		}
+		if !c.shipHandshakeComplete {
+			return
+		}
+
+		for {
+			select {
+			case <-c.shutdownChannel:
+				return
+			case message := <-c.readChannel:
+				_, _ = c.parseMessage(message, true)
+			}
+		}
 	}()
 }
 
 // shutdown the connection and all internals
 func (c *ConnectionHandler) shutdown() {
+	c.shutdownMux.Lock()
+	defer c.shutdownMux.Unlock()
+
 	fmt.Println("shutting down connection ", c.SKI)
 
+	c.shutdownChannel <- struct{}{}
+
 	if c.conn != nil {
+		// close the SHIP connection according to the SHIP protocol
+		fmt.Println("closing SHIP")
+		c.shipClose()
+
 		fmt.Println("closing websocket connection")
 		c.conn.Close()
 	}
@@ -117,6 +146,21 @@ func (c *ConnectionHandler) shutdown() {
 
 	fmt.Println("unregistering connection")
 	c.ConnectionsHub.unregister <- c
+}
+
+func (c *ConnectionHandler) shipClose() {
+	if c.conn == nil {
+		return
+	}
+
+	// SHIP 13.4.7: Connection Termination
+	closeMessage := ship.ConnectionClose{
+		ConnectionClose: ship.ConnectionCloseType{
+			Phase: ship.ConnectionClosePhaseTypeAnnounce,
+		},
+	}
+
+	_ = c.sendModel(closeMessage)
 }
 
 func isChannelClosed[T any](ch <-chan T) bool {
@@ -139,13 +183,18 @@ func (c *ConnectionHandler) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	for {
-		message, err := c.readWebsocketMessage()
-		if err != nil {
-			fmt.Println("Error reading message: ", err)
-			break
-		}
+		select {
+		case <-c.shutdownChannel:
+			return
+		default:
+			message, err := c.readWebsocketMessage()
+			if err != nil {
+				fmt.Println("Error reading message: ", err)
+				break
+			}
 
-		c.readChannel <- message
+			c.readChannel <- message
+		}
 	}
 }
 

@@ -35,6 +35,14 @@ func (h *ConnectionsHub) run() {
 	}
 }
 
+// return the connection for a specific SKI
 func (h *ConnectionsHub) ConnectionForSKI(ski string) *ConnectionHandler {
 	return h.connections[ski]
+}
+
+// close all connections
+func (h *ConnectionsHub) Shutdown() {
+	for _, c := range h.connections {
+		c.shutdown()
+	}
 }
