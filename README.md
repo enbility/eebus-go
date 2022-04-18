@@ -8,16 +8,25 @@ This repository contains:
 
 - adoptions of the SPINE and SHIP EEBUS model definitions, there are likely issues and some models are not 100% correct
 - (De-)serialization for EEBUS specific JSON format requirements
+- Certificate support incl. creating a compatible cert and key
+- mDNS Support (announcement and connecting to an announced SKI)
 - ... work in progress
 
 ## Usage
 
+### HEMS
+
 ```sh
-Usage: go run cmd/prototype/main.go <command>
-Commands:
-  browse
-  connect <host> <port>
+Usage: go run cmd/hems/main.go <serverport> <certfile> <keyfile>
 ```
 
-- `browse` will search mdns for EEBUS services and try to connect to them
-- `connect` will connect to a specific EEBUS service by provide a host/ip adress and port address
+If no certfile or keyfile are provided, they are generated and printed in the console so they can be saved in a file and later used again. The SKI is also printed.
+
+### EVSE
+
+```sh
+Usage: go run cmd/evse/main.go <serverport> <remoteski> <certfile> <keyfile>
+```
+
+The remote SKI is the SKI of the running HEMS it should connect to.
+If no certfile or keyfile are provided, they are generated and printed in the console so they can be saved in a file and later used again. The local SKI is also printed.
