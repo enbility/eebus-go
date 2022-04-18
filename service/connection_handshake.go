@@ -33,12 +33,6 @@ func (c *ConnectionHandler) shipHandshake() error {
 
 	c.shipHandshakeComplete = true
 
-	for {
-		if _, err := c.readNextMessage(cmiTimeout); err != nil {
-			break
-		}
-	}
-
 	return nil
 }
 
