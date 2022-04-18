@@ -206,6 +206,8 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 	}
 
 	fmt.Println("Got protocol handshake")
+	c.shipHandshakeComplete = true
+
 	return nil
 }
 

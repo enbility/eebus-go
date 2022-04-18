@@ -36,13 +36,23 @@ const (
 
 // A ConnectionHandler handles websocket connections.
 type ConnectionHandler struct {
-	Role           ShipRole
-	SKI            string
+	// The ship connection mode of this connection
+	Role ShipRole
+
+	// The remote SKI
+	SKI string
+
+	// The connection hub handling all service connections
 	ConnectionsHub *ConnectionsHub
 
+	// The actual websocket connection
 	conn *websocket.Conn
 
+	// The read channel for incoming messages
 	readChannel chan []byte
+
+	// Indicates wether the ship handshake has been completed
+	shipHandshakeComplete bool
 }
 
 // Connection handler when the service initiates a connection to a remote service
