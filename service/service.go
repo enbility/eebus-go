@@ -151,6 +151,7 @@ func (s *EEBUSService) connectToService(host, port string) error {
 	connectionHandler := &ConnectionHandler{
 		Role:           ShipRoleClient,
 		SKI:            remoteSKI,
+		ShipID:         s.DeviceIdentifier,
 		ConnectionsHub: s.connectionsHub,
 	}
 

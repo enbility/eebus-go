@@ -289,7 +289,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 
 		if strings.Contains(dataString, "\"accessMethodsRequest\":{") {
 			fmt.Println("Got access methods request")
-			methodsId := "Test"
+			methodsId := c.ShipID
 
 			accessMethods := ship.AccessMethods{
 				AccessMethods: ship.AccessMethodsType{
@@ -300,6 +300,8 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 				return err
 			}
 		} else if strings.Contains(dataString, "\"accessMethods\":{") {
+			// TODO: compare SHIP ID to stored value on pairing. SKI + SHIP ID should be verified on connection
+			// otherwise close connection with error "close 4450: SHIP id mismatch"
 			fmt.Println("Got access methods")
 			break
 		} else {

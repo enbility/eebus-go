@@ -42,6 +42,9 @@ type ConnectionHandler struct {
 	// The remote SKI
 	SKI string
 
+	// The ship ID
+	ShipID string
+
 	// The connection hub handling all service connections
 	ConnectionsHub *ConnectionsHub
 
