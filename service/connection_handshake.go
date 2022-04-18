@@ -33,6 +33,12 @@ func (c *ConnectionHandler) shipHandshake() error {
 
 	c.shipHandshakeComplete = true
 
+	for {
+		if _, err := c.readNextMessage(cmiTimeout); err != nil {
+			break
+		}
+	}
+
 	return nil
 }
 
@@ -199,6 +205,10 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 		protocolHandshake = ship.MessageProtocolHandshake{
 			MessageProtocolHandshake: ship.MessageProtocolHandshakeType{
 				HandshakeType: ship.ProtocolHandshakeTypeTypeSelect,
+				Version:       ship.Version{Major: 1, Minor: 0},
+				Formats: ship.MessageProtocolFormatsType{
+					Format: []ship.MessageProtocolFormatType{ship.MessageProtocolFormatTypeUTF8},
+				},
 			},
 		}
 		if err = c.sendModel(protocolHandshake); err != nil {
