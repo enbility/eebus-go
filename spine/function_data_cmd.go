@@ -5,14 +5,26 @@ import (
 	"github.com/DerAndereAndi/eebus-go/util"
 )
 
+type FunctionDataCmd interface {
+	FunctionData
+	ReadCmdType() model.CmdType
+	ReplyCmdType() model.CmdType
+	NotifyCmdType(partial bool) model.CmdType
+	AddPendingRequest(counter model.MsgCounterType, requestChannel any)
+	HandleReply(counter model.MsgCounterType, data any)
+}
+
+var _ FunctionDataCmd = (*FunctionDataCmdImpl[int])(nil)
+
 type FunctionDataCmdImpl[T any] struct {
 	*FunctionDataImpl[T]
-	pendingRequests PendingRequests[T]
+	pendingRequests PendingRequests[*T]
 }
 
 func NewFunctionDataCmd[T any](function model.FunctionEnumType) *FunctionDataCmdImpl[T] {
 	return &FunctionDataCmdImpl[T]{
 		FunctionDataImpl: NewFunctionData[T](function),
+		pendingRequests:  make(PendingRequests[*T]),
 	}
 }
 
@@ -33,8 +45,12 @@ func (r *FunctionDataCmdImpl[T]) NotifyCmdType(partial bool) model.CmdType {
 	return cmd
 }
 
-func (r *FunctionDataCmdImpl[T]) PendingRequest() PendingRequests[T] {
-	return r.pendingRequests
+func (r *FunctionDataCmdImpl[T]) AddPendingRequest(counter model.MsgCounterType, requestChannel any) {
+	r.pendingRequests.Add(counter, requestChannel.(chan *T))
+}
+
+func (r *FunctionDataCmdImpl[T]) HandleReply(counter model.MsgCounterType, data any) {
+	r.pendingRequests.Handle(counter, data.(*T))
 }
 
 func filterType(partial bool) []model.FilterType {
@@ -50,6 +66,7 @@ func createCmd[T any](function model.FunctionEnumType, data *T) model.CmdType {
 	switch function {
 	case model.FunctionEnumTypeDeviceClassificationManufacturerData:
 		result.DeviceClassificationManufacturerData = castData[model.DeviceClassificationManufacturerDataType](data)
+		// add more model types here
 	}
 
 	return result

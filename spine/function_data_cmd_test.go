@@ -29,14 +29,14 @@ func (suite *FunctionDataCmdTestSuite) SetupSuite() {
 	suite.sut.SetData(suite.data)
 }
 
-func (suite *FunctionDataCmdTestSuite) TestFunctionDataLocal_ReadCmd() {
+func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_ReadCmd() {
 	readCmd := suite.sut.ReadCmdType()
 	assert.NotNil(suite.T(), readCmd.DeviceClassificationManufacturerData)
 	assert.Nil(suite.T(), readCmd.DeviceClassificationManufacturerData.DeviceName)
 	// TODO: assert on json
 }
 
-func (suite *FunctionDataCmdTestSuite) TestFunctionDataLocal_ReplyCmd() {
+func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_ReplyCmd() {
 	readCmd := suite.sut.ReplyCmdType()
 	assert.NotNil(suite.T(), readCmd.DeviceClassificationManufacturerData)
 	assert.Equal(suite.T(), suite.data.DeviceName, readCmd.DeviceClassificationManufacturerData.DeviceName)
@@ -44,3 +44,14 @@ func (suite *FunctionDataCmdTestSuite) TestFunctionDataLocal_ReplyCmd() {
 }
 
 // TODO: test NotifyCmdType
+
+func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_PendingRequest() {
+	counter := model.MsgCounterType(1)
+	requestChannel := make(chan *model.DeviceClassificationManufacturerDataType)
+	suite.sut.AddPendingRequest(counter, requestChannel)
+	go suite.sut.HandleReply(counter, suite.sut.data)
+
+	receivedData := <-requestChannel
+
+	assert.Equal(suite.T(), suite.data.DeviceName, receivedData.DeviceName)
+}
