@@ -21,7 +21,7 @@ type FunctionDataCmdImpl[T any] struct {
 	pendingRequests PendingRequests[*T]
 }
 
-func NewFunctionDataCmd[T any](function model.FunctionEnumType) *FunctionDataCmdImpl[T] {
+func NewFunctionDataCmd[T any](function model.FunctionType) *FunctionDataCmdImpl[T] {
 	return &FunctionDataCmdImpl[T]{
 		FunctionDataImpl: NewFunctionData[T](function),
 		pendingRequests:  make(PendingRequests[*T]),
@@ -60,11 +60,11 @@ func filterType(partial bool) []model.FilterType {
 	return nil
 }
 
-func createCmd[T any](function model.FunctionEnumType, data *T) model.CmdType {
+func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 	result := model.CmdType{}
 
 	switch function {
-	case model.FunctionEnumTypeDeviceClassificationManufacturerData:
+	case model.FunctionTypeDeviceClassificationManufacturerData:
 		result.DeviceClassificationManufacturerData = castData[model.DeviceClassificationManufacturerDataType](data)
 		// add more model types here
 	}

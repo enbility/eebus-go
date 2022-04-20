@@ -15,13 +15,13 @@ func TestFunctionDataCmdSuite(t *testing.T) {
 
 type FunctionDataCmdTestSuite struct {
 	suite.Suite
-	function model.FunctionEnumType
+	function model.FunctionType
 	data     *model.DeviceClassificationManufacturerDataType
 	sut      *FunctionDataCmdImpl[model.DeviceClassificationManufacturerDataType]
 }
 
 func (suite *FunctionDataCmdTestSuite) SetupSuite() {
-	suite.function = model.FunctionEnumTypeDeviceClassificationManufacturerData
+	suite.function = model.FunctionTypeDeviceClassificationManufacturerData
 	suite.data = &model.DeviceClassificationManufacturerDataType{
 		DeviceName: util.Ptr(model.DeviceClassificationStringType("device name")),
 	}

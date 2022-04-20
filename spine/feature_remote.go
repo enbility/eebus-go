@@ -7,12 +7,12 @@ import (
 )
 
 type FeatureRemoteImpl struct {
-	functionDataMap map[model.FunctionEnumType]FunctionData
+	functionDataMap map[model.FunctionType]FunctionData
 }
 
-func NewFeatureRemoteImpl(ftype model.FeatureTypeEnumType) *FeatureRemoteImpl {
+func NewFeatureRemoteImpl(ftype model.FeatureTypeType) *FeatureRemoteImpl {
 	result := &FeatureRemoteImpl{
-		functionDataMap: make(map[model.FunctionEnumType]FunctionData),
+		functionDataMap: make(map[model.FunctionType]FunctionData),
 	}
 	for _, fd := range CreateFunctionData[FunctionData](ftype) {
 		result.functionDataMap[fd.Function()] = fd
@@ -21,17 +21,17 @@ func NewFeatureRemoteImpl(ftype model.FeatureTypeEnumType) *FeatureRemoteImpl {
 	return result
 }
 
-func (r *FeatureRemoteImpl) Data(function model.FunctionEnumType) any {
+func (r *FeatureRemoteImpl) Data(function model.FunctionType) any {
 	return r.functionData(function).DataAny()
 }
 
-func (r *FeatureRemoteImpl) SetData(function model.FunctionEnumType, data any) {
+func (r *FeatureRemoteImpl) SetData(function model.FunctionType, data any) {
 	r.functionData(function).SetDataAny(data)
 
 	// TODO: fire event
 }
 
-func (r *FeatureRemoteImpl) functionData(function model.FunctionEnumType) FunctionData {
+func (r *FeatureRemoteImpl) functionData(function model.FunctionType) FunctionData {
 	fd, found := r.functionDataMap[function]
 	if !found {
 		panic(fmt.Errorf("Data was not found for function '%s'", function))

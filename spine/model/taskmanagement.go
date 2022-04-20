@@ -11,14 +11,12 @@ const (
 // PowerSequenceStateEnumType
 )
 
-type TaskManagementJobSourceType TaskManagementJobSourceEnumType
-
-type TaskManagementJobSourceEnumType string
+type TaskManagementJobSourceType string
 
 const (
-	TaskManagementJobSourceEnumTypeInternalMechanism     TaskManagementJobSourceEnumType = "InternalMechanism"
-	TaskManagementJobSourceEnumTypeUserInteraction       TaskManagementJobSourceEnumType = "UserInteraction"
-	TaskManagementJobSourceEnumTypeExternalConfiguration TaskManagementJobSourceEnumType = "ExternalConfiguration"
+	TaskManagementJobSourceTypeInternalMechanism     TaskManagementJobSourceType = "InternalMechanism"
+	TaskManagementJobSourceTypeUserInteraction       TaskManagementJobSourceType = "UserInteraction"
+	TaskManagementJobSourceTypeExternalConfiguration TaskManagementJobSourceType = "ExternalConfiguration"
 )
 
 type TaskManagementDirectControlRelatedType struct{}

@@ -3,7 +3,7 @@ package spine
 import "github.com/DerAndereAndi/eebus-go/spine/model"
 
 type FunctionData interface {
-	Function() model.FunctionEnumType
+	Function() model.FunctionType
 	DataAny() any
 	SetDataAny(data any)
 }
@@ -11,17 +11,17 @@ type FunctionData interface {
 var _ FunctionData = (*FunctionDataImpl[int])(nil)
 
 type FunctionDataImpl[T any] struct {
-	functionType model.FunctionEnumType
+	functionType model.FunctionType
 	data         *T
 }
 
-func NewFunctionData[T any](function model.FunctionEnumType) *FunctionDataImpl[T] {
+func NewFunctionData[T any](function model.FunctionType) *FunctionDataImpl[T] {
 	return &FunctionDataImpl[T]{
 		functionType: function,
 	}
 }
 
-func (r *FunctionDataImpl[T]) Function() model.FunctionEnumType {
+func (r *FunctionDataImpl[T]) Function() model.FunctionType {
 	return r.functionType
 }
 

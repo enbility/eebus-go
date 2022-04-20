@@ -8,10 +8,10 @@ import (
 )
 
 // TODO: move to separate file
-func mapCmdToFunction(cmd model.CmdType) (*model.FunctionEnumType, any, error) {
+func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, error) {
 	switch {
 	case cmd.DeviceClassificationManufacturerData != nil:
-		return util.Ptr(model.FunctionEnumTypeDeviceClassificationManufacturerData), cmd.DeviceClassificationManufacturerData, nil
+		return util.Ptr(model.FunctionTypeDeviceClassificationManufacturerData), cmd.DeviceClassificationManufacturerData, nil
 	}
 	return nil, nil, fmt.Errorf("Function not found for cmd")
 }
@@ -19,14 +19,14 @@ func mapCmdToFunction(cmd model.CmdType) (*model.FunctionEnumType, any, error) {
 type FeatureLocalImpl struct {
 	address         *model.FeatureAddressType
 	sender          Sender
-	functionDataMap map[model.FunctionEnumType]FunctionDataCmd
+	functionDataMap map[model.FunctionType]FunctionDataCmd
 }
 
-func NewFeatureLocalImpl(address *model.FeatureAddressType, ftype model.FeatureTypeEnumType, sender Sender) *FeatureLocalImpl {
+func NewFeatureLocalImpl(address *model.FeatureAddressType, ftype model.FeatureTypeType, sender Sender) *FeatureLocalImpl {
 	result := &FeatureLocalImpl{
 		address:         address,
 		sender:          sender,
-		functionDataMap: make(map[model.FunctionEnumType]FunctionDataCmd),
+		functionDataMap: make(map[model.FunctionType]FunctionDataCmd),
 	}
 	for _, fd := range CreateFunctionData[FunctionDataCmd](ftype) {
 		result.functionDataMap[fd.Function()] = fd
@@ -39,7 +39,7 @@ func (r *FeatureLocalImpl) Address() *model.FeatureAddressType {
 	return r.address
 }
 
-func (r *FeatureLocalImpl) SetData(function model.FunctionEnumType, data any) {
+func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
 	fd := r.functionData(function)
 	fd.SetDataAny(data)
 
@@ -47,12 +47,12 @@ func (r *FeatureLocalImpl) SetData(function model.FunctionEnumType, data any) {
 	//f.NotifySubscribers([]model.CmdType{fd.NotifyCmdType(false)})
 }
 
-func (r *FeatureLocalImpl) Data(function model.FunctionEnumType) any {
+func (r *FeatureLocalImpl) Data(function model.FunctionType) any {
 	return r.functionData(function).DataAny()
 }
 
 func (r *FeatureLocalImpl) RequestData(
-	function model.FunctionEnumType,
+	function model.FunctionType,
 	destination *model.FeatureAddressType,
 	requestChannel any) (*model.MsgCounterType, error) {
 
@@ -99,20 +99,20 @@ func (r *FeatureLocalImpl) processResult(cmdClassifier model.CmdClassifierType) 
 	}
 }
 
-func (r *FeatureLocalImpl) processRead(function model.FunctionEnumType, requestHeader *model.HeaderType) error {
+func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType) error {
 	cmd := r.functionData(function).ReplyCmdType()
 	err := r.sender.Reply(requestHeader, r.Address(), cmd)
 
 	return err
 }
 
-func (r *FeatureLocalImpl) processReply(function model.FunctionEnumType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
+func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
 	featureRemote.SetData(function, data)
 	r.functionData(function).HandleReply(*requestHeader.MsgCounter, data)
 	return nil
 }
 
-func (r *FeatureLocalImpl) functionData(function model.FunctionEnumType) FunctionDataCmd {
+func (r *FeatureLocalImpl) functionData(function model.FunctionType) FunctionDataCmd {
 	fd, found := r.functionDataMap[function]
 	if !found {
 		panic(fmt.Errorf("Data was not found for function '%s'", function))

@@ -6,14 +6,12 @@ type TimeSeriesSlotIdType uint
 
 type TimeSeriesSlotCountType TimeSeriesSlotIdType
 
-type TimeSeriesTypeType TimeSeriesTypeEnumType
-
-type TimeSeriesTypeEnumType string
+type TimeSeriesTypeType string
 
 const (
-	TimeSeriesTypeEnumTypePlan         TimeSeriesTypeEnumType = "plan"
-	TimeSeriesTypeEnumTypeSingleDemand TimeSeriesTypeEnumType = "singleDemand"
-	TimeSeriesTypeEnumTypeConstraints  TimeSeriesTypeEnumType = "constraints"
+	TimeSeriesTypeTypePlan         TimeSeriesTypeType = "plan"
+	TimeSeriesTypeTypeSingleDemand TimeSeriesTypeType = "singleDemand"
+	TimeSeriesTypeTypeConstraints  TimeSeriesTypeType = "constraints"
 )
 
 type TimeSeriesSlotType struct {

@@ -2,13 +2,11 @@ package model
 
 type SetpointIdType uint
 
-type SetpointTypeType SetpointTypeEnumType
-
-type SetpointTypeEnumType string
+type SetpointTypeType string
 
 const (
-	SetpointTypeEnumTypeValueAbsolute SetpointTypeEnumType = "valueAbsolute"
-	SetpointTypeEnumTypeValueRelative SetpointTypeEnumType = "valueRelative"
+	SetpointTypeTypeValueAbsolute SetpointTypeType = "valueAbsolute"
+	SetpointTypeTypeValueRelative SetpointTypeType = "valueRelative"
 )
 
 type SetpointDataType struct {

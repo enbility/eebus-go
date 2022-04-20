@@ -2,58 +2,50 @@ package model
 
 type HvacSystemFunctionIdType uint
 
-type HvacSystemFunctionTypeType HvacSystemFunctionTypeEnumType
-
-type HvacSystemFunctionTypeEnumType string
+type HvacSystemFunctionTypeType string
 
 const (
-	HvacSystemFunctionTypeEnumTypeHeating     HvacSystemFunctionTypeEnumType = "heating"
-	HvacSystemFunctionTypeEnumTypeCooling     HvacSystemFunctionTypeEnumType = "cooling"
-	HvacSystemFunctionTypeEnumTypeVentilation HvacSystemFunctionTypeEnumType = "ventilation"
-	HvacSystemFunctionTypeEnumTypeDhw         HvacSystemFunctionTypeEnumType = "dhw"
+	HvacSystemFunctionTypeTypeHeating     HvacSystemFunctionTypeType = "heating"
+	HvacSystemFunctionTypeTypeCooling     HvacSystemFunctionTypeType = "cooling"
+	HvacSystemFunctionTypeTypeVentilation HvacSystemFunctionTypeType = "ventilation"
+	HvacSystemFunctionTypeTypeDhw         HvacSystemFunctionTypeType = "dhw"
 )
 
 type HvacOperationModeIdType uint
 
-type HvacOperationModeTypeType HvacOperationModeTypeEnumType
-
-type HvacOperationModeTypeEnumType string
+type HvacOperationModeTypeType string
 
 const (
-	HvacOperationModeTypeEnumTypeAuto HvacOperationModeTypeEnumType = "auto"
-	HvacOperationModeTypeEnumTypeOn   HvacOperationModeTypeEnumType = "on"
-	HvacOperationModeTypeEnumTypeOff  HvacOperationModeTypeEnumType = "off"
-	HvacOperationModeTypeEnumTypeEco  HvacOperationModeTypeEnumType = "eco"
+	HvacOperationModeTypeTypeAuto HvacOperationModeTypeType = "auto"
+	HvacOperationModeTypeTypeOn   HvacOperationModeTypeType = "on"
+	HvacOperationModeTypeTypeOff  HvacOperationModeTypeType = "off"
+	HvacOperationModeTypeTypeEco  HvacOperationModeTypeType = "eco"
 )
 
 type HvacOverrunIdType uint
 
-type HvacOverrunTypeType HvacOverrunTypeEnumType
-
-type HvacOverrunTypeEnumType string
+type HvacOverrunTypeType string
 
 const (
-	HvacOverrunTypeEnumTypeOneTimeDhw         HvacOverrunTypeEnumType = "oneTimeDhw"
-	HvacOverrunTypeEnumTypeParty              HvacOverrunTypeEnumType = "party"
-	HvacOverrunTypeEnumTypeSgReadyCondition1  HvacOverrunTypeEnumType = "sgReadyCondition1"
-	HvacOverrunTypeEnumTypeSgReadyCondition3  HvacOverrunTypeEnumType = "sgReadyCondition3"
-	HvacOverrunTypeEnumTypeSgReadyCondition4  HvacOverrunTypeEnumType = "sgReadyCondition4"
-	HvacOverrunTypeEnumTypeOneDayAway         HvacOverrunTypeEnumType = "oneDayAway"
-	HvacOverrunTypeEnumTypeOneDayAtHome       HvacOverrunTypeEnumType = "oneDayAtHome"
-	HvacOverrunTypeEnumTypeOneTimeVentilation HvacOverrunTypeEnumType = "oneTimeVentilation"
-	HvacOverrunTypeEnumTypeHvacSystemOff      HvacOverrunTypeEnumType = "hvacSystemOff"
-	HvacOverrunTypeEnumTypeValveKick          HvacOverrunTypeEnumType = "valveKick"
+	HvacOverrunTypeTypeOneTimeDhw         HvacOverrunTypeType = "oneTimeDhw"
+	HvacOverrunTypeTypeParty              HvacOverrunTypeType = "party"
+	HvacOverrunTypeTypeSgReadyCondition1  HvacOverrunTypeType = "sgReadyCondition1"
+	HvacOverrunTypeTypeSgReadyCondition3  HvacOverrunTypeType = "sgReadyCondition3"
+	HvacOverrunTypeTypeSgReadyCondition4  HvacOverrunTypeType = "sgReadyCondition4"
+	HvacOverrunTypeTypeOneDayAway         HvacOverrunTypeType = "oneDayAway"
+	HvacOverrunTypeTypeOneDayAtHome       HvacOverrunTypeType = "oneDayAtHome"
+	HvacOverrunTypeTypeOneTimeVentilation HvacOverrunTypeType = "oneTimeVentilation"
+	HvacOverrunTypeTypeHvacSystemOff      HvacOverrunTypeType = "hvacSystemOff"
+	HvacOverrunTypeTypeValveKick          HvacOverrunTypeType = "valveKick"
 )
 
-type HvacOverrunStatusType HvacOverrunStatusEnumType
-
-type HvacOverrunStatusEnumType string
+type HvacOverrunStatusType string
 
 const (
-	HvacOverrunStatusEnumTypeActive   HvacOverrunStatusEnumType = "active"
-	HvacOverrunStatusEnumTypeRunning  HvacOverrunStatusEnumType = "running"
-	HvacOverrunStatusEnumTypeFinished HvacOverrunStatusEnumType = "finished"
-	HvacOverrunStatusEnumTypeInactive HvacOverrunStatusEnumType = "inactive"
+	HvacOverrunStatusTypeActive   HvacOverrunStatusType = "active"
+	HvacOverrunStatusTypeRunning  HvacOverrunStatusType = "running"
+	HvacOverrunStatusTypeFinished HvacOverrunStatusType = "finished"
+	HvacOverrunStatusTypeInactive HvacOverrunStatusType = "inactive"
 )
 
 type HvacSystemFunctionDataType struct {

@@ -12,8 +12,8 @@ import (
 )
 
 func TestDeviceClassification_Request(t *testing.T) {
-	featureType := model.FeatureTypeEnumTypeDeviceClassification
-	function := model.FunctionEnumTypeDeviceClassificationManufacturerData
+	featureType := model.FeatureTypeTypeDeviceClassification
+	function := model.FunctionTypeDeviceClassificationManufacturerData
 
 	senderMock := new(mocks.Sender)
 	msgCounter := model.MsgCounterType(1)
@@ -30,8 +30,8 @@ func TestDeviceClassification_Request(t *testing.T) {
 }
 
 func TestDeviceClassification_Request_Reply(t *testing.T) {
-	featureType := model.FeatureTypeEnumTypeDeviceClassification
-	function := model.FunctionEnumTypeDeviceClassificationManufacturerData
+	featureType := model.FeatureTypeTypeDeviceClassification
+	function := model.FunctionTypeDeviceClassificationManufacturerData
 
 	senderMock := new(mocks.Sender)
 	msgCounter := model.MsgCounterType(1)

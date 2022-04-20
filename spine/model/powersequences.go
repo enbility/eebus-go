@@ -6,48 +6,42 @@ type PowerSequenceIdType uint
 
 type PowerTimeSlotNumberType uint
 
-type PowerTimeSlotValueTypeType PowerTimeSlotValueTypeEnumType
-
-type PowerTimeSlotValueTypeEnumType string
+type PowerTimeSlotValueTypeType string
 
 const (
-	PowerTimeSlotValueTypeEnumTypePower                   PowerTimeSlotValueTypeEnumType = "power"
-	PowerTimeSlotValueTypeEnumTypePowerMin                PowerTimeSlotValueTypeEnumType = "powerMin"
-	PowerTimeSlotValueTypeEnumTypePowerMax                PowerTimeSlotValueTypeEnumType = "powerMax"
-	PowerTimeSlotValueTypeEnumTypePowerExpectedValue      PowerTimeSlotValueTypeEnumType = "powerExpectedValue"
-	PowerTimeSlotValueTypeEnumTypePowerStandardDeviation  PowerTimeSlotValueTypeEnumType = "powerStandardDeviation"
-	PowerTimeSlotValueTypeEnumTypePowerSkewness           PowerTimeSlotValueTypeEnumType = "powerSkewness"
-	PowerTimeSlotValueTypeEnumTypeEnergy                  PowerTimeSlotValueTypeEnumType = "energy"
-	PowerTimeSlotValueTypeEnumTypeEnergyMin               PowerTimeSlotValueTypeEnumType = "energyMin"
-	PowerTimeSlotValueTypeEnumTypeEnergyMax               PowerTimeSlotValueTypeEnumType = "energyMax"
-	PowerTimeSlotValueTypeEnumTypeEnergyExpectedValue     PowerTimeSlotValueTypeEnumType = "energyExpectedValue"
-	PowerTimeSlotValueTypeEnumTypeEnergyStandardDeviation PowerTimeSlotValueTypeEnumType = "energyStandardDeviation"
-	PowerTimeSlotValueTypeEnumTypeEnergySkewness          PowerTimeSlotValueTypeEnumType = "energySkewness"
+	PowerTimeSlotValueTypeTypePower                   PowerTimeSlotValueTypeType = "power"
+	PowerTimeSlotValueTypeTypePowerMin                PowerTimeSlotValueTypeType = "powerMin"
+	PowerTimeSlotValueTypeTypePowerMax                PowerTimeSlotValueTypeType = "powerMax"
+	PowerTimeSlotValueTypeTypePowerExpectedValue      PowerTimeSlotValueTypeType = "powerExpectedValue"
+	PowerTimeSlotValueTypeTypePowerStandardDeviation  PowerTimeSlotValueTypeType = "powerStandardDeviation"
+	PowerTimeSlotValueTypeTypePowerSkewness           PowerTimeSlotValueTypeType = "powerSkewness"
+	PowerTimeSlotValueTypeTypeEnergy                  PowerTimeSlotValueTypeType = "energy"
+	PowerTimeSlotValueTypeTypeEnergyMin               PowerTimeSlotValueTypeType = "energyMin"
+	PowerTimeSlotValueTypeTypeEnergyMax               PowerTimeSlotValueTypeType = "energyMax"
+	PowerTimeSlotValueTypeTypeEnergyExpectedValue     PowerTimeSlotValueTypeType = "energyExpectedValue"
+	PowerTimeSlotValueTypeTypeEnergyStandardDeviation PowerTimeSlotValueTypeType = "energyStandardDeviation"
+	PowerTimeSlotValueTypeTypeEnergySkewness          PowerTimeSlotValueTypeType = "energySkewness"
 )
 
-type PowerSequenceScopeType PowerSequenceScopeEnumType
-
-type PowerSequenceScopeEnumType string
+type PowerSequenceScopeType string
 
 const (
-	PowerSequenceScopeEnumTypeForecast       PowerSequenceScopeEnumType = "Forecast"
-	PowerSequenceScopeEnumTypeMeasurement    PowerSequenceScopeEnumType = "Measurement"
-	PowerSequenceScopeEnumTypeRecommendation PowerSequenceScopeEnumType = "Recommendation"
+	PowerSequenceScopeTypeForecast       PowerSequenceScopeType = "Forecast"
+	PowerSequenceScopeTypeMeasurement    PowerSequenceScopeType = "Measurement"
+	PowerSequenceScopeTypeRecommendation PowerSequenceScopeType = "Recommendation"
 )
 
-type PowerSequenceStateType PowerSequenceStateEnumType
-
-type PowerSequenceStateEnumType string
+type PowerSequenceStateType string
 
 const (
-	PowerSequenceStateEnumTypeRunning         PowerSequenceStateEnumType = "Running"
-	PowerSequenceStateEnumTypePaused          PowerSequenceStateEnumType = "Paused"
-	PowerSequenceStateEnumTypeScheduled       PowerSequenceStateEnumType = "Scheduled"
-	PowerSequenceStateEnumTypeScheduledPaused PowerSequenceStateEnumType = "ScheduledPaused"
-	PowerSequenceStateEnumTypePending         PowerSequenceStateEnumType = "Pending"
-	PowerSequenceStateEnumTypeInactive        PowerSequenceStateEnumType = "Inactive"
-	PowerSequenceStateEnumTypeCompleted       PowerSequenceStateEnumType = "Completed"
-	PowerSequenceStateEnumTypeInvalid         PowerSequenceStateEnumType = "Invalid"
+	PowerSequenceStateTypeRunning         PowerSequenceStateType = "Running"
+	PowerSequenceStateTypePaused          PowerSequenceStateType = "Paused"
+	PowerSequenceStateTypeScheduled       PowerSequenceStateType = "Scheduled"
+	PowerSequenceStateTypeScheduledPaused PowerSequenceStateType = "ScheduledPaused"
+	PowerSequenceStateTypePending         PowerSequenceStateType = "Pending"
+	PowerSequenceStateTypeInactive        PowerSequenceStateType = "Inactive"
+	PowerSequenceStateTypeCompleted       PowerSequenceStateType = "Completed"
+	PowerSequenceStateTypeInvalid         PowerSequenceStateType = "Invalid"
 )
 
 type PowerTimeSlotScheduleDataType struct {

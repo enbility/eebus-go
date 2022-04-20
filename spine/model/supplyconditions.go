@@ -2,41 +2,35 @@ package model
 
 type ConditionIdType uint
 
-type SupplyConditionEventTypeType SupplyConditionEventTypeEnumType
-
-type SupplyConditionEventTypeEnumType string
+type SupplyConditionEventTypeType string
 
 const (
-	SupplyConditionEventTypeEnumTypeThesholdExceeded     SupplyConditionEventTypeEnumType = "thesholdExceeded"
-	SupplyConditionEventTypeEnumTypeFallenBelowThreshold SupplyConditionEventTypeEnumType = "fallenBelowThreshold"
-	SupplyConditionEventTypeEnumTypeSupplyInterrupt      SupplyConditionEventTypeEnumType = "supplyInterrupt"
-	SupplyConditionEventTypeEnumTypeReleaseOfLimitations SupplyConditionEventTypeEnumType = "releaseOfLimitations"
-	SupplyConditionEventTypeEnumTypeOtherProblem         SupplyConditionEventTypeEnumType = "otherProblem"
-	SupplyConditionEventTypeEnumTypeGridConditionUpdate  SupplyConditionEventTypeEnumType = "gridConditionUpdate"
+	SupplyConditionEventTypeTypeThesholdExceeded     SupplyConditionEventTypeType = "thesholdExceeded"
+	SupplyConditionEventTypeTypeFallenBelowThreshold SupplyConditionEventTypeType = "fallenBelowThreshold"
+	SupplyConditionEventTypeTypeSupplyInterrupt      SupplyConditionEventTypeType = "supplyInterrupt"
+	SupplyConditionEventTypeTypeReleaseOfLimitations SupplyConditionEventTypeType = "releaseOfLimitations"
+	SupplyConditionEventTypeTypeOtherProblem         SupplyConditionEventTypeType = "otherProblem"
+	SupplyConditionEventTypeTypeGridConditionUpdate  SupplyConditionEventTypeType = "gridConditionUpdate"
 )
 
-type SupplyConditionOriginatorType SupplyConditionOriginatorEnumType
-
-type SupplyConditionOriginatorEnumType string
+type SupplyConditionOriginatorType string
 
 const (
-	SupplyConditionOriginatorEnumTypeExternDSO       SupplyConditionOriginatorEnumType = "externDSO"
-	SupplyConditionOriginatorEnumTypeExternSupplier  SupplyConditionOriginatorEnumType = "externSupplier"
-	SupplyConditionOriginatorEnumTypeInternalLimit   SupplyConditionOriginatorEnumType = "internalLimit"
-	SupplyConditionOriginatorEnumTypeInternalService SupplyConditionOriginatorEnumType = "internalService"
-	SupplyConditionOriginatorEnumTypeInternalUser    SupplyConditionOriginatorEnumType = "internalUser"
+	SupplyConditionOriginatorTypeExternDSO       SupplyConditionOriginatorType = "externDSO"
+	SupplyConditionOriginatorTypeExternSupplier  SupplyConditionOriginatorType = "externSupplier"
+	SupplyConditionOriginatorTypeInternalLimit   SupplyConditionOriginatorType = "internalLimit"
+	SupplyConditionOriginatorTypeInternalService SupplyConditionOriginatorType = "internalService"
+	SupplyConditionOriginatorTypeInternalUser    SupplyConditionOriginatorType = "internalUser"
 )
 
-type GridConditionType GridConditionEnumType
-
-type GridConditionEnumType string
+type GridConditionType string
 
 const (
-	GridConditionEnumTypeConsumptionRed    GridConditionEnumType = "consumptionRed"
-	GridConditionEnumTypeConsumptionYellow GridConditionEnumType = "consumptionYellow"
-	GridConditionEnumTypeGood              GridConditionEnumType = "good"
-	GridConditionEnumTypeProductionRed     GridConditionEnumType = "productionRed"
-	GridConditionEnumTypeProductionYellow  GridConditionEnumType = "productionYellow"
+	GridConditionTypeConsumptionRed    GridConditionType = "consumptionRed"
+	GridConditionTypeConsumptionYellow GridConditionType = "consumptionYellow"
+	GridConditionTypeGood              GridConditionType = "good"
+	GridConditionTypeProductionRed     GridConditionType = "productionRed"
+	GridConditionTypeProductionYellow  GridConditionType = "productionYellow"
 )
 
 type SupplyConditionDataType struct {

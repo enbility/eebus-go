@@ -4,53 +4,45 @@ type ElectricalConnectionIdType uint
 
 type ElectricalConnectionParameterIdType uint
 
-type ElectricalConnectionMeasurandVariantType ElectricalConnectionMeasurandVariantEnumType
-
-type ElectricalConnectionMeasurandVariantEnumType string
+type ElectricalConnectionMeasurandVariantType string
 
 const (
-	ElectricalConnectionMeasurandVariantEnumTypeAmplitude     ElectricalConnectionMeasurandVariantEnumType = "amplitude"
-	ElectricalConnectionMeasurandVariantEnumTypeRms           ElectricalConnectionMeasurandVariantEnumType = "rms"
-	ElectricalConnectionMeasurandVariantEnumTypeInstantaneous ElectricalConnectionMeasurandVariantEnumType = "instantaneous"
-	ElectricalConnectionMeasurandVariantEnumTypeAngle         ElectricalConnectionMeasurandVariantEnumType = "angle"
-	ElectricalConnectionMeasurandVariantEnumTypeCosphi        ElectricalConnectionMeasurandVariantEnumType = "cosPhi"
+	ElectricalConnectionMeasurandVariantTypeAmplitude     ElectricalConnectionMeasurandVariantType = "amplitude"
+	ElectricalConnectionMeasurandVariantTypeRms           ElectricalConnectionMeasurandVariantType = "rms"
+	ElectricalConnectionMeasurandVariantTypeInstantaneous ElectricalConnectionMeasurandVariantType = "instantaneous"
+	ElectricalConnectionMeasurandVariantTypeAngle         ElectricalConnectionMeasurandVariantType = "angle"
+	ElectricalConnectionMeasurandVariantTypeCosphi        ElectricalConnectionMeasurandVariantType = "cosPhi"
 )
 
-type ElectricalConnectionVoltageTypeType ElectricalConnectionVoltageTypeEnumType
-
-type ElectricalConnectionVoltageTypeEnumType string
+type ElectricalConnectionVoltageTypeType string
 
 const (
-	ElectricalConnectionVoltageTypeEnumTypeAc ElectricalConnectionVoltageTypeEnumType = "ac"
-	ElectricalConnectionVoltageTypeEnumTypeDc ElectricalConnectionVoltageTypeEnumType = "dc"
+	ElectricalConnectionVoltageTypeTypeAc ElectricalConnectionVoltageTypeType = "ac"
+	ElectricalConnectionVoltageTypeTypeDc ElectricalConnectionVoltageTypeType = "dc"
 )
 
-type ElectricalConnectionAcMeasurementTypeType ElectricalConnectionAcMeasurementTypeEnumType
-
-type ElectricalConnectionAcMeasurementTypeEnumType string
+type ElectricalConnectionAcMeasurementTypeType string
 
 const (
-	ElectricalConnectionAcMeasurementTypeEnumTypeReal     ElectricalConnectionAcMeasurementTypeEnumType = "real"
-	ElectricalConnectionAcMeasurementTypeEnumTypeReactive ElectricalConnectionAcMeasurementTypeEnumType = "reactive"
-	ElectricalConnectionAcMeasurementTypeEnumTypeApparent ElectricalConnectionAcMeasurementTypeEnumType = "apparent"
-	ElectricalConnectionAcMeasurementTypeEnumTypePhase    ElectricalConnectionAcMeasurementTypeEnumType = "phase"
+	ElectricalConnectionAcMeasurementTypeTypeReal     ElectricalConnectionAcMeasurementTypeType = "real"
+	ElectricalConnectionAcMeasurementTypeTypeReactive ElectricalConnectionAcMeasurementTypeType = "reactive"
+	ElectricalConnectionAcMeasurementTypeTypeApparent ElectricalConnectionAcMeasurementTypeType = "apparent"
+	ElectricalConnectionAcMeasurementTypeTypePhase    ElectricalConnectionAcMeasurementTypeType = "phase"
 )
 
-type ElectricalConnectionPhaseNameType ElectricalConnectionPhaseNameEnumType
-
-type ElectricalConnectionPhaseNameEnumType string
+type ElectricalConnectionPhaseNameType string
 
 const (
-	ElectricalConnectionPhaseNameEnumTypeA       ElectricalConnectionPhaseNameEnumType = "a"
-	ElectricalConnectionPhaseNameEnumTypeB       ElectricalConnectionPhaseNameEnumType = "b"
-	ElectricalConnectionPhaseNameEnumTypeC       ElectricalConnectionPhaseNameEnumType = "c"
-	ElectricalConnectionPhaseNameEnumTypeAb      ElectricalConnectionPhaseNameEnumType = "ab"
-	ElectricalConnectionPhaseNameEnumTypeBc      ElectricalConnectionPhaseNameEnumType = "bc"
-	ElectricalConnectionPhaseNameEnumTypeAc      ElectricalConnectionPhaseNameEnumType = "ac"
-	ElectricalConnectionPhaseNameEnumTypeAbc     ElectricalConnectionPhaseNameEnumType = "abc"
-	ElectricalConnectionPhaseNameEnumTypeNeutral ElectricalConnectionPhaseNameEnumType = "neutral"
-	ElectricalConnectionPhaseNameEnumTypeGround  ElectricalConnectionPhaseNameEnumType = "ground"
-	ElectricalConnectionPhaseNameEnumTypeNone    ElectricalConnectionPhaseNameEnumType = "none"
+	ElectricalConnectionPhaseNameTypeA       ElectricalConnectionPhaseNameType = "a"
+	ElectricalConnectionPhaseNameTypeB       ElectricalConnectionPhaseNameType = "b"
+	ElectricalConnectionPhaseNameTypeC       ElectricalConnectionPhaseNameType = "c"
+	ElectricalConnectionPhaseNameTypeAb      ElectricalConnectionPhaseNameType = "ab"
+	ElectricalConnectionPhaseNameTypeBc      ElectricalConnectionPhaseNameType = "bc"
+	ElectricalConnectionPhaseNameTypeAc      ElectricalConnectionPhaseNameType = "ac"
+	ElectricalConnectionPhaseNameTypeAbc     ElectricalConnectionPhaseNameType = "abc"
+	ElectricalConnectionPhaseNameTypeNeutral ElectricalConnectionPhaseNameType = "neutral"
+	ElectricalConnectionPhaseNameTypeGround  ElectricalConnectionPhaseNameType = "ground"
+	ElectricalConnectionPhaseNameTypeNone    ElectricalConnectionPhaseNameType = "none"
 )
 
 type ElectricalConnectionConnectionPointType string

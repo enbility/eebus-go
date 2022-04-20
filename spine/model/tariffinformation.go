@@ -8,14 +8,12 @@ type TierBoundaryIdType uint
 
 type TierBoundaryCountType TierBoundaryIdType
 
-type TierBoundaryTypeType TierBoundaryTypeEnumType
-
-type TierBoundaryTypeEnumType string
+type TierBoundaryTypeType string
 
 const (
-	TierBoundaryTypeEnumTypePowerBoundary  TierBoundaryTypeEnumType = "powerBoundary"
-	TierBoundaryTypeEnumTypeEnergyBoundary TierBoundaryTypeEnumType = "energyBoundary"
-	TierBoundaryTypeEnumTypeCountBoundary  TierBoundaryTypeEnumType = "countBoundary"
+	TierBoundaryTypeTypePowerBoundary  TierBoundaryTypeType = "powerBoundary"
+	TierBoundaryTypeTypeEnergyBoundary TierBoundaryTypeType = "energyBoundary"
+	TierBoundaryTypeTypeCountBoundary  TierBoundaryTypeType = "countBoundary"
 )
 
 type CommodityIdType uint
@@ -24,41 +22,35 @@ type TierIdType uint
 
 type TierCountType TierIdType
 
-type TierTypeType TierTypeEnumType
-
-type TierTypeEnumType string
+type TierTypeType string
 
 const (
-	TierTypeEnumTypeFixedcost   TierTypeEnumType = "fixedCost"
-	TierTypeEnumTypeDynamiccost TierTypeEnumType = "dynamicCost"
+	TierTypeTypeFixedcost   TierTypeType = "fixedCost"
+	TierTypeTypeDynamiccost TierTypeType = "dynamicCost"
 )
 
 type IncentiveIdType uint
 
 type IncentiveCountType IncentiveIdType
 
-type IncentiveTypeType IncentiveTypeEnumType
-
-type IncentiveTypeEnumType string
+type IncentiveTypeType string
 
 const (
-	IncentiveTypeEnumTypeAbsolutecost              IncentiveTypeEnumType = "absoluteCost"
-	IncentiveTypeEnumTypeRelativecost              IncentiveTypeEnumType = "relativeCost"
-	IncentiveTypeEnumTypeRenewableenergypercentage IncentiveTypeEnumType = "renewableEnergyPercentage"
-	IncentiveTypeEnumTypeCo2Emission               IncentiveTypeEnumType = "co2Emission"
+	IncentiveTypeTypeAbsolutecost              IncentiveTypeType = "absoluteCost"
+	IncentiveTypeTypeRelativecost              IncentiveTypeType = "relativeCost"
+	IncentiveTypeTypeRenewableenergypercentage IncentiveTypeType = "renewableEnergyPercentage"
+	IncentiveTypeTypeCo2Emission               IncentiveTypeType = "co2Emission"
 )
 
 type IncentivePriorityType uint
 
-type IncentiveValueTypeType IncentiveValueTypeEnumType
-
-type IncentiveValueTypeEnumType string
+type IncentiveValueTypeType string
 
 const (
-	IncentiveValueTypeEnumTypeValue        IncentiveValueTypeEnumType = "value"
-	IncentiveValueTypeEnumTypeAveragevalue IncentiveValueTypeEnumType = "averageValue"
-	IncentiveValueTypeEnumTypeMinvalue     IncentiveValueTypeEnumType = "minValue"
-	IncentiveValueTypeEnumTypeMaxvalue     IncentiveValueTypeEnumType = "maxValue"
+	IncentiveValueTypeTypeValue        IncentiveValueTypeType = "value"
+	IncentiveValueTypeTypeAveragevalue IncentiveValueTypeType = "averageValue"
+	IncentiveValueTypeTypeMinvalue     IncentiveValueTypeType = "minValue"
+	IncentiveValueTypeTypeMaxvalue     IncentiveValueTypeType = "maxValue"
 )
 
 type TariffOverallConstraintsDataType struct {

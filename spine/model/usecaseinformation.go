@@ -1,26 +1,22 @@
 package model
 
-type UseCaseActorType UseCaseActorEnumType
-
-type UseCaseActorEnumType string
+type UseCaseActorType string
 
 const (
-	UseCaseActorEnumTypeEV UseCaseActorEnumType = "EV"
+	UseCaseActorTypeEV UseCaseActorType = "EV"
 )
 
-type UseCaseNameType UseCaseNameEnumType
-
-type UseCaseNameEnumType string
+type UseCaseNameType string
 
 const (
-	UseCaseNameEnumTypeMeasurementOfElectricityDuringEVCharging         UseCaseNameEnumType = "measurementOfElectricityDuringEvCharging"
-	UseCaseNameEnumTypeOptimizationOfSelfConsumptionDuringEVCharging    UseCaseNameEnumType = "optimizationOfSelfConsumptionDuringEvCharging"
-	UseCaseNameEnumTypeOverloadProtectionByEVChargingCurrentCurtailment UseCaseNameEnumType = "overloadProtectionByEvChargingCurrentCurtailment"
-	UseCaseNameEnumTypeCoordinatedEVCharging                            UseCaseNameEnumType = "coordinatedEvCharging"
-	UseCaseNameEnumTypeEVCommissioningAndConfiguration                  UseCaseNameEnumType = "evCommissioningAndConfiguration"
-	UseCaseNameEnumTypeEVSECommissioningAndConfiguration                UseCaseNameEnumType = "evseCommissioningAndConfiguration"
-	UseCaseNameEnumTypeEVChargingSummary                                UseCaseNameEnumType = "evChargingSummary"
-	UseCaseNameEnumTypeEVStateOfCharge                                  UseCaseNameEnumType = "evStateOfCharge"
+	UseCaseNameTypeMeasurementOfElectricityDuringEVCharging         UseCaseNameType = "measurementOfElectricityDuringEvCharging"
+	UseCaseNameTypeOptimizationOfSelfConsumptionDuringEVCharging    UseCaseNameType = "optimizationOfSelfConsumptionDuringEvCharging"
+	UseCaseNameTypeOverloadProtectionByEVChargingCurrentCurtailment UseCaseNameType = "overloadProtectionByEvChargingCurrentCurtailment"
+	UseCaseNameTypeCoordinatedEVCharging                            UseCaseNameType = "coordinatedEvCharging"
+	UseCaseNameTypeEVCommissioningAndConfiguration                  UseCaseNameType = "evCommissioningAndConfiguration"
+	UseCaseNameTypeEVSECommissioningAndConfiguration                UseCaseNameType = "evseCommissioningAndConfiguration"
+	UseCaseNameTypeEVChargingSummary                                UseCaseNameType = "evChargingSummary"
+	UseCaseNameTypeEVStateOfCharge                                  UseCaseNameType = "evStateOfCharge"
 )
 
 type UseCaseScenarioSupportType uint

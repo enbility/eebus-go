@@ -2,95 +2,85 @@ package model
 
 type MeasurementIdType uint
 
-type MeasurementTypeType MeasurementTypeEnumType
-
-type MeasurementTypeEnumType string
+type MeasurementTypeType string
 
 const (
-	MeasurementTypeEnumTypeAcceleration        MeasurementTypeEnumType = "acceleration"
-	MeasurementTypeEnumTypeAngle               MeasurementTypeEnumType = "angle"
-	MeasurementTypeEnumTypeAngularVelocity     MeasurementTypeEnumType = "angularVelocity"
-	MeasurementTypeEnumTypeArea                MeasurementTypeEnumType = "area"
-	MeasurementTypeEnumTypeAtmosphericPressure MeasurementTypeEnumType = "atmosphericPressure"
-	MeasurementTypeEnumTypeCapacity            MeasurementTypeEnumType = "capacity"
-	MeasurementTypeEnumTypeConcentration       MeasurementTypeEnumType = "concentration"
-	MeasurementTypeEnumTypeCount               MeasurementTypeEnumType = "count"
-	MeasurementTypeEnumTypeCurrent             MeasurementTypeEnumType = "current"
-	MeasurementTypeEnumTypeDensity             MeasurementTypeEnumType = "density"
-	MeasurementTypeEnumTypeDistance            MeasurementTypeEnumType = "distance"
-	MeasurementTypeEnumTypeElectricField       MeasurementTypeEnumType = "electricField"
-	MeasurementTypeEnumTypeEnergy              MeasurementTypeEnumType = "energy"
-	MeasurementTypeEnumTypeForce               MeasurementTypeEnumType = "force"
-	MeasurementTypeEnumTypeFrequency           MeasurementTypeEnumType = "frequency"
-	MeasurementTypeEnumTypeHarmonicDistortion  MeasurementTypeEnumType = "harmonicDistortion"
-	MeasurementTypeEnumTypeHeat                MeasurementTypeEnumType = "heat"
-	MeasurementTypeEnumTypeHeatFlux            MeasurementTypeEnumType = "heatFlux"
-	MeasurementTypeEnumTypeIlluminance         MeasurementTypeEnumType = "illuminance"
-	MeasurementTypeEnumTypeImpulse             MeasurementTypeEnumType = "impulse"
-	MeasurementTypeEnumTypeLevel               MeasurementTypeEnumType = "level"
-	MeasurementTypeEnumTypeMagneticField       MeasurementTypeEnumType = "magneticField"
-	MeasurementTypeEnumTypeMass                MeasurementTypeEnumType = "mass"
-	MeasurementTypeEnumTypeMassFlow            MeasurementTypeEnumType = "massFlow"
-	MeasurementTypeEnumTypeParticles           MeasurementTypeEnumType = "particles"
-	MeasurementTypeEnumTypePercentage          MeasurementTypeEnumType = "percentage"
-	MeasurementTypeEnumTypePower               MeasurementTypeEnumType = "power"
-	MeasurementTypeEnumTypePowerFactor         MeasurementTypeEnumType = "powerFactor"
-	MeasurementTypeEnumTypePressure            MeasurementTypeEnumType = "pressure"
-	MeasurementTypeEnumTypeRadonActivity       MeasurementTypeEnumType = "radonActivity"
-	MeasurementTypeEnumTypeRelativeHumidity    MeasurementTypeEnumType = "relativeHumidity"
-	MeasurementTypeEnumTypeResistance          MeasurementTypeEnumType = "resistance"
-	MeasurementTypeEnumTypeSolarRadiation      MeasurementTypeEnumType = "solarRadiation"
-	MeasurementTypeEnumTypeSpeed               MeasurementTypeEnumType = "speed"
-	MeasurementTypeEnumTypeTemperature         MeasurementTypeEnumType = "temperature"
-	MeasurementTypeEnumTypeTime                MeasurementTypeEnumType = "time"
-	MeasurementTypeEnumTypeTorque              MeasurementTypeEnumType = "torque"
-	MeasurementTypeEnumTypeUnknown             MeasurementTypeEnumType = "unknown"
-	MeasurementTypeEnumTypeVelocity            MeasurementTypeEnumType = "velocity"
-	MeasurementTypeEnumTypeVoltage             MeasurementTypeEnumType = "voltage"
-	MeasurementTypeEnumTypeVolume              MeasurementTypeEnumType = "volume"
-	MeasurementTypeEnumTypeVolumetricFlow      MeasurementTypeEnumType = "volumetricFlow"
+	MeasurementTypeTypeAcceleration        MeasurementTypeType = "acceleration"
+	MeasurementTypeTypeAngle               MeasurementTypeType = "angle"
+	MeasurementTypeTypeAngularVelocity     MeasurementTypeType = "angularVelocity"
+	MeasurementTypeTypeArea                MeasurementTypeType = "area"
+	MeasurementTypeTypeAtmosphericPressure MeasurementTypeType = "atmosphericPressure"
+	MeasurementTypeTypeCapacity            MeasurementTypeType = "capacity"
+	MeasurementTypeTypeConcentration       MeasurementTypeType = "concentration"
+	MeasurementTypeTypeCount               MeasurementTypeType = "count"
+	MeasurementTypeTypeCurrent             MeasurementTypeType = "current"
+	MeasurementTypeTypeDensity             MeasurementTypeType = "density"
+	MeasurementTypeTypeDistance            MeasurementTypeType = "distance"
+	MeasurementTypeTypeElectricField       MeasurementTypeType = "electricField"
+	MeasurementTypeTypeEnergy              MeasurementTypeType = "energy"
+	MeasurementTypeTypeForce               MeasurementTypeType = "force"
+	MeasurementTypeTypeFrequency           MeasurementTypeType = "frequency"
+	MeasurementTypeTypeHarmonicDistortion  MeasurementTypeType = "harmonicDistortion"
+	MeasurementTypeTypeHeat                MeasurementTypeType = "heat"
+	MeasurementTypeTypeHeatFlux            MeasurementTypeType = "heatFlux"
+	MeasurementTypeTypeIlluminance         MeasurementTypeType = "illuminance"
+	MeasurementTypeTypeImpulse             MeasurementTypeType = "impulse"
+	MeasurementTypeTypeLevel               MeasurementTypeType = "level"
+	MeasurementTypeTypeMagneticField       MeasurementTypeType = "magneticField"
+	MeasurementTypeTypeMass                MeasurementTypeType = "mass"
+	MeasurementTypeTypeMassFlow            MeasurementTypeType = "massFlow"
+	MeasurementTypeTypeParticles           MeasurementTypeType = "particles"
+	MeasurementTypeTypePercentage          MeasurementTypeType = "percentage"
+	MeasurementTypeTypePower               MeasurementTypeType = "power"
+	MeasurementTypeTypePowerFactor         MeasurementTypeType = "powerFactor"
+	MeasurementTypeTypePressure            MeasurementTypeType = "pressure"
+	MeasurementTypeTypeRadonActivity       MeasurementTypeType = "radonActivity"
+	MeasurementTypeTypeRelativeHumidity    MeasurementTypeType = "relativeHumidity"
+	MeasurementTypeTypeResistance          MeasurementTypeType = "resistance"
+	MeasurementTypeTypeSolarRadiation      MeasurementTypeType = "solarRadiation"
+	MeasurementTypeTypeSpeed               MeasurementTypeType = "speed"
+	MeasurementTypeTypeTemperature         MeasurementTypeType = "temperature"
+	MeasurementTypeTypeTime                MeasurementTypeType = "time"
+	MeasurementTypeTypeTorque              MeasurementTypeType = "torque"
+	MeasurementTypeTypeUnknown             MeasurementTypeType = "unknown"
+	MeasurementTypeTypeVelocity            MeasurementTypeType = "velocity"
+	MeasurementTypeTypeVoltage             MeasurementTypeType = "voltage"
+	MeasurementTypeTypeVolume              MeasurementTypeType = "volume"
+	MeasurementTypeTypeVolumetricFlow      MeasurementTypeType = "volumetricFlow"
 )
 
-type MeasurementValueTypeType MeasurementValueTypeEnumType
-
-type MeasurementValueTypeEnumType string
+type MeasurementValueTypeType string
 
 const (
-	MeasurementValueTypeEnumTypeValue             MeasurementValueTypeEnumType = "value"
-	MeasurementValueTypeEnumTypeAverageValue      MeasurementValueTypeEnumType = "averageValue"
-	MeasurementValueTypeEnumTypeMinvValue         MeasurementValueTypeEnumType = "minValue"
-	MeasurementValueTypeEnumTypeMaxvVlue          MeasurementValueTypeEnumType = "maxValue"
-	MeasurementValueTypeEnumTypeStandardDeviation MeasurementValueTypeEnumType = "standardDeviation"
+	MeasurementValueTypeTypeValue             MeasurementValueTypeType = "value"
+	MeasurementValueTypeTypeAverageValue      MeasurementValueTypeType = "averageValue"
+	MeasurementValueTypeTypeMinvValue         MeasurementValueTypeType = "minValue"
+	MeasurementValueTypeTypeMaxvVlue          MeasurementValueTypeType = "maxValue"
+	MeasurementValueTypeTypeStandardDeviation MeasurementValueTypeType = "standardDeviation"
 )
 
-type MeasurementValueSourceType MeasurementValueSourceEnumType
-
-type MeasurementValueSourceEnumType string
+type MeasurementValueSourceType string
 
 const (
-	MeasurementValueSourceEnumTypeMeasuredValue   MeasurementValueSourceEnumType = "measuredValue"
-	MeasurementValueSourceEnumTypeCalculatedValue MeasurementValueSourceEnumType = "calculatedValue"
-	MeasurementValueSourceEnumTypeEmpiricalValue  MeasurementValueSourceEnumType = "empiricalValue"
+	MeasurementValueSourceTypeMeasuredValue   MeasurementValueSourceType = "measuredValue"
+	MeasurementValueSourceTypeCalculatedValue MeasurementValueSourceType = "calculatedValue"
+	MeasurementValueSourceTypeEmpiricalValue  MeasurementValueSourceType = "empiricalValue"
 )
 
-type MeasurementValueTendencyType MeasurementValueTendencyEnumType
-
-type MeasurementValueTendencyEnumType string
+type MeasurementValueTendencyType string
 
 const (
-	MeasurementValueTendencyEnumTypeRising  MeasurementValueTendencyEnumType = "rising"
-	MeasurementValueTendencyEnumTypeStable  MeasurementValueTendencyEnumType = "stable"
-	MeasurementValueTendencyEnumTypeFalling MeasurementValueTendencyEnumType = "falling"
+	MeasurementValueTendencyTypeRising  MeasurementValueTendencyType = "rising"
+	MeasurementValueTendencyTypeStable  MeasurementValueTendencyType = "stable"
+	MeasurementValueTendencyTypeFalling MeasurementValueTendencyType = "falling"
 )
 
-type MeasurementValueStateType MeasurementValueStateEnumType
-
-type MeasurementValueStateEnumType string
+type MeasurementValueStateType string
 
 const (
-	MeasurementValueStateEnumTypeNormal     MeasurementValueStateEnumType = "normal"
-	MeasurementValueStateEnumTypeOutofrange MeasurementValueStateEnumType = "outOfRange"
-	MeasurementValueStateEnumTypeError      MeasurementValueStateEnumType = "error"
+	MeasurementValueStateTypeNormal     MeasurementValueStateType = "normal"
+	MeasurementValueStateTypeOutofrange MeasurementValueStateType = "outOfRange"
+	MeasurementValueStateTypeError      MeasurementValueStateType = "error"
 )
 
 type MeasurementDataType struct {
