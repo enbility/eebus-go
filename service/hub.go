@@ -59,6 +59,8 @@ func (h *ConnectionsHub) run() {
 			h.mux.Unlock()
 
 			c.handleConnection()
+
+			// TODO: shutdown mDNS if this is not a CEM and all registered services are connected
 		case c := <-h.unregister:
 			if chRegistered, ok := h.connections[c.remoteService.SKI]; ok {
 				if chRegistered.conn == c.conn {
@@ -67,6 +69,7 @@ func (h *ConnectionsHub) run() {
 					h.mux.Unlock()
 				}
 			}
+			// TODO: startup mDNS if this is not a CEM and no registered service is connected
 		}
 	}
 }
