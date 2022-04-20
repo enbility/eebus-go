@@ -80,17 +80,13 @@ func main() {
 
 	myService.Certificate = certificate
 	myService.Start()
+	defer myService.Shutdown()
 
 	remoteService := service.ServiceDetails{
 		SKI:    remoteSki,
 		ShipID: remoteShipID,
 	}
 	myService.RegisterRemoteService(remoteService)
-
-	if err = myService.MdnsAnnounce(); err != nil {
-		log.Fatal(err)
-	}
-	defer myService.Shutdown()
 
 	// Clean exit to make sure mdns shutdown is invoked
 	sig := make(chan os.Signal, 1)

@@ -121,6 +121,10 @@ func (s *EEBUSService) Start() {
 			fmt.Println("Error during websocket server starting: ", err)
 		}
 	}()
+
+	if err = s.MdnsAnnounce(); err != nil {
+		fmt.Println(err)
+	}
 }
 
 // Shutdown all services and stop the server.
