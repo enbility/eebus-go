@@ -19,11 +19,11 @@ import (
 var myService *service.EEBUSService
 
 func usage() {
-	fmt.Println("Usage: go run /cmd/hems/main.go <serverport> <hems-ski> <crtfile> <keyfile>")
+	fmt.Println("Usage: go run /cmd/evse/main.go <serverport> <hems-ski> <hems-shipid> <crtfile> <keyfile>")
 }
 
 func main() {
-	if len(os.Args) < 3 {
+	if len(os.Args) < 4 {
 		usage()
 		return
 	}
@@ -32,8 +32,11 @@ func main() {
 		DeviceBrand:        "Demo",
 		DeviceModel:        "HEMS",
 		DeviceSerialNumber: "234567890",
-		DeviceIdentifier:   "Demo-EVSE-123456789",
-		DeviceType:         model.DeviceTypeType(model.DeviceTypeEnumTypeEnergyManagementSystem),
+		DeviceIdentifier:   "Demo-EVSE-234567890",
+		DeviceType:         model.DeviceTypeEnumTypeChargingStation,
+		RemoteDeviceTypes: []model.DeviceTypeEnumType{
+			model.DeviceTypeEnumTypeEnergyManagementSystem,
+		},
 	}
 
 	var err error
@@ -46,10 +49,11 @@ func main() {
 	}
 
 	remoteSki := os.Args[2]
+	remoteShipID := os.Args[3]
 
 	fmt.Println(os.Args)
-	if len(os.Args) == 5 {
-		certificate, err = tls.LoadX509KeyPair(os.Args[3], os.Args[4])
+	if len(os.Args) == 6 {
+		certificate, err = tls.LoadX509KeyPair(os.Args[4], os.Args[5])
 		if err != nil {
 			usage()
 			log.Fatal(err)
@@ -77,12 +81,16 @@ func main() {
 	myService.Certificate = certificate
 	myService.Start()
 
+	remoteService := service.ServiceDetails{
+		SKI:    remoteSki,
+		ShipID: remoteShipID,
+	}
+	myService.RegisterRemoteService(remoteService)
+
 	if err = myService.MdnsAnnounce(); err != nil {
 		log.Fatal(err)
 	}
 	defer myService.Shutdown()
-
-	myService.ConnectToSKI(remoteSki)
 
 	// Clean exit to make sure mdns shutdown is invoked
 	sig := make(chan os.Signal, 1)

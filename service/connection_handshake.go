@@ -44,7 +44,7 @@ func (c *ConnectionHandler) handshakeInit() error {
 
 	shipInit := []byte{ship.MsgTypeInit, 0x00}
 
-	if c.Role == ShipRoleClient {
+	if c.role == ShipRoleClient {
 		// CMI_STATE_CLIENT_SEND
 		if err := c.writeWebsocketMessage(shipInit); err != nil {
 			return err
@@ -58,7 +58,7 @@ func (c *ConnectionHandler) handshakeInit() error {
 		return err
 	}
 
-	if c.Role == ShipRoleServer {
+	if c.role == ShipRoleServer {
 		if err := c.writeWebsocketMessage(shipInit); err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 		},
 	}
 
-	if c.Role == ShipRoleServer {
+	if c.role == ShipRoleServer {
 		// SME_PROT_H_STATE_SERVER_INIT
 		data, err = c.readNextMessage(cmiTimeout)
 		if err != nil {
@@ -283,7 +283,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 
 		if strings.Contains(dataString, "\"accessMethodsRequest\":{") {
 			fmt.Println("Got access methods request")
-			methodsId := c.ShipID
+			methodsId := c.localService.ShipID
 
 			accessMethods := ship.AccessMethods{
 				AccessMethods: ship.AccessMethodsType{
@@ -294,6 +294,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 				return err
 			}
 		} else if strings.Contains(dataString, "\"accessMethods\":{") {
+
 			// TODO: compare SHIP ID to stored value on pairing. SKI + SHIP ID should be verified on connection
 			// otherwise close connection with error "close 4450: SHIP id mismatch"
 			fmt.Println("Got access methods")

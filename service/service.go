@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -27,6 +28,11 @@ var ciperSuites = []uint16{
 	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, // SHIP 9.1: optional cipher suite
 }
 
+type ServiceDetails struct {
+	SKI    string
+	ShipID string
+}
+
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSService struct {
@@ -37,7 +43,7 @@ type EEBUSService struct {
 	DeviceModel string
 
 	// The EEBUS device type of the device model
-	DeviceType model.DeviceTypeType
+	DeviceType model.DeviceTypeEnumType
 
 	// Serial number of the device
 	DeviceSerialNumber string
@@ -45,6 +51,9 @@ type EEBUSService struct {
 	// The mDNS service identifier
 	// Optional, if not set will be  generated using "DeviceBrand-DeviceModel-DeviceSerialNumber"
 	DeviceIdentifier string
+
+	// The EEBUS device type of supported remote devices
+	RemoteDeviceTypes []model.DeviceTypeEnumType
 
 	// Network interface to use for the service
 	// Optional, if not set all detected interfaces will be used
@@ -56,11 +65,14 @@ type EEBUSService struct {
 	// The certificate used for the service and its connections
 	Certificate tls.Certificate
 
-	// The service SKI
-	SKI string
-
 	// Wether remote devices should be automatically accepted
 	RemoteDeviceAutoAccept bool
+
+	// The local service details
+	localService ServiceDetails
+
+	// The list of paired devices
+	pairedServices []ServiceDetails
 
 	// Connection Registrations
 	connectionsHub *ConnectionsHub
@@ -77,6 +89,8 @@ type EEBUSService struct {
 
 // Starts the service by initializeing mDNS and the server.
 func (s *EEBUSService) Start() {
+	s.pairedServices = make([]ServiceDetails, 0)
+
 	if s.Port == 0 {
 		s.Port = defaultPort
 	}
@@ -92,11 +106,14 @@ func (s *EEBUSService) Start() {
 		fmt.Println(err)
 		return
 	}
-	s.SKI = ski
+	s.localService = ServiceDetails{
+		SKI:    ski,
+		ShipID: s.DeviceIdentifier,
+	}
 
 	fmt.Println("Local SKI: ", ski)
 
-	s.connectionsHub = newConnectionsHub()
+	s.connectionsHub = newConnectionsHub(s.localService)
 	go s.connectionsHub.run()
 
 	go func() {
@@ -111,11 +128,11 @@ func (s *EEBUSService) Shutdown() {
 	s.MdnsShutdown()
 
 	// Shut down all running connections
-	s.connectionsHub.Shutdown()
+	s.connectionsHub.shutdown()
 }
 
 // Connect to another EEBUS service
-func (s *EEBUSService) connectToService(host, port string) error {
+func (s *EEBUSService) connectFoundService(remoteService ServiceDetails, host, port string) error {
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 5 * time.Second,
@@ -151,14 +168,21 @@ func (s *EEBUSService) connectToService(host, port string) error {
 
 	remoteSKI := fmt.Sprintf("%0x", remoteCerts[0].SubjectKeyId)
 
-	connectionHandler := &ConnectionHandler{
-		Role:           ShipRoleClient,
-		SKI:            remoteSKI,
-		ShipID:         s.DeviceIdentifier,
-		ConnectionsHub: s.connectionsHub,
+	if remoteSKI != remoteService.SKI {
+		conn.Close()
+		return errors.New("Remote SKI does not match")
 	}
 
-	connectionHandler.handleConnection(conn)
+	connectionHandler := &ConnectionHandler{
+		role:                        ShipRoleClient,
+		remoteService:               remoteService,
+		localService:                s.localService,
+		connectionsHub:              s.connectionsHub,
+		conn:                        conn,
+		isConnectedFromLocalService: true,
+	}
+
+	s.connectionsHub.register <- connectionHandler
 
 	return nil
 }
@@ -239,14 +263,20 @@ func (s *EEBUSService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conn.Close()
 	}
 
-	connectionHandler := &ConnectionHandler{
-		Role:           ShipRoleServer,
-		ConnectionsHub: s.connectionsHub,
-		ShipID:         s.DeviceIdentifier,
-		SKI:            ski,
+	remoteService := ServiceDetails{
+		SKI: ski,
 	}
 
-	connectionHandler.handleConnection(conn)
+	connectionHandler := &ConnectionHandler{
+		role:                        ShipRoleServer,
+		connectionsHub:              s.connectionsHub,
+		localService:                s.localService,
+		remoteService:               remoteService,
+		conn:                        conn,
+		isConnectedFromLocalService: false,
+	}
+
+	s.connectionsHub.register <- connectionHandler
 }
 
 func (s *EEBUSService) skiFromCertificate(cert *x509.Certificate) (string, error) {
@@ -289,7 +319,7 @@ func (s *EEBUSService) MdnsAnnounce() error {
 			"txtvers=1",
 			"path=" + shipWebsocketPath,
 			"id=" + serviceIdentifier,
-			"ski=" + s.SKI,
+			"ski=" + s.localService.SKI,
 			"brand=" + s.DeviceBrand,
 			"model=" + s.DeviceModel,
 			"type=" + string(s.DeviceType),
@@ -316,27 +346,76 @@ func (s *EEBUSService) MdnsShutdown() {
 	}
 }
 
-func (s *EEBUSService) ConnectToSKI(ski string) error {
-	fmt.Println("Searching for ski: ", ski)
+func (s *EEBUSService) pairedServiceForSKI(ski string) (ServiceDetails, error) {
+	for _, service := range s.pairedServices {
+		if service.SKI == ski {
+			return service, nil
+		}
+	}
+	return ServiceDetails{}, fmt.Errorf("No paired service found for SKI %s", ski)
+}
+
+// Searches via mDNS for paired SHIP services that are not yet connected
+func (s *EEBUSService) connectRemoteServices() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
 
 	entries := make(chan *zeroconf.ServiceEntry)
 	go func(results <-chan *zeroconf.ServiceEntry) {
 		for entry := range results {
-			for _, typ := range entry.Text {
-				if typ == fmt.Sprintf("ski=%s", ski) {
-					fmt.Println("Service discovered: ", entry.ServiceInstanceName())
+			fmt.Println("Found service: ", entry.ServiceInstanceName())
 
-					fmt.Printf("Connecting to %s:%d\n", entry.HostName, entry.Port)
-					s.connectToService(entry.HostName, strconv.Itoa(int(entry.Port)))
-					fmt.Printf("\n\n")
+			var deviceType, ski string
+
+			for _, element := range entry.Text {
+				if strings.HasPrefix(element, "type=") {
+					deviceType = strings.Split(element, "=")[1]
+				}
+
+				if strings.HasPrefix(element, "ski=") {
+					ski = strings.Split(element, "=")[1]
 				}
 			}
-		}
-		fmt.Println("No more entries.")
-	}(entries)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
-	defer cancel()
+			fmt.Println("SKI: ", ski, " DeviceType: ", deviceType)
+
+			if len(ski) == 0 || len(deviceType) == 0 {
+				continue
+			}
+
+			compatibleDeviceType := false
+			for _, element := range s.RemoteDeviceTypes {
+				if string(element) == deviceType {
+					compatibleDeviceType = true
+					break
+				}
+			}
+
+			if !compatibleDeviceType {
+				continue
+			}
+
+			fmt.Println("Lets connect to this service")
+
+			pairedService, err := s.pairedServiceForSKI(ski)
+			if err == nil && !s.connectionsHub.isSkiConnected(ski) {
+				s.connectFoundService(pairedService, entry.HostName, strconv.Itoa(int(entry.Port)))
+			}
+
+			pairedServiceMissing := false
+			for _, service := range s.pairedServices {
+				if !s.connectionsHub.isSkiConnected(service.SKI) {
+					pairedServiceMissing = true
+					break
+				}
+			}
+			if !pairedServiceMissing {
+				fmt.Println("Exit discovery")
+				return
+			}
+
+		}
+	}(entries)
 
 	resolver, err := zeroconf.NewResolver(nil)
 	if err != nil {
@@ -348,6 +427,38 @@ func (s *EEBUSService) ConnectToSKI(ski string) error {
 	}
 
 	<-ctx.Done()
+
+	return nil
+}
+
+// Adds a new device to the list of known devices which can be connected to
+// and connect it if it is currently not connected
+func (s *EEBUSService) RegisterRemoteService(service ServiceDetails) error {
+	s.pairedServices = append(s.pairedServices, service)
+
+	if !s.connectionsHub.isSkiConnected(service.SKI) {
+		go s.connectRemoteServices()
+	}
+
+	return nil
+}
+
+// Remove a device from the list of known devices which can be connected to
+// and disconnect it if it is currently connected
+func (s *EEBUSService) UnregisterRemoteService(ski string) error {
+	newPairedDevice := make([]ServiceDetails, 0)
+
+	for _, device := range s.pairedServices {
+		if device.SKI != ski {
+			newPairedDevice = append(newPairedDevice, device)
+		}
+	}
+
+	s.pairedServices = newPairedDevice
+
+	if existingC := s.connectionsHub.connectionForSKI(ski); existingC != nil {
+		existingC.shutdown(true)
+	}
 
 	return nil
 }

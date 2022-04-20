@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
@@ -39,49 +38,40 @@ const (
 // A ConnectionHandler handles websocket connections.
 type ConnectionHandler struct {
 	// The ship connection mode of this connection
-	Role ShipRole
+	role ShipRole
 
-	// The remote SKI
-	SKI string
+	// The remote device
+	remoteService ServiceDetails
 
-	// The ship ID
-	ShipID string
+	// The local ship ID
+	localService ServiceDetails
 
 	// The connection hub handling all service connections
-	ConnectionsHub *ConnectionsHub
+	connectionsHub *ConnectionsHub
 
 	// The actual websocket connection
 	conn *websocket.Conn
 
+	// Is this connection initiated by the local service
+	isConnectedFromLocalService bool
+
 	// The read channel for incoming messages
 	readChannel chan []byte
 
-	// The shutdown channel
-	shutdownChannel chan struct{}
-
-	shutdownMux sync.Mutex
+	// The write channel for outgoing messages
+	writeChannel chan []byte
 
 	// Indicates wether the ship handshake has been completed
 	shipHandshakeComplete bool
 }
 
 // Connection handler when the service initiates a connection to a remote service
-func (c *ConnectionHandler) handleConnection(conn *websocket.Conn) {
-	c.conn = conn
-
-	if len(c.SKI) == 0 {
+func (c *ConnectionHandler) handleConnection() {
+	if len(c.remoteService.SKI) == 0 {
 		fmt.Println("SKI is not set")
-		c.shutdown()
+		c.conn.Close()
 		return
 	}
-
-	if c.ConnectionsHub.ConnectionForSKI(c.SKI) != nil {
-		fmt.Println("Client with SKI already connected")
-		c.shutdown()
-		return
-	}
-
-	c.ConnectionsHub.register <- c
 
 	c.startup()
 }
@@ -95,57 +85,44 @@ func (c *ConnectionHandler) skiFromX509Certificate(cert *x509.Certificate) (stri
 }
 
 func (c *ConnectionHandler) startup() {
-	c.readChannel = make(chan []byte, 1) // Listen to incoming websocket messages
-	c.shutdownChannel = make(chan struct{})
+	c.readChannel = make(chan []byte, 1)  // Listen to incoming websocket messages
+	c.writeChannel = make(chan []byte, 1) // Send outgoing websocket messages
 
+	fmt.Println("Open pumps")
 	go c.readPump()
+	go c.writePump()
 
 	go func() {
-		// perform ship handshake
 		if err := c.shipHandshake(); err != nil {
 			fmt.Println("SHIP handshake error: ", err)
-			c.shutdown()
-		}
-		if !c.shipHandshakeComplete {
+			c.shutdown(false)
 			return
-		}
-
-		for {
-			select {
-			case <-c.shutdownChannel:
-				return
-			case message := <-c.readChannel:
-				_, _ = c.parseMessage(message, true)
-			}
 		}
 	}()
 }
 
 // shutdown the connection and all internals
-func (c *ConnectionHandler) shutdown() {
-	c.shutdownMux.Lock()
-	defer c.shutdownMux.Unlock()
-
-	fmt.Println("shutting down connection ", c.SKI)
-
-	c.shutdownChannel <- struct{}{}
-
-	if c.conn != nil {
-		// close the SHIP connection according to the SHIP protocol
-		fmt.Println("closing SHIP")
-		c.shipClose()
-
-		fmt.Println("closing websocket connection")
-		c.conn.Close()
-	}
+// may only invoked after startup() is invoked!
+func (c *ConnectionHandler) shutdown(safeShutdown bool) {
+	c.connectionsHub.unregister <- c
 
 	if !isChannelClosed(c.readChannel) {
-		fmt.Println("closing read channel")
 		close(c.readChannel)
 	}
 
-	fmt.Println("unregistering connection")
-	c.ConnectionsHub.unregister <- c
+	if !isChannelClosed(c.writeChannel) {
+		close(c.writeChannel)
+	}
+
+	if c.conn != nil {
+		if c.shipHandshakeComplete && safeShutdown {
+			// close the SHIP connection according to the SHIP protocol
+			c.shipClose()
+		}
+
+		c.conn.Close()
+	}
+
 }
 
 func (c *ConnectionHandler) shipClose() {
@@ -172,10 +149,40 @@ func isChannelClosed[T any](ch <-chan T) bool {
 	}
 }
 
+// writePump pumps messages from the writeChannel to the websocket connection
+func (c *ConnectionHandler) writePump() {
+	ticker := time.NewTicker(pingPeriod)
+	defer func() {
+		ticker.Stop()
+		c.conn.Close()
+	}()
+
+	for {
+		select {
+		case message, ok := <-c.writeChannel:
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if !ok {
+				// The write channel has been closed
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+
+			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
+				return
+			}
+		case <-ticker.C:
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
+		}
+	}
+}
+
 // readPump pumps messages from the websocket connection into the read message channel
 func (c *ConnectionHandler) readPump() {
 	defer func() {
-		c.shutdown()
+		c.conn.Close()
 	}()
 
 	c.conn.SetReadLimit(maxMessageSize)
@@ -183,18 +190,14 @@ func (c *ConnectionHandler) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	for {
-		select {
-		case <-c.shutdownChannel:
+		message, err := c.readWebsocketMessage()
+		if err != nil {
+			fmt.Println(c.isConnectedFromLocalService, "Error reading message: ", err)
+			c.shutdown(false)
 			return
-		default:
-			message, err := c.readWebsocketMessage()
-			if err != nil {
-				fmt.Println("Error reading message: ", err)
-				break
-			}
-
-			c.readChannel <- message
 		}
+
+		c.readChannel <- message
 	}
 }
 
@@ -206,7 +209,6 @@ func (c *ConnectionHandler) readWebsocketMessage() ([]byte, error) {
 
 	msgType, b, err := c.conn.ReadMessage()
 	if err != nil {
-		fmt.Println("ReadMessage error: ", err)
 		return nil, err
 	}
 
@@ -227,14 +229,7 @@ func (c *ConnectionHandler) writeWebsocketMessage(message []byte) error {
 		return errors.New("Connection is not initialized")
 	}
 
-	c.conn.SetWriteDeadline((time.Now().Add(writeWait)))
-
-	err := c.conn.WriteMessage(websocket.BinaryMessage, message)
-	if err != nil {
-		fmt.Println("WriteMessage error: ", err)
-		c.shutdown()
-		return err
-	}
+	c.writeChannel <- message
 
 	return nil
 }
