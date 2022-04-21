@@ -16,12 +16,12 @@ const (
 type LoadControlEventStateType string
 
 const (
-	LoadControlEventStateTypeEventaccepted  LoadControlEventStateType = "eventAccepted"
-	LoadControlEventStateTypeEventstarted   LoadControlEventStateType = "eventStarted"
-	LoadControlEventStateTypeEventstopped   LoadControlEventStateType = "eventStopped"
-	LoadControlEventStateTypeEventrejected  LoadControlEventStateType = "eventRejected"
-	LoadControlEventStateTypeEventcancelled LoadControlEventStateType = "eventCancelled"
-	LoadControlEventStateTypeEventerror     LoadControlEventStateType = "eventError"
+	LoadControlEventStateTypeEventAccepted  LoadControlEventStateType = "eventAccepted"
+	LoadControlEventStateTypeEventStarted   LoadControlEventStateType = "eventStarted"
+	LoadControlEventStateTypeEventStopped   LoadControlEventStateType = "eventStopped"
+	LoadControlEventStateTypeEventRejected  LoadControlEventStateType = "eventRejected"
+	LoadControlEventStateTypeEventCancelled LoadControlEventStateType = "eventCancelled"
+	LoadControlEventStateTypeEventError     LoadControlEventStateType = "eventError"
 )
 
 type LoadControlLimitIdType uint
@@ -29,8 +29,8 @@ type LoadControlLimitIdType uint
 type LoadControlLimitTypeType string
 
 const (
-	LoadControlLimitTypeTypeMinvaluelimit LoadControlLimitTypeType = "minValueLimit"
-	LoadControlLimitTypeTypeMaxvaluelimit LoadControlLimitTypeType = "maxValueLimit"
+	LoadControlLimitTypeTypeMinValueLimit LoadControlLimitTypeType = "minValueLimit"
+	LoadControlLimitTypeTypeMaxValueLimit LoadControlLimitTypeType = "maxValueLimit"
 )
 
 type LoadControlCategoryType string

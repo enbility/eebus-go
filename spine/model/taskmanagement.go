@@ -5,10 +5,29 @@ type TaskManagementJobIdType uint
 type TaskManagementJobStateType string
 
 const (
-// DirectControlActivityStateEnumType
-// HvacOverrunStatusEnumType
-// LoadControlEventStateEnumType
-// PowerSequenceStateEnumType
+	// DirectControlActivityStateType
+	TaskManagementJobStateTypeRunning  TaskManagementJobStateType = "Running"
+	TaskManagementJobStateTypePaused   TaskManagementJobStateType = "paused"
+	TaskManagementJobStateTypeInactive TaskManagementJobStateType = "inactive"
+
+	// HvacOverrunStatusType
+	TaskManagementJobStateTypeActive   TaskManagementJobStateType = "active"
+	TaskManagementJobStateTypeFinished TaskManagementJobStateType = "finished"
+
+	// LoadControlEventStateType
+	TaskManagementJobStateTypeEventAccepted  TaskManagementJobStateType = "eventAccepted"
+	TaskManagementJobStateTypeEventStarted   TaskManagementJobStateType = "eventStarted"
+	TaskManagementJobStateTypeEventStopped   TaskManagementJobStateType = "eventStopped"
+	TaskManagementJobStateTypeEventRejected  TaskManagementJobStateType = "eventRejected"
+	TaskManagementJobStateTypeEventCancelled TaskManagementJobStateType = "eventCancelled"
+	TaskManagementJobStateTypeEventError     TaskManagementJobStateType = "eventError"
+
+	// PowerSequenceStateType
+	TaskManagementJobStateTypeScheduled       TaskManagementJobStateType = "scheduled"
+	TaskManagementJobStateTypeScheduledPaused TaskManagementJobStateType = "scheduledPaused"
+	TaskManagementJobStateTypePending         TaskManagementJobStateType = "pending"
+	TaskManagementJobStateTypeCompleted       TaskManagementJobStateType = "completed"
+	TaskManagementJobStateTypeInvalid         TaskManagementJobStateType = "invalid"
 )
 
 type TaskManagementJobSourceType string

@@ -3,7 +3,7 @@ package model
 type DirectControlActivityStateType string
 
 const (
-	DirectControlActivityStateTypeRunning  AlarmTypeType = "Running"
+	DirectControlActivityStateTypeRunning  AlarmTypeType = "running"
 	DirectControlActivityStateTypePaused   AlarmTypeType = "paused"
 	DirectControlActivityStateTypeInactive AlarmTypeType = "inactive"
 )

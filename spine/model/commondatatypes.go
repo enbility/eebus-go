@@ -720,11 +720,29 @@ const (
 type FeatureSpecificUsageType string
 
 const (
-// FeatureDirectControlSpecificUsageEnumType
-// FeatureHvacSpecificUsageEnumType
-// FeatureMeasurementSpecificUsageEnumType
-// FeatureSetpointSpecificUsageEnumType
-// FeatureSmartEnergyManagementPsSpecificUsageEnumType
+	// FeatureDirectControlSpecificUsageEnumType
+	FeatureSpecificUsageTypeHistory  FeatureSpecificUsageType = "History"
+	FeatureSpecificUsageTypeRealtime FeatureSpecificUsageType = "RealTime"
+
+	// FeatureHvacSpecificUsageEnumType
+	FeatureSpecificUsageTypeOperationmode FeatureSpecificUsageType = "OperationMode"
+	FeatureSpecificUsageTypeOverrun       FeatureSpecificUsageType = "Overrun"
+
+	// FeatureMeasurementSpecificUsageEnumType
+	FeatureSpecificUsageTypeContact     FeatureSpecificUsageType = "Contact"
+	FeatureSpecificUsageTypeElectrical  FeatureSpecificUsageType = "Electrical"
+	FeatureSpecificUsageTypeHeat        FeatureSpecificUsageType = "Heat"
+	FeatureSpecificUsageTypeLevel       FeatureSpecificUsageType = "Level"
+	FeatureSpecificUsageTypePressure    FeatureSpecificUsageType = "Pressure"
+	FeatureSpecificUsageTypeTemperature FeatureSpecificUsageType = "Temperature"
+
+	// FeatureSetpointSpecificUsageEnumType
+
+	// FeatureSmartEnergyManagementPsSpecificUsageEnumType
+	FeatureSpecificUsageTypeFixedForecast                         FeatureSpecificUsageType = "FixedForecast"
+	FeatureSpecificUsageTypeFlexibleChosenForecast                FeatureSpecificUsageType = "FlexibleChosenForecast"
+	FeatureSpecificUsageTypeFlexibleOptionalForecast              FeatureSpecificUsageType = "FlexibleOptionalForecast"
+	FeatureSpecificUsageTypeOptionalSequenceBasedImmediateControl FeatureSpecificUsageType = "OptionalSequenceBasedImmediateControl"
 )
 
 type FeatureDirectControlSpecificUsageEnumType string
@@ -753,6 +771,16 @@ const (
 )
 
 type FeatureSetpointSpecificUsageEnumType string
+
+const (
+	// FeatureMeasurementSpecificUsageEnumType
+	FeatureSetpointSpecificUsageEnumTypeContact     FeatureSetpointSpecificUsageEnumType = "Contact"
+	FeatureSetpointSpecificUsageEnumTypeElectrical  FeatureSetpointSpecificUsageEnumType = "Electrical"
+	FeatureSetpointSpecificUsageEnumTypeHeat        FeatureSetpointSpecificUsageEnumType = "Heat"
+	FeatureSetpointSpecificUsageEnumTypeLevel       FeatureSetpointSpecificUsageEnumType = "Level"
+	FeatureSetpointSpecificUsageEnumTypePressure    FeatureSetpointSpecificUsageEnumType = "Pressure"
+	FeatureSetpointSpecificUsageEnumTypeTemperature FeatureSetpointSpecificUsageEnumType = "Temperature"
+)
 
 type FeatureSmartEnergyManagementPsSpecificUsageEnumType string
 

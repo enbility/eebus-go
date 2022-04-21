@@ -26,22 +26,22 @@ const (
 type PowerSequenceScopeType string
 
 const (
-	PowerSequenceScopeTypeForecast       PowerSequenceScopeType = "Forecast"
-	PowerSequenceScopeTypeMeasurement    PowerSequenceScopeType = "Measurement"
-	PowerSequenceScopeTypeRecommendation PowerSequenceScopeType = "Recommendation"
+	PowerSequenceScopeTypeForecast       PowerSequenceScopeType = "forecast"
+	PowerSequenceScopeTypeMeasurement    PowerSequenceScopeType = "measurement"
+	PowerSequenceScopeTypeRecommendation PowerSequenceScopeType = "recommendation"
 )
 
 type PowerSequenceStateType string
 
 const (
-	PowerSequenceStateTypeRunning         PowerSequenceStateType = "Running"
-	PowerSequenceStateTypePaused          PowerSequenceStateType = "Paused"
-	PowerSequenceStateTypeScheduled       PowerSequenceStateType = "Scheduled"
-	PowerSequenceStateTypeScheduledPaused PowerSequenceStateType = "ScheduledPaused"
-	PowerSequenceStateTypePending         PowerSequenceStateType = "Pending"
-	PowerSequenceStateTypeInactive        PowerSequenceStateType = "Inactive"
-	PowerSequenceStateTypeCompleted       PowerSequenceStateType = "Completed"
-	PowerSequenceStateTypeInvalid         PowerSequenceStateType = "Invalid"
+	PowerSequenceStateTypeRunning         PowerSequenceStateType = "running"
+	PowerSequenceStateTypePaused          PowerSequenceStateType = "paused"
+	PowerSequenceStateTypeScheduled       PowerSequenceStateType = "scheduled"
+	PowerSequenceStateTypeScheduledPaused PowerSequenceStateType = "scheduledPaused"
+	PowerSequenceStateTypePending         PowerSequenceStateType = "pending"
+	PowerSequenceStateTypeInactive        PowerSequenceStateType = "inactive"
+	PowerSequenceStateTypeCompleted       PowerSequenceStateType = "completed"
+	PowerSequenceStateTypeInvalid         PowerSequenceStateType = "invalid"
 )
 
 type PowerTimeSlotScheduleDataType struct {
