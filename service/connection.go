@@ -192,7 +192,7 @@ func (c *ConnectionHandler) readPump() {
 	for {
 		message, err := c.readWebsocketMessage()
 		if err != nil {
-			fmt.Println(c.isConnectedFromLocalService, "Error reading message: ", err)
+			fmt.Println("Error reading message: ", err)
 			c.shutdown(false)
 			return
 		}

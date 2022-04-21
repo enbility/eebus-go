@@ -137,6 +137,8 @@ func (s *EEBUSService) Shutdown() {
 
 // Connect to another EEBUS service
 func (s *EEBUSService) connectFoundService(remoteService ServiceDetails, host, port string) error {
+	fmt.Println("Connecting to ", remoteService.SKI)
+
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 5 * time.Second,
@@ -327,7 +329,7 @@ func (s *EEBUSService) MdnsAnnounce() error {
 			"brand=" + s.DeviceBrand,
 			"model=" + s.DeviceModel,
 			"type=" + string(s.DeviceType),
-			"register=" + fmt.Sprintf("%v", (s.RemoteDeviceAutoAccept == true)),
+			"register=" + fmt.Sprintf("%v", s.RegisterAutoAccept),
 		},
 		ifaces,
 	)

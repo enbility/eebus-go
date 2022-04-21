@@ -1,7 +1,5 @@
 package ship
 
-type MsgType byte
-
 const (
 	MsgTypeInit    byte = 0
 	MsgTypeControl byte = 1

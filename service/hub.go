@@ -36,7 +36,7 @@ func (h *ConnectionsHub) run() {
 			// SHIP 12.2.2 recommends that the connection initiated with the higher SKI should retain the connection
 			existingC := h.connectionForSKI(c.remoteService.SKI)
 			if existingC != nil {
-				fmt.Println(c.isConnectedFromLocalService, "Connection already exists for SKI: ", c.remoteService.SKI)
+				fmt.Println("Connection already exists for SKI: ", c.remoteService.SKI)
 
 				// If the connection is initiated by the local service and the local SKI is higher than the remote SKI
 				// then the existing connection should be closed
