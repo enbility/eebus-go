@@ -71,8 +71,7 @@ type EEBUSService struct {
 	// If enabled will automatically search for other services with
 	// the same setting and automatically connect to them.
 	// Has to be set on configuring the service!
-	// TODO: if enabled, search for other services with auto-accept and automatically connect
-	//       if disabled, user verification needs to be implemented and supported
+	// TODO: if disabled, user verification needs to be implemented and supported
 	RegisterAutoAccept bool
 
 	// The local service details
