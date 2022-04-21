@@ -40,10 +40,10 @@ type ConnectionHandler struct {
 	// The ship connection mode of this connection
 	role ShipRole
 
-	// The remote device
+	// The remote service
 	remoteService ServiceDetails
 
-	// The local ship ID
+	// The local service
 	localService ServiceDetails
 
 	// The connection hub handling all service connections
@@ -137,7 +137,7 @@ func (c *ConnectionHandler) shipClose() {
 		},
 	}
 
-	_ = c.sendModel(closeMessage)
+	_ = c.sendModel(ship.MsgTypeControl, closeMessage)
 }
 
 func isChannelClosed[T any](ch <-chan T) bool {
@@ -235,7 +235,7 @@ func (c *ConnectionHandler) writeWebsocketMessage(message []byte) error {
 }
 
 // send a json message for a provided model to the websocket connection
-func (c *ConnectionHandler) sendModel(model interface{}) error {
+func (c *ConnectionHandler) sendModel(typ byte, model interface{}) error {
 	msg, err := json.Marshal(model)
 	if err != nil {
 		return err
@@ -249,7 +249,7 @@ func (c *ConnectionHandler) sendModel(model interface{}) error {
 	fmt.Println("Send: ", string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
-	shipMsg := []byte{ship.MsgTypeControl}
+	shipMsg := []byte{typ}
 	shipMsg = append(shipMsg, eebusMsg...)
 
 	err = c.writeWebsocketMessage(shipMsg)

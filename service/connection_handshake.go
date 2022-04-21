@@ -89,7 +89,7 @@ func (c *ConnectionHandler) handshakeHello() error {
 		},
 	}
 
-	if err := c.sendModel(helloMsg); err != nil {
+	if err := c.sendModel(ship.MsgTypeControl, helloMsg); err != nil {
 		return err
 	}
 
@@ -151,7 +151,7 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 
 		protocolHandshake.MessageProtocolHandshake.HandshakeType = ship.ProtocolHandshakeTypeTypeSelect
 
-		if err = c.sendModel(protocolHandshake); err != nil {
+		if err = c.sendModel(ship.MsgTypeControl, protocolHandshake); err != nil {
 			return err
 		}
 
@@ -176,7 +176,7 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 
 		protocolHandshake.MessageProtocolHandshake.HandshakeType = ship.ProtocolHandshakeTypeTypeAnnounceMax
 
-		if err = c.sendModel(protocolHandshake); err != nil {
+		if err = c.sendModel(ship.MsgTypeControl, protocolHandshake); err != nil {
 			return err
 		}
 
@@ -205,7 +205,7 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 				},
 			},
 		}
-		if err = c.sendModel(protocolHandshake); err != nil {
+		if err = c.sendModel(ship.MsgTypeControl, protocolHandshake); err != nil {
 			return err
 		}
 		// SME_PROT_H_STATE_CLIENT_OK
@@ -228,7 +228,7 @@ func (c *ConnectionHandler) handshakePin() error {
 		},
 	}
 
-	if err = c.sendModel(pinState); err != nil {
+	if err = c.sendModel(ship.MsgTypeControl, pinState); err != nil {
 		return err
 	}
 
@@ -268,7 +268,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 		AccessMethodsRequest: ship.AccessMethodsRequestType{},
 	}
 
-	if err = c.sendModel(accessMethodsRequest); err != nil {
+	if err = c.sendModel(ship.MsgTypeControl, accessMethodsRequest); err != nil {
 		return err
 	}
 
@@ -290,7 +290,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 					Id: &methodsId,
 				},
 			}
-			if err = c.sendModel(accessMethods); err != nil {
+			if err = c.sendModel(ship.MsgTypeControl, accessMethods); err != nil {
 				return err
 			}
 		} else if strings.Contains(dataString, "\"accessMethods\":{") {
