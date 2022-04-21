@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -29,8 +30,9 @@ var ciperSuites = []uint16{
 }
 
 type ServiceDetails struct {
-	SKI    string
-	ShipID string
+	SKI                string
+	ShipID             string
+	RegisterAutoAccept bool
 }
 
 // A service is the central element of an EEBUS service
@@ -66,7 +68,12 @@ type EEBUSService struct {
 	Certificate tls.Certificate
 
 	// Wether remote devices should be automatically accepted
-	RemoteDeviceAutoAccept bool
+	// If enabled will automatically search for other services with
+	// the same setting and automatically connect to them.
+	// Has to be set on configuring the service!
+	// TODO: if enabled, search for other services with auto-accept and automatically connect
+	//       if disabled, user verification needs to be implemented and supported
+	RegisterAutoAccept bool
 
 	// The local service details
 	localService ServiceDetails
@@ -106,9 +113,11 @@ func (s *EEBUSService) Start() {
 		fmt.Println(err)
 		return
 	}
+
 	s.localService = ServiceDetails{
-		SKI:    ski,
-		ShipID: s.DeviceIdentifier,
+		SKI:                ski,
+		ShipID:             s.DeviceIdentifier,
+		RegisterAutoAccept: s.RegisterAutoAccept,
 	}
 
 	fmt.Println("Local SKI: ", ski)
@@ -124,6 +133,11 @@ func (s *EEBUSService) Start() {
 
 	if err = s.MdnsAnnounce(); err != nil {
 		fmt.Println(err)
+	}
+
+	// Automatically search and connect to services with the same setting
+	if s.RegisterAutoAccept {
+		go s.connectRemoteServices()
 	}
 }
 
@@ -361,8 +375,22 @@ func (s *EEBUSService) pairedServiceForSKI(ski string) (ServiceDetails, error) {
 	return ServiceDetails{}, fmt.Errorf("No paired service found for SKI %s", ski)
 }
 
+var connectServicesMux sync.Mutex
+var connectedServicesRunning bool
+
 // Searches via mDNS for paired SHIP services that are not yet connected
+// TODO: This should be done in a seperate struct being triggered by a channel
+//   to make sure it is not running multiple times at the same time and gets
+//   new remote services information while running safely
 func (s *EEBUSService) connectRemoteServices() error {
+	connectServicesMux.Lock()
+	if connectedServicesRunning {
+		connectServicesMux.Unlock()
+		return nil
+	}
+	connectedServicesRunning = true
+	connectServicesMux.Unlock()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
@@ -372,6 +400,7 @@ func (s *EEBUSService) connectRemoteServices() error {
 			fmt.Println("Found service: ", entry.ServiceInstanceName())
 
 			var deviceType, ski string
+			var registerAuto bool
 
 			for _, element := range entry.Text {
 				if strings.HasPrefix(element, "type=") {
@@ -381,14 +410,19 @@ func (s *EEBUSService) connectRemoteServices() error {
 				if strings.HasPrefix(element, "ski=") {
 					ski = strings.Split(element, "=")[1]
 				}
+
+				if strings.HasPrefix(element, "register=") {
+					registerAuto = (strings.Split(element, "=")[1] == "true")
+				}
 			}
 
-			fmt.Println("SKI: ", ski, " DeviceType: ", deviceType)
+			fmt.Println("SKI: ", ski, " DeviceType: ", deviceType, " RegisterAuto: ", registerAuto)
 
 			if len(ski) == 0 || len(deviceType) == 0 {
 				continue
 			}
 
+			// Only try to connect to compatible services
 			compatibleDeviceType := false
 			for _, element := range s.RemoteDeviceTypes {
 				if string(element) == deviceType {
@@ -401,11 +435,19 @@ func (s *EEBUSService) connectRemoteServices() error {
 				continue
 			}
 
-			fmt.Println("Lets connect to this service")
-
-			pairedService, err := s.pairedServiceForSKI(ski)
-			if err == nil && !s.connectionsHub.isSkiConnected(ski) {
-				s.connectFoundService(pairedService, entry.HostName, strconv.Itoa(int(entry.Port)))
+			// If local and remote registration are set to auto acceppt, we can connect to the remote service
+			if s.RegisterAutoAccept && registerAuto {
+				remoteService := ServiceDetails{
+					SKI:                ski,
+					RegisterAutoAccept: true,
+				}
+				s.connectFoundService(remoteService, entry.HostName, strconv.Itoa(int(entry.Port)))
+			} else {
+				// Check if the remote service is paired
+				pairedService, err := s.pairedServiceForSKI(ski)
+				if err == nil && !s.connectionsHub.isSkiConnected(ski) {
+					s.connectFoundService(pairedService, entry.HostName, strconv.Itoa(int(entry.Port)))
+				}
 			}
 
 			pairedServiceMissing := false
@@ -415,7 +457,7 @@ func (s *EEBUSService) connectRemoteServices() error {
 					break
 				}
 			}
-			if !pairedServiceMissing {
+			if !pairedServiceMissing && !s.RegisterAutoAccept {
 				fmt.Println("Exit discovery")
 				return
 			}
@@ -434,6 +476,7 @@ func (s *EEBUSService) connectRemoteServices() error {
 
 	<-ctx.Done()
 
+	connectedServicesRunning = false
 	return nil
 }
 
