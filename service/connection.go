@@ -41,10 +41,10 @@ type ConnectionHandler struct {
 	role ShipRole
 
 	// The remote service
-	remoteService ServiceDetails
+	remoteService *ServiceDetails
 
 	// The local service
-	localService ServiceDetails
+	localService *ServiceDetails
 
 	// The connection hub handling all service connections
 	connectionsHub *connectionsHub

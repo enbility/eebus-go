@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	myService = &service.EEBUSService{
+	serviceDescription := service.ServiceDescription{
 		DeviceBrand:        "Demo",
 		DeviceModel:        "HEMS",
 		DeviceSerialNumber: "234567890",
@@ -39,10 +39,14 @@ func main() {
 		},
 	}
 
+	myService = &service.EEBUSService{
+		ServiceDescription: &serviceDescription,
+	}
+
 	var err error
 	var certificate tls.Certificate
 
-	myService.Port, err = strconv.Atoi(os.Args[1])
+	serviceDescription.Port, err = strconv.Atoi(os.Args[1])
 	if err != nil {
 		usage()
 		log.Fatal(err)
@@ -78,7 +82,7 @@ func main() {
 		fmt.Println(string(pemdata))
 	}
 
-	myService.Certificate = certificate
+	serviceDescription.Certificate = certificate
 	myService.Start()
 	defer myService.Shutdown()
 

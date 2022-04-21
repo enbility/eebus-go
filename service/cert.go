@@ -8,9 +8,16 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"errors"
+	"fmt"
 	"math/big"
 	"time"
 )
+
+var ciperSuites = []uint16{
+	tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, // SHIP 9.1: required cipher suite
+	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, // SHIP 9.1: optional cipher suite
+}
 
 // Create a ship compatible self signed certificate
 // organizationalUnit is the OU of the certificate
@@ -71,4 +78,14 @@ func CreateCertificate(organizationalUnit, organization, country, commonName str
 	}
 
 	return tlsCertificate, nil
+}
+
+func skiFromCertificate(cert *x509.Certificate) (string, error) {
+	// check if the clients certificate provides a SKI
+	subjectKeyId := cert.SubjectKeyId
+	if len(subjectKeyId) != 20 {
+		return "", errors.New("Client certificate does not provide a SKI")
+	}
+
+	return fmt.Sprintf("%0x", subjectKeyId), nil
 }
