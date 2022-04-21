@@ -11,6 +11,7 @@ import (
 
 // process the ship handshake and return an error if the handshake failed
 func (c *ConnectionHandler) shipHandshake() error {
+	// TODO: change all of this to a state machine
 	if err := c.handshakeInit(); err != nil {
 		return err
 	}
