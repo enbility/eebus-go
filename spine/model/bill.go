@@ -2,41 +2,35 @@ package model
 
 type BillIdType uint
 
-type BillTypeType BillTypeEnumType
-
-type BillTypeEnumType string
+type BillTypeType string
 
 const (
-	BillTypeEnumTypeChargingSummary BillTypeEnumType = "chargingSummary"
+	BillTypeTypeChargingSummary BillTypeType = "chargingSummary"
 )
 
 type BillPositionIdType uint
 
 type BillPositionCountType BillPositionIdType
 
-type BillPositionTypeType BillPositionTypeEnumType
-
-type BillPositionTypeEnumType string
+type BillPositionTypeType string
 
 const (
-	BillPositionTypeEnumTypeGridElectricEnergy         BillPositionTypeEnumType = "gridElectricEnergy"
-	BillPositionTypeEnumTypeSelfProducedElectricEnergy BillPositionTypeEnumType = "selfProducedElectricEnergy"
+	BillPositionTypeTypeGridElectricEnergy         BillPositionTypeType = "gridElectricEnergy"
+	BillPositionTypeTypeSelfProducedElectricEnergy BillPositionTypeType = "selfProducedElectricEnergy"
 )
 
 type BillValueIdType uint
 
 type BillCostIdType uint
 
-type BillCostTypeType BillCostTypeEnumType
-
-type BillCostTypeEnumType string
+type BillCostTypeType string
 
 const (
-	BillCostTypeEnumTypeAbsolutePrice    BillCostTypeEnumType = "absolutePrice"
-	BillCostTypeEnumTypeRelativePrice    BillCostTypeEnumType = "relativePrice"
-	BillCostTypeEnumTypeCo2Emission      BillCostTypeEnumType = "co2Emission"
-	BillCostTypeEnumTypeRenewableEnergy  BillCostTypeEnumType = "renewableEnergy"
-	BillCostTypeEnumTypeRadioactiveWaste BillCostTypeEnumType = "radioactiveWaste"
+	BillCostTypeTypeAbsolutePrice    BillCostTypeType = "absolutePrice"
+	BillCostTypeTypeRelativePrice    BillCostTypeType = "relativePrice"
+	BillCostTypeTypeCo2Emission      BillCostTypeType = "co2Emission"
+	BillCostTypeTypeRenewableEnergy  BillCostTypeType = "renewableEnergy"
+	BillCostTypeTypeRadioactiveWaste BillCostTypeType = "radioactiveWaste"
 )
 
 type BillValueType struct {

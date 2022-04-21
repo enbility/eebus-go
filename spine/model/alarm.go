@@ -2,14 +2,12 @@ package model
 
 type AlarmIdType uint
 
-type AlarmTypeType AlarmTypeEnumType
-
-type AlarmTypeEnumType string
+type AlarmTypeType string
 
 const (
-	AlarmTypeEnumTypeAlarmCancelled AlarmTypeEnumType = "alarmCancelled"
-	AlarmTypeEnumTypeUnderThreshold AlarmTypeEnumType = "underThreshold"
-	AlarmTypeEnumTypeOverThreshold  AlarmTypeEnumType = "overThreshold"
+	AlarmTypeTypeAlarmCancelled AlarmTypeType = "alarmCancelled"
+	AlarmTypeTypeUnderThreshold AlarmTypeType = "underThreshold"
+	AlarmTypeTypeOverThreshold  AlarmTypeType = "overThreshold"
 )
 
 type AlarmDataType struct {

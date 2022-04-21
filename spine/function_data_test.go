@@ -13,7 +13,7 @@ func TestFunctionData(t *testing.T) {
 	setData := &model.DeviceClassificationManufacturerDataType{
 		DeviceName: util.Ptr(model.DeviceClassificationStringType("device name")),
 	}
-	functionType := model.FunctionEnumTypeDeviceClassificationManufacturerData
+	functionType := model.FunctionTypeDeviceClassificationManufacturerData
 	sut := NewFunctionData[model.DeviceClassificationManufacturerDataType](functionType)
 	sut.SetData(setData)
 	getData := sut.Data()

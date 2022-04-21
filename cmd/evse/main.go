@@ -33,9 +33,9 @@ func main() {
 		DeviceModel:        "HEMS",
 		DeviceSerialNumber: "234567890",
 		DeviceIdentifier:   "Demo-EVSE-234567890",
-		DeviceType:         model.DeviceTypeEnumTypeChargingStation,
-		RemoteDeviceTypes: []model.DeviceTypeEnumType{
-			model.DeviceTypeEnumTypeEnergyManagementSystem,
+		DeviceType:         model.DeviceTypeTypeChargingStation,
+		RemoteDeviceTypes: []model.DeviceTypeType{
+			model.DeviceTypeTypeEnergyManagementSystem,
 		},
 	}
 

@@ -1,13 +1,11 @@
 package model
 
-type DirectControlActivityStateType DirectControlActivityStateEnumType
-
-type DirectControlActivityStateEnumType string
+type DirectControlActivityStateType string
 
 const (
-	DirectControlActivityStateEnumTypeRunning  AlarmTypeEnumType = "Running"
-	DirectControlActivityStateEnumTypePaused   AlarmTypeEnumType = "paused"
-	DirectControlActivityStateEnumTypeInactive AlarmTypeEnumType = "inactive"
+	DirectControlActivityStateTypeRunning  AlarmTypeType = "running"
+	DirectControlActivityStateTypePaused   AlarmTypeType = "paused"
+	DirectControlActivityStateTypeInactive AlarmTypeType = "inactive"
 )
 
 type DirectControlActivityDataType struct {

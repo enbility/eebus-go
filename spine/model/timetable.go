@@ -6,14 +6,12 @@ type TimeSlotIdType uint
 
 type TimeSlotCountType TimeSlotIdType
 
-type TimeSlotTimeModeType TimeSlotTimeModeEnumType
-
-type TimeSlotTimeModeEnumType string
+type TimeSlotTimeModeType string
 
 const (
-	TimeSlotTimeModeEnumTypeAbsolute  TimeSlotTimeModeEnumType = "absolute"
-	TimeSlotTimeModeEnumTypeRecurring TimeSlotTimeModeEnumType = "recurring"
-	TimeSlotTimeModeEnumTypeBoth      TimeSlotTimeModeEnumType = "both"
+	TimeSlotTimeModeTypeAbsolute  TimeSlotTimeModeType = "absolute"
+	TimeSlotTimeModeTypeRecurring TimeSlotTimeModeType = "recurring"
+	TimeSlotTimeModeTypeBoth      TimeSlotTimeModeType = "both"
 )
 
 type TimeTableDataType struct {

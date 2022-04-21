@@ -1,18 +1,16 @@
 package model
 
-type ActuatorLevelFctType ActuatorLevelFctEnumType
-
-type ActuatorLevelFctEnumType string
+type ActuatorLevelFctType string
 
 const (
-	ActuatorLevelFctEnumTypeStart              ActuatorLevelFctEnumType = "start"
-	ActuatorLevelFctEnumTypeUp                 ActuatorLevelFctEnumType = "up"
-	ActuatorLevelFctEnumTypeDown               ActuatorLevelFctEnumType = "down"
-	ActuatorLevelFctEnumTypeStop               ActuatorLevelFctEnumType = "stop"
-	ActuatorLevelFctEnumTypePercentageAbsolute ActuatorLevelFctEnumType = "percentageAbsolute"
-	ActuatorLevelFctEnumTypePercentageRelative ActuatorLevelFctEnumType = "percentageRelative"
-	ActuatorLevelFctEnumTypeAbsolut            ActuatorLevelFctEnumType = "absolut"
-	ActuatorLevelFctEnumTypeRelative           ActuatorLevelFctEnumType = "relative"
+	ActuatorLevelFctTypeStart              ActuatorLevelFctType = "start"
+	ActuatorLevelFctTypeUp                 ActuatorLevelFctType = "up"
+	ActuatorLevelFctTypeDown               ActuatorLevelFctType = "down"
+	ActuatorLevelFctTypeStop               ActuatorLevelFctType = "stop"
+	ActuatorLevelFctTypePercentageAbsolute ActuatorLevelFctType = "percentageAbsolute"
+	ActuatorLevelFctTypePercentageRelative ActuatorLevelFctType = "percentageRelative"
+	ActuatorLevelFctTypeAbsolut            ActuatorLevelFctType = "absolut"
+	ActuatorLevelFctTypeRelative           ActuatorLevelFctType = "relative"
 )
 
 type ActuatorLevelDataType struct {

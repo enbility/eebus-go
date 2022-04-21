@@ -6,12 +6,12 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
-func CreateFunctionData[F any](featureType model.FeatureTypeEnumType) []F {
+func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 	switch featureType {
-	case model.FeatureTypeEnumTypeDeviceClassification:
+	case model.FeatureTypeTypeDeviceClassification:
 		return []F{
-			createFunctionData[model.DeviceClassificationManufacturerDataType, F](model.FunctionEnumTypeDeviceClassificationManufacturerData),
-			createFunctionData[model.DeviceClassificationUserDataType, F](model.FunctionEnumTypeDeviceClassificationUserData),
+			createFunctionData[model.DeviceClassificationManufacturerDataType, F](model.FunctionTypeDeviceClassificationManufacturerData),
+			createFunctionData[model.DeviceClassificationUserDataType, F](model.FunctionTypeDeviceClassificationUserData),
 		}
 		// TODO: Add more feature types
 	}
@@ -19,7 +19,7 @@ func CreateFunctionData[F any](featureType model.FeatureTypeEnumType) []F {
 	panic(fmt.Errorf("unknown featureType '%s'", featureType))
 }
 
-func createFunctionData[T any, F any](functionType model.FunctionEnumType) F {
+func createFunctionData[T any, F any](functionType model.FunctionType) F {
 	x := any(new(F))
 	switch x.(type) {
 	case *FunctionDataCmd:

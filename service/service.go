@@ -43,7 +43,7 @@ type EEBUSService struct {
 	DeviceModel string
 
 	// The EEBUS device type of the device model
-	DeviceType model.DeviceTypeEnumType
+	DeviceType model.DeviceTypeType
 
 	// Serial number of the device
 	DeviceSerialNumber string
@@ -53,7 +53,7 @@ type EEBUSService struct {
 	DeviceIdentifier string
 
 	// The EEBUS device type of supported remote devices
-	RemoteDeviceTypes []model.DeviceTypeEnumType
+	RemoteDeviceTypes []model.DeviceTypeType
 
 	// Network interface to use for the service
 	// Optional, if not set all detected interfaces will be used

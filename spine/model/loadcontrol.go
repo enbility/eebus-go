@@ -2,51 +2,43 @@ package model
 
 type LoadControlEventIdType string
 
-type LoadControlEventActionType LoadControlEventActionEnumType
-
-type LoadControlEventActionEnumType string
+type LoadControlEventActionType string
 
 const (
-	LoadControlEventActionEnumTypePause     LoadControlEventActionEnumType = "pause"
-	LoadControlEventActionEnumTypeResume    LoadControlEventActionEnumType = "resume"
-	LoadControlEventActionEnumTypeReduce    LoadControlEventActionEnumType = "reduce"
-	LoadControlEventActionEnumTypeIncrease  LoadControlEventActionEnumType = "increase"
-	LoadControlEventActionEnumTypeEmergency LoadControlEventActionEnumType = "emergency"
-	LoadControlEventActionEnumTypeNormal    LoadControlEventActionEnumType = "normal"
+	LoadControlEventActionTypePause     LoadControlEventActionType = "pause"
+	LoadControlEventActionTypeResume    LoadControlEventActionType = "resume"
+	LoadControlEventActionTypeReduce    LoadControlEventActionType = "reduce"
+	LoadControlEventActionTypeIncrease  LoadControlEventActionType = "increase"
+	LoadControlEventActionTypeEmergency LoadControlEventActionType = "emergency"
+	LoadControlEventActionTypeNormal    LoadControlEventActionType = "normal"
 )
 
-type LoadControlEventStateType LoadControlEventStateEnumType
-
-type LoadControlEventStateEnumType string
+type LoadControlEventStateType string
 
 const (
-	LoadControlEventStateEnumTypeEventaccepted  LoadControlEventStateEnumType = "eventAccepted"
-	LoadControlEventStateEnumTypeEventstarted   LoadControlEventStateEnumType = "eventStarted"
-	LoadControlEventStateEnumTypeEventstopped   LoadControlEventStateEnumType = "eventStopped"
-	LoadControlEventStateEnumTypeEventrejected  LoadControlEventStateEnumType = "eventRejected"
-	LoadControlEventStateEnumTypeEventcancelled LoadControlEventStateEnumType = "eventCancelled"
-	LoadControlEventStateEnumTypeEventerror     LoadControlEventStateEnumType = "eventError"
+	LoadControlEventStateTypeEventAccepted  LoadControlEventStateType = "eventAccepted"
+	LoadControlEventStateTypeEventStarted   LoadControlEventStateType = "eventStarted"
+	LoadControlEventStateTypeEventStopped   LoadControlEventStateType = "eventStopped"
+	LoadControlEventStateTypeEventRejected  LoadControlEventStateType = "eventRejected"
+	LoadControlEventStateTypeEventCancelled LoadControlEventStateType = "eventCancelled"
+	LoadControlEventStateTypeEventError     LoadControlEventStateType = "eventError"
 )
 
 type LoadControlLimitIdType uint
 
-type LoadControlLimitTypeType LoadControlLimitTypeEnumType
-
-type LoadControlLimitTypeEnumType string
+type LoadControlLimitTypeType string
 
 const (
-	LoadControlLimitTypeEnumTypeMinvaluelimit LoadControlLimitTypeEnumType = "minValueLimit"
-	LoadControlLimitTypeEnumTypeMaxvaluelimit LoadControlLimitTypeEnumType = "maxValueLimit"
+	LoadControlLimitTypeTypeMinValueLimit LoadControlLimitTypeType = "minValueLimit"
+	LoadControlLimitTypeTypeMaxValueLimit LoadControlLimitTypeType = "maxValueLimit"
 )
 
-type LoadControlCategoryType LoadControlCategoryEnumType
-
-type LoadControlCategoryEnumType string
+type LoadControlCategoryType string
 
 const (
-	LoadControlCategoryEnumTypeObligation     LoadControlCategoryEnumType = "obligation"
-	LoadControlCategoryEnumTypeRecommendation LoadControlCategoryEnumType = "recommendation"
-	LoadControlCategoryEnumTypeOptimization   LoadControlCategoryEnumType = "optimization"
+	LoadControlCategoryTypeObligation     LoadControlCategoryType = "obligation"
+	LoadControlCategoryTypeRecommendation LoadControlCategoryType = "recommendation"
+	LoadControlCategoryTypeOptimization   LoadControlCategoryType = "optimization"
 )
 
 type LoadControlNodeDataType struct {

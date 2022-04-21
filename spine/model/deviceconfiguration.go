@@ -4,15 +4,13 @@ type DeviceConfigurationKeyIdType uint
 
 type DeviceConfigurationKeyValueStringType string
 
-type DeviceConfigurationKeyNameType DeviceConfigurationKeyNameEnumType
-
-type DeviceConfigurationKeyNameEnumType string
+type DeviceConfigurationKeyNameType string
 
 const (
-	DeviceConfigurationKeyNameEnumTypePeakPowerOfPVSystem         DeviceConfigurationKeyNameEnumType = "peakPowerOfPvSystem"
-	DeviceConfigurationKeyNameEnumTypePvCurtailmentLimitFactor    DeviceConfigurationKeyNameEnumType = "pvCurtailmentLimitFactor"
-	DeviceConfigurationKeyNameEnumTypeAsymmetricChargingSupported DeviceConfigurationKeyNameEnumType = "asymmetricChargingSupported"
-	DeviceConfigurationKeyNameEnumTypeCommunicationsStandard      DeviceConfigurationKeyNameEnumType = "communicationsStandard"
+	DeviceConfigurationKeyNameTypePeakPowerOfPVSystem         DeviceConfigurationKeyNameType = "peakPowerOfPvSystem"
+	DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor    DeviceConfigurationKeyNameType = "pvCurtailmentLimitFactor"
+	DeviceConfigurationKeyNameTypeAsymmetricChargingSupported DeviceConfigurationKeyNameType = "asymmetricChargingSupported"
+	DeviceConfigurationKeyNameTypeCommunicationsStandard      DeviceConfigurationKeyNameType = "communicationsStandard"
 )
 
 type DeviceConfigurationKeyValueTypeType string

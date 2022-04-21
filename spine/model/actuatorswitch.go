@@ -1,13 +1,11 @@
 package model
 
-type ActuatorSwitchFctType ActuatorSwitchFctEnumType
-
-type ActuatorSwitchFctEnumType string
+type ActuatorSwitchFctType string
 
 const (
-	ActuatorSwitchFctEnumTypeOn     ActuatorSwitchFctEnumType = "on"
-	ActuatorSwitchFctEnumTypeOff    ActuatorSwitchFctEnumType = "off"
-	ActuatorSwitchFctEnumTypeToggle ActuatorSwitchFctEnumType = "toggle"
+	ActuatorSwitchFctTypeOn     ActuatorSwitchFctType = "on"
+	ActuatorSwitchFctTypeOff    ActuatorSwitchFctType = "off"
+	ActuatorSwitchFctTypeToggle ActuatorSwitchFctType = "toggle"
 )
 
 type ActuatorSwitchDataType struct {

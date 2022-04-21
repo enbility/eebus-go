@@ -4,31 +4,27 @@ type VendorStateCodeType string
 
 type LastErrorCodeType string
 
-type DeviceDiagnosisOperatingStateType DeviceDiagnosisOperatingStateEnumType
-
-type DeviceDiagnosisOperatingStateEnumType string
+type DeviceDiagnosisOperatingStateType string
 
 const (
-	DeviceDiagnosisOperatingStateEnumTypeNormalOperation  DeviceDiagnosisOperatingStateEnumType = "normalOperation"
-	DeviceDiagnosisOperatingStateEnumTypeStandby          DeviceDiagnosisOperatingStateEnumType = "standby"
-	DeviceDiagnosisOperatingStateEnumTypeFailure          DeviceDiagnosisOperatingStateEnumType = "failure"
-	DeviceDiagnosisOperatingStateEnumTypeServiceNeeded    DeviceDiagnosisOperatingStateEnumType = "serviceNeeded"
-	DeviceDiagnosisOperatingStateEnumTypeOverrideDetected DeviceDiagnosisOperatingStateEnumType = "overrideDetected"
-	DeviceDiagnosisOperatingStateEnumTypeInAlarm          DeviceDiagnosisOperatingStateEnumType = "inAlarm"
-	DeviceDiagnosisOperatingStateEnumTypeNotReachable     DeviceDiagnosisOperatingStateEnumType = "notReachable"
-	DeviceDiagnosisOperatingStateEnumTypeFinished         DeviceDiagnosisOperatingStateEnumType = "finished"
+	DeviceDiagnosisOperatingStateTypeNormalOperation  DeviceDiagnosisOperatingStateType = "normalOperation"
+	DeviceDiagnosisOperatingStateTypeStandby          DeviceDiagnosisOperatingStateType = "standby"
+	DeviceDiagnosisOperatingStateTypeFailure          DeviceDiagnosisOperatingStateType = "failure"
+	DeviceDiagnosisOperatingStateTypeServiceNeeded    DeviceDiagnosisOperatingStateType = "serviceNeeded"
+	DeviceDiagnosisOperatingStateTypeOverrideDetected DeviceDiagnosisOperatingStateType = "overrideDetected"
+	DeviceDiagnosisOperatingStateTypeInAlarm          DeviceDiagnosisOperatingStateType = "inAlarm"
+	DeviceDiagnosisOperatingStateTypeNotReachable     DeviceDiagnosisOperatingStateType = "notReachable"
+	DeviceDiagnosisOperatingStateTypeFinished         DeviceDiagnosisOperatingStateType = "finished"
 )
 
-type PowerSupplyConditionType PowerSupplyConditionEnumType
-
-type PowerSupplyConditionEnumType string
+type PowerSupplyConditionType string
 
 const (
-	PowerSupplyConditionEnumTypeGood     PowerSupplyConditionEnumType = "good"
-	PowerSupplyConditionEnumTypeLow      PowerSupplyConditionEnumType = "low"
-	PowerSupplyConditionEnumTypeCritical PowerSupplyConditionEnumType = "critical"
-	PowerSupplyConditionEnumTypeUnknown  PowerSupplyConditionEnumType = "unknown"
-	PowerSupplyConditionEnumTypeError    PowerSupplyConditionEnumType = "error"
+	PowerSupplyConditionTypeGood     PowerSupplyConditionType = "good"
+	PowerSupplyConditionTypeLow      PowerSupplyConditionType = "low"
+	PowerSupplyConditionTypeCritical PowerSupplyConditionType = "critical"
+	PowerSupplyConditionTypeUnknown  PowerSupplyConditionType = "unknown"
+	PowerSupplyConditionTypeError    PowerSupplyConditionType = "error"
 )
 
 type DeviceDiagnosisStateDataType struct {

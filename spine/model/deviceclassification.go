@@ -2,16 +2,14 @@ package model
 
 type DeviceClassificationStringType string
 
-type PowerSourceType PowerSourceEnumType
-
-type PowerSourceEnumType string
+type PowerSourceType string
 
 const (
-	PowerSourceEnumTypeUnknown          PowerSourceEnumType = "unknown"
-	PowerSourceEnumTypeMainssinglephase PowerSourceEnumType = "mainsSinglePhase"
-	PowerSourceEnumTypeMains3Phase      PowerSourceEnumType = "mains3Phase"
-	PowerSourceEnumTypeBattery          PowerSourceEnumType = "battery"
-	PowerSourceEnumTypeDc               PowerSourceEnumType = "dc"
+	PowerSourceTypeUnknown          PowerSourceType = "unknown"
+	PowerSourceTypeMainssinglephase PowerSourceType = "mainsSinglePhase"
+	PowerSourceTypeMains3Phase      PowerSourceType = "mains3Phase"
+	PowerSourceTypeBattery          PowerSourceType = "battery"
+	PowerSourceTypeDc               PowerSourceType = "dc"
 )
 
 type DeviceClassificationManufacturerDataType struct {

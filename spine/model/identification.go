@@ -2,14 +2,12 @@ package model
 
 type IdentificationIdType uint
 
-type IdentificationTypeType IdentificationTypeEnumType
-
-type IdentificationTypeEnumType string
+type IdentificationTypeType string
 
 const (
-	IdentificationTypeEnumTypeEui48       IdentificationTypeEnumType = "eui48"
-	IdentificationTypeEnumTypeEui64       IdentificationTypeEnumType = "eui64"
-	IdentificationTypeEnumTypeUserrfidtag IdentificationTypeEnumType = "userRfidTag"
+	IdentificationTypeTypeEui48       IdentificationTypeType = "eui48"
+	IdentificationTypeTypeEui64       IdentificationTypeType = "eui64"
+	IdentificationTypeTypeUserrfidtag IdentificationTypeType = "userRfidTag"
 )
 
 type IdentificationValueType string

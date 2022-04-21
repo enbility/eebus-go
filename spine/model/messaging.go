@@ -4,17 +4,15 @@ type MessagingNumberType uint
 
 type MessagingDataTextType string
 
-type MessagingTypeType MessagingTypeEnumType
-
-type MessagingTypeEnumType string
+type MessagingTypeType string
 
 const (
-	MessagingTypeEnumTypeLogging     MessagingTypeEnumType = "logging"
-	MessagingTypeEnumTypeInformation MessagingTypeEnumType = "information"
-	MessagingTypeEnumTypeWarning     MessagingTypeEnumType = "warning"
-	MessagingTypeEnumTypeAlarm       MessagingTypeEnumType = "alarm"
-	MessagingTypeEnumTypeEmergency   MessagingTypeEnumType = "emergency"
-	MessagingTypeEnumTypeObsolete    MessagingTypeEnumType = "obsolete"
+	MessagingTypeTypeLogging     MessagingTypeType = "logging"
+	MessagingTypeTypeInformation MessagingTypeType = "information"
+	MessagingTypeTypeWarning     MessagingTypeType = "warning"
+	MessagingTypeTypeAlarm       MessagingTypeType = "alarm"
+	MessagingTypeTypeEmergency   MessagingTypeType = "emergency"
+	MessagingTypeTypeObsolete    MessagingTypeType = "obsolete"
 )
 
 type MessagingDataType struct {

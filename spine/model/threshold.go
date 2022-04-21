@@ -2,21 +2,19 @@ package model
 
 type ThresholdIdType uint
 
-type ThresholdTypeType ThresholdTypeEnumType
-
-type ThresholdTypeEnumType string
+type ThresholdTypeType string
 
 const (
-	ThresholdTypeEnumTypeGoodAbove                ThresholdTypeEnumType = "goodAbove"
-	ThresholdTypeEnumTypeBadAbove                 ThresholdTypeEnumType = "badAbove"
-	ThresholdTypeEnumTypeGoodBelow                ThresholdTypeEnumType = "goodBelow"
-	ThresholdTypeEnumTypeBadBelow                 ThresholdTypeEnumType = "badBelow"
-	ThresholdTypeEnumTypeMinValueThreshold        ThresholdTypeEnumType = "minValueThreshold"
-	ThresholdTypeEnumTypeMaxValueThreshold        ThresholdTypeEnumType = "maxValueThreshold"
-	ThresholdTypeEnumTypeMinValueThresholdExtreme ThresholdTypeEnumType = "minValueThresholdExtreme"
-	ThresholdTypeEnumTypeMaxValueThresholdExtreme ThresholdTypeEnumType = "maxValueThresholdExtreme"
-	ThresholdTypeEnumTypeSagThreshold             ThresholdTypeEnumType = "sagThreshold"
-	ThresholdTypeEnumTypeSwellThreshold           ThresholdTypeEnumType = "swellThreshold"
+	ThresholdTypeTypeGoodAbove                ThresholdTypeType = "goodAbove"
+	ThresholdTypeTypeBadAbove                 ThresholdTypeType = "badAbove"
+	ThresholdTypeTypeGoodBelow                ThresholdTypeType = "goodBelow"
+	ThresholdTypeTypeBadBelow                 ThresholdTypeType = "badBelow"
+	ThresholdTypeTypeMinValueThreshold        ThresholdTypeType = "minValueThreshold"
+	ThresholdTypeTypeMaxValueThreshold        ThresholdTypeType = "maxValueThreshold"
+	ThresholdTypeTypeMinValueThresholdExtreme ThresholdTypeType = "minValueThresholdExtreme"
+	ThresholdTypeTypeMaxValueThresholdExtreme ThresholdTypeType = "maxValueThresholdExtreme"
+	ThresholdTypeTypeSagThreshold             ThresholdTypeType = "sagThreshold"
+	ThresholdTypeTypeSwellThreshold           ThresholdTypeType = "swellThreshold"
 )
 
 type ThresholdDataType struct {

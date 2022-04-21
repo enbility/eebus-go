@@ -8,14 +8,14 @@ import (
 )
 
 func TestFunctionDataFactory_FunctionData(t *testing.T) {
-	result := CreateFunctionData[FunctionData](model.FeatureTypeEnumTypeDeviceClassification)
+	result := CreateFunctionData[FunctionData](model.FeatureTypeTypeDeviceClassification)
 	assert.Equal(t, 2, len(result))
 	assert.IsType(t, &FunctionDataImpl[model.DeviceClassificationManufacturerDataType]{}, result[0])
 	assert.IsType(t, &FunctionDataImpl[model.DeviceClassificationUserDataType]{}, result[1])
 }
 
 func TestFunctionDataFactory_FunctionDataCmd(t *testing.T) {
-	result := CreateFunctionData[FunctionDataCmd](model.FeatureTypeEnumTypeDeviceClassification)
+	result := CreateFunctionData[FunctionDataCmd](model.FeatureTypeTypeDeviceClassification)
 	assert.Equal(t, 2, len(result))
 	assert.IsType(t, &FunctionDataCmdImpl[model.DeviceClassificationManufacturerDataType]{}, result[0])
 	assert.IsType(t, &FunctionDataCmdImpl[model.DeviceClassificationUserDataType]{}, result[1])
@@ -23,10 +23,10 @@ func TestFunctionDataFactory_FunctionDataCmd(t *testing.T) {
 
 func TestFunctionDataFactory_unknownFeatureType(t *testing.T) {
 	assert.PanicsWithError(t, "unknown featureType 'Alarm'",
-		func() { CreateFunctionData[FunctionDataCmd](model.FeatureTypeEnumTypeAlarm) })
+		func() { CreateFunctionData[FunctionDataCmd](model.FeatureTypeTypeAlarm) })
 }
 
 func TestFunctionDataFactory_unknownFunctionDataType(t *testing.T) {
 	assert.PanicsWithError(t, "only FunctionData and FunctionDataCmd are supported",
-		func() { CreateFunctionData[int](model.FeatureTypeEnumTypeDeviceClassification) })
+		func() { CreateFunctionData[int](model.FeatureTypeTypeDeviceClassification) })
 }
