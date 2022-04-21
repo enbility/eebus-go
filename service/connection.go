@@ -47,7 +47,7 @@ type ConnectionHandler struct {
 	localService ServiceDetails
 
 	// The connection hub handling all service connections
-	connectionsHub *ConnectionsHub
+	connectionsHub *connectionsHub
 
 	// The actual websocket connection
 	conn *websocket.Conn

@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type ConnectionsHub struct {
+type connectionsHub struct {
 	connections map[string]*ConnectionHandler
 
 	// Register reuqests from a new connection
@@ -19,8 +19,8 @@ type ConnectionsHub struct {
 	mux sync.Mutex
 }
 
-func newConnectionsHub(localService ServiceDetails) *ConnectionsHub {
-	return &ConnectionsHub{
+func newConnectionsHub(localService ServiceDetails) *connectionsHub {
+	return &connectionsHub{
 		connections:  make(map[string]*ConnectionHandler),
 		register:     make(chan *ConnectionHandler),
 		unregister:   make(chan *ConnectionHandler),
@@ -28,7 +28,7 @@ func newConnectionsHub(localService ServiceDetails) *ConnectionsHub {
 	}
 }
 
-func (h *ConnectionsHub) run() {
+func (h *connectionsHub) run() {
 	for {
 		select {
 		case c := <-h.register:
@@ -75,7 +75,7 @@ func (h *ConnectionsHub) run() {
 }
 
 // return the connection for a specific SKI
-func (h *ConnectionsHub) connectionForSKI(ski string) *ConnectionHandler {
+func (h *connectionsHub) connectionForSKI(ski string) *ConnectionHandler {
 	h.mux.Lock()
 	defer h.mux.Unlock()
 
@@ -83,14 +83,14 @@ func (h *ConnectionsHub) connectionForSKI(ski string) *ConnectionHandler {
 }
 
 // close all connections
-func (h *ConnectionsHub) shutdown() {
+func (h *connectionsHub) shutdown() {
 	for _, c := range h.connections {
 		c.shutdown(true)
 	}
 }
 
 // return if there is a connection for a SKI
-func (h *ConnectionsHub) isSkiConnected(ski string) bool {
+func (h *connectionsHub) isSkiConnected(ski string) bool {
 	h.mux.Lock()
 	defer h.mux.Unlock()
 

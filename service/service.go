@@ -81,7 +81,7 @@ type EEBUSService struct {
 	pairedServices []ServiceDetails
 
 	// Connection Registrations
-	connectionsHub *ConnectionsHub
+	connectionsHub *connectionsHub
 
 	// The web server for handling incoming websocket connections
 	httpServer *http.Server
