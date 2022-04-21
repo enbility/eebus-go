@@ -59,7 +59,7 @@ func main() {
 			log.Fatal(err)
 		}
 	} else {
-		certificate, err = myService.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-02")
+		certificate, err = service.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-02")
 		if err != nil {
 			log.Fatal(err)
 		}

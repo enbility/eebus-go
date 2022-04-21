@@ -18,7 +18,7 @@ import (
 // country is the C of the certificate
 // commonName is the CN of the certificate
 // Example for commonName: "deviceModel-deviceSerialNumber"
-func (s *EEBUSService) CreateCertificate(organizationalUnit, organization, country, commonName string) (tls.Certificate, error) {
+func CreateCertificate(organizationalUnit, organization, country, commonName string) (tls.Certificate, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return tls.Certificate{}, err
