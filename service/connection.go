@@ -1,7 +1,6 @@
 package service
 
 import (
-	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -74,14 +73,6 @@ func (c *ConnectionHandler) handleConnection() {
 	}
 
 	c.startup()
-}
-
-func (c *ConnectionHandler) skiFromX509Certificate(cert *x509.Certificate) (string, error) {
-	if len(cert.SubjectKeyId) == 0 {
-		return "", errors.New("Client certificate does not provide a SKI")
-	}
-
-	return fmt.Sprintf("%0x", cert.SubjectKeyId), nil
 }
 
 func (c *ConnectionHandler) startup() {
