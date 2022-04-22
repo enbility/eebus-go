@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
-	"github.com/DerAndereAndi/eebus-go/ship"
 	"github.com/gorilla/websocket"
 )
 
@@ -64,6 +63,17 @@ type ConnectionHandler struct {
 	shipHandshakeComplete bool
 }
 
+func newConnectionHandler(connectionsHub *connectionsHub, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn, isConnectedFromLocalServer bool) *ConnectionHandler {
+	return &ConnectionHandler{
+		connectionsHub:              connectionsHub,
+		role:                        role,
+		localService:                localService,
+		remoteService:               remoteService,
+		conn:                        conn,
+		isConnectedFromLocalService: isConnectedFromLocalServer,
+	}
+}
+
 // Connection handler when the service initiates a connection to a remote service
 func (c *ConnectionHandler) handleConnection() {
 	if len(c.remoteService.SKI) == 0 {
@@ -114,21 +124,6 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 		c.conn.Close()
 	}
 
-}
-
-func (c *ConnectionHandler) shipClose() {
-	if c.conn == nil {
-		return
-	}
-
-	// SHIP 13.4.7: Connection Termination
-	closeMessage := ship.ConnectionClose{
-		ConnectionClose: ship.ConnectionCloseType{
-			Phase: ship.ConnectionClosePhaseTypeAnnounce,
-		},
-	}
-
-	_ = c.sendModel(ship.MsgTypeControl, closeMessage)
 }
 
 func isChannelClosed[T any](ch <-chan T) bool {
@@ -269,17 +264,4 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	}
 
 	return shipHeaderByte, msg
-}
-
-// read the next message from the websocket connection and
-// return an error if the provided timeout is reached
-func (c *ConnectionHandler) readNextMessage(duration time.Duration) ([]byte, error) {
-	timeout := time.NewTimer(duration)
-
-	select {
-	case <-timeout.C:
-		return nil, errors.New("Timeout waiting for message")
-	case msg := <-c.readChannel:
-		return msg, nil
-	}
 }

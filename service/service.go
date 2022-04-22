@@ -57,7 +57,7 @@ type ServiceDescription struct {
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSService struct {
-	ServiceDescription *ServiceDescription
+	serviceDescription *ServiceDescription
 
 	// The local service details
 	localService *ServiceDetails
@@ -66,13 +66,19 @@ type EEBUSService struct {
 	connectionsHub *connectionsHub
 }
 
+func NewEEBUSService(ServiceDescription *ServiceDescription) *EEBUSService {
+	return &EEBUSService{
+		serviceDescription: ServiceDescription,
+	}
+}
+
 // Starts the service by initializeing mDNS and the server.
 func (s *EEBUSService) Start() {
-	if s.ServiceDescription.Port == 0 {
-		s.ServiceDescription.Port = defaultPort
+	if s.serviceDescription.Port == 0 {
+		s.serviceDescription.Port = defaultPort
 	}
 
-	leaf, err := x509.ParseCertificate(s.ServiceDescription.Certificate.Certificate[0])
+	leaf, err := x509.ParseCertificate(s.serviceDescription.Certificate.Certificate[0])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -86,13 +92,13 @@ func (s *EEBUSService) Start() {
 
 	s.localService = &ServiceDetails{
 		SKI:                ski,
-		ShipID:             s.ServiceDescription.DeviceIdentifier,
-		RegisterAutoAccept: s.ServiceDescription.RegisterAutoAccept,
+		ShipID:             s.serviceDescription.DeviceIdentifier,
+		RegisterAutoAccept: s.serviceDescription.RegisterAutoAccept,
 	}
 
 	fmt.Println("Local SKI: ", ski)
 
-	s.connectionsHub = newConnectionsHub(s.ServiceDescription, s.localService)
+	s.connectionsHub = newConnectionsHub(s.serviceDescription, s.localService)
 	s.connectionsHub.start()
 }
 

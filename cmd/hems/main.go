@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	serviceDescription := service.ServiceDescription{
+	serviceDescription := &service.ServiceDescription{
 		DeviceBrand:        "Demo",
 		DeviceModel:        "HEMS",
 		DeviceSerialNumber: "123456789",
@@ -39,9 +39,7 @@ func main() {
 		},
 	}
 
-	myService = &service.EEBUSService{
-		ServiceDescription: &serviceDescription,
-	}
+	myService = service.NewEEBUSService(serviceDescription)
 
 	var err error
 	var certificate tls.Certificate

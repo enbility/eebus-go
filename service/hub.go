@@ -305,14 +305,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SKI: ski,
 	}
 
-	connectionHandler := &ConnectionHandler{
-		role:                        ShipRoleServer,
-		connectionsHub:              h,
-		localService:                h.localService,
-		remoteService:               remoteService,
-		conn:                        conn,
-		isConnectedFromLocalService: false,
-	}
+	connectionHandler := newConnectionHandler(h, ShipRoleServer, h.localService, remoteService, conn, false)
 
 	h.register <- connectionHandler
 }
@@ -470,14 +463,7 @@ func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host,
 		return errors.New("Remote SKI does not match")
 	}
 
-	connectionHandler := &ConnectionHandler{
-		role:                        ShipRoleClient,
-		remoteService:               &remoteService,
-		localService:                h.localService,
-		connectionsHub:              h,
-		conn:                        conn,
-		isConnectedFromLocalService: true,
-	}
+	connectionHandler := newConnectionHandler(h, ShipRoleClient, h.localService, &remoteService, conn, true)
 
 	h.register <- connectionHandler
 

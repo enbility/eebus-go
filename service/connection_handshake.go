@@ -307,3 +307,31 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 
 	return nil
 }
+
+func (c *ConnectionHandler) shipClose() {
+	if c.conn == nil {
+		return
+	}
+
+	// SHIP 13.4.7: Connection Termination
+	closeMessage := ship.ConnectionClose{
+		ConnectionClose: ship.ConnectionCloseType{
+			Phase: ship.ConnectionClosePhaseTypeAnnounce,
+		},
+	}
+
+	_ = c.sendModel(ship.MsgTypeControl, closeMessage)
+}
+
+// read the next message from the websocket connection and
+// return an error if the provided timeout is reached
+func (c *ConnectionHandler) readNextMessage(duration time.Duration) ([]byte, error) {
+	timeout := time.NewTimer(duration)
+
+	select {
+	case <-timeout.C:
+		return nil, errors.New("Timeout waiting for message")
+	case msg := <-c.readChannel:
+		return msg, nil
+	}
+}
