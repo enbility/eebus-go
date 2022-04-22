@@ -17,26 +17,26 @@ func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, error) {
 }
 
 type FeatureLocalImpl struct {
-	address         *model.FeatureAddressType
-	sender          Sender
+	*FeatureImpl
+	entity          *EntityLocalImpl
 	functionDataMap map[model.FunctionType]FunctionDataCmd
 }
 
-func NewFeatureLocalImpl(address *model.FeatureAddressType, ftype model.FeatureTypeType, sender Sender) *FeatureLocalImpl {
-	result := &FeatureLocalImpl{
-		address:         address,
-		sender:          sender,
+func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
+	res := &FeatureLocalImpl{
+		FeatureImpl: NewFeatureImpl(
+			featureAddressType(id, entity.Device().Address(), entity.Address()),
+			ftype,
+			role),
+		entity:          entity,
 		functionDataMap: make(map[model.FunctionType]FunctionDataCmd),
 	}
+
 	for _, fd := range CreateFunctionData[FunctionDataCmd](ftype) {
-		result.functionDataMap[fd.Function()] = fd
+		res.functionDataMap[fd.Function()] = fd
 	}
 
-	return result
-}
-
-func (r *FeatureLocalImpl) Address() *model.FeatureAddressType {
-	return r.address
+	return res
 }
 
 func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
@@ -53,13 +53,13 @@ func (r *FeatureLocalImpl) Data(function model.FunctionType) any {
 
 func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
-	destination *model.FeatureAddressType,
+	destination *FeatureRemoteImpl,
 	requestChannel any) (*model.MsgCounterType, error) {
 
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType()
 
-	msgCounter, err := r.sender.Request(model.CmdClassifierTypeRead, r.Address(), destination, false, []model.CmdType{cmd})
+	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), false, []model.CmdType{cmd})
 	if err == nil && requestChannel != nil {
 		fd.AddPendingRequest(*msgCounter, requestChannel)
 	}
@@ -79,7 +79,7 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) error {
 
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		return r.processRead(*function, message.RequestHeader)
+		return r.processRead(*function, message.RequestHeader, message.featureRemote)
 	case model.CmdClassifierTypeReply:
 		return r.processReply(*function, data, message.RequestHeader, message.featureRemote)
 	default:
@@ -99,9 +99,9 @@ func (r *FeatureLocalImpl) processResult(cmdClassifier model.CmdClassifierType) 
 	}
 }
 
-func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType) error {
+func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
 	cmd := r.functionData(function).ReplyCmdType()
-	err := r.sender.Reply(requestHeader, r.Address(), cmd)
+	err := featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)
 
 	return err
 }
