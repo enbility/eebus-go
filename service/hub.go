@@ -138,9 +138,6 @@ func (h *connectionsHub) run() {
 
 // return the connection for a specific SKI
 func (h *connectionsHub) connectionForSKI(ski string) *ConnectionHandler {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
 	return h.connections[ski]
 }
 
@@ -154,9 +151,6 @@ func (h *connectionsHub) shutdown() {
 
 // return if there is a connection for a SKI
 func (h *connectionsHub) isSkiConnected(ski string) bool {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
 	// The connection with the higher SKI should retain the connection
 	_, ok := h.connections[ski]
 	return ok
@@ -471,9 +465,6 @@ func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host,
 }
 
 func (h *connectionsHub) pairedServiceForSKI(ski string) (ServiceDetails, error) {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
 	for _, service := range h.pairedServices {
 		if service.SKI == ski {
 			return service, nil
@@ -486,9 +477,8 @@ func (h *connectionsHub) pairedServiceForSKI(ski string) (ServiceDetails, error)
 // and connect it if it is currently not connected
 func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
 	h.mux.Lock()
-	defer h.mux.Unlock()
-
 	h.pairedServices = append(h.pairedServices, service)
+	h.mux.Unlock()
 
 	if !h.isSkiConnected(service.SKI) {
 		go h.connectRemoteServices()
@@ -501,7 +491,6 @@ func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
 // and disconnect it if it is currently connected
 func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	h.mux.Lock()
-	defer h.mux.Unlock()
 
 	newPairedDevice := make([]ServiceDetails, 0)
 
@@ -512,6 +501,7 @@ func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	}
 
 	h.pairedServices = newPairedDevice
+	h.mux.Unlock()
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
 		existingC.shutdown(true)
