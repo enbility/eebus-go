@@ -85,12 +85,13 @@ type EEBUSService struct {
 	// Connection Registrations
 	connectionsHub *connectionsHub
 
-	ServiceImpl EEBUSServiceDelegate
+	serviceDelegate EEBUSServiceDelegate
 }
 
-func NewEEBUSService(ServiceDescription *ServiceDescription) *EEBUSService {
+func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
 	return &EEBUSService{
 		serviceDescription: ServiceDescription,
+		serviceDelegate:    serviceDelegate,
 	}
 }
 
@@ -120,17 +121,7 @@ func (s *EEBUSService) Start() {
 
 	fmt.Println("Local SKI: ", ski)
 
-	s.connectionsHub = newConnectionsHub(s.serviceDescription, s.localService)
-	s.connectionsHub.setTrustHandler(func(ski string) {
-		if s.ServiceImpl != nil {
-			s.ServiceImpl.RemoteServiceTrustRequested(ski)
-		}
-	})
-	s.connectionsHub.setReportShipIDHandler(func(ski string, shipID string) {
-		if s.ServiceImpl != nil {
-			s.ServiceImpl.RemoteServiceShipIDReported(ski, shipID)
-		}
-	})
+	s.connectionsHub = newConnectionsHub(s.serviceDescription, s.localService, s)
 	s.connectionsHub.start()
 }
 
@@ -157,4 +148,16 @@ func (s *EEBUSService) UnregisterRemoteService(ski string) error {
 // e.g. if the UI disappeared
 func (s *EEBUSService) UpdateRemoteServiceTrust(ski string, trusted bool) {
 	s.connectionsHub.updateRemoteServiceTrust(ski, trusted)
+}
+
+// ConnectionHandlerDelegate
+
+var _ ConnectionHandlerDelegate = (*EEBUSService)(nil)
+
+func (s *EEBUSService) requestUserTrustForService(service *ServiceDetails) {
+	s.serviceDelegate.RemoteServiceTrustRequested(service.SKI)
+}
+
+func (s *EEBUSService) shipIDUpdateForService(service *ServiceDetails) {
+	s.serviceDelegate.RemoteServiceShipIDReported(service.SKI, service.ShipID)
 }

@@ -28,6 +28,11 @@ const (
 	ShipRoleClient ShipRole = "client"
 )
 
+type ConnectionHandlerDelegate interface {
+	requestUserTrustForService(service *ServiceDetails)
+	shipIDUpdateForService(service *ServiceDetails)
+}
+
 // A ConnectionHandler handles websocket connections.
 type ConnectionHandler struct {
 	// The ship connection mode of this connection
@@ -38,9 +43,6 @@ type ConnectionHandler struct {
 
 	// The local service
 	localService *ServiceDetails
-
-	// The connection hub handling all service connections
-	connectionsHub *connectionsHub
 
 	// The actual websocket connection
 	conn *websocket.Conn
@@ -62,15 +64,19 @@ type ConnectionHandler struct {
 
 	// The current SHIP state
 	smeState shipMessageExchangeState
+
+	unregisterChannel  chan<- *ConnectionHandler
+	connectionDelegate ConnectionHandlerDelegate
 }
 
-func newConnectionHandler(connectionsHub *connectionsHub, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
+func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectionDelegate ConnectionHandlerDelegate, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
 	return &ConnectionHandler{
-		connectionsHub: connectionsHub,
-		role:           role,
-		localService:   localService,
-		remoteService:  remoteService,
-		conn:           conn,
+		unregisterChannel:  unregisterChannel,
+		connectionDelegate: connectionDelegate,
+		role:               role,
+		localService:       localService,
+		remoteService:      remoteService,
+		conn:               conn,
 	}
 }
 
@@ -107,7 +113,7 @@ func (c *ConnectionHandler) startup() {
 // shutdown the connection and all internals
 // may only invoked after startup() is invoked!
 func (c *ConnectionHandler) shutdown(safeShutdown bool) {
-	c.connectionsHub.unregister <- c
+	c.unregisterChannel <- c
 
 	if !isChannelClosed(c.readChannel) {
 		close(c.readChannel)

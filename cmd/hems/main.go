@@ -33,8 +33,7 @@ func (h *hems) run() {
 		},
 	}
 
-	h.myService = service.NewEEBUSService(serviceDescription)
-	h.myService.ServiceImpl = h
+	h.myService = service.NewEEBUSService(serviceDescription, h)
 
 	var err error
 	var certificate tls.Certificate

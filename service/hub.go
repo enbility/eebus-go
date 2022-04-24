@@ -48,13 +48,12 @@ type connectionsHub struct {
 
 	zcEntries chan *zeroconf.ServiceEntry
 
-	requestTrust func(string)
-	reportShipID func(string, string)
+	connectionDelegate ConnectionHandlerDelegate
 
 	mux sync.Mutex
 }
 
-func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails) *connectionsHub {
+func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) *connectionsHub {
 	return &connectionsHub{
 		connections:        make(map[string]*ConnectionHandler),
 		register:           make(chan *ConnectionHandler),
@@ -63,6 +62,7 @@ func newConnectionsHub(serviceDescription *ServiceDescription, localService *Ser
 		registeredServices: make([]ServiceDetails, 0),
 		serviceDescription: serviceDescription,
 		localService:       localService,
+		connectionDelegate: connectionDelegate,
 	}
 }
 
@@ -304,7 +304,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		remoteService = remoteS
 	}
 
-	connectionHandler := newConnectionHandler(h, ShipRoleClient, h.localService, &remoteService, conn)
+	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleClient, h.localService, &remoteService, conn)
 
 	h.register <- connectionHandler
 }
@@ -462,7 +462,7 @@ func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host,
 		return errors.New("Remote SKI does not match")
 	}
 
-	connectionHandler := newConnectionHandler(h, ShipRoleServer, h.localService, &remoteService, conn)
+	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleServer, h.localService, &remoteService, conn)
 
 	h.register <- connectionHandler
 
@@ -536,18 +536,4 @@ func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	}
 
 	return nil
-}
-
-func (h *connectionsHub) setTrustHandler(f func(string)) {
-	if f == nil {
-		f = func(string) {}
-	}
-	h.requestTrust = f
-}
-
-func (h *connectionsHub) setReportShipIDHandler(f func(string, string)) {
-	if f == nil {
-		f = func(string, string) {}
-	}
-	h.reportShipID = f
 }

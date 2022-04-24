@@ -196,7 +196,7 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 			return err
 		}
 
-		c.connectionsHub.requestTrust(c.remoteService.SKI)
+		c.connectionDelegate.requestUserTrustForService(c.remoteService)
 
 		// SME_HELLO_STATE_PENDING_LISTEN
 		c.smeState = smeHelloStatePendingListen
@@ -488,7 +488,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 			}
 
 			c.remoteService.ShipID = *accessMethods.AccessMethods.Id
-			c.connectionsHub.reportShipID(c.remoteService.SKI, c.remoteService.ShipID)
+			c.connectionDelegate.shipIDUpdateForService(c.remoteService)
 
 			return nil
 		} else {
