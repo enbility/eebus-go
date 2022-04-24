@@ -16,17 +16,11 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
-var myService *service.EEBUSService
-
-func usage() {
-	fmt.Println("Usage: go run /cmd/hems/main.go <serverport> <evse-ski> <evse-shipid> <crtfile> <keyfile>")
+type hems struct {
+	myService *service.EEBUSService
 }
 
-func main() {
-	if len(os.Args) < 3 {
-		usage()
-		return
-	}
+func (h *hems) run() {
 
 	serviceDescription := &service.ServiceDescription{
 		DeviceBrand:        "Demo",
@@ -39,7 +33,8 @@ func main() {
 		},
 	}
 
-	myService = service.NewEEBUSService(serviceDescription)
+	h.myService = service.NewEEBUSService(serviceDescription)
+	h.myService.ServiceImpl = h
 
 	var err error
 	var certificate tls.Certificate
@@ -51,10 +46,9 @@ func main() {
 	}
 
 	remoteSki := os.Args[2]
-	remoteShipID := os.Args[3]
 
-	if len(os.Args) == 6 {
-		certificate, err = tls.LoadX509KeyPair(os.Args[4], os.Args[5])
+	if len(os.Args) == 5 {
+		certificate, err = tls.LoadX509KeyPair(os.Args[3], os.Args[4])
 		if err != nil {
 			usage()
 			log.Fatal(err)
@@ -80,14 +74,42 @@ func main() {
 	}
 
 	serviceDescription.Certificate = certificate
-	myService.Start()
-	defer myService.Shutdown()
+	h.myService.Start()
+	// defer h.myService.Shutdown()
 
 	remoteService := service.ServiceDetails{
-		SKI:    remoteSki,
-		ShipID: remoteShipID,
+		SKI: remoteSki,
 	}
-	myService.RegisterRemoteService(remoteService)
+	h.myService.RegisterRemoteService(remoteService)
+}
+
+var _ service.EEBUSServiceDelegate = (*hems)(nil)
+
+// handle a request to trust a remote service
+func (h *hems) RemoteServiceTrustRequested(ski string) {
+	// we directly trust it in this example
+	h.myService.UpdateRemoteServiceTrust(ski, true)
+}
+
+// report the Ship ID of a newly trusted connection
+func (h *hems) RemoteServiceShipIDReported(ski string, shipID string) {
+	// we should associated the Ship ID with the SKI and store it
+	// so the next connection can start trusted
+	fmt.Println("SKI", ski, "has Ship ID:", shipID)
+}
+
+func usage() {
+	fmt.Println("Usage: go run /cmd/hems/main.go <serverport> <evse-ski> <crtfile> <keyfile>")
+}
+
+func main() {
+	if len(os.Args) < 4 {
+		usage()
+		return
+	}
+
+	h := hems{}
+	h.run()
 
 	// Clean exit to make sure mdns shutdown is invoked
 	sig := make(chan os.Signal, 1)

@@ -35,7 +35,7 @@ type connectionsHub struct {
 	localService       *ServiceDetails
 
 	// The list of paired devices
-	pairedServices []ServiceDetails
+	registeredServices []ServiceDetails
 
 	// The web server for handling incoming websocket connections
 	httpServer *http.Server
@@ -48,6 +48,9 @@ type connectionsHub struct {
 
 	zcEntries chan *zeroconf.ServiceEntry
 
+	requestTrust func(string)
+	reportShipID func(string, string)
+
 	mux sync.Mutex
 }
 
@@ -57,7 +60,7 @@ func newConnectionsHub(serviceDescription *ServiceDescription, localService *Ser
 		register:           make(chan *ConnectionHandler),
 		unregister:         make(chan *ConnectionHandler),
 		zcEntries:          make(chan *zeroconf.ServiceEntry),
-		pairedServices:     make([]ServiceDetails, 0),
+		registeredServices: make([]ServiceDetails, 0),
 		serviceDescription: serviceDescription,
 		localService:       localService,
 	}
@@ -88,30 +91,27 @@ func (h *connectionsHub) start() {
 	}
 }
 
+// handle (dis-)connecting remote services
 func (h *connectionsHub) run() {
 	for {
 		select {
 		// connect to a paired service
 		case c := <-h.register:
-
 			// SHIP 12.2.2 recommends that the connection initiated with the higher SKI should retain the connection
 			existingC := h.connectionForSKI(c.remoteService.SKI)
 			if existingC != nil {
-				fmt.Println("Connection already exists for SKI: ", c.remoteService.SKI)
-
-				// If the connection is initiated by the local service and the local SKI is higher than the remote SKI
-				// then the existing connection should be closed
-				if c.isConnectedFromLocalService && c.localService.SKI < c.remoteService.SKI {
-					c.conn.Close()
-					continue
-				} else {
-					if existingC.conn != nil {
-						existingC.conn.Close()
-					}
+				// The connection initiated by the higher SKI should retain the connection
+				// and the other one should be closed
+				if (c.localService.SKI > c.remoteService.SKI && c.role == ShipRoleClient) ||
+					(c.localService.SKI < c.remoteService.SKI && c.role == ShipRoleServer) {
+					existingC.conn.Close()
 
 					h.mux.Lock()
 					delete(h.connections, c.remoteService.SKI)
 					h.mux.Unlock()
+				} else {
+					c.conn.Close()
+					continue
 				}
 			}
 
@@ -293,13 +293,18 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 		conn.Close()
+		return
 	}
 
-	remoteService := &ServiceDetails{
+	remoteService := ServiceDetails{
 		SKI: ski,
 	}
+	// check if we already know this remote service
+	if remoteS, err := h.registeredServiceForSKI(ski); err == nil {
+		remoteService = remoteS
+	}
 
-	connectionHandler := newConnectionHandler(h, ShipRoleServer, h.localService, remoteService, conn, false)
+	connectionHandler := newConnectionHandler(h, ShipRoleClient, h.localService, &remoteService, conn)
 
 	h.register <- connectionHandler
 }
@@ -351,27 +356,27 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 		if h.serviceDescription.RegisterAutoAccept && registerAuto {
 			remoteService := ServiceDetails{
 				SKI:                ski,
-				RegisterAutoAccept: true,
+				registerAutoAccept: true,
 			}
 			if !h.isSkiConnected(ski) {
 				h.connectFoundService(remoteService, entry.HostName, strconv.Itoa(int(entry.Port)))
 			}
 		} else {
 			// Check if the remote service is paired
-			pairedService, err := h.pairedServiceForSKI(ski)
+			registeredService, err := h.registeredServiceForSKI(ski)
 			if err == nil && !h.isSkiConnected(ski) {
-				h.connectFoundService(pairedService, entry.HostName, strconv.Itoa(int(entry.Port)))
+				h.connectFoundService(registeredService, entry.HostName, strconv.Itoa(int(entry.Port)))
 			}
 		}
 
-		pairedServiceMissing := false
-		for _, service := range h.pairedServices {
+		registeredServiceMissing := false
+		for _, service := range h.registeredServices {
 			if !h.isSkiConnected(service.SKI) {
-				pairedServiceMissing = true
+				registeredServiceMissing = true
 				break
 			}
 		}
-		if !pairedServiceMissing && !h.serviceDescription.RegisterAutoAccept {
+		if !registeredServiceMissing && !h.serviceDescription.RegisterAutoAccept {
 			fmt.Println("Exit discovery")
 			return
 		}
@@ -379,7 +384,7 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 	}
 }
 
-// Searches via mDNS for paired SHIP services that are not yet connected
+// Searches via mDNS for registered SHIP services that are not yet connected
 // TODO: This should be done in a seperate struct being triggered by a channel
 //   to make sure it is not running multiple times at the same time and gets
 //   new remote services information while running safely
@@ -457,27 +462,27 @@ func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host,
 		return errors.New("Remote SKI does not match")
 	}
 
-	connectionHandler := newConnectionHandler(h, ShipRoleClient, h.localService, &remoteService, conn, true)
+	connectionHandler := newConnectionHandler(h, ShipRoleServer, h.localService, &remoteService, conn)
 
 	h.register <- connectionHandler
 
 	return nil
 }
 
-func (h *connectionsHub) pairedServiceForSKI(ski string) (ServiceDetails, error) {
-	for _, service := range h.pairedServices {
+func (h *connectionsHub) registeredServiceForSKI(ski string) (ServiceDetails, error) {
+	for _, service := range h.registeredServices {
 		if service.SKI == ski {
 			return service, nil
 		}
 	}
-	return ServiceDetails{}, fmt.Errorf("No paired service found for SKI %s", ski)
+	return ServiceDetails{}, fmt.Errorf("No registered service found for SKI %s", ski)
 }
 
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
 func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
 	h.mux.Lock()
-	h.pairedServices = append(h.pairedServices, service)
+	h.registeredServices = append(h.registeredServices, service)
 	h.mux.Unlock()
 
 	if !h.isSkiConnected(service.SKI) {
@@ -487,20 +492,43 @@ func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
 	return nil
 }
 
+// Update known device in the list of known devices which can be connected to
+func (h *connectionsHub) updateRemoteServiceTrust(ski string, trusted bool) {
+	for i, device := range h.registeredServices {
+		if device.SKI == ski {
+			h.mux.Lock()
+			h.registeredServices[i].userTrust = true
+			h.mux.Unlock()
+
+			conn := h.connectionForSKI(ski)
+			if conn != nil {
+				if conn.smeState >= smeHelloState {
+					conn.shipTrustChannel <- trusted
+				} else {
+					conn.remoteService.userTrust = trusted
+				}
+			} else {
+				continue
+			}
+			break
+		}
+	}
+}
+
 // Remove a device from the list of known devices which can be connected to
 // and disconnect it if it is currently connected
 func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	h.mux.Lock()
 
-	newPairedDevice := make([]ServiceDetails, 0)
+	newRegisteredDevice := make([]ServiceDetails, 0)
 
-	for _, device := range h.pairedServices {
+	for _, device := range h.registeredServices {
 		if device.SKI != ski {
-			newPairedDevice = append(newPairedDevice, device)
+			newRegisteredDevice = append(newRegisteredDevice, device)
 		}
 	}
 
-	h.pairedServices = newPairedDevice
+	h.registeredServices = newRegisteredDevice
 	h.mux.Unlock()
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
@@ -508,4 +536,18 @@ func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	}
 
 	return nil
+}
+
+func (h *connectionsHub) setTrustHandler(f func(string)) {
+	if f == nil {
+		f = func(string) {}
+	}
+	h.requestTrust = f
+}
+
+func (h *connectionsHub) setReportShipIDHandler(f func(string, string)) {
+	if f == nil {
+		f = func(string, string) {}
+	}
+	h.reportShipID = f
 }

@@ -11,9 +11,19 @@ import (
 const defaultPort int = 4711
 
 type ServiceDetails struct {
-	SKI                string
-	ShipID             string
-	RegisterAutoAccept bool
+	// This is the SKI of the service
+	// This needs to be peristed
+	SKI string
+
+	// ShipID is the ship identifier of the service
+	// This needs to be persisted
+	ShipID string
+
+	// Flags if the service auto auto accepts other services
+	registerAutoAccept bool
+
+	// Flag if a user interaction marks this service as trusted
+	userTrust bool
 }
 
 type ServiceDescription struct {
@@ -54,6 +64,16 @@ type ServiceDescription struct {
 	RegisterAutoAccept bool
 }
 
+type EEBUSServiceDelegate interface {
+	// RemoteServicesListUpdated(services []ServiceDetails)
+
+	// handle a request to trust a remote service
+	RemoteServiceTrustRequested(ski string)
+
+	// report the Ship ID of a newly trusted connection
+	RemoteServiceShipIDReported(ski string, shipID string)
+}
+
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSService struct {
@@ -64,6 +84,8 @@ type EEBUSService struct {
 
 	// Connection Registrations
 	connectionsHub *connectionsHub
+
+	ServiceImpl EEBUSServiceDelegate
 }
 
 func NewEEBUSService(ServiceDescription *ServiceDescription) *EEBUSService {
@@ -93,12 +115,22 @@ func (s *EEBUSService) Start() {
 	s.localService = &ServiceDetails{
 		SKI:                ski,
 		ShipID:             s.serviceDescription.DeviceIdentifier,
-		RegisterAutoAccept: s.serviceDescription.RegisterAutoAccept,
+		registerAutoAccept: s.serviceDescription.RegisterAutoAccept,
 	}
 
 	fmt.Println("Local SKI: ", ski)
 
 	s.connectionsHub = newConnectionsHub(s.serviceDescription, s.localService)
+	s.connectionsHub.setTrustHandler(func(ski string) {
+		if s.ServiceImpl != nil {
+			s.ServiceImpl.RemoteServiceTrustRequested(ski)
+		}
+	})
+	s.connectionsHub.setReportShipIDHandler(func(ski string, shipID string) {
+		if s.ServiceImpl != nil {
+			s.ServiceImpl.RemoteServiceShipIDReported(ski, shipID)
+		}
+	})
 	s.connectionsHub.start()
 }
 
@@ -118,4 +150,11 @@ func (s *EEBUSService) RegisterRemoteService(service ServiceDetails) error {
 // and disconnect it if it is currently connected
 func (s *EEBUSService) UnregisterRemoteService(ski string) error {
 	return s.connectionsHub.unregisterRemoteService(ski)
+}
+
+// Mark a remote service to be trusted or not
+// Should also be called if the user can't somehow choose to trust,
+// e.g. if the UI disappeared
+func (s *EEBUSService) UpdateRemoteServiceTrust(ski string, trusted bool) {
+	s.connectionsHub.updateRemoteServiceTrust(ski, trusted)
 }

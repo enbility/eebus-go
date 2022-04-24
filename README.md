@@ -17,17 +17,16 @@ This repository contains:
 ### HEMS
 
 ```sh
-Usage: go run cmd/hems/main.go <serverport> <remoteski> <remoteshipid> <certfile> <keyfile>
+Usage: go run cmd/hems/main.go <serverport> <remoteski> <certfile> <keyfile>
 ```
-
-The remoteski and remoteshipid are the ones for the eebus service to connect to.
-If no certfile or keyfile are provided, they are generated and printed in the console so they can be saved in a file and later used again. The SKI is also printed.
 
 ### EVSE
 
 ```sh
-Usage: go run cmd/evse/main.go <serverport> <remoteski> <remoteshipid> <certfile> <keyfile>
+Usage: go run cmd/evse/main.go <serverport> <remoteski> <certfile> <keyfile>
 ```
 
-The remoteski and remoteshipid are the ones for the eebus service to connect to.
+### Explanation
+
+The remoteski is from the eebus service to connect to.
 If no certfile or keyfile are provided, they are generated and printed in the console so they can be saved in a file and later used again. The local SKI is also printed.

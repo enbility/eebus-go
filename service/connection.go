@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,16 +11,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type ShipRole uint
+type ShipRole string
 
 const (
-	writeWait               = 10 * time.Second
-	cmiTimeout              = 10 * time.Second // SHIP 4.2
-	cmiCloseTimeout         = 100 * time.Millisecond
-	tHelloInit              = 60 * time.Second
-	tHelloProlongThrInc     = 30 * time.Second
-	tHelloProlongWaitingGap = 15 * time.Second
-	tHellogProlongMin       = 1 * time.Second
+	writeWait = 10 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
 	pongWait = 60 * time.Second // SHIP 4.2: ping interval + pong timeout
@@ -29,8 +24,8 @@ const (
 	// SHIP 9.2: Set maximum fragment length to 1024 bytes
 	maxMessageSize = 1024
 
-	ShipRoleServer ShipRole = 0
-	ShipRoleClient ShipRole = 1
+	ShipRoleServer ShipRole = "server"
+	ShipRoleClient ShipRole = "client"
 )
 
 // A ConnectionHandler handles websocket connections.
@@ -50,8 +45,8 @@ type ConnectionHandler struct {
 	// The actual websocket connection
 	conn *websocket.Conn
 
-	// Is this connection initiated by the local service
-	isConnectedFromLocalService bool
+	// internal connection id, so we can identify it uniquely instead of using the SKI which can be used in multiple connections
+	connID uint64
 
 	// The read channel for incoming messages
 	readChannel chan []byte
@@ -59,18 +54,23 @@ type ConnectionHandler struct {
 	// The write channel for outgoing messages
 	writeChannel chan []byte
 
-	// Indicates wether the ship handshake has been completed
-	shipHandshakeComplete bool
+	// The ship read channel for incoming messages
+	shipReadChannel chan []byte
+
+	// The channel for handling local trust state update for the remote service
+	shipTrustChannel chan bool
+
+	// The current SHIP state
+	smeState shipMessageExchangeState
 }
 
-func newConnectionHandler(connectionsHub *connectionsHub, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn, isConnectedFromLocalServer bool) *ConnectionHandler {
+func newConnectionHandler(connectionsHub *connectionsHub, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
 	return &ConnectionHandler{
-		connectionsHub:              connectionsHub,
-		role:                        role,
-		localService:                localService,
-		remoteService:               remoteService,
-		conn:                        conn,
-		isConnectedFromLocalService: isConnectedFromLocalServer,
+		connectionsHub: connectionsHub,
+		role:           role,
+		localService:   localService,
+		remoteService:  remoteService,
+		conn:           conn,
 	}
 }
 
@@ -86,19 +86,21 @@ func (c *ConnectionHandler) handleConnection() {
 }
 
 func (c *ConnectionHandler) startup() {
-	c.readChannel = make(chan []byte, 1)  // Listen to incoming websocket messages
-	c.writeChannel = make(chan []byte, 1) // Send outgoing websocket messages
+	c.readChannel = make(chan []byte, 1)     // Listen to incoming websocket messages
+	c.writeChannel = make(chan []byte, 1)    // Send outgoing websocket messages
+	c.shipReadChannel = make(chan []byte, 1) // Listen to incoming ship messages
+	c.shipTrustChannel = make(chan bool, 1)  // Listen to trust state update
 
-	fmt.Println("Open pumps")
 	go c.readPump()
 	go c.writePump()
 
 	go func() {
-		if err := c.shipHandshake(); err != nil {
+		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
 			fmt.Println("SHIP handshake error: ", err)
 			c.shutdown(false)
 			return
 		}
+		c.shipMessageHandler()
 	}()
 }
 
@@ -116,14 +118,13 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 	}
 
 	if c.conn != nil {
-		if c.shipHandshakeComplete && safeShutdown {
+		if c.smeState == smeComplete && safeShutdown {
 			// close the SHIP connection according to the SHIP protocol
 			c.shipClose()
 		}
 
 		c.conn.Close()
 	}
-
 }
 
 func isChannelClosed[T any](ch <-chan T) bool {
@@ -152,7 +153,6 @@ func (c *ConnectionHandler) writePump() {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-
 			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
 				return
 			}
@@ -178,12 +178,39 @@ func (c *ConnectionHandler) readPump() {
 	for {
 		message, err := c.readWebsocketMessage()
 		if err != nil {
-			fmt.Println("Error reading message: ", err)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				fmt.Println("Error reading message: ", err)
+			}
+
 			c.shutdown(false)
 			return
 		}
 
-		c.readChannel <- message
+		// Check if this is a SHIP SME or SPINE message
+		isShipMessage := false
+		if c.smeState != smeComplete {
+			isShipMessage = true
+		} else {
+			isShipMessage = bytes.Contains([]byte("datagram:"), message)
+		}
+
+		if isShipMessage {
+			c.shipReadChannel <- message
+		} else {
+			c.readChannel <- message
+		}
+	}
+}
+
+// handles incoming ship specific messages outside of the handshake process
+func (c *ConnectionHandler) shipMessageHandler() {
+	for {
+		select {
+		case msg := <-c.shipReadChannel:
+			// TODO: implement this
+			// This should only be a close/abort message, right?
+			fmt.Println(string(msg))
+		}
 	}
 }
 
@@ -214,9 +241,7 @@ func (c *ConnectionHandler) writeWebsocketMessage(message []byte) error {
 	if c.conn == nil {
 		return errors.New("Connection is not initialized")
 	}
-
 	c.writeChannel <- message
-
 	return nil
 }
 
