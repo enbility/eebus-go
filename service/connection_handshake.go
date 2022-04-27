@@ -455,6 +455,10 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 		if err != nil {
 			return err
 		}
+		if data == nil {
+			continue
+		}
+
 		_, data = c.parseMessage(data, true)
 
 		dataString := string(data)
@@ -520,11 +524,13 @@ func (c *ConnectionHandler) readNextShipMessage(duration time.Duration) ([]byte,
 
 	select {
 	case <-timeout.C:
+		// TODO: Handle timeout in case of a closed connection
 		return nil, false, errors.New("Timeout waiting for message")
 	case trust := <-c.shipTrustChannel:
 		// Attention: we need to make sure the channel is only filled if we are in the Hello State!
 		return nil, trust, nil
 	case msg := <-c.shipReadChannel:
+		timeout.Stop()
 		return msg, false, nil
 	}
 }
