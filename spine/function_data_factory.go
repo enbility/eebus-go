@@ -8,6 +8,8 @@ import (
 
 func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 	switch featureType {
+	case model.FeatureTypeTypeNodeManagement:
+		return []F{} // NodeManagement implementation is not using function data
 	case model.FeatureTypeTypeDeviceClassification:
 		return []F{
 			createFunctionData[model.DeviceClassificationManufacturerDataType, F](model.FunctionTypeDeviceClassificationManufacturerData),

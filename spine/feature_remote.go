@@ -8,24 +8,25 @@ import (
 
 type FeatureRemoteImpl struct {
 	*FeatureImpl
-	entity          *EntityRemoteImpl
-	sender          Sender
-	functionDataMap map[model.FunctionType]FunctionData
+	entity           *EntityRemoteImpl
+	functionDataMap  map[model.FunctionType]FunctionData
+	maxResponseDelay *model.MaxResponseDelayType
 }
 
-func NewFeatureRemoteImpl(id uint, entity *EntityRemoteImpl, ftype model.FeatureTypeType, role model.RoleType, sender Sender) *FeatureRemoteImpl {
+func NewFeatureRemoteImpl(id uint, entity *EntityRemoteImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
 	res := &FeatureRemoteImpl{
 		FeatureImpl: NewFeatureImpl(
-			featureAddressType(id, entity.Device().Address(), entity.Address()),
+			featureAddressType(id, entity.Address()),
 			ftype,
 			role),
 		entity:          entity,
-		sender:          sender,
 		functionDataMap: make(map[model.FunctionType]FunctionData),
 	}
 	for _, fd := range CreateFunctionData[FunctionData](ftype) {
 		res.functionDataMap[fd.Function()] = fd
 	}
+
+	res.operations = make(map[model.FunctionType]*Operations)
 
 	return res
 }
@@ -41,7 +42,22 @@ func (r *FeatureRemoteImpl) SetData(function model.FunctionType, data any) {
 }
 
 func (r *FeatureRemoteImpl) Sender() Sender {
-	return r.sender
+	return r.Device().Sender()
+}
+
+func (r *FeatureRemoteImpl) Device() *DeviceRemoteImpl {
+	return r.entity.Device()
+}
+
+func (r *FeatureRemoteImpl) SetOperations(functions []model.FunctionPropertyType) {
+	r.operations = make(map[model.FunctionType]*Operations)
+	for _, sf := range functions {
+		r.operations[*sf.Function] = NewOperations(sf.PossibleOperations.Read != nil, sf.PossibleOperations.Write != nil)
+	}
+}
+
+func (r *FeatureRemoteImpl) SetMaxResponseDelay(delay *model.MaxResponseDelayType) {
+	r.maxResponseDelay = delay
 }
 
 func (r *FeatureRemoteImpl) functionData(function model.FunctionType) FunctionData {

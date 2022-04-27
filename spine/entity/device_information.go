@@ -20,7 +20,7 @@ import (
 //   e[0] f-1 server.DeviceClassification
 //    {RO} deviceClassificationManufacturerData
 func NewDeviceInformation(device *spine.DeviceLocalImpl) *spine.EntityLocalImpl {
-	entityType := model.EntityTypeType(model.EntityTypeTypeDeviceInformation)
+	entityType := model.EntityTypeTypeDeviceInformation
 	entity := spine.NewEntityLocalImpl(device, entityType, []model.AddressEntityType{model.AddressEntityType(spine.DeviceInformationEntityId)})
 
 	{

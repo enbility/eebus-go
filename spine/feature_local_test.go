@@ -32,8 +32,8 @@ func (suite *DeviceClassificationTestSuite) SetupSuite() {
 	suite.featureType = model.FeatureTypeTypeDeviceClassification
 	suite.msgCounter = model.MsgCounterType(1)
 
-	suite.remoteFeature = createRemoteFeature(suite.featureType, model.RoleTypeServer, suite.senderMock)
-	suite.sut = createLocalFeature(suite.featureType, model.RoleTypeClient)
+	suite.remoteFeature = CreateRemoteDeviceAndFeature(1, suite.featureType, model.RoleTypeServer, suite.senderMock)
+	suite.sut = CreateLocalDeviceAndFeature(1, suite.featureType, model.RoleTypeClient)
 }
 
 func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request() {
@@ -88,14 +88,11 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 	assert.Equal(suite.T(), manufacturerData.DeviceCode, channelData.DeviceCode)
 }
 
-func createLocalFeature(featureType model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
+func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
 	localDevice := NewDeviceLocalImpl(model.AddressDeviceType("localDevice"))
-	localEntity := NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(0)})
-	return NewFeatureLocalImpl(0, localEntity, featureType, role)
-}
-
-func createRemoteFeature(featureType model.FeatureTypeType, role model.RoleType, sender Sender) *FeatureRemoteImpl {
-	remoteDevice := NewDeviceRemoteImpl(model.AddressDeviceType("remoteDevice"))
-	remoteEntity := NewEntityRemoteImpl(remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(0)})
-	return NewFeatureRemoteImpl(0, remoteEntity, featureType, role, sender)
+	localEntity := NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
+	localDevice.AddEntity(localEntity)
+	localFeature := NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)
+	localEntity.AddFeature(localFeature)
+	return localFeature
 }

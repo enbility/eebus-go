@@ -16,7 +16,7 @@ import (
 //   e[1] f-2 client.DeviceClassification
 //   e[1] f-3 client.DeviceDiagnosis
 func NewEVSE(device *spine.DeviceLocalImpl, address []model.AddressEntityType) *spine.EntityLocalImpl {
-	entityType := model.EntityTypeType(model.EntityTypeTypeEVSE)
+	entityType := model.EntityTypeTypeEVSE
 	entity := spine.NewEntityLocalImpl(device, entityType, address)
 
 	{

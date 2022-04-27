@@ -16,6 +16,20 @@ func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, error) {
 	return nil, nil, fmt.Errorf("Function not found for cmd")
 }
 
+type FeatureLocal interface {
+	Feature
+	Data(function model.FunctionType) any
+	SetData(function model.FunctionType, data any)
+	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
+	RequestData(
+		function model.FunctionType,
+		destination *FeatureRemoteImpl,
+		requestChannel any) (*model.MsgCounterType, error)
+	HandleMessage(message *Message) error
+}
+
+var _ FeatureLocal = (*FeatureLocalImpl)(nil)
+
 type FeatureLocalImpl struct {
 	*FeatureImpl
 	entity          *EntityLocalImpl
@@ -25,7 +39,7 @@ type FeatureLocalImpl struct {
 func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
 	res := &FeatureLocalImpl{
 		FeatureImpl: NewFeatureImpl(
-			featureAddressType(id, entity.Device().Address(), entity.Address()),
+			featureAddressType(id, entity.Address()),
 			ftype,
 			role),
 		entity:          entity,
@@ -36,19 +50,60 @@ func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTy
 		res.functionDataMap[fd.Function()] = fd
 	}
 
+	if role == model.RoleTypeServer || role == model.RoleTypeSpecial {
+		functionMap, exists := FeatureOperationsMap[ftype]
+		if exists {
+			res.operations = functionMap
+		} else {
+			res.operations = make(map[model.FunctionType]*Operations)
+		}
+	}
+
 	return res
+}
+
+func (r *FeatureLocalImpl) Device() *DeviceLocalImpl {
+	return r.entity.Device()
+}
+
+func (r *FeatureLocalImpl) Entity() *EntityLocalImpl {
+	return r.entity
+}
+
+func (r *FeatureLocalImpl) Data(function model.FunctionType) any {
+	return r.functionData(function).DataAny()
 }
 
 func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
 	fd := r.functionData(function)
 	fd.SetDataAny(data)
 
-	// TODO:
-	//f.NotifySubscribers([]model.CmdType{fd.NotifyCmdType(false)})
+	r.Device().NotifySubscribers(r.Address(), []model.CmdType{fd.NotifyCmdType(false)})
 }
 
-func (r *FeatureLocalImpl) Data(function model.FunctionType) any {
-	return r.functionData(function).DataAny()
+func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType {
+	var funs []model.FunctionPropertyType
+	for fun, operations := range r.operations {
+		var functionType model.FunctionType = model.FunctionType(fun)
+		sf := model.FunctionPropertyType{
+			Function:           &functionType,
+			PossibleOperations: operations.Information(),
+		}
+
+		funs = append(funs, sf)
+	}
+
+	res := model.NodeManagementDetailedDiscoveryFeatureInformationType{
+		Description: &model.NetworkManagementFeatureDescriptionDataType{
+			FeatureAddress:    r.Address(),
+			FeatureType:       &r.ftype,
+			Role:              &r.role,
+			Description:       r.description,
+			SupportedFunction: funs,
+		},
+	}
+
+	return &res
 }
 
 func (r *FeatureLocalImpl) RequestData(

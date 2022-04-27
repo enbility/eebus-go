@@ -8,9 +8,9 @@ type EntityRemoteImpl struct {
 	features []*FeatureRemoteImpl
 }
 
-func NewEntityRemoteImpl(device *DeviceRemoteImpl, eType model.EntityTypeType, address []model.AddressEntityType) *EntityRemoteImpl {
+func NewEntityRemoteImpl(device *DeviceRemoteImpl, eType model.EntityTypeType, entityAddress []model.AddressEntityType) *EntityRemoteImpl {
 	return &EntityRemoteImpl{
-		EntityImpl: NewEntity(eType, address),
+		EntityImpl: NewEntity(eType, device.Address(), entityAddress),
 		device:     device,
 	}
 }
@@ -21,4 +21,13 @@ func (r *EntityRemoteImpl) Device() *DeviceRemoteImpl {
 
 func (r *EntityRemoteImpl) AddFeature(f *FeatureRemoteImpl) {
 	r.features = append(r.features, f)
+}
+
+func (r *EntityRemoteImpl) Feature(addressFeature *model.AddressFeatureType) *FeatureRemoteImpl {
+	for _, f := range r.features {
+		if *f.Address().Feature == *addressFeature {
+			return f
+		}
+	}
+	return nil
 }

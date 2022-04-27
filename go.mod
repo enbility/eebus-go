@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/grandcat/zeroconf v1.0.0
 	github.com/stretchr/testify v1.7.1
