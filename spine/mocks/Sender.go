@@ -40,13 +40,13 @@ func (_m *Sender) Reply(requestHeader *model.HeaderType, senderAddress *model.Fe
 	return r0
 }
 
-// Request provides a mock function with given fields: cmdClassifier, senderAddress, ackRequest, cmd
-func (_m *Sender) Request(cmdClassifier model.CmdClassifierType, senderAddress *model.FeatureAddressType, ackRequest bool, cmd []model.CmdType) (*model.MsgCounterType, error) {
-	ret := _m.Called(cmdClassifier, senderAddress, ackRequest, cmd)
+// Request provides a mock function with given fields: cmdClassifier, senderAddress, destinationAddress, ackRequest, cmd
+func (_m *Sender) Request(cmdClassifier model.CmdClassifierType, senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, ackRequest bool, cmd []model.CmdType) (*model.MsgCounterType, error) {
+	ret := _m.Called(cmdClassifier, senderAddress, destinationAddress, ackRequest, cmd)
 
 	var r0 *model.MsgCounterType
-	if rf, ok := ret.Get(0).(func(model.CmdClassifierType, *model.FeatureAddressType, bool, []model.CmdType) *model.MsgCounterType); ok {
-		r0 = rf(cmdClassifier, senderAddress, ackRequest, cmd)
+	if rf, ok := ret.Get(0).(func(model.CmdClassifierType, *model.FeatureAddressType, *model.FeatureAddressType, bool, []model.CmdType) *model.MsgCounterType); ok {
+		r0 = rf(cmdClassifier, senderAddress, destinationAddress, ackRequest, cmd)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
@@ -54,8 +54,8 @@ func (_m *Sender) Request(cmdClassifier model.CmdClassifierType, senderAddress *
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(model.CmdClassifierType, *model.FeatureAddressType, bool, []model.CmdType) error); ok {
-		r1 = rf(cmdClassifier, senderAddress, ackRequest, cmd)
+	if rf, ok := ret.Get(1).(func(model.CmdClassifierType, *model.FeatureAddressType, *model.FeatureAddressType, bool, []model.CmdType) error); ok {
+		r1 = rf(cmdClassifier, senderAddress, destinationAddress, ackRequest, cmd)
 	} else {
 		r1 = ret.Error(1)
 	}

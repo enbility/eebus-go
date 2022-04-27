@@ -1,6 +1,7 @@
 package spine
 
 import (
+	"errors"
 	"reflect"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -22,6 +23,42 @@ func NewDeviceLocalImpl(address model.AddressDeviceType) *DeviceLocalImpl {
 
 	res.addDeviceInformation()
 	return res
+}
+
+func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteFeature *FeatureRemoteImpl) error {
+
+	destAddr := datagram.Header.AddressDestination
+	localFeature := r.FeatureByAddress(destAddr)
+	if localFeature == nil {
+		return errors.New("invalid feature address")
+	}
+
+	cmdClassifier := datagram.Header.CmdClassifier
+	cmd := datagram.Payload.Cmd[0]
+
+	// isPartial
+	isPartial := false
+	functionCmd := cmd.Function
+	filterCmd := cmd.Filter
+
+	if functionCmd != nil && filterCmd != nil {
+		// TODO check if the function is the same as the provided cmd value
+		if len(filterCmd) > 0 {
+			if filterCmd[0].CmdControl.Partial != nil {
+				isPartial = true
+			}
+		}
+	}
+
+	message := &Message{
+		RequestHeader: &datagram.Header,
+		CmdClassifier: *cmdClassifier,
+		Cmd:           cmd,
+		IsPartial:     isPartial,
+		featureRemote: remoteFeature,
+	}
+
+	return localFeature.HandleMessage(message)
 }
 
 func (r *DeviceLocalImpl) SubscriptionManager() SubscriptionManager {

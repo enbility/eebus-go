@@ -114,7 +114,7 @@ func (r *FeatureLocalImpl) RequestData(
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType()
 
-	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), false, []model.CmdType{cmd})
+	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
 	if err == nil && requestChannel != nil {
 		fd.AddPendingRequest(*msgCounter, requestChannel)
 	}

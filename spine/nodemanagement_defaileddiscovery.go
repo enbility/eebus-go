@@ -14,7 +14,7 @@ func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model
 
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
 
-	return sender.Request(model.CmdClassifierTypeRead, rfAdress, false, []model.CmdType{cmd})
+	return sender.Request(model.CmdClassifierTypeRead, r.Address(), rfAdress, false, []model.CmdType{cmd})
 }
 
 func (r *NodeManagementImpl) readDetailedDiscoveryData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {

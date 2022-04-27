@@ -37,7 +37,7 @@ func (suite *DeviceClassificationTestSuite) SetupSuite() {
 }
 
 func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request() {
-	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
+	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
 
 	// Act
 	usedMsgCounter, err := suite.sut.RequestData(suite.function, suite.remoteFeature, nil)
@@ -46,7 +46,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request() {
 }
 
 func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Reply() {
-	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
+	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
 
 	manufacturerData := &model.DeviceClassificationManufacturerDataType{
 		BrandName:  util.Ptr(model.DeviceClassificationStringType("brand name")),
