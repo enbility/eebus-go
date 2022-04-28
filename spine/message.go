@@ -8,4 +8,5 @@ type Message struct {
 	Cmd           model.CmdType
 	IsPartial     bool
 	featureRemote *FeatureRemoteImpl
+	deviceRemote  *DeviceRemoteImpl
 }

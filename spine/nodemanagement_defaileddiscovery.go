@@ -17,7 +17,10 @@ func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model
 	return sender.Request(model.CmdClassifierTypeRead, r.Address(), rfAdress, false, []model.CmdType{cmd})
 }
 
-func (r *NodeManagementImpl) readDetailedDiscoveryData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
+func (r *NodeManagementImpl) readDetailedDiscoveryData(deviceRemote *DeviceRemoteImpl, requestHeader *model.HeaderType) error {
+	if deviceRemote == nil {
+		return errors.New("nodemanagement.readDetailedDiscoveryData: invalid deviceRemote")
+	}
 
 	var entityInformation []model.NodeManagementDetailedDiscoveryEntityInformationType
 	var featureInformation []model.NodeManagementDetailedDiscoveryFeatureInformationType
@@ -41,11 +44,11 @@ func (r *NodeManagementImpl) readDetailedDiscoveryData(featureRemote *FeatureRem
 		},
 	}
 
-	return featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)
+	return deviceRemote.Sender().Reply(requestHeader, r.Address(), cmd)
 }
 
 func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
-	remoteDevice := message.featureRemote.Device()
+	remoteDevice := message.deviceRemote
 
 	deviceDescription := data.DeviceInformation.Description
 	if deviceDescription == nil {
@@ -263,7 +266,7 @@ func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data 
 func (r *NodeManagementImpl) handleMsgDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		return r.readDetailedDiscoveryData(message.featureRemote, message.RequestHeader)
+		return r.readDetailedDiscoveryData(message.deviceRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
 		return r.replyDetailedDiscoveryData(message, data)

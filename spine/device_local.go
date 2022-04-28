@@ -74,6 +74,12 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		Cmd:           cmd,
 		IsPartial:     isPartial,
 		featureRemote: remoteFeature,
+		deviceRemote:  remoteDevice,
+	}
+
+	// check if this is a nodemanagement request
+	if destAddr.Entity[0] == 0 && *destAddr.Feature == 0 {
+		return r.nodeManagement.HandleMsg(message)
 	}
 
 	return localFeature.HandleMessage(message)
