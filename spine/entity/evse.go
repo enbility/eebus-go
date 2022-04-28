@@ -8,13 +8,11 @@ import (
 //  Entities:
 //   e[1] type=EVSE
 //  Features:
-//   e[1] f-0 server.DeviceClassification
-//    {RO} ManufacturerData
-//   e[1] f-1 server.DeviceDiagnosis
+//   e[1] f-0 server.DeviceDiagnosis
 //    {RO} deviceDiagnosisStateData
 //    {RO} deviceDiagnosisHeartbeatData
-//   e[1] f-2 client.DeviceClassification
-//   e[1] f-3 client.DeviceDiagnosis
+//   e[1] f-1 client.DeviceClassification
+//   e[1] f-2 client.DeviceDiagnosis
 func NewEVSE(device *spine.DeviceLocalImpl, address []model.AddressEntityType) *spine.EntityLocalImpl {
 	entityType := model.EntityTypeTypeEVSE
 	entity := spine.NewEntityLocalImpl(device, entityType, address)
