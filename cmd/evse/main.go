@@ -23,11 +23,11 @@ type evse struct {
 func (h *evse) run() {
 
 	serviceDescription := &service.ServiceDescription{
-		DeviceBrand:        "Demo",
-		DeviceModel:        "EVSE",
-		DeviceSerialNumber: "234567890",
-		DeviceIdentifier:   "Demo-EVSE-234567890",
-		DeviceType:         model.DeviceTypeTypeChargingStation,
+		Brand:        "Demo",
+		Model:        "EVSE",
+		SerialNumber: "234567890",
+		Identifier:   "Demo-EVSE-234567890",
+		DeviceType:   model.DeviceTypeTypeChargingStation,
 		RemoteDeviceTypes: []model.DeviceTypeType{
 			model.DeviceTypeTypeEnergyManagementSystem,
 		},

@@ -23,11 +23,11 @@ type hems struct {
 func (h *hems) run() {
 
 	serviceDescription := &service.ServiceDescription{
-		DeviceBrand:        "Demo",
-		DeviceModel:        "HEMS",
-		DeviceSerialNumber: "123456789",
-		DeviceIdentifier:   "Demo-HEMS-123456789",
-		DeviceType:         model.DeviceTypeTypeEnergyManagementSystem,
+		Brand:        "Demo",
+		Model:        "HEMS",
+		SerialNumber: "123456789",
+		Identifier:   "Demo-HEMS-123456789",
+		DeviceType:   model.DeviceTypeTypeEnergyManagementSystem,
 		RemoteDeviceTypes: []model.DeviceTypeType{
 			model.DeviceTypeTypeChargingStation,
 		},

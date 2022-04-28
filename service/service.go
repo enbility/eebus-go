@@ -33,23 +33,23 @@ type ServiceDetails struct {
 
 type ServiceDescription struct {
 	// The brand of the device, required
-	DeviceBrand string
+	Brand string
 
 	// The device model, required
-	DeviceModel string
+	Model string
 
 	// The EEBUS device type of the device model, required
 	DeviceType model.DeviceTypeType
 
 	// Serial number of the device, required
-	DeviceSerialNumber string
+	SerialNumber string
 
 	// The mDNS service identifier, will also be used as SHIP ID
-	// Optional, if not set will be  generated using "DeviceBrand-DeviceModel-DeviceSerialNumber"
-	DeviceIdentifier string
+	// Optional, if not set will be  generated using "Brand-Model-SerialNumber"
+	Identifier string
 
 	// The vendors IANA PEN, optional
-	IANAPEN string
+	VendorCode string
 
 	// The EEBUS device type of supported remote devices, required
 	RemoteDeviceTypes []model.DeviceTypeType
@@ -128,26 +128,26 @@ func (s *EEBUSService) Start() {
 
 	s.localService = &ServiceDetails{
 		SKI:                ski,
-		ShipID:             sd.DeviceIdentifier,
+		ShipID:             sd.Identifier,
 		deviceType:         sd.DeviceType,
 		registerAutoAccept: sd.RegisterAutoAccept,
 	}
 
 	fmt.Println("Local SKI: ", ski)
 
-	vendor := sd.IANAPEN
+	vendor := sd.VendorCode
 	if vendor == "" {
-		vendor = sd.DeviceBrand
+		vendor = sd.Brand
 	}
 
 	// Create the SPINE device address, according to Protocol Specification 7.1.1.2
-	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s-%s", vendor, sd.DeviceBrand, sd.DeviceModel, sd.DeviceSerialNumber)
+	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s-%s", vendor, sd.Brand, sd.Model, sd.SerialNumber)
 
 	s.spineLocalDevice = spine.NewDeviceLocalImpl(
-		sd.DeviceBrand,
-		sd.DeviceModel,
+		sd.Brand,
+		sd.Model,
 		deviceAdress,
-		sd.DeviceSerialNumber,
+		sd.SerialNumber,
 		sd.DeviceType,
 	)
 

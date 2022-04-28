@@ -175,9 +175,9 @@ func (h *connectionsHub) mdnsRegister() error {
 		}
 	}
 
-	serviceIdentifier := fmt.Sprintf("%s-%s-%s", h.serviceDescription.DeviceBrand, h.serviceDescription.DeviceModel, h.serviceDescription.DeviceSerialNumber)
-	if len(h.serviceDescription.DeviceIdentifier) > 0 {
-		serviceIdentifier = h.serviceDescription.DeviceIdentifier
+	serviceIdentifier := fmt.Sprintf("%s-%s-%s", h.serviceDescription.Brand, h.serviceDescription.Model, h.serviceDescription.SerialNumber)
+	if len(h.serviceDescription.Identifier) > 0 {
+		serviceIdentifier = h.serviceDescription.Identifier
 	}
 
 	mDNSServer, err := zeroconf.Register(
@@ -190,8 +190,8 @@ func (h *connectionsHub) mdnsRegister() error {
 			"path=" + shipWebsocketPath,
 			"id=" + serviceIdentifier,
 			"ski=" + h.localService.SKI,
-			"brand=" + h.serviceDescription.DeviceBrand,
-			"model=" + h.serviceDescription.DeviceModel,
+			"brand=" + h.serviceDescription.Brand,
+			"model=" + h.serviceDescription.Model,
 			"type=" + string(h.serviceDescription.DeviceType),
 			"register=" + fmt.Sprintf("%v", h.serviceDescription.RegisterAutoAccept),
 		},
