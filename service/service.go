@@ -138,9 +138,6 @@ func (s *EEBUSService) Start() {
 		s.serviceDescription.DeviceType,
 	)
 
-	e0 := entity.NewDeviceInformation(s.spineLocalDevice)
-	s.spineLocalDevice.AddEntity(e0)
-
 	if s.localService.deviceType == model.DeviceTypeTypeEnergyManagementSystem {
 		e1 := entity.NewCEM(s.spineLocalDevice, []model.AddressEntityType{1})
 		s.spineLocalDevice.AddEntity(e1)
