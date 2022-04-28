@@ -20,11 +20,6 @@ func NewEVSE(device *spine.DeviceLocalImpl, address []model.AddressEntityType) *
 	entity := spine.NewEntityLocalImpl(device, entityType, address)
 
 	{
-		f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
-		f.SetDescriptionString("Device Classification for EVSE")
-		entity.AddFeature(f)
-	}
-	{
 		f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 		f.SetDescriptionString("Device Diagnosis EVSE")
 		entity.AddFeature(f)

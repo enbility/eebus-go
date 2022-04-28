@@ -17,8 +17,7 @@ var FeatureOperationsMap = map[model.FeatureTypeType]map[model.FunctionType]*Ope
 		model.FunctionTypeNodeManagementBindingDeleteCall:       NewOperations(false, false),
 	},
 	model.FeatureTypeTypeDeviceDiagnosis: {
-		model.FunctionTypeDeviceDiagnosisStateData:     NewOperations(true, false),
-		model.FunctionTypeDeviceDiagnosisHeartbeatData: NewOperations(true, false),
+		model.FunctionTypeDeviceDiagnosisStateData: NewOperations(true, false),
 	},
 	// add more features here
 }
