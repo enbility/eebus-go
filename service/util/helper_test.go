@@ -1,7 +1,11 @@
 package util
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
+
+	"github.com/DerAndereAndi/eebus-go/ship"
 )
 
 func TestJsonFromEEBUSJson(t *testing.T) {
@@ -24,6 +28,46 @@ func TestJsonIntoEEBUSJson(t *testing.T) {
 		println(err.Error())
 		t.Errorf("\nExpected:\n  %s\ngot:\n  %s", jsonExpected, json)
 	}
+
+	if json != jsonExpected {
+		t.Errorf("\nExpected:\n  %s\ngot:\n  %s", jsonExpected, json)
+	}
+}
+
+const payloadPlaceholder = `{"place":"holder"}`
+
+func TestShipJsonIntoEEBUSJson(t *testing.T) {
+	spineTest := `{"datagram":{"header":{"specificationVersion":"1.2.0","addressSource":{"device":"Demo-EVSE-234567890","entity":[0],"feature":0},"addressDestination":{"device":"Demo-HEMS-123456789","entity":[0],"feature":0},"msgCounter":1,"cmdClassifier":"read"},"payload":{"cmd":[{"nodeManagementDetailedDiscoveryData":{}}]}}}`
+	jsonExpected := `{"data":[{"header":[{"protocolId":"ee1.0"}]},{"payload":{"datagram":[{"header":[{"specificationVersion":"1.2.0"},{"addressSource":[{"device":"Demo-EVSE-234567890"},{"entity":[0]},{"feature":0}]},{"addressDestination":[{"device":"Demo-HEMS-123456789"},{"entity":[0]},{"feature":0}]},{"msgCounter":1},{"cmdClassifier":"read"}]},{"payload":[{"cmd":[[{"nodeManagementDetailedDiscoveryData":[]}]]}]}]}}]}`
+
+	// TODO: move this test into connection_test using "transformSpineDataIntoShipJson()"
+	spineMsg, err := JsonIntoEEBUSJson([]byte(spineTest))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	payload := json.RawMessage([]byte(spineMsg))
+
+	shipMessage := ship.ShipData{
+		Data: ship.DataType{
+			Header: ship.HeaderType{
+				ProtocolId: ship.ShipProtocolId,
+			},
+			Payload: json.RawMessage([]byte(payloadPlaceholder)),
+		},
+	}
+
+	msg, err := json.Marshal(shipMessage)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	json, err := JsonIntoEEBUSJson(msg)
+	if err != nil {
+		println(err.Error())
+		t.Errorf("\nExpected:\n  %s\ngot:\n  %s", jsonExpected, json)
+	}
+
+	json = strings.ReplaceAll(json, `[`+payloadPlaceholder+`]`, string(payload))
 
 	if json != jsonExpected {
 		t.Errorf("\nExpected:\n  %s\ngot:\n  %s", jsonExpected, json)

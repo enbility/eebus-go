@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
@@ -299,8 +300,20 @@ func (c *ConnectionHandler) writeWebsocketMessage(message []byte) error {
 	return nil
 }
 
-func (c *ConnectionHandler) sendSpineData(data []byte) error {
-	payload := json.RawMessage(data)
+const payloadPlaceholder = `{"place":"holder"}`
+
+func (c *ConnectionHandler) transformSpineDataIntoShipJson(data []byte) ([]byte, error) {
+	spineMsg, err := util.JsonIntoEEBUSJson(data)
+	if err != nil {
+		return nil, err
+	}
+
+	payload := json.RawMessage([]byte(spineMsg))
+
+	// Workaround for the fact that SHIP payload is a json.RawMessage
+	// which would also be transformed into an array element but it shouldn't
+	// hence patching the payload into the message later after the SHIP
+	// and SPINE model are transformed independently
 
 	// Create the message
 	shipMessage := ship.ShipData{
@@ -308,16 +321,47 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 			Header: ship.HeaderType{
 				ProtocolId: ship.ShipProtocolId,
 			},
-			Payload: payload,
+			Payload: json.RawMessage([]byte(payloadPlaceholder)),
 		},
 	}
 
-	// Send the message
-	return c.sendModel(ship.MsgTypeData, &shipMessage)
+	msg, err := json.Marshal(shipMessage)
+	if err != nil {
+		return nil, err
+	}
+
+	eebusMsg, err := util.JsonIntoEEBUSJson(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	eebusMsg = strings.ReplaceAll(eebusMsg, `[`+payloadPlaceholder+`]`, string(payload))
+
+	return []byte(eebusMsg), nil
+}
+
+func (c *ConnectionHandler) sendSpineData(data []byte) error {
+	eebusMsg, err := c.transformSpineDataIntoShipJson(data)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Send: ", string(eebusMsg))
+
+	// Wrap the message into a binary message with the ship header
+	shipMsg := []byte{ship.MsgTypeData}
+	shipMsg = append(shipMsg, eebusMsg...)
+
+	err = c.writeWebsocketMessage(shipMsg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // send a json message for a provided model to the websocket connection
-func (c *ConnectionHandler) sendModel(typ byte, model interface{}) error {
+func (c *ConnectionHandler) sendShipModel(typ byte, model interface{}) error {
 	msg, err := json.Marshal(model)
 	if err != nil {
 		return err

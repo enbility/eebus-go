@@ -162,7 +162,7 @@ func (c *ConnectionHandler) handshakeHelloSend(phase ship.ConnectionHelloPhaseTy
 		helloMsg.ConnectionHello.ProlongationRequest = &prolongation
 	}
 
-	if err := c.sendModel(ship.MsgTypeControl, helloMsg); err != nil {
+	if err := c.sendShipModel(ship.MsgTypeControl, helloMsg); err != nil {
 		return err
 	}
 	return nil
@@ -332,7 +332,7 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 
 		protocolHandshake.MessageProtocolHandshake.HandshakeType = ship.ProtocolHandshakeTypeTypeSelect
 
-		if err = c.sendModel(ship.MsgTypeControl, protocolHandshake); err != nil {
+		if err = c.sendShipModel(ship.MsgTypeControl, protocolHandshake); err != nil {
 			return err
 		}
 
@@ -357,7 +357,7 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 
 		protocolHandshake.MessageProtocolHandshake.HandshakeType = ship.ProtocolHandshakeTypeTypeAnnounceMax
 
-		if err = c.sendModel(ship.MsgTypeControl, protocolHandshake); err != nil {
+		if err = c.sendShipModel(ship.MsgTypeControl, protocolHandshake); err != nil {
 			return err
 		}
 
@@ -386,7 +386,7 @@ func (c *ConnectionHandler) handshakeProtocol() error {
 				},
 			},
 		}
-		if err = c.sendModel(ship.MsgTypeControl, protocolHandshake); err != nil {
+		if err = c.sendShipModel(ship.MsgTypeControl, protocolHandshake); err != nil {
 			return err
 		}
 		// SME_PROT_H_STATE_CLIENT_OK
@@ -407,7 +407,7 @@ func (c *ConnectionHandler) handshakePin() error {
 		},
 	}
 
-	if err = c.sendModel(ship.MsgTypeControl, pinState); err != nil {
+	if err = c.sendShipModel(ship.MsgTypeControl, pinState); err != nil {
 		return err
 	}
 
@@ -446,7 +446,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 		AccessMethodsRequest: ship.AccessMethodsRequestType{},
 	}
 
-	if err = c.sendModel(ship.MsgTypeControl, accessMethodsRequest); err != nil {
+	if err = c.sendShipModel(ship.MsgTypeControl, accessMethodsRequest); err != nil {
 		return err
 	}
 
@@ -471,7 +471,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 					Id: &methodsId,
 				},
 			}
-			if err = c.sendModel(ship.MsgTypeControl, accessMethods); err != nil {
+			if err = c.sendShipModel(ship.MsgTypeControl, accessMethods); err != nil {
 				return err
 			}
 		} else if strings.Contains(dataString, "\"accessMethods\":{") {
@@ -513,7 +513,7 @@ func (c *ConnectionHandler) shipClose() {
 		},
 	}
 
-	_ = c.sendModel(ship.MsgTypeControl, closeMessage)
+	_ = c.sendShipModel(ship.MsgTypeControl, closeMessage)
 }
 
 // read the next message from the websocket connection
