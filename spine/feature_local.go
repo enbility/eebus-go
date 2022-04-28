@@ -10,6 +10,8 @@ import (
 // TODO: move to separate file
 func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, error) {
 	switch {
+	case cmd.NodeManagementDetailedDiscoveryData != nil:
+		return util.Ptr(model.FunctionTypeNodeManagementDetailedDiscoveryData), cmd.NodeManagementDetailedDiscoveryData, nil
 	case cmd.DeviceClassificationManufacturerData != nil:
 		return util.Ptr(model.FunctionTypeDeviceClassificationManufacturerData), cmd.DeviceClassificationManufacturerData, nil
 	}

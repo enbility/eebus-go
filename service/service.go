@@ -5,6 +5,8 @@ import (
 	"crypto/x509"
 	"fmt"
 
+	"github.com/DerAndereAndi/eebus-go/spine"
+	"github.com/DerAndereAndi/eebus-go/spine/entity"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
@@ -18,6 +20,9 @@ type ServiceDetails struct {
 	// ShipID is the ship identifier of the service
 	// This needs to be persisted
 	ShipID string
+
+	// The EEBUS device type of the device model
+	deviceType model.DeviceTypeType
 
 	// Flags if the service auto auto accepts other services
 	registerAutoAccept bool
@@ -85,6 +90,9 @@ type EEBUSService struct {
 	// Connection Registrations
 	connectionsHub *connectionsHub
 
+	// The SPINE specific device definition
+	spineLocalDevice *spine.DeviceLocalImpl
+
 	serviceDelegate EEBUSServiceDelegate
 }
 
@@ -116,10 +124,30 @@ func (s *EEBUSService) Start() {
 	s.localService = &ServiceDetails{
 		SKI:                ski,
 		ShipID:             s.serviceDescription.DeviceIdentifier,
+		deviceType:         s.serviceDescription.DeviceType,
 		registerAutoAccept: s.serviceDescription.RegisterAutoAccept,
 	}
 
 	fmt.Println("Local SKI: ", ski)
+
+	s.spineLocalDevice = spine.NewDeviceLocalImpl(
+		s.serviceDescription.DeviceBrand,
+		s.serviceDescription.DeviceModel,
+		s.serviceDescription.DeviceIdentifier,
+		s.serviceDescription.DeviceSerialNumber,
+		s.serviceDescription.DeviceType,
+	)
+
+	e0 := entity.NewDeviceInformation(s.spineLocalDevice)
+	s.spineLocalDevice.AddEntity(e0)
+
+	if s.localService.deviceType == model.DeviceTypeTypeEnergyManagementSystem {
+		e1 := entity.NewCEM(s.spineLocalDevice, []model.AddressEntityType{1})
+		s.spineLocalDevice.AddEntity(e1)
+	} else {
+		e1 := entity.NewEVSE(s.spineLocalDevice, []model.AddressEntityType{1})
+		s.spineLocalDevice.AddEntity(e1)
+	}
 
 	s.connectionsHub = newConnectionsHub(s.serviceDescription, s.localService, s)
 	s.connectionsHub.start()
@@ -160,4 +188,12 @@ func (s *EEBUSService) requestUserTrustForService(service *ServiceDetails) {
 
 func (s *EEBUSService) shipIDUpdateForService(service *ServiceDetails) {
 	s.serviceDelegate.RemoteServiceShipIDReported(service.SKI, service.ShipID)
+}
+
+func (s *EEBUSService) addRemoteDeviceConnection(ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) {
+	s.spineLocalDevice.AddRemoteDevice(ski, deviceCode, deviceType, readC, writeC)
+}
+
+func (s *EEBUSService) removeRemoteDeviceConnection(ski string) {
+	s.spineLocalDevice.RemoveRemoteDevice(ski)
 }

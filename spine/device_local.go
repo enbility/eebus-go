@@ -13,20 +13,36 @@ type DeviceLocalImpl struct {
 	entities            []*EntityLocalImpl
 	subscriptionManager SubscriptionManager
 	nodeManagement      *NodeManagementImpl
+
+	remoteDevices map[string]*DeviceRemoteImpl
 }
 
-func NewDeviceLocalImpl(address model.AddressDeviceType) *DeviceLocalImpl {
+func NewDeviceLocalImpl(vendorName, deviceName, deviceCode, serialNumber string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
 	res := &DeviceLocalImpl{
-		DeviceImpl:          NewDeviceImpl(address),
+		DeviceImpl:          NewDeviceImpl(model.AddressDeviceType(deviceCode), deviceType),
 		subscriptionManager: NewSubscriptionManager(),
+		remoteDevices:       make(map[string]*DeviceRemoteImpl),
 	}
 
 	res.addDeviceInformation()
 	return res
 }
 
-func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteFeature *FeatureRemoteImpl) error {
+func (r *DeviceLocalImpl) AddRemoteDevice(ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) {
+	rDevice := NewDeviceRemoteImpl(r, deviceCode, deviceType, readC, writeC)
+	r.remoteDevices[ski] = rDevice
+	r.nodeManagement.RequestDetailedDiscovery(&rDevice.address, rDevice.sender)
+}
 
+func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
+	if r.remoteDevices[ski] == nil {
+		return
+	}
+	r.remoteDevices[ski].CloseConnection()
+	delete(r.remoteDevices, ski)
+}
+
+func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *DeviceRemoteImpl) error {
 	destAddr := datagram.Header.AddressDestination
 	localFeature := r.FeatureByAddress(destAddr)
 	if localFeature == nil {
@@ -49,6 +65,8 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteFeature 
 			}
 		}
 	}
+
+	remoteFeature := remoteDevice.FeatureByAddress(datagram.Header.AddressSource)
 
 	message := &Message{
 		RequestHeader: &datagram.Header,

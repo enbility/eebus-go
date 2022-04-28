@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/gorilla/websocket"
 	"github.com/grandcat/zeroconf"
 )
@@ -357,6 +358,7 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 			remoteService := ServiceDetails{
 				SKI:                ski,
 				registerAutoAccept: true,
+				deviceType:         model.DeviceTypeType(deviceType),
 			}
 			if !h.isSkiConnected(ski) {
 				h.connectFoundService(remoteService, entry.HostName, strconv.Itoa(int(entry.Port)))

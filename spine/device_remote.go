@@ -1,7 +1,9 @@
 package spine
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -11,12 +13,52 @@ type DeviceRemoteImpl struct {
 	*DeviceImpl
 	entities []*EntityRemoteImpl
 	sender   Sender
+
+	localDevice *DeviceLocalImpl
+
+	// The read channel for incoming messages
+	readChannel <-chan []byte
+
+	// Handles closing of the connection
+	closeChannel chan bool
 }
 
-func NewDeviceRemoteImpl(address model.AddressDeviceType, sender Sender) *DeviceRemoteImpl {
-	return &DeviceRemoteImpl{
-		DeviceImpl: NewDeviceImpl(address),
-		sender:     sender,
+func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
+	res := DeviceRemoteImpl{
+		DeviceImpl:   NewDeviceImpl(model.AddressDeviceType(deviceCode), deviceType),
+		localDevice:  localDevice,
+		readChannel:  readC,
+		closeChannel: make(chan bool),
+		sender:       NewSender(writeC),
+	}
+	go res.readPump()
+
+	return &res
+}
+
+// this connection is closed
+func (d *DeviceRemoteImpl) CloseConnection() {
+	d.closeChannel <- true
+}
+
+// read all incoming spine messages from the associated SHIP connection
+func (d *DeviceRemoteImpl) readPump() {
+	for {
+		select {
+		case <-d.closeChannel:
+			return
+		case data, ok := <-d.readChannel:
+			if !ok {
+				return
+			}
+
+			datagram := model.Datagram{}
+			if err := json.Unmarshal([]byte(data), &datagram); err != nil {
+				fmt.Println(err)
+			}
+
+			d.localDevice.ProcessCmd(datagram.Datagram, d)
+		}
 	}
 }
 

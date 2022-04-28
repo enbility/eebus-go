@@ -1,10 +1,16 @@
 package ship
 
+import "encoding/json"
+
 const (
 	MsgTypeInit    byte = 0
 	MsgTypeControl byte = 1
 	MsgTypeData    byte = 2
 	MsgTypeEnd     byte = 3
+)
+
+const (
+	ShipProtocolId = "ee1.0"
 )
 
 type ConnectionHelloPhaseType string
@@ -117,10 +123,14 @@ type ExtensionType struct {
 	String      *string `json:"string,omitempty"`
 }
 
+type ShipData struct {
+	Data DataType `json:"data"`
+}
+
 type DataType struct {
-	Header    HeaderType     `json:"header"`
-	Payload   *string        `json:"payload"`
-	Extension *ExtensionType `json:"extension,omitempty"`
+	Header    HeaderType      `json:"header"`
+	Payload   json.RawMessage `json:"payload"`
+	Extension *ExtensionType  `json:"extension,omitempty"`
 }
 
 type ConnectionClosePhaseType string

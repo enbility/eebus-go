@@ -2,6 +2,8 @@
 package spine
 
 import (
+	"encoding/json"
+	"errors"
 	"sync/atomic"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -25,16 +27,39 @@ type Sender interface {
 type SenderImpl struct {
 	msgNum uint64 // 64bit values need to be defined on top of the struct to make atomic commands work on 32bit systems
 	//log        util.Logger
-	comControl ComControl
+
+	writeChannel chan<- []byte
 }
 
 var _ Sender = (*SenderImpl)(nil)
 
-func NewSender(comControl ComControl) Sender {
+func NewSender(writeC chan<- []byte) Sender {
 	return &SenderImpl{
 		//log:        log,
-		comControl: comControl,
+		writeChannel: writeC,
 	}
+}
+
+func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
+	// pack into datagram
+	model := model.Datagram{
+		Datagram: datagram,
+	}
+
+	// marshal
+	msg, err := json.Marshal(model)
+	if err != nil {
+		return err
+	}
+
+	if c.writeChannel == nil {
+		return errors.New("write channel not set")
+	}
+
+	// write to channel
+	c.writeChannel <- msg
+
+	return nil
 }
 
 // Sends read request
@@ -58,7 +83,7 @@ func (c *SenderImpl) Request(cmdClassifier model.CmdClassifierType, senderAddres
 		datagram.Header.AckRequest = &ackRequest
 	}
 
-	return msgCounter, c.comControl.SendSpineMessage(datagram)
+	return msgCounter, c.sendSpineMessage(datagram)
 }
 
 // Reply sends reply to original sender
@@ -88,7 +113,7 @@ func (c *SenderImpl) Reply(requestHeader *model.HeaderType, senderAddress *model
 		},
 	}
 
-	return c.comControl.SendSpineMessage(datagram)
+	return c.sendSpineMessage(datagram)
 }
 
 // Notify sends notification to destination
@@ -108,7 +133,7 @@ func (c SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddre
 		},
 	}
 
-	return c.comControl.SendSpineMessage(datagram)
+	return c.sendSpineMessage(datagram)
 }
 
 // Write sends notification to destination
@@ -130,7 +155,7 @@ func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddre
 		},
 	}
 
-	return c.comControl.SendSpineMessage(datagram)
+	return c.sendSpineMessage(datagram)
 }
 
 // Send a subscription request to a remote server feature
@@ -191,7 +216,7 @@ func (c *SenderImpl) SendAcknowledgementMessage(err error, featureSource *model.
 		},
 	}
 
-	return c.comControl.SendSpineMessage(responseDatagram)
+	return c.sendSpineMessage(responseDatagram)
 }
 
 func (c *SenderImpl) getMsgCounter() *model.MsgCounterType {

@@ -8,9 +8,10 @@ type DeviceImpl struct {
 	useCaseManager *UseCaseManager
 }
 
-func NewDeviceImpl(address model.AddressDeviceType) *DeviceImpl {
+func NewDeviceImpl(address model.AddressDeviceType, dType model.DeviceTypeType) *DeviceImpl {
 	return &DeviceImpl{
 		address:        address,
+		dType:          dType,
 		useCaseManager: NewUseCaseManager(),
 	}
 }
@@ -21,8 +22,4 @@ func (r *DeviceImpl) Address() *model.AddressDeviceType {
 
 func (r *DeviceImpl) UseCaseManager() *UseCaseManager {
 	return r.useCaseManager
-}
-
-func (r *DeviceImpl) SetDeviceType(dType model.DeviceTypeType) {
-	r.dType = dType
 }

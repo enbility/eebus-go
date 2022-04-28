@@ -73,6 +73,7 @@ func (h *hems) run() {
 	}
 
 	serviceDescription.Certificate = certificate
+
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 

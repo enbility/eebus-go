@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
+	"github.com/DerAndereAndi/eebus-go/ship"
+	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/gorilla/websocket"
 )
 
@@ -31,6 +33,12 @@ const (
 type ConnectionHandlerDelegate interface {
 	requestUserTrustForService(service *ServiceDetails)
 	shipIDUpdateForService(service *ServiceDetails)
+
+	// new spine connection established, inform SPINE
+	addRemoteDeviceConnection(ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte)
+
+	// remove an existing connection from SPINE
+	removeRemoteDeviceConnection(ski string)
 }
 
 // A ConnectionHandler handles websocket connections.
@@ -58,6 +66,9 @@ type ConnectionHandler struct {
 
 	// The ship read channel for incoming messages
 	shipReadChannel chan []byte
+
+	// The ship write channel for outgoing messages
+	shipWriteChannel chan []byte
 
 	// The channel for handling local trust state update for the remote service
 	shipTrustChannel chan bool
@@ -92,10 +103,11 @@ func (c *ConnectionHandler) handleConnection() {
 }
 
 func (c *ConnectionHandler) startup() {
-	c.readChannel = make(chan []byte, 1)     // Listen to incoming websocket messages
-	c.writeChannel = make(chan []byte, 1)    // Send outgoing websocket messages
-	c.shipReadChannel = make(chan []byte, 1) // Listen to incoming ship messages
-	c.shipTrustChannel = make(chan bool, 1)  // Listen to trust state update
+	c.readChannel = make(chan []byte, 1)      // Listen to incoming websocket messages
+	c.writeChannel = make(chan []byte, 1)     // Send outgoing websocket messages
+	c.shipReadChannel = make(chan []byte, 1)  // Listen to incoming ship messages
+	c.shipWriteChannel = make(chan []byte, 1) // Send outgoing ship messages
+	c.shipTrustChannel = make(chan bool, 1)   // Listen to trust state update
 
 	go c.readPump()
 	go c.writePump()
@@ -106,6 +118,9 @@ func (c *ConnectionHandler) startup() {
 			c.shutdown(false)
 			return
 		}
+
+		// Report to SPINE local device about this remote device connection
+		c.connectionDelegate.addRemoteDeviceConnection(c.remoteService.SKI, c.remoteService.ShipID, c.remoteService.deviceType, c.readChannel, c.writeChannel)
 		c.shipMessageHandler()
 	}()
 }
@@ -113,6 +128,10 @@ func (c *ConnectionHandler) startup() {
 // shutdown the connection and all internals
 // may only invoked after startup() is invoked!
 func (c *ConnectionHandler) shutdown(safeShutdown bool) {
+	if c.smeState == smeComplete {
+		c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
+	}
+
 	c.unregisterChannel <- c
 
 	if !isChannelClosed(c.readChannel) {
@@ -121,6 +140,14 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 
 	if !isChannelClosed(c.writeChannel) {
 		close(c.writeChannel)
+	}
+
+	if !isChannelClosed(c.shipReadChannel) {
+		close(c.shipReadChannel)
+	}
+
+	if !isChannelClosed(c.shipWriteChannel) {
+		close(c.shipWriteChannel)
 	}
 
 	if c.conn != nil {
@@ -153,6 +180,15 @@ func (c *ConnectionHandler) writePump() {
 	for {
 		select {
 		case message, ok := <-c.writeChannel:
+			if !ok {
+				// The write channel is closed
+				return
+			}
+			if err := c.sendSpineData(message); err != nil {
+				return
+			}
+
+		case message, ok := <-c.shipWriteChannel:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The write channel has been closed
@@ -203,7 +239,20 @@ func (c *ConnectionHandler) readPump() {
 		if isShipMessage {
 			c.shipReadChannel <- message
 		} else {
-			c.readChannel <- message
+			_, jsonData := c.parseMessage(message, true)
+
+			// Get the datagram from the message
+			data := ship.ShipData{}
+			if err := json.Unmarshal(jsonData, &data); err != nil {
+				fmt.Println("Error unmarshalling message: ", err)
+				continue
+			}
+
+			if data.Data.Payload == nil {
+				fmt.Println("Received no valid payload")
+				continue
+			}
+			c.readChannel <- []byte(data.Data.Payload)
 		}
 	}
 }
@@ -247,8 +296,25 @@ func (c *ConnectionHandler) writeWebsocketMessage(message []byte) error {
 	if c.conn == nil {
 		return errors.New("Connection is not initialized")
 	}
-	c.writeChannel <- message
+	c.shipWriteChannel <- message
 	return nil
+}
+
+func (c *ConnectionHandler) sendSpineData(data []byte) error {
+	payload := json.RawMessage(data)
+
+	// Create the message
+	shipMessage := ship.ShipData{
+		Data: ship.DataType{
+			Header: ship.HeaderType{
+				ProtocolId: ship.ShipProtocolId,
+			},
+			Payload: payload,
+		},
+	}
+
+	// Send the message
+	return c.sendModel(ship.MsgTypeData, &shipMessage)
 }
 
 // send a json message for a provided model to the websocket connection
