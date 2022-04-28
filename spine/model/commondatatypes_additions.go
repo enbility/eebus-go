@@ -5,6 +5,9 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/rickb777/date/period"
 )
 
 func (m ScaledNumberType) GetValue() float64 {
@@ -61,4 +64,10 @@ func (r *FeatureAddressType) String() string {
 		result += fmt.Sprintf("%d", *r.Feature)
 	}
 	return result
+}
+
+func NewISO8601Duration(duration time.Duration) *string {
+	d, _ := period.NewOf(duration)
+	value := d.String()
+	return &value
 }
