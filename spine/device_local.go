@@ -17,9 +17,9 @@ type DeviceLocalImpl struct {
 	remoteDevices map[string]*DeviceRemoteImpl
 }
 
-func NewDeviceLocalImpl(vendorName, deviceName, deviceCode, serialNumber string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
+func NewDeviceLocalImpl(vendorName, deviceName, deviceAddress, serialNumber string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
 	res := &DeviceLocalImpl{
-		DeviceImpl:          NewDeviceImpl(model.AddressDeviceType(deviceCode), deviceType),
+		DeviceImpl:          NewDeviceImpl(model.AddressDeviceType(deviceAddress), deviceType),
 		subscriptionManager: NewSubscriptionManager(),
 		remoteDevices:       make(map[string]*DeviceRemoteImpl),
 	}

@@ -32,33 +32,36 @@ type ServiceDetails struct {
 }
 
 type ServiceDescription struct {
-	// The brand of the device
+	// The brand of the device, required
 	DeviceBrand string
 
-	// The device model
+	// The device model, required
 	DeviceModel string
 
-	// The EEBUS device type of the device model
+	// The EEBUS device type of the device model, required
 	DeviceType model.DeviceTypeType
 
-	// Serial number of the device
+	// Serial number of the device, required
 	DeviceSerialNumber string
 
 	// The mDNS service identifier
 	// Optional, if not set will be  generated using "DeviceBrand-DeviceModel-DeviceSerialNumber"
 	DeviceIdentifier string
 
-	// The EEBUS device type of supported remote devices
+	// The vendors IANA PEN, optional
+	IANAPEN string
+
+	// The EEBUS device type of supported remote devices, required
 	RemoteDeviceTypes []model.DeviceTypeType
 
 	// Network interface to use for the service
 	// Optional, if not set all detected interfaces will be used
 	Interfaces []string
 
-	// The port address of the websocket server
+	// The port address of the websocket server, required
 	Port int
 
-	// The certificate used for the service and its connections
+	// The certificate used for the service and its connections, required
 	Certificate tls.Certificate
 
 	// Wether remote devices should be automatically accepted
@@ -109,7 +112,9 @@ func (s *EEBUSService) Start() {
 		s.serviceDescription.Port = defaultPort
 	}
 
-	leaf, err := x509.ParseCertificate(s.serviceDescription.Certificate.Certificate[0])
+	sd := s.serviceDescription
+
+	leaf, err := x509.ParseCertificate(sd.Certificate.Certificate[0])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -123,19 +128,27 @@ func (s *EEBUSService) Start() {
 
 	s.localService = &ServiceDetails{
 		SKI:                ski,
-		ShipID:             s.serviceDescription.DeviceIdentifier,
-		deviceType:         s.serviceDescription.DeviceType,
-		registerAutoAccept: s.serviceDescription.RegisterAutoAccept,
+		ShipID:             sd.DeviceIdentifier,
+		deviceType:         sd.DeviceType,
+		registerAutoAccept: sd.RegisterAutoAccept,
 	}
 
 	fmt.Println("Local SKI: ", ski)
 
+	vendor := sd.IANAPEN
+	if vendor == "" {
+		vendor = sd.DeviceBrand
+	}
+
+	// Create the SPINE device address, according to Protocol Specification 7.1.1.2
+	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s-%s", vendor, sd.DeviceBrand, sd.DeviceModel, sd.DeviceSerialNumber)
+
 	s.spineLocalDevice = spine.NewDeviceLocalImpl(
-		s.serviceDescription.DeviceBrand,
-		s.serviceDescription.DeviceModel,
-		s.serviceDescription.DeviceIdentifier,
-		s.serviceDescription.DeviceSerialNumber,
-		s.serviceDescription.DeviceType,
+		sd.DeviceBrand,
+		sd.DeviceModel,
+		deviceAdress,
+		sd.DeviceSerialNumber,
+		sd.DeviceType,
 	)
 
 	if s.localService.deviceType == model.DeviceTypeTypeEnergyManagementSystem {
