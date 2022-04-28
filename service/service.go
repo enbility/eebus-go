@@ -44,7 +44,7 @@ type ServiceDescription struct {
 	// Serial number of the device, required
 	DeviceSerialNumber string
 
-	// The mDNS service identifier
+	// The mDNS service identifier, will also be used as SHIP ID
 	// Optional, if not set will be  generated using "DeviceBrand-DeviceModel-DeviceSerialNumber"
 	DeviceIdentifier string
 
