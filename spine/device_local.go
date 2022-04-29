@@ -77,11 +77,6 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		deviceRemote:  remoteDevice,
 	}
 
-	// check if this is a nodemanagement request
-	if destAddr.Entity[0] == 0 && *destAddr.Feature == 0 {
-		return r.nodeManagement.HandleMsg(message)
-	}
-
 	return localFeature.HandleMessage(message)
 }
 
@@ -174,7 +169,7 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 
 	{
 		r.nodeManagement = NewNodeManagementImpl(entity.NextFeatureId(), entity)
-		entity.AddFeature(r.nodeManagement.FeatureLocalImpl)
+		entity.AddFeature(r.nodeManagement)
 	}
 	{
 		f := NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)

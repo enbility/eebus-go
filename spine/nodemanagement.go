@@ -29,7 +29,7 @@ func (r *NodeManagementImpl) Device() *DeviceLocalImpl {
 	return r.entity.Device()
 }
 
-func (r *NodeManagementImpl) HandleMsg(message *Message) error {
+func (r *NodeManagementImpl) HandleMessage(message *Message) error {
 	if message.Cmd.ResultData != nil {
 		return r.processResult(message.CmdClassifier)
 	}

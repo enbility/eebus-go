@@ -19,7 +19,7 @@ func (r *EntityLocalImpl) Device() *DeviceLocalImpl {
 	return r.device
 }
 
-func (r *EntityLocalImpl) AddFeature(f *FeatureLocalImpl) {
+func (r *EntityLocalImpl) AddFeature(f FeatureLocal) {
 	r.features = append(r.features, f)
 }
 
