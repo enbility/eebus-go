@@ -51,7 +51,7 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 	sut := NewNodeManagementImpl(0, serverFeature.Entity())
 
 	// Act
-	err := sut.HandleMsg(&requestMsg)
+	err := sut.HandleMessage(&requestMsg)
 	if assert.NoError(t, err) {
 
 		dataMsg := Message{
@@ -61,7 +61,7 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 			CmdClassifier: model.CmdClassifierTypeCall,
 			featureRemote: clientFeature,
 		}
-		err = sut.HandleMsg(&dataMsg)
+		err = sut.HandleMessage(&dataMsg)
 		assert.NoError(t, err)
 	}
 }
