@@ -57,7 +57,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 	}
 
 	// write to channel
-	c.writeChannel <- msg
+	go func() { c.writeChannel <- msg }()
 
 	return nil
 }
