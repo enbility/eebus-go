@@ -21,15 +21,20 @@ type DeviceRemoteImpl struct {
 
 	// Handles closing of the connection
 	closeChannel chan bool
+
+	// Heartbeat Sender
+	heartbeatSender *HeartbeatSender
 }
 
 func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
+	sender := NewSender(writeC)
 	res := DeviceRemoteImpl{
-		DeviceImpl:   NewDeviceImpl(model.AddressDeviceType(deviceCode), deviceType),
-		localDevice:  localDevice,
-		readChannel:  readC,
-		closeChannel: make(chan bool),
-		sender:       NewSender(writeC),
+		DeviceImpl:      NewDeviceImpl(model.AddressDeviceType(deviceCode), deviceType),
+		localDevice:     localDevice,
+		readChannel:     readC,
+		closeChannel:    make(chan bool),
+		sender:          sender,
+		heartbeatSender: NewHeartbeatSender(sender),
 	}
 	go res.readPump()
 
@@ -38,6 +43,7 @@ func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, deviceCode string, device
 
 // this connection is closed
 func (d *DeviceRemoteImpl) CloseConnection() {
+	d.heartbeatSender.StopHeartbeat()
 	d.closeChannel <- true
 }
 
