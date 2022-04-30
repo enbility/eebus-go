@@ -3,10 +3,10 @@ package service
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 
 	"github.com/DerAndereAndi/eebus-go/spine"
-	"github.com/DerAndereAndi/eebus-go/spine/entity"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
@@ -85,10 +85,10 @@ type EEBUSServiceDelegate interface {
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSService struct {
-	serviceDescription *ServiceDescription
+	ServiceDescription *ServiceDescription
 
 	// The local service details
-	localService *ServiceDetails
+	LocalService *ServiceDetails
 
 	// Connection Registrations
 	connectionsHub *connectionsHub
@@ -101,32 +101,32 @@ type EEBUSService struct {
 
 func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
 	return &EEBUSService{
-		serviceDescription: ServiceDescription,
+		ServiceDescription: ServiceDescription,
 		serviceDelegate:    serviceDelegate,
 	}
 }
 
 // Starts the service by initializeing mDNS and the server.
-func (s *EEBUSService) Start() {
-	if s.serviceDescription.Port == 0 {
-		s.serviceDescription.Port = defaultPort
+func (s *EEBUSService) Setup() error {
+	if s.ServiceDescription.Port == 0 {
+		s.ServiceDescription.Port = defaultPort
 	}
 
-	sd := s.serviceDescription
+	sd := s.ServiceDescription
 
 	leaf, err := x509.ParseCertificate(sd.Certificate.Certificate[0])
 	if err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 
 	ski, err := skiFromCertificate(leaf)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 
-	s.localService = &ServiceDetails{
+	s.LocalService = &ServiceDetails{
 		SKI:                ski,
 		ShipID:             sd.Identifier,
 		deviceType:         sd.DeviceType,
@@ -143,23 +143,37 @@ func (s *EEBUSService) Start() {
 	// Create the SPINE device address, according to Protocol Specification 7.1.1.2
 	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s-%s", vendor, sd.Brand, sd.Model, sd.SerialNumber)
 
+	// Create the local SPINE device
 	s.spineLocalDevice = spine.NewDeviceLocalImpl(
 		sd.Brand,
 		sd.Model,
+		sd.Identifier,
 		deviceAdress,
-		sd.SerialNumber,
 		sd.DeviceType,
 	)
 
-	if s.localService.deviceType == model.DeviceTypeTypeEnergyManagementSystem {
-		e1 := entity.NewCEM(s.spineLocalDevice, []model.AddressEntityType{1})
-		s.spineLocalDevice.AddEntity(e1)
-	} else {
-		e1 := entity.NewEVSE(s.spineLocalDevice, []model.AddressEntityType{1})
-		s.spineLocalDevice.AddEntity(e1)
+	// Create the device entity and add it to the SPINE device
+	entityAddress := []model.AddressEntityType{1}
+	var entityType model.EntityTypeType
+	switch sd.DeviceType {
+	case model.DeviceTypeTypeEnergyManagementSystem:
+		entityType = model.EntityTypeTypeCEM
+	case model.DeviceTypeTypeChargingStation:
+		entityType = model.EntityTypeTypeEVSE
+	default:
+		return errors.New(fmt.Sprintf("Unknown device type: %s", sd.DeviceType))
 	}
+	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
+	s.spineLocalDevice.AddEntity(entity)
 
-	s.connectionsHub = newConnectionsHub(s.serviceDescription, s.localService, s)
+	// Setup connections hub with mDNS and websocket connection handling
+	s.connectionsHub = newConnectionsHub(s.ServiceDescription, s.LocalService, s)
+
+	return nil
+}
+
+// Starts the service
+func (s *EEBUSService) Start() {
 	s.connectionsHub.start()
 }
 
@@ -167,6 +181,10 @@ func (s *EEBUSService) Start() {
 func (s *EEBUSService) Shutdown() {
 	// Shut down all running connections
 	s.connectionsHub.shutdown()
+}
+
+func (s *EEBUSService) LocalEntity() *spine.EntityLocalImpl {
+	return s.spineLocalDevice.Entity([]model.AddressEntityType{1})
 }
 
 // Adds a new device to the list of known devices which can be connected to

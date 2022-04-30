@@ -15,13 +15,20 @@ type DeviceLocalImpl struct {
 	nodeManagement      *NodeManagementImpl
 
 	remoteDevices map[string]*DeviceRemoteImpl
+
+	brandName   string
+	deviceModel string
+	deviceCode  string
 }
 
-func NewDeviceLocalImpl(vendorName, deviceName, deviceAddress, serialNumber string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
+func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, deviceAddress string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
 	res := &DeviceLocalImpl{
 		DeviceImpl:          NewDeviceImpl(model.AddressDeviceType(deviceAddress), deviceType),
 		subscriptionManager: NewSubscriptionManager(),
 		remoteDevices:       make(map[string]*DeviceRemoteImpl),
+		brandName:           brandName,
+		deviceModel:         deviceModel,
+		deviceCode:          deviceCode,
 	}
 
 	res.addDeviceInformation()
@@ -31,7 +38,22 @@ func NewDeviceLocalImpl(vendorName, deviceName, deviceAddress, serialNumber stri
 func (r *DeviceLocalImpl) AddRemoteDevice(ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) {
 	rDevice := NewDeviceRemoteImpl(r, deviceCode, deviceType, readC, writeC)
 	r.remoteDevices[ski] = rDevice
+
+	// Request Detailed Discovery Data
 	r.nodeManagement.RequestDetailedDiscovery(&rDevice.address, rDevice.sender)
+
+	Events.Subscribe(r)
+}
+
+// React to some specific events
+func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
+	// Subscribe to NodeManagment after DetailedDiscovery is received
+	if payload.EventType == EventTypeDeviceChange && payload.Data != nil {
+		switch payload.Data.(type) {
+		case *model.NodeManagementDetailedDiscoveryDataType:
+			payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
+		}
+	}
 }
 
 func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
@@ -111,6 +133,22 @@ func (r *DeviceLocalImpl) FeatureByAddress(address *model.FeatureAddressType) Fe
 	return nil
 }
 
+func (r *DeviceLocalImpl) FeatureByTypeAndRole(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal {
+	if len(r.entities) < 1 {
+		return nil
+	}
+
+	for _, entity := range r.entities {
+		for _, feature := range entity.Features() {
+			if feature.Type() == featureType && feature.Role() == role {
+				return feature
+			}
+		}
+	}
+
+	return nil
+}
+
 func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDeviceInformationType {
 	res := model.NodeManagementDetailedDiscoveryDeviceInformationType{
 		Description: &model.NetworkManagementDeviceDescriptionDataType{
@@ -173,6 +211,14 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 	}
 	{
 		f := NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
+
+		manufacturerData := &model.DeviceClassificationManufacturerDataType{
+			BrandName:  util.Ptr(model.DeviceClassificationStringType(r.brandName)),
+			DeviceName: util.Ptr(model.DeviceClassificationStringType(r.deviceModel)),
+			DeviceCode: util.Ptr(model.DeviceClassificationStringType(r.deviceCode)),
+		}
+		f.SetData(model.FunctionTypeDeviceClassificationManufacturerData, manufacturerData)
+
 		entity.AddFeature(f)
 	}
 

@@ -24,6 +24,10 @@ func NewEntity(eType model.EntityTypeType, deviceAdress *model.AddressDeviceType
 	}
 }
 
+func (r *EntityImpl) EntityType() model.EntityTypeType {
+	return r.eType
+}
+
 func (r *EntityImpl) Address() *model.EntityAddressType {
 	return r.address
 }

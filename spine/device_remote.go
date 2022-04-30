@@ -104,6 +104,22 @@ func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *Enti
 	return entityForRemoval
 }
 
+func (r *DeviceRemoteImpl) FeatureByTypeAndRole(featureType model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
+	if len(r.entities) < 1 {
+		return nil
+	}
+
+	for _, entity := range r.entities {
+		for _, feature := range entity.Features() {
+			if feature.Type() == featureType && feature.Role() == role {
+				return feature
+			}
+		}
+	}
+
+	return nil
+}
+
 func (d *DeviceRemoteImpl) UpdateDevice(description *model.NetworkManagementDeviceDescriptionDataType) {
 	if description != nil {
 		if description.DeviceType != nil {
@@ -172,7 +188,7 @@ func (d *DeviceRemoteImpl) addNewEntity(eType model.EntityTypeType, address []mo
 
 func (d *DeviceRemoteImpl) addEntity(entity *EntityRemoteImpl) *EntityRemoteImpl {
 	d.entities = append(d.entities, entity)
-	//events.EntityChanged.Publish(events.EntityChangedPayload{Entity: entity, Mode: events.EntityAdded})
+
 	return entity
 }
 

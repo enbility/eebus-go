@@ -1,6 +1,8 @@
 package spine
 
-import "github.com/DerAndereAndi/eebus-go/spine/model"
+import (
+	"github.com/DerAndereAndi/eebus-go/spine/model"
+)
 
 type EntityRemoteImpl struct {
 	*EntityImpl
@@ -21,6 +23,10 @@ func (r *EntityRemoteImpl) Device() *DeviceRemoteImpl {
 
 func (r *EntityRemoteImpl) AddFeature(f *FeatureRemoteImpl) {
 	r.features = append(r.features, f)
+}
+
+func (r *EntityRemoteImpl) Features() []*FeatureRemoteImpl {
+	return r.features
 }
 
 func (r *EntityRemoteImpl) Feature(addressFeature *model.AddressFeatureType) *FeatureRemoteImpl {

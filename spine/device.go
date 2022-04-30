@@ -23,3 +23,7 @@ func (r *DeviceImpl) Address() *model.AddressDeviceType {
 func (r *DeviceImpl) UseCaseManager() *UseCaseManager {
 	return r.useCaseManager
 }
+
+func (r *DeviceImpl) DeviceType() model.DeviceTypeType {
+	return r.dType
+}

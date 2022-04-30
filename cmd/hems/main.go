@@ -14,6 +14,7 @@ import (
 
 	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/DerAndereAndi/eebus-go/usecase"
 )
 
 type hems struct {
@@ -74,6 +75,14 @@ func (h *hems) run() {
 
 	serviceDescription.Certificate = certificate
 
+	if err = h.myService.Setup(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Setup the supported UseCases and their features
+	usecase.RegisterEvseCC(h.myService)
+
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 
@@ -82,8 +91,6 @@ func (h *hems) run() {
 	}
 	h.myService.RegisterRemoteService(remoteService)
 }
-
-var _ service.EEBUSServiceDelegate = (*hems)(nil)
 
 // handle a request to trust a remote service
 func (h *hems) RemoteServiceTrustRequested(ski string) {

@@ -60,11 +60,12 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 		return err
 	}
 
-	// payload := events.DeviceStateChangedPayload{
-	// 	Device:      remoteDevice,
-	// 	StateChange: model.NetworkManagementStateChangeTypeAdded,
-	// }
-	// events.DeviceStateChanged.Publish(payload)
+	payload := EventPayload{
+		EventType:  EventTypeDeviceChange,
+		ChangeType: ElementChangeAdd,
+		Device:     remoteDevice,
+	}
+	Events.Publish(payload)
 
 	return nil
 }
@@ -177,11 +178,13 @@ func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data 
 			return err
 		}
 
-		// payload := events.DeviceStateChangedPayload{
-		// 	Device:      remoteDevice,
-		// 	StateChange: lastStateChange,
+		// TODO: get entities that have been added
+		// payload := EventPayload{
+		// 	EventType:  EventTypeEntityChange,
+		// 	ChangeType: ElementChangeAdd,
+		// 	Entity:     remoteDevice,
 		// }
-		// events.DeviceStateChanged.Publish(payload)
+		// Events.Publish(payload)
 	}
 
 	// removal example:
@@ -215,13 +218,15 @@ func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data 
 
 			entityAddress := ei.Description.EntityAddress.Entity
 			remoteDevice.RemoveByAddress(entityAddress)
-		}
 
-		// payload := events.DeviceStateChangedPayload{
-		// 	Device:      remoteDevice,
-		// 	StateChange: lastStateChange,
-		// }
-		// events.DeviceStateChanged.Publish(payload)
+			// TODO: How to identify that an entity was removed? payload is missing option for this
+			// payload := EventPayload{
+			// 	EventType:  EventTypeEntityChange,
+			// 	ChangeType: ElementChangeRemove,
+			// 	Entity:     remoteDevice,
+			// }
+			// Events.Publish(payload)
+		}
 	}
 
 	return nil
