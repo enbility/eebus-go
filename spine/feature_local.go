@@ -14,6 +14,8 @@ func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, error) {
 		return util.Ptr(model.FunctionTypeNodeManagementDetailedDiscoveryData), cmd.NodeManagementDetailedDiscoveryData, nil
 	case cmd.DeviceClassificationManufacturerData != nil:
 		return util.Ptr(model.FunctionTypeDeviceClassificationManufacturerData), cmd.DeviceClassificationManufacturerData, nil
+	case cmd.DeviceDiagnosisStateData != nil:
+		return util.Ptr(model.FunctionTypeDeviceDiagnosisStateData), cmd.DeviceDiagnosisStateData, nil
 	}
 	return nil, nil, fmt.Errorf("Function not found for cmd")
 }
@@ -27,6 +29,7 @@ type FeatureLocal interface {
 		function model.FunctionType,
 		destination *FeatureRemoteImpl,
 		requestChannel any) (*model.MsgCounterType, error)
+	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
 	HandleMessage(message *Message) error
 }
 
@@ -122,6 +125,13 @@ func (r *FeatureLocalImpl) RequestData(
 	}
 
 	return msgCounter, err
+}
+
+func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error) {
+	fd := r.functionData(function)
+	cmd := fd.NotifyCmdType(false)
+
+	return destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
 }
 
 func (r *FeatureLocalImpl) HandleMessage(message *Message) error {

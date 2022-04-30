@@ -183,8 +183,18 @@ func (s *EEBUSService) Shutdown() {
 	s.connectionsHub.shutdown()
 }
 
+// return the local entity 1
 func (s *EEBUSService) LocalEntity() *spine.EntityLocalImpl {
 	return s.spineLocalDevice.Entity([]model.AddressEntityType{1})
+}
+
+func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spine.DeviceRemoteImpl {
+	for _, device := range s.spineLocalDevice.RemoteDevices() {
+		if device.DeviceType() == deviceType {
+			return device
+		}
+	}
+	return nil
 }
 
 // Adds a new device to the list of known devices which can be connected to

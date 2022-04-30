@@ -64,6 +64,14 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 	delete(r.remoteDevices, ski)
 }
 
+func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {
+	res := make([]*DeviceRemoteImpl, 0)
+	for _, rDevice := range r.remoteDevices {
+		res = append(res, rDevice)
+	}
+	return res
+}
+
 func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *DeviceRemoteImpl) error {
 	destAddr := datagram.Header.AddressDestination
 	localFeature := r.FeatureByAddress(destAddr)

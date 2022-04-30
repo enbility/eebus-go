@@ -81,7 +81,8 @@ func (h *hems) run() {
 	}
 
 	// Setup the supported UseCases and their features
-	usecase.RegisterEvseCC(h.myService)
+	ucEVSECC := usecase.RegisterEvseCC(h.myService)
+	ucEVSECC.Delegate = h
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()
@@ -91,6 +92,8 @@ func (h *hems) run() {
 	}
 	h.myService.RegisterRemoteService(remoteService)
 }
+
+// EEBUSServiceDelegate
 
 // handle a request to trust a remote service
 func (h *hems) RemoteServiceTrustRequested(ski string) {
@@ -105,6 +108,14 @@ func (h *hems) RemoteServiceShipIDReported(ski string, shipID string) {
 	fmt.Println("SKI", ski, "has Ship ID:", shipID)
 }
 
+// EVSECCDelegate
+
+// handle EVSE error state updates
+func (h *hems) HandleEVSEErrorState(failure bool, errorCode string) {
+	fmt.Println("EVSE Error State:", failure, errorCode)
+}
+
+// main app
 func usage() {
 	fmt.Println("Usage: go run /cmd/hems/main.go <serverport> <evse-ski> <crtfile> <keyfile>")
 }
