@@ -207,9 +207,6 @@ func (s *EEBUSService) UpdateRemoteServiceTrust(ski string, trusted bool) {
 }
 
 // ConnectionHandlerDelegate
-
-var _ ConnectionHandlerDelegate = (*EEBUSService)(nil)
-
 func (s *EEBUSService) requestUserTrustForService(service *ServiceDetails) {
 	s.serviceDelegate.RemoteServiceTrustRequested(service.SKI)
 }
