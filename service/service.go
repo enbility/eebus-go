@@ -188,6 +188,12 @@ func (s *EEBUSService) LocalEntity() *spine.EntityLocalImpl {
 	return s.spineLocalDevice.Entity([]model.AddressEntityType{1})
 }
 
+// return all remote devices
+func (s *EEBUSService) RemoteDevices() []*spine.DeviceRemoteImpl {
+	return s.spineLocalDevice.RemoteDevices()
+}
+
+// return a specific remote device of a given DeviceType
 func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spine.DeviceRemoteImpl {
 	for _, device := range s.spineLocalDevice.RemoteDevices() {
 		if device.DeviceType() == deviceType {
