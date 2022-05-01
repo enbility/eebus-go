@@ -10,8 +10,9 @@ import (
 	"github.com/DerAndereAndi/eebus-go/util"
 )
 
-type evseCCDelegate interface {
-	// handle error state updates from an EVSE device
+// Interface for a CEM device
+type evseCCCemDelegate interface {
+	// handle error state updates from an EVSE device, to be implemented by CEM
 	HandleEVSEErrorState(ski string, failure bool, errorCode string)
 }
 
@@ -20,7 +21,7 @@ type evseCC struct {
 	service *service.EEBUSService
 
 	// only required by CEM
-	Delegate evseCCDelegate
+	CEMDelegate evseCCCemDelegate
 }
 
 func RegisterEvseCC(service *service.EEBUSService) evseCC {
@@ -96,13 +97,13 @@ func (r *evseCC) HandleEvent(payload spine.EventPayload) {
 		if payload.ChangeType == spine.ElementChangeUpdate {
 			switch payload.Data.(type) {
 			case *model.DeviceDiagnosisStateDataType:
-				if r.Delegate == nil {
+				if r.CEMDelegate == nil {
 					return
 				}
 
 				deviceDiagnosisStateData := payload.Data.(model.DeviceDiagnosisStateDataType)
 				failure := *deviceDiagnosisStateData.OperatingState == model.DeviceDiagnosisOperatingStateTypeFailure
-				r.Delegate.HandleEVSEErrorState(payload.Ski, failure, string(*deviceDiagnosisStateData.LastErrorCode))
+				r.CEMDelegate.HandleEVSEErrorState(payload.Ski, failure, string(*deviceDiagnosisStateData.LastErrorCode))
 			}
 		}
 	}

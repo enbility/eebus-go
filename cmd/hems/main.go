@@ -82,7 +82,7 @@ func (h *hems) run() {
 
 	// Setup the supported UseCases and their features
 	ucEVSECC := usecase.RegisterEvseCC(h.myService)
-	ucEVSECC.Delegate = h
+	ucEVSECC.CEMDelegate = h
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()
