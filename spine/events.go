@@ -19,6 +19,7 @@ const (
 )
 
 type EventPayload struct {
+	Ski        string
 	EventType  EventType
 	ChangeType ElementChangeType
 	Device     *DeviceRemoteImpl

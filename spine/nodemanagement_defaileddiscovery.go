@@ -61,6 +61,7 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 	}
 
 	payload := EventPayload{
+		Ski:        remoteDevice.ski,
 		EventType:  EventTypeDeviceChange,
 		ChangeType: ElementChangeAdd,
 		Device:     remoteDevice,

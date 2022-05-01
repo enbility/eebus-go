@@ -11,6 +11,8 @@ import (
 
 type DeviceRemoteImpl struct {
 	*DeviceImpl
+	ski string
+
 	entities []*EntityRemoteImpl
 	sender   Sender
 
@@ -26,10 +28,11 @@ type DeviceRemoteImpl struct {
 	heartbeatSender *HeartbeatSender
 }
 
-func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
+func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
 	sender := NewSender(writeC)
 	res := DeviceRemoteImpl{
 		DeviceImpl:      NewDeviceImpl(model.AddressDeviceType(deviceCode), deviceType),
+		ski:             ski,
 		localDevice:     localDevice,
 		readChannel:     readC,
 		closeChannel:    make(chan bool),

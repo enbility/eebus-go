@@ -111,7 +111,7 @@ func (h *hems) RemoteServiceShipIDReported(ski string, shipID string) {
 // EVSECCDelegate
 
 // handle EVSE error state updates
-func (h *hems) HandleEVSEErrorState(failure bool, errorCode string) {
+func (h *hems) HandleEVSEErrorState(ski string, failure bool, errorCode string) {
 	fmt.Println("EVSE Error State:", failure, errorCode)
 }
 

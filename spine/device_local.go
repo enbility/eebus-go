@@ -36,7 +36,7 @@ func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, deviceAddress string
 }
 
 func (r *DeviceLocalImpl) AddRemoteDevice(ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) {
-	rDevice := NewDeviceRemoteImpl(r, deviceCode, deviceType, readC, writeC)
+	rDevice := NewDeviceRemoteImpl(r, ski, deviceCode, deviceType, readC, writeC)
 	r.remoteDevices[ski] = rDevice
 
 	// Request Detailed Discovery Data
