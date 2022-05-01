@@ -12,7 +12,7 @@ import (
 
 type evseCCDelegate interface {
 	// handle error state updates from an EVSE device
-	HandleEVSEErrorState(failure bool, errorCode string)
+	HandleEVSEErrorState(ski string, failure bool, errorCode string)
 }
 
 type evseCC struct {
@@ -102,7 +102,7 @@ func (r *evseCC) HandleEvent(payload spine.EventPayload) {
 
 				deviceDiagnosisStateData := payload.Data.(model.DeviceDiagnosisStateDataType)
 				failure := *deviceDiagnosisStateData.OperatingState == model.DeviceDiagnosisOperatingStateTypeFailure
-				r.Delegate.HandleEVSEErrorState(failure, string(*deviceDiagnosisStateData.LastErrorCode))
+				r.Delegate.HandleEVSEErrorState(payload.Ski, failure, string(*deviceDiagnosisStateData.LastErrorCode))
 			}
 		}
 	}
