@@ -17,11 +17,6 @@ type UCEvseCCCemDelegate interface {
 }
 
 // EVSE Commissioning and Configuration Use Case implementation
-// Important notes:
-// The use case specification only defines the EVSE as providing error state update,
-// but in reality, both actors do.
-// Also the CEM needs to provide a heartbeat as part of the DeviceDiagnosis feature,
-// but the spec lacks a use case where this should be done. So we do this in here as well.
 type UCEvseCC struct {
 	*UseCaseImpl
 	service *service.EEBUSService
