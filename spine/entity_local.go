@@ -30,6 +30,15 @@ func (r *EntityLocalImpl) AddFeature(f FeatureLocal) {
 	r.features = append(r.features, f)
 }
 
+func (r *EntityLocalImpl) FeatureOfTypeAndRole(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal {
+	for _, f := range r.features {
+		if f.Type() == featureType && f.Role() == role {
+			return f
+		}
+	}
+	return nil
+}
+
 func (r *EntityLocalImpl) Features() []FeatureLocal {
 	return r.features
 }

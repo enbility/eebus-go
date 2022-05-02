@@ -47,17 +47,13 @@ func RegisterUCEvseCC(service *service.EEBUSService) UCEvseCC {
 	switch useCase.Actor {
 	case model.UseCaseActorTypeEVSE:
 		{
-			f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
-			f.SetDescriptionString("Device Classification Server")
-
+			f := entityFeature(entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer, "Device Classification Server")
 			f.AddFunctionType(model.FunctionTypeDeviceClassificationManufacturerData, true, false)
 
 			entity.AddFeature(f)
 		}
 		{
-			f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-			f.SetDescriptionString("Device Diagnosis Server")
-
+			f := entityFeature(entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer, "Device Diagnosis Server")
 			f.AddFunctionType(model.FunctionTypeDeviceDiagnosisStateData, true, false)
 
 			// Set the initial state
@@ -70,14 +66,12 @@ func RegisterUCEvseCC(service *service.EEBUSService) UCEvseCC {
 		}
 	case model.UseCaseActorTypeCEM:
 		{
-			f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeClient)
-			f.SetDescriptionString("Device Classification Client")
+			f := entityFeature(entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeClient, "Device Classification Client")
 
 			entity.AddFeature(f)
 		}
 		{
-			f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)
-			f.SetDescriptionString("Device Diagnosis Client")
+			f := entityFeature(entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient, "Device Diagnosis Client")
 			entity.AddFeature(f)
 		}
 	}

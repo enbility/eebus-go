@@ -53,6 +53,23 @@ func checkArguments(entity spine.EntityImpl, ucEnumType model.UseCaseNameType) {
 	}
 }
 
+// either returns an existing feature or creates a new one
+// for a given entity, featuretype and role
+func entityFeature(entity *spine.EntityLocalImpl, featureType model.FeatureTypeType, role model.RoleType, description string) *spine.FeatureLocalImpl {
+	var f *spine.FeatureLocalImpl
+	if t := entity.FeatureOfTypeAndRole(featureType, role); t != nil {
+		var ok bool
+		f, ok = t.(*spine.FeatureLocalImpl)
+		if !ok {
+			panic("found feature is not of type FeatureLocalImpl")
+		}
+	} else {
+		f = spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, featureType, role)
+		f.SetDescriptionString(description)
+	}
+	return f
+}
+
 func waitForRequest[T any](c chan T, maxDelay time.Duration) *T {
 	timeout := time.After(maxDelay)
 
