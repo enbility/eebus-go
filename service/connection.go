@@ -278,6 +278,10 @@ func (c *ConnectionHandler) readShipPump() {
 					fmt.Println("Error reading message: ", err)
 				}
 
+				if c.isConnectionClosed {
+					return
+				}
+
 				fmt.Println("Websocket read error: ", err)
 				c.shutdown(false)
 				return
