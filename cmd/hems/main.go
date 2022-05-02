@@ -81,8 +81,8 @@ func (h *hems) run() {
 	}
 
 	// Setup the supported UseCases and their features
-	ucEVSECC := usecase.RegisterEvseCC(h.myService)
-	ucEVSECC.Delegate = h
+	ucEVSECC := usecase.RegisterUCEvseCC(h.myService)
+	ucEVSECC.CemDelegate = h
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()
@@ -108,10 +108,10 @@ func (h *hems) RemoteServiceShipIDReported(ski string, shipID string) {
 	fmt.Println("SKI", ski, "has Ship ID:", shipID)
 }
 
-// EVSECCDelegate
+// UCEvseCCCemDelegate
 
-// handle device state updates from the remote device
-func (h *hems) HandleDeviceState(ski string, failure bool, errorCode string) {
+// handle device state updates from the remote EVSE device
+func (h *hems) HandleEVSEDeviceState(ski string, failure bool, errorCode string) {
 	fmt.Println("EVSE Error State:", failure, errorCode)
 }
 
