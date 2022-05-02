@@ -50,11 +50,15 @@ func RegisterUCEvseCC(service *service.EEBUSService) UCEvseCC {
 			f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
 			f.SetDescriptionString("Device Classification Server")
 
+			f.AddFunctionType(model.FunctionTypeDeviceClassificationManufacturerData, true, false)
+
 			entity.AddFeature(f)
 		}
 		{
 			f := spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 			f.SetDescriptionString("Device Diagnosis Server")
+
+			f.AddFunctionType(model.FunctionTypeDeviceDiagnosisStateData, true, false)
 
 			// Set the initial state
 			deviceDiagnosisStateDate := &model.DeviceDiagnosisStateDataType{

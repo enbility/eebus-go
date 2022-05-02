@@ -215,10 +215,22 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 
 	{
 		r.nodeManagement = NewNodeManagementImpl(entity.NextFeatureId(), entity)
+
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementDetailedDiscoveryData, true, false)
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementUseCaseData, true, false)
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionData, true, false)
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionRequestCall, false, false)
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionDeleteCall, false, false)
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingData, true, false)
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingRequestCall, false, false)
+		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingDeleteCall, false, false)
+
 		entity.AddFeature(r.nodeManagement)
 	}
 	{
 		f := NewFeatureLocalImpl(entity.NextFeatureId(), entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
+
+		f.AddFunctionType(model.FunctionTypeDeviceClassificationManufacturerData, true, false)
 
 		manufacturerData := &model.DeviceClassificationManufacturerDataType{
 			BrandName:  util.Ptr(model.DeviceClassificationStringType(r.brandName)),

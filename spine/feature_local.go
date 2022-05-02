@@ -54,15 +54,7 @@ func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTy
 	for _, fd := range CreateFunctionData[FunctionDataCmd](ftype) {
 		res.functionDataMap[fd.Function()] = fd
 	}
-
-	if role == model.RoleTypeServer || role == model.RoleTypeSpecial {
-		functionMap, exists := FeatureOperationsMap[ftype]
-		if exists {
-			res.operations = functionMap
-		} else {
-			res.operations = make(map[model.FunctionType]*Operations)
-		}
-	}
+	res.operations = make(map[model.FunctionType]*Operations)
 
 	return res
 }
@@ -73,6 +65,17 @@ func (r *FeatureLocalImpl) Device() *DeviceLocalImpl {
 
 func (r *FeatureLocalImpl) Entity() *EntityLocalImpl {
 	return r.entity
+}
+
+// Add supported function to the feature if its role is Server or Speical
+func (r *FeatureLocalImpl) AddFunctionType(function model.FunctionType, read, write bool) {
+	if r.role != model.RoleTypeServer && r.role != model.RoleTypeSpecial {
+		return
+	}
+	if r.operations[function] != nil {
+		return
+	}
+	r.operations[function] = NewOperations(read, write)
 }
 
 func (r *FeatureLocalImpl) Data(function model.FunctionType) any {

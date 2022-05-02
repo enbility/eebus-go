@@ -19,7 +19,14 @@ func (r *EntityLocalImpl) Device() *DeviceLocalImpl {
 	return r.device
 }
 
+// Add a feature to the entity if it is not already added
 func (r *EntityLocalImpl) AddFeature(f FeatureLocal) {
+	// check if this feature is already added
+	for _, f2 := range r.features {
+		if f2.Type() == f.Type() && f2.Role() == f.Role() {
+			return
+		}
+	}
 	r.features = append(r.features, f)
 }
 
