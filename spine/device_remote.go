@@ -64,9 +64,9 @@ func (d *DeviceRemoteImpl) readPump() {
 			datagram := model.Datagram{}
 			if err := json.Unmarshal([]byte(data), &datagram); err != nil {
 				fmt.Println(err)
+				continue
 			}
-
-			go d.localDevice.ProcessCmd(datagram.Datagram, d)
+			d.localDevice.ProcessCmd(datagram.Datagram, d)
 		}
 	}
 }

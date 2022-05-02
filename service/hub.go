@@ -99,8 +99,7 @@ func (h *connectionsHub) run() {
 		// connect to a paired service
 		case c := <-h.register:
 			// SHIP 12.2.2 recommends that the connection initiated with the higher SKI should retain the connection
-			existingC := h.connectionForSKI(c.remoteService.SKI)
-			if existingC != nil {
+			if existingC := h.connectionForSKI(c.remoteService.SKI); existingC != nil {
 				// The connection initiated by the higher SKI should retain the connection
 				// and the other one should be closed
 				if (c.localService.SKI > c.remoteService.SKI && c.role == ShipRoleClient) ||

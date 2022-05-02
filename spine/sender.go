@@ -56,6 +56,10 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 		return errors.New("write channel not set")
 	}
 
+	if msg == nil {
+		return errors.New("message is nil")
+	}
+
 	// write to channel
 	go func() { c.writeChannel <- msg }()
 

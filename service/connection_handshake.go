@@ -122,6 +122,10 @@ func (c *ConnectionHandler) handshakeInit() error {
 		return err
 	}
 
+	if data == nil || c.isConnectionClosed {
+		return nil
+	}
+
 	if c.role == ShipRoleServer {
 		c.smeState = cmiStateServerEvaluate
 		if err := c.writeWebsocketMessage(shipInit); err != nil {
@@ -521,10 +525,11 @@ func (c *ConnectionHandler) shipClose() {
 // return an error if the provided timeout is reached
 func (c *ConnectionHandler) readNextShipMessage(duration time.Duration) ([]byte, bool, error) {
 	timeout := time.NewTimer(duration)
-
 	select {
 	case <-timeout.C:
-		// TODO: Handle timeout in case of a closed connection
+		if c.isConnectionClosed {
+			return nil, false, nil
+		}
 		return nil, false, errors.New("Timeout waiting for message")
 	case trust := <-c.shipTrustChannel:
 		// Attention: we need to make sure the channel is only filled if we are in the Hello State!

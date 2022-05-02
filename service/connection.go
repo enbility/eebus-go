@@ -22,7 +22,7 @@ const (
 	// Time allowed to read the next pong message from the peer.
 	pongWait = 60 * time.Second // SHIP 4.2: ping interval + pong timeout
 	// Send pings to peer with this period. Must be less than pongWait.
-	pingPeriod = 60 * time.Second // SHIP 4.2: ping interval
+	pingPeriod = 50 * time.Second // SHIP 4.2: ping interval
 
 	// SHIP 9.2: Set maximum fragment length to 1024 bytes
 	maxMessageSize = 1024
@@ -71,6 +71,9 @@ type ConnectionHandler struct {
 	// The ship write channel for outgoing messages
 	shipWriteChannel chan []byte
 
+	// The connection was closed
+	closeChannel chan struct{}
+
 	// The channel for handling local trust state update for the remote service
 	shipTrustChannel chan bool
 
@@ -79,6 +82,9 @@ type ConnectionHandler struct {
 
 	unregisterChannel  chan<- *ConnectionHandler
 	connectionDelegate ConnectionHandlerDelegate
+
+	// internal handling of closed connections
+	isConnectionClosed bool
 }
 
 func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectionDelegate ConnectionHandlerDelegate, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
@@ -109,9 +115,11 @@ func (c *ConnectionHandler) startup() {
 	c.shipReadChannel = make(chan []byte, 1)  // Listen to incoming ship messages
 	c.shipWriteChannel = make(chan []byte, 1) // Send outgoing ship messages
 	c.shipTrustChannel = make(chan bool, 1)   // Listen to trust state update
+	c.closeChannel = make(chan struct{})
 
-	go c.readPump()
+	go c.readShipPump()
 	go c.writePump()
+	go c.writeShipPump()
 
 	go func() {
 		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
@@ -129,6 +137,10 @@ func (c *ConnectionHandler) startup() {
 // shutdown the connection and all internals
 // may only invoked after startup() is invoked!
 func (c *ConnectionHandler) shutdown(safeShutdown bool) {
+	if c.isConnectionClosed {
+		return
+	}
+
 	if c.smeState == smeComplete {
 		c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
 	}
@@ -151,6 +163,14 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 		close(c.shipWriteChannel)
 	}
 
+	if !isChannelClosed(c.shipTrustChannel) {
+		close(c.shipTrustChannel)
+	}
+
+	if !isChannelClosed(c.closeChannel) {
+		close(c.closeChannel)
+	}
+
 	if c.conn != nil {
 		if c.smeState == smeComplete && safeShutdown {
 			// close the SHIP connection according to the SHIP protocol
@@ -159,6 +179,8 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 
 		c.conn.Close()
 	}
+
+	c.isConnectionClosed = true
 }
 
 func isChannelClosed[T any](ch <-chan T) bool {
@@ -170,14 +192,8 @@ func isChannelClosed[T any](ch <-chan T) bool {
 	}
 }
 
-// writePump pumps messages from the writeChannel to the websocket connection
+// writePump pumps messages from the writeChannel to the writeShipChannel
 func (c *ConnectionHandler) writePump() {
-	ticker := time.NewTicker(pingPeriod)
-	defer func() {
-		ticker.Stop()
-		c.conn.Close()
-	}()
-
 	for {
 		select {
 		case message, ok := <-c.writeChannel:
@@ -185,74 +201,114 @@ func (c *ConnectionHandler) writePump() {
 				// The write channel is closed
 				return
 			}
-			if err := c.sendSpineData(message); err != nil {
+			if c.isConnectionClosed {
 				return
 			}
 
-		case message, ok := <-c.shipWriteChannel:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if !ok {
-				// The write channel has been closed
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				return
-			}
-		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			if err := c.sendSpineData(message); err != nil {
+				fmt.Println("Error sending spine message: ", err)
 				return
 			}
 		}
 	}
 }
 
-// readPump pumps messages from the websocket connection into the read message channel
-func (c *ConnectionHandler) readPump() {
+// writePump pumps messages from the writeChannel to the websocket connection
+func (c *ConnectionHandler) writeShipPump() {
+	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		c.conn.Close()
+		ticker.Stop()
+		c.shutdown(false)
+	}()
+
+	for {
+		select {
+		case <-c.closeChannel:
+			return
+		case message, ok := <-c.shipWriteChannel:
+			if c.isConnectionClosed {
+				return
+			}
+
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if !ok {
+				fmt.Println("Ship write channel closed")
+				// The write channel has been closed
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
+				fmt.Println("Error writing to websocket: ", err)
+				return
+			}
+		case <-ticker.C:
+			if c.isConnectionClosed {
+				return
+			}
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				fmt.Println("Error writing to websocket: ", err)
+				return
+			}
+		}
+	}
+}
+
+// readShipPump pumps messages from the websocket connection into the read message channel
+func (c *ConnectionHandler) readShipPump() {
+	defer func() {
+		c.shutdown(false)
 	}()
 
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	for {
-		message, err := c.readWebsocketMessage()
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				fmt.Println("Error reading message: ", err)
-			}
-
-			c.shutdown(false)
+		select {
+		case <-c.closeChannel:
 			return
-		}
-
-		// Check if this is a SHIP SME or SPINE message
-		isShipMessage := false
-		if c.smeState != smeComplete {
-			isShipMessage = true
-		} else {
-			isShipMessage = bytes.Contains([]byte("datagram:"), message)
-		}
-
-		if isShipMessage {
-			c.shipReadChannel <- message
-		} else {
-			_, jsonData := c.parseMessage(message, true)
-
-			// Get the datagram from the message
-			data := ship.ShipData{}
-			if err := json.Unmarshal(jsonData, &data); err != nil {
-				fmt.Println("Error unmarshalling message: ", err)
-				continue
+		default:
+			if c.isConnectionClosed {
+				return
 			}
 
-			if data.Data.Payload == nil {
-				fmt.Println("Received no valid payload")
-				continue
+			message, err := c.readWebsocketMessage()
+			if err != nil {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					fmt.Println("Error reading message: ", err)
+				}
+
+				fmt.Println("Websocket read error: ", err)
+				c.shutdown(false)
+				return
 			}
-			c.readChannel <- []byte(data.Data.Payload)
+
+			// Check if this is a SHIP SME or SPINE message
+			isShipMessage := false
+			if c.smeState != smeComplete {
+				isShipMessage = true
+			} else {
+				isShipMessage = bytes.Contains([]byte("datagram:"), message)
+			}
+
+			if isShipMessage {
+				c.shipReadChannel <- message
+			} else {
+				_, jsonData := c.parseMessage(message, true)
+
+				// Get the datagram from the message
+				data := ship.ShipData{}
+				if err := json.Unmarshal(jsonData, &data); err != nil {
+					fmt.Println("Error unmarshalling message: ", err)
+					continue
+				}
+
+				if data.Data.Payload == nil {
+					fmt.Println("Received no valid payload")
+					continue
+				}
+				go func() { c.readChannel <- []byte(data.Data.Payload) }()
+			}
 		}
 	}
 }
@@ -261,6 +317,8 @@ func (c *ConnectionHandler) readPump() {
 func (c *ConnectionHandler) shipMessageHandler() {
 	for {
 		select {
+		case <-c.closeChannel:
+			return
 		case msg := <-c.shipReadChannel:
 			// TODO: implement this
 			// This should only be a close/abort message, right?
@@ -354,6 +412,7 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 
 	err = c.writeWebsocketMessage(shipMsg)
 	if err != nil {
+		fmt.Println("Error sending message: ", err)
 		return err
 	}
 
