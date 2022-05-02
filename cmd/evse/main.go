@@ -82,7 +82,7 @@ func (h *evse) run() {
 	}
 
 	// Setup the supported UseCases and their features
-	usecase.RegisterUCEvseCC(h.myService)
+	usecase.RegisterUCEvseCommisioningConfiguration(h.myService)
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()

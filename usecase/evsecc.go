@@ -10,27 +10,27 @@ import (
 	"github.com/DerAndereAndi/eebus-go/util"
 )
 
-// Interface for the evseCC use case for CEM device
-type UCEvseCCCemDelegate interface {
+// Interface for the EVSE Commisioning Configuration use case for CEM device
+type UCEvseCommisioningConfigurationCemDelegate interface {
 	// handle device state updates from the remote EVSE device
 	HandleEVSEDeviceState(ski string, failure bool, errorCode string)
 }
 
 // EVSE Commissioning and Configuration Use Case implementation
-type UCEvseCC struct {
+type UCEvseCommisioningConfiguration struct {
 	*UseCaseImpl
 	service *service.EEBUSService
 
 	// only required by CEM
-	CemDelegate UCEvseCCCemDelegate
+	CemDelegate UCEvseCommisioningConfigurationCemDelegate
 }
 
 // Register the use case
-func RegisterUCEvseCC(service *service.EEBUSService) UCEvseCC {
+func RegisterUCEvseCommisioningConfiguration(service *service.EEBUSService) UCEvseCommisioningConfiguration {
 	entity := service.LocalEntity()
 
 	// add the use case
-	useCase := &UCEvseCC{
+	useCase := &UCEvseCommisioningConfiguration{
 		UseCaseImpl: NewUseCase(
 			entity,
 			model.UseCaseNameTypeEVSECommissioningAndConfiguration,
@@ -81,7 +81,7 @@ func RegisterUCEvseCC(service *service.EEBUSService) UCEvseCC {
 
 // public method to allow updating the EVSE device state
 // this will be sent to the CEM remote device
-func (r *UCEvseCC) UpdateEVSEErrorState(failure bool, errorCode string) {
+func (r *UCEvseCommisioningConfiguration) UpdateEVSEErrorState(failure bool, errorCode string) {
 	deviceDiagnosisStateDate := &model.DeviceDiagnosisStateDataType{}
 	if failure {
 		deviceDiagnosisStateDate.OperatingState = util.Ptr(model.DeviceDiagnosisOperatingStateTypeFailure)
@@ -93,7 +93,6 @@ func (r *UCEvseCC) UpdateEVSEErrorState(failure bool, errorCode string) {
 }
 
 // Internal EventHandler Interface
-func (r *UCEvseCC) HandleEvent(payload spine.EventPayload) {
 	switch payload.EventType {
 	case spine.EventTypeDeviceChange:
 		if payload.ChangeType == spine.ElementChangeAdd {
@@ -117,7 +116,7 @@ func (r *UCEvseCC) HandleEvent(payload spine.EventPayload) {
 }
 
 // request DeviceClassificationManufacturerData from a remote device
-func (r *UCEvseCC) requestManufacturer(remoteDevice *spine.DeviceRemoteImpl) {
+func (r *UCEvseCommisioningConfiguration) requestManufacturer(remoteDevice *spine.DeviceRemoteImpl) {
 	featureLocal, featureRemote, err := r.getLocalClientAndRemoteServerFeatures(model.FeatureTypeTypeDeviceClassification, remoteDevice)
 	if err != nil {
 		fmt.Println(err)
@@ -129,7 +128,7 @@ func (r *UCEvseCC) requestManufacturer(remoteDevice *spine.DeviceRemoteImpl) {
 }
 
 // request DeviceDiagnosisStateData from a remote device
-func (r *UCEvseCC) requestDeviceDiagnosisState(remoteDevice *spine.DeviceRemoteImpl) {
+func (r *UCEvseCommisioningConfiguration) requestDeviceDiagnosisState(remoteDevice *spine.DeviceRemoteImpl) {
 	featureLocal, featureRemote, err := r.getLocalClientAndRemoteServerFeatures(model.FeatureTypeTypeDeviceDiagnosis, remoteDevice)
 	if err != nil {
 		fmt.Println(err)
@@ -144,7 +143,7 @@ func (r *UCEvseCC) requestDeviceDiagnosisState(remoteDevice *spine.DeviceRemoteI
 }
 
 // notify remote devices about the new device diagnosis state
-func (r *UCEvseCC) notifyDeviceDiagnosisState(operatingState *model.DeviceDiagnosisStateDataType) {
+func (r *UCEvseCommisioningConfiguration) notifyDeviceDiagnosisState(operatingState *model.DeviceDiagnosisStateDataType) {
 	remoteDevice := r.service.RemoteDeviceOfType(model.DeviceTypeTypeEnergyManagementSystem)
 	if remoteDevice == nil {
 		return
@@ -162,7 +161,7 @@ func (r *UCEvseCC) notifyDeviceDiagnosisState(operatingState *model.DeviceDiagno
 }
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (r *UCEvseCC) getLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteDevice *spine.DeviceRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
+func (r *UCEvseCommisioningConfiguration) getLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteDevice *spine.DeviceRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
 	featureLocal := r.Entity.Device().FeatureByTypeAndRole(featureType, model.RoleTypeClient)
 	featureRemote := remoteDevice.FeatureByTypeAndRole(featureType, model.RoleTypeServer)
 
