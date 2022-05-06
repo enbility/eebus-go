@@ -72,6 +72,10 @@ func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {
 	return res
 }
 
+func (r *DeviceLocalImpl) RemoteDeviceForSki(ski string) *DeviceRemoteImpl {
+	return r.remoteDevices[ski]
+}
+
 func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *DeviceRemoteImpl) error {
 	destAddr := datagram.Header.AddressDestination
 	localFeature := r.FeatureByAddress(destAddr)

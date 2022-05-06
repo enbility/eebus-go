@@ -193,6 +193,10 @@ func (s *EEBUSService) RemoteDevices() []*spine.DeviceRemoteImpl {
 	return s.spineLocalDevice.RemoteDevices()
 }
 
+func (s *EEBUSService) RemoteDeviceForSki(ski string) *spine.DeviceRemoteImpl {
+	return s.spineLocalDevice.RemoteDeviceForSki(ski)
+}
+
 // return a specific remote device of a given DeviceType
 func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spine.DeviceRemoteImpl {
 	for _, device := range s.spineLocalDevice.RemoteDevices() {
