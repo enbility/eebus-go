@@ -250,6 +250,7 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 
 		manufacturerData := &model.DeviceClassificationManufacturerDataType{
 			BrandName:    util.Ptr(model.DeviceClassificationStringType(r.brandName)),
+			VendorName:   util.Ptr(model.DeviceClassificationStringType(r.brandName)),
 			DeviceName:   util.Ptr(model.DeviceClassificationStringType(r.deviceModel)),
 			DeviceCode:   util.Ptr(model.DeviceClassificationStringType(r.deviceCode)),
 			SerialNumber: util.Ptr(model.DeviceClassificationStringType(r.serialNumber)),
