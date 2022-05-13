@@ -8,12 +8,23 @@ type DeviceImpl struct {
 	useCaseManager *UseCaseManager
 }
 
+// Initialize a new device
+// Both values are required for a local device but provided as empty strings for a remote device
+// as the address is only provided via detailed discovery response
 func NewDeviceImpl(address model.AddressDeviceType, dType model.DeviceTypeType) *DeviceImpl {
-	return &DeviceImpl{
-		address:        address,
-		dType:          dType,
+	deviceImpl := &DeviceImpl{
 		useCaseManager: NewUseCaseManager(),
 	}
+
+	if dType != "" {
+		deviceImpl.dType = dType
+	}
+
+	if address != "" {
+		deviceImpl.address = address
+	}
+
+	return deviceImpl
 }
 
 func (r *DeviceImpl) Address() *model.AddressDeviceType {

@@ -10,7 +10,6 @@ import (
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
 	"github.com/DerAndereAndi/eebus-go/ship"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/gorilla/websocket"
 )
 
@@ -36,7 +35,7 @@ type ConnectionHandlerDelegate interface {
 	shipIDUpdateForService(service *ServiceDetails)
 
 	// new spine connection established, inform SPINE
-	addRemoteDeviceConnection(ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte)
+	addRemoteDeviceConnection(ski string, readC <-chan []byte, writeC chan<- []byte)
 
 	// remove an existing connection from SPINE
 	removeRemoteDeviceConnection(ski string)
@@ -129,7 +128,7 @@ func (c *ConnectionHandler) startup() {
 		}
 
 		// Report to SPINE local device about this remote device connection
-		c.connectionDelegate.addRemoteDeviceConnection(c.remoteService.SKI, c.remoteService.ShipID, c.remoteService.deviceType, c.readChannel, c.writeChannel)
+		c.connectionDelegate.addRemoteDeviceConnection(c.remoteService.SKI, c.readChannel, c.writeChannel)
 		c.shipMessageHandler()
 	}()
 }

@@ -28,10 +28,10 @@ type DeviceRemoteImpl struct {
 	heartbeatSender *HeartbeatSender
 }
 
-func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski, deviceCode string, deviceType model.DeviceTypeType, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
+func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
 	sender := NewSender(writeC)
 	res := DeviceRemoteImpl{
-		DeviceImpl:      NewDeviceImpl(model.AddressDeviceType(deviceCode), deviceType),
+		DeviceImpl:      NewDeviceImpl("", ""),
 		ski:             ski,
 		localDevice:     localDevice,
 		readChannel:     readC,
