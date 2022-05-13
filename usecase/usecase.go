@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,12 +11,14 @@ import (
 )
 
 var entityTypeActorMap = map[model.EntityTypeType]model.UseCaseActorType{
+	model.EntityTypeTypeEV:   model.UseCaseActorTypeEV,
 	model.EntityTypeTypeEVSE: model.UseCaseActorTypeEVSE,
 	model.EntityTypeTypeCEM:  model.UseCaseActorTypeCEM,
 }
 
 var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
 	model.UseCaseNameTypeEVSECommissioningAndConfiguration: {model.UseCaseActorTypeEVSE, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeEVCommissioningAndConfiguration:   {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
 }
 
 type UseCaseImpl struct {
@@ -55,7 +58,7 @@ func checkArguments(entity spine.EntityImpl, ucEnumType model.UseCaseNameType) {
 
 // either returns an existing feature or creates a new one
 // for a given entity, featuretype and role
-func entityFeature(entity *spine.EntityLocalImpl, featureType model.FeatureTypeType, role model.RoleType, description string) *spine.FeatureLocalImpl {
+func (u *UseCaseImpl) EntityFeature(entity *spine.EntityLocalImpl, featureType model.FeatureTypeType, role model.RoleType, description string) *spine.FeatureLocalImpl {
 	var f *spine.FeatureLocalImpl
 	if t := entity.FeatureOfTypeAndRole(featureType, role); t != nil {
 		var ok bool
@@ -68,6 +71,18 @@ func entityFeature(entity *spine.EntityLocalImpl, featureType model.FeatureTypeT
 		f.SetDescriptionString(description)
 	}
 	return f
+}
+
+// internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
+func (u *UseCaseImpl) GetLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteDevice *spine.DeviceRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
+	featureLocal := u.Entity.Device().FeatureByTypeAndRole(featureType, model.RoleTypeClient)
+	featureRemote := remoteDevice.FeatureByTypeAndRole(featureType, model.RoleTypeServer)
+
+	if featureLocal == nil || featureRemote == nil {
+		return nil, nil, errors.New("local or remote feature not found")
+	}
+
+	return featureLocal, featureRemote, nil
 }
 
 func waitForRequest[T any](c chan T, maxDelay time.Duration) *T {
