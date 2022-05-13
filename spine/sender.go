@@ -18,6 +18,7 @@ type ComControl interface {
 
 type Sender interface {
 	Request(cmdClassifier model.CmdClassifierType, senderAddress, destinationAddress *model.FeatureAddressType, ackRequest bool, cmd []model.CmdType) (*model.MsgCounterType, error)
+	Result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, errorNumber model.ErrorNumberType, description *model.DescriptionType) error
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) error
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
@@ -88,6 +89,42 @@ func (c *SenderImpl) Request(cmdClassifier model.CmdClassifierType, senderAddres
 	}
 
 	return msgCounter, c.sendSpineMessage(datagram)
+}
+
+// Result returns an result for a request
+func (c *SenderImpl) Result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, errorNumber model.ErrorNumberType, description *model.DescriptionType) error {
+	cmdClassifier := model.CmdClassifierTypeResult
+
+	addressSource := *requestHeader.AddressDestination
+	addressSource.Device = senderAddress.Device
+
+	resultData := model.ResultDataType{
+		ErrorNumber: &errorNumber,
+	}
+
+	if description != nil {
+		resultData.Description = description
+	}
+
+	cmd := model.CmdType{
+		ResultData: &resultData,
+	}
+
+	datagram := model.DatagramType{
+		Header: model.HeaderType{
+			SpecificationVersion: &SpecificationVersion,
+			AddressSource:        &addressSource,
+			AddressDestination:   requestHeader.AddressSource,
+			MsgCounter:           c.getMsgCounter(),
+			MsgCounterReference:  requestHeader.MsgCounter,
+			CmdClassifier:        &cmdClassifier,
+		},
+		Payload: model.PayloadType{
+			Cmd: []model.CmdType{cmd},
+		},
+	}
+
+	return c.sendSpineMessage(datagram)
 }
 
 // Reply sends reply to original sender

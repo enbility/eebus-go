@@ -170,6 +170,12 @@ func (r *FeatureLocalImpl) processResult(cmdClassifier model.CmdClassifierType) 
 }
 
 func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
+	// is this a read request to a local server/special feature?
+	if r.role == model.RoleTypeClient {
+		// Read requests to a client feature are not allowed
+		return featureRemote.Sender().Result(requestHeader, r.Address(), model.ErrorNumberTypeCommandRejected, nil)
+	}
+
 	cmd := r.functionData(function).ReplyCmdType()
 	err := featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)
 
