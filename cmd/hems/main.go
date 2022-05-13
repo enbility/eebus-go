@@ -14,7 +14,6 @@ import (
 
 	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/usecase"
 )
 
 type hems struct {
@@ -76,10 +75,6 @@ func (h *hems) run() {
 		fmt.Println(err)
 		return
 	}
-
-	// Setup the supported UseCases and their features
-	ucEVSECC := usecase.RegisterUCEvseCommisioningConfiguration(h.myService)
-	ucEVSECC.CemDelegate = h
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()

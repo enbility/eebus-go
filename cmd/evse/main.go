@@ -14,7 +14,6 @@ import (
 
 	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/usecase"
 )
 
 type evse struct {
@@ -77,9 +76,6 @@ func (h *evse) run() {
 		fmt.Println(err)
 		return
 	}
-
-	// Setup the supported UseCases and their features
-	usecase.RegisterUCEvseCommisioningConfiguration(h.myService)
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()
