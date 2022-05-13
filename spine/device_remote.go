@@ -131,6 +131,9 @@ func (r *DeviceRemoteImpl) FeatureByTypeAndRole(featureType model.FeatureTypeTyp
 
 func (d *DeviceRemoteImpl) UpdateDevice(description *model.NetworkManagementDeviceDescriptionDataType) {
 	if description != nil {
+		if description.DeviceAddress != nil && description.DeviceAddress.Device != nil {
+			d.address = description.DeviceAddress.Device
+		}
 		if description.DeviceType != nil {
 			d.dType = description.DeviceType
 		}
