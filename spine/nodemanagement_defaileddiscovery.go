@@ -56,7 +56,7 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 	}
 
 	remoteDevice.UpdateDevice(deviceDescription)
-	if err := remoteDevice.AddEntityAndFeatures(data); err != nil {
+	if err := remoteDevice.AddEntityAndFeatures(true, data); err != nil {
 		return err
 	}
 
@@ -175,7 +175,7 @@ func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data 
 
 	// is this addition?
 	if lastStateChange == model.NetworkManagementStateChangeTypeAdded {
-		if err := remoteDevice.AddEntityAndFeatures(data); err != nil {
+		if err := remoteDevice.AddEntityAndFeatures(false, data); err != nil {
 			return err
 		}
 
@@ -213,7 +213,7 @@ func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data 
 	// is this removal?
 	if lastStateChange == model.NetworkManagementStateChangeTypeRemoved {
 		for _, ei := range data.EntityInformation {
-			if err := remoteDevice.CheckEntityInformation(ei); err != nil {
+			if err := remoteDevice.CheckEntityInformation(false, ei); err != nil {
 				return err
 			}
 

@@ -22,8 +22,9 @@ type DeviceLocalImpl struct {
 }
 
 func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, deviceAddress string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
+	address := model.AddressDeviceType(deviceAddress)
 	res := &DeviceLocalImpl{
-		DeviceImpl:          NewDeviceImpl(model.AddressDeviceType(deviceAddress), deviceType),
+		DeviceImpl:          NewDeviceImpl(&address, &deviceType),
 		subscriptionManager: NewSubscriptionManager(),
 		remoteDevices:       make(map[string]*DeviceRemoteImpl),
 		brandName:           brandName,
@@ -40,7 +41,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 	r.remoteDevices[ski] = rDevice
 
 	// Request Detailed Discovery Data
-	r.nodeManagement.RequestDetailedDiscovery(&rDevice.address, rDevice.sender)
+	r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
 
 	Events.Subscribe(r)
 }
@@ -165,9 +166,9 @@ func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDe
 	res := model.NodeManagementDetailedDiscoveryDeviceInformationType{
 		Description: &model.NetworkManagementDeviceDescriptionDataType{
 			DeviceAddress: &model.DeviceAddressType{
-				Device: &r.address,
+				Device: r.address,
 			},
-			DeviceType: &r.dType,
+			DeviceType: r.dType,
 			// TODO NetworkFeatureSet
 			// NetworkFeatureSet: &smart,
 		},

@@ -197,7 +197,7 @@ func (s *EEBUSService) RemoteDeviceForSki(ski string) *spine.DeviceRemoteImpl {
 // return a specific remote device of a given DeviceType
 func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spine.DeviceRemoteImpl {
 	for _, device := range s.spineLocalDevice.RemoteDevices() {
-		if device.DeviceType() == deviceType {
+		if *device.DeviceType() == deviceType {
 			return device
 		}
 	}

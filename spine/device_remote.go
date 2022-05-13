@@ -31,7 +31,7 @@ type DeviceRemoteImpl struct {
 func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
 	sender := NewSender(writeC)
 	res := DeviceRemoteImpl{
-		DeviceImpl:      NewDeviceImpl("", ""),
+		DeviceImpl:      NewDeviceImpl(nil, nil),
 		ski:             ski,
 		localDevice:     localDevice,
 		readChannel:     readC,
@@ -132,14 +132,14 @@ func (r *DeviceRemoteImpl) FeatureByTypeAndRole(featureType model.FeatureTypeTyp
 func (d *DeviceRemoteImpl) UpdateDevice(description *model.NetworkManagementDeviceDescriptionDataType) {
 	if description != nil {
 		if description.DeviceType != nil {
-			d.dType = *description.DeviceType
+			d.dType = description.DeviceType
 		}
 	}
 }
 
-func (d *DeviceRemoteImpl) AddEntityAndFeatures(data *model.NodeManagementDetailedDiscoveryDataType) error {
+func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	for _, ei := range data.EntityInformation {
-		if err := d.CheckEntityInformation(ei); err != nil {
+		if err := d.CheckEntityInformation(initialData, ei); err != nil {
 			return err
 		}
 
@@ -169,7 +169,9 @@ func (d *DeviceRemoteImpl) AddEntityAndFeatures(data *model.NodeManagementDetail
 	return nil
 }
 
-func (d *DeviceRemoteImpl) CheckEntityInformation(entity model.NodeManagementDetailedDiscoveryEntityInformationType) error {
+// check if the provided entity information is correct
+// provide initialData to check if the entity is new and not an update
+func (d *DeviceRemoteImpl) CheckEntityInformation(initialData bool, entity model.NodeManagementDetailedDiscoveryEntityInformationType) error {
 	description := entity.Description
 	if description == nil {
 		return errors.New("nodemanagement.replyDetailedDiscoveryData: invalid EntityInformation.Description")
@@ -183,7 +185,13 @@ func (d *DeviceRemoteImpl) CheckEntityInformation(entity model.NodeManagementDet
 		return errors.New("nodemanagement.replyDetailedDiscoveryData: invalid EntityInformation.Description.EntityAddress.Entity")
 	}
 
-	if description.EntityAddress.Device == nil && *description.EntityAddress.Device != *d.Address() {
+	// Consider on initial NodeManagement Detailed Discovery, the device being empty as it is not yet known
+	if initialData {
+		return nil
+	}
+
+	address := d.Address()
+	if description.EntityAddress.Device != nil && address != nil && *description.EntityAddress.Device != *address {
 		return errors.New("nodemanagement.replyDetailedDiscoveryData: device address mismatch")
 	}
 
