@@ -181,6 +181,10 @@ func (s *EEBUSService) Shutdown() {
 	s.connectionsHub.shutdown()
 }
 
+func (s *EEBUSService) LocalDevice() *spine.DeviceLocalImpl {
+	return s.spineLocalDevice
+}
+
 // return the local entity 1
 func (s *EEBUSService) LocalEntity() *spine.EntityLocalImpl {
 	return s.spineLocalDevice.Entity([]model.AddressEntityType{1})

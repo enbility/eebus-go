@@ -248,17 +248,23 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 
 		f.AddFunctionType(model.FunctionTypeDeviceClassificationManufacturerData, true, false)
 
-		manufacturerData := &model.DeviceClassificationManufacturerDataType{
-			BrandName:    util.Ptr(model.DeviceClassificationStringType(r.brandName)),
-			VendorName:   util.Ptr(model.DeviceClassificationStringType(r.brandName)),
-			DeviceName:   util.Ptr(model.DeviceClassificationStringType(r.deviceModel)),
-			DeviceCode:   util.Ptr(model.DeviceClassificationStringType(r.deviceCode)),
-			SerialNumber: util.Ptr(model.DeviceClassificationStringType(r.serialNumber)),
-		}
-		f.SetData(model.FunctionTypeDeviceClassificationManufacturerData, manufacturerData)
+		f.SetData(model.FunctionTypeDeviceClassificationManufacturerData, r.ManufacturerData())
 
 		entity.AddFeature(f)
 	}
 
 	r.entities = append(r.entities, entity)
+}
+
+// Public method for manufacturer data, so it can be re-used in entity 1 FeatureTypeTypeDeviceClassification
+func (r *DeviceLocalImpl) ManufacturerData() *model.DeviceClassificationManufacturerDataType {
+	manufacturerData := &model.DeviceClassificationManufacturerDataType{
+		BrandName:    util.Ptr(model.DeviceClassificationStringType(r.brandName)),
+		VendorName:   util.Ptr(model.DeviceClassificationStringType(r.brandName)),
+		DeviceName:   util.Ptr(model.DeviceClassificationStringType(r.deviceModel)),
+		DeviceCode:   util.Ptr(model.DeviceClassificationStringType(r.deviceCode)),
+		SerialNumber: util.Ptr(model.DeviceClassificationStringType(r.serialNumber)),
+	}
+
+	return manufacturerData
 }
