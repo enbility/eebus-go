@@ -38,6 +38,8 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 		return []F{}
 	case model.FeatureTypeTypeIncentiveTable:
 		return []F{}
+	case model.FeatureTypeTypeBill:
+		return []F{}
 		// TODO: Add more feature types
 		// default:
 		// 	return []F{}
