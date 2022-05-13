@@ -343,6 +343,11 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 			continue
 		}
 
+		// ignore own service
+		if ski == h.localService.SKI {
+			continue
+		}
+
 		// If local and remote registration are set to auto acceppt, we can connect to the remote service
 		if h.serviceDescription.RegisterAutoAccept && registerAuto {
 			remoteService := ServiceDetails{
