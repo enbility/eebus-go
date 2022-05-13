@@ -47,13 +47,13 @@ func RegisterUCEvseCommisioningConfiguration(service *service.EEBUSService) UCEv
 	switch useCase.Actor {
 	case model.UseCaseActorTypeEVSE:
 		{
-			f := entityFeature(entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer, "Device Classification Server")
+			f := useCase.EntityFeature(entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer, "Device Classification Server")
 			f.AddFunctionType(model.FunctionTypeDeviceClassificationManufacturerData, true, false)
 
 			entity.AddFeature(f)
 		}
 		{
-			f := entityFeature(entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer, "Device Diagnosis Server")
+			f := useCase.EntityFeature(entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer, "Device Diagnosis Server")
 			f.AddFunctionType(model.FunctionTypeDeviceDiagnosisStateData, true, false)
 
 			// Set the initial state
@@ -66,12 +66,12 @@ func RegisterUCEvseCommisioningConfiguration(service *service.EEBUSService) UCEv
 		}
 	case model.UseCaseActorTypeCEM:
 		{
-			f := entityFeature(entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeClient, "Device Classification Client")
+			f := useCase.EntityFeature(entity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeClient, "Device Classification Client")
 
 			entity.AddFeature(f)
 		}
 		{
-			f := entityFeature(entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient, "Device Diagnosis Client")
+			f := useCase.EntityFeature(entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient, "Device Diagnosis Client")
 			entity.AddFeature(f)
 		}
 	}
@@ -92,7 +92,8 @@ func (r *UCEvseCommisioningConfiguration) UpdateEVSEErrorState(failure bool, err
 	r.notifyDeviceDiagnosisState(deviceDiagnosisStateDate)
 }
 
-// Internal EventHandler Interface
+func (r *UCEvseCommisioningConfiguration) HandleEvent(payload spine.EventPayload) {
+	// Internal EventHandler Interface
 	switch payload.EventType {
 	case spine.EventTypeDeviceChange:
 		if payload.ChangeType == spine.ElementChangeAdd {
