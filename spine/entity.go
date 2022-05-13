@@ -14,14 +14,22 @@ type EntityImpl struct {
 }
 
 func NewEntity(eType model.EntityTypeType, deviceAdress *model.AddressDeviceType, entityAddress []model.AddressEntityType) *EntityImpl {
-	return &EntityImpl{
+	entity := &EntityImpl{
 		eType: eType,
 		address: &model.EntityAddressType{
 			Device: deviceAdress,
 			Entity: entityAddress,
 		},
-		fIdGenerator: newFeatureIdGenerator(0),
 	}
+	if entityAddress[0] == 0 {
+		// Entity 0 Feature addresses start with 0
+		entity.fIdGenerator = newFeatureIdGenerator(0)
+	} else {
+		// Entity 1 and further Feature addresses start with 1
+		entity.fIdGenerator = newFeatureIdGenerator(1)
+	}
+
+	return entity
 }
 
 func (r *EntityImpl) EntityType() model.EntityTypeType {
