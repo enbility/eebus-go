@@ -262,6 +262,8 @@ func (h *connectionsHub) startWebsocketServer() error {
 
 // HTTP Server callback for handling incoming connection requests
 func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Receiving connection request")
+
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  maxMessageSize,
 		WriteBufferSize: maxMessageSize,
@@ -295,6 +297,8 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conn.Close()
 		return
 	}
+
+	fmt.Println("Incoming connection request from ", ski)
 
 	remoteService := ServiceDetails{
 		SKI: ski,
@@ -421,7 +425,7 @@ func (h *connectionsHub) connectRemoteServices() error {
 
 // Connect to another EEBUS service
 func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host, port string) error {
-	fmt.Println("Connecting to ", remoteService.SKI)
+	fmt.Println("Initiating connection to ", remoteService.SKI)
 
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
