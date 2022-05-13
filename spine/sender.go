@@ -173,7 +173,7 @@ func (c *SenderImpl) Subscribe(senderAddress, destinationAddress *model.FeatureA
 	remoteAddress := model.FeatureAddressType{
 		Entity:  []model.AddressEntityType{0},
 		Feature: &feature0,
-		Device:  senderAddress.Device,
+		Device:  destinationAddress.Device,
 	}
 
 	_, err := c.Request(model.CmdClassifierTypeCall, senderAddress, &remoteAddress, true, []model.CmdType{cmd})
