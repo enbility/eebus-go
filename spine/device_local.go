@@ -114,7 +114,21 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		deviceRemote:  remoteDevice,
 	}
 
-	return localFeature.HandleMessage(message)
+	ackRequest := datagram.Header.AckRequest
+
+	if err := localFeature.HandleMessage(message); err != nil {
+		if ackRequest != nil && *ackRequest == true {
+			// TODO: add error description in a useful format
+			remoteFeature.Sender().Result(message.RequestHeader, message.featureRemote.Address(), model.ErrorNumberTypeNoError, nil)
+		}
+		return err
+	}
+
+	if ackRequest != nil && *ackRequest == true {
+		remoteFeature.Sender().Result(message.RequestHeader, message.featureRemote.Address(), model.ErrorNumberTypeNoError, nil)
+	}
+
+	return nil
 }
 
 func (r *DeviceLocalImpl) SubscriptionManager() SubscriptionManager {
