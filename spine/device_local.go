@@ -125,6 +125,15 @@ func (r *DeviceLocalImpl) AddEntity(entity *EntityLocalImpl) {
 	r.notifySubscribersOfEntity(entity, model.NetworkManagementStateChangeTypeAdded)
 }
 
+func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
+	for i, e := range r.entities {
+		if e == entity {
+			r.entities = append(r.entities[:i], r.entities[i+1:]...)
+			break
+		}
+	}
+}
+
 func (r *DeviceLocalImpl) Entities() []*EntityLocalImpl {
 	return r.entities
 }

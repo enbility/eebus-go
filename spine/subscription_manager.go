@@ -65,6 +65,14 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 	// TOV-TODO: check if subscription already exists
 	c.subscriptionEntries = append(c.subscriptionEntries, subscriptionEntry)
 
+	payload := EventPayload{
+		Ski:        remoteDevice.ski,
+		EventType:  EventTypeSubscriptionChange,
+		ChangeType: ElementChangeAdd,
+		Data:       data,
+	}
+	Events.Publish(payload)
+
 	// TOV-TODO: Send heartbeat to the feature which subscribed to DeviceDiagnostic
 
 	return nil

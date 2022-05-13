@@ -185,6 +185,16 @@ func (s *EEBUSService) LocalEntity() *spine.EntityLocalImpl {
 	return s.spineLocalDevice.Entity([]model.AddressEntityType{1})
 }
 
+// Add a new entity, used for connected EVs
+func (s *EEBUSService) AddEntity(entity *spine.EntityLocalImpl) {
+	s.spineLocalDevice.AddEntity(entity)
+}
+
+// Remove an entity, used for disconnected EVs
+func (s *EEBUSService) RemoveEntity(entity *spine.EntityLocalImpl) {
+	s.spineLocalDevice.RemoveEntity(entity)
+}
+
 // return all remote devices
 func (s *EEBUSService) RemoteDevices() []*spine.DeviceRemoteImpl {
 	return s.spineLocalDevice.RemoteDevices()

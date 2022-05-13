@@ -15,6 +15,7 @@ type EventType uint16
 const (
 	EventTypeDeviceChange EventType = iota
 	EventTypeEntityChange
+	EventTypeSubscriptionChange
 	EventTypeDataChange
 )
 
