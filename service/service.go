@@ -51,9 +51,6 @@ type ServiceDescription struct {
 	// The vendors IANA PEN, optional
 	VendorCode string
 
-	// The EEBUS device type of supported remote devices, required
-	RemoteDeviceTypes []model.DeviceTypeType
-
 	// Network interface to use for the service
 	// Optional, if not set all detected interfaces will be used
 	Interfaces []string

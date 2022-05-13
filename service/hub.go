@@ -343,19 +343,6 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 			continue
 		}
 
-		// Only try to connect to compatible services
-		compatibleDeviceType := false
-		for _, element := range h.serviceDescription.RemoteDeviceTypes {
-			if string(element) == deviceType {
-				compatibleDeviceType = true
-				break
-			}
-		}
-
-		if !compatibleDeviceType {
-			continue
-		}
-
 		// If local and remote registration are set to auto acceppt, we can connect to the remote service
 		if h.serviceDescription.RegisterAutoAccept && registerAuto {
 			remoteService := ServiceDetails{

@@ -29,9 +29,6 @@ func (h *evse) run() {
 		SerialNumber: "234567890",
 		Identifier:   "Demo-EVSE-234567890",
 		DeviceType:   model.DeviceTypeTypeChargingStation,
-		RemoteDeviceTypes: []model.DeviceTypeType{
-			model.DeviceTypeTypeEnergyManagementSystem,
-		},
 	}
 
 	h.myService = service.NewEEBUSService(serviceDescription, h)

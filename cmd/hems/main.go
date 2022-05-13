@@ -29,9 +29,6 @@ func (h *hems) run() {
 		SerialNumber: "123456789",
 		Identifier:   "Demo-HEMS-123456789",
 		DeviceType:   model.DeviceTypeTypeEnergyManagementSystem,
-		RemoteDeviceTypes: []model.DeviceTypeType{
-			model.DeviceTypeTypeChargingStation,
-		},
 	}
 
 	h.myService = service.NewEEBUSService(serviceDescription, h)
