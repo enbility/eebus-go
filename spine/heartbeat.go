@@ -9,25 +9,26 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
-var heartBeatTimeout string = "PT4S"
-
 type HeartbeatSender struct {
 	heartBeatNum                uint64 // see https://github.com/golang/go/issues/11891
 	stopHeartbeatC              chan struct{}
 	stopMux                     sync.Mutex
 	senderAddr, destinationAddr *model.FeatureAddressType
 	sender                      Sender
+	heartBeatTimeout            *string
 }
 
 func NewHeartbeatSender(sender Sender) *HeartbeatSender {
-
-	return &HeartbeatSender{
+	h := &HeartbeatSender{
 		sender: sender,
 	}
+	// default to 4 seconds timeout
+	h.heartBeatTimeout = model.NewISO8601Duration(time.Second * 4)
+
+	return h
 }
 
 func (c *HeartbeatSender) StartHeartBeatSend(senderAddr, destinationAddr *model.FeatureAddressType) {
-
 	// stop a already running heartbeat
 	c.StopHeartbeat()
 
@@ -48,7 +49,6 @@ func (c *HeartbeatSender) StopHeartbeat() {
 	if c.stopHeartbeatC != nil && !c.isHeartbeatClosed() {
 		close(c.stopHeartbeatC)
 	}
-
 }
 
 func (c *HeartbeatSender) SendHeartBeatData(requestHeader *model.HeaderType) error {
@@ -59,7 +59,7 @@ func (c *HeartbeatSender) SendHeartBeatData(requestHeader *model.HeaderType) err
 		DeviceDiagnosisHeartbeatData: &model.DeviceDiagnosisHeartbeatDataType{
 			Timestamp:        &timestamp,
 			HeartbeatCounter: c.heartBeatCounter(),
-			HeartbeatTimeout: &heartBeatTimeout,
+			HeartbeatTimeout: c.heartBeatTimeout,
 		},
 	}
 
@@ -79,7 +79,7 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 			cmd := []model.CmdType{{
 				DeviceDiagnosisHeartbeatData: &model.DeviceDiagnosisHeartbeatDataType{
 					HeartbeatCounter: c.heartBeatCounter(),
-					HeartbeatTimeout: &heartBeatTimeout,
+					HeartbeatTimeout: c.heartBeatTimeout,
 				},
 			}}
 
