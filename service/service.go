@@ -145,6 +145,7 @@ func (s *EEBUSService) Setup() error {
 		sd.Brand,
 		sd.Model,
 		sd.Identifier,
+		sd.SerialNumber,
 		deviceAdress,
 		sd.DeviceType,
 	)

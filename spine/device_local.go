@@ -16,12 +16,13 @@ type DeviceLocalImpl struct {
 
 	remoteDevices map[string]*DeviceRemoteImpl
 
-	brandName   string
-	deviceModel string
-	deviceCode  string
+	brandName    string
+	deviceModel  string
+	deviceCode   string
+	serialNumber string
 }
 
-func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, deviceAddress string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
+func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, deviceAddress string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
 	address := model.AddressDeviceType(deviceAddress)
 	res := &DeviceLocalImpl{
 		DeviceImpl:          NewDeviceImpl(&address, &deviceType),
@@ -30,6 +31,7 @@ func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, deviceAddress string
 		brandName:           brandName,
 		deviceModel:         deviceModel,
 		deviceCode:          deviceCode,
+		serialNumber:        serialNumber,
 	}
 
 	res.addDeviceInformation()
@@ -247,9 +249,10 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 		f.AddFunctionType(model.FunctionTypeDeviceClassificationManufacturerData, true, false)
 
 		manufacturerData := &model.DeviceClassificationManufacturerDataType{
-			BrandName:  util.Ptr(model.DeviceClassificationStringType(r.brandName)),
-			DeviceName: util.Ptr(model.DeviceClassificationStringType(r.deviceModel)),
-			DeviceCode: util.Ptr(model.DeviceClassificationStringType(r.deviceCode)),
+			BrandName:    util.Ptr(model.DeviceClassificationStringType(r.brandName)),
+			DeviceName:   util.Ptr(model.DeviceClassificationStringType(r.deviceModel)),
+			DeviceCode:   util.Ptr(model.DeviceClassificationStringType(r.deviceCode)),
+			SerialNumber: util.Ptr(model.DeviceClassificationStringType(r.serialNumber)),
 		}
 		f.SetData(model.FunctionTypeDeviceClassificationManufacturerData, manufacturerData)
 
