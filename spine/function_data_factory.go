@@ -24,22 +24,48 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 		return []F{
 			createFunctionData[model.MeasurementDataType, F](model.FunctionTypeMeasurementListData),
 			createFunctionData[model.MeasurementDescriptionDataType, F](model.FunctionTypeMeasurementDescriptionListData),
+			createFunctionData[model.MeasurementDescriptionListDataType, F](model.FunctionTypeMeasurementDescriptionListData),
 			createFunctionData[model.MeasurementConstraintsListDataType, F](model.FunctionTypeMeasurementConstraintsListData),
+			createFunctionData[model.MeasurementListDataType, F](model.FunctionTypeMeasurementListData),
 		}
 	case model.FeatureTypeTypeDeviceConfiguration:
-		return []F{}
+		return []F{
+			createFunctionData[model.DeviceConfigurationKeyValueDescriptionListDataType, F](model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData),
+			createFunctionData[model.DeviceConfigurationKeyValueListDataType, F](model.FunctionTypeDeviceConfigurationKeyValueListData),
+		}
 	case model.FeatureTypeTypeLoadControl:
-		return []F{}
+		return []F{
+			createFunctionData[model.LoadControlLimitDescriptionListDataType, F](model.FunctionTypeLoadControlLimitDescriptionListData),
+			createFunctionData[model.LoadControlLimitListDataType, F](model.FunctionTypeLoadControlLimitListData),
+		}
 	case model.FeatureTypeTypeIdentification:
-		return []F{}
+		return []F{
+			createFunctionData[model.IdentificationListDataType, F](model.FunctionTypeIdentificationListData),
+		}
 	case model.FeatureTypeTypeElectricalConnection:
-		return []F{}
+		return []F{
+			createFunctionData[model.ElectricalConnectionDescriptionListDataType, F](model.FunctionTypeElectricalConnectionDescriptionListData),
+			createFunctionData[model.ElectricalConnectionParameterDescriptionListDataType, F](model.FunctionTypeElectricalConnectionParameterDescriptionListData),
+			createFunctionData[model.ElectricalConnectionPermittedValueSetListDataType, F](model.FunctionTypeElectricalConnectionPermittedValueSetListData),
+		}
 	case model.FeatureTypeTypeTimeSeries:
-		return []F{}
+		return []F{
+			createFunctionData[model.TimeSeriesDescriptionListDataType, F](model.FunctionTypeTimeSeriesDescriptionListData),
+			createFunctionData[model.TimeSeriesConstraintsListDataType, F](model.FunctionTypeTimeSeriesConstraintsListData),
+			createFunctionData[model.TimeSeriesListDataType, F](model.FunctionTypeTimeSeriesListData),
+		}
 	case model.FeatureTypeTypeIncentiveTable:
-		return []F{}
+		return []F{
+			createFunctionData[model.IncentiveTableDescriptionDataType, F](model.FunctionTypeIncentiveTableDescriptionData),
+			createFunctionData[model.IncentiveTableConstraintsDataType, F](model.FunctionTypeIncentiveTableConstraintsData),
+			createFunctionData[model.IncentiveTableDataType, F](model.FunctionTypeIncentiveTableData),
+		}
 	case model.FeatureTypeTypeBill:
-		return []F{}
+		return []F{
+			createFunctionData[model.BillDescriptionListDataType, F](model.FunctionTypeBillDescriptionListData),
+			createFunctionData[model.BillConstraintsListDataType, F](model.FunctionTypeBillConstraintsListData),
+			createFunctionData[model.BillListDataType, F](model.FunctionTypeBillListData),
+		}
 		// TODO: Add more feature types
 		// default:
 		// 	return []F{}
