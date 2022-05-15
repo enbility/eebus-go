@@ -12,7 +12,7 @@ const (
 	ErrorNumberTypeCommandNotSupported
 	ErrorNumberTypeCommandRejected
 	ErrorNumberTypeRestrictedFunctionExchangeCombinationNotSupported
-	ErrorNumberBindingIsNecessaryForThisCommand
+	ErrorNumberTypeBindingIsNecessaryForThisCommand
 )
 
 type ResultDataType struct {
