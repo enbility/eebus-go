@@ -437,7 +437,7 @@ func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host,
 	tlsConn := conn.UnderlyingConn().(*tls.Conn)
 	remoteCerts := tlsConn.ConnectionState().PeerCertificates
 
-	if remoteCerts == nil || len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
+	if len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
 		// Close connection as we couldn't get the remote SKI
 		conn.Close()
 		return errors.New("Could not get remote SKI")

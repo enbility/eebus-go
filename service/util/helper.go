@@ -20,7 +20,8 @@ func JsonFromEEBUSJson(json []byte) []byte {
 
 // convert objects in json to be arrays with each field being an array alement as eebus expects it
 func process_eebus_json_hierarchie_level(data interface{}) interface{} {
-	switch data.(type) {
+	temp := data
+	switch temp.(type) {
 	case *ordered.OrderedMap:
 		var new_array []interface{} = make([]interface{}, 0)
 

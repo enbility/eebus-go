@@ -192,6 +192,8 @@ func isChannelClosed[T any](ch <-chan T) bool {
 func (c *ConnectionHandler) writePump() {
 	for {
 		select {
+		case <-c.closeChannel:
+			return
 		case message, ok := <-c.writeChannel:
 			if !ok {
 				// The write channel is closed
