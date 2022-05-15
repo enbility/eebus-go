@@ -200,6 +200,35 @@ func (s *EEBUSService) RemoveEntity(entity *spine.EntityLocalImpl) {
 	s.spineLocalDevice.RemoveEntity(entity)
 }
 
+// either returns an existing feature or creates a new one
+// for a given entity, featuretype and role
+func (s *EEBUSService) EntityFeature(entity *spine.EntityLocalImpl, featureType model.FeatureTypeType, role model.RoleType, description string) *spine.FeatureLocalImpl {
+	var f *spine.FeatureLocalImpl
+	if t := entity.FeatureOfTypeAndRole(featureType, role); t != nil {
+		var ok bool
+		f, ok = t.(*spine.FeatureLocalImpl)
+		if !ok {
+			panic("found feature is not of type FeatureLocalImpl")
+		}
+	} else {
+		f = spine.NewFeatureLocalImpl(entity.NextFeatureId(), entity, featureType, role)
+		f.SetDescriptionString(description)
+	}
+	return f
+}
+
+// internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
+func (s *EEBUSService) GetLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteDevice *spine.DeviceRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
+	featureLocal := s.spineLocalDevice.FeatureByTypeAndRole(featureType, model.RoleTypeClient)
+	featureRemote := remoteDevice.FeatureByTypeAndRole(featureType, model.RoleTypeServer)
+
+	if featureLocal == nil || featureRemote == nil {
+		return nil, nil, errors.New("local or remote feature not found")
+	}
+
+	return featureLocal, featureRemote, nil
+}
+
 // return all remote devices
 func (s *EEBUSService) RemoteDevices() []*spine.DeviceRemoteImpl {
 	return s.spineLocalDevice.RemoteDevices()
