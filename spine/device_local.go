@@ -43,7 +43,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 	r.remoteDevices[ski] = rDevice
 
 	// Request Detailed Discovery Data
-	r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
+	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
 
 	Events.Subscribe(r)
 }
@@ -54,7 +54,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	if payload.EventType == EventTypeDeviceChange && payload.Data != nil {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
-			payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
+			_ = payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
 		}
 	}
 }
@@ -119,13 +119,13 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	if err := localFeature.HandleMessage(message); err != nil {
 		if ackRequest != nil && *ackRequest == true {
 			// TODO: add error description in a useful format
-			remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
+			_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
 		}
 		return err
 	}
 
 	if ackRequest != nil && *ackRequest == true {
-		remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
+		_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
 	}
 
 	return nil

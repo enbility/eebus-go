@@ -55,7 +55,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 	}
 
 	requestChannel := make(chan *model.DeviceClassificationManufacturerDataType)
-	suite.sut.RequestData(suite.function, suite.remoteFeature, requestChannel)
+	_, _ = suite.sut.RequestData(suite.function, suite.remoteFeature, requestChannel)
 
 	replyMsg := Message{
 		Cmd: model.CmdType{

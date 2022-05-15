@@ -66,7 +66,7 @@ func (d *DeviceRemoteImpl) readPump() {
 				fmt.Println(err)
 				continue
 			}
-			d.localDevice.ProcessCmd(datagram.Datagram, d)
+			_ = d.localDevice.ProcessCmd(datagram.Datagram, d)
 		}
 	}
 }
