@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	cmiTimeout              = 10 * time.Second // SHIP 4.2
-	cmiCloseTimeout         = 100 * time.Millisecond
+	cmiTimeout              = 10 * time.Second       // SHIP 4.2
+	cmiCloseTimeout         = 100 * time.Millisecond //nolint:golint,unused
 	tHelloInit              = 60 * time.Second
 	tHelloProlongThrInc     = 30 * time.Second
-	tHelloProlongWaitingGap = 15 * time.Second
-	tHellogProlongMin       = 1 * time.Second
+	tHelloProlongWaitingGap = 15 * time.Second //nolint:golint,unused
+	tHellogProlongMin       = 1 * time.Second  //nolint:golint,unused
 )
 
 type shipMessageExchangeState uint
@@ -31,33 +31,33 @@ const (
 	cmiStateServerEvaluate
 	// Connection Data Preparation SHIP 13.4.4
 	smeHelloState
-	smeHelloStateReady
+	smeHelloStateReady //nolint:golint,unused
 	smeHelloStateReadyInit
 	smeHelloStateReadyListen
 	smeHelloStateReadyTimeout
-	smeHelloStatePending
+	smeHelloStatePending //nolint:golint,unused
 	smeHelloStatePendingInit
 	smeHelloStatePendingListen
 	smeHelloStatePendingTimeout
 	smeHelloStateOk
 	smeHelloStateAbort
 	// Connection State Protocol Handhsake SHIP 13.4.4.2
-	smeProtHStateServerInit
-	smeProtHStateClientInit
-	smeProtHStateServerListenProposal
-	smeProtHStateClientListenChoice
-	smeProtHStateListenConfirm
-	smeProtHStateTimeout
-	smeProtHStateClientOk
-	smeProtHStateServerOk
+	smeProtHStateServerInit           //nolint:golint,unused
+	smeProtHStateClientInit           //nolint:golint,unused
+	smeProtHStateServerListenProposal //nolint:golint,unused
+	smeProtHStateClientListenChoice   //nolint:golint,unused
+	smeProtHStateListenConfirm        //nolint:golint,unused
+	smeProtHStateTimeout              //nolint:golint,unused
+	smeProtHStateClientOk             //nolint:golint,unused
+	smeProtHStateServerOk             //nolint:golint,unused
 	// Connection PIN State 13.4.5
-	sneOubStateCheckInit
-	smePinStateCheckListen
-	smePinStateCheckError
-	smePinStateCheckBusyInit
-	smePinStateCheckBusyWait
-	smePinStateCheckOk
-	smePinStateAskInit
+	sneOubStateCheckInit     //nolint:golint,unused
+	smePinStateCheckListen   //nolint:golint,unused
+	smePinStateCheckError    //nolint:golint,unused
+	smePinStateCheckBusyInit //nolint:golint,unused
+	smePinStateCheckBusyWait //nolint:golint,unused
+	smePinStateCheckOk       //nolint:golint,unused
+	smePinStateAskInit       //nolint:golint,unused
 	smePinStateAskProcess
 	smePinStateAskRestricted
 	smePinStateAskOk
