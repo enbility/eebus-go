@@ -51,7 +51,7 @@ type LoadControlNodeDataElementsType struct {
 
 type LoadControlEventDataType struct {
 	Timestamp          *string                     `json:"timestamp,omitempty"`
-	EventId            *LoadControlEventIdType     `json:"eventId,omitempty,omitempty"`
+	EventId            *LoadControlEventIdType     `json:"eventId,omitempty"`
 	EventActionConsume *LoadControlEventActionType `json:"eventActionConsume,omitempty"`
 	EventActionProduce *LoadControlEventActionType `json:"eventActionProduce,omitempty"`
 	TimePeriod         *TimePeriodType             `json:"timePeriod,omitempty"`
@@ -59,7 +59,7 @@ type LoadControlEventDataType struct {
 
 type LoadControlEventDataElementsType struct {
 	Timestamp          *ElementTagType         `json:"timestamp,omitempty"`
-	EventId            *ElementTagType         `json:"eventId,omitempty,omitempty"`
+	EventId            *ElementTagType         `json:"eventId,omitempty"`
 	EventActionConsume *ElementTagType         `json:"eventActionConsume,omitempty"`
 	EventActionProduce *ElementTagType         `json:"eventActionProduce,omitempty"`
 	TimePeriod         *TimePeriodElementsType `json:"timePeriod,omitempty"`

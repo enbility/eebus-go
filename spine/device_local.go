@@ -117,14 +117,14 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	ackRequest := datagram.Header.AckRequest
 
 	if err := localFeature.HandleMessage(message); err != nil {
-		if ackRequest != nil && *ackRequest == true {
+		if ackRequest != nil && *ackRequest {
 			// TODO: add error description in a useful format
 			_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
 		}
 		return err
 	}
 
-	if ackRequest != nil && *ackRequest == true {
+	if ackRequest != nil && *ackRequest {
 		_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
 	}
 
@@ -204,10 +204,9 @@ func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDe
 func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddressType, cmd []model.CmdType) {
 	subscriptions := r.SubscriptionManager().SubscriptionsOnFeature(*featureAddress)
 	for _, subscription := range subscriptions {
-		if err := subscription.clientFeature.Sender().Notify(
-			subscription.serverFeature.Address(), subscription.clientFeature.Address(), cmd); err != nil {
-			// TODO: error handling
-		}
+		// TODO: error handling
+		_ = subscription.clientFeature.Sender().Notify(
+			subscription.serverFeature.Address(), subscription.clientFeature.Address(), cmd)
 	}
 }
 
