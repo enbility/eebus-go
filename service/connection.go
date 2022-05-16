@@ -55,9 +55,6 @@ type ConnectionHandler struct {
 	// The actual websocket connection
 	conn *websocket.Conn
 
-	// internal connection id, so we can identify it uniquely instead of using the SKI which can be used in multiple connections
-	connID uint64
-
 	// The read channel for incoming messages
 	readChannel chan []byte
 
@@ -195,6 +192,8 @@ func isChannelClosed[T any](ch <-chan T) bool {
 func (c *ConnectionHandler) writePump() {
 	for {
 		select {
+		case <-c.closeChannel:
+			return
 		case message, ok := <-c.writeChannel:
 			if !ok {
 				// The write channel is closed
@@ -229,11 +228,11 @@ func (c *ConnectionHandler) writeShipPump() {
 				return
 			}
 
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				fmt.Println("Ship write channel closed")
 				// The write channel has been closed
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
@@ -244,7 +243,7 @@ func (c *ConnectionHandler) writeShipPump() {
 			if c.isConnectionClosed {
 				return
 			}
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				fmt.Println("Error writing to websocket: ", err)
 				return
@@ -259,8 +258,8 @@ func (c *ConnectionHandler) readShipPump() {
 		c.shutdown(false)
 	}()
 
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	_ = c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.conn.SetPongHandler(func(string) error { _ = c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	for {
 		select {

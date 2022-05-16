@@ -41,9 +41,6 @@ type connectionsHub struct {
 	// The web server for handling incoming websocket connections
 	httpServer *http.Server
 
-	// contains a websocket connection per connected SKI
-	connectedServices map[string]*websocket.Conn
-
 	// The zeroconf service for mDNS related tasks
 	zc *zeroconf.Server
 
@@ -88,7 +85,7 @@ func (h *connectionsHub) start() {
 
 	// Automatically search and connect to services with the same setting
 	if h.serviceDescription.RegisterAutoAccept {
-		go h.connectRemoteServices()
+		go func() { _ = h.connectRemoteServices() }()
 	}
 }
 
@@ -356,13 +353,13 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 				deviceType:         model.DeviceTypeType(deviceType),
 			}
 			if !h.isSkiConnected(ski) {
-				h.connectFoundService(remoteService, entry.HostName, strconv.Itoa(int(entry.Port)))
+				_ = h.connectFoundService(remoteService, entry.HostName, strconv.Itoa(int(entry.Port)))
 			}
 		} else {
 			// Check if the remote service is paired
 			registeredService, err := h.registeredServiceForSKI(ski)
 			if err == nil && !h.isSkiConnected(ski) {
-				h.connectFoundService(registeredService, entry.HostName, strconv.Itoa(int(entry.Port)))
+				_ = h.connectFoundService(registeredService, entry.HostName, strconv.Itoa(int(entry.Port)))
 			}
 		}
 
@@ -440,7 +437,7 @@ func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host,
 	tlsConn := conn.UnderlyingConn().(*tls.Conn)
 	remoteCerts := tlsConn.ConnectionState().PeerCertificates
 
-	if remoteCerts == nil || len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
+	if len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
 		// Close connection as we couldn't get the remote SKI
 		conn.Close()
 		return errors.New("Could not get remote SKI")
@@ -483,7 +480,7 @@ func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
 	h.mux.Unlock()
 
 	if !h.isSkiConnected(service.SKI) {
-		go h.connectRemoteServices()
+		go func() { _ = h.connectRemoteServices() }()
 	}
 
 	return nil

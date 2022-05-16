@@ -159,7 +159,7 @@ func (s *EEBUSService) Setup() error {
 	case model.DeviceTypeTypeChargingStation:
 		entityType = model.EntityTypeTypeEVSE
 	default:
-		return errors.New(fmt.Sprintf("Unknown device type: %s", sd.DeviceType))
+		return fmt.Errorf("Unknown device type: %s", sd.DeviceType)
 	}
 	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
 	s.spineLocalDevice.AddEntity(entity)

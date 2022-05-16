@@ -19,7 +19,7 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 	//const subscriptionFeatureId uint = 2
 	const featureType = model.FeatureTypeTypeDeviceClassification
 
-	senderMock := new(mocks.Sender)
+	senderMock := mocks.NewSender(t)
 
 	//localDevice := NewDeviceLocalImpl(model.AddressDeviceType("server"))
 

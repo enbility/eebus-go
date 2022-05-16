@@ -2,7 +2,6 @@ package spine
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/ahmetb/go-linq/v3"
@@ -54,6 +53,8 @@ func checkArguments(entity EntityImpl, ucEnumType model.UseCaseNameType) {
 	}
 }
 
+/*
+// This is not yet used, might be removed?
 func waitForRequest[T any](c chan T, maxDelay time.Duration) *T {
 	timeout := time.After(maxDelay)
 
@@ -64,3 +65,4 @@ func waitForRequest[T any](c chan T, maxDelay time.Duration) *T {
 		return nil
 	}
 }
+*/

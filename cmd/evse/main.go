@@ -83,7 +83,7 @@ func (h *evse) run() {
 	remoteService := service.ServiceDetails{
 		SKI: remoteSki,
 	}
-	h.myService.RegisterRemoteService(remoteService)
+	_ = h.myService.RegisterRemoteService(remoteService)
 }
 
 // handle a request to trust a remote service
@@ -115,8 +115,6 @@ func main() {
 	// Clean exit to make sure mdns shutdown is invoked
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
-	select {
-	case <-sig:
-		// User exit
-	}
+	<-sig
+	// User exit
 }

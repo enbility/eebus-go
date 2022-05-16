@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	cmiTimeout              = 10 * time.Second // SHIP 4.2
-	cmiCloseTimeout         = 100 * time.Millisecond
+	cmiTimeout              = 10 * time.Second       // SHIP 4.2
+	cmiCloseTimeout         = 100 * time.Millisecond //nolint
 	tHelloInit              = 60 * time.Second
 	tHelloProlongThrInc     = 30 * time.Second
-	tHelloProlongWaitingGap = 15 * time.Second
-	tHellogProlongMin       = 1 * time.Second
+	tHelloProlongWaitingGap = 15 * time.Second //nolint
+	tHellogProlongMin       = 1 * time.Second  //nolint
 )
 
 type shipMessageExchangeState uint
@@ -31,36 +31,36 @@ const (
 	cmiStateServerEvaluate
 	// Connection Data Preparation SHIP 13.4.4
 	smeHelloState
-	smeHelloStateReady
+	smeHelloStateReady //nolint
 	smeHelloStateReadyInit
 	smeHelloStateReadyListen
 	smeHelloStateReadyTimeout
-	smeHelloStatePending
+	smeHelloStatePending //nolint
 	smeHelloStatePendingInit
 	smeHelloStatePendingListen
 	smeHelloStatePendingTimeout
 	smeHelloStateOk
 	smeHelloStateAbort
 	// Connection State Protocol Handhsake SHIP 13.4.4.2
-	smeProtHStateServerInit
-	smeProtHStateClientInit
-	smeProtHStateServerListenProposal
-	smeProtHStateClientListenChoice
-	smeProtHStateListenConfirm
-	smeProtHStateTimeout
-	smeProtHStateClientOk
-	smeProtHStateServerOk
+	smeProtHStateServerInit           //nolint
+	smeProtHStateClientInit           //nolint
+	smeProtHStateServerListenProposal //nolint
+	smeProtHStateClientListenChoice   //nolint
+	smeProtHStateListenConfirm        //nolint
+	smeProtHStateTimeout              //nolint
+	smeProtHStateClientOk             //nolint
+	smeProtHStateServerOk             //nolint
 	// Connection PIN State 13.4.5
-	sneOubStateCheckInit
-	smePinStateCheckListen
-	smePinStateCheckError
-	smePinStateCheckBusyInit
-	smePinStateCheckBusyWait
-	smePinStateCheckOk
-	smePinStateAskInit
-	smePinStateAskProcess
-	smePinStateAskRestricted
-	smePinStateAskOk
+	sneOubStateCheckInit     //nolint
+	smePinStateCheckListen   //nolint
+	smePinStateCheckError    //nolint
+	smePinStateCheckBusyInit //nolint
+	smePinStateCheckBusyWait //nolint
+	smePinStateCheckOk       //nolint
+	smePinStateAskInit       //nolint
+	smePinStateAskProcess    //nolint
+	smePinStateAskRestricted //nolint
+	smePinStateAskOk         //nolint
 	// ConnectionAccess Methods Identification 13.4.6
 
 	// Everything is done
@@ -293,7 +293,7 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 		default:
 			c.smeState = smeHelloStateAbort
 
-			return errors.New(fmt.Sprintf("Unexpected connection hello phase: %s", helloReturnMsg.ConnectionHello.Phase))
+			return fmt.Errorf("Unexpected connection hello phase: %s", helloReturnMsg.ConnectionHello.Phase)
 		}
 
 		if c.smeState == smeHelloStateOk && remoteSmeState == smeHelloStateOk {
@@ -499,7 +499,7 @@ func (c *ConnectionHandler) handshakeAccessMethods() error {
 
 			return nil
 		} else {
-			return errors.New(fmt.Sprintf("access methods: invalid response: %s", dataString))
+			return fmt.Errorf("access methods: invalid response: %s", dataString)
 		}
 	}
 }

@@ -43,7 +43,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 	r.remoteDevices[ski] = rDevice
 
 	// Request Detailed Discovery Data
-	r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
+	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
 
 	Events.Subscribe(r)
 }
@@ -54,7 +54,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	if payload.EventType == EventTypeDeviceChange && payload.Data != nil {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
-			payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
+			_ = payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
 		}
 	}
 }
@@ -117,15 +117,15 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	ackRequest := datagram.Header.AckRequest
 
 	if err := localFeature.HandleMessage(message); err != nil {
-		if ackRequest != nil && *ackRequest == true {
+		if ackRequest != nil && *ackRequest {
 			// TODO: add error description in a useful format
-			remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
+			_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
 		}
 		return err
 	}
 
-	if ackRequest != nil && *ackRequest == true {
-		remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
+	if ackRequest != nil && *ackRequest {
+		_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
 	}
 
 	return nil
@@ -204,10 +204,9 @@ func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDe
 func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddressType, cmd []model.CmdType) {
 	subscriptions := r.SubscriptionManager().SubscriptionsOnFeature(*featureAddress)
 	for _, subscription := range subscriptions {
-		if err := subscription.clientFeature.Sender().Notify(
-			subscription.serverFeature.Address(), subscription.clientFeature.Address(), cmd); err != nil {
-			// TODO: error handling
-		}
+		// TODO: error handling
+		_ = subscription.clientFeature.Sender().Notify(
+			subscription.serverFeature.Address(), subscription.clientFeature.Address(), cmd)
 	}
 }
 
