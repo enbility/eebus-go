@@ -77,12 +77,6 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 		if assert.NoError(suite.T(), err) {
 			remoteData := suite.remoteFeature.Data(suite.function)
 			assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, remoteData, "Data has wrong type")
-			remoteManufacturerData := remoteData.(*model.DeviceClassificationManufacturerDataType)
-			assert.Equal(suite.T(), manufacturerData.BrandName, remoteManufacturerData.BrandName)
-			assert.Equal(suite.T(), manufacturerData.VendorName, remoteManufacturerData.VendorName)
-			assert.Equal(suite.T(), manufacturerData.DeviceName, remoteManufacturerData.DeviceName)
-			assert.Equal(suite.T(), manufacturerData.DeviceCode, remoteManufacturerData.DeviceCode)
-			assert.Equal(suite.T(), manufacturerData.SerialNumber, remoteManufacturerData.SerialNumber)
 		}
 	}()
 
