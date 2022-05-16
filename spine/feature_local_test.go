@@ -27,7 +27,7 @@ type DeviceClassificationTestSuite struct {
 }
 
 func (suite *DeviceClassificationTestSuite) SetupSuite() {
-	suite.senderMock = new(mocks.Sender)
+	suite.senderMock = mocks.NewSender(suite.T())
 	suite.function = model.FunctionTypeDeviceClassificationManufacturerData
 	suite.featureType = model.FeatureTypeTypeDeviceClassification
 	suite.msgCounter = model.MsgCounterType(1)
@@ -49,13 +49,16 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
 
 	manufacturerData := &model.DeviceClassificationManufacturerDataType{
-		BrandName:  util.Ptr(model.DeviceClassificationStringType("brand name")),
-		DeviceName: util.Ptr(model.DeviceClassificationStringType("device name")),
-		DeviceCode: util.Ptr(model.DeviceClassificationStringType("device code")),
+		BrandName:    util.Ptr(model.DeviceClassificationStringType("brand name")),
+		VendorName:   util.Ptr(model.DeviceClassificationStringType("vendor name")),
+		DeviceName:   util.Ptr(model.DeviceClassificationStringType("device name")),
+		DeviceCode:   util.Ptr(model.DeviceClassificationStringType("device code")),
+		SerialNumber: util.Ptr(model.DeviceClassificationStringType("serial number")),
 	}
 
 	requestChannel := make(chan *model.DeviceClassificationManufacturerDataType)
-	_, _ = suite.sut.RequestData(suite.function, suite.remoteFeature, requestChannel)
+	_, err := suite.sut.RequestData(suite.function, suite.remoteFeature, requestChannel)
+	assert.NoError(suite.T(), err)
 
 	replyMsg := Message{
 		Cmd: model.CmdType{
@@ -70,22 +73,28 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 
 	// Act
 	go func() {
-		err := suite.sut.HandleMessage(&replyMsg)
+		err = suite.sut.HandleMessage(&replyMsg)
 		if assert.NoError(suite.T(), err) {
 			remoteData := suite.remoteFeature.Data(suite.function)
 			assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, remoteData, "Data has wrong type")
 			remoteManufacturerData := remoteData.(*model.DeviceClassificationManufacturerDataType)
 			assert.Equal(suite.T(), manufacturerData.BrandName, remoteManufacturerData.BrandName)
+			assert.Equal(suite.T(), manufacturerData.VendorName, remoteManufacturerData.VendorName)
 			assert.Equal(suite.T(), manufacturerData.DeviceName, remoteManufacturerData.DeviceName)
 			assert.Equal(suite.T(), manufacturerData.DeviceCode, remoteManufacturerData.DeviceCode)
+			assert.Equal(suite.T(), manufacturerData.SerialNumber, remoteManufacturerData.SerialNumber)
 		}
 	}()
 
 	channelData := util.ReceiveWithTimeout(requestChannel, time.Duration(time.Second*2))
 	assert.NotNil(suite.T(), channelData)
-	assert.Equal(suite.T(), manufacturerData.BrandName, channelData.BrandName)
-	assert.Equal(suite.T(), manufacturerData.DeviceName, channelData.DeviceName)
-	assert.Equal(suite.T(), manufacturerData.DeviceCode, channelData.DeviceCode)
+	if channelData != nil {
+		assert.Equal(suite.T(), manufacturerData.BrandName, channelData.BrandName)
+		assert.Equal(suite.T(), manufacturerData.VendorName, channelData.VendorName)
+		assert.Equal(suite.T(), manufacturerData.DeviceName, channelData.DeviceName)
+		assert.Equal(suite.T(), manufacturerData.DeviceCode, channelData.DeviceCode)
+		assert.Equal(suite.T(), manufacturerData.SerialNumber, channelData.SerialNumber)
+	}
 }
 
 func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
