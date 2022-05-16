@@ -33,6 +33,3 @@ jobs:
 
       - name: Test
         run: go test -race -v -coverprofile=coverage.out  -covermode=atomic ./...
-
-      - name: Coverage
-        run: go tool cover -func=converage.out
