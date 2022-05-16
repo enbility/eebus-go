@@ -1,5 +1,7 @@
 # eebus-go
 
+![Build Status](https://github.com/DerAndereAndi/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
+
 The goal is to provide a basic EEBUS implementation
 
 ## Introduction
