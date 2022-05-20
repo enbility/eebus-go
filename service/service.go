@@ -191,11 +191,13 @@ func (s *EEBUSService) LocalEntity() *spine.EntityLocalImpl {
 }
 
 // Add a new entity, used for connected EVs
+// Only for EVSE implementations
 func (s *EEBUSService) AddEntity(entity *spine.EntityLocalImpl) {
 	s.spineLocalDevice.AddEntity(entity)
 }
 
 // Remove an entity, used for disconnected EVs
+// Only for EVSE implementations
 func (s *EEBUSService) RemoveEntity(entity *spine.EntityLocalImpl) {
 	s.spineLocalDevice.RemoveEntity(entity)
 }
