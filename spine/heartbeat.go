@@ -28,7 +28,7 @@ func NewHeartbeatSender(sender Sender) *HeartbeatSender {
 	return h
 }
 
-func (c *HeartbeatSender) StartHeartBeatSend(senderAddr, destinationAddr *model.FeatureAddressType) {
+func (c *HeartbeatSender) StartHeartbeatSend(senderAddr, destinationAddr *model.FeatureAddressType) {
 	// stop a already running heartbeat
 	c.StopHeartbeat()
 
