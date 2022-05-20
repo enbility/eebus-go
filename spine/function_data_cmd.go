@@ -11,7 +11,7 @@ type FunctionDataCmd interface {
 	ReplyCmdType() model.CmdType
 	NotifyCmdType(partial bool) model.CmdType
 	AddPendingRequest(counter model.MsgCounterType, requestChannel any)
-	HandleReply(counter model.MsgCounterType, data any)
+	HandleReply(remoteDevice *DeviceRemoteImpl, counter model.MsgCounterType, data any)
 }
 
 var _ FunctionDataCmd = (*FunctionDataCmdImpl[int])(nil)
@@ -49,8 +49,17 @@ func (r *FunctionDataCmdImpl[T]) AddPendingRequest(counter model.MsgCounterType,
 	r.pendingRequests.Add(counter, requestChannel.(chan *T))
 }
 
-func (r *FunctionDataCmdImpl[T]) HandleReply(counter model.MsgCounterType, data any) {
-	r.pendingRequests.Handle(counter, data.(*T))
+func (r *FunctionDataCmdImpl[T]) HandleReply(remoteDevice *DeviceRemoteImpl, counter model.MsgCounterType, data any) {
+	if err := r.pendingRequests.Handle(counter, data.(*T)); err != nil {
+		payload := EventPayload{
+			Ski:        remoteDevice.ski,
+			EventType:  EventTypeDataChange,
+			ChangeType: ElementChangeUpdate,
+			Device:     remoteDevice,
+			Data:       data,
+		}
+		Events.Publish(payload)
+	}
 }
 
 func filterType(partial bool) []model.FilterType {
