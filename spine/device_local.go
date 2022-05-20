@@ -2,6 +2,7 @@ package spine
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -120,6 +121,13 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 
 		return errors.New(errorMessage)
 	}
+
+	lfType := string(localFeature.Type())
+	rfType := ""
+	if remoteFeature != nil {
+		remoteFeature.Type()
+	}
+	fmt.Printf("%s\n", datagram.PrintMessageOverview(false, lfType, rfType))
 
 	if err := localFeature.HandleMessage(message); err != nil {
 		if ackRequest != nil && *ackRequest {

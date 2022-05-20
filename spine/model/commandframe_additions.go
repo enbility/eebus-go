@@ -12,6 +12,7 @@ func (r *MsgCounterType) String() string {
 	return fmt.Sprintf("%d", *r)
 }
 
+// Get the non empty field name of the data type
 func (cmd CmdType) DataName() string {
 	t := reflect.ValueOf(cmd)
 	for i := 0; i < t.NumField(); i++ {
