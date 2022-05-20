@@ -52,7 +52,7 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 
 	// Act
 	err := sut.HandleMessage(&requestMsg)
-	if assert.NoError(t, err) {
+	if assert.Nil(t, err) {
 
 		dataMsg := Message{
 			Cmd: model.CmdType{
@@ -62,7 +62,7 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 			featureRemote: clientFeature,
 		}
 		err = sut.HandleMessage(&dataMsg)
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 	}
 }
 

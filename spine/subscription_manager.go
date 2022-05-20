@@ -136,9 +136,12 @@ func (c *SubscriptionManagerImpl) subscriptionId() uint64 {
 }
 
 func (c *SubscriptionManagerImpl) checkRole(feature Feature, role model.RoleType, featureType model.FeatureTypeType) error {
-	if (feature.Role() != model.RoleTypeSpecial && feature.Role() != role) ||
-		feature.Type() != featureType {
-		return fmt.Errorf("found feature '%s' is not matching given role '%s' and type '%s'", feature, role, featureType)
+	if feature.Role() != model.RoleTypeSpecial && feature.Role() != role {
+		return fmt.Errorf("found feature '%s' is not matching required role '%s'", feature.Type(), role)
+	}
+
+	if feature.Type() != featureType {
+		return fmt.Errorf("found feature '%s' is not matching required type '%s'", feature.Type(), featureType)
 	}
 
 	return nil

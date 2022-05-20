@@ -82,9 +82,6 @@ func (r *DeviceLocalImpl) RemoteDeviceForSki(ski string) *DeviceRemoteImpl {
 func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *DeviceRemoteImpl) error {
 	destAddr := datagram.Header.AddressDestination
 	localFeature := r.FeatureByAddress(destAddr)
-	if localFeature == nil {
-		return errors.New("invalid feature address")
-	}
 
 	cmdClassifier := datagram.Header.CmdClassifier
 	cmd := datagram.Payload.Cmd[0]
@@ -116,12 +113,20 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 
 	ackRequest := datagram.Header.AckRequest
 
+	if localFeature == nil {
+		errorMessage := "invalid feature address"
+		description := model.DescriptionType(errorMessage)
+		_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeDestinationUnknown, &description)
+
+		return errors.New(errorMessage)
+	}
+
 	if err := localFeature.HandleMessage(message); err != nil {
 		if ackRequest != nil && *ackRequest {
 			// TODO: add error description in a useful format
-			_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
+			_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), err.ErrorNumber, &err.Description)
 		}
-		return err
+		return errors.New(string(err.Description))
 	}
 
 	if ackRequest != nil && *ackRequest {

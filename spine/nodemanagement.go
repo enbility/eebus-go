@@ -29,33 +29,45 @@ func (r *NodeManagementImpl) Device() *DeviceLocalImpl {
 	return r.entity.Device()
 }
 
-func (r *NodeManagementImpl) HandleMessage(message *Message) error {
+func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 	if message.Cmd.ResultData != nil {
 		return r.processResult(message.CmdClassifier)
 	}
 
 	switch {
 	case message.Cmd.NodeManagementDetailedDiscoveryData != nil:
-		return r.handleMsgDetailedDiscoveryData(message, message.Cmd.NodeManagementDetailedDiscoveryData)
+		if err := r.handleMsgDetailedDiscoveryData(message, message.Cmd.NodeManagementDetailedDiscoveryData); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
 
 	case message.Cmd.NodeManagementSubscriptionRequestCall != nil:
-		return r.handleMsgSubscriptionRequestCall(message, message.Cmd.NodeManagementSubscriptionRequestCall)
+		if err := r.handleMsgSubscriptionRequestCall(message, message.Cmd.NodeManagementSubscriptionRequestCall); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
 
 	case message.Cmd.NodeManagementSubscriptionDeleteCall != nil:
-		return r.handleMsgSubscriptionDeleteCall(message, message.Cmd.NodeManagementSubscriptionDeleteCall)
+		if err := r.handleMsgSubscriptionDeleteCall(message, message.Cmd.NodeManagementSubscriptionDeleteCall); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
 
 	case message.Cmd.NodeManagementSubscriptionData != nil:
-		return r.handleMsgSubscriptionData(message)
+		if err := r.handleMsgSubscriptionData(message); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
 
 	case message.Cmd.NodeManagementUseCaseData != nil:
-		return r.handleMsgUseCaseData(message, message.Cmd.NodeManagementUseCaseData)
+		if err := r.handleMsgUseCaseData(message, message.Cmd.NodeManagementUseCaseData); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
 
 	default:
-		return fmt.Errorf("nodemanagement.Handle: Cmd data not implemented: %s", message.Cmd.DataName())
+		return NewErrorType(model.ErrorNumberTypeCommandNotSupported, fmt.Sprintf("nodemanagement.Handle: Cmd data not implemented: %s", message.Cmd.DataName()))
 	}
+
+	return nil
 }
 
-func (r *NodeManagementImpl) processResult(cmdClassifier model.CmdClassifierType) error {
+func (r *NodeManagementImpl) processResult(cmdClassifier model.CmdClassifierType) *ErrorType {
 	switch cmdClassifier {
 	case model.CmdClassifierTypeResult:
 		// TODO process the return result data for the message sent with the ID in msgCounterReference
@@ -63,6 +75,6 @@ func (r *NodeManagementImpl) processResult(cmdClassifier model.CmdClassifierType
 		return nil
 
 	default:
-		return fmt.Errorf("ResultData CmdClassifierType %s not implemented", cmdClassifier)
+		return NewErrorType(model.ErrorNumberTypeGeneralError, fmt.Sprintf("ResultData CmdClassifierType %s not implemented", cmdClassifier))
 	}
 }

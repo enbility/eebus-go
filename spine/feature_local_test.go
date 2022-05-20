@@ -73,8 +73,8 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 
 	// Act
 	go func() {
-		err = suite.sut.HandleMessage(&replyMsg)
-		if assert.NoError(suite.T(), err) {
+		msgErr := suite.sut.HandleMessage(&replyMsg)
+		if assert.Nil(suite.T(), msgErr) {
 			remoteData := suite.remoteFeature.Data(suite.function)
 			assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, remoteData, "Data has wrong type")
 		}

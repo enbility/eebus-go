@@ -8,7 +8,7 @@ import (
 )
 
 // TODO: move to separate file
-func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, error) {
+func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, *ErrorType) {
 	switch {
 	case cmd.NodeManagementDetailedDiscoveryData != nil:
 		return util.Ptr(model.FunctionTypeNodeManagementDetailedDiscoveryData), cmd.NodeManagementDetailedDiscoveryData, nil
@@ -17,7 +17,7 @@ func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, error) {
 	case cmd.DeviceDiagnosisStateData != nil:
 		return util.Ptr(model.FunctionTypeDeviceDiagnosisStateData), cmd.DeviceDiagnosisStateData, nil
 	}
-	return nil, nil, fmt.Errorf("Function not found for cmd")
+	return nil, nil, NewErrorType(model.ErrorNumberTypeCommandNotSupported, "Function not found for cmd")
 }
 
 type FeatureLocal interface {
@@ -30,7 +30,7 @@ type FeatureLocal interface {
 		destination *FeatureRemoteImpl,
 		requestChannel any) (*model.MsgCounterType, error)
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
-	HandleMessage(message *Message) error
+	HandleMessage(message *Message) *ErrorType
 }
 
 var _ FeatureLocal = (*FeatureLocalImpl)(nil)
@@ -137,7 +137,7 @@ func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *
 	return destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
 }
 
-func (r *FeatureLocalImpl) HandleMessage(message *Message) error {
+func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 	if message.Cmd.ResultData != nil {
 		return r.processResult(message.CmdClassifier)
 	}
@@ -149,15 +149,21 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) error {
 
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		return r.processRead(*function, message.RequestHeader, message.featureRemote)
+		if err := r.processRead(*function, message.RequestHeader, message.featureRemote); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
 	case model.CmdClassifierTypeReply:
-		return r.processReply(*function, data, message.RequestHeader, message.featureRemote)
+		if err := r.processReply(*function, data, message.RequestHeader, message.featureRemote); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
 	default:
-		return fmt.Errorf("CmdClassifier not implemented: %s", message.CmdClassifier)
+		return NewErrorType(model.ErrorNumberTypeGeneralError, fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
 	}
+
+	return nil
 }
 
-func (r *FeatureLocalImpl) processResult(cmdClassifier model.CmdClassifierType) error {
+func (r *FeatureLocalImpl) processResult(cmdClassifier model.CmdClassifierType) *ErrorType {
 	switch cmdClassifier {
 	case model.CmdClassifierTypeResult:
 		// TODO process the return result data for the message sent with the ID in msgCounterReference
@@ -165,7 +171,7 @@ func (r *FeatureLocalImpl) processResult(cmdClassifier model.CmdClassifierType) 
 		return nil
 
 	default:
-		return fmt.Errorf("ResultData CmdClassifierType %s not implemented", cmdClassifier)
+		return NewErrorType(model.ErrorNumberTypeGeneralError, fmt.Sprintf("ResultData CmdClassifierType %s not implemented", cmdClassifier))
 	}
 }
 
