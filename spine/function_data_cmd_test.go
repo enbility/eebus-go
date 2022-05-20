@@ -49,7 +49,7 @@ func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_PendingRequest() {
 	counter := model.MsgCounterType(1)
 	requestChannel := make(chan *model.DeviceClassificationManufacturerDataType)
 	suite.sut.AddPendingRequest(counter, requestChannel)
-	go suite.sut.HandleReply(counter, suite.sut.data)
+	go suite.sut.HandleReply(nil, counter, suite.sut.data)
 
 	receivedData := <-requestChannel
 
