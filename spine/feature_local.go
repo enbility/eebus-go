@@ -194,7 +194,7 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 
 func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
 	featureRemote.SetData(function, data)
-	r.functionData(function).HandleReply(featureRemote.Device(), *requestHeader.MsgCounter, data)
+	r.functionData(function).HandleReply(featureRemote.Device(), *requestHeader.MsgCounterReference, data)
 	return nil
 }
 
