@@ -66,7 +66,8 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 		},
 		CmdClassifier: model.CmdClassifierTypeReply,
 		RequestHeader: &model.HeaderType{
-			MsgCounter: &suite.msgCounter,
+			MsgCounter:          &suite.msgCounter,
+			MsgCounterReference: &suite.msgCounter,
 		},
 		featureRemote: suite.remoteFeature,
 	}
