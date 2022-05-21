@@ -44,6 +44,11 @@ func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, readC <-chan 
 	return &res
 }
 
+// return the device SKI
+func (d *DeviceRemoteImpl) Ski() string {
+	return d.ski
+}
+
 // Needs to be called by the CEM implementation once a subscription for the local DeviceDiagnosis server feature is received
 func (d *DeviceRemoteImpl) StartHeartbeatSend(senderAddr, destinationAddr *model.FeatureAddressType) {
 	d.heartbeatSender.StartHeartbeatSend(senderAddr, destinationAddr)
