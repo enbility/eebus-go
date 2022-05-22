@@ -20,6 +20,12 @@ func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, *ErrorType) 
 		return util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData), cmd.DeviceConfigurationKeyValueDescriptionListData, nil
 	case cmd.DeviceConfigurationKeyValueListData != nil:
 		return util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueListData), cmd.DeviceConfigurationKeyValueListData, nil
+	case cmd.IdentificationListData != nil:
+		return util.Ptr(model.FunctionTypeIdentificationListData), cmd.IdentificationListData, nil
+	case cmd.ElectricalConnectionParameterDescriptionListData != nil:
+		return util.Ptr(model.FunctionTypeElectricalConnectionParameterDescriptionListData), cmd.ElectricalConnectionParameterDescriptionListData, nil
+	case cmd.ElectricalConnectionPermittedValueSetListData != nil:
+		return util.Ptr(model.FunctionTypeElectricalConnectionPermittedValueSetListData), cmd.ElectricalConnectionPermittedValueSetListData, nil
 	}
 	return nil, nil, NewErrorType(model.ErrorNumberTypeCommandNotSupported, "Function not found for cmd")
 }
