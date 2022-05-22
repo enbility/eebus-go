@@ -123,12 +123,16 @@ func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *Enti
 	return entityForRemoval
 }
 
-func (r *DeviceRemoteImpl) FeatureByTypeAndRole(featureType model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
+// Get the feature for a given entity, feature type and feature role
+func (r *DeviceRemoteImpl) FeatureByEntityTypeAndRole(entity *EntityRemoteImpl, featureType model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
 	if len(r.entities) < 1 {
 		return nil
 	}
 
-	for _, entity := range r.entities {
+	for _, e := range r.entities {
+		if entity != e {
+			continue
+		}
 		for _, feature := range entity.Features() {
 			if feature.Type() == featureType && feature.Role() == role {
 				return feature

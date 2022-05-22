@@ -220,9 +220,9 @@ func (s *EEBUSService) EntityFeature(entity *spine.EntityLocalImpl, featureType 
 }
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (s *EEBUSService) GetLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteDevice *spine.DeviceRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
+func (s *EEBUSService) GetLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteEntity *spine.EntityRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
 	featureLocal := s.spineLocalDevice.FeatureByTypeAndRole(featureType, model.RoleTypeClient)
-	featureRemote := remoteDevice.FeatureByTypeAndRole(featureType, model.RoleTypeServer)
+	featureRemote := remoteEntity.Device().FeatureByEntityTypeAndRole(remoteEntity, featureType, model.RoleTypeServer)
 
 	if featureLocal == nil || featureRemote == nil {
 		return nil, nil, errors.New("local or remote feature not found")
