@@ -65,6 +65,7 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 		EventType:  EventTypeDeviceChange,
 		ChangeType: ElementChangeAdd,
 		Device:     remoteDevice,
+		Data:       data,
 	}
 	Events.Publish(payload)
 

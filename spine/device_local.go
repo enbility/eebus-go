@@ -52,7 +52,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 // React to some specific events
 func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	// Subscribe to NodeManagment after DetailedDiscovery is received
-	if payload.EventType == EventTypeDeviceChange && payload.Data != nil {
+	if payload.EventType == EventTypeDeviceChange && payload.ChangeType == ElementChangeAdd && payload.Data != nil {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
 			_ = payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
