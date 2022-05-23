@@ -14,8 +14,14 @@ var entityTypeActorMap = map[model.EntityTypeType]model.UseCaseActorType{
 }
 
 var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
-	model.UseCaseNameTypeEVSECommissioningAndConfiguration: {model.UseCaseActorTypeEVSE, model.UseCaseActorTypeCEM},
-	model.UseCaseNameTypeEVCommissioningAndConfiguration:   {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeCoordinatedEVCharging:                            {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeEVSECommissioningAndConfiguration:                {model.UseCaseActorTypeEVSE, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeEVChargingSummary:                                {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeEVCommissioningAndConfiguration:                  {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeEVStateOfCharge:                                  {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeMeasurementOfElectricityDuringEVCharging:         {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeOptimizationOfSelfConsumptionDuringEVCharging:    {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeOverloadProtectionByEVChargingCurrentCurtailment: {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
 }
 
 type UseCaseImpl struct {
@@ -23,21 +29,23 @@ type UseCaseImpl struct {
 	Actor  model.UseCaseActorType
 
 	name            model.UseCaseNameType
+	useCaseVersion  model.SpecificationVersionType
 	scenarioSupport []model.UseCaseScenarioSupportType
 }
 
-func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
+func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
 	checkArguments(*entity.EntityImpl, ucEnumType)
 
 	actor := entityTypeActorMap[entity.EntityType()]
 
 	ucManager := entity.Device().UseCaseManager()
-	ucManager.Add(actor, ucEnumType, scenarioSupport)
+	ucManager.Add(actor, ucEnumType, useCaseVersion, scenarioSupport)
 
 	return &UseCaseImpl{
 		Entity:          entity,
 		Actor:           actor,
 		name:            model.UseCaseNameType(ucEnumType),
+		useCaseVersion:  useCaseVersion,
 		scenarioSupport: scenarioSupport,
 	}
 }

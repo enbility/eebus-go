@@ -12,9 +12,9 @@ func NewUseCaseManager() *UseCaseManager {
 	}
 }
 
-func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.UseCaseNameType, scenarios []model.UseCaseScenarioSupportType) {
+func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, scenarios []model.UseCaseScenarioSupportType) {
 	useCaseSupport := model.UseCaseSupportType{
-		UseCaseVersion:  &SpecificationVersion,
+		UseCaseVersion:  &useCaseVersion,
 		UseCaseName:     &useCaseName,
 		ScenarioSupport: scenarios,
 	}

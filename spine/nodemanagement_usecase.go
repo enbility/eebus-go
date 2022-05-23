@@ -30,6 +30,7 @@ func (r *NodeManagementImpl) replyUseCaseData(message *Message, data model.NodeM
 			remoteUseCaseManager.Add(
 				model.UseCaseActorType(*useCaseInfo.Actor),
 				model.UseCaseNameType(*useCaseSupport.UseCaseName),
+				model.SpecificationVersionType(*useCaseSupport.UseCaseVersion),
 				useCaseSupport.ScenarioSupport)
 		}
 	}

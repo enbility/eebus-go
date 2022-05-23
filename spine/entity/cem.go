@@ -29,42 +29,49 @@ func NewCEM(device *spine.DeviceLocalImpl, address []model.AddressEntityType) *s
 	localUseCaseManager.Add(
 		model.UseCaseActorTypeCEM,
 		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		model.SpecificationVersionType("1.0.1"),
 		[]model.UseCaseScenarioSupportType{1, 2},
 	)
 	// UseCase EVCommissioningAndConfiguration
 	localUseCaseManager.Add(
 		model.UseCaseActorTypeCEM,
 		model.UseCaseNameTypeEVCommissioningAndConfiguration,
+		model.SpecificationVersionType("1.0.1"),
 		[]model.UseCaseScenarioSupportType{1, 2, 3, 4, 5, 6, 7, 8},
 	)
 	// UseCase MeasurementOfElectricityDuringEVCharging
 	localUseCaseManager.Add(
 		model.UseCaseActorTypeCEM,
 		model.UseCaseNameTypeMeasurementOfElectricityDuringEVCharging,
+		model.SpecificationVersionType("1.0.1"),
 		[]model.UseCaseScenarioSupportType{1, 2, 3},
 	)
 	// UseCase OverloadProtectionByEVChargingCurrentCurtailment
 	localUseCaseManager.Add(
 		model.UseCaseActorTypeCEM,
 		model.UseCaseNameTypeOverloadProtectionByEVChargingCurrentCurtailment,
+		model.SpecificationVersionType("1.0.1b"),
 		[]model.UseCaseScenarioSupportType{1, 2, 3},
 	)
 	// UseCase OptimizationOfSelfConsumptionDuringEVCharging
 	localUseCaseManager.Add(
 		model.UseCaseActorTypeCEM,
 		model.UseCaseNameTypeOptimizationOfSelfConsumptionDuringEVCharging,
+		model.SpecificationVersionType("1.0.1b"),
 		[]model.UseCaseScenarioSupportType{1, 2, 3},
 	)
 	// UseCase EVStateOfCharge
 	localUseCaseManager.Add(
 		model.UseCaseActorTypeCEM,
 		model.UseCaseNameTypeEVStateOfCharge,
+		model.SpecificationVersionType("1.0.0"),
 		[]model.UseCaseScenarioSupportType{1},
 	)
 	// UseCase CoordinatedEVCharging
 	localUseCaseManager.Add(
 		model.UseCaseActorTypeCEM,
 		model.UseCaseNameTypeCoordinatedEVCharging,
+		model.SpecificationVersionType("1.0.1"),
 		[]model.UseCaseScenarioSupportType{1, 2, 3, 4, 5, 6, 7, 8},
 	)
 
