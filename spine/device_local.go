@@ -56,6 +56,9 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
 			_ = payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
+
+			// Request Use Case Data
+			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.address, payload.Device.sender)
 		}
 	}
 }
