@@ -22,8 +22,16 @@ func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, *ErrorType) 
 		return util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueListData), cmd.DeviceConfigurationKeyValueListData, nil
 	case cmd.IdentificationListData != nil:
 		return util.Ptr(model.FunctionTypeIdentificationListData), cmd.IdentificationListData, nil
+	case cmd.MeasurementConstraintsListData != nil:
+		return util.Ptr(model.FunctionTypeMeasurementConstraintsListData), cmd.MeasurementConstraintsListData, nil
+	case cmd.MeasurementDescriptionListData != nil:
+		return util.Ptr(model.FunctionTypeMeasurementDescriptionListData), cmd.MeasurementDescriptionListData, nil
+	case cmd.MeasurementListData != nil:
+		return util.Ptr(model.FunctionTypeMeasurementListData), cmd.MeasurementListData, nil
 	case cmd.ElectricalConnectionParameterDescriptionListData != nil:
 		return util.Ptr(model.FunctionTypeElectricalConnectionParameterDescriptionListData), cmd.ElectricalConnectionParameterDescriptionListData, nil
+	case cmd.ElectricalConnectionDescriptionListData != nil:
+		return util.Ptr(model.FunctionTypeElectricalConnectionDescriptionListData), cmd.ElectricalConnectionDescriptionListData, nil
 	case cmd.ElectricalConnectionPermittedValueSetListData != nil:
 		return util.Ptr(model.FunctionTypeElectricalConnectionPermittedValueSetListData), cmd.ElectricalConnectionPermittedValueSetListData, nil
 	}
