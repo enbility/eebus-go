@@ -83,7 +83,10 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 				},
 			}}
 
-			err := c.sender.Notify(c.senderAddr, c.destinationAddr, cmd)
+			// workaround: get new message counter as otherwise it would not increment
+			// TODO: find out why this is necessary
+			msgCounter := c.sender.GetMsgCounter()
+			err := c.sender.Notify(msgCounter, c.senderAddr, c.destinationAddr, cmd)
 			if err != nil {
 				fmt.Println("ERROR sending heartbeat: ", err)
 			}

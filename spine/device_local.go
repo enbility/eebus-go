@@ -218,7 +218,7 @@ func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddress
 	subscriptions := r.SubscriptionManager().SubscriptionsOnFeature(*featureAddress)
 	for _, subscription := range subscriptions {
 		// TODO: error handling
-		_ = subscription.clientFeature.Sender().Notify(
+		_ = subscription.clientFeature.Sender().Notify(nil,
 			subscription.serverFeature.Address(), subscription.clientFeature.Address(), cmd)
 	}
 }
