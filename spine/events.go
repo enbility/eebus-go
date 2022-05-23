@@ -1,5 +1,7 @@
 package spine
 
+import "github.com/DerAndereAndi/eebus-go/spine/model"
+
 var Events events
 
 type ElementChangeType uint16
@@ -21,6 +23,7 @@ const (
 
 type EventPayload struct {
 	Ski        string
+	Source     model.FeatureAddressType
 	EventType  EventType
 	ChangeType ElementChangeType
 	Device     *DeviceRemoteImpl

@@ -67,6 +67,7 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 
 	payload := EventPayload{
 		Ski:        remoteDevice.ski,
+		Source:     *clientFeature.Address(),
 		EventType:  EventTypeSubscriptionChange,
 		ChangeType: ElementChangeAdd,
 		Data:       data,
