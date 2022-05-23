@@ -10,21 +10,17 @@ type FunctionDataCmd interface {
 	ReadCmdType() model.CmdType
 	ReplyCmdType() model.CmdType
 	NotifyCmdType(partial bool) model.CmdType
-	AddPendingRequest(counter model.MsgCounterType, requestChannel any)
-	HandleReply(remoteDevice *DeviceRemoteImpl, counter model.MsgCounterType, data any)
 }
 
 var _ FunctionDataCmd = (*FunctionDataCmdImpl[int])(nil)
 
 type FunctionDataCmdImpl[T any] struct {
 	*FunctionDataImpl[T]
-	pendingRequests PendingRequests[*T]
 }
 
 func NewFunctionDataCmd[T any](function model.FunctionType) *FunctionDataCmdImpl[T] {
 	return &FunctionDataCmdImpl[T]{
 		FunctionDataImpl: NewFunctionData[T](function),
-		pendingRequests:  make(PendingRequests[*T]),
 	}
 }
 
@@ -43,23 +39,6 @@ func (r *FunctionDataCmdImpl[T]) NotifyCmdType(partial bool) model.CmdType {
 	cmd.Function = util.Ptr(model.FunctionType(r.functionType))
 	cmd.Filter = filterType(partial)
 	return cmd
-}
-
-func (r *FunctionDataCmdImpl[T]) AddPendingRequest(counter model.MsgCounterType, requestChannel any) {
-	r.pendingRequests.Add(counter, requestChannel.(chan *T))
-}
-
-func (r *FunctionDataCmdImpl[T]) HandleReply(remoteDevice *DeviceRemoteImpl, counter model.MsgCounterType, data any) {
-	if err := r.pendingRequests.Handle(counter, data.(*T)); err != nil {
-		payload := EventPayload{
-			Ski:        remoteDevice.ski,
-			EventType:  EventTypeDataChange,
-			ChangeType: ElementChangeUpdate,
-			Device:     remoteDevice,
-			Data:       data,
-		}
-		Events.Publish(payload)
-	}
 }
 
 func filterType(partial bool) []model.FilterType {

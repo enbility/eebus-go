@@ -13,3 +13,14 @@ func NewErrorType(errorNumber model.ErrorNumberType, description string) *ErrorT
 		Description: model.DescriptionType(description),
 	}
 }
+
+func NewErrorTypeFromString(description string) *ErrorType {
+	return NewErrorType(model.ErrorNumberTypeGeneralError, description)
+}
+
+func NewErrorTypeFromResult(result *model.ResultDataType) *ErrorType {
+	return &ErrorType{
+		ErrorNumber: *result.ErrorNumber,
+		Description: *result.Description,
+	}
+}

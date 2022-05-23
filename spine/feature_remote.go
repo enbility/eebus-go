@@ -2,9 +2,12 @@ package spine
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
+
+const defaultMaxResponseDelayInSeconds = 10
 
 type FeatureRemoteImpl struct {
 	*FeatureImpl
@@ -58,6 +61,13 @@ func (r *FeatureRemoteImpl) SetOperations(functions []model.FunctionPropertyType
 
 func (r *FeatureRemoteImpl) SetMaxResponseDelay(delay *model.MaxResponseDelayType) {
 	r.maxResponseDelay = delay
+}
+
+func (r *FeatureRemoteImpl) MaxResponseDelayDuration() time.Duration {
+	//	if r.maxResponseDelay != nil {
+	// TODO: parse the ISO8601 string of MaxResponseDelay()
+	//	}
+	return time.Duration(time.Second * defaultMaxResponseDelayInSeconds)
 }
 
 func (r *FeatureRemoteImpl) functionData(function model.FunctionType) FunctionData {

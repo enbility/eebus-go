@@ -45,8 +45,7 @@ type FeatureLocal interface {
 	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
 	RequestData(
 		function model.FunctionType,
-		destination *FeatureRemoteImpl,
-		requestChannel any) (*model.MsgCounterType, error)
+		destination *FeatureRemoteImpl) RequestDataResult
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
 	HandleMessage(message *Message) *ErrorType
 }
@@ -57,6 +56,7 @@ type FeatureLocalImpl struct {
 	*FeatureImpl
 	entity          *EntityLocalImpl
 	functionDataMap map[model.FunctionType]FunctionDataCmd
+	pendingRequests PendingRequests
 }
 
 func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
@@ -67,6 +67,7 @@ func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTy
 			role),
 		entity:          entity,
 		functionDataMap: make(map[model.FunctionType]FunctionDataCmd),
+		pendingRequests: make(PendingRequests),
 	}
 
 	for _, fd := range CreateFunctionData[FunctionDataCmd](ftype) {
@@ -132,20 +133,21 @@ func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryF
 	return &res
 }
 
+// this will block until the response is received
 func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
-	destination *FeatureRemoteImpl,
-	requestChannel any) (*model.MsgCounterType, error) {
+	destination *FeatureRemoteImpl) RequestDataResult {
 
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType()
 
 	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
-	if err == nil && requestChannel != nil {
-		fd.AddPendingRequest(*msgCounter, requestChannel)
+	if err != nil {
+		NewRequestDataResultError(err)
 	}
 
-	return msgCounter, err
+	r.pendingRequests.Add(*msgCounter)
+	return r.pendingRequests.GetData(*msgCounter, destination.MaxResponseDelayDuration())
 }
 
 func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error) {
@@ -157,7 +159,7 @@ func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *
 
 func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 	if message.Cmd.ResultData != nil {
-		return r.processResult(message.CmdClassifier)
+		return r.processResult(message)
 	}
 
 	function, data, error := mapCmdToFunction(message.Cmd)
@@ -181,15 +183,17 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 	return nil
 }
 
-func (r *FeatureLocalImpl) processResult(cmdClassifier model.CmdClassifierType) *ErrorType {
-	switch cmdClassifier {
+func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
+	switch message.CmdClassifier {
 	case model.CmdClassifierTypeResult:
 		// TODO process the return result data for the message sent with the ID in msgCounterReference
 		// error numbers explained in Resource Spec 3.11
-		return nil
+		return r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
 
 	default:
-		return NewErrorType(model.ErrorNumberTypeGeneralError, fmt.Sprintf("ResultData CmdClassifierType %s not implemented", cmdClassifier))
+		return NewErrorType(
+			model.ErrorNumberTypeGeneralError,
+			fmt.Sprintf("ResultData CmdClassifierType %s not implemented", message.CmdClassifier))
 	}
 }
 
@@ -208,7 +212,17 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 
 func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
 	featureRemote.SetData(function, data)
-	r.functionData(function).HandleReply(featureRemote.Device(), *requestHeader.MsgCounterReference, data)
+	if err := r.pendingRequests.SetData(*requestHeader.MsgCounterReference, data); err != nil {
+		payload := EventPayload{
+			Ski:        featureRemote.Device().ski,
+			EventType:  EventTypeDataChange,
+			ChangeType: ElementChangeUpdate,
+			Device:     featureRemote.Device(),
+			Data:       data,
+		}
+		Events.Publish(payload)
+	}
+
 	return nil
 }
 

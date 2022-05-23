@@ -44,14 +44,3 @@ func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_ReplyCmd() {
 }
 
 // TODO: test NotifyCmdType
-
-func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_PendingRequest() {
-	counter := model.MsgCounterType(1)
-	requestChannel := make(chan *model.DeviceClassificationManufacturerDataType)
-	suite.sut.AddPendingRequest(counter, requestChannel)
-	go suite.sut.HandleReply(nil, counter, suite.sut.data)
-
-	receivedData := <-requestChannel
-
-	assert.Equal(suite.T(), suite.data.DeviceName, receivedData.DeviceName)
-}
