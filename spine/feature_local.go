@@ -45,6 +45,12 @@ type FeatureLocal interface {
 	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
 	RequestData(
 		function model.FunctionType,
+		destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
+	FetchRequestData(
+		msgCounter model.MsgCounterType,
+		destination *FeatureRemoteImpl) RequestDataResult
+	RequestAndFetchData(
+		function model.FunctionType,
 		destination *FeatureRemoteImpl) RequestDataResult
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
 	HandleMessage(message *Message) *ErrorType
@@ -133,21 +139,40 @@ func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryF
 	return &res
 }
 
-// this will block until the response is received
 func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
-	destination *FeatureRemoteImpl) RequestDataResult {
+	destination *FeatureRemoteImpl) (*model.MsgCounterType, error) {
 
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType()
 
 	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
-	if err != nil {
-		NewRequestDataResultError(err)
+	if err == nil {
+		r.pendingRequests.Add(*msgCounter)
 	}
 
-	r.pendingRequests.Add(*msgCounter)
-	return r.pendingRequests.GetData(*msgCounter, destination.MaxResponseDelayDuration())
+	return msgCounter, err
+}
+
+// this will block until the response is received
+func (r *FeatureLocalImpl) FetchRequestData(
+	msgCounter model.MsgCounterType,
+	destination *FeatureRemoteImpl) RequestDataResult {
+
+	return r.pendingRequests.GetData(msgCounter, destination.MaxResponseDelayDuration())
+}
+
+// this will block until the response is received
+func (r *FeatureLocalImpl) RequestAndFetchData(
+	function model.FunctionType,
+	destination *FeatureRemoteImpl) RequestDataResult {
+
+	msgCounter, err := r.RequestData(function, destination)
+	if err != nil {
+		return *NewRequestDataResultError(err)
+	}
+
+	return r.FetchRequestData(*msgCounter, destination)
 }
 
 func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error) {
