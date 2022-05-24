@@ -5,15 +5,17 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/rickb777/date/period"
 )
 
-const defaultMaxResponseDelayInSeconds = 10
+const defaultMaxResponseDelay = time.Duration(time.Second * 10)
 
 type FeatureRemoteImpl struct {
 	*FeatureImpl
 	entity           *EntityRemoteImpl
 	functionDataMap  map[model.FunctionType]FunctionData
-	maxResponseDelay *model.MaxResponseDelayType
+	maxResponseDelay *time.Duration
 }
 
 func NewFeatureRemoteImpl(id uint, entity *EntityRemoteImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
@@ -60,14 +62,22 @@ func (r *FeatureRemoteImpl) SetOperations(functions []model.FunctionPropertyType
 }
 
 func (r *FeatureRemoteImpl) SetMaxResponseDelay(delay *model.MaxResponseDelayType) {
-	r.maxResponseDelay = delay
+	if delay == nil {
+		return
+	}
+	p, err := period.Parse(string(*delay))
+	if err != nil {
+		r.maxResponseDelay = util.Ptr(p.DurationApprox())
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func (r *FeatureRemoteImpl) MaxResponseDelayDuration() time.Duration {
-	//	if r.maxResponseDelay != nil {
-	// TODO: parse the ISO8601 string of MaxResponseDelay()
-	//	}
-	return time.Duration(time.Second * defaultMaxResponseDelayInSeconds)
+	if r.maxResponseDelay != nil {
+		return *r.maxResponseDelay
+	}
+	return defaultMaxResponseDelay
 }
 
 func (r *FeatureRemoteImpl) functionData(function model.FunctionType) FunctionData {

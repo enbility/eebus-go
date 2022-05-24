@@ -2,7 +2,6 @@ package spine
 
 import (
 	"testing"
-	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
@@ -72,7 +71,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_GetData() {
 	suite.sut.SetData(suite.counter, data)
 
 	// Act
-	result := suite.sut.GetData(suite.counter, time.Duration(time.Second*defaultMaxResponseDelayInSeconds))
+	result := suite.sut.GetData(suite.counter, defaultMaxResponseDelay)
 	assert.Nil(suite.T(), result.errorResult)
 	assert.NotNil(suite.T(), result.data)
 	assert.Equal(suite.T(), data, result.data)
@@ -84,7 +83,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_GetData() {
 	suite.sut.SetResult(suite.counter, NewErrorType(errNo, errDesc))
 
 	// Act
-	result := suite.sut.GetData(suite.counter, time.Duration(time.Second*defaultMaxResponseDelayInSeconds))
+	result := suite.sut.GetData(suite.counter, defaultMaxResponseDelay)
 	assert.Nil(suite.T(), result.data)
 	assert.NotNil(suite.T(), result.errorResult)
 	assert.Equal(suite.T(), errNo, result.errorResult.ErrorNumber)
