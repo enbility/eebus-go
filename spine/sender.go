@@ -22,9 +22,8 @@ type Sender interface {
 	Result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, errorNumber model.ErrorNumberType, description *model.DescriptionType) error
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) error
-	Notify(msgCounter *model.MsgCounterType, senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
+	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
 	SendAcknowledgementMessage(err error, featureSource *model.FeatureAddressType, featureDestination *model.FeatureAddressType, msgCounterReference *model.MsgCounterType) error
-	GetMsgCounter() *model.MsgCounterType
 }
 
 type SenderImpl struct {
@@ -73,7 +72,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 
 // Sends read request
 func (c *SenderImpl) Request(cmdClassifier model.CmdClassifierType, senderAddress, destinationAddress *model.FeatureAddressType, ackRequest bool, cmd []model.CmdType) (*model.MsgCounterType, error) {
-	msgCounter := c.GetMsgCounter()
+	msgCounter := c.getMsgCounter()
 
 	datagram := model.DatagramType{
 		Header: model.HeaderType{
@@ -95,7 +94,7 @@ func (c *SenderImpl) Request(cmdClassifier model.CmdClassifierType, senderAddres
 	return msgCounter, c.sendSpineMessage(datagram)
 }
 
-// Result returns an result for a request
+// sends an result for a request
 func (c *SenderImpl) Result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, errorNumber model.ErrorNumberType, description *model.DescriptionType) error {
 	cmdClassifier := model.CmdClassifierTypeResult
 
@@ -119,7 +118,7 @@ func (c *SenderImpl) Result(requestHeader *model.HeaderType, senderAddress *mode
 			SpecificationVersion: &SpecificationVersion,
 			AddressSource:        &addressSource,
 			AddressDestination:   requestHeader.AddressSource,
-			MsgCounter:           c.GetMsgCounter(),
+			MsgCounter:           c.getMsgCounter(),
 			MsgCounterReference:  requestHeader.MsgCounter,
 			CmdClassifier:        &cmdClassifier,
 		},
@@ -149,7 +148,7 @@ func (c *SenderImpl) Reply(requestHeader *model.HeaderType, senderAddress *model
 			SpecificationVersion: &SpecificationVersion,
 			AddressSource:        &addressSource,
 			AddressDestination:   requestHeader.AddressSource,
-			MsgCounter:           c.GetMsgCounter(),
+			MsgCounter:           c.getMsgCounter(),
 			MsgCounterReference:  requestHeader.MsgCounter,
 			CmdClassifier:        &cmdClassifier,
 		},
@@ -162,11 +161,7 @@ func (c *SenderImpl) Reply(requestHeader *model.HeaderType, senderAddress *model
 }
 
 // Notify sends notification to destination
-// Workaround: passing the counter is needed to get heartbeat messages have incremental msg counter
-func (c SenderImpl) Notify(msgCounter *model.MsgCounterType, senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
-	if msgCounter == nil {
-		msgCounter = c.GetMsgCounter()
-	}
+func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
 	cmdClassifier := model.CmdClassifierTypeNotify
 
 	datagram := model.DatagramType{
@@ -174,7 +169,7 @@ func (c SenderImpl) Notify(msgCounter *model.MsgCounterType, senderAddress, dest
 			SpecificationVersion: &SpecificationVersion,
 			AddressSource:        senderAddress,
 			AddressDestination:   destinationAddress,
-			MsgCounter:           msgCounter,
+			MsgCounter:           c.getMsgCounter(),
 			CmdClassifier:        &cmdClassifier,
 		},
 		Payload: model.PayloadType{
@@ -195,7 +190,7 @@ func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddre
 			SpecificationVersion: &SpecificationVersion,
 			AddressSource:        senderAddress,
 			AddressDestination:   destinationAddress,
-			MsgCounter:           c.GetMsgCounter(),
+			MsgCounter:           c.getMsgCounter(),
 			CmdClassifier:        &cmdClassifier,
 			AckRequest:           &ackRequest,
 		},
@@ -254,7 +249,7 @@ func (c *SenderImpl) SendAcknowledgementMessage(err error, featureSource *model.
 			SpecificationVersion: &SpecificationVersion,
 			AddressSource:        featureSource,
 			AddressDestination:   featureDestination,
-			MsgCounter:           c.GetMsgCounter(),
+			MsgCounter:           c.getMsgCounter(),
 			MsgCounterReference:  msgCounterReference,
 			CmdClassifier:        &cmdClassifier,
 		},
@@ -268,7 +263,7 @@ func (c *SenderImpl) SendAcknowledgementMessage(err error, featureSource *model.
 	return c.sendSpineMessage(responseDatagram)
 }
 
-func (c *SenderImpl) GetMsgCounter() *model.MsgCounterType {
+func (c *SenderImpl) getMsgCounter() *model.MsgCounterType {
 	// TODO:  persistence
 	i := model.MsgCounterType(atomic.AddUint64(&c.msgNum, 1))
 	return &i

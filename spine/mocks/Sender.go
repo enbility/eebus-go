@@ -14,29 +14,13 @@ type Sender struct {
 	mock.Mock
 }
 
-// GetMsgCounter provides a mock function with given fields:
-func (_m *Sender) GetMsgCounter() *model.MsgCounterType {
-	ret := _m.Called()
-
-	var r0 *model.MsgCounterType
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.MsgCounterType)
-		}
-	}
-
-	return r0
-}
-
-// Notify provides a mock function with given fields: msgCounter, senderAddress, destinationAddress, cmd
-func (_m *Sender) Notify(msgCounter *model.MsgCounterType, senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
-	ret := _m.Called(msgCounter, senderAddress, destinationAddress, cmd)
+// Notify provides a mock function with given fields: senderAddress, destinationAddress, cmd
+func (_m *Sender) Notify(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
+	ret := _m.Called(senderAddress, destinationAddress, cmd)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*model.MsgCounterType, *model.FeatureAddressType, *model.FeatureAddressType, []model.CmdType) error); ok {
-		r0 = rf(msgCounter, senderAddress, destinationAddress, cmd)
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, []model.CmdType) error); ok {
+		r0 = rf(senderAddress, destinationAddress, cmd)
 	} else {
 		r0 = ret.Error(0)
 	}

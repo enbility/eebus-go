@@ -1,6 +1,10 @@
 package spine
 
-import "github.com/DerAndereAndi/eebus-go/spine/model"
+import (
+	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/ahmetb/go-linq/v3"
+)
 
 const DeviceInformationEntityId uint = 0
 
@@ -52,6 +56,15 @@ func EntityAddressType(deviceAdress *model.AddressDeviceType, entityAddress []mo
 	return &model.EntityAddressType{
 		Device: deviceAdress,
 		Entity: entityAddress,
+	}
+}
+
+func NewEntityAddressType(deviceName string, entityIds []int) *model.EntityAddressType {
+	var addressEntity []model.AddressEntityType
+	linq.From(entityIds).SelectT(func(i int) model.AddressEntityType { return model.AddressEntityType(i) }).ToSlice(&addressEntity)
+	return &model.EntityAddressType{
+		Device: util.Ptr(model.AddressDeviceType(deviceName)),
+		Entity: addressEntity,
 	}
 }
 
