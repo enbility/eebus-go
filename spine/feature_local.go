@@ -2,6 +2,7 @@ package spine
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
@@ -46,6 +47,11 @@ type FeatureLocal interface {
 	RequestData(
 		function model.FunctionType,
 		destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
+	RequestDataBySenderAddress(
+		function model.FunctionType,
+		sender Sender,
+		destinationAddress *model.FeatureAddressType,
+		maxDelay time.Duration) (*model.MsgCounterType, error)
 	FetchRequestData(
 		msgCounter model.MsgCounterType,
 		destination *FeatureRemoteImpl) RequestDataResult
@@ -142,13 +148,21 @@ func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryF
 func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
 	destination *FeatureRemoteImpl) (*model.MsgCounterType, error) {
+	return r.RequestDataBySenderAddress(function, destination.Sender(), destination.Address(), destination.MaxResponseDelayDuration())
+}
+
+func (r *FeatureLocalImpl) RequestDataBySenderAddress(
+	function model.FunctionType,
+	sender Sender,
+	destinationAddress *model.FeatureAddressType,
+	maxDelay time.Duration) (*model.MsgCounterType, error) {
 
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType()
 
-	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
+	msgCounter, err := sender.Request(model.CmdClassifierTypeRead, r.Address(), destinationAddress, false, []model.CmdType{cmd})
 	if err == nil {
-		r.pendingRequests.Add(*msgCounter, destination.MaxResponseDelayDuration())
+		r.pendingRequests.Add(*msgCounter, maxDelay)
 	}
 
 	return msgCounter, err
@@ -245,7 +259,7 @@ func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, r
 			Ski:        featureRemote.Device().ski,
 			EventType:  EventTypeDataChange,
 			ChangeType: ElementChangeUpdate,
-			Device:     featureRemote.Device(),
+			Feature:    featureRemote,
 			Data:       data,
 		}
 		Events.Publish(payload)

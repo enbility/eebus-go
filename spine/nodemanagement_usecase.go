@@ -7,16 +7,6 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
-func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, error) {
-	cmd := model.CmdType{
-		NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{},
-	}
-
-	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
-
-	return sender.Request(model.CmdClassifierTypeRead, r.Address(), rfAdress, true, []model.CmdType{cmd})
-}
-
 func (r *NodeManagementImpl) readUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
 
 	cmd := model.CmdType{
@@ -54,7 +44,11 @@ func (r *NodeManagementImpl) handleMsgUseCaseData(message *Message, data *model.
 		return r.readUseCaseData(message.featureRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
-		return r.replyUseCaseData(message, *data)
+		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
+			return r.replyUseCaseData(message, *data)
+		} else {
+			return errors.New(string(err.Description))
+		}
 
 	case model.CmdClassifierTypeNotify:
 		return r.replyUseCaseData(message, *data)

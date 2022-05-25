@@ -56,10 +56,10 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
 			// TODO: manage pending acknowledge
-			_ = payload.Device.sender.Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
+			_ = payload.Feature.Sender().Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
 
 			// Request Use Case Data
-			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.address, payload.Device.sender)
+			_, _ = r.nodeManagement.RequestData(model.FunctionTypeNodeManagementUseCaseData, payload.Feature)
 		}
 	}
 }
@@ -162,6 +162,7 @@ func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
 	for i, e := range r.entities {
 		if e == entity {
 			r.entities = append(r.entities[:i], r.entities[i+1:]...)
+			// TODO: delete subscriptions of removed entity (incl. delete call)
 			break
 		}
 	}

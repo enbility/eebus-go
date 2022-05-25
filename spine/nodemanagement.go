@@ -31,7 +31,9 @@ func (r *NodeManagementImpl) Device() *DeviceLocalImpl {
 
 func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 	if message.Cmd.ResultData != nil {
-		return r.processResult(message.CmdClassifier)
+		if err := r.processResult(message); err != nil {
+			r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference)
+		}
 	}
 
 	switch {
@@ -65,16 +67,4 @@ func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 	}
 
 	return nil
-}
-
-func (r *NodeManagementImpl) processResult(cmdClassifier model.CmdClassifierType) *ErrorType {
-	switch cmdClassifier {
-	case model.CmdClassifierTypeResult:
-		// TODO process the return result data for the message sent with the ID in msgCounterReference
-		// error numbers explained in Resource Spec 3.11
-		return nil
-
-	default:
-		return NewErrorType(model.ErrorNumberTypeGeneralError, fmt.Sprintf("ResultData CmdClassifierType %s not implemented", cmdClassifier))
-	}
 }

@@ -8,13 +8,8 @@ import (
 )
 
 func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, error) {
-	cmd := model.CmdType{
-		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},
-	}
-
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
-
-	return sender.Request(model.CmdClassifierTypeRead, r.Address(), rfAdress, false, []model.CmdType{cmd})
+	return r.RequestDataBySenderAddress(model.FunctionTypeNodeManagementDetailedDiscoveryData, sender, rfAdress, defaultMaxResponseDelay)
 }
 
 func (r *NodeManagementImpl) readDetailedDiscoveryData(deviceRemote *DeviceRemoteImpl, requestHeader *model.HeaderType) error {
@@ -64,7 +59,7 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 		Ski:        remoteDevice.ski,
 		EventType:  EventTypeDeviceChange,
 		ChangeType: ElementChangeAdd,
-		Device:     remoteDevice,
+		Feature:    message.featureRemote,
 		Data:       data,
 	}
 	Events.Publish(payload)
@@ -276,7 +271,11 @@ func (r *NodeManagementImpl) handleMsgDetailedDiscoveryData(message *Message, da
 		return r.readDetailedDiscoveryData(message.deviceRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
-		return r.replyDetailedDiscoveryData(message, data)
+		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
+			return r.replyDetailedDiscoveryData(message, data)
+		} else {
+			return errors.New(string(err.Description))
+		}
 
 	case model.CmdClassifierTypeNotify:
 		return r.notifyDetailedDiscoveryData(message, data)
