@@ -73,7 +73,7 @@ func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTy
 			role),
 		entity:          entity,
 		functionDataMap: make(map[model.FunctionType]FunctionDataCmd),
-		pendingRequests: make(PendingRequests),
+		pendingRequests: NewPendingRequest(),
 	}
 
 	for _, fd := range CreateFunctionData[FunctionDataCmd](ftype) {
@@ -148,7 +148,7 @@ func (r *FeatureLocalImpl) RequestData(
 
 	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
 	if err == nil {
-		r.pendingRequests.Add(*msgCounter)
+		r.pendingRequests.Add(*msgCounter, destination.MaxResponseDelayDuration())
 	}
 
 	return msgCounter, err
@@ -159,7 +159,7 @@ func (r *FeatureLocalImpl) FetchRequestData(
 	msgCounter model.MsgCounterType,
 	destination *FeatureRemoteImpl) RequestDataResult {
 
-	return r.pendingRequests.GetData(msgCounter, destination.MaxResponseDelayDuration())
+	return r.pendingRequests.GetData(msgCounter)
 }
 
 // this will block until the response is received
@@ -211,8 +211,11 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeResult:
-		// TODO process the return result data for the message sent with the ID in msgCounterReference
-		// error numbers explained in Resource Spec 3.11
+		if *message.Cmd.ResultData.ErrorNumber != model.ErrorNumberTypeNoError {
+			// TODO process the return result data for the message sent with the ID in msgCounterReference
+			// error numbers explained in Resource Spec 3.11
+			fmt.Printf("Error Result received: %s", string(*message.Cmd.ResultData.Description))
+		}
 		return r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
 
 	default:

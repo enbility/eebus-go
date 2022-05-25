@@ -2,6 +2,7 @@ package spine
 
 import (
 	"testing"
+	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
@@ -20,11 +21,39 @@ func TestPendingRequestsSuite(t *testing.T) {
 
 func (suite *PendingRequestsTestSuite) SetupSuite() {
 	suite.counter = model.MsgCounterType(1)
-	suite.sut = make(PendingRequests)
+	suite.sut = NewPendingRequest()
 }
 
 func (suite *PendingRequestsTestSuite) SetupTest() {
-	suite.sut.Add(suite.counter)
+	suite.sut.Add(suite.counter, defaultMaxResponseDelay)
+}
+
+func (suite *PendingRequestsTestSuite) TestPendingRequests_Timeout() {
+	suite.sut.Remove(suite.counter)
+	suite.sut.Add(suite.counter, time.Duration(time.Millisecond*10))
+
+	time.Sleep(time.Duration(time.Millisecond * 20))
+
+	// Act
+	result := suite.sut.GetData(suite.counter)
+	assert.Nil(suite.T(), result.data)
+	assert.NotNil(suite.T(), result.errorResult)
+	assert.Equal(suite.T(), model.ErrorNumberTypeTimeout, result.errorResult.ErrorNumber)
+	assert.Equal(suite.T(), "the request with the message counter '1' timed out", string(result.errorResult.Description))
+}
+
+func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove() {
+	// Act
+	err := suite.sut.Remove(suite.counter)
+	assert.Nil(suite.T(), err)
+}
+
+func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove_GetData() {
+	suite.sut.Remove(suite.counter)
+
+	// Act
+	result := suite.sut.GetData(suite.counter)
+	assert.NotNil(suite.T(), result.errorResult)
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData() {
@@ -37,6 +66,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_UnknownCounte
 	// Act
 	err := suite.sut.SetData(model.MsgCounterType(2), 1)
 	assert.NotNil(suite.T(), err)
+	assert.Equal(suite.T(), "No pending request with message counter '2' found", string(err.Description))
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetData() {
@@ -71,7 +101,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_GetData() {
 	suite.sut.SetData(suite.counter, data)
 
 	// Act
-	result := suite.sut.GetData(suite.counter, defaultMaxResponseDelay)
+	result := suite.sut.GetData(suite.counter)
 	assert.Nil(suite.T(), result.errorResult)
 	assert.NotNil(suite.T(), result.data)
 	assert.Equal(suite.T(), data, result.data)
@@ -83,7 +113,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_GetData() {
 	suite.sut.SetResult(suite.counter, NewErrorType(errNo, errDesc))
 
 	// Act
-	result := suite.sut.GetData(suite.counter, defaultMaxResponseDelay)
+	result := suite.sut.GetData(suite.counter)
 	assert.Nil(suite.T(), result.data)
 	assert.NotNil(suite.T(), result.errorResult)
 	assert.Equal(suite.T(), errNo, result.errorResult.ErrorNumber)
