@@ -1,8 +1,9 @@
-package spine
+package spine_test
 
 import (
 	"testing"
 
+	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/mocks"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
@@ -21,8 +22,8 @@ type DeviceClassificationTestSuite struct {
 	function      model.FunctionType
 	featureType   model.FeatureTypeType
 	msgCounter    model.MsgCounterType
-	remoteFeature *FeatureRemoteImpl
-	sut           *FeatureLocalImpl
+	remoteFeature *spine.FeatureRemoteImpl
+	sut           *spine.FeatureLocalImpl
 }
 
 func (suite *DeviceClassificationTestSuite) SetupSuite() {
@@ -31,7 +32,7 @@ func (suite *DeviceClassificationTestSuite) SetupSuite() {
 	suite.featureType = model.FeatureTypeTypeDeviceClassification
 	suite.msgCounter = model.MsgCounterType(1)
 
-	suite.remoteFeature = CreateRemoteDeviceAndFeature(1, suite.featureType, model.RoleTypeServer, suite.senderMock)
+	suite.remoteFeature = spine.CreateRemoteDeviceAndFeature(1, suite.featureType, model.RoleTypeServer, suite.senderMock)
 	suite.sut = CreateLocalDeviceAndFeature(1, suite.featureType, model.RoleTypeClient)
 }
 
@@ -50,7 +51,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 		SerialNumber: util.Ptr(model.DeviceClassificationStringType("serial number")),
 	}
 
-	replyMsg := Message{
+	replyMsg := spine.Message{
 		Cmd: model.CmdType{
 			DeviceClassificationManufacturerData: manufacturerData,
 		},
@@ -59,7 +60,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 			MsgCounter:          util.Ptr(model.MsgCounterType(1)),
 			MsgCounterReference: &suite.msgCounter,
 		},
-		featureRemote: suite.remoteFeature,
+		FeatureRemote: suite.remoteFeature,
 	}
 	// set response
 	msgErr := suite.sut.HandleMessage(&replyMsg)
@@ -92,7 +93,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	msgCounter, err := suite.sut.RequestData(suite.function, suite.remoteFeature)
 	assert.Nil(suite.T(), err)
 
-	replyMsg := Message{
+	replyMsg := spine.Message{
 		Cmd: model.CmdType{
 			ResultData: &model.ResultDataType{
 				ErrorNumber: util.Ptr(model.ErrorNumberType(errorNumber)),
@@ -104,7 +105,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 			MsgCounter:          util.Ptr(model.MsgCounterType(1)),
 			MsgCounterReference: &suite.msgCounter,
 		},
-		featureRemote: suite.remoteFeature,
+		FeatureRemote: suite.remoteFeature,
 	}
 
 	// set response
@@ -122,11 +123,11 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	assert.Equal(suite.T(), errorDescription, string(err.Description))
 }
 
-func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
-	localDevice := NewDeviceLocalImpl("Vendor", "DeviceName", "DeviceCode", "SerialNumber", "Address", model.DeviceTypeTypeEnergyManagementSystem)
-	localEntity := NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
+func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *spine.FeatureLocalImpl {
+	localDevice := spine.NewDeviceLocalImpl("Vendor", "DeviceName", "DeviceCode", "SerialNumber", "Address", model.DeviceTypeTypeEnergyManagementSystem)
+	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
 	localDevice.AddEntity(localEntity)
-	localFeature := NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)
+	localFeature := spine.NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)
 	localEntity.AddFeature(localFeature)
 	return localFeature
 }

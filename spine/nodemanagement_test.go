@@ -1,9 +1,10 @@
-package spine
+package spine_test
 
 import (
 	"reflect"
 	"testing"
 
+	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/mocks"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 	//localDevice := NewDeviceLocalImpl(model.AddressDeviceType("server"))
 
 	serverFeature := CreateLocalDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeServer)
-	clientFeature := CreateRemoteDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeClient, senderMock)
+	clientFeature := spine.CreateRemoteDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeClient, senderMock)
 
 	// serverAddress := featureAddress(serverName, subscriptionEntityId, subscriptionFeatureId)
 	// clientAddress := featureAddress(clientName, subscriptionEntityId, subscriptionFeatureId)
@@ -39,27 +40,27 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 	// serverFeatureMock := newFeatureLocalMock(serverAddress, model.RoleTypeServer, featureType, senderMock)
 	// clientFeatureMock := newFeatureRemoteMock(clientAddress, model.RoleTypeClient, featureType)
 
-	requestMsg := Message{
+	requestMsg := spine.Message{
 		Cmd: model.CmdType{
-			NodeManagementSubscriptionRequestCall: NewNodeManagementSubscriptionRequestCallType(
+			NodeManagementSubscriptionRequestCall: spine.NewNodeManagementSubscriptionRequestCallType(
 				clientFeature.Address(), serverFeature.Address(), featureType),
 		},
 		CmdClassifier: model.CmdClassifierTypeCall,
-		featureRemote: clientFeature,
+		FeatureRemote: clientFeature,
 	}
 
-	sut := NewNodeManagementImpl(0, serverFeature.Entity())
+	sut := spine.NewNodeManagementImpl(0, serverFeature.Entity())
 
 	// Act
 	err := sut.HandleMessage(&requestMsg)
 	if assert.Nil(t, err) {
 
-		dataMsg := Message{
+		dataMsg := spine.Message{
 			Cmd: model.CmdType{
 				NodeManagementSubscriptionData: &model.NodeManagementSubscriptionDataType{},
 			},
 			CmdClassifier: model.CmdClassifierTypeCall,
-			featureRemote: clientFeature,
+			FeatureRemote: clientFeature,
 		}
 		err = sut.HandleMessage(&dataMsg)
 		assert.Nil(t, err)

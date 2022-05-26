@@ -7,6 +7,6 @@ type Message struct {
 	CmdClassifier model.CmdClassifierType
 	Cmd           model.CmdType
 	IsPartial     bool
-	featureRemote *FeatureRemoteImpl
-	deviceRemote  *DeviceRemoteImpl
+	FeatureRemote *FeatureRemoteImpl
+	DeviceRemote  *DeviceRemoteImpl
 }

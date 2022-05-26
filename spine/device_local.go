@@ -114,8 +114,8 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		CmdClassifier: *cmdClassifier,
 		Cmd:           cmd,
 		IsPartial:     isPartial,
-		featureRemote: remoteFeature,
-		deviceRemote:  remoteDevice,
+		FeatureRemote: remoteFeature,
+		DeviceRemote:  remoteDevice,
 	}
 
 	ackRequest := datagram.Header.AckRequest

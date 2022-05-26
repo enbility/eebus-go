@@ -213,11 +213,11 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		if err := r.processRead(*function, message.RequestHeader, message.featureRemote); err != nil {
+		if err := r.processRead(*function, message.RequestHeader, message.FeatureRemote); err != nil {
 			return NewErrorTypeFromString(err.Error())
 		}
 	case model.CmdClassifierTypeReply:
-		if err := r.processReply(*function, data, message.RequestHeader, message.featureRemote); err != nil {
+		if err := r.processReply(*function, data, message.RequestHeader, message.FeatureRemote); err != nil {
 			return NewErrorTypeFromString(err.Error())
 		}
 	default:

@@ -22,7 +22,7 @@ func NewNodeManagementSubscriptionRequestCallType(clientAddress *model.FeatureAd
 func (r *NodeManagementImpl) readSubscriptionData(message *Message) error {
 
 	var remoteDeviceSubscriptions []model.SubscriptionManagementEntryDataType
-	remoteDeviceSubscriptionEntries := r.Device().SubscriptionManager().Subscriptions(message.featureRemote.Device())
+	remoteDeviceSubscriptionEntries := r.Device().SubscriptionManager().Subscriptions(message.FeatureRemote.Device())
 	linq.From(remoteDeviceSubscriptionEntries).SelectT(func(s *SubscriptionEntry) model.SubscriptionManagementEntryDataType {
 		return model.SubscriptionManagementEntryDataType{
 			SubscriptionId: util.Ptr(model.SubscriptionIdType(s.id)),
@@ -37,7 +37,7 @@ func (r *NodeManagementImpl) readSubscriptionData(message *Message) error {
 		},
 	}
 
-	return message.featureRemote.Sender().Reply(message.RequestHeader, r.Address(), cmd)
+	return message.FeatureRemote.Sender().Reply(message.RequestHeader, r.Address(), cmd)
 }
 
 func (r *NodeManagementImpl) handleMsgSubscriptionData(message *Message) error {
@@ -53,7 +53,7 @@ func (r *NodeManagementImpl) handleMsgSubscriptionData(message *Message) error {
 func (r *NodeManagementImpl) handleMsgSubscriptionRequestCall(message *Message, data *model.NodeManagementSubscriptionRequestCallType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeCall:
-		return r.Device().SubscriptionManager().AddSubscription(r.Device(), message.featureRemote.Device(), *data.SubscriptionRequest)
+		return r.Device().SubscriptionManager().AddSubscription(r.Device(), message.FeatureRemote.Device(), *data.SubscriptionRequest)
 		// in case of subscription failure, should we send an resulterror reply?
 
 	default:
@@ -64,7 +64,7 @@ func (r *NodeManagementImpl) handleMsgSubscriptionRequestCall(message *Message, 
 func (r *NodeManagementImpl) handleMsgSubscriptionDeleteCall(message *Message, data *model.NodeManagementSubscriptionDeleteCallType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeCall:
-		return r.Device().SubscriptionManager().RemoveSubscription(*data.SubscriptionDelete, message.featureRemote.Device())
+		return r.Device().SubscriptionManager().RemoveSubscription(*data.SubscriptionDelete, message.FeatureRemote.Device())
 
 	default:
 		return fmt.Errorf("nodemanagement.handleSubscriptionDeleteCall: NodeManagementSubscriptionRequestCall CmdClassifierType not implemented: %s", message.CmdClassifier)

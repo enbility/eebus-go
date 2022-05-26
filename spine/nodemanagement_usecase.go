@@ -24,7 +24,7 @@ func (r *NodeManagementImpl) replyUseCaseData(message *Message, data model.NodeM
 		return errors.New("nodemanagement.replyUseCaseData: invalid UseCaseInformation")
 	}
 
-	remoteUseCaseManager := message.featureRemote.Device().UseCaseManager()
+	remoteUseCaseManager := message.FeatureRemote.Device().UseCaseManager()
 	for _, useCaseInfo := range useCaseInformation {
 		for _, useCaseSupport := range useCaseInfo.UseCaseSupport {
 			remoteUseCaseManager.Add(
@@ -41,7 +41,7 @@ func (r *NodeManagementImpl) replyUseCaseData(message *Message, data model.NodeM
 func (r *NodeManagementImpl) handleMsgUseCaseData(message *Message, data *model.NodeManagementUseCaseDataType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		return r.readUseCaseData(message.featureRemote, message.RequestHeader)
+		return r.readUseCaseData(message.FeatureRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
 		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
