@@ -47,7 +47,7 @@ func (r *NodeManagementImpl) handleMsgUseCaseData(message *Message, data *model.
 		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
 			return r.replyUseCaseData(message, *data)
 		} else {
-			return errors.New(string(err.Description))
+			return errors.New(string(*err.Description))
 		}
 
 	case model.CmdClassifierTypeNotify:

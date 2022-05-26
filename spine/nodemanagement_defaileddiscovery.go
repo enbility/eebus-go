@@ -274,7 +274,7 @@ func (r *NodeManagementImpl) handleMsgDetailedDiscoveryData(message *Message, da
 		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
 			return r.replyDetailedDiscoveryData(message, data)
 		} else {
-			return errors.New(string(err.Description))
+			return errors.New(string(*err.Description))
 		}
 
 	case model.CmdClassifierTypeNotify:

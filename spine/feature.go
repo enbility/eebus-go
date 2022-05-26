@@ -1,6 +1,8 @@
 package spine
 
 import (
+	"fmt"
+
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
 )
@@ -53,6 +55,13 @@ func (r *FeatureImpl) SetDescription(d *model.DescriptionType) {
 
 func (r *FeatureImpl) SetDescriptionString(s string) {
 	r.description = util.Ptr(model.DescriptionType(s))
+}
+
+func (r *FeatureImpl) String() string {
+	if r == nil {
+		return ""
+	}
+	return fmt.Sprintf("Id: %d (%s)", *r.Address().Feature, *r.Description())
 }
 
 func featureAddressType(id uint, entityAddress *model.EntityAddressType) *model.FeatureAddressType {

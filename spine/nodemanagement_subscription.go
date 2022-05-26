@@ -54,7 +54,6 @@ func (r *NodeManagementImpl) handleMsgSubscriptionRequestCall(message *Message, 
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeCall:
 		return r.Device().SubscriptionManager().AddSubscription(r.Device(), message.FeatureRemote.Device(), *data.SubscriptionRequest)
-		// in case of subscription failure, should we send an resulterror reply?
 
 	default:
 		return fmt.Errorf("nodemanagement.handleSubscriptionRequestCall: NodeManagementSubscriptionRequestCall CmdClassifierType not implemented: %s", message.CmdClassifier)
