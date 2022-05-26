@@ -139,7 +139,8 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		// TODO: add error description in a useful format
 		_ = remoteFeature.Sender().ResultError(message.RequestHeader, localFeature.Address(), err)
 		return errors.New(err.String())
-	} else if ackRequest != nil && *ackRequest {
+	}
+	if ackRequest != nil && *ackRequest {
 		_ = remoteFeature.Sender().ResultSuccess(message.RequestHeader, localFeature.Address())
 	}
 

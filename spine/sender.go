@@ -19,11 +19,17 @@ type ComControl interface {
 }
 
 type Sender interface {
+	// Sends a read cmd to request some data
 	Request(cmdClassifier model.CmdClassifierType, senderAddress, destinationAddress *model.FeatureAddressType, ackRequest bool, cmd []model.CmdType) (*model.MsgCounterType, error)
+	// Sends a result cmd with no error to indicate that a message was processed successfully
 	ResultSuccess(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType) error
+	// Sends a result cmd with error information to indicate that a message processing failed
 	ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *ErrorType) error
+	// Sends a reply cmd to response to a read cmd
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
+	// Sends a call cmd with a subscription request
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) error
+	// Sends a notify cmd to indicate that a subscribed feature changed
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
 }
 
