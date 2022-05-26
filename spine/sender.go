@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/DerAndereAndi/eebus-go/util"
 )
 
 type ComControl interface {
@@ -18,12 +19,18 @@ type ComControl interface {
 }
 
 type Sender interface {
+	// Sends a read cmd to request some data
 	Request(cmdClassifier model.CmdClassifierType, senderAddress, destinationAddress *model.FeatureAddressType, ackRequest bool, cmd []model.CmdType) (*model.MsgCounterType, error)
-	Result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, errorNumber model.ErrorNumberType, description *model.DescriptionType) error
+	// Sends a result cmd with no error to indicate that a message was processed successfully
+	ResultSuccess(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType) error
+	// Sends a result cmd with error information to indicate that a message processing failed
+	ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *ErrorType) error
+	// Sends a reply cmd to response to a read cmd
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
+	// Sends a call cmd with a subscription request
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) error
+	// Sends a notify cmd to indicate that a subscribed feature changed
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
-	SendAcknowledgementMessage(err error, featureSource *model.FeatureAddressType, featureDestination *model.FeatureAddressType, msgCounterReference *model.MsgCounterType) error
 }
 
 type SenderImpl struct {
@@ -70,7 +77,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 	return nil
 }
 
-// Sends read request
+// Sends request
 func (c *SenderImpl) Request(cmdClassifier model.CmdClassifierType, senderAddress, destinationAddress *model.FeatureAddressType, ackRequest bool, cmd []model.CmdType) (*model.MsgCounterType, error) {
 	msgCounter := c.getMsgCounter()
 
@@ -94,19 +101,31 @@ func (c *SenderImpl) Request(cmdClassifier model.CmdClassifierType, senderAddres
 	return msgCounter, c.sendSpineMessage(datagram)
 }
 
-// sends an result for a request
-func (c *SenderImpl) Result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, errorNumber model.ErrorNumberType, description *model.DescriptionType) error {
+func (c *SenderImpl) ResultSuccess(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType) error {
+	return c.result(requestHeader, senderAddress, nil)
+}
+
+func (c *SenderImpl) ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *ErrorType) error {
+	return c.result(requestHeader, senderAddress, err)
+}
+
+// sends a result for a request
+func (c *SenderImpl) result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *ErrorType) error {
 	cmdClassifier := model.CmdClassifierTypeResult
 
 	addressSource := *requestHeader.AddressDestination
 	addressSource.Device = senderAddress.Device
 
-	resultData := model.ResultDataType{
-		ErrorNumber: &errorNumber,
-	}
-
-	if description != nil {
-		resultData.Description = description
+	var resultData model.ResultDataType
+	if err != nil {
+		resultData = model.ResultDataType{
+			ErrorNumber: &err.ErrorNumber,
+			Description: err.Description,
+		}
+	} else {
+		resultData = model.ResultDataType{
+			ErrorNumber: util.Ptr(model.ErrorNumberTypeNoError),
+		}
 	}
 
 	cmd := model.CmdType{
@@ -219,48 +238,6 @@ func (c *SenderImpl) Subscribe(senderAddress, destinationAddress *model.FeatureA
 	_, err := c.Request(model.CmdClassifierTypeCall, senderAddress, &remoteAddress, true, []model.CmdType{cmd})
 
 	return err
-}
-
-func (c *SenderImpl) SendAcknowledgementMessage(err error, featureSource *model.FeatureAddressType, featureDestination *model.FeatureAddressType, msgCounterReference *model.MsgCounterType) error {
-	// send result message, see protocol spec 5.2.5
-	// "0" in case of success, any other value in case of an error
-
-	cmdClassifier := model.CmdClassifierTypeResult
-	var resultSuccess model.ErrorNumberType
-	var resultDescription model.DescriptionType
-	var resultData model.ResultDataType
-
-	if err == nil {
-		resultSuccess = 0
-		resultData = model.ResultDataType{
-			ErrorNumber: &resultSuccess,
-		}
-	} else {
-		resultSuccess = 1
-		resultDescription = model.DescriptionType(err.Error())
-		resultData = model.ResultDataType{
-			ErrorNumber: &resultSuccess,
-			Description: &resultDescription,
-		}
-	}
-
-	responseDatagram := model.DatagramType{
-		Header: model.HeaderType{
-			SpecificationVersion: &SpecificationVersion,
-			AddressSource:        featureSource,
-			AddressDestination:   featureDestination,
-			MsgCounter:           c.getMsgCounter(),
-			MsgCounterReference:  msgCounterReference,
-			CmdClassifier:        &cmdClassifier,
-		},
-		Payload: model.PayloadType{
-			Cmd: []model.CmdType{{
-				ResultData: &resultData,
-			}},
-		},
-	}
-
-	return c.sendSpineMessage(responseDatagram)
 }
 
 func (c *SenderImpl) getMsgCounter() *model.MsgCounterType {

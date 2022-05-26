@@ -214,11 +214,11 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
 		if err := r.processRead(*function, message.RequestHeader, message.FeatureRemote); err != nil {
-			return NewErrorTypeFromString(err.Error())
+			return err
 		}
 	case model.CmdClassifierTypeReply:
 		if err := r.processReply(*function, data, message.RequestHeader, message.FeatureRemote); err != nil {
-			return NewErrorTypeFromString(err.Error())
+			return err
 		}
 	default:
 		return NewErrorTypeFromString(fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
@@ -244,20 +244,20 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 	}
 }
 
-func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
+func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
 	// is this a read request to a local server/special feature?
 	if r.role == model.RoleTypeClient {
 		// Read requests to a client feature are not allowed
-		return featureRemote.Sender().Result(requestHeader, r.Address(), model.ErrorNumberTypeCommandRejected, nil)
+		return NewErrorTypeFromNumber(model.ErrorNumberTypeCommandRejected)
 	}
 
 	cmd := r.functionData(function).ReplyCmdType()
 	err := featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)
 
-	return err
+	return NewErrorTypeFromString(err.Error())
 }
 
-func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) error {
+func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
 	featureRemote.SetData(function, data)
 	if err := r.pendingRequests.SetData(*requestHeader.MsgCounterReference, data); err != nil {
 		payload := EventPayload{

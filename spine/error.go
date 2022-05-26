@@ -4,17 +4,24 @@ import (
 	"fmt"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/DerAndereAndi/eebus-go/util"
 )
 
 type ErrorType struct {
 	ErrorNumber model.ErrorNumberType
-	Description model.DescriptionType
+	Description *model.DescriptionType
 }
 
 func NewErrorType(errorNumber model.ErrorNumberType, description string) *ErrorType {
 	return &ErrorType{
 		ErrorNumber: errorNumber,
-		Description: model.DescriptionType(description),
+		Description: util.Ptr(model.DescriptionType(description)),
+	}
+}
+
+func NewErrorTypeFromNumber(errorNumber model.ErrorNumberType) *ErrorType {
+	return &ErrorType{
+		ErrorNumber: errorNumber,
 	}
 }
 
@@ -25,13 +32,13 @@ func NewErrorTypeFromString(description string) *ErrorType {
 func NewErrorTypeFromResult(result *model.ResultDataType) *ErrorType {
 	return &ErrorType{
 		ErrorNumber: *result.ErrorNumber,
-		Description: *result.Description,
+		Description: result.Description,
 	}
 }
 
 func (e *ErrorType) String() string {
-	if len(e.Description) > 0 {
-		return fmt.Sprintf("Error %d: %s", e.ErrorNumber, e.Description)
+	if e.Description != nil && len(*e.Description) > 0 {
+		return fmt.Sprintf("Error %d: %s", e.ErrorNumber, *e.Description)
 	}
 	return fmt.Sprintf("Error %d", e.ErrorNumber)
 }

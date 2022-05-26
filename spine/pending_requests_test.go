@@ -39,7 +39,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_Timeout() {
 	assert.Nil(suite.T(), data)
 	assert.NotNil(suite.T(), err)
 	assert.Equal(suite.T(), model.ErrorNumberTypeTimeout, err.ErrorNumber)
-	assert.Equal(suite.T(), "the request with the message counter '1' timed out", string(err.Description))
+	assert.Equal(suite.T(), "the request with the message counter '1' timed out", string(*err.Description))
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove() {
@@ -66,7 +66,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_UnknownCounte
 	// Act
 	err := suite.sut.SetData(model.MsgCounterType(2), 1)
 	assert.NotNil(suite.T(), err)
-	assert.Equal(suite.T(), "No pending request with message counter '2' found", string(err.Description))
+	assert.Equal(suite.T(), "No pending request with message counter '2' found", string(*err.Description))
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetData() {
@@ -117,5 +117,5 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_GetData() {
 	assert.Nil(suite.T(), result)
 	assert.NotNil(suite.T(), err)
 	assert.Equal(suite.T(), errNo, err.ErrorNumber)
-	assert.Equal(suite.T(), errDesc, string(err.Description))
+	assert.Equal(suite.T(), errDesc, string(*err.Description))
 }

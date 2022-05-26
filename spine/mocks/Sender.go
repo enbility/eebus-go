@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	spine "github.com/DerAndereAndi/eebus-go/spine"
 	model "github.com/DerAndereAndi/eebus-go/spine/model"
 	mock "github.com/stretchr/testify/mock"
 
@@ -65,13 +66,13 @@ func (_m *Sender) Request(cmdClassifier model.CmdClassifierType, senderAddress *
 	return r0, r1
 }
 
-// Result provides a mock function with given fields: requestHeader, senderAddress, errorNumber, description
-func (_m *Sender) Result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, errorNumber model.ErrorNumberType, description *model.DescriptionType) error {
-	ret := _m.Called(requestHeader, senderAddress, errorNumber, description)
+// ResultError provides a mock function with given fields: requestHeader, senderAddress, err
+func (_m *Sender) ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *spine.ErrorType) error {
+	ret := _m.Called(requestHeader, senderAddress, err)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*model.HeaderType, *model.FeatureAddressType, model.ErrorNumberType, *model.DescriptionType) error); ok {
-		r0 = rf(requestHeader, senderAddress, errorNumber, description)
+	if rf, ok := ret.Get(0).(func(*model.HeaderType, *model.FeatureAddressType, *spine.ErrorType) error); ok {
+		r0 = rf(requestHeader, senderAddress, err)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -79,13 +80,13 @@ func (_m *Sender) Result(requestHeader *model.HeaderType, senderAddress *model.F
 	return r0
 }
 
-// SendAcknowledgementMessage provides a mock function with given fields: err, featureSource, featureDestination, msgCounterReference
-func (_m *Sender) SendAcknowledgementMessage(err error, featureSource *model.FeatureAddressType, featureDestination *model.FeatureAddressType, msgCounterReference *model.MsgCounterType) error {
-	ret := _m.Called(err, featureSource, featureDestination, msgCounterReference)
+// ResultSuccess provides a mock function with given fields: requestHeader, senderAddress
+func (_m *Sender) ResultSuccess(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType) error {
+	ret := _m.Called(requestHeader, senderAddress)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(error, *model.FeatureAddressType, *model.FeatureAddressType, *model.MsgCounterType) error); ok {
-		r0 = rf(err, featureSource, featureDestination, msgCounterReference)
+	if rf, ok := ret.Get(0).(func(*model.HeaderType, *model.FeatureAddressType) error); ok {
+		r0 = rf(requestHeader, senderAddress)
 	} else {
 		r0 = ret.Error(0)
 	}

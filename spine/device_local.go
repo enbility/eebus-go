@@ -122,8 +122,7 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 
 	if localFeature == nil {
 		errorMessage := "invalid feature address"
-		description := model.DescriptionType(errorMessage)
-		_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeDestinationUnknown, &description)
+		_ = remoteFeature.Sender().ResultError(message.RequestHeader, localFeature.Address(), NewErrorType(model.ErrorNumberTypeDestinationUnknown, errorMessage))
 
 		return errors.New(errorMessage)
 	}
@@ -135,16 +134,14 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	}
 	fmt.Printf("%s\n", datagram.PrintMessageOverview(false, lfType, rfType))
 
-	if err := localFeature.HandleMessage(message); err != nil {
-		if ackRequest != nil && *ackRequest {
-			// TODO: add error description in a useful format
-			_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), err.ErrorNumber, &err.Description)
-		}
+	err := localFeature.HandleMessage(message)
+	if err != nil {
+		// TODO: add error description in a useful format
+		_ = remoteFeature.Sender().ResultError(message.RequestHeader, localFeature.Address(), err)
 		return errors.New(err.String())
 	}
-
 	if ackRequest != nil && *ackRequest {
-		_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), model.ErrorNumberTypeNoError, nil)
+		_ = remoteFeature.Sender().ResultSuccess(message.RequestHeader, localFeature.Address())
 	}
 
 	return nil

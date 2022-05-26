@@ -120,7 +120,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	assert.Nil(suite.T(), result)
 	assert.NotNil(suite.T(), err)
 	assert.Equal(suite.T(), errorNumber, err.ErrorNumber)
-	assert.Equal(suite.T(), errorDescription, string(err.Description))
+	assert.Equal(suite.T(), errorDescription, string(*err.Description))
 }
 
 func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *spine.FeatureLocalImpl {
