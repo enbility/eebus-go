@@ -1,6 +1,10 @@
 package spine
 
-import "github.com/DerAndereAndi/eebus-go/spine/model"
+import (
+	"fmt"
+
+	"github.com/DerAndereAndi/eebus-go/spine/model"
+)
 
 type ErrorType struct {
 	ErrorNumber model.ErrorNumberType
@@ -23,4 +27,11 @@ func NewErrorTypeFromResult(result *model.ResultDataType) *ErrorType {
 		ErrorNumber: *result.ErrorNumber,
 		Description: *result.Description,
 	}
+}
+
+func (e *ErrorType) Error() string {
+	if len(e.Description) > 0 {
+		return fmt.Sprintf("Error %d: %s", e.ErrorNumber, e.Description)
+	}
+	return fmt.Sprintf("Error %d", e.ErrorNumber)
 }

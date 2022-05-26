@@ -40,7 +40,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 
 	// send data request
 	msgCounter, err := suite.sut.RequestData(suite.function, suite.remoteFeature)
-	assert.NoError(suite.T(), err)
+	assert.Nil(suite.T(), err)
 
 	manufacturerData := &model.DeviceClassificationManufacturerDataType{
 		BrandName:    util.Ptr(model.DeviceClassificationStringType("brand name")),
@@ -69,11 +69,11 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 	}
 
 	// Act
-	result := suite.sut.FetchRequestData(*msgCounter, suite.remoteFeature)
-	assert.Nil(suite.T(), result.errorResult)
-	assert.NotNil(suite.T(), result.data)
-	assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, result.data, "Data has wrong type")
-	receivedData := result.data.(*model.DeviceClassificationManufacturerDataType)
+	result, err := suite.sut.FetchRequestData(*msgCounter, suite.remoteFeature)
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), result)
+	assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, result, "Data has wrong type")
+	receivedData := result.(*model.DeviceClassificationManufacturerDataType)
 
 	assert.Equal(suite.T(), manufacturerData.BrandName, receivedData.BrandName)
 	assert.Equal(suite.T(), manufacturerData.VendorName, receivedData.VendorName)
@@ -90,7 +90,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 
 	// send data request
 	msgCounter, err := suite.sut.RequestData(suite.function, suite.remoteFeature)
-	assert.NoError(suite.T(), err)
+	assert.Nil(suite.T(), err)
 
 	replyMsg := Message{
 		Cmd: model.CmdType{
@@ -115,11 +115,11 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	}
 
 	// Act
-	result := suite.sut.FetchRequestData(*msgCounter, suite.remoteFeature)
-	assert.Nil(suite.T(), result.data)
-	assert.NotNil(suite.T(), result.errorResult)
-	assert.Equal(suite.T(), errorNumber, result.errorResult.ErrorNumber)
-	assert.Equal(suite.T(), errorDescription, string(result.errorResult.Description))
+	result, err := suite.sut.FetchRequestData(*msgCounter, suite.remoteFeature)
+	assert.Nil(suite.T(), result)
+	assert.NotNil(suite.T(), err)
+	assert.Equal(suite.T(), errorNumber, err.ErrorNumber)
+	assert.Equal(suite.T(), errorDescription, string(err.Description))
 }
 
 func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {

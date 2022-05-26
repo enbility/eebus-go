@@ -46,19 +46,19 @@ type FeatureLocal interface {
 	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
 	RequestData(
 		function model.FunctionType,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
+		destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	RequestDataBySenderAddress(
 		function model.FunctionType,
 		sender Sender,
 		destinationAddress *model.FeatureAddressType,
-		maxDelay time.Duration) (*model.MsgCounterType, error)
+		maxDelay time.Duration) (*model.MsgCounterType, *ErrorType)
 	FetchRequestData(
 		msgCounter model.MsgCounterType,
-		destination *FeatureRemoteImpl) RequestDataResult
+		destination *FeatureRemoteImpl) (any, *ErrorType)
 	RequestAndFetchData(
 		function model.FunctionType,
-		destination *FeatureRemoteImpl) RequestDataResult
-	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error)
+		destination *FeatureRemoteImpl) (any, *ErrorType)
+	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	HandleMessage(message *Message) *ErrorType
 }
 
@@ -147,7 +147,7 @@ func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryF
 
 func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
-	destination *FeatureRemoteImpl) (*model.MsgCounterType, error) {
+	destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
 	return r.RequestDataBySenderAddress(function, destination.Sender(), destination.Address(), destination.MaxResponseDelayDuration())
 }
 
@@ -155,7 +155,7 @@ func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 	function model.FunctionType,
 	sender Sender,
 	destinationAddress *model.FeatureAddressType,
-	maxDelay time.Duration) (*model.MsgCounterType, error) {
+	maxDelay time.Duration) (*model.MsgCounterType, *ErrorType) {
 
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType()
@@ -163,15 +163,16 @@ func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 	msgCounter, err := sender.Request(model.CmdClassifierTypeRead, r.Address(), destinationAddress, false, []model.CmdType{cmd})
 	if err == nil {
 		r.pendingRequests.Add(*msgCounter, maxDelay)
+		return msgCounter, nil
 	}
 
-	return msgCounter, err
+	return msgCounter, NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 }
 
 // this will block until the response is received
 func (r *FeatureLocalImpl) FetchRequestData(
 	msgCounter model.MsgCounterType,
-	destination *FeatureRemoteImpl) RequestDataResult {
+	destination *FeatureRemoteImpl) (any, *ErrorType) {
 
 	return r.pendingRequests.GetData(msgCounter)
 }
@@ -179,21 +180,25 @@ func (r *FeatureLocalImpl) FetchRequestData(
 // this will block until the response is received
 func (r *FeatureLocalImpl) RequestAndFetchData(
 	function model.FunctionType,
-	destination *FeatureRemoteImpl) RequestDataResult {
+	destination *FeatureRemoteImpl) (any, *ErrorType) {
 
 	msgCounter, err := r.RequestData(function, destination)
 	if err != nil {
-		return *NewRequestDataResultError(err)
+		return nil, err
 	}
 
 	return r.FetchRequestData(*msgCounter, destination)
 }
 
-func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, error) {
+func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.NotifyCmdType(false)
 
-	return destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
+	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
+	if err != nil {
+		return nil, NewErrorTypeFromString(err.Error())
+	}
+	return msgCounter, nil
 }
 
 func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
@@ -209,14 +214,14 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
 		if err := r.processRead(*function, message.RequestHeader, message.featureRemote); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return NewErrorTypeFromString(err.Error())
 		}
 	case model.CmdClassifierTypeReply:
 		if err := r.processReply(*function, data, message.RequestHeader, message.featureRemote); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return NewErrorTypeFromString(err.Error())
 		}
 	default:
-		return NewErrorType(model.ErrorNumberTypeGeneralError, fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
+		return NewErrorTypeFromString(fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
 	}
 
 	return nil
