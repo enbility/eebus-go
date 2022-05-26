@@ -7,7 +7,7 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
-func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, error) {
+func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
 	return r.RequestDataBySenderAddress(model.FunctionTypeNodeManagementDetailedDiscoveryData, sender, rfAdress, defaultMaxResponseDelay)
 }

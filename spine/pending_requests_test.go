@@ -29,17 +29,17 @@ func (suite *PendingRequestsTestSuite) SetupTest() {
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_Timeout() {
-	suite.sut.Remove(suite.counter)
+	_ = suite.sut.Remove(suite.counter)
 	suite.sut.Add(suite.counter, time.Duration(time.Millisecond*10))
 
 	time.Sleep(time.Duration(time.Millisecond * 20))
 
 	// Act
-	result := suite.sut.GetData(suite.counter)
-	assert.Nil(suite.T(), result.data)
-	assert.NotNil(suite.T(), result.errorResult)
-	assert.Equal(suite.T(), model.ErrorNumberTypeTimeout, result.errorResult.ErrorNumber)
-	assert.Equal(suite.T(), "the request with the message counter '1' timed out", string(result.errorResult.Description))
+	data, err := suite.sut.GetData(suite.counter)
+	assert.Nil(suite.T(), data)
+	assert.NotNil(suite.T(), err)
+	assert.Equal(suite.T(), model.ErrorNumberTypeTimeout, err.ErrorNumber)
+	assert.Equal(suite.T(), "the request with the message counter '1' timed out", string(err.Description))
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove() {
@@ -49,11 +49,11 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove() {
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove_GetData() {
-	suite.sut.Remove(suite.counter)
+	_ = suite.sut.Remove(suite.counter)
 
 	// Act
-	result := suite.sut.GetData(suite.counter)
-	assert.NotNil(suite.T(), result.errorResult)
+	_, err := suite.sut.GetData(suite.counter)
+	assert.NotNil(suite.T(), err)
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData() {
@@ -70,7 +70,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_UnknownCounte
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetData() {
-	suite.sut.SetData(suite.counter, 1)
+	_ = suite.sut.SetData(suite.counter, 1)
 	// Act
 	err := suite.sut.SetData(suite.counter, 2)
 	assert.NotNil(suite.T(), err)
@@ -83,14 +83,14 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult() {
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_SetResult() {
-	suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
+	_ = suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
 	// Act
 	err := suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
 	assert.NotNil(suite.T(), err)
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetResult() {
-	suite.sut.SetData(suite.counter, 1)
+	_ = suite.sut.SetData(suite.counter, 1)
 	// Act
 	err := suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
 	assert.NotNil(suite.T(), err)
@@ -98,24 +98,24 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetResult() {
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_GetData() {
 	data := 1
-	suite.sut.SetData(suite.counter, data)
+	_ = suite.sut.SetData(suite.counter, data)
 
 	// Act
-	result := suite.sut.GetData(suite.counter)
-	assert.Nil(suite.T(), result.errorResult)
-	assert.NotNil(suite.T(), result.data)
-	assert.Equal(suite.T(), data, result.data)
+	result, err := suite.sut.GetData(suite.counter)
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), result)
+	assert.Equal(suite.T(), data, result)
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_GetData() {
 	errNo := model.ErrorNumberTypeTimeout
 	errDesc := "Timeout occured"
-	suite.sut.SetResult(suite.counter, NewErrorType(errNo, errDesc))
+	_ = suite.sut.SetResult(suite.counter, NewErrorType(errNo, errDesc))
 
 	// Act
-	result := suite.sut.GetData(suite.counter)
-	assert.Nil(suite.T(), result.data)
-	assert.NotNil(suite.T(), result.errorResult)
-	assert.Equal(suite.T(), errNo, result.errorResult.ErrorNumber)
-	assert.Equal(suite.T(), errDesc, string(result.errorResult.Description))
+	result, err := suite.sut.GetData(suite.counter)
+	assert.Nil(suite.T(), result)
+	assert.NotNil(suite.T(), err)
+	assert.Equal(suite.T(), errNo, err.ErrorNumber)
+	assert.Equal(suite.T(), errDesc, string(err.Description))
 }

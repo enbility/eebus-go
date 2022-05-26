@@ -12,7 +12,7 @@ type PendingRequests interface {
 	Add(counter model.MsgCounterType, maxDelay time.Duration)
 	SetData(counter model.MsgCounterType, data any) *ErrorType
 	SetResult(counter model.MsgCounterType, errorResult *ErrorType) *ErrorType
-	GetData(counter model.MsgCounterType) RequestDataResult
+	GetData(counter model.MsgCounterType) (any, *ErrorType)
 	Remove(counter model.MsgCounterType) *ErrorType
 }
 
@@ -58,19 +58,19 @@ func (r *PendingRequestsImpl) SetResult(counter model.MsgCounterType, errorResul
 	return r.setResponse(counter, nil, errorResult)
 }
 
-func (r *PendingRequestsImpl) GetData(counter model.MsgCounterType) RequestDataResult {
+func (r *PendingRequestsImpl) GetData(counter model.MsgCounterType) (any, *ErrorType) {
 	request, err := r.getRequest(counter)
 	if err != nil {
-		return *NewRequestDataResult(nil, err)
+		return nil, err
 	}
 
 	data := <-request.response
 	err = r.Remove(counter)
 
 	if err != nil {
-		return *NewRequestDataResult(nil, err)
+		return nil, err
 	}
-	return *NewRequestDataResult(data.data, data.errorResult)
+	return data.data, data.errorResult
 }
 
 func (r *PendingRequestsImpl) Remove(counter model.MsgCounterType) *ErrorType {

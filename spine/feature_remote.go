@@ -54,6 +54,10 @@ func (r *FeatureRemoteImpl) Device() *DeviceRemoteImpl {
 	return r.entity.Device()
 }
 
+func (r *FeatureRemoteImpl) Entity() *EntityRemoteImpl {
+	return r.entity
+}
+
 func (r *FeatureRemoteImpl) SetOperations(functions []model.FunctionPropertyType) {
 	r.operations = make(map[model.FunctionType]*Operations)
 	for _, sf := range functions {
