@@ -29,7 +29,7 @@ func NewErrorTypeFromResult(result *model.ResultDataType) *ErrorType {
 	}
 }
 
-func (e *ErrorType) Error() string {
+func (e *ErrorType) String() string {
 	if len(e.Description) > 0 {
 		return fmt.Sprintf("Error %d: %s", e.ErrorNumber, e.Description)
 	}

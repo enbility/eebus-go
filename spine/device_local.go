@@ -46,6 +46,8 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 	// Request Detailed Discovery Data
 	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
 
+	// TODO: Add error handling
+
 	Events.Subscribe(r)
 }
 
@@ -138,7 +140,7 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 			// TODO: add error description in a useful format
 			_ = remoteFeature.Sender().Result(message.RequestHeader, localFeature.Address(), err.ErrorNumber, &err.Description)
 		}
-		return errors.New(err.Error())
+		return errors.New(err.String())
 	}
 
 	if ackRequest != nil && *ackRequest {
