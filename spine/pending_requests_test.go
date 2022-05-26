@@ -29,7 +29,7 @@ func (suite *PendingRequestsTestSuite) SetupTest() {
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_Timeout() {
-	suite.sut.Remove(suite.counter)
+	_ = suite.sut.Remove(suite.counter)
 	suite.sut.Add(suite.counter, time.Duration(time.Millisecond*10))
 
 	time.Sleep(time.Duration(time.Millisecond * 20))
@@ -49,7 +49,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove() {
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_Remove_GetData() {
-	suite.sut.Remove(suite.counter)
+	_ = suite.sut.Remove(suite.counter)
 
 	// Act
 	_, err := suite.sut.GetData(suite.counter)
@@ -70,7 +70,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_UnknownCounte
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetData() {
-	suite.sut.SetData(suite.counter, 1)
+	_ = suite.sut.SetData(suite.counter, 1)
 	// Act
 	err := suite.sut.SetData(suite.counter, 2)
 	assert.NotNil(suite.T(), err)
@@ -83,14 +83,14 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult() {
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_SetResult() {
-	suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
+	_ = suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
 	// Act
 	err := suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
 	assert.NotNil(suite.T(), err)
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetResult() {
-	suite.sut.SetData(suite.counter, 1)
+	_ = suite.sut.SetData(suite.counter, 1)
 	// Act
 	err := suite.sut.SetResult(suite.counter, NewErrorTypeFromString("unknown error"))
 	assert.NotNil(suite.T(), err)
@@ -98,7 +98,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetResult() {
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_GetData() {
 	data := 1
-	suite.sut.SetData(suite.counter, data)
+	_ = suite.sut.SetData(suite.counter, data)
 
 	// Act
 	result, err := suite.sut.GetData(suite.counter)
@@ -110,7 +110,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_GetData() {
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_GetData() {
 	errNo := model.ErrorNumberTypeTimeout
 	errDesc := "Timeout occured"
-	suite.sut.SetResult(suite.counter, NewErrorType(errNo, errDesc))
+	_ = suite.sut.SetResult(suite.counter, NewErrorType(errNo, errDesc))
 
 	// Act
 	result, err := suite.sut.GetData(suite.counter)

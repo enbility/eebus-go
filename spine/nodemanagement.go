@@ -32,7 +32,7 @@ func (r *NodeManagementImpl) Device() *DeviceLocalImpl {
 func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 	if message.Cmd.ResultData != nil {
 		if err := r.processResult(message); err != nil {
-			r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference)
+			_ = r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference)
 		}
 	}
 
