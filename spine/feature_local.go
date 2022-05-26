@@ -58,6 +58,8 @@ type FeatureLocal interface {
 	RequestAndFetchData(
 		function model.FunctionType,
 		destination *FeatureRemoteImpl) (any, *ErrorType)
+	// Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
+	SubscribeAndWait(destination *FeatureRemoteImpl) *ErrorType
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	HandleMessage(message *Message) *ErrorType
 }
@@ -188,6 +190,30 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 	}
 
 	return r.FetchRequestData(*msgCounter, destination)
+}
+
+func (r *FeatureLocalImpl) SubscribeAndWait(destination *FeatureRemoteImpl) *ErrorType {
+	if r.Role() == model.RoleTypeServer {
+		return NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
+	}
+
+	msgCounter, err := destination.Sender().Subscribe(r.Address(), destination.Address(), r.ftype)
+	if err != nil {
+		return NewErrorTypeFromString(err.Error())
+	}
+
+	maxDelay := defaultMaxResponseDelay
+	rf := destination.Device().FeatureByAddress(NodeManagementAddress(destination.Device().Address()))
+	if rf != nil {
+		maxDelay = rf.MaxResponseDelayDuration()
+	}
+
+	r.pendingRequests.Add(*msgCounter, maxDelay)
+	// this will block the go routine until the response is procedded
+	_, result := r.pendingRequests.GetData(*msgCounter)
+	// TODO: activate polling when subscription failed
+
+	return result
 }
 
 func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {

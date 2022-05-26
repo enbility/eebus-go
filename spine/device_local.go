@@ -57,8 +57,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	if payload.EventType == EventTypeDeviceChange && payload.ChangeType == ElementChangeAdd && payload.Data != nil {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
-			// TODO: manage pending acknowledge
-			_ = payload.Feature.Sender().Subscribe(r.nodeManagement.Address(), r.nodeManagement.Address(), model.FeatureTypeTypeNodeManagement)
+			_ = r.nodeManagement.SubscribeAndWait(payload.Feature)
 
 			// Request Use Case Data
 			_, _ = r.nodeManagement.RequestData(model.FunctionTypeNodeManagementUseCaseData, payload.Feature)
