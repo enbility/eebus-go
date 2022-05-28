@@ -157,8 +157,21 @@ func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 	destinationAddress *model.FeatureAddressType,
 	maxDelay time.Duration) (*model.MsgCounterType, *ErrorType) {
 
-	fd := r.functionData(function)
-	cmd := fd.ReadCmdType()
+	var cmd model.CmdType
+	// handle special case where we do not know anything about the remote yet
+	switch function {
+	case model.FunctionTypeNodeManagementDetailedDiscoveryData:
+		cmd = model.CmdType{
+			NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},
+		}
+	case model.FunctionTypeNodeManagementUseCaseData:
+		cmd = model.CmdType{
+			NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{},
+		}
+	default:
+		fd := r.functionData(function)
+		cmd = fd.ReadCmdType()
+	}
 
 	msgCounter, err := sender.Request(model.CmdClassifierTypeRead, r.Address(), destinationAddress, false, []model.CmdType{cmd})
 	if err == nil {
@@ -233,7 +246,11 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 		if *message.Cmd.ResultData.ErrorNumber != model.ErrorNumberTypeNoError {
 			// TODO process the return result data for the message sent with the ID in msgCounterReference
 			// error numbers explained in Resource Spec 3.11
-			fmt.Printf("Error Result received: %s", string(*message.Cmd.ResultData.Description))
+			errorString := fmt.Sprintf("Error Result received %d", *message.Cmd.ResultData.ErrorNumber)
+			if message.Cmd.ResultData.Description != nil {
+				errorString += fmt.Sprintf(": %s", *message.Cmd.ResultData.Description)
+			}
+			fmt.Println(errorString)
 		}
 		return r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
 
@@ -252,9 +269,11 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 	}
 
 	cmd := r.functionData(function).ReplyCmdType()
-	err := featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)
+	if err := featureRemote.Sender().Reply(requestHeader, r.Address(), cmd); err != nil {
+		return NewErrorTypeFromString(err.Error())
+	}
 
-	return NewErrorTypeFromString(err.Error())
+	return nil
 }
 
 func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
