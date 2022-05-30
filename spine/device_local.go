@@ -57,10 +57,12 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	if payload.EventType == EventTypeDeviceChange && payload.ChangeType == ElementChangeAdd && payload.Data != nil {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
-			_ = r.nodeManagement.SubscribeAndWait(payload.Feature)
+			// TODO: manage pending acknowledge
+			rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(payload.Device.Address(), DeviceInformationAddressEntity))
+			_ = r.nodeManagement.SubscribeAndWait(payload.Device, rfAdress)
 
 			// Request Use Case Data
-			_, _ = r.nodeManagement.RequestData(model.FunctionTypeNodeManagementUseCaseData, payload.Feature)
+			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.Address(), payload.Device.Sender())
 		}
 	}
 }
@@ -136,7 +138,12 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	err := localFeature.HandleMessage(message)
 	if err != nil {
 		// TODO: add error description in a useful format
-		_ = remoteFeature.Sender().ResultError(message.RequestHeader, localFeature.Address(), err)
+
+		// Don't send error responses for incoming resulterror messages
+		if message.CmdClassifier != model.CmdClassifierTypeResult {
+			_ = remoteFeature.Sender().ResultError(message.RequestHeader, localFeature.Address(), err)
+		}
+
 		return errors.New(err.String())
 	}
 	if ackRequest != nil && *ackRequest {

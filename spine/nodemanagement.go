@@ -39,13 +39,13 @@ func (r *NodeManagementImpl) Device() *DeviceLocalImpl {
 }
 
 func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
-	if message.Cmd.ResultData != nil {
+	switch {
+	case message.Cmd.ResultData != nil:
 		if err := r.processResult(message); err != nil {
 			_ = r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference)
+			return err
 		}
-	}
 
-	switch {
 	case message.Cmd.NodeManagementDetailedDiscoveryData != nil:
 		if err := r.handleMsgDetailedDiscoveryData(message, message.Cmd.NodeManagementDetailedDiscoveryData); err != nil {
 			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
