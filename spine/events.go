@@ -23,6 +23,8 @@ type EventPayload struct {
 	Ski        string
 	EventType  EventType
 	ChangeType ElementChangeType
+	Device     *DeviceRemoteImpl // required for DetailedDiscovery Call
+	Entity     *EntityRemoteImpl // required for DetailedDiscovery Call and Notify
 	Feature    *FeatureRemoteImpl
 	Data       interface{}
 }

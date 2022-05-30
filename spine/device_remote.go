@@ -154,10 +154,12 @@ func (d *DeviceRemoteImpl) UpdateDevice(description *model.NetworkManagementDevi
 	}
 }
 
-func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.NodeManagementDetailedDiscoveryDataType) error {
+func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.NodeManagementDetailedDiscoveryDataType) ([]*EntityRemoteImpl, error) {
+	rEntites := make([]*EntityRemoteImpl, 0)
+
 	for _, ei := range data.EntityInformation {
 		if err := d.CheckEntityInformation(initialData, ei); err != nil {
-			return err
+			return nil, err
 		}
 
 		entityAddress := ei.Description.EntityAddress.Entity
@@ -165,6 +167,7 @@ func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.No
 		entity := d.Entity(entityAddress)
 		if entity == nil {
 			entity = d.addNewEntity(*ei.Description.EntityType, entityAddress)
+			rEntites = append(rEntites, entity)
 		}
 
 		entity.SetDescription(ei.Description.Description)
@@ -183,7 +186,7 @@ func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.No
 		// }
 	}
 
-	return nil
+	return rEntites, nil
 }
 
 // check if the provided entity information is correct

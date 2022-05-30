@@ -7,11 +7,13 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
+// request detailed discovery data from a remote device
 func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
 	return r.RequestDataBySenderAddress(model.FunctionTypeNodeManagementDetailedDiscoveryData, sender, rfAdress, defaultMaxResponseDelay)
 }
 
+// handle incoming detailed discovery read call
 func (r *NodeManagementImpl) readDetailedDiscoveryData(deviceRemote *DeviceRemoteImpl, requestHeader *model.HeaderType) error {
 	if deviceRemote == nil {
 		return errors.New("nodemanagement.readDetailedDiscoveryData: invalid deviceRemote")
@@ -42,6 +44,7 @@ func (r *NodeManagementImpl) readDetailedDiscoveryData(deviceRemote *DeviceRemot
 	return deviceRemote.Sender().Reply(requestHeader, r.Address(), cmd)
 }
 
+// handle incoming detailed discovery reply data
 func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	remoteDevice := message.DeviceRemote
 
@@ -51,22 +54,37 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 	}
 
 	remoteDevice.UpdateDevice(deviceDescription)
-	if err := remoteDevice.AddEntityAndFeatures(true, data); err != nil {
+	entities, err := remoteDevice.AddEntityAndFeatures(true, data)
+	if err != nil {
 		return err
 	}
 
+	// publish event for remote device added
 	payload := EventPayload{
 		Ski:        remoteDevice.ski,
 		EventType:  EventTypeDeviceChange,
 		ChangeType: ElementChangeAdd,
-		Feature:    message.FeatureRemote,
+		Device:     remoteDevice,
 		Data:       data,
 	}
 	Events.Publish(payload)
 
+	// publish event for each added remote entity
+	for _, entity := range entities {
+		payload := EventPayload{
+			Ski:        remoteDevice.ski,
+			EventType:  EventTypeEntityChange,
+			ChangeType: ElementChangeAdd,
+			Entity:     entity,
+			Data:       data,
+		}
+		Events.Publish(payload)
+	}
+
 	return nil
 }
 
+// handle incoming detailed discovery notify data
 func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	// is this a partial request?
 	if !message.IsPartial {
@@ -171,17 +189,23 @@ func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data 
 
 	// is this addition?
 	if lastStateChange == model.NetworkManagementStateChangeTypeAdded {
-		if err := remoteDevice.AddEntityAndFeatures(false, data); err != nil {
+		entities, err := remoteDevice.AddEntityAndFeatures(false, data)
+		if err != nil {
 			return err
 		}
 
-		// TODO: get entities that have been added
-		// payload := EventPayload{
-		// 	EventType:  EventTypeEntityChange,
-		// 	ChangeType: ElementChangeAdd,
-		// 	Entity:     remoteDevice,
-		// }
-		// Events.Publish(payload)
+		// publish event for each remote entity added
+		for _, entity := range entities {
+			payload := EventPayload{
+				Ski:        remoteDevice.ski,
+				EventType:  EventTypeEntityChange,
+				ChangeType: ElementChangeAdd,
+				Entity:     entity,
+				Feature:    message.FeatureRemote,
+				Data:       data,
+			}
+			Events.Publish(payload)
+		}
 	}
 
 	// removal example:
@@ -272,10 +296,9 @@ func (r *NodeManagementImpl) handleMsgDetailedDiscoveryData(message *Message, da
 
 	case model.CmdClassifierTypeReply:
 		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
-			return r.replyDetailedDiscoveryData(message, data)
-		} else {
-			return errors.New(string(*err.Description))
+			return errors.New(err.String())
 		}
+		return r.replyDetailedDiscoveryData(message, data)
 
 	case model.CmdClassifierTypeNotify:
 		return r.notifyDetailedDiscoveryData(message, data)
