@@ -322,6 +322,10 @@ var connectedServicesRunning bool
 // handle resolved mDNS entries
 func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.ServiceEntry) {
 	for entry := range results {
+		if len(entry.Text) == 0 || len(entry.AddrIPv4) == 0 {
+			continue
+		}
+
 		fmt.Println("Found service: ", entry.ServiceInstanceName())
 
 		var deviceType, ski string
