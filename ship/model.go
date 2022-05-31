@@ -177,5 +177,6 @@ type AccessMethods struct {
 type AccessMethodsType struct {
 	Id        *string    `json:"id"`
 	DnsSdMDns *DnsSdMDns `json:"dnsSd_mDns,omitempty"`
-	Dns       *Dns       `json:"dns,omitempty"`
+	// According to the Spec Dns should be of type *Dns, but the SHM 2.0 only uses a string and would cause a crash
+	Dns *string `json:"dns,omitempty"`
 }
