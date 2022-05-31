@@ -487,6 +487,10 @@ func (h *connectionsHub) registeredServiceForSKI(ski string) (ServiceDetails, er
 // and connect it if it is currently not connected
 func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
 	h.mux.Lock()
+	// standardize the provided SKI strings
+	service.SKI = strings.ReplaceAll(service.SKI, " ", "")
+	service.SKI = strings.ReplaceAll(service.SKI, "-", "")
+	service.SKI = strings.ToLower(service.SKI)
 	h.registeredServices = append(h.registeredServices, service)
 	h.mux.Unlock()
 
