@@ -44,6 +44,7 @@ type FeatureLocal interface {
 	Data(function model.FunctionType) any
 	SetData(function model.FunctionType, data any)
 	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
+	AddFunctionType(function model.FunctionType, read, write bool)
 	RequestData(
 		function model.FunctionType,
 		destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
