@@ -30,6 +30,10 @@ func NewErrorTypeFromString(description string) *ErrorType {
 }
 
 func NewErrorTypeFromResult(result *model.ResultDataType) *ErrorType {
+	if *result.ErrorNumber == model.ErrorNumberTypeNoError {
+		return nil
+	}
+
 	return &ErrorType{
 		ErrorNumber: *result.ErrorNumber,
 		Description: result.Description,
