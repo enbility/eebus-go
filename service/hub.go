@@ -297,6 +297,13 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Incoming connection request from ", ski)
 
+	// Check if the remote service is paired
+	_, err = h.registeredServiceForSKI(ski)
+	if err != nil {
+		fmt.Println("SKI is not registered!")
+		return
+	}
+
 	remoteService := ServiceDetails{
 		SKI: ski,
 	}
