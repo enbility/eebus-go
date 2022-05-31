@@ -28,7 +28,7 @@ type Sender interface {
 	// Sends a reply cmd to response to a read cmd
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
 	// Sends a call cmd with a subscription request
-	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) error
+	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
 	// Sends a notify cmd to indicate that a subscribed feature changed
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
 }
@@ -222,22 +222,16 @@ func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddre
 }
 
 // Send a subscription request to a remote server feature
-func (c *SenderImpl) Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) error {
+func (c *SenderImpl) Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error) {
+
 	cmd := model.CmdType{
 		NodeManagementSubscriptionRequestCall: NewNodeManagementSubscriptionRequestCallType(senderAddress, destinationAddress, serverFeatureType),
 	}
 
 	// we always send it to the remote NodeManagment feature, which always is at entity:[0],feature:0
-	var feature0 model.AddressFeatureType = 0
-	remoteAddress := model.FeatureAddressType{
-		Entity:  []model.AddressEntityType{0},
-		Feature: &feature0,
-		Device:  destinationAddress.Device,
-	}
+	remoteAddress := NodeManagementAddress(destinationAddress.Device)
 
-	_, err := c.Request(model.CmdClassifierTypeCall, senderAddress, &remoteAddress, true, []model.CmdType{cmd})
-
-	return err
+	return c.Request(model.CmdClassifierTypeCall, senderAddress, remoteAddress, true, []model.CmdType{cmd})
 }
 
 func (c *SenderImpl) getMsgCounter() *model.MsgCounterType {

@@ -95,17 +95,26 @@ func (_m *Sender) ResultSuccess(requestHeader *model.HeaderType, senderAddress *
 }
 
 // Subscribe provides a mock function with given fields: senderAddress, destinationAddress, serverFeatureType
-func (_m *Sender) Subscribe(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) error {
+func (_m *Sender) Subscribe(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error) {
 	ret := _m.Called(senderAddress, destinationAddress, serverFeatureType)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.FeatureTypeType) error); ok {
+	var r0 *model.MsgCounterType
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.FeatureTypeType) *model.MsgCounterType); ok {
 		r0 = rf(senderAddress, destinationAddress, serverFeatureType)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.FeatureTypeType) error); ok {
+		r1 = rf(senderAddress, destinationAddress, serverFeatureType)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewSender creates a new instance of Sender. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.

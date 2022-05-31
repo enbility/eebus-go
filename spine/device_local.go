@@ -59,7 +59,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
 			// TODO: manage pending acknowledge
 			rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(payload.Device.Address(), DeviceInformationAddressEntity))
-			_ = payload.Device.Sender().Subscribe(r.nodeManagement.Address(), rfAdress, model.FeatureTypeTypeNodeManagement)
+			_ = r.nodeManagement.SubscribeAndWait(payload.Device, rfAdress)
 
 			// Request Use Case Data
 			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.Address(), payload.Device.Sender())
