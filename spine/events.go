@@ -1,5 +1,7 @@
 package spine
 
+import "sync"
+
 var Events events
 
 type ElementChangeType uint16
@@ -34,14 +36,19 @@ type EventHandler interface {
 }
 
 type events struct {
+	mu       sync.Mutex
 	handlers []EventHandler
 }
 
 func (r *events) Subscribe(handler EventHandler) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	r.handlers = append(r.handlers, handler)
 }
 
-func (r events) Publish(payload EventPayload) {
+func (r *events) Publish(payload EventPayload) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	for _, handler := range r.handlers {
 		go handler.HandleEvent(payload)
 	}
