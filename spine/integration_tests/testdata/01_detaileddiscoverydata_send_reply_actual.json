@@ -16,7 +16,7 @@
                 ],
                 "feature": 0
             },
-            "msgCounter": 1,
+            "msgCounter": 2,
             "msgCounterReference": 1,
             "cmdClassifier": "reply"
         },
@@ -64,22 +64,6 @@
                                     "role": "special",
                                     "supportedFunction": [
                                         {
-                                            "function": "nodeManagementUseCaseData",
-                                            "possibleOperations": {
-                                                "read": {}
-                                            }
-                                        },
-                                        {
-                                            "function": "nodeManagementSubscriptionData",
-                                            "possibleOperations": {
-                                                "read": {}
-                                            }
-                                        },
-                                        {
-                                            "function": "nodeManagementSubscriptionRequestCall",
-                                            "possibleOperations": {}
-                                        },
-                                        {
                                             "function": "nodeManagementSubscriptionDeleteCall",
                                             "possibleOperations": {}
                                         },
@@ -102,6 +86,22 @@
                                             "possibleOperations": {
                                                 "read": {}
                                             }
+                                        },
+                                        {
+                                            "function": "nodeManagementUseCaseData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementSubscriptionData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementSubscriptionRequestCall",
+                                            "possibleOperations": {}
                                         }
                                     ]
                                 }

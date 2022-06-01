@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	detaileddiscoverydata_send_read_file_prefix  = "./testdata/01_detaileddiscoverydata_send_read"
 	detaileddiscoverydata_recv_read_file_path    = "./testdata/01_detaileddiscoverydata_recv_read.json"
 	detaileddiscoverydata_send_reply_file_prefix = "./testdata/01_detaileddiscoverydata_send_reply"
 )
@@ -24,7 +25,6 @@ func TestNodeManagementSuite(t *testing.T) {
 
 type NodeManagementSuite struct {
 	suite.Suite
-	remote *spine.DeviceRemoteImpl
 	sut    *spine.DeviceLocalImpl
 	readC  chan []byte
 	writeC chan []byte
@@ -39,13 +39,25 @@ func (s *NodeManagementSuite) BeforeTest(suiteName, testName string) {
 
 	s.readC = make(chan []byte)
 	s.writeC = make(chan []byte)
-	s.remote = spine.NewDeviceRemoteImpl(s.sut, "", s.readC, s.writeC)
+
+	s.sut.AddRemoteDevice("", s.readC, s.writeC)
 }
 
 func (s *NodeManagementSuite) AfterTest(suiteName, testName string) {
 }
 
-func (s *NodeManagementSuite) TestDetailedDiscovery() {
+func (s *NodeManagementSuite) TestDetailedDiscovery_SendRead() {
+	// Act (see BeforeTest)
+
+	// Assert
+	sendBytes := <-s.writeC
+	checkSentData(s.T(), sendBytes, detaileddiscoverydata_send_read_file_prefix)
+}
+
+func (s *NodeManagementSuite) TestDetailedDiscovery_SendReply() {
+	// irgnore detaileddiscoverydata_send_read
+	<-s.writeC
+
 	// Act
 	s.readC <- loadFileData(s.T(), detaileddiscoverydata_recv_read_file_path)
 
@@ -54,7 +66,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery() {
 	checkSentData(s.T(), sendBytes, detaileddiscoverydata_send_reply_file_prefix)
 }
 
-func (s *NodeManagementSuite) TestDetailedDiscoveryWithAcknowledge() {
+func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {
 	// TODO
 }
 
