@@ -1,0 +1,136 @@
+{
+    "datagram": {
+        "header": {
+            "specificationVersion": "1.1.1",
+            "addressSource": {
+                "device": "TestDeviceAddress",
+                "entity": [
+                    0
+                ],
+                "feature": 0
+            },
+            "addressDestination": {
+                "device": "HEMS",
+                "entity": [
+                    0
+                ],
+                "feature": 0
+            },
+            "msgCounter": 1,
+            "msgCounterReference": 1,
+            "cmdClassifier": "reply"
+        },
+        "payload": {
+            "cmd": [
+                {
+                    "nodeManagementDetailedDiscoveryData": {
+                        "specificationVersionList": {
+                            "specificationVersion": [
+                                "1.1.1"
+                            ]
+                        },
+                        "deviceInformation": {
+                            "description": {
+                                "deviceAddress": {
+                                    "device": "TestDeviceAddress"
+                                },
+                                "deviceType": "ChargingStation"
+                            }
+                        },
+                        "entityInformation": [
+                            {
+                                "description": {
+                                    "entityAddress": {
+                                        "device": "TestDeviceAddress",
+                                        "entity": [
+                                            0
+                                        ]
+                                    },
+                                    "entityType": "DeviceInformation"
+                                }
+                            }
+                        ],
+                        "featureInformation": [
+                            {
+                                "description": {
+                                    "featureAddress": {
+                                        "device": "TestDeviceAddress",
+                                        "entity": [
+                                            0
+                                        ],
+                                        "feature": 0
+                                    },
+                                    "featureType": "NodeManagement",
+                                    "role": "special",
+                                    "supportedFunction": [
+                                        {
+                                            "function": "nodeManagementSubscriptionDeleteCall",
+                                            "possibleOperations": {}
+                                        },
+                                        {
+                                            "function": "nodeManagementBindingData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementBindingRequestCall",
+                                            "possibleOperations": {}
+                                        },
+                                        {
+                                            "function": "nodeManagementBindingDeleteCall",
+                                            "possibleOperations": {}
+                                        },
+                                        {
+                                            "function": "nodeManagementDetailedDiscoveryData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementUseCaseData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementSubscriptionData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementSubscriptionRequestCall",
+                                            "possibleOperations": {}
+                                        }									
+                                    ]
+                                }
+                            },
+                            {
+                                "description": {
+                                    "featureAddress": {
+                                        "device": "TestDeviceAddress",
+                                        "entity": [
+                                            0
+                                        ],
+                                        "feature": 1
+                                    },
+                                    "featureType": "DeviceClassification",
+                                    "role": "server",
+                                    "supportedFunction": [
+                                        {
+                                            "function": "deviceClassificationManufacturerData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
