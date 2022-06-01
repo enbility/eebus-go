@@ -39,6 +39,7 @@ func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, readC <-chan 
 		sender:          sender,
 		heartbeatSender: NewHeartbeatSender(sender),
 	}
+	//res.addNodeManagement()
 	go res.readPump()
 
 	return &res
@@ -81,6 +82,12 @@ func (d *DeviceRemoteImpl) readPump() {
 	}
 }
 
+// func (d *DeviceRemoteImpl) addNodeManagement() {
+// 	deviceInformation := d.addNewEntity(model.EntityTypeTypeDeviceInformation, NewAddressEntityType([]uint{DeviceInformationEntityId}))
+// 	nodeManagement := NewFeatureRemoteImpl(deviceInformation.NextFeatureId(), deviceInformation, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
+// 	deviceInformation.AddFeature(nodeManagement)
+// }
+
 func (d *DeviceRemoteImpl) Sender() Sender {
 	return d.sender
 }
@@ -92,6 +99,10 @@ func (d *DeviceRemoteImpl) Entity(id []model.AddressEntityType) *EntityRemoteImp
 		}
 	}
 	return nil
+}
+
+func (d *DeviceRemoteImpl) Entities() []*EntityRemoteImpl {
+	return d.entities
 }
 
 func (d *DeviceRemoteImpl) FeatureByAddress(address *model.FeatureAddressType) *FeatureRemoteImpl {

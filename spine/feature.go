@@ -45,6 +45,10 @@ func (r *FeatureImpl) Role() model.RoleType {
 	return r.role
 }
 
+func (r *FeatureImpl) Operations() map[model.FunctionType]*Operations {
+	return r.operations
+}
+
 func (r *FeatureImpl) Description() *model.DescriptionType {
 	return r.description
 }

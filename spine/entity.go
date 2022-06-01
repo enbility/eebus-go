@@ -59,13 +59,17 @@ func EntityAddressType(deviceAdress *model.AddressDeviceType, entityAddress []mo
 	}
 }
 
-func NewEntityAddressType(deviceName string, entityIds []int) *model.EntityAddressType {
-	var addressEntity []model.AddressEntityType
-	linq.From(entityIds).SelectT(func(i int) model.AddressEntityType { return model.AddressEntityType(i) }).ToSlice(&addressEntity)
+func NewEntityAddressType(deviceName string, entityIds []uint) *model.EntityAddressType {
 	return &model.EntityAddressType{
 		Device: util.Ptr(model.AddressDeviceType(deviceName)),
-		Entity: addressEntity,
+		Entity: NewAddressEntityType(entityIds),
 	}
+}
+
+func NewAddressEntityType(entityIds []uint) []model.AddressEntityType {
+	var addressEntity []model.AddressEntityType
+	linq.From(entityIds).SelectT(func(i uint) model.AddressEntityType { return model.AddressEntityType(i) }).ToSlice(&addressEntity)
+	return addressEntity
 }
 
 func newFeatureIdGenerator(id uint) func() uint {

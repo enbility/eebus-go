@@ -13,8 +13,8 @@ func TestSender_Notify_MsgCounter(t *testing.T) {
 	writeC := make(chan []byte, 1)
 	sut := NewSender(writeC)
 
-	senderAddress := featureAddressType(1, NewEntityAddressType("Sender", []int{1}))
-	destinationAddress := featureAddressType(2, NewEntityAddressType("destination", []int{1}))
+	senderAddress := featureAddressType(1, NewEntityAddressType("Sender", []uint{1}))
+	destinationAddress := featureAddressType(2, NewEntityAddressType("destination", []uint{1}))
 	cmd := model.CmdType{
 		ResultData: &model.ResultDataType{ErrorNumber: util.Ptr(model.ErrorNumberType(model.ErrorNumberTypeNoError))},
 	}
