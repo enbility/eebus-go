@@ -72,7 +72,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 	fmt.Printf("%s\n", datagram.PrintMessageOverview(true, "", ""))
 
 	// write to channel
-	go func() { c.writeChannel <- msg }()
+	c.writeChannel <- msg
 
 	return nil
 }
