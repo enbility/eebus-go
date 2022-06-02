@@ -39,7 +39,7 @@ func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, readC <-chan 
 		sender:          sender,
 		heartbeatSender: NewHeartbeatSender(sender),
 	}
-	//res.addNodeManagement()
+	res.addNodeManagement()
 	go res.readPump()
 
 	return &res
@@ -82,11 +82,11 @@ func (d *DeviceRemoteImpl) readPump() {
 	}
 }
 
-// func (d *DeviceRemoteImpl) addNodeManagement() {
-// 	deviceInformation := d.addNewEntity(model.EntityTypeTypeDeviceInformation, NewAddressEntityType([]uint{DeviceInformationEntityId}))
-// 	nodeManagement := NewFeatureRemoteImpl(deviceInformation.NextFeatureId(), deviceInformation, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
-// 	deviceInformation.AddFeature(nodeManagement)
-// }
+func (d *DeviceRemoteImpl) addNodeManagement() {
+	deviceInformation := d.addNewEntity(model.EntityTypeTypeDeviceInformation, NewAddressEntityType([]uint{DeviceInformationEntityId}))
+	nodeManagement := NewFeatureRemoteImpl(deviceInformation.NextFeatureId(), deviceInformation, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
+	deviceInformation.AddFeature(nodeManagement)
+}
 
 func (d *DeviceRemoteImpl) Sender() Sender {
 	return d.sender
@@ -182,6 +182,7 @@ func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.No
 		}
 
 		entity.SetDescription(ei.Description.Description)
+		entity.RemoveAllFeatures()
 
 		for _, fi := range data.FeatureInformation {
 			if reflect.DeepEqual(fi.Description.FeatureAddress.Entity, entityAddress) {

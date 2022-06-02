@@ -28,7 +28,7 @@ type EventPayload struct {
 	Device     *DeviceRemoteImpl // required for DetailedDiscovery Call
 	Entity     *EntityRemoteImpl // required for DetailedDiscovery Call and Notify
 	Feature    *FeatureRemoteImpl
-	Data       interface{}
+	Data       any
 }
 
 type EventHandler interface {

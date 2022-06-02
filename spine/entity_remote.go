@@ -37,3 +37,7 @@ func (r *EntityRemoteImpl) Feature(addressFeature *model.AddressFeatureType) *Fe
 	}
 	return nil
 }
+
+func (r *EntityRemoteImpl) RemoveAllFeatures() {
+	r.features = nil
+}
