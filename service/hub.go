@@ -14,8 +14,10 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/godbus/dbus/v5"
 	"github.com/gorilla/websocket"
 	"github.com/grandcat/zeroconf"
+	"github.com/holoplot/go-avahi"
 )
 
 const shipWebsocketSubProtocol = "ship" // SHIP 10.2: sub protocol is required for websocket connections
@@ -42,9 +44,11 @@ type connectionsHub struct {
 	httpServer *http.Server
 
 	// The zeroconf service for mDNS related tasks
-	zc *zeroconf.Server
-
+	zc        *zeroconf.Server
 	zcEntries chan *zeroconf.ServiceEntry
+
+	// The alternative avahi mDNS service
+	avahiServer *avahi.Server
 
 	connectionDelegate ConnectionHandlerDelegate
 
@@ -81,7 +85,9 @@ func (h *connectionsHub) start() {
 	}
 
 	// handle found mDNS entries
-	go h.handleMdnsBrowseEntries(h.zcEntries)
+	if h.zc != nil {
+		go h.handleMdnsBrowseEntries(h.zcEntries)
+	}
 
 	// Automatically search and connect to services with the same setting
 	if h.serviceDescription.RegisterAutoAccept {
@@ -176,29 +182,83 @@ func (h *connectionsHub) mdnsRegister() error {
 		serviceIdentifier = h.serviceDescription.Identifier
 	}
 
-	mDNSServer, err := zeroconf.Register(
-		serviceIdentifier,
-		shipZeroConfServiceType,
-		shipZeroConfDomain,
-		h.serviceDescription.Port,
-		[]string{ // SHIP 7.3.2
-			"txtvers=1",
-			"path=" + shipWebsocketPath,
-			"id=" + serviceIdentifier,
-			"ski=" + h.localService.SKI,
-			"brand=" + h.serviceDescription.Brand,
-			"model=" + h.serviceDescription.Model,
-			"type=" + string(h.serviceDescription.DeviceType),
-			"register=" + fmt.Sprintf("%v", h.serviceDescription.RegisterAutoAccept),
-		},
-		ifaces,
-	)
-
-	if err != nil {
-		return fmt.Errorf("mDNS: registration failed: %w", err)
+	txt := []string{ // SHIP 7.3.2
+		"txtvers=1",
+		"path=" + shipWebsocketPath,
+		"id=" + serviceIdentifier,
+		"ski=" + h.localService.SKI,
+		"brand=" + h.serviceDescription.Brand,
+		"model=" + h.serviceDescription.Model,
+		"type=" + string(h.serviceDescription.DeviceType),
+		"register=" + fmt.Sprintf("%v", h.serviceDescription.RegisterAutoAccept),
 	}
 
-	h.zc = mDNSServer
+	// try using avahi for mDNS
+	if err := h.avahiSetup(serviceIdentifier, txt); err != nil {
+		fmt.Println("mDNS: using zeroconf")
+
+		// fallback to zeroconf
+		mDNSServer, err := zeroconf.Register(
+			serviceIdentifier,
+			shipZeroConfServiceType,
+			shipZeroConfDomain,
+			h.serviceDescription.Port,
+			txt,
+			ifaces,
+		)
+
+		if err != nil {
+			return fmt.Errorf("mDNS: registration failed: %w", err)
+		}
+
+		h.zc = mDNSServer
+
+		return nil
+	}
+
+	fmt.Println("mDNS: using avahi")
+
+	return nil
+}
+
+// try to setup avahi for mDNS
+func (h *connectionsHub) avahiSetup(instance string, txt []string) error {
+	dbusConn, err := dbus.SystemBus()
+	if err != nil {
+		return err
+	}
+
+	avahiServer, err := avahi.ServerNew(dbusConn)
+	if err != nil {
+		return err
+	}
+
+	entryGroup, err := avahiServer.EntryGroupNew()
+	if err != nil {
+		return err
+	}
+
+	// fqdn, err := avahiServer.GetHostNameFqdn()
+	// if err != nil {
+	// 	return err
+	// }
+
+	var btxt [][]byte
+	for _, t := range txt {
+		btxt = append(btxt, []byte(t))
+	}
+
+	err = entryGroup.AddService(avahi.InterfaceUnspec, avahi.ProtoUnspec, 0, instance, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(h.serviceDescription.Port), btxt)
+	if err != nil {
+		return err
+	}
+
+	err = entryGroup.Commit()
+	if err != nil {
+		return err
+	}
+
+	h.avahiServer = avahiServer
 
 	return nil
 }
@@ -209,6 +269,9 @@ func (h *connectionsHub) mdnsRegister() error {
 func (h *connectionsHub) mdnsShutdown() {
 	if h.zc != nil {
 		h.zc.Shutdown()
+	}
+	if h.avahiServer != nil {
+		h.avahiServer.Close()
 	}
 }
 
@@ -329,7 +392,7 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 		fmt.Println("Found service: ", entry.ServiceInstanceName())
 
 		var deviceType, ski string
-		var registerAuto bool
+		var register bool
 
 		for _, element := range entry.Text {
 			if strings.HasPrefix(element, "type=") {
@@ -341,11 +404,11 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 			}
 
 			if strings.HasPrefix(element, "register=") {
-				registerAuto = (strings.Split(element, "=")[1] == "true")
+				register = (strings.Split(element, "=")[1] == "true")
 			}
 		}
 
-		fmt.Println("SKI: ", ski, " DeviceType: ", deviceType, " RegisterAuto: ", registerAuto)
+		fmt.Println("SKI: ", ski, " DeviceType: ", deviceType, " RegisterAuto: ", register)
 
 		if len(ski) == 0 || len(deviceType) == 0 {
 			continue
@@ -356,37 +419,46 @@ func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.Servic
 			continue
 		}
 
-		// If local and remote registration are set to auto acceppt, we can connect to the remote service
-		if h.serviceDescription.RegisterAutoAccept && registerAuto {
-			remoteService := ServiceDetails{
-				SKI:                ski,
-				registerAutoAccept: true,
-				deviceType:         model.DeviceTypeType(deviceType),
-			}
-			if !h.isSkiConnected(ski) {
-				_ = h.connectFoundService(remoteService, entry.HostName, strconv.Itoa(int(entry.Port)))
-			}
-		} else {
-			// Check if the remote service is paired
-			registeredService, err := h.registeredServiceForSKI(ski)
-			if err == nil && !h.isSkiConnected(ski) {
-				_ = h.connectFoundService(registeredService, entry.HostName, strconv.Itoa(int(entry.Port)))
-			}
-		}
-
-		registeredServiceMissing := false
-		for _, service := range h.registeredServices {
-			if !h.isSkiConnected(service.SKI) {
-				registeredServiceMissing = true
-				break
-			}
-		}
-		if !registeredServiceMissing && !h.serviceDescription.RegisterAutoAccept {
-			fmt.Println("Exit discovery")
+		if finished := h.processMdnsEntry(ski, deviceType, entry.HostName, entry.Port, register); finished {
 			return
 		}
-
 	}
+}
+
+// process an mDNS entry found via avahi or zeroconf
+// returns true if no registered entries are missing
+func (h *connectionsHub) processMdnsEntry(ski, deviceType, host string, port int, register bool) bool {
+	// If local and remote registration are set to auto acceppt, we can connect to the remote service
+	if h.serviceDescription.RegisterAutoAccept && register {
+		remoteService := ServiceDetails{
+			SKI:                ski,
+			registerAutoAccept: true,
+			deviceType:         model.DeviceTypeType(deviceType),
+		}
+		if !h.isSkiConnected(ski) {
+			_ = h.connectFoundService(remoteService, host, strconv.Itoa(port))
+		}
+	} else {
+		// Check if the remote service is paired
+		registeredService, err := h.registeredServiceForSKI(ski)
+		if err == nil && !h.isSkiConnected(ski) {
+			_ = h.connectFoundService(registeredService, host, strconv.Itoa(port))
+		}
+	}
+
+	registeredServiceMissing := false
+	for _, service := range h.registeredServices {
+		if !h.isSkiConnected(service.SKI) {
+			registeredServiceMissing = true
+			break
+		}
+	}
+	if !registeredServiceMissing && !h.serviceDescription.RegisterAutoAccept {
+		fmt.Println("Exit discovery")
+		return true
+	}
+
+	return false
 }
 
 // Searches via mDNS for registered SHIP services that are not yet connected
@@ -405,13 +477,65 @@ func (h *connectionsHub) connectRemoteServices() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	resolver, err := zeroconf.NewResolver(nil)
-	if err != nil {
-		return err
-	}
+	if h.avahiServer != nil {
+		sb, err := h.avahiServer.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0)
+		if err != nil {
+			fmt.Printf("mDNS: ServiceBrowserNew() failed: %v\n", err)
+			return err
+		}
 
-	if err = resolver.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, h.zcEntries); err != nil {
-		return err
+		var service avahi.Service
+
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					h.avahiServer.ServiceBrowserFree(sb)
+				case service = <-sb.AddChannel:
+					fmt.Println("mDNS: ServiceBrowser ADD: ", service)
+
+					service, err := h.avahiServer.ResolveService(service.Interface, service.Protocol, service.Name,
+						service.Type, service.Domain, avahi.ProtoUnspec, 0)
+					if err == nil {
+						fmt.Println("mDNS:  RESOLVED >>", service.Address)
+
+						var deviceType, ski string
+						var register bool
+
+						for _, item := range service.Txt {
+							element := string(item)
+							if strings.HasPrefix(element, "type=") {
+								deviceType = strings.Split(element, "=")[1]
+							}
+
+							if strings.HasPrefix(element, "ski=") {
+								ski = strings.Split(element, "=")[1]
+							}
+
+							if strings.HasPrefix(element, "register=") {
+								register = (strings.Split(element, "=")[1] == "true")
+							}
+						}
+
+						if finished := h.processMdnsEntry(ski, deviceType, service.Address, int(service.Port), register); finished {
+							<-ctx.Done()
+							return
+						}
+					}
+				case service = <-sb.RemoveChannel:
+					fmt.Println("mDNS: ServiceBrowser REMOVE: ", service)
+				}
+			}
+		}()
+	} else {
+		resolver, err := zeroconf.NewResolver(nil)
+		if err != nil {
+			return err
+		}
+
+		if err = resolver.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, h.zcEntries); err != nil {
+			return err
+		}
 	}
 
 	<-ctx.Done()
