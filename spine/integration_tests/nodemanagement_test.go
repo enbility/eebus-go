@@ -14,10 +14,12 @@ import (
 )
 
 const (
-	detaileddiscoverydata_send_read_file_prefix  = "./testdata/01_detaileddiscoverydata_send_read"
-	detaileddiscoverydata_recv_reply_file_path   = "./testdata/01_detaileddiscoverydata_recv_reply.json"
-	detaileddiscoverydata_recv_read_file_path    = "./testdata/01_detaileddiscoverydata_recv_read.json"
-	detaileddiscoverydata_send_reply_file_prefix = "./testdata/01_detaileddiscoverydata_send_reply"
+	detaileddiscoverydata_send_read_file_prefix   = "./testdata/01_detaileddiscoverydata_send_read"
+	detaileddiscoverydata_recv_reply_file_path    = "./testdata/01_detaileddiscoverydata_recv_reply.json"
+	detaileddiscoverydata_recv_read_file_path     = "./testdata/01_detaileddiscoverydata_recv_read.json"
+	detaileddiscoverydata_send_reply_file_prefix  = "./testdata/01_detaileddiscoverydata_send_reply"
+	detaileddiscoverydata_recv_read_ack_file_path = "./testdata/01_detaileddiscoverydata_recv_read_ack.json"
+	detaileddiscoverydata_send_result_file_prefix = "./testdata/01_detaileddiscoverydata_send_result"
 )
 
 func TestNodeManagementSuite(t *testing.T) {
@@ -125,7 +127,17 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {
-	// TODO
+	// irgnore detaileddiscoverydata_send_read
+	<-s.writeC
+
+	// Act
+	s.readC <- loadFileData(s.T(), detaileddiscoverydata_recv_read_ack_file_path)
+
+	// Assert
+	sentReply := <-s.writeC
+	checkSentData(s.T(), sentReply, detaileddiscoverydata_send_reply_file_prefix)
+	sentResult := <-s.writeC
+	checkSentData(s.T(), sentResult, detaileddiscoverydata_send_result_file_prefix)
 }
 
 func loadFileData(t *testing.T, fileName string) []byte {

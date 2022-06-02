@@ -49,7 +49,7 @@ type FeatureLocal interface {
 		function model.FunctionType,
 		destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	RequestDataBySenderAddress(
-		function model.FunctionType,
+		cmd model.CmdType,
 		sender Sender,
 		destinationAddress *model.FeatureAddressType,
 		maxDelay time.Duration) (*model.MsgCounterType, *ErrorType)
@@ -151,30 +151,17 @@ func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryF
 func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
 	destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
-	return r.RequestDataBySenderAddress(function, destination.Sender(), destination.Address(), destination.MaxResponseDelayDuration())
+	fd := r.functionData(function)
+	cmd := fd.ReadCmdType()
+
+	return r.RequestDataBySenderAddress(cmd, destination.Sender(), destination.Address(), destination.MaxResponseDelayDuration())
 }
 
 func (r *FeatureLocalImpl) RequestDataBySenderAddress(
-	function model.FunctionType,
+	cmd model.CmdType,
 	sender Sender,
 	destinationAddress *model.FeatureAddressType,
 	maxDelay time.Duration) (*model.MsgCounterType, *ErrorType) {
-
-	var cmd model.CmdType
-	// handle special case where we do not know anything about the remote yet
-	switch function {
-	case model.FunctionTypeNodeManagementDetailedDiscoveryData:
-		cmd = model.CmdType{
-			NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},
-		}
-	case model.FunctionTypeNodeManagementUseCaseData:
-		cmd = model.CmdType{
-			NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{},
-		}
-	default:
-		fd := r.functionData(function)
-		cmd = fd.ReadCmdType()
-	}
 
 	msgCounter, err := sender.Request(model.CmdClassifierTypeRead, r.Address(), destinationAddress, false, []model.CmdType{cmd})
 	if err == nil {

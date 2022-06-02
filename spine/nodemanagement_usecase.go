@@ -9,7 +9,10 @@ import (
 
 func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
-	return r.RequestDataBySenderAddress(model.FunctionTypeNodeManagementUseCaseData, sender, rfAdress, defaultMaxResponseDelay)
+	cmd := model.CmdType{
+		NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{},
+	}
+	return r.RequestDataBySenderAddress(cmd, sender, rfAdress, defaultMaxResponseDelay)
 }
 
 func (r *NodeManagementImpl) readUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {

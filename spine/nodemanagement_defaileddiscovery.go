@@ -10,7 +10,10 @@ import (
 // request detailed discovery data from a remote device
 func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
-	return r.RequestDataBySenderAddress(model.FunctionTypeNodeManagementDetailedDiscoveryData, sender, rfAdress, defaultMaxResponseDelay)
+	cmd := model.CmdType{
+		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},
+	}
+	return r.RequestDataBySenderAddress(cmd, sender, rfAdress, defaultMaxResponseDelay)
 }
 
 // handle incoming detailed discovery read call
@@ -65,6 +68,7 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 		EventType:  EventTypeDeviceChange,
 		ChangeType: ElementChangeAdd,
 		Device:     remoteDevice,
+		Feature:    message.FeatureRemote,
 		Data:       data,
 	}
 	Events.Publish(payload)
