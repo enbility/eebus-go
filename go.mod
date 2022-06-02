@@ -20,6 +20,7 @@ require (
 
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
+	github.com/godbus/dbus/v5 v5.0.4
 	github.com/gorilla/websocket v1.5.0
 	github.com/grandcat/zeroconf v0.0.0-20210929195321-a393c0e41e54
 	github.com/holoplot/go-avahi v1.0.0
