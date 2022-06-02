@@ -40,8 +40,8 @@ func (s *NodeManagementSuite) BeforeTest(suiteName, testName string) {
 		"TestSerialNumber", "TestDeviceAddress", model.DeviceTypeTypeChargingStation)
 	s.remoteSki = "TestRemoteSki"
 
-	s.readC = make(chan []byte)
-	s.writeC = make(chan []byte)
+	s.readC = make(chan []byte, 1)
+	s.writeC = make(chan []byte, 1)
 
 	s.sut.AddRemoteDevice(s.remoteSki, s.readC, s.writeC)
 }
