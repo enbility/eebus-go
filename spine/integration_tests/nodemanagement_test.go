@@ -155,9 +155,12 @@ func checkSentData(t *testing.T, sendBytes []byte, msgSendFilePrefix string) {
 		t.Fatal(err)
 	}
 
-	saveJsonToFile(t, sendBytes, msgSendFilePrefix+"_actual.json")
+	msgSendActualFileName := msgSendFilePrefix + "_actual.json"
 	equal := jsonDatagramEqual(t, msgSendExpectedBytes, sendBytes)
-	assert.True(t, equal, "Assert equal failed for "+msgSendFilePrefix)
+	if !equal {
+		saveJsonToFile(t, sendBytes, msgSendActualFileName)
+	}
+	assert.Truef(t, equal, "Assert equal failed! Check '%s' ", msgSendActualFileName)
 }
 
 func jsonDatagramEqual(t *testing.T, expectedJson, actualJson []byte) bool {
