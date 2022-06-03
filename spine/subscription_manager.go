@@ -115,7 +115,7 @@ func (c *SubscriptionManagerImpl) Subscriptions(remoteDevice *DeviceRemoteImpl) 
 	var result []*SubscriptionEntry
 
 	linq.From(c.subscriptionEntries).WhereT(func(s *SubscriptionEntry) bool {
-		return *s.clientFeature.Device().Address() == *remoteDevice.Address()
+		return s.clientFeature.Device().Ski() == remoteDevice.Ski()
 	}).ToSlice(&result)
 
 	return result

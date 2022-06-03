@@ -14,12 +14,14 @@ import (
 )
 
 const (
-	detaileddiscoverydata_send_read_file_prefix   = "./testdata/01_detaileddiscoverydata_send_read"
-	detaileddiscoverydata_recv_reply_file_path    = "./testdata/01_detaileddiscoverydata_recv_reply.json"
-	detaileddiscoverydata_recv_read_file_path     = "./testdata/01_detaileddiscoverydata_recv_read.json"
-	detaileddiscoverydata_send_reply_file_prefix  = "./testdata/01_detaileddiscoverydata_send_reply"
-	detaileddiscoverydata_recv_read_ack_file_path = "./testdata/01_detaileddiscoverydata_recv_read_ack.json"
-	detaileddiscoverydata_send_result_file_prefix = "./testdata/01_detaileddiscoverydata_send_result"
+	detaileddiscoverydata_send_read_file_prefix     = "./testdata/01_detaileddiscoverydata_send_read"
+	detaileddiscoverydata_recv_reply_file_path      = "./testdata/01_detaileddiscoverydata_recv_reply.json"
+	detaileddiscoverydata_recv_read_file_path       = "./testdata/01_detaileddiscoverydata_recv_read.json"
+	detaileddiscoverydata_send_reply_file_prefix    = "./testdata/01_detaileddiscoverydata_send_reply"
+	detaileddiscoverydata_recv_read_ack_file_path   = "./testdata/01_detaileddiscoverydata_recv_read_ack.json"
+	detaileddiscoverydata_send_result_file_prefix   = "./testdata/01_detaileddiscoverydata_send_result"
+	subscriptionRequestCall_recv_call_file_path     = "./testdata/02_subscriptionRequestCall_recv_call.json"
+	subscriptionRequestCall_send_result_file_prefix = "./testdata/02_subscriptionRequestCall_send_result"
 )
 
 func TestNodeManagementSuite(t *testing.T) {
@@ -138,6 +140,24 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {
 	checkSentData(s.T(), sentReply, detaileddiscoverydata_send_reply_file_prefix)
 	sentResult := <-s.writeC
 	checkSentData(s.T(), sentResult, detaileddiscoverydata_send_result_file_prefix)
+}
+
+func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscovery() {
+	// irgnore detaileddiscoverydata_send_read
+	<-s.writeC
+
+	// Act
+	s.readC <- loadFileData(s.T(), subscriptionRequestCall_recv_call_file_path)
+
+	// Assert
+	sentResult := <-s.writeC
+	checkSentData(s.T(), sentResult, subscriptionRequestCall_send_result_file_prefix)
+
+	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
+	subscriptionsForDevice := s.sut.SubscriptionManager().Subscriptions(remoteDevice)
+	assert.Equal(s.T(), 1, len(subscriptionsForDevice))
+	subscriptionsOnFeature := s.sut.SubscriptionManager().SubscriptionsOnFeature(*spine.NodeManagementAddress(s.sut.Address()))
+	assert.Equal(s.T(), 1, len(subscriptionsOnFeature))
 }
 
 func loadFileData(t *testing.T, fileName string) []byte {
