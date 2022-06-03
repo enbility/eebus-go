@@ -161,20 +161,38 @@ func (h *connectionsHub) isSkiConnected(ski string) bool {
 
 // mDNS handling
 
+func (h *connectionsHub) mdnsInterfaces() ([]net.Interface, []int32, error) {
+	var ifaces []net.Interface
+	var ifaceIndexes []int32
+
+	if len(h.serviceDescription.Interfaces) > 0 {
+		ifaces = make([]net.Interface, len(h.serviceDescription.Interfaces))
+		ifaceIndexes = make([]int32, len(h.serviceDescription.Interfaces))
+		for i, ifaceName := range h.serviceDescription.Interfaces {
+			iface, err := net.InterfaceByName(ifaceName)
+			if err != nil {
+				return nil, nil, err
+			}
+			ifaces[i] = *iface
+			ifaceIndexes[i] = int32(iface.Index)
+		}
+	}
+
+	if len(ifaces) == 0 {
+		ifaces = nil
+		ifaceIndexes = []int32{avahi.InterfaceUnspec}
+	}
+
+	return ifaces, ifaceIndexes, nil
+}
+
 // Announces the service to the network via mDNS
 // A CEM service should always invoke this on startup
 // Any other service should only invoke this when it is not connected to a CEM service and on startup
 func (h *connectionsHub) mdnsRegister() error {
-	var ifaces []net.Interface = nil
-	if len(h.serviceDescription.Interfaces) > 0 {
-		ifaces = make([]net.Interface, len(h.serviceDescription.Interfaces))
-		for i, iface := range h.serviceDescription.Interfaces {
-			ifaceInt, err := net.InterfaceByName(iface)
-			if err != nil {
-				return err
-			}
-			ifaces[i] = *ifaceInt
-		}
+	ifaces, ifaceIndexes, err := h.mdnsInterfaces()
+	if err != nil {
+		return err
 	}
 
 	serviceIdentifier := fmt.Sprintf("%s-%s-%s", h.serviceDescription.Brand, h.serviceDescription.Model, h.serviceDescription.SerialNumber)
@@ -194,7 +212,7 @@ func (h *connectionsHub) mdnsRegister() error {
 	}
 
 	// try using avahi for mDNS
-	if err := h.avahiSetup(serviceIdentifier, txt); err != nil {
+	if err := h.avahiSetup(serviceIdentifier, txt, ifaceIndexes); err != nil {
 		fmt.Println("mDNS: using zeroconf")
 
 		// fallback to zeroconf
@@ -222,7 +240,7 @@ func (h *connectionsHub) mdnsRegister() error {
 }
 
 // try to setup avahi for mDNS
-func (h *connectionsHub) avahiSetup(instance string, txt []string) error {
+func (h *connectionsHub) avahiSetup(instance string, txt []string, ifaces []int32) error {
 	dbusConn, err := dbus.SystemBus()
 	if err != nil {
 		return err
@@ -248,9 +266,11 @@ func (h *connectionsHub) avahiSetup(instance string, txt []string) error {
 		btxt = append(btxt, []byte(t))
 	}
 
-	err = entryGroup.AddService(avahi.InterfaceUnspec, avahi.ProtoUnspec, 0, instance, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(h.serviceDescription.Port), btxt)
-	if err != nil {
-		return err
+	for _, iface := range ifaces {
+		err = entryGroup.AddService(iface, avahi.ProtoUnspec, 0, instance, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(h.serviceDescription.Port), btxt)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = entryGroup.Commit()
@@ -478,55 +498,63 @@ func (h *connectionsHub) connectRemoteServices() error {
 	defer cancel()
 
 	if h.avahiServer != nil {
-		sb, err := h.avahiServer.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0)
+		_, ifaces, err := h.mdnsInterfaces()
 		if err != nil {
-			fmt.Printf("mDNS: ServiceBrowserNew() failed: %v\n", err)
+			fmt.Printf("mDNS: Problem getting network interfaces: %s\n", err)
 			return err
 		}
-
-		var service avahi.Service
-
-		go func() {
-			for {
-				select {
-				case <-ctx.Done():
-					h.avahiServer.ServiceBrowserFree(sb)
-				case service = <-sb.AddChannel:
-					fmt.Println("mDNS: ServiceBrowser ADD: ", service)
-
-					service, err := h.avahiServer.ResolveService(service.Interface, service.Protocol, service.Name,
-						service.Type, service.Domain, avahi.ProtoUnspec, 0)
-					if err == nil {
-						fmt.Println("mDNS:  RESOLVED >>", service.Address)
-
-						var deviceType, ski string
-						var register bool
-
-						for _, item := range service.Txt {
-							element := string(item)
-							if strings.HasPrefix(element, "type=") {
-								deviceType = strings.Split(element, "=")[1]
-							}
-
-							if strings.HasPrefix(element, "ski=") {
-								ski = strings.Split(element, "=")[1]
-							}
-
-							if strings.HasPrefix(element, "register=") {
-								register = (strings.Split(element, "=")[1] == "true")
-							}
-						}
-
-						if finished := h.processMdnsEntry(ski, deviceType, service.Address, int(service.Port), register); finished {
-							<-ctx.Done()
-							return
-						}
-					}
-				case service = <-sb.RemoveChannel:
-					fmt.Println("mDNS: ServiceBrowser REMOVE: ", service)
-				}
+		for _, iface := range ifaces {
+			sb, err := h.avahiServer.ServiceBrowserNew(iface, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0)
+			if err != nil {
+				fmt.Printf("mDNS: ServiceBrowserNew() failed: %v\n", err)
+				return err
 			}
-		}()
+
+			var service avahi.Service
+
+			// TODO: this needs to be simplified and cleaned up
+			go func() {
+				for {
+					select {
+					case <-ctx.Done():
+						h.avahiServer.ServiceBrowserFree(sb)
+					case service = <-sb.AddChannel:
+						fmt.Println("mDNS: New entry found: ", service)
+
+						service, err := h.avahiServer.ResolveService(service.Interface, service.Protocol, service.Name,
+							service.Type, service.Domain, avahi.ProtoUnspec, 0)
+						if err == nil {
+							fmt.Println("mDNS:  RESOLVED >>", service.Address)
+
+							var deviceType, ski string
+							var register bool
+
+							for _, item := range service.Txt {
+								element := string(item)
+								if strings.HasPrefix(element, "type=") {
+									deviceType = strings.Split(element, "=")[1]
+								}
+
+								if strings.HasPrefix(element, "ski=") {
+									ski = strings.Split(element, "=")[1]
+								}
+
+								if strings.HasPrefix(element, "register=") {
+									register = (strings.Split(element, "=")[1] == "true")
+								}
+							}
+
+							if finished := h.processMdnsEntry(ski, deviceType, service.Address, int(service.Port), register); finished {
+								<-ctx.Done()
+								return
+							}
+						}
+					case service = <-sb.RemoveChannel:
+						fmt.Println("mDNS: Entry removed: ", service)
+					}
+				}
+			}()
+		}
 	} else {
 		resolver, err := zeroconf.NewResolver(nil)
 		if err != nil {
