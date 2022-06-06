@@ -12,8 +12,6 @@ import (
 )
 
 type ComControl interface {
-	//Read() (*model.CmiDatagramType, error)
-
 	// This must be connected to the correct remote device !!
 	SendSpineMessage(datagram model.DatagramType) error
 }
