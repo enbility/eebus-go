@@ -12,8 +12,6 @@ import (
 )
 
 type ComControl interface {
-	//Read() (*model.CmiDatagramType, error)
-
 	// This must be connected to the correct remote device !!
 	SendSpineMessage(datagram model.DatagramType) error
 }
@@ -151,12 +149,6 @@ func (c *SenderImpl) result(requestHeader *model.HeaderType, senderAddress *mode
 
 // Reply sends reply to original sender
 func (c *SenderImpl) Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error {
-	// TODO where ack handling?
-
-	// if ackRequest {
-	// 	_ = c.sendAcknowledgementMessage(nil, featureSource, featureDestination, msgCounterReference)
-	// }
-
 	cmdClassifier := model.CmdClassifierTypeReply
 
 	addressSource := *requestHeader.AddressDestination
