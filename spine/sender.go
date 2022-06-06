@@ -32,9 +32,7 @@ type Sender interface {
 }
 
 type SenderImpl struct {
-	msgNum uint64 // 64bit values need to be defined on top of the struct to make atomic commands work on 32bit systems
-	//log        util.Logger
-
+	msgNum       uint64 // 64bit values need to be defined on top of the struct to make atomic commands work on 32bit systems
 	writeChannel chan<- []byte
 }
 
@@ -42,7 +40,6 @@ var _ Sender = (*SenderImpl)(nil)
 
 func NewSender(writeC chan<- []byte) Sender {
 	return &SenderImpl{
-		//log:        log,
 		writeChannel: writeC,
 	}
 }
