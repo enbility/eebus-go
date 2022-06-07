@@ -3,7 +3,6 @@ module github.com/DerAndereAndi/eebus-go
 go 1.18
 
 require (
-	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.5.8
 	github.com/miekg/dns v1.1.49 // indirect
@@ -20,10 +19,8 @@ require (
 
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
-	github.com/godbus/dbus/v5 v5.0.4
 	github.com/gorilla/websocket v1.5.0
-	github.com/grandcat/zeroconf v0.0.0-20210929195321-a393c0e41e54
-	github.com/holoplot/go-avahi v1.0.0
+	github.com/libp2p/zeroconf/v2 v2.1.1
 	github.com/rickb777/date v1.19.1
 	github.com/stretchr/testify v1.7.1
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
