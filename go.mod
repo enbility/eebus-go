@@ -20,8 +20,10 @@ require (
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/libp2p/zeroconf/v2 v2.1.1
+	github.com/libp2p/zeroconf/v2 v2.0.0-00010101000000-000000000000
 	github.com/rickb777/date v1.19.1
 	github.com/stretchr/testify v1.7.1
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
 )
+
+replace github.com/libp2p/zeroconf/v2 => github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20220607195515-4c9557651bc9
