@@ -35,6 +35,8 @@ func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, device
 		serialNumber:        serialNumber,
 	}
 
+	// pass in featureSet as an argument ??
+	res.featureSet = util.Ptr(model.NetworkManagementFeatureSetTypeSmart)
 	res.addDeviceInformation()
 	return res
 }
@@ -214,9 +216,8 @@ func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDe
 			DeviceAddress: &model.DeviceAddressType{
 				Device: r.address,
 			},
-			DeviceType: r.dType,
-			// TODO NetworkFeatureSet
-			// NetworkFeatureSet: &smart,
+			DeviceType:        r.dType,
+			NetworkFeatureSet: r.featureSet,
 		},
 	}
 	return &res
@@ -273,7 +274,9 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingData, true, false)
 		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingRequestCall, false, false)
 		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingDeleteCall, false, false)
-
+		if r.featureSet != nil && *r.featureSet != model.NetworkManagementFeatureSetTypeSimple {
+			r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementDestinationListData, true, false)
+		}
 		entity.AddFeature(r.nodeManagement)
 	}
 	{

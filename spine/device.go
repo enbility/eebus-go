@@ -5,6 +5,7 @@ import "github.com/DerAndereAndi/eebus-go/spine/model"
 type DeviceImpl struct {
 	address        *model.AddressDeviceType
 	dType          *model.DeviceTypeType
+	featureSet     *model.NetworkManagementFeatureSetType
 	useCaseManager *UseCaseManager
 }
 
@@ -37,4 +38,20 @@ func (r *DeviceImpl) UseCaseManager() *UseCaseManager {
 
 func (r *DeviceImpl) DeviceType() *model.DeviceTypeType {
 	return r.dType
+}
+
+func (r *DeviceImpl) FeatureSet() *model.NetworkManagementFeatureSetType {
+	return r.featureSet
+}
+
+func (r *DeviceImpl) DestinationData() model.NodeManagementDestinationDataType {
+	return model.NodeManagementDestinationDataType{
+		DeviceDescription: &model.NetworkManagementDeviceDescriptionDataType{
+			DeviceAddress: &model.DeviceAddressType{
+				Device: r.Address(),
+			},
+			DeviceType:        r.DeviceType(),
+			NetworkFeatureSet: r.FeatureSet(),
+		},
+	}
 }

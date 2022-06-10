@@ -162,6 +162,9 @@ func (d *DeviceRemoteImpl) UpdateDevice(description *model.NetworkManagementDevi
 		if description.DeviceType != nil {
 			d.dType = description.DeviceType
 		}
+		if description.NetworkFeatureSet != nil {
+			d.featureSet = description.NetworkFeatureSet
+		}
 	}
 }
 

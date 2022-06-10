@@ -22,6 +22,8 @@ const (
 	detaileddiscoverydata_send_result_file_prefix   = "./testdata/01_detaileddiscoverydata_send_result"
 	subscriptionRequestCall_recv_call_file_path     = "./testdata/02_subscriptionRequestCall_recv_call.json"
 	subscriptionRequestCall_send_result_file_prefix = "./testdata/02_subscriptionRequestCall_send_result"
+	destinationListData_recv_read_file_path         = "./testdata/02_destinationListData_recv_read.json"
+	destinationListData_send_reply_file_prefix      = "./testdata/02_destinationListData_send_reply"
 )
 
 func TestNodeManagementSuite(t *testing.T) {
@@ -85,6 +87,8 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
 	assert.NotNil(s.T(), remoteDevice)
+	assert.Equal(s.T(), model.DeviceTypeTypeEnergyManagementSystem, *remoteDevice.DeviceType())
+	assert.Equal(s.T(), model.NetworkManagementFeatureSetTypeSmart, *remoteDevice.FeatureSet())
 
 	rEntities := remoteDevice.Entities()
 	assert.Equal(s.T(), 2, len(rEntities))
@@ -158,6 +162,18 @@ func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscover
 	assert.Equal(s.T(), 1, len(subscriptionsForDevice))
 	subscriptionsOnFeature := s.sut.SubscriptionManager().SubscriptionsOnFeature(*spine.NodeManagementAddress(s.sut.Address()))
 	assert.Equal(s.T(), 1, len(subscriptionsOnFeature))
+}
+
+func (s *NodeManagementSuite) TestDestinationList_SendReply() {
+	// irgnore detaileddiscoverydata_send_read
+	<-s.writeC
+
+	// Act
+	s.readC <- loadFileData(s.T(), destinationListData_recv_read_file_path)
+
+	// Assert
+	sendBytes := <-s.writeC
+	checkSentData(s.T(), sendBytes, destinationListData_send_reply_file_prefix)
 }
 
 func loadFileData(t *testing.T, fileName string) []byte {

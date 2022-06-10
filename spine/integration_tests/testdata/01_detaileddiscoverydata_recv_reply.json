@@ -33,7 +33,8 @@
                                 "deviceAddress": {
                                     "device": "HEMS"
                                 },
-                                "deviceType": "EnergyManagementSystem"
+                                "deviceType": "EnergyManagementSystem",
+                                "networkFeatureSet": "smart"
                             }
                         },
                         "entityInformation": [

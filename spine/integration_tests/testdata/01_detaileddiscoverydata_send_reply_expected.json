@@ -34,7 +34,8 @@
                                 "deviceAddress": {
                                     "device": "TestDeviceAddress"
                                 },
-                                "deviceType": "ChargingStation"
+                                "deviceType": "ChargingStation",
+                                "networkFeatureSet": "smart"
                             }
                         },
                         "entityInformation": [
@@ -80,6 +81,12 @@
                                         {
                                             "function": "nodeManagementBindingDeleteCall",
                                             "possibleOperations": {}
+                                        },
+                                        {
+                                            "function": "nodeManagementDestinationListData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
                                         },
                                         {
                                             "function": "nodeManagementDetailedDiscoveryData",

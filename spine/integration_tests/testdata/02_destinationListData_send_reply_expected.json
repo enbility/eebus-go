@@ -1,0 +1,43 @@
+{
+    "datagram": {
+        "header": {
+            "specificationVersion": "1.1.1",
+            "addressSource": {
+                "device": "TestDeviceAddress",
+                "entity": [
+                    0
+                ],
+                "feature": 0
+            },
+            "addressDestination": {
+                "device": "HEMS",
+                "entity": [
+                    0
+                ],
+                "feature": 0
+            },
+            "msgCounter": 2,
+            "msgCounterReference": 1,
+            "cmdClassifier": "reply"
+        },
+        "payload": {
+            "cmd": [
+                {
+                    "nodeManagementDestinationListData": {
+                        "nodeManagementDestinationData": [
+                            {
+                                "deviceDescription": {
+                                    "deviceAddress": {
+                                        "device": "TestDeviceAddress"
+                                    },
+                                    "deviceType": "ChargingStation",
+                                    "networkFeatureSet": "smart"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -71,6 +71,11 @@ func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
+	case message.Cmd.NodeManagementDestinationListData != nil:
+		if err := r.handleMsgDestinationListData(message, message.Cmd.NodeManagementDestinationListData); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
+
 	default:
 		return NewErrorType(model.ErrorNumberTypeCommandNotSupported, fmt.Sprintf("nodemanagement.Handle: Cmd data not implemented: %s", message.Cmd.DataName()))
 	}
