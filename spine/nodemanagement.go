@@ -31,6 +31,18 @@ func NewNodeManagementImpl(id uint, entity *EntityLocalImpl) *NodeManagementImpl
 		entity: entity,
 	}
 
+	f.AddFunctionType(model.FunctionTypeNodeManagementDetailedDiscoveryData, true, false)
+	f.AddFunctionType(model.FunctionTypeNodeManagementUseCaseData, true, false)
+	f.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionData, true, false)
+	f.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionRequestCall, false, false)
+	f.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionDeleteCall, false, false)
+	f.AddFunctionType(model.FunctionTypeNodeManagementBindingData, true, false)
+	f.AddFunctionType(model.FunctionTypeNodeManagementBindingRequestCall, false, false)
+	f.AddFunctionType(model.FunctionTypeNodeManagementBindingDeleteCall, false, false)
+	if f.Device().FeatureSet() != nil && *f.Device().FeatureSet() != model.NetworkManagementFeatureSetTypeSimple {
+		f.AddFunctionType(model.FunctionTypeNodeManagementDestinationListData, true, false)
+	}
+
 	return f
 }
 

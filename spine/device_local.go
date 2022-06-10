@@ -265,18 +265,6 @@ func (r *DeviceLocalImpl) addDeviceInformation() {
 
 	{
 		r.nodeManagement = NewNodeManagementImpl(entity.NextFeatureId(), entity)
-
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementDetailedDiscoveryData, true, false)
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementUseCaseData, true, false)
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionData, true, false)
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionRequestCall, false, false)
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementSubscriptionDeleteCall, false, false)
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingData, true, false)
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingRequestCall, false, false)
-		r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementBindingDeleteCall, false, false)
-		if r.featureSet != nil && *r.featureSet != model.NetworkManagementFeatureSetTypeSimple {
-			r.nodeManagement.AddFunctionType(model.FunctionTypeNodeManagementDestinationListData, true, false)
-		}
 		entity.AddFeature(r.nodeManagement)
 	}
 	{
