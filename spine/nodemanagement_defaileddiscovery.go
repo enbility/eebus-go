@@ -17,7 +17,7 @@ func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model
 }
 
 // handle incoming detailed discovery read call
-func (r *NodeManagementImpl) readDetailedDiscoveryData(deviceRemote *DeviceRemoteImpl, requestHeader *model.HeaderType) error {
+func (r *NodeManagementImpl) processReadDetailedDiscoveryData(deviceRemote *DeviceRemoteImpl, requestHeader *model.HeaderType) error {
 	if deviceRemote == nil {
 		return errors.New("nodemanagement.readDetailedDiscoveryData: invalid deviceRemote")
 	}
@@ -48,7 +48,7 @@ func (r *NodeManagementImpl) readDetailedDiscoveryData(deviceRemote *DeviceRemot
 }
 
 // handle incoming detailed discovery reply data
-func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
+func (r *NodeManagementImpl) processReplyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	remoteDevice := message.DeviceRemote
 
 	deviceDescription := data.DeviceInformation.Description
@@ -89,7 +89,7 @@ func (r *NodeManagementImpl) replyDetailedDiscoveryData(message *Message, data *
 }
 
 // handle incoming detailed discovery notify data
-func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
+func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	// is this a partial request?
 	if !message.IsPartial {
 		return errors.New("the received NodeManagementDetailedDiscovery.notify dataset should be partial")
@@ -296,16 +296,16 @@ func (r *NodeManagementImpl) notifyDetailedDiscoveryData(message *Message, data 
 func (r *NodeManagementImpl) handleMsgDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		return r.readDetailedDiscoveryData(message.DeviceRemote, message.RequestHeader)
+		return r.processReadDetailedDiscoveryData(message.DeviceRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
 		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
-		return r.replyDetailedDiscoveryData(message, data)
+		return r.processReplyDetailedDiscoveryData(message, data)
 
 	case model.CmdClassifierTypeNotify:
-		return r.notifyDetailedDiscoveryData(message, data)
+		return r.processNotifyDetailedDiscoveryData(message, data)
 
 	default:
 		return fmt.Errorf("nodemanagement.handleDetailedDiscoveryData: NodeManagementDetailedDiscoveryData CmdClassifierType not implemented: %s", message.CmdClassifier)

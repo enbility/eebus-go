@@ -19,7 +19,7 @@ func NewNodeManagementSubscriptionRequestCallType(clientAddress *model.FeatureAd
 }
 
 // route subscription request calls to the appropriate feature implementation and add the subscription to the current list
-func (r *NodeManagementImpl) readSubscriptionData(message *Message) error {
+func (r *NodeManagementImpl) processReadSubscriptionData(message *Message) error {
 
 	var remoteDeviceSubscriptions []model.SubscriptionManagementEntryDataType
 	remoteDeviceSubscriptionEntries := r.Device().SubscriptionManager().Subscriptions(message.FeatureRemote.Device())
@@ -43,7 +43,7 @@ func (r *NodeManagementImpl) readSubscriptionData(message *Message) error {
 func (r *NodeManagementImpl) handleMsgSubscriptionData(message *Message) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeCall:
-		return r.readSubscriptionData(message)
+		return r.processReadSubscriptionData(message)
 
 	default:
 		return fmt.Errorf("nodemanagement.handleSubscriptionDeleteCall: NodeManagementSubscriptionRequestCall CmdClassifierType not implemented: %s", message.CmdClassifier)

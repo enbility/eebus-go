@@ -15,7 +15,7 @@ func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceAddress *model.Addre
 	return r.RequestDataBySenderAddress(cmd, sender, rfAdress, defaultMaxResponseDelay)
 }
 
-func (r *NodeManagementImpl) readUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
+func (r *NodeManagementImpl) processReadUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
 
 	cmd := model.CmdType{
 		NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{
@@ -26,7 +26,7 @@ func (r *NodeManagementImpl) readUseCaseData(featureRemote *FeatureRemoteImpl, r
 	return featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)
 }
 
-func (r *NodeManagementImpl) replyUseCaseData(message *Message, data model.NodeManagementUseCaseDataType) error {
+func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data model.NodeManagementUseCaseDataType) error {
 	useCaseInformation := data.UseCaseInformation
 	if useCaseInformation == nil {
 		return errors.New("nodemanagement.replyUseCaseData: invalid UseCaseInformation")
@@ -49,16 +49,16 @@ func (r *NodeManagementImpl) replyUseCaseData(message *Message, data model.NodeM
 func (r *NodeManagementImpl) handleMsgUseCaseData(message *Message, data *model.NodeManagementUseCaseDataType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		return r.readUseCaseData(message.FeatureRemote, message.RequestHeader)
+		return r.processReadUseCaseData(message.FeatureRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
 		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
-		return r.replyUseCaseData(message, *data)
+		return r.processReplyUseCaseData(message, *data)
 
 	case model.CmdClassifierTypeNotify:
-		return r.replyUseCaseData(message, *data)
+		return r.processReplyUseCaseData(message, *data)
 
 	default:
 		return fmt.Errorf("nodemanagement.handleUseCaseData: NodeManagementUseCaseData CmdClassifierType not implemented: %s", message.CmdClassifier)
