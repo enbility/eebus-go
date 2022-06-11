@@ -31,7 +31,7 @@ type DeviceRemoteImpl struct {
 func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
 	sender := NewSender(writeC)
 	res := DeviceRemoteImpl{
-		DeviceImpl:      NewDeviceImpl(nil, nil),
+		DeviceImpl:      NewDeviceImpl(nil, nil, nil),
 		ski:             ski,
 		localDevice:     localDevice,
 		readChannel:     readC,

@@ -41,6 +41,9 @@ type ServiceDescription struct {
 	// The EEBUS device type of the device model, required
 	DeviceType model.DeviceTypeType
 
+	// The EEBUS device network feature set type, required
+	FeatureSet model.NetworkManagementFeatureSetType
+
 	// Serial number of the device, required
 	SerialNumber string
 
@@ -148,6 +151,7 @@ func (s *EEBUSService) Setup() error {
 		sd.SerialNumber,
 		deviceAdress,
 		sd.DeviceType,
+		sd.FeatureSet,
 	)
 
 	// Create the device entity and add it to the SPINE device

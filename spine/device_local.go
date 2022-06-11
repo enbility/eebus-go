@@ -23,10 +23,16 @@ type DeviceLocalImpl struct {
 	serialNumber string
 }
 
-func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, deviceAddress string, deviceType model.DeviceTypeType) *DeviceLocalImpl {
+func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, deviceAddress string, deviceType model.DeviceTypeType, featureSet model.NetworkManagementFeatureSetType) *DeviceLocalImpl {
 	address := model.AddressDeviceType(deviceAddress)
+
+	var fSet *model.NetworkManagementFeatureSetType
+	if len(featureSet) != 0 {
+		fSet = &featureSet
+	}
+
 	res := &DeviceLocalImpl{
-		DeviceImpl:          NewDeviceImpl(&address, &deviceType),
+		DeviceImpl:          NewDeviceImpl(&address, &deviceType, fSet),
 		subscriptionManager: NewSubscriptionManager(),
 		remoteDevices:       make(map[string]*DeviceRemoteImpl),
 		brandName:           brandName,
@@ -35,8 +41,6 @@ func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, device
 		serialNumber:        serialNumber,
 	}
 
-	// pass in featureSet as an argument ??
-	res.featureSet = util.Ptr(model.NetworkManagementFeatureSetTypeSmart)
 	res.addDeviceInformation()
 	return res
 }
