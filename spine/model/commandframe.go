@@ -279,7 +279,7 @@ type CmdType struct {
 	BindingManagementRequestCall                       *BindingManagementRequestCallType                       `json:"bindingManagementRequestCall,omitempty"`
 	CommodityListData                                  *CommodityListDataType                                  `json:"commodityListData,omitempty"`
 	DataTunnelingCall                                  *DataTunnelingCallType                                  `json:"dataTunnelingCall,omitempty"`
-	DeviceClassificationManufacturerData               *DeviceClassificationManufacturerDataType               `json:"deviceClassificationManufacturerData,omitempty"`
+	DeviceClassificationManufacturerData               *DeviceClassificationManufacturerDataType               `json:"deviceClassificationManufacturerData,omitempty" function:"deviceClassificationManufacturerData"`
 	DeviceClassificationUserData                       *DeviceClassificationUserDataType                       `json:"deviceClassificationUserData,omitempty"`
 	DeviceConfigurationKeyValueConstraintsListData     *DeviceConfigurationKeyValueConstraintsListDataType     `json:"deviceConfigurationKeyValueConstraintsListData,omitempty"`
 	DeviceConfigurationKeyValueDescriptionListData     *DeviceConfigurationKeyValueDescriptionListDataType     `json:"deviceConfigurationKeyValueDescriptionListData,omitempty"`
@@ -334,7 +334,7 @@ type CmdType struct {
 	NodeManagementBindingDeleteCall                    *NodeManagementBindingDeleteCallType                    `json:"nodeManagementBindingDeleteCall,omitempty"`
 	NodeManagementBindingRequestCall                   *NodeManagementBindingRequestCallType                   `json:"nodeManagementBindingRequestCall,omitempty"`
 	NodeManagementDestinationListData                  *NodeManagementDestinationListDataType                  `json:"nodeManagementDestinationListData,omitempty"`
-	NodeManagementDetailedDiscoveryData                *NodeManagementDetailedDiscoveryDataType                `json:"nodeManagementDetailedDiscoveryData,omitempty"`
+	NodeManagementDetailedDiscoveryData                *NodeManagementDetailedDiscoveryDataType                `json:"nodeManagementDetailedDiscoveryData,omitempty" function:"nodeManagementDetailedDiscoveryData"`
 	NodeManagementSubscriptionData                     *NodeManagementSubscriptionDataType                     `json:"nodeManagementSubscriptionData,omitempty"`
 	NodeManagementSubscriptionDeleteCall               *NodeManagementSubscriptionDeleteCallType               `json:"nodeManagementSubscriptionDeleteCall,omitempty"`
 	NodeManagementSubscriptionRequestCall              *NodeManagementSubscriptionRequestCallType              `json:"nodeManagementSubscriptionRequestCall,omitempty"`
