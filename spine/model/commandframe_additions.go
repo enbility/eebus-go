@@ -29,9 +29,10 @@ func (cmd *CmdType) Data() (*CmdData, error) {
 		if f.Kind() == reflect.Ptr {
 			if !f.IsNil() {
 				sf := t.Type().Field(i)
-				function := sf.Tag.Get("function")
+				eebusTags := EEBusTags(sf)
+				function, exists := eebusTags[EEBusTagFunction]
 				var ft *FunctionType = nil
-				if len(function) > 0 {
+				if exists && len(function) > 0 {
 					ft = util.Ptr(FunctionType(function))
 				}
 				return &CmdData{
