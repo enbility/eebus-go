@@ -279,19 +279,19 @@ type CmdType struct {
 	BindingManagementRequestCall                       *BindingManagementRequestCallType                       `json:"bindingManagementRequestCall,omitempty"`
 	CommodityListData                                  *CommodityListDataType                                  `json:"commodityListData,omitempty"`
 	DataTunnelingCall                                  *DataTunnelingCallType                                  `json:"dataTunnelingCall,omitempty"`
-	DeviceClassificationManufacturerData               *DeviceClassificationManufacturerDataType               `json:"deviceClassificationManufacturerData,omitempty"`
+	DeviceClassificationManufacturerData               *DeviceClassificationManufacturerDataType               `json:"deviceClassificationManufacturerData,omitempty" eebus:"fct:deviceClassificationManufacturerData"`
 	DeviceClassificationUserData                       *DeviceClassificationUserDataType                       `json:"deviceClassificationUserData,omitempty"`
 	DeviceConfigurationKeyValueConstraintsListData     *DeviceConfigurationKeyValueConstraintsListDataType     `json:"deviceConfigurationKeyValueConstraintsListData,omitempty"`
-	DeviceConfigurationKeyValueDescriptionListData     *DeviceConfigurationKeyValueDescriptionListDataType     `json:"deviceConfigurationKeyValueDescriptionListData,omitempty"`
-	DeviceConfigurationKeyValueListData                *DeviceConfigurationKeyValueListDataType                `json:"deviceConfigurationKeyValueListData,omitempty"`
+	DeviceConfigurationKeyValueDescriptionListData     *DeviceConfigurationKeyValueDescriptionListDataType     `json:"deviceConfigurationKeyValueDescriptionListData,omitempty" eebus:"fct:deviceConfigurationKeyValueDescriptionListData"`
+	DeviceConfigurationKeyValueListData                *DeviceConfigurationKeyValueListDataType                `json:"deviceConfigurationKeyValueListData,omitempty" eebus:"fct:deviceConfigurationKeyValueListData"`
 	DeviceDiagnosisHeartbeatData                       *DeviceDiagnosisHeartbeatDataType                       `json:"deviceDiagnosisHeartbeatData,omitempty"`
 	DeviceDiagnosisServiceData                         *DeviceDiagnosisServiceDataType                         `json:"deviceDiagnosisServiceData,omitempty"`
-	DeviceDiagnosisStateData                           *DeviceDiagnosisStateDataType                           `json:"deviceDiagnosisStateData,omitempty"`
+	DeviceDiagnosisStateData                           *DeviceDiagnosisStateDataType                           `json:"deviceDiagnosisStateData,omitempty" eebus:"fct:deviceDiagnosisStateData"`
 	DirectControlActivityListData                      *DirectControlActivityListDataType                      `json:"directControlActivityListData,omitempty"`
 	DirectControlDescriptionData                       *DirectControlDescriptionDataType                       `json:"directControlDescriptionData,omitempty"`
-	ElectricalConnectionDescriptionListData            *ElectricalConnectionDescriptionListDataType            `json:"electricalConnectionDescriptionListData,omitempty"`
-	ElectricalConnectionParameterDescriptionListData   *ElectricalConnectionParameterDescriptionListDataType   `json:"electricalConnectionParameterDescriptionListData,omitempty"`
-	ElectricalConnectionPermittedValueSetListData      *ElectricalConnectionPermittedValueSetListDataType      `json:"electricalConnectionPermittedValueSetListData,omitempty"`
+	ElectricalConnectionDescriptionListData            *ElectricalConnectionDescriptionListDataType            `json:"electricalConnectionDescriptionListData,omitempty" eebus:"fct:electricalConnectionDescriptionListData"`
+	ElectricalConnectionParameterDescriptionListData   *ElectricalConnectionParameterDescriptionListDataType   `json:"electricalConnectionParameterDescriptionListData,omitempty" eebus:"fct:electricalConnectionParameterDescriptionListData"`
+	ElectricalConnectionPermittedValueSetListData      *ElectricalConnectionPermittedValueSetListDataType      `json:"electricalConnectionPermittedValueSetListData,omitempty" eebus:"fct:electricalConnectionPermittedValueSetListData"`
 	ElectricalConnectionStateListData                  *ElectricalConnectionStateListDataType                  `json:"electricalConnectionStateListData,omitempty"`
 	HvacOperationModeDescriptionListData               *HvacOperationModeDescriptionListDataType               `json:"hvacOperationModeDescriptionListData,omitempty"`
 	HvacOverrunDescriptionListData                     *HvacOverrunDescriptionListDataType                     `json:"hvacOverrunDescriptionListData,omitempty"`
@@ -301,7 +301,7 @@ type CmdType struct {
 	HvacSystemFunctionOperationModeRelationListData    *HvacSystemFunctionOperationModeRelationListDataType    `json:"hvacSystemFunctionOperationModeRelationListData,omitempty"`
 	HvacSystemFunctionPowerSequenceRelationListData    *HvacSystemFunctionPowerSequenceRelationListDataType    `json:"hvacSystemFunctionPowerSequenceRelationListData,omitempty"`
 	HvacSystemFunctionSetpointRelationListData         *HvacSystemFunctionSetpointRelationListDataType         `json:"hvacSystemFunctionSetpointRelationListData,omitempty"`
-	IdentificationListData                             *IdentificationListDataType                             `json:"identificationListData,omitempty"`
+	IdentificationListData                             *IdentificationListDataType                             `json:"identificationListData,omitempty" eebus:"fct:identificationListData"`
 	IncentiveDescriptionListData                       *IncentiveDescriptionListDataType                       `json:"incentiveDescriptionListData,omitempty"`
 	IncentiveListData                                  *IncentiveListDataType                                  `json:"incentiveListData,omitempty"`
 	IncentiveTableConstraintsData                      *IncentiveTableConstraintsDataType                      `json:"incentiveTableConstraintsData,omitempty"`
@@ -313,9 +313,9 @@ type CmdType struct {
 	LoadControlLimitListData                           *LoadControlLimitListDataType                           `json:"loadControlLimitListData,omitempty"`
 	LoadControlNodeData                                *LoadControlNodeDataType                                `json:"loadControlNodeData,omitempty"`
 	LoadControlStateListData                           *LoadControlStateListDataType                           `json:"loadControlStateListData,omitempty"`
-	MeasurementConstraintsListData                     *MeasurementConstraintsListDataType                     `json:"measurementConstraintsListData,omitempty"`
-	MeasurementDescriptionListData                     *MeasurementDescriptionListDataType                     `json:"measurementDescriptionListData,omitempty"`
-	MeasurementListData                                *MeasurementListDataType                                `json:"measurementListData,omitempty"`
+	MeasurementConstraintsListData                     *MeasurementConstraintsListDataType                     `json:"measurementConstraintsListData,omitempty" eebus:"fct:measurementConstraintsListData"`
+	MeasurementDescriptionListData                     *MeasurementDescriptionListDataType                     `json:"measurementDescriptionListData,omitempty" eebus:"fct:measurementDescriptionListData"`
+	MeasurementListData                                *MeasurementListDataType                                `json:"measurementListData,omitempty" eebus:"fct:measurementListData"`
 	MeasurementThresholdRelationListData               *MeasurementThresholdRelationListDataType               `json:"measurementThresholdRelationListData,omitempty"`
 	MessagingListData                                  *MessagingListDataType                                  `json:"messagingListData,omitempty"`
 	NetworkManagementAbortCall                         *NetworkManagementAbortCallType                         `json:"networkManagementAbortCall,omitempty"`
@@ -330,15 +330,15 @@ type CmdType struct {
 	NetworkManagementRemoveNodeCall                    *NetworkManagementRemoveNodeCallType                    `json:"networkManagementRemoveNodeCall,omitempty"`
 	NetworkManagementReportCandidateData               *NetworkManagementReportCandidateDataType               `json:"networkManagementReportCandidateData,omitempty"`
 	NetworkManagementScanNetworkCall                   *NetworkManagementScanNetworkCallType                   `json:"networkManagementScanNetworkCall,omitempty"`
-	NodeManagementBindingData                          *NodeManagementBindingDataType                          `json:"nodeManagementBindingData,omitempty"`
-	NodeManagementBindingDeleteCall                    *NodeManagementBindingDeleteCallType                    `json:"nodeManagementBindingDeleteCall,omitempty"`
-	NodeManagementBindingRequestCall                   *NodeManagementBindingRequestCallType                   `json:"nodeManagementBindingRequestCall,omitempty"`
-	NodeManagementDestinationListData                  *NodeManagementDestinationListDataType                  `json:"nodeManagementDestinationListData,omitempty"`
-	NodeManagementDetailedDiscoveryData                *NodeManagementDetailedDiscoveryDataType                `json:"nodeManagementDetailedDiscoveryData,omitempty"`
-	NodeManagementSubscriptionData                     *NodeManagementSubscriptionDataType                     `json:"nodeManagementSubscriptionData,omitempty"`
-	NodeManagementSubscriptionDeleteCall               *NodeManagementSubscriptionDeleteCallType               `json:"nodeManagementSubscriptionDeleteCall,omitempty"`
-	NodeManagementSubscriptionRequestCall              *NodeManagementSubscriptionRequestCallType              `json:"nodeManagementSubscriptionRequestCall,omitempty"`
-	NodeManagementUseCaseData                          *NodeManagementUseCaseDataType                          `json:"nodeManagementUseCaseData,omitempty"`
+	NodeManagementBindingData                          *NodeManagementBindingDataType                          `json:"nodeManagementBindingData,omitempty" eebus:"fct:nodeManagementBindingData"`
+	NodeManagementBindingDeleteCall                    *NodeManagementBindingDeleteCallType                    `json:"nodeManagementBindingDeleteCall,omitempty" eebus:"fct:nodeManagementBindingDeleteCall"`
+	NodeManagementBindingRequestCall                   *NodeManagementBindingRequestCallType                   `json:"nodeManagementBindingRequestCall,omitempty" eebus:"fct:nodeManagementBindingRequestCall"`
+	NodeManagementDestinationListData                  *NodeManagementDestinationListDataType                  `json:"nodeManagementDestinationListData,omitempty" eebus:"fct:nodeManagementDestinationListData"`
+	NodeManagementDetailedDiscoveryData                *NodeManagementDetailedDiscoveryDataType                `json:"nodeManagementDetailedDiscoveryData,omitempty" eebus:"fct:nodeManagementDetailedDiscoveryData"`
+	NodeManagementSubscriptionData                     *NodeManagementSubscriptionDataType                     `json:"nodeManagementSubscriptionData,omitempty" eebus:"fct:nodeManagementSubscriptionData"`
+	NodeManagementSubscriptionDeleteCall               *NodeManagementSubscriptionDeleteCallType               `json:"nodeManagementSubscriptionDeleteCall,omitempty" eebus:"fct:nodeManagementSubscriptionDeleteCall"`
+	NodeManagementSubscriptionRequestCall              *NodeManagementSubscriptionRequestCallType              `json:"nodeManagementSubscriptionRequestCall,omitempty" eebus:"fct:nodeManagementSubscriptionRequestCall"`
+	NodeManagementUseCaseData                          *NodeManagementUseCaseDataType                          `json:"nodeManagementUseCaseData,omitempty" eebus:"fct:nodeManagementUseCaseData"`
 	OperatingConstraintsDurationListData               *OperatingConstraintsDurationListDataType               `json:"operatingConstraintsDurationListData,omitempty"`
 	OperatingConstraintsInterruptListData              *OperatingConstraintsInterruptListDataType              `json:"operatingConstraintsInterruptListData,omitempty"`
 	OperatingConstraintsPowerDescriptionListData       *OperatingConstraintsPowerDescriptionListDataType       `json:"operatingConstraintsPowerDescriptionListData,omitempty"`
@@ -358,7 +358,7 @@ type CmdType struct {
 	PowerTimeSlotScheduleConstraintsListData           *PowerTimeSlotScheduleConstraintsListDataType           `json:"powerTimeSlotScheduleConstraintsListData,omitempty"`
 	PowerTimeSlotScheduleListData                      *PowerTimeSlotScheduleListDataType                      `json:"powerTimeSlotScheduleListData,omitempty"`
 	PowerTimeSlotValueListData                         *PowerTimeSlotValueListDataType                         `json:"powerTimeSlotValueListData,omitempty"`
-	ResultData                                         *ResultDataType                                         `json:"resultData,omitempty"`
+	ResultData                                         *ResultDataType                                         `json:"resultData,omitempty" eebus:"fct:resultData"`
 	SensingDescriptionData                             *SensingDescriptionDataType                             `json:"sensingDescriptionData,omitempty"`
 	SensingListData                                    *SensingListDataType                                    `json:"sensingListData,omitempty"`
 	SetpointConstraintsListData                        *SetpointConstraintsListDataType                        `json:"setpointConstraintsListData,omitempty"`

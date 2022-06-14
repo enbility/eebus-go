@@ -5,39 +5,7 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/util"
 )
-
-// TODO: move to separate file
-func mapCmdToFunction(cmd model.CmdType) (*model.FunctionType, any, *ErrorType) {
-	switch {
-	case cmd.NodeManagementDetailedDiscoveryData != nil:
-		return util.Ptr(model.FunctionTypeNodeManagementDetailedDiscoveryData), cmd.NodeManagementDetailedDiscoveryData, nil
-	case cmd.DeviceClassificationManufacturerData != nil:
-		return util.Ptr(model.FunctionTypeDeviceClassificationManufacturerData), cmd.DeviceClassificationManufacturerData, nil
-	case cmd.DeviceDiagnosisStateData != nil:
-		return util.Ptr(model.FunctionTypeDeviceDiagnosisStateData), cmd.DeviceDiagnosisStateData, nil
-	case cmd.DeviceConfigurationKeyValueDescriptionListData != nil:
-		return util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData), cmd.DeviceConfigurationKeyValueDescriptionListData, nil
-	case cmd.DeviceConfigurationKeyValueListData != nil:
-		return util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueListData), cmd.DeviceConfigurationKeyValueListData, nil
-	case cmd.IdentificationListData != nil:
-		return util.Ptr(model.FunctionTypeIdentificationListData), cmd.IdentificationListData, nil
-	case cmd.MeasurementConstraintsListData != nil:
-		return util.Ptr(model.FunctionTypeMeasurementConstraintsListData), cmd.MeasurementConstraintsListData, nil
-	case cmd.MeasurementDescriptionListData != nil:
-		return util.Ptr(model.FunctionTypeMeasurementDescriptionListData), cmd.MeasurementDescriptionListData, nil
-	case cmd.MeasurementListData != nil:
-		return util.Ptr(model.FunctionTypeMeasurementListData), cmd.MeasurementListData, nil
-	case cmd.ElectricalConnectionParameterDescriptionListData != nil:
-		return util.Ptr(model.FunctionTypeElectricalConnectionParameterDescriptionListData), cmd.ElectricalConnectionParameterDescriptionListData, nil
-	case cmd.ElectricalConnectionDescriptionListData != nil:
-		return util.Ptr(model.FunctionTypeElectricalConnectionDescriptionListData), cmd.ElectricalConnectionDescriptionListData, nil
-	case cmd.ElectricalConnectionPermittedValueSetListData != nil:
-		return util.Ptr(model.FunctionTypeElectricalConnectionPermittedValueSetListData), cmd.ElectricalConnectionPermittedValueSetListData, nil
-	}
-	return nil, nil, NewErrorType(model.ErrorNumberTypeCommandNotSupported, "Function not found for cmd")
-}
 
 type FeatureLocal interface {
 	Feature
@@ -233,18 +201,21 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 		return r.processResult(message)
 	}
 
-	function, data, error := mapCmdToFunction(message.Cmd)
-	if error != nil {
-		return error
+	cmdData, err := message.Cmd.Data()
+	if err != nil {
+		return NewErrorType(model.ErrorNumberTypeCommandNotSupported, err.Error())
+	}
+	if cmdData.Function == nil {
+		return NewErrorType(model.ErrorNumberTypeCommandNotSupported, "No function found for cmd data")
 	}
 
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeRead:
-		if err := r.processRead(*function, message.RequestHeader, message.FeatureRemote); err != nil {
+		if err := r.processRead(*cmdData.Function, message.RequestHeader, message.FeatureRemote); err != nil {
 			return err
 		}
 	case model.CmdClassifierTypeReply:
-		if err := r.processReply(*function, data, message.RequestHeader, message.FeatureRemote); err != nil {
+		if err := r.processReply(*cmdData.Function, cmdData.Value, message.RequestHeader, message.FeatureRemote); err != nil {
 			return err
 		}
 	default:
