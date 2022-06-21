@@ -92,12 +92,6 @@ func (h *connectionsHub) start() {
 
 // handle (dis-)connecting remote services
 func (h *connectionsHub) run() {
-	go func() {
-		details := ServiceDetails{
-			SKI: "c7faf5f2edd3131e0f2e8649e38983c620886de6",
-		}
-		_ = h.connectFoundService(details, "192.168.1.146", "4712")
-	}()
 	for {
 		select {
 		// connect to a paired service
