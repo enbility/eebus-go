@@ -91,7 +91,7 @@ func (r *NodeManagementImpl) processReplyDetailedDiscoveryData(message *Message,
 // handle incoming detailed discovery notify data
 func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message, data *model.NodeManagementDetailedDiscoveryDataType) error {
 	// is this a partial request?
-	if !message.IsPartial {
+	if message.FilterPartial == nil {
 		return errors.New("the received NodeManagementDetailedDiscovery.notify dataset should be partial")
 	}
 

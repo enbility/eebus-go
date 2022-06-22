@@ -98,19 +98,8 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	cmdClassifier := datagram.Header.CmdClassifier
 	cmd := datagram.Payload.Cmd[0]
 
-	// isPartial
-	isPartial := false
-	functionCmd := cmd.Function
-	filterCmd := cmd.Filter
-
-	if functionCmd != nil && filterCmd != nil {
-		// TODO check if the function is the same as the provided cmd value
-		if len(filterCmd) > 0 {
-			if filterCmd[0].CmdControl.Partial != nil {
-				isPartial = true
-			}
-		}
-	}
+	// TODO check if cmd.Function is the same as the provided cmd value
+	filterPartial, filterDelete := cmd.ExtractFilter()
 
 	remoteFeature := remoteDevice.FeatureByAddress(datagram.Header.AddressSource)
 
@@ -118,7 +107,8 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		RequestHeader: &datagram.Header,
 		CmdClassifier: *cmdClassifier,
 		Cmd:           cmd,
-		IsPartial:     isPartial,
+		FilterPartial: filterPartial,
+		FilterDelete:  filterDelete,
 		FeatureRemote: remoteFeature,
 		DeviceRemote:  remoteDevice,
 	}
