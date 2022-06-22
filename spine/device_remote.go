@@ -77,7 +77,10 @@ func (d *DeviceRemoteImpl) readPump() {
 				fmt.Println(err)
 				continue
 			}
-			_ = d.localDevice.ProcessCmd(datagram.Datagram, d)
+			err := d.localDevice.ProcessCmd(datagram.Datagram, d)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }

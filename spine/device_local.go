@@ -102,6 +102,9 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	filterPartial, filterDelete := cmd.ExtractFilter()
 
 	remoteFeature := remoteDevice.FeatureByAddress(datagram.Header.AddressSource)
+	if remoteFeature == nil {
+		return fmt.Errorf("invalid remote feature address: '%s'", datagram.Header.AddressSource)
+	}
 
 	message := &Message{
 		RequestHeader: &datagram.Header,
@@ -117,7 +120,7 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 
 	if localFeature == nil {
 		errorMessage := "invalid feature address"
-		_ = remoteFeature.Sender().ResultError(message.RequestHeader, localFeature.Address(), NewErrorType(model.ErrorNumberTypeDestinationUnknown, errorMessage))
+		_ = remoteFeature.Sender().ResultError(message.RequestHeader, destAddr, NewErrorType(model.ErrorNumberTypeDestinationUnknown, errorMessage))
 
 		return errors.New(errorMessage)
 	}

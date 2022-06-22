@@ -29,17 +29,19 @@ func (cmd *CmdType) Data() (*CmdData, error) {
 		if f.Kind() == reflect.Ptr {
 			if !f.IsNil() {
 				sf := t.Type().Field(i)
-				eebusTags := EEBusTags(sf)
-				function, exists := eebusTags[EEBusTagFunction]
-				var ft *FunctionType = nil
-				if exists && len(function) > 0 {
-					ft = util.Ptr(FunctionType(function))
+				if sf.Name != "Function" && sf.Name != "Filter" {
+					eebusTags := EEBusTags(sf)
+					function, exists := eebusTags[EEBusTagFunction]
+					var ft *FunctionType = nil
+					if exists && len(function) > 0 {
+						ft = util.Ptr(FunctionType(function))
+					}
+					return &CmdData{
+						FieldName: sf.Name,
+						Function:  ft,
+						Value:     f.Interface(),
+					}, nil
 				}
-				return &CmdData{
-					FieldName: sf.Name,
-					Function:  ft,
-					Value:     f.Interface(),
-				}, nil
 			}
 		}
 	}
