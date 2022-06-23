@@ -274,7 +274,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		return nil
 	}
 
-	fmt.Println("Initiating connection to ", remoteService.SKI)
+	fmt.Println("Initiating connection to", remoteService.SKI)
 
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
@@ -324,6 +324,8 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 }
 
 func (h *connectionsHub) registeredServiceForSKI(ski string) (*ServiceDetails, error) {
+	h.mux.Lock()
+	defer h.mux.Unlock()
 	for _, service := range h.registeredServices {
 		if service.SKI == ski {
 			return &service, nil

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
@@ -81,6 +82,8 @@ type ConnectionHandler struct {
 
 	// internal handling of closed connections
 	isConnectionClosed bool
+
+	mux sync.Mutex
 }
 
 func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectionDelegate ConnectionHandlerDelegate, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
@@ -126,7 +129,7 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 		return
 	}
 
-	if c.smeState == smeComplete {
+	if c.getSmeState() == smeComplete {
 		c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
 	}
 
@@ -163,7 +166,7 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 	}
 
 	if c.conn != nil {
-		if c.smeState == smeComplete && safeShutdown {
+		if c.getSmeState() == smeComplete && safeShutdown {
 			// close the SHIP connection according to the SHIP protocol
 			c.shipClose()
 		}
@@ -273,7 +276,7 @@ func (c *ConnectionHandler) readShipPump() {
 
 			// Check if this is a SHIP SME or SPINE message
 			isShipMessage := false
-			if c.smeState != smeComplete {
+			if c.getSmeState() != smeComplete {
 				isShipMessage = true
 			} else {
 				isShipMessage = bytes.Contains([]byte("datagram:"), message)
