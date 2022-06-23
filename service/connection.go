@@ -94,30 +94,20 @@ func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectio
 	}
 }
 
-// Connection handler when the service initiates a connection to a remote service
-func (c *ConnectionHandler) handleConnection() {
-	if len(c.remoteService.SKI) == 0 {
-		fmt.Println("SKI is not set")
-		c.conn.Close()
-		return
-	}
-
-	c.startup()
-}
-
 func (c *ConnectionHandler) startup() {
 	c.readChannel = make(chan []byte, 1)      // Listen to incoming websocket messages
 	c.writeChannel = make(chan []byte, 1)     // Send outgoing websocket messages
 	c.shipReadChannel = make(chan []byte, 1)  // Listen to incoming ship messages
 	c.shipWriteChannel = make(chan []byte, 1) // Send outgoing ship messages
 	c.shipTrustChannel = make(chan bool, 1)   // Listen to trust state update
-	c.closeChannel = make(chan struct{})
+	c.closeChannel = make(chan struct{}, 1)   // Listen to close events
 
 	go c.readShipPump()
 	go c.writePump()
 	go c.writeShipPump()
 
 	go func() {
+		fmt.Println("12")
 		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
 			fmt.Println("SHIP handshake error: ", err)
 			c.shutdown(false)
@@ -143,28 +133,34 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 
 	c.unregisterChannel <- c
 
-	if !isChannelClosed(c.readChannel) {
+	if !util.IsChannelClosed(c.readChannel) {
 		close(c.readChannel)
+		c.readChannel = nil
 	}
 
-	if !isChannelClosed(c.writeChannel) {
+	if !util.IsChannelClosed(c.writeChannel) {
 		close(c.writeChannel)
+		c.writeChannel = nil
 	}
 
-	if !isChannelClosed(c.shipReadChannel) {
+	if !util.IsChannelClosed(c.shipReadChannel) {
 		close(c.shipReadChannel)
+		c.shipReadChannel = nil
 	}
 
-	if !isChannelClosed(c.shipWriteChannel) {
+	if !util.IsChannelClosed(c.shipWriteChannel) {
 		close(c.shipWriteChannel)
+		c.shipWriteChannel = nil
 	}
 
-	if !isChannelClosed(c.shipTrustChannel) {
+	if !util.IsChannelClosed(c.shipTrustChannel) {
 		close(c.shipTrustChannel)
+		c.shipTrustChannel = nil
 	}
 
-	if !isChannelClosed(c.closeChannel) {
+	if !util.IsChannelClosed(c.closeChannel) {
 		close(c.closeChannel)
+		c.closeChannel = nil
 	}
 
 	if c.conn != nil {
@@ -177,15 +173,6 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 	}
 
 	c.isConnectionClosed = true
-}
-
-func isChannelClosed[T any](ch <-chan T) bool {
-	select {
-	case <-ch:
-		return false
-	default:
-		return true
-	}
 }
 
 // writePump pumps messages from the writeChannel to the writeShipChannel
@@ -309,7 +296,12 @@ func (c *ConnectionHandler) readShipPump() {
 					fmt.Println("Received no valid payload")
 					continue
 				}
-				go func() { c.readChannel <- []byte(data.Data.Payload) }()
+				go func() {
+					if c.readChannel == nil {
+						return
+					}
+					c.readChannel <- []byte(data.Data.Payload)
+				}()
 			}
 		}
 	}
@@ -356,6 +348,7 @@ func (c *ConnectionHandler) writeWebsocketMessage(message []byte) error {
 	if c.conn == nil {
 		return errors.New("Connection is not initialized")
 	}
+
 	c.shipWriteChannel <- message
 	return nil
 }

@@ -1,3 +1,5 @@
+github.com/DerAndereAndi/go-avahi v0.0.0-20220623134409-61c3cd3f6dd4 h1:CIcZ9WJ+NUps1TAEn/buzixARV+ApvwYJUes5/oXDpI=
+github.com/DerAndereAndi/go-avahi v0.0.0-20220623134409-61c3cd3f6dd4/go.mod h1:qH5psEKb0DK+BRplMfc+RY4VMOlbf6mqfxgpMy6aP0M=
 github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20220607195515-4c9557651bc9 h1:xM6uz9OcnqJ+Tu8h3LFgYdg3gy3Qu1eg2UbrL8LuPyY=
 github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20220607195515-4c9557651bc9/go.mod h1:fuJqLnUwZTshS3U/bMRJ3+ow/v9oid1n0DmyYyNO1Xs=
 github.com/ahmetb/go-linq/v3 v3.2.0 h1:BEuMfp+b59io8g5wYzNoFe9pWPalRklhlhbiU3hYZDE=
@@ -5,6 +7,8 @@ github.com/ahmetb/go-linq/v3 v3.2.0/go.mod h1:haQ3JfOeWK8HpVxMtHHEMPVgBKiYyQ+f1/
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/godbus/dbus/v5 v5.0.4 h1:9349emZab16e7zQvpmsbtjc18ykshndd8y2PG3sgJbA=
+github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/google/go-cmp v0.5.8 h1:e6P7q2lk1O+qJJb4BtCQXlK8vWEO8V1ZeuEdJNOqZyg=
 github.com/google/go-cmp v0.5.8/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=

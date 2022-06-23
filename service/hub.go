@@ -1,12 +1,10 @@
 package service
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,7 +13,6 @@ import (
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/gorilla/websocket"
-	"github.com/libp2p/zeroconf/v2"
 )
 
 const shipWebsocketSubProtocol = "ship" // SHIP 10.2: sub protocol is required for websocket connections
@@ -41,26 +38,33 @@ type connectionsHub struct {
 	// The web server for handling incoming websocket connections
 	httpServer *http.Server
 
-	// The zeroconf service for mDNS related tasks
-	zc        *zeroconf.Server
-	zcEntries chan *zeroconf.ServiceEntry
+	// Handling mDNS related tasks
+	mdns *mdns
 
 	connectionDelegate ConnectionHandlerDelegate
 
 	mux sync.Mutex
 }
 
-func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) *connectionsHub {
-	return &connectionsHub{
+func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) (*connectionsHub, error) {
+	hub := &connectionsHub{
 		connections:        make(map[string]*ConnectionHandler),
 		register:           make(chan *ConnectionHandler),
 		unregister:         make(chan *ConnectionHandler),
-		zcEntries:          make(chan *zeroconf.ServiceEntry),
 		registeredServices: make([]ServiceDetails, 0),
 		serviceDescription: serviceDescription,
 		localService:       localService,
 		connectionDelegate: connectionDelegate,
 	}
+
+	mdns, err := newMDNS(localService.SKI, serviceDescription)
+	if err != nil {
+		return nil, err
+	}
+
+	hub.mdns = mdns
+
+	return hub, nil
 }
 
 // start the ConnectionsHub with all its services
@@ -74,19 +78,13 @@ func (h *connectionsHub) start() {
 		}
 	}()
 
-	// start mDNS announcement
-	if err := h.mdnsRegister(); err != nil {
-		fmt.Println(err)
-	}
-
-	// handle found mDNS entries
-	if h.zc != nil {
-		go h.handleMdnsBrowseEntries(h.zcEntries)
+	if err := h.mdns.Announce(); err != nil {
+		fmt.Println("Error registering mDNS Service:", err)
 	}
 
 	// Automatically search and connect to services with the same setting
 	if h.serviceDescription.RegisterAutoAccept {
-		go func() { _ = h.connectRemoteServices() }()
+		h.mdns.RegisterMdnsSearch(h)
 	}
 }
 
@@ -117,10 +115,15 @@ func (h *connectionsHub) run() {
 			h.connections[c.remoteService.SKI] = c
 			h.mux.Unlock()
 
-			c.handleConnection()
+			c.startup()
 
-			// TODO: shutdown mDNS if this is not a CEM, auto accept is disabled and all registered services are connected
-		// disconnect from a no longer paired service
+			// shutdown mDNS if this is not a CEM
+			if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
+				h.mdns.Unannounce()
+				h.mdns.UnregisterMdnsSearch(h)
+			}
+
+		// disconnect from a no longer connected or paired service
 		case c := <-h.unregister:
 			if chRegistered, ok := h.connections[c.remoteService.SKI]; ok {
 				if chRegistered.conn == c.conn {
@@ -129,7 +132,13 @@ func (h *connectionsHub) run() {
 					h.mux.Unlock()
 				}
 			}
-			// TODO: startup mDNS if this is not a CEM, auto accept is disabled and no registered service is connected
+			// startup mDNS if this is not a CEM and a paired service is not connected
+			if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem &&
+				len(h.connections) == 0 && len(h.registeredServices) > 0 {
+				fmt.Println("Starting mDNS")
+				_ = h.mdns.Announce()
+				h.mdns.RegisterMdnsSearch(h)
+			}
 		}
 	}
 }
@@ -141,7 +150,7 @@ func (h *connectionsHub) connectionForSKI(ski string) *ConnectionHandler {
 
 // close all connections
 func (h *connectionsHub) shutdown() {
-	h.mdnsShutdown()
+	h.mdns.shutdown()
 	for _, c := range h.connections {
 		c.shutdown(true)
 	}
@@ -152,77 +161,6 @@ func (h *connectionsHub) isSkiConnected(ski string) bool {
 	// The connection with the higher SKI should retain the connection
 	_, ok := h.connections[ski]
 	return ok
-}
-
-// mDNS handling
-
-func (h *connectionsHub) mdnsInterfaces() ([]net.Interface, error) {
-	var ifaces []net.Interface
-
-	if len(h.serviceDescription.Interfaces) > 0 {
-		ifaces = make([]net.Interface, len(h.serviceDescription.Interfaces))
-		for i, ifaceName := range h.serviceDescription.Interfaces {
-			iface, err := net.InterfaceByName(ifaceName)
-			if err != nil {
-				return nil, err
-			}
-			ifaces[i] = *iface
-		}
-	}
-
-	return ifaces, nil
-}
-
-// Announces the service to the network via mDNS
-// A CEM service should always invoke this on startup
-// Any other service should only invoke this when it is not connected to a CEM service and on startup
-func (h *connectionsHub) mdnsRegister() error {
-	ifaces, err := h.mdnsInterfaces()
-	if err != nil {
-		return err
-	}
-
-	serviceIdentifier := fmt.Sprintf("%s-%s-%s", h.serviceDescription.Brand, h.serviceDescription.Model, h.serviceDescription.SerialNumber)
-	if len(h.serviceDescription.Identifier) > 0 {
-		serviceIdentifier = h.serviceDescription.Identifier
-	}
-
-	txt := []string{ // SHIP 7.3.2
-		"txtvers=1",
-		"path=" + shipWebsocketPath,
-		"id=" + serviceIdentifier,
-		"ski=" + h.localService.SKI,
-		"brand=" + h.serviceDescription.Brand,
-		"model=" + h.serviceDescription.Model,
-		"type=" + string(h.serviceDescription.DeviceType),
-		"register=" + fmt.Sprintf("%v", h.serviceDescription.RegisterAutoAccept),
-	}
-
-	mDNSServer, err := zeroconf.Register(
-		serviceIdentifier,
-		shipZeroConfServiceType,
-		shipZeroConfDomain,
-		h.serviceDescription.Port,
-		txt,
-		ifaces,
-	)
-
-	if err != nil {
-		return fmt.Errorf("mDNS: registration failed: %w", err)
-	}
-
-	h.zc = mDNSServer
-
-	return nil
-}
-
-// Stops the mDNS announcement on the network
-// A CEM service should only invoke this on the service shutdown
-// Any other service should invoke this always when it connected to a CEM and on shutdown
-func (h *connectionsHub) mdnsShutdown() {
-	if h.zc != nil {
-		h.zc.Shutdown()
-	}
 }
 
 // Websocket connection handling
@@ -272,8 +210,6 @@ func (h *connectionsHub) startWebsocketServer() error {
 
 // HTTP Server callback for handling incoming connection requests
 func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Receiving connection request")
-
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  maxMessageSize,
 		WriteBufferSize: maxMessageSize,
@@ -317,7 +253,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	remoteService := ServiceDetails{
+	remoteService := &ServiceDetails{
 		SKI: ski,
 	}
 	// check if we already know this remote service
@@ -325,123 +261,17 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		remoteService = remoteS
 	}
 
-	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleServer, h.localService, &remoteService, conn)
+	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleServer, h.localService, remoteService, conn)
 
 	h.register <- connectionHandler
 }
 
-var connectedServicesRunning bool
-
-// handle resolved mDNS entries
-func (h *connectionsHub) handleMdnsBrowseEntries(results <-chan *zeroconf.ServiceEntry) {
-	for entry := range results {
-		if len(entry.Text) == 0 || len(entry.AddrIPv4) == 0 {
-			continue
-		}
-
-		fmt.Println("Found service: ", entry.ServiceInstanceName())
-
-		var deviceType, ski string
-		var register bool
-
-		for _, element := range entry.Text {
-			if strings.HasPrefix(element, "type=") {
-				deviceType = strings.Split(element, "=")[1]
-			}
-
-			if strings.HasPrefix(element, "ski=") {
-				ski = strings.Split(element, "=")[1]
-			}
-
-			if strings.HasPrefix(element, "register=") {
-				register = (strings.Split(element, "=")[1] == "true")
-			}
-		}
-
-		fmt.Println("SKI: ", ski, " DeviceType: ", deviceType, " RegisterAuto: ", register)
-
-		if len(ski) == 0 || len(deviceType) == 0 {
-			continue
-		}
-
-		// ignore own service
-		if ski == h.localService.SKI {
-			continue
-		}
-
-		if finished := h.processMdnsEntry(ski, deviceType, entry.HostName, entry.Port, register); finished {
-			return
-		}
-	}
-}
-
-// process an mDNS entry found via avahi or zeroconf
-// returns true if no registered entries are missing
-func (h *connectionsHub) processMdnsEntry(ski, deviceType, host string, port int, register bool) bool {
-	// If local and remote registration are set to auto acceppt, we can connect to the remote service
-	if h.serviceDescription.RegisterAutoAccept && register {
-		remoteService := ServiceDetails{
-			SKI:                ski,
-			registerAutoAccept: true,
-			deviceType:         model.DeviceTypeType(deviceType),
-		}
-		if !h.isSkiConnected(ski) {
-			_ = h.connectFoundService(remoteService, host, strconv.Itoa(port))
-		}
-	} else {
-		// Check if the remote service is paired
-		registeredService, err := h.registeredServiceForSKI(ski)
-		if err == nil && !h.isSkiConnected(ski) {
-			_ = h.connectFoundService(registeredService, host, strconv.Itoa(port))
-		}
-	}
-
-	registeredServiceMissing := false
-	for _, service := range h.registeredServices {
-		if !h.isSkiConnected(service.SKI) {
-			registeredServiceMissing = true
-			break
-		}
-	}
-	if !registeredServiceMissing && !h.serviceDescription.RegisterAutoAccept {
-		fmt.Println("Exit discovery")
-		return true
-	}
-
-	return false
-}
-
-// Searches via mDNS for registered SHIP services that are not yet connected
-// TODO: This should be done in a seperate struct being triggered by a channel
-//   to make sure it is not running multiple times at the same time and gets
-//   new remote services information while running safely
-func (h *connectionsHub) connectRemoteServices() error {
-	h.mux.Lock()
-	if connectedServicesRunning {
-		h.mux.Unlock()
+// Connect to another EEBUS service
+func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host, port string) error {
+	if h.isSkiConnected(remoteService.SKI) {
 		return nil
 	}
-	connectedServicesRunning = true
-	h.mux.Unlock()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-
-	if err := zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, h.zcEntries); err != nil {
-		return err
-	}
-
-	<-ctx.Done()
-
-	h.mux.Lock()
-	connectedServicesRunning = false
-	h.mux.Unlock()
-
-	return nil
-}
-
-// Connect to another EEBUS service
-func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host, port string) error {
 	fmt.Println("Initiating connection to ", remoteService.SKI)
 
 	dialer := &websocket.Dialer{
@@ -484,20 +314,20 @@ func (h *connectionsHub) connectFoundService(remoteService ServiceDetails, host,
 		return errors.New("Remote SKI does not match")
 	}
 
-	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleClient, h.localService, &remoteService, conn)
+	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleClient, h.localService, remoteService, conn)
 
 	h.register <- connectionHandler
 
 	return nil
 }
 
-func (h *connectionsHub) registeredServiceForSKI(ski string) (ServiceDetails, error) {
+func (h *connectionsHub) registeredServiceForSKI(ski string) (*ServiceDetails, error) {
 	for _, service := range h.registeredServices {
 		if service.SKI == ski {
-			return service, nil
+			return &service, nil
 		}
 	}
-	return ServiceDetails{}, fmt.Errorf("No registered service found for SKI %s", ski)
+	return &ServiceDetails{}, fmt.Errorf("No registered service found for SKI %s", ski)
 }
 
 // Adds a new device to the list of known devices which can be connected to
@@ -512,7 +342,7 @@ func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
 	h.mux.Unlock()
 
 	if !h.isSkiConnected(service.SKI) {
-		go func() { _ = h.connectRemoteServices() }()
+		h.mdns.RegisterMdnsSearch(h)
 	}
 
 	return nil
@@ -562,4 +392,58 @@ func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	}
 
 	return nil
+}
+
+// Process reported mDNS services
+func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
+	for ski, entry := range entries {
+		// check if this ski is already connected
+		if h.isSkiConnected(ski) {
+			continue
+		}
+
+		var remoteService *ServiceDetails
+		var err error
+
+		// If local and remote registration are set to auto acceppt, we can connect to the remote service
+		if h.serviceDescription.RegisterAutoAccept && entry.Register {
+			remoteService = &ServiceDetails{
+				SKI:                ski,
+				registerAutoAccept: true,
+				deviceType:         model.DeviceTypeType(entry.Type),
+			}
+		} else {
+			// Check if the remote service is paired
+			remoteService, err = h.registeredServiceForSKI(ski)
+			if err != nil {
+				continue
+			}
+		}
+
+		if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
+			// connecting via the host failed, so try all of the provided addresses
+			for _, address := range entry.Addresses {
+				fmt.Println("Trying to", ski, "at", address)
+				if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err == nil {
+					break
+				}
+			}
+			if err != nil {
+				continue
+			}
+		}
+
+		registeredServiceMissing := false
+		for _, service := range h.registeredServices {
+			if !h.isSkiConnected(service.SKI) {
+				registeredServiceMissing = true
+				break
+			}
+		}
+
+		if !registeredServiceMissing && !h.serviceDescription.RegisterAutoAccept {
+			h.mdns.UnregisterMdnsSearch(h)
+			break
+		}
+	}
 }

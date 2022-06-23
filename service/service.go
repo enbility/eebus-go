@@ -14,7 +14,7 @@ const defaultPort int = 4711
 
 type ServiceDetails struct {
 	// This is the SKI of the service
-	// This needs to be peristed
+	// This needs to be persisted
 	SKI string
 
 	// ShipID is the ship identifier of the service
@@ -169,7 +169,12 @@ func (s *EEBUSService) Setup() error {
 	s.spineLocalDevice.AddEntity(entity)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	s.connectionsHub = newConnectionsHub(s.ServiceDescription, s.LocalService, s)
+	hub, err := newConnectionsHub(s.ServiceDescription, s.LocalService, s)
+	if err != nil {
+		return err
+	}
+
+	s.connectionsHub = hub
 
 	return nil
 }

@@ -19,7 +19,9 @@ require (
 
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
+	github.com/godbus/dbus/v5 v5.0.4
 	github.com/gorilla/websocket v1.5.0
+	github.com/holoplot/go-avahi v1.0.0
 	github.com/libp2p/zeroconf/v2 v2.0.0-00010101000000-000000000000
 	github.com/rickb777/date v1.19.1
 	github.com/stretchr/testify v1.7.1
@@ -27,3 +29,5 @@ require (
 )
 
 replace github.com/libp2p/zeroconf/v2 => github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20220607195515-4c9557651bc9
+
+replace github.com/holoplot/go-avahi => github.com/DerAndereAndi/go-avahi v0.0.0-20220623134409-61c3cd3f6dd4
