@@ -107,7 +107,6 @@ func (c *ConnectionHandler) startup() {
 	go c.writeShipPump()
 
 	go func() {
-		fmt.Println("12")
 		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
 			fmt.Println("SHIP handshake error: ", err)
 			c.shutdown(false)
