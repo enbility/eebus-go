@@ -132,11 +132,13 @@ func (h *connectionsHub) run() {
 					h.mux.Unlock()
 				}
 			}
-			// startup mDNS if this is not a CEM and a paired service is not connected
-			if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem &&
-				len(h.connections) == 0 && len(h.registeredServices) > 0 {
+			// startup mDNS if a paired service is not connected
+			if len(h.connections) == 0 && len(h.registeredServices) > 0 {
 				fmt.Println("Starting mDNS")
-				_ = h.mdns.Announce()
+				// if this is not a CEM also start the mDNS announcement
+				if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
+					_ = h.mdns.Announce()
+				}
 				h.mdns.RegisterMdnsSearch(h)
 			}
 		}
