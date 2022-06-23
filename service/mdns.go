@@ -305,7 +305,7 @@ func (m *mdns) resolveEntries() {
 				ctx.Done()
 			case service := <-zcEntries:
 				// Zeroconf has issues with merging mDNS data and sometimes reports non complety records
-				if len(service.Text) == 0 || len(service.AddrIPv4) == 0 {
+				if len(service.Text) == 0 {
 					continue
 				}
 
