@@ -127,6 +127,8 @@ func (c *ConnectionHandler) startup() {
 // may only invoked after startup() is invoked!
 func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 	c.shutdownOnce.Do(func() {
+		c.mux.Lock()
+		defer c.mux.Unlock()
 		if c.isConnectionClosed {
 			return
 		}
@@ -191,7 +193,7 @@ func (c *ConnectionHandler) writePump() {
 				// The write channel is closed
 				return
 			}
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 
@@ -216,7 +218,7 @@ func (c *ConnectionHandler) writeShipPump() {
 		case <-c.closeChannel:
 			return
 		case message, ok := <-c.shipWriteChannel:
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 
@@ -232,7 +234,7 @@ func (c *ConnectionHandler) writeShipPump() {
 				return
 			}
 		case <-ticker.C:
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
@@ -258,7 +260,7 @@ func (c *ConnectionHandler) readShipPump() {
 		case <-c.closeChannel:
 			return
 		default:
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 
@@ -268,7 +270,7 @@ func (c *ConnectionHandler) readShipPump() {
 					fmt.Println("Error reading message: ", err)
 				}
 
-				if c.isConnectionClosed {
+				if c.isConnClosed() {
 					return
 				}
 
@@ -463,4 +465,11 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	}
 
 	return shipHeaderByte, msg
+}
+
+func (c *ConnectionHandler) isConnClosed() bool {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	return c.isConnectionClosed
 }
