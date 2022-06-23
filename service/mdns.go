@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/godbus/dbus/v5"
@@ -52,6 +53,8 @@ type mdns struct {
 	// The alternative avahi mDNS service
 	av           *avahi.Server
 	avEntryGroup *avahi.EntryGroup
+
+	mux sync.Mutex
 }
 
 func newMDNS(ski string, serviceDescription *ServiceDescription) (*mdns, error) {
@@ -235,6 +238,9 @@ func (m *mdns) shutdown() {
 func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	m.searchDelegates = append(m.searchDelegates, cb)
 
+	m.mux.Lock()
+	defer m.mux.Unlock()
+
 	if !m.isSearchingServices {
 		fmt.Println("mDNS: Start search")
 		go m.resolveEntries()
@@ -282,7 +288,9 @@ func (m *mdns) resolveEntries() {
 		}()
 	}
 
+	m.mux.Lock()
 	m.isSearchingServices = true
+	m.mux.Unlock()
 
 	var end bool
 	for !end {
@@ -323,7 +331,9 @@ func (m *mdns) resolveEntries() {
 		m.av.ServiceBrowserFree(avBrowser)
 	}
 
+	m.mux.Lock()
 	m.isSearchingServices = false
+	m.mux.Unlock()
 }
 
 // stop searching for mDNS entries
