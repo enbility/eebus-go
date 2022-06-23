@@ -236,7 +236,17 @@ func (m *mdns) shutdown() {
 
 // Register a callback to be invoked for found mDNS entries
 func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
-	m.searchDelegates = append(m.searchDelegates, cb)
+	// check if callback is already registered
+	registered := false
+	for _, c := range m.searchDelegates {
+		if c == cb {
+			registered = true
+		}
+	}
+
+	if !registered {
+		m.searchDelegates = append(m.searchDelegates, cb)
+	}
 
 	m.mux.Lock()
 	defer m.mux.Unlock()
