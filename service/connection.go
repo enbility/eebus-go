@@ -83,7 +83,8 @@ type ConnectionHandler struct {
 	// internal handling of closed connections
 	isConnectionClosed bool
 
-	mux sync.Mutex
+	mux          sync.Mutex
+	shutdownOnce sync.Once
 }
 
 func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectionDelegate ConnectionHandlerDelegate, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
@@ -125,56 +126,58 @@ func (c *ConnectionHandler) startup() {
 // shutdown the connection and all internals
 // may only invoked after startup() is invoked!
 func (c *ConnectionHandler) shutdown(safeShutdown bool) {
-	if c.isConnectionClosed {
-		return
-	}
-
-	if c.getSmeState() == smeComplete {
-		c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
-	}
-
-	c.unregisterChannel <- c
-
-	if !util.IsChannelClosed(c.readChannel) {
-		close(c.readChannel)
-		c.readChannel = nil
-	}
-
-	if !util.IsChannelClosed(c.writeChannel) {
-		close(c.writeChannel)
-		c.writeChannel = nil
-	}
-
-	if !util.IsChannelClosed(c.shipReadChannel) {
-		close(c.shipReadChannel)
-		c.shipReadChannel = nil
-	}
-
-	if !util.IsChannelClosed(c.shipWriteChannel) {
-		close(c.shipWriteChannel)
-		c.shipWriteChannel = nil
-	}
-
-	if !util.IsChannelClosed(c.shipTrustChannel) {
-		close(c.shipTrustChannel)
-		c.shipTrustChannel = nil
-	}
-
-	if !util.IsChannelClosed(c.closeChannel) {
-		close(c.closeChannel)
-		c.closeChannel = nil
-	}
-
-	if c.conn != nil {
-		if c.getSmeState() == smeComplete && safeShutdown {
-			// close the SHIP connection according to the SHIP protocol
-			c.shipClose()
+	c.shutdownOnce.Do(func() {
+		if c.isConnectionClosed {
+			return
 		}
 
-		c.conn.Close()
-	}
+		if c.getSmeState() == smeComplete {
+			c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
+		}
 
-	c.isConnectionClosed = true
+		c.unregisterChannel <- c
+
+		if !util.IsChannelClosed(c.readChannel) {
+			close(c.readChannel)
+			c.readChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.writeChannel) {
+			close(c.writeChannel)
+			c.writeChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.shipReadChannel) {
+			close(c.shipReadChannel)
+			c.shipReadChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.shipWriteChannel) {
+			close(c.shipWriteChannel)
+			c.shipWriteChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.shipTrustChannel) {
+			close(c.shipTrustChannel)
+			c.shipTrustChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.closeChannel) {
+			close(c.closeChannel)
+			c.closeChannel = nil
+		}
+
+		if c.conn != nil {
+			if c.getSmeState() == smeComplete && safeShutdown {
+				// close the SHIP connection according to the SHIP protocol
+				c.shipClose()
+			}
+
+			c.conn.Close()
+		}
+
+		c.isConnectionClosed = true
+	})
 }
 
 // writePump pumps messages from the writeChannel to the writeShipChannel

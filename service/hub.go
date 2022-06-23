@@ -43,7 +43,8 @@ type connectionsHub struct {
 
 	connectionDelegate ConnectionHandlerDelegate
 
-	mux sync.Mutex
+	muxCon sync.Mutex
+	muxReg sync.Mutex
 }
 
 func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) (*connectionsHub, error) {
@@ -102,18 +103,18 @@ func (h *connectionsHub) run() {
 					(c.localService.SKI < c.remoteService.SKI && c.role == ShipRoleServer) {
 					existingC.conn.Close()
 
-					h.mux.Lock()
+					h.muxCon.Lock()
 					delete(h.connections, c.remoteService.SKI)
-					h.mux.Unlock()
+					h.muxCon.Unlock()
 				} else {
 					c.conn.Close()
 					continue
 				}
 			}
 
-			h.mux.Lock()
+			h.muxCon.Lock()
 			h.connections[c.remoteService.SKI] = c
-			h.mux.Unlock()
+			h.muxCon.Unlock()
 
 			c.startup()
 
@@ -125,11 +126,15 @@ func (h *connectionsHub) run() {
 
 		// disconnect from a no longer connected or paired service
 		case c := <-h.unregister:
-			if chRegistered, ok := h.connections[c.remoteService.SKI]; ok {
+			h.muxCon.Lock()
+			chRegistered, ok := h.connections[c.remoteService.SKI]
+			h.muxCon.Unlock()
+
+			if ok {
 				if chRegistered.conn == c.conn {
-					h.mux.Lock()
+					h.muxCon.Lock()
 					delete(h.connections, c.remoteService.SKI)
-					h.mux.Unlock()
+					h.muxCon.Unlock()
 				}
 			}
 			// startup mDNS if a paired service is not connected
@@ -147,11 +152,17 @@ func (h *connectionsHub) run() {
 
 // return the connection for a specific SKI
 func (h *connectionsHub) connectionForSKI(ski string) *ConnectionHandler {
+	h.muxCon.Lock()
+	defer h.muxCon.Unlock()
+
 	return h.connections[ski]
 }
 
 // close all connections
 func (h *connectionsHub) shutdown() {
+	h.muxCon.Lock()
+	defer h.muxCon.Unlock()
+
 	h.mdns.shutdown()
 	for _, c := range h.connections {
 		c.shutdown(true)
@@ -160,6 +171,9 @@ func (h *connectionsHub) shutdown() {
 
 // return if there is a connection for a SKI
 func (h *connectionsHub) isSkiConnected(ski string) bool {
+	h.muxCon.Lock()
+	defer h.muxCon.Unlock()
+
 	// The connection with the higher SKI should retain the connection
 	_, ok := h.connections[ski]
 	return ok
@@ -324,8 +338,8 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 }
 
 func (h *connectionsHub) registeredServiceForSKI(ski string) (*ServiceDetails, error) {
-	h.mux.Lock()
-	defer h.mux.Unlock()
+	h.muxReg.Lock()
+	defer h.muxReg.Unlock()
 	for _, service := range h.registeredServices {
 		if service.SKI == ski {
 			return &service, nil
@@ -336,29 +350,30 @@ func (h *connectionsHub) registeredServiceForSKI(ski string) (*ServiceDetails, e
 
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
-func (h *connectionsHub) registerRemoteService(service ServiceDetails) error {
-	h.mux.Lock()
+func (h *connectionsHub) registerRemoteService(service ServiceDetails) {
+	h.muxReg.Lock()
+
 	// standardize the provided SKI strings
 	service.SKI = strings.ReplaceAll(service.SKI, " ", "")
 	service.SKI = strings.ReplaceAll(service.SKI, "-", "")
 	service.SKI = strings.ToLower(service.SKI)
 	h.registeredServices = append(h.registeredServices, service)
-	h.mux.Unlock()
+
+	h.muxReg.Unlock()
 
 	if !h.isSkiConnected(service.SKI) {
 		h.mdns.RegisterMdnsSearch(h)
 	}
-
-	return nil
 }
 
 // Update known device in the list of known devices which can be connected to
 func (h *connectionsHub) updateRemoteServiceTrust(ski string, trusted bool) {
+	h.muxReg.Lock()
+	defer h.muxReg.Unlock()
+
 	for i, device := range h.registeredServices {
 		if device.SKI == ski {
-			h.mux.Lock()
 			h.registeredServices[i].userTrust = true
-			h.mux.Unlock()
 
 			conn := h.connectionForSKI(ski)
 			if conn != nil {
@@ -378,10 +393,10 @@ func (h *connectionsHub) updateRemoteServiceTrust(ski string, trusted bool) {
 // Remove a device from the list of known devices which can be connected to
 // and disconnect it if it is currently connected
 func (h *connectionsHub) unregisterRemoteService(ski string) error {
-	h.mux.Lock()
 
 	newRegisteredDevice := make([]ServiceDetails, 0)
 
+	h.muxReg.Lock()
 	for _, device := range h.registeredServices {
 		if device.SKI != ski {
 			newRegisteredDevice = append(newRegisteredDevice, device)
@@ -389,7 +404,7 @@ func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	}
 
 	h.registeredServices = newRegisteredDevice
-	h.mux.Unlock()
+	h.muxReg.Unlock()
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
 		existingC.shutdown(true)
@@ -437,6 +452,7 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 			}
 		}
 
+		h.muxReg.Lock()
 		registeredServiceMissing := false
 		for _, service := range h.registeredServices {
 			if !h.isSkiConnected(service.SKI) {
@@ -444,6 +460,7 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 				break
 			}
 		}
+		h.muxReg.Unlock()
 
 		if !registeredServiceMissing && !h.serviceDescription.RegisterAutoAccept {
 			h.mdns.UnregisterMdnsSearch(h)

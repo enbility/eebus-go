@@ -244,8 +244,8 @@ func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spin
 
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
-func (s *EEBUSService) RegisterRemoteService(service ServiceDetails) error {
-	return s.connectionsHub.registerRemoteService(service)
+func (s *EEBUSService) RegisterRemoteService(service ServiceDetails) {
+	s.connectionsHub.registerRemoteService(service)
 }
 
 // Remove a device from the list of known devices which can be connected to
