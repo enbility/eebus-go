@@ -1,11 +1,16 @@
 package spine
 
-import "github.com/DerAndereAndi/eebus-go/spine/model"
+import (
+	"fmt"
+	"reflect"
+
+	"github.com/DerAndereAndi/eebus-go/spine/model"
+)
 
 type FunctionData interface {
 	Function() model.FunctionType
 	DataAny() any
-	SetDataAny(data any)
+	UpdateDataAny(data any, filterPartial *model.FilterType, filterDelete *model.FilterType)
 }
 
 var _ FunctionData = (*FunctionDataImpl[int])(nil)
@@ -29,14 +34,36 @@ func (r *FunctionDataImpl[T]) Data() *T {
 	return r.data
 }
 
-func (r *FunctionDataImpl[T]) SetData(newData *T) {
-	r.data = newData
+func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.FilterType, filterDelete *model.FilterType) *ErrorType {
+	if filterPartial == nil && filterDelete == nil {
+		// just set the data
+		r.data = newData
+		return nil
+	}
+
+	newT := new(T)
+	_, supported := any(newT).(model.Updater[T])
+	if !supported {
+		return NewErrorTypeFromString(fmt.Sprintf("partial updates are not supported for type '%s'", reflect.TypeOf(*newT).Name()))
+	}
+
+	if r.data == nil {
+		r.data = newT
+	}
+
+	updater, _ := any(r.data).(model.Updater[T])
+	updater.Update(newData, filterPartial, filterDelete)
+	return nil
 }
 
 func (r *FunctionDataImpl[T]) DataAny() any {
 	return r.Data()
 }
 
-func (r *FunctionDataImpl[T]) SetDataAny(newData any) {
-	r.SetData(newData.(*T))
+func (r *FunctionDataImpl[T]) UpdateDataAny(newData any, filterPartial *model.FilterType, filterDelete *model.FilterType) {
+	err := r.UpdateData(newData.(*T), filterPartial, filterDelete)
+	if err != nil {
+		// TODO: log error
+		fmt.Print(err.String())
+	}
 }

@@ -69,3 +69,7 @@ func (cmd *CmdType) ExtractFilter() (filterPartial *FilterType, filterDelete *Fi
 	}
 	return
 }
+
+func NewFilterTypePartial() *FilterType {
+	return &FilterType{CmdControl: &CmdControlType{Partial: &ElementTagType{}}}
+}

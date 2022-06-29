@@ -10,6 +10,10 @@ import (
 	"github.com/rickb777/date/period"
 )
 
+type Updater[T any] interface {
+	Update(s *T, filterPartial *FilterType, filterDelete *FilterType)
+}
+
 func (m ScaledNumberType) GetValue() float64 {
 	if m.Number == nil {
 		return 0

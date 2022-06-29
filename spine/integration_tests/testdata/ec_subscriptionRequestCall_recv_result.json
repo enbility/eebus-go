@@ -1,0 +1,32 @@
+{
+    "datagram": {
+        "header": {
+            "specificationVersion": "1.1.1",
+            "addressSource": {
+                "device": "HEMS",
+                "entity": [
+                    0
+                ],
+                "feature": 0
+            },
+            "addressDestination": {
+                "entity": [
+                    0
+                ],
+                "feature": 0
+            },
+            "msgCounter": 3,
+            "msgCounterReference": 2,
+            "cmdClassifier": "result"
+        },
+        "payload": {
+            "cmd": [
+                {
+                    "resultData": {
+                        "errorNumber": 0
+                    }
+                }
+            ]
+        }
+    }
+}
