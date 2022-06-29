@@ -1,5 +1,9 @@
 package util
 
+type HashKeyer interface {
+	HashKey() string
+}
+
 func FindFirst[T any](s []T, predicate func(i T) bool) *T {
 	for _, item := range s {
 		if predicate(item) {
@@ -9,17 +13,17 @@ func FindFirst[T any](s []T, predicate func(i T) bool) *T {
 	return nil
 }
 
-// Creates the union of two slices. The item in the second slice will replace the one in the first slice
-// if the hash value is the same. Items in the second slice which are not in the first will be added.
-func Union[T any](s1 []T, s2 []T, hasher func(i *T) string) []T {
+// Merges two slices into one. The item in the first slice will be replaced by the one in the second slice
+// if the hash key is the same. Items in the second slice which are not in the first will be added.
+func Merge[T HashKeyer](s1 []T, s2 []T) []T {
 	result := []T{}
 
-	m2 := ToMap(s2, hasher)
+	m2 := ToMap(s2)
 
 	// go through the first slice
 	m1 := make(map[string]T, len(s1))
 	for _, s1Item := range s1 {
-		s1ItemHash := hasher(&s1Item)
+		s1ItemHash := s1Item.HashKey()
 		s2Item, exist := m2[s1ItemHash]
 		if exist {
 			// the item in the first slice will be replaces by the one of the second slice
@@ -33,7 +37,7 @@ func Union[T any](s1 []T, s2 []T, hasher func(i *T) string) []T {
 
 	// append items which were not in the first slice
 	for _, s2Item := range s2 {
-		s2ItemHash := hasher(&s2Item)
+		s2ItemHash := s2Item.HashKey()
 		_, exist := m1[s2ItemHash]
 		if !exist {
 			result = append(result, s2Item)
@@ -43,10 +47,10 @@ func Union[T any](s1 []T, s2 []T, hasher func(i *T) string) []T {
 	return result
 }
 
-func ToMap[T any](s []T, hasher func(i *T) string) map[string]T {
+func ToMap[T HashKeyer](s []T) map[string]T {
 	result := make(map[string]T, len(s))
 	for _, item := range s {
-		result[hasher(&item)] = item
+		result[item.HashKey()] = item
 	}
 	return result
 }

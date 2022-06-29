@@ -13,9 +13,11 @@ type testStruct struct {
 	data string
 }
 
-func calcHash(s *testStruct) string {
-	return fmt.Sprintf("%d", s.id)
+func (r testStruct) HashKey() string {
+	return fmt.Sprintf("%d", r.id)
 }
+
+var _ util.HashKeyer = (*testStruct)(nil)
 
 func TestUnion_NewData(t *testing.T) {
 	existingData := []testStruct{
@@ -27,7 +29,7 @@ func TestUnion_NewData(t *testing.T) {
 	}
 
 	// Act
-	result := util.Union(existingData, newData, calcHash)
+	result := util.Merge(existingData, newData)
 
 	if assert.Equal(t, 2, len(result)) {
 		assert.Equal(t, 1, result[0].id)
@@ -49,7 +51,7 @@ func TestUnion_NewAndUpdateData(t *testing.T) {
 	}
 
 	// Act
-	result := util.Union(existingData, newData, calcHash)
+	result := util.Merge(existingData, newData)
 
 	if assert.Equal(t, 3, len(result)) {
 		assert.Equal(t, 1, result[0].id)

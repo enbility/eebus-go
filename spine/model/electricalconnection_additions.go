@@ -7,6 +7,7 @@ import (
 )
 
 var _ Updater[ElectricalConnectionPermittedValueSetListDataType] = (*ElectricalConnectionPermittedValueSetListDataType)(nil)
+var _ util.HashKeyer = (*ElectricalConnectionPermittedValueSetDataType)(nil)
 
 func (r *ElectricalConnectionPermittedValueSetListDataType) Update(s *ElectricalConnectionPermittedValueSetListDataType, filterPartial *FilterType, filterDelete *FilterType) {
 	if s == nil {
@@ -14,11 +15,13 @@ func (r *ElectricalConnectionPermittedValueSetListDataType) Update(s *Electrical
 	}
 
 	// TODO: consider filterPartial and filterDelete
-	newList := util.Union(r.ElectricalConnectionPermittedValueSetData, s.ElectricalConnectionPermittedValueSetData, CalcHash)
+	// TODO: consider items without identifiers
+	// TODO: Check if only single fields should be considered here
+	newList := util.Merge(r.ElectricalConnectionPermittedValueSetData, s.ElectricalConnectionPermittedValueSetData)
 
 	r.ElectricalConnectionPermittedValueSetData = newList
 }
 
-func CalcHash(s *ElectricalConnectionPermittedValueSetDataType) string {
-	return fmt.Sprintf("%d|%d", *s.ElectricalConnectionId, *s.ParameterId)
+func (r ElectricalConnectionPermittedValueSetDataType) HashKey() string {
+	return fmt.Sprintf("%d|%d", *r.ElectricalConnectionId, *r.ParameterId)
 }
