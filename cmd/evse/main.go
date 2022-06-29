@@ -83,7 +83,7 @@ func (h *evse) run() {
 	remoteService := service.ServiceDetails{
 		SKI: remoteSki,
 	}
-	_ = h.myService.RegisterRemoteService(remoteService)
+	h.myService.RegisterRemoteService(remoteService)
 }
 
 // handle a request to trust a remote service

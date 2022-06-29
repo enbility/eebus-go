@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service/util"
@@ -81,6 +82,9 @@ type ConnectionHandler struct {
 
 	// internal handling of closed connections
 	isConnectionClosed bool
+
+	mux          sync.Mutex
+	shutdownOnce sync.Once
 }
 
 func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectionDelegate ConnectionHandlerDelegate, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
@@ -94,24 +98,13 @@ func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectio
 	}
 }
 
-// Connection handler when the service initiates a connection to a remote service
-func (c *ConnectionHandler) handleConnection() {
-	if len(c.remoteService.SKI) == 0 {
-		fmt.Println("SKI is not set")
-		c.conn.Close()
-		return
-	}
-
-	c.startup()
-}
-
 func (c *ConnectionHandler) startup() {
 	c.readChannel = make(chan []byte, 1)      // Listen to incoming websocket messages
 	c.writeChannel = make(chan []byte, 1)     // Send outgoing websocket messages
 	c.shipReadChannel = make(chan []byte, 1)  // Listen to incoming ship messages
 	c.shipWriteChannel = make(chan []byte, 1) // Send outgoing ship messages
 	c.shipTrustChannel = make(chan bool, 1)   // Listen to trust state update
-	c.closeChannel = make(chan struct{})
+	c.closeChannel = make(chan struct{}, 1)   // Listen to close events
 
 	go c.readShipPump()
 	go c.writePump()
@@ -133,59 +126,60 @@ func (c *ConnectionHandler) startup() {
 // shutdown the connection and all internals
 // may only invoked after startup() is invoked!
 func (c *ConnectionHandler) shutdown(safeShutdown bool) {
-	if c.isConnectionClosed {
-		return
-	}
-
-	if c.smeState == smeComplete {
-		c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
-	}
-
-	c.unregisterChannel <- c
-
-	if !isChannelClosed(c.readChannel) {
-		close(c.readChannel)
-	}
-
-	if !isChannelClosed(c.writeChannel) {
-		close(c.writeChannel)
-	}
-
-	if !isChannelClosed(c.shipReadChannel) {
-		close(c.shipReadChannel)
-	}
-
-	if !isChannelClosed(c.shipWriteChannel) {
-		close(c.shipWriteChannel)
-	}
-
-	if !isChannelClosed(c.shipTrustChannel) {
-		close(c.shipTrustChannel)
-	}
-
-	if !isChannelClosed(c.closeChannel) {
-		close(c.closeChannel)
-	}
-
-	if c.conn != nil {
-		if c.smeState == smeComplete && safeShutdown {
-			// close the SHIP connection according to the SHIP protocol
-			c.shipClose()
+	c.shutdownOnce.Do(func() {
+		c.mux.Lock()
+		defer c.mux.Unlock()
+		if c.isConnectionClosed {
+			return
 		}
 
-		c.conn.Close()
-	}
+		if c.getSmeState() == smeComplete {
+			c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
+		}
 
-	c.isConnectionClosed = true
-}
+		c.unregisterChannel <- c
 
-func isChannelClosed[T any](ch <-chan T) bool {
-	select {
-	case <-ch:
-		return false
-	default:
-		return true
-	}
+		if !util.IsChannelClosed(c.readChannel) {
+			close(c.readChannel)
+			c.readChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.writeChannel) {
+			close(c.writeChannel)
+			c.writeChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.shipReadChannel) {
+			close(c.shipReadChannel)
+			c.shipReadChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.shipWriteChannel) {
+			close(c.shipWriteChannel)
+			c.shipWriteChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.shipTrustChannel) {
+			close(c.shipTrustChannel)
+			c.shipTrustChannel = nil
+		}
+
+		if !util.IsChannelClosed(c.closeChannel) {
+			close(c.closeChannel)
+			c.closeChannel = nil
+		}
+
+		if c.conn != nil {
+			if c.getSmeState() == smeComplete && safeShutdown {
+				// close the SHIP connection according to the SHIP protocol
+				c.shipClose()
+			}
+
+			c.conn.Close()
+		}
+
+		c.isConnectionClosed = true
+	})
 }
 
 // writePump pumps messages from the writeChannel to the writeShipChannel
@@ -199,7 +193,7 @@ func (c *ConnectionHandler) writePump() {
 				// The write channel is closed
 				return
 			}
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 
@@ -224,7 +218,7 @@ func (c *ConnectionHandler) writeShipPump() {
 		case <-c.closeChannel:
 			return
 		case message, ok := <-c.shipWriteChannel:
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 
@@ -240,7 +234,7 @@ func (c *ConnectionHandler) writeShipPump() {
 				return
 			}
 		case <-ticker.C:
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
@@ -266,7 +260,7 @@ func (c *ConnectionHandler) readShipPump() {
 		case <-c.closeChannel:
 			return
 		default:
-			if c.isConnectionClosed {
+			if c.isConnClosed() {
 				return
 			}
 
@@ -276,7 +270,7 @@ func (c *ConnectionHandler) readShipPump() {
 					fmt.Println("Error reading message: ", err)
 				}
 
-				if c.isConnectionClosed {
+				if c.isConnClosed() {
 					return
 				}
 
@@ -287,7 +281,7 @@ func (c *ConnectionHandler) readShipPump() {
 
 			// Check if this is a SHIP SME or SPINE message
 			isShipMessage := false
-			if c.smeState != smeComplete {
+			if c.getSmeState() != smeComplete {
 				isShipMessage = true
 			} else {
 				isShipMessage = bytes.Contains([]byte("datagram:"), message)
@@ -309,7 +303,12 @@ func (c *ConnectionHandler) readShipPump() {
 					fmt.Println("Received no valid payload")
 					continue
 				}
-				go func() { c.readChannel <- []byte(data.Data.Payload) }()
+				go func() {
+					if c.readChannel == nil {
+						return
+					}
+					c.readChannel <- []byte(data.Data.Payload)
+				}()
 			}
 		}
 	}
@@ -356,6 +355,7 @@ func (c *ConnectionHandler) writeWebsocketMessage(message []byte) error {
 	if c.conn == nil {
 		return errors.New("Connection is not initialized")
 	}
+
 	c.shipWriteChannel <- message
 	return nil
 }
@@ -465,4 +465,11 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	}
 
 	return shipHeaderByte, msg
+}
+
+func (c *ConnectionHandler) isConnClosed() bool {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	return c.isConnectionClosed
 }

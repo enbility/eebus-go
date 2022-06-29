@@ -82,7 +82,7 @@ func (h *hems) run() {
 	remoteService := service.ServiceDetails{
 		SKI: remoteSki,
 	}
-	_ = h.myService.RegisterRemoteService(remoteService)
+	h.myService.RegisterRemoteService(remoteService)
 }
 
 // EEBUSServiceDelegate

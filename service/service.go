@@ -14,7 +14,7 @@ const defaultPort int = 4711
 
 type ServiceDetails struct {
 	// This is the SKI of the service
-	// This needs to be peristed
+	// This needs to be persisted
 	SKI string
 
 	// ShipID is the ship identifier of the service
@@ -169,7 +169,12 @@ func (s *EEBUSService) Setup() error {
 	s.spineLocalDevice.AddEntity(entity)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	s.connectionsHub = newConnectionsHub(s.ServiceDescription, s.LocalService, s)
+	hub, err := newConnectionsHub(s.ServiceDescription, s.LocalService, s)
+	if err != nil {
+		return err
+	}
+
+	s.connectionsHub = hub
 
 	return nil
 }
@@ -239,8 +244,8 @@ func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spin
 
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
-func (s *EEBUSService) RegisterRemoteService(service ServiceDetails) error {
-	return s.connectionsHub.registerRemoteService(service)
+func (s *EEBUSService) RegisterRemoteService(service ServiceDetails) {
+	s.connectionsHub.registerRemoteService(service)
 }
 
 // Remove a device from the list of known devices which can be connected to

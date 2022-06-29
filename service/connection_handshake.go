@@ -89,7 +89,7 @@ func (c *ConnectionHandler) shipHandshake(trusted bool) error {
 		return err
 	}
 
-	c.smeState = smeComplete
+	c.setSmeState(smeComplete)
 
 	return nil
 }
@@ -100,19 +100,19 @@ func (c *ConnectionHandler) handshakeInit() error {
 	var msgType byte
 	var err error
 
-	c.smeState = cmiStatInitStart
+	c.setSmeState(cmiStatInitStart)
 
 	shipInit := []byte{ship.MsgTypeInit, 0x00}
 
 	if c.role == ShipRoleClient {
 		// CMI_STATE_CLIENT_SEND
-		c.smeState = cmiStateClientSend
+		c.setSmeState(cmiStateClientSend)
 		if err := c.writeWebsocketMessage(shipInit); err != nil {
 			return err
 		}
-		c.smeState = cmiStateClientWait
+		c.setSmeState(cmiStateClientWait)
 	} else {
-		c.smeState = cmiStateServerWait
+		c.setSmeState(cmiStateServerWait)
 	}
 
 	// CMI_STATE_SERVER_WAIT
@@ -123,12 +123,12 @@ func (c *ConnectionHandler) handshakeInit() error {
 	}
 
 	if c.role == ShipRoleServer {
-		c.smeState = cmiStateServerEvaluate
+		c.setSmeState(cmiStateServerEvaluate)
 		if err := c.writeWebsocketMessage(shipInit); err != nil {
 			return err
 		}
 	} else {
-		c.smeState = cmiStateClientEvaluate
+		c.setSmeState(cmiStateClientEvaluate)
 	}
 
 	// CMI_STATE_SERVER_EVALUATE
@@ -142,7 +142,7 @@ func (c *ConnectionHandler) handshakeInit() error {
 		return errors.New("Invalid SHIP MessageValue, expected 0 and got " + string(data))
 	}
 
-	c.smeState = smeHelloState
+	c.setSmeState(smeHelloState)
 
 	return nil
 }
@@ -176,22 +176,22 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 
 	if trusted {
 		// SME_HELLO_STATE_READY_INIT
-		c.smeState = smeHelloStateReadyInit
+		c.setSmeState(smeHelloStateReadyInit)
 
 		if err := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypeReady, tHelloInit, false); err != nil {
-			c.smeState = smeHelloStateAbort
+			c.setSmeState(smeHelloStateAbort)
 
 			return err
 		}
 
 		// SME_HELLO_STATE_READY_LISTEN
-		c.smeState = smeHelloStateReadyListen
+		c.setSmeState(smeHelloStateReadyListen)
 	} else {
 		// SME_HELLO_STATE_PENDING_INIT
-		c.smeState = smeHelloStatePendingInit
+		c.setSmeState(smeHelloStatePendingInit)
 
 		if err := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypePending, tHelloInit, false); err != nil {
-			c.smeState = smeHelloStateAbort
+			c.setSmeState(smeHelloStateAbort)
 
 			return err
 		}
@@ -199,7 +199,7 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 		c.connectionDelegate.requestUserTrustForService(c.remoteService)
 
 		// SME_HELLO_STATE_PENDING_LISTEN
-		c.smeState = smeHelloStatePendingListen
+		c.setSmeState(smeHelloStatePendingListen)
 	}
 
 	currentTimeout := cmiTimeout
@@ -212,7 +212,7 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 				return err
 			}
 			if trusted {
-				c.smeState = smeHelloStateReadyTimeout
+				c.setSmeState(smeHelloStateReadyTimeout)
 
 				if sendErr := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypeAborted, 0, false); sendErr != nil {
 					return sendErr
@@ -221,13 +221,13 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 				return err
 			} else {
 				// Timeout and we didn't receive a user input, so ask for prolongation
-				c.smeState = smeHelloStatePendingTimeout
+				c.setSmeState(smeHelloStatePendingTimeout)
 
 				if sendErr := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypePending, 0, true); sendErr != nil {
 					return sendErr
 				}
 
-				c.smeState = smeHelloStatePendingListen
+				c.setSmeState(smeHelloStatePendingListen)
 
 				currentTimeout = tHelloProlongThrInc
 
@@ -237,21 +237,21 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 		// if data is nil, we got a local trust update
 		if data == nil {
 			if !trustState {
-				c.smeState = smeHelloStateAbort
+				c.setSmeState(smeHelloStateAbort)
 
 				return errors.New("Trust denied. Connection aborted")
 			} else {
 				if sendErr := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypeReady, tHelloInit, false); sendErr != nil {
-					c.smeState = smeHelloStateAbort
+					c.setSmeState(smeHelloStateAbort)
 
 					return sendErr
 				}
 
 				// HELLO_OK
-				c.smeState = smeHelloStateReadyListen
+				c.setSmeState(smeHelloStateReadyListen)
 
 				if remoteSmeState == smeHelloStateOk {
-					c.smeState = smeHelloStateOk
+					c.setSmeState(smeHelloStateOk)
 					return nil
 				}
 
@@ -263,7 +263,7 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 
 		var helloReturnMsg ship.ConnectionHello
 		if err := json.Unmarshal(data, &helloReturnMsg); err != nil {
-			c.smeState = smeHelloStateAbort
+			c.setSmeState(smeHelloStateAbort)
 
 			return err
 		}
@@ -273,30 +273,30 @@ func (c *ConnectionHandler) handshakeHello(trusted bool) error {
 			// HELLO_OK
 			remoteSmeState = smeHelloStateOk
 
-			if c.smeState == smeHelloStateReadyListen {
-				c.smeState = smeHelloStateOk
+			if c.getSmeState() == smeHelloStateReadyListen {
+				c.setSmeState(smeHelloStateOk)
 			}
 		case ship.ConnectionHelloPhaseTypePending:
 			// if we got a prolongation request, accept it
 			if helloReturnMsg.ConnectionHello.ProlongationRequest != nil && *helloReturnMsg.ConnectionHello.ProlongationRequest {
 				if sendErr := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypePending, tHelloInit, false); sendErr != nil {
-					c.smeState = smeHelloStateAbort
+					c.setSmeState(smeHelloStateAbort)
 
 					return sendErr
 				}
 			}
 
 		case ship.ConnectionHelloPhaseTypeAborted:
-			c.smeState = smeHelloStateAbort
+			c.setSmeState(smeHelloStateAbort)
 
 			return errors.New("Connection aborted")
 		default:
-			c.smeState = smeHelloStateAbort
+			c.setSmeState(smeHelloStateAbort)
 
 			return fmt.Errorf("Unexpected connection hello phase: %s", helloReturnMsg.ConnectionHello.Phase)
 		}
 
-		if c.smeState == smeHelloStateOk && remoteSmeState == smeHelloStateOk {
+		if c.getSmeState() == smeHelloStateOk && remoteSmeState == smeHelloStateOk {
 			return nil
 		}
 	}
@@ -537,4 +537,18 @@ func (c *ConnectionHandler) readNextShipMessage(duration time.Duration) ([]byte,
 		timeout.Stop()
 		return msg, false, nil
 	}
+}
+
+func (c *ConnectionHandler) setSmeState(state shipMessageExchangeState) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	c.smeState = state
+}
+
+func (c *ConnectionHandler) getSmeState() shipMessageExchangeState {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	return c.smeState
 }
