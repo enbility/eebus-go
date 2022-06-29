@@ -3,13 +3,14 @@
         "header": {
             "specificationVersion": "1.1.1",
             "addressSource": {
+                "device": "Wallbox",
                 "entity": [
                     0
                 ],
                 "feature": 0
             },
             "addressDestination": {
-                "device": "TestDeviceAddress",
+                "device": "HEMS",
                 "entity": [
                     0
                 ],
@@ -31,9 +32,9 @@
                         "deviceInformation": {
                             "description": {
                                 "deviceAddress": {
-                                    "device": "HEMS"
+                                    "device": "Wallbox"
                                 },
-                                "deviceType": "EnergyManagementSystem",
+                                "deviceType": "ChargingStation",
                                 "networkFeatureSet": "smart"
                             }
                         },
@@ -41,7 +42,7 @@
                             {
                                 "description": {
                                     "entityAddress": {
-                                        "device": "HEMS",
+                                        "device": "Wallbox",
                                         "entity": [
                                             0
                                         ]
@@ -52,12 +53,12 @@
                             {
                                 "description": {
                                     "entityAddress": {
-                                        "device": "HEMS",
+                                        "device": "Wallbox",
                                         "entity": [
                                             1
                                         ]
                                     },
-                                    "entityType": "CEM"
+                                    "entityType": "EVSE"
                                 }
                             }                        
 						],
@@ -65,7 +66,7 @@
                             {
                                 "description": {
                                     "featureAddress": {
-                                        "device": "HEMS",
+                                        "device": "Wallbox",
                                         "entity": [
                                             0
                                         ],
@@ -120,7 +121,7 @@
                             {
                                 "description": {
                                     "featureAddress": {
-                                        "device": "HEMS",
+                                        "device": "Wallbox",
                                         "entity": [
                                             0
                                         ],
@@ -141,7 +142,7 @@
                             {
                                 "description": {
                                     "featureAddress": {
-                                        "device": "HEMS",
+                                        "device": "Wallbox",
                                         "entity": [
                                             1
                                         ],
@@ -154,7 +155,7 @@
                             {
                                 "description": {
                                     "featureAddress": {
-                                        "device": "HEMS",
+                                        "device": "Wallbox",
                                         "entity": [
                                             1
                                         ],
@@ -167,7 +168,7 @@
                             {
                                 "description": {
                                     "featureAddress": {
-                                        "device": "HEMS",
+                                        "device": "Wallbox",
                                         "entity": [
                                             1
                                         ],

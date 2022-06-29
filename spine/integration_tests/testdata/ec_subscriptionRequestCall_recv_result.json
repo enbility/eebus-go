@@ -3,13 +3,14 @@
         "header": {
             "specificationVersion": "1.1.1",
             "addressSource": {
-                "device": "HEMS",
+                "device": "Wallbox",
                 "entity": [
                     0
                 ],
                 "feature": 0
             },
             "addressDestination": {
+                "device": "HEMS",
                 "entity": [
                     0
                 ],
