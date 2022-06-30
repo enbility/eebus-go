@@ -40,9 +40,8 @@ func (r *FeatureRemoteImpl) Data(function model.FunctionType) any {
 	return r.functionData(function).DataAny()
 }
 
-func (r *FeatureRemoteImpl) SetData(function model.FunctionType, data any) {
-	r.functionData(function).SetDataAny(data)
-
+func (r *FeatureRemoteImpl) UpdateData(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType) {
+	r.functionData(function).UpdateDataAny(data, filterPartial, filterDelete)
 	// TODO: fire event
 }
 

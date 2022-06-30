@@ -86,7 +86,7 @@ func (r *FeatureLocalImpl) Data(function model.FunctionType) any {
 
 func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
 	fd := r.functionData(function)
-	fd.SetDataAny(data)
+	fd.UpdateDataAny(data, nil, nil)
 
 	r.Device().NotifySubscribers(r.Address(), []model.CmdType{fd.NotifyCmdType(false)})
 }
@@ -218,6 +218,10 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 		if err := r.processReply(*cmdData.Function, cmdData.Value, message.RequestHeader, message.FeatureRemote); err != nil {
 			return err
 		}
+	case model.CmdClassifierTypeNotify:
+		if err := r.processNotify(*cmdData.Function, cmdData.Value, message.FilterPartial, message.FilterDelete, message.FeatureRemote); err != nil {
+			return err
+		}
 	default:
 		return NewErrorTypeFromString(fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
 	}
@@ -262,7 +266,7 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 }
 
 func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
-	featureRemote.SetData(function, data)
+	featureRemote.UpdateData(function, data, nil, nil)
 	if err := r.pendingRequests.SetData(*requestHeader.MsgCounterReference, data); err != nil {
 		payload := EventPayload{
 			Ski:        featureRemote.Device().ski,
@@ -273,6 +277,21 @@ func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, r
 		}
 		Events.Publish(payload)
 	}
+
+	return nil
+}
+
+func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, featureRemote *FeatureRemoteImpl) *ErrorType {
+	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
+	// TODO: send event
+	// payload := EventPayload{
+	// 	Ski:        featureRemote.Device().ski,
+	// 	EventType:  EventTypeDataChange,
+	// 	ChangeType: ElementChangeUpdate,
+	// 	Feature:    featureRemote,
+	// 	Data:       data,
+	// }
+	// Events.Publish(payload)
 
 	return nil
 }

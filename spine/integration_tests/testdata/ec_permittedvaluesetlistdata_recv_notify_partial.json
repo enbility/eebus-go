@@ -1,0 +1,102 @@
+{
+    "datagram": {
+        "header": {
+            "specificationVersion": "1.2.0",
+            "addressSource": {
+                "device": "Wallbox",
+                "entity": [
+                    1
+                ],
+                "feature": 3
+            },
+            "addressDestination": {
+                "device": "HEMS",
+                "entity": [
+                    1
+                ],
+                "feature": 1
+            },
+            "msgCounter": 1,
+            "cmdClassifier": "notify",
+            "ackRequest":true
+        },
+        "payload": {
+            "cmd": [
+                {
+                    "function":"electricalConnectionPermittedValueSetListData",
+                    "filter":[
+                        {
+                            "cmdControl":{
+                                "partial":{}
+                            }
+                        }
+                    ],
+                    "electricalConnectionPermittedValueSetListData": {
+                        "electricalConnectionPermittedValueSetData": [
+                            {
+                                "electricalConnectionId":0,
+                                "parameterId":1,
+                                "permittedValueSet": [
+                                    {
+                                        "range": [
+                                            {
+                                                "min": {
+                                                    "number":6,
+                                                    "scale":0
+                                                },
+                                                "max": {
+                                                    "number":16,
+                                                    "scale":0
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "electricalConnectionId":0,
+                                "parameterId":2,
+                                "permittedValueSet": [
+                                    {
+                                        "range": [
+                                            {
+                                                "min": {
+                                                    "number":6,
+                                                    "scale":0
+                                                },
+                                                "max": {
+                                                    "number":16,
+                                                    "scale":0
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "electricalConnectionId":0,
+                                "parameterId":3,
+                                "permittedValueSet": [
+                                    {
+                                        "range": [
+                                            {
+                                                "min": {
+                                                    "number":6,
+                                                    "scale":0
+                                                },
+                                                "max": {
+                                                    "number":16,
+                                                    "scale":0
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
