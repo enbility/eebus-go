@@ -13,8 +13,8 @@ type UpdaterFactory[T any] interface {
 type UpdateDataProvider[T util.HashKeyer] interface {
 	ExistingData() []T
 	NewData() []T
-	UpdateSelektorHashKey() *string
-	DeleteSelektorHashKey() *string
+	UpdateSelectorHashKey() *string
+	DeleteSelectorHashKey() *string
 	HasIdentifier(*T) bool
 	CopyData(source *T, dest *T)
 }
@@ -30,7 +30,7 @@ func UpdateList[T util.HashKeyer](dataProvider UpdateDataProvider[T]) []T {
 	// TODO: Check if only single fields should be considered here
 
 	// check if selector is used
-	updateSelectorHashKey := dataProvider.UpdateSelektorHashKey()
+	updateSelectorHashKey := dataProvider.UpdateSelectorHashKey()
 	if updateSelectorHashKey != nil {
 		return copyToSelectedData(dataProvider, &newData[0], *updateSelectorHashKey)
 	}

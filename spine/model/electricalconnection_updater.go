@@ -24,12 +24,12 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) NewData() []
 	return r.newData
 }
 
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) UpdateSelektorHashKey() *string {
-	return r.selektorHashKey(r.filterPartial)
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) UpdateSelectorHashKey() *string {
+	return r.selectorHashKey(r.filterPartial)
 }
 
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) DeleteSelektorHashKey() *string {
-	return r.selektorHashKey(r.filterDelete)
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) DeleteSelectorHashKey() *string {
+	return r.selectorHashKey(r.filterDelete)
 }
 
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasIdentifier(item *ElectricalConnectionPermittedValueSetDataType) bool {
@@ -42,7 +42,7 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) CopyData(sou
 	}
 }
 
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) selektorHashKey(filter *FilterType) *string {
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) selectorHashKey(filter *FilterType) *string {
 	var result *string = nil
 	if filter != nil && filter.ElectricalConnectionPermittedValueSetListDataSelectors != nil {
 		result = util.Ptr(electricalConnectionPermittedValueSetDataHashKey(
