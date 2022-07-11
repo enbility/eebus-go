@@ -2,9 +2,9 @@ package spine
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/DerAndereAndi/eebus-go/util"
 )
 
 type FunctionData interface {
@@ -41,18 +41,17 @@ func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.Filter
 		return nil
 	}
 
-	newT := new(T)
-	_, supported := any(newT).(model.Updater[T])
+	supported := util.Implements[T, model.UpdaterFactory[T]]()
 	if !supported {
-		return NewErrorTypeFromString(fmt.Sprintf("partial updates are not supported for type '%s'", reflect.TypeOf(*newT).Name()))
+		return NewErrorTypeFromString(fmt.Sprintf("partial updates are not supported for type '%s'", util.Type[T]().Name()))
 	}
 
 	if r.data == nil {
-		r.data = newT
+		r.data = new(T)
 	}
 
-	updater, _ := any(r.data).(model.Updater[T])
-	updater.Update(newData, filterPartial, filterDelete)
+	updater := any(r.data).(model.UpdaterFactory[T])
+	updater.NewUpdater(newData, filterPartial, filterDelete).DoUpdate()
 	return nil
 }
 

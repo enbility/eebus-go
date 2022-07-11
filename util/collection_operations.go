@@ -62,3 +62,12 @@ func Values[K comparable, V any](m map[K]V) []V {
 	}
 	return ret
 }
+
+// casts all elements in slice s to type D
+func CastElements[S any, D any](s []S) []D {
+	result := make([]D, len(s))
+	for i, item := range s {
+		result[i] = any(item).(D)
+	}
+	return result
+}
