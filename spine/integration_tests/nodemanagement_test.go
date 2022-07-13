@@ -10,16 +10,16 @@ import (
 )
 
 const (
-	detaileddiscoverydata_send_read_file_prefix     = "./testdata/nm_detaileddiscoverydata_send_read"
-	detaileddiscoverydata_recv_reply_file_path      = "./testdata/nm_detaileddiscoverydata_recv_reply.json"
-	detaileddiscoverydata_recv_read_file_path       = "./testdata/nm_detaileddiscoverydata_recv_read.json"
-	detaileddiscoverydata_send_reply_file_prefix    = "./testdata/nm_detaileddiscoverydata_send_reply"
-	detaileddiscoverydata_recv_read_ack_file_path   = "./testdata/nm_detaileddiscoverydata_recv_read_ack.json"
-	detaileddiscoverydata_send_result_file_prefix   = "./testdata/nm_detaileddiscoverydata_send_result"
-	subscriptionRequestCall_recv_call_file_path     = "./testdata/nm_subscriptionRequestCall_recv_call.json"
-	subscriptionRequestCall_send_result_file_prefix = "./testdata/nm_subscriptionRequestCall_send_result"
-	destinationListData_recv_read_file_path         = "./testdata/nm_destinationListData_recv_read.json"
-	destinationListData_send_reply_file_prefix      = "./testdata/nm_destinationListData_send_reply"
+	nm_detaileddiscoverydata_send_read_file_prefix     = "./testdata/nm_detaileddiscoverydata_send_read"
+	hems_detaileddiscoverydata_recv_reply_file_path    = "./testdata/hems_detaileddiscoverydata_recv_reply.json"
+	nm_detaileddiscoverydata_recv_read_file_path       = "./testdata/nm_detaileddiscoverydata_recv_read.json"
+	nm_detaileddiscoverydata_send_reply_file_prefix    = "./testdata/nm_detaileddiscoverydata_send_reply"
+	nm_detaileddiscoverydata_recv_read_ack_file_path   = "./testdata/nm_detaileddiscoverydata_recv_read_ack.json"
+	nm_detaileddiscoverydata_send_result_file_prefix   = "./testdata/nm_detaileddiscoverydata_send_result"
+	nm_subscriptionRequestCall_recv_call_file_path     = "./testdata/nm_subscriptionRequestCall_recv_call.json"
+	nm_subscriptionRequestCall_send_result_file_prefix = "./testdata/nm_subscriptionRequestCall_send_result"
+	nm_destinationListData_recv_read_file_path         = "./testdata/nm_destinationListData_recv_read.json"
+	nm_destinationListData_send_reply_file_prefix      = "./testdata/nm_destinationListData_send_reply"
 )
 
 func TestNodeManagementSuite(t *testing.T) {
@@ -56,7 +56,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendRead() {
 
 	// Assert
 	sendBytes := <-s.writeC
-	checkSentData(s.T(), sendBytes, detaileddiscoverydata_send_read_file_prefix)
+	checkSentData(s.T(), sendBytes, nm_detaileddiscoverydata_send_read_file_prefix)
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReply() {
@@ -64,11 +64,11 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendReply() {
 	<-s.writeC
 
 	// Act
-	s.readC <- loadFileData(s.T(), detaileddiscoverydata_recv_read_file_path)
+	s.readC <- loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_file_path)
 
 	// Assert
 	sendBytes := <-s.writeC
-	checkSentData(s.T(), sendBytes, detaileddiscoverydata_send_reply_file_prefix)
+	checkSentData(s.T(), sendBytes, nm_detaileddiscoverydata_send_reply_file_prefix)
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
@@ -76,7 +76,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 	<-s.writeC
 
 	// Act
-	s.readC <- loadFileData(s.T(), detaileddiscoverydata_recv_reply_file_path)
+	s.readC <- loadFileData(s.T(), hems_detaileddiscoverydata_recv_reply_file_path)
 
 	<-s.writeC // to wait until the datagram is processed
 
@@ -132,13 +132,13 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {
 	<-s.writeC
 
 	// Act
-	s.readC <- loadFileData(s.T(), detaileddiscoverydata_recv_read_ack_file_path)
+	s.readC <- loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_ack_file_path)
 
 	// Assert
 	sentReply := <-s.writeC
-	checkSentData(s.T(), sentReply, detaileddiscoverydata_send_reply_file_prefix)
+	checkSentData(s.T(), sentReply, nm_detaileddiscoverydata_send_reply_file_prefix)
 	sentResult := <-s.writeC
-	checkSentData(s.T(), sentResult, detaileddiscoverydata_send_result_file_prefix)
+	checkSentData(s.T(), sentResult, nm_detaileddiscoverydata_send_result_file_prefix)
 }
 
 func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscovery() {
@@ -146,11 +146,11 @@ func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscover
 	<-s.writeC
 
 	// Act
-	s.readC <- loadFileData(s.T(), subscriptionRequestCall_recv_call_file_path)
+	s.readC <- loadFileData(s.T(), nm_subscriptionRequestCall_recv_call_file_path)
 
 	// Assert
 	sentResult := <-s.writeC
-	checkSentData(s.T(), sentResult, subscriptionRequestCall_send_result_file_prefix)
+	checkSentData(s.T(), sentResult, nm_subscriptionRequestCall_send_result_file_prefix)
 
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
 	subscriptionsForDevice := s.sut.SubscriptionManager().Subscriptions(remoteDevice)
@@ -164,9 +164,9 @@ func (s *NodeManagementSuite) TestDestinationList_SendReply() {
 	<-s.writeC
 
 	// Act
-	s.readC <- loadFileData(s.T(), destinationListData_recv_read_file_path)
+	s.readC <- loadFileData(s.T(), nm_destinationListData_recv_read_file_path)
 
 	// Assert
 	sendBytes := <-s.writeC
-	checkSentData(s.T(), sendBytes, destinationListData_send_reply_file_prefix)
+	checkSentData(s.T(), sendBytes, nm_destinationListData_send_reply_file_prefix)
 }

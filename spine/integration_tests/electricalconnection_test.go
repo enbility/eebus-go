@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ec_detaileddiscoverydata_recv_reply_file_path              = "./testdata/ec_detaileddiscoverydata_recv_reply.json"
+	wallbox_detaileddiscoverydata_recv_reply_file_path         = "./testdata/wallbox_detaileddiscoverydata_recv_reply.json"
 	ec_permittedvaluesetlistdata_recv_notify_partial_file_path = "./testdata/ec_permittedvaluesetlistdata_recv_notify_partial.json"
 	ec_subscriptionRequestCall_recv_result_file_path           = "./testdata/ec_subscriptionRequestCall_recv_result.json"
 )
@@ -53,7 +53,7 @@ func (s *ElectricalConnectionSuite) TestPermittedValueSetListData_RecvNotifyPart
 	<-s.writeC // ignore NodeManagementDetailedDiscoveryData read
 
 	// init with detaileddiscoverydata
-	s.readC <- loadFileData(s.T(), ec_detaileddiscoverydata_recv_reply_file_path)
+	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path)
 	<-s.writeC // ignore NodeManagementSubscriptionRequestCall
 	s.readC <- loadFileData(s.T(), ec_subscriptionRequestCall_recv_result_file_path)
 	<-s.writeC // ignore NodeManagementUseCaseData read
