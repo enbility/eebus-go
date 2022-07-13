@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	wallbox_detaileddiscoverydata_recv_reply_file_path         = "./testdata/wallbox_detaileddiscoverydata_recv_reply.json"
 	ec_permittedvaluesetlistdata_recv_notify_partial_file_path = "./testdata/ec_permittedvaluesetlistdata_recv_notify_partial.json"
 	ec_subscriptionRequestCall_recv_result_file_path           = "./testdata/ec_subscriptionRequestCall_recv_result.json"
 )

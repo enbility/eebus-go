@@ -11,7 +11,6 @@ import (
 
 const (
 	nm_detaileddiscoverydata_send_read_file_prefix     = "./testdata/nm_detaileddiscoverydata_send_read"
-	hems_detaileddiscoverydata_recv_reply_file_path    = "./testdata/hems_detaileddiscoverydata_recv_reply.json"
 	nm_detaileddiscoverydata_recv_read_file_path       = "./testdata/nm_detaileddiscoverydata_recv_read.json"
 	nm_detaileddiscoverydata_send_reply_file_prefix    = "./testdata/nm_detaileddiscoverydata_send_reply"
 	nm_detaileddiscoverydata_recv_read_ack_file_path   = "./testdata/nm_detaileddiscoverydata_recv_read_ack.json"
@@ -39,7 +38,7 @@ func (s *NodeManagementSuite) SetupSuite() {
 
 func (s *NodeManagementSuite) BeforeTest(suiteName, testName string) {
 	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestDeviceCode",
-		"TestSerialNumber", "TestDeviceAddress", model.DeviceTypeTypeChargingStation, model.NetworkManagementFeatureSetTypeSmart)
+		"TestSerialNumber", "TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
 	s.remoteSki = "TestRemoteSki"
 
 	s.readC = make(chan []byte, 1)
@@ -76,14 +75,14 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 	<-s.writeC
 
 	// Act
-	s.readC <- loadFileData(s.T(), hems_detaileddiscoverydata_recv_reply_file_path)
+	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path)
 
 	<-s.writeC // to wait until the datagram is processed
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
 	assert.NotNil(s.T(), remoteDevice)
-	assert.Equal(s.T(), model.DeviceTypeTypeEnergyManagementSystem, *remoteDevice.DeviceType())
+	assert.Equal(s.T(), model.DeviceTypeTypeChargingStation, *remoteDevice.DeviceType())
 	assert.Equal(s.T(), model.NetworkManagementFeatureSetTypeSmart, *remoteDevice.FeatureSet())
 
 	rEntities := remoteDevice.Entities()
@@ -107,24 +106,31 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 	assert.Equal(s.T(), model.RoleTypeServer, dc.Role())
 	assert.Equal(s.T(), 1, len(dc.Operations()))
 
-	cem := rEntities[1]
-	assert.NotNil(s.T(), cem)
-	assert.Equal(s.T(), model.EntityTypeTypeCEM, cem.EntityType())
+	evse := rEntities[1]
+	assert.NotNil(s.T(), evse)
+	assert.Equal(s.T(), model.EntityTypeTypeEVSE, evse.EntityType())
 
-	cemFeatures := cem.Features()
-	assert.Equal(s.T(), 2, len(cemFeatures))
+	evseFeatures := evse.Features()
+	assert.Equal(s.T(), 3, len(evseFeatures))
 
-	cemdc := cemFeatures[0]
-	assert.Equal(s.T(), 1, int(*cemdc.Address().Feature))
-	assert.Equal(s.T(), model.FeatureTypeTypeDeviceClassification, cemdc.Type())
-	assert.Equal(s.T(), model.RoleTypeClient, cemdc.Role())
-	assert.Equal(s.T(), 0, len(cemdc.Operations()))
+	evsedc := evseFeatures[0]
+	assert.Equal(s.T(), 1, int(*evsedc.Address().Feature))
+	assert.Equal(s.T(), model.FeatureTypeTypeDeviceClassification, evsedc.Type())
+	assert.Equal(s.T(), model.RoleTypeClient, evsedc.Role())
+	assert.Equal(s.T(), 0, len(evsedc.Operations()))
 
-	cemdd := cemFeatures[1]
-	assert.Equal(s.T(), 2, int(*cemdd.Address().Feature))
-	assert.Equal(s.T(), model.FeatureTypeTypeDeviceDiagnosis, cemdd.Type())
-	assert.Equal(s.T(), model.RoleTypeClient, cemdd.Role())
-	assert.Equal(s.T(), 0, len(cemdd.Operations()))
+	evsedd := evseFeatures[1]
+	assert.Equal(s.T(), 2, int(*evsedd.Address().Feature))
+	assert.Equal(s.T(), model.FeatureTypeTypeDeviceDiagnosis, evsedd.Type())
+	assert.Equal(s.T(), model.RoleTypeClient, evsedd.Role())
+	assert.Equal(s.T(), 0, len(evsedd.Operations()))
+
+	evseec := evseFeatures[2]
+	assert.Equal(s.T(), 3, int(*evseec.Address().Feature))
+	assert.Equal(s.T(), model.FeatureTypeTypeElectricalConnection, evseec.Type())
+	assert.Equal(s.T(), model.RoleTypeServer, evseec.Role())
+	assert.Equal(s.T(), 0, len(evseec.Operations()))
+
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {

@@ -11,6 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	wallbox_detaileddiscoverydata_recv_reply_file_path = "./testdata/wallbox_detaileddiscoverydata_recv_reply.json"
+)
+
 func loadFileData(t *testing.T, fileName string) []byte {
 	fileData, err := os.ReadFile(fileName)
 	if err != nil {

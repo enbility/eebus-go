@@ -34,7 +34,7 @@
                                 "deviceAddress": {
                                     "device": "TestDeviceAddress"
                                 },
-                                "deviceType": "ChargingStation",
+                                "deviceType": "EnergyManagementSystem",
                                 "networkFeatureSet": "smart"
                             }
                         },
