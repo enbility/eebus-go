@@ -14,16 +14,16 @@ import (
 )
 
 const (
-	detaileddiscoverydata_send_read_file_prefix     = "./testdata/01_detaileddiscoverydata_send_read"
-	detaileddiscoverydata_recv_reply_file_path      = "./testdata/01_detaileddiscoverydata_recv_reply.json"
-	detaileddiscoverydata_recv_read_file_path       = "./testdata/01_detaileddiscoverydata_recv_read.json"
-	detaileddiscoverydata_send_reply_file_prefix    = "./testdata/01_detaileddiscoverydata_send_reply"
-	detaileddiscoverydata_recv_read_ack_file_path   = "./testdata/01_detaileddiscoverydata_recv_read_ack.json"
-	detaileddiscoverydata_send_result_file_prefix   = "./testdata/01_detaileddiscoverydata_send_result"
-	subscriptionRequestCall_recv_call_file_path     = "./testdata/02_subscriptionRequestCall_recv_call.json"
-	subscriptionRequestCall_send_result_file_prefix = "./testdata/02_subscriptionRequestCall_send_result"
-	destinationListData_recv_read_file_path         = "./testdata/02_destinationListData_recv_read.json"
-	destinationListData_send_reply_file_prefix      = "./testdata/02_destinationListData_send_reply"
+	detaileddiscoverydata_send_read_file_prefix     = "./testdata/nm_detaileddiscoverydata_send_read"
+	detaileddiscoverydata_recv_reply_file_path      = "./testdata/nm_detaileddiscoverydata_recv_reply.json"
+	detaileddiscoverydata_recv_read_file_path       = "./testdata/nm_detaileddiscoverydata_recv_read.json"
+	detaileddiscoverydata_send_reply_file_prefix    = "./testdata/nm_detaileddiscoverydata_send_reply"
+	detaileddiscoverydata_recv_read_ack_file_path   = "./testdata/nm_detaileddiscoverydata_recv_read_ack.json"
+	detaileddiscoverydata_send_result_file_prefix   = "./testdata/nm_detaileddiscoverydata_send_result"
+	subscriptionRequestCall_recv_call_file_path     = "./testdata/nm_subscriptionRequestCall_recv_call.json"
+	subscriptionRequestCall_send_result_file_prefix = "./testdata/nm_subscriptionRequestCall_send_result"
+	destinationListData_recv_read_file_path         = "./testdata/nm_destinationListData_recv_read.json"
+	destinationListData_send_reply_file_prefix      = "./testdata/nm_destinationListData_send_reply"
 )
 
 func TestNodeManagementSuite(t *testing.T) {
