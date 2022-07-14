@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -13,8 +14,10 @@ type DeviceRemoteImpl struct {
 	*DeviceImpl
 	ski string
 
-	entities []*EntityRemoteImpl
-	sender   Sender
+	entities      []*EntityRemoteImpl
+	entitiesMutex sync.Mutex
+
+	sender Sender
 
 	localDevice *DeviceLocalImpl
 
@@ -96,6 +99,9 @@ func (d *DeviceRemoteImpl) Sender() Sender {
 }
 
 func (d *DeviceRemoteImpl) Entity(id []model.AddressEntityType) *EntityRemoteImpl {
+	d.entitiesMutex.Lock()
+	defer d.entitiesMutex.Unlock()
+
 	for _, e := range d.entities {
 		if reflect.DeepEqual(id, e.Address().Entity) {
 			return e
@@ -122,6 +128,9 @@ func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *Enti
 		return nil
 	}
 
+	d.entitiesMutex.Lock()
+	defer d.entitiesMutex.Unlock()
+
 	var newEntities []*EntityRemoteImpl
 	for _, item := range d.entities {
 		if !reflect.DeepEqual(item, entityForRemoval) {
@@ -142,6 +151,9 @@ func (r *DeviceRemoteImpl) FeatureByEntityTypeAndRole(entity *EntityRemoteImpl, 
 	if len(r.entities) < 1 {
 		return nil
 	}
+
+	r.entitiesMutex.Lock()
+	defer r.entitiesMutex.Unlock()
 
 	for _, e := range r.entities {
 		if entity != e {
@@ -242,6 +254,9 @@ func (d *DeviceRemoteImpl) addNewEntity(eType model.EntityTypeType, address []mo
 }
 
 func (d *DeviceRemoteImpl) addEntity(entity *EntityRemoteImpl) *EntityRemoteImpl {
+	d.entitiesMutex.Lock()
+	defer d.entitiesMutex.Unlock()
+
 	d.entities = append(d.entities, entity)
 
 	return entity
