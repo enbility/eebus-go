@@ -22,32 +22,37 @@ type dataErrorPair struct {
 }
 
 type request struct {
+	counter   model.MsgCounterType
 	countdown *time.Timer
 	response  chan *dataErrorPair
 }
 
+func (r *request) setTimeoutResult() {
+	if len(r.response) == 0 {
+		errorResult := NewErrorType(model.ErrorNumberTypeTimeout, fmt.Sprintf("the request with the message counter '%s' timed out", r.counter.String()))
+		r.response <- &dataErrorPair{data: nil, errorResult: errorResult}
+	}
+}
+
 type PendingRequestsImpl struct {
-	mu         sync.Mutex
-	requestMap map[model.MsgCounterType]*request
+	requestMap sync.Map
 }
 
 func NewPendingRequest() PendingRequests {
 	return &PendingRequestsImpl{
-		requestMap: make(map[model.MsgCounterType]*request),
+		requestMap: sync.Map{},
 	}
 }
 
 func (r *PendingRequestsImpl) Add(counter model.MsgCounterType, maxDelay time.Duration) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	newRequest := &request{
-		countdown: time.AfterFunc(maxDelay, func() { r.setTimeoutResult(counter) }),
+		counter: counter,
 		// could be a performance problem in case of many requests
 		response: make(chan *dataErrorPair, 1), // buffered, so that SetData will not block,
 	}
+	newRequest.countdown = time.AfterFunc(maxDelay, func() { newRequest.setTimeoutResult() })
 
-	r.requestMap[counter] = newRequest
+	r.requestMap.Store(counter, newRequest)
 }
 
 func (r *PendingRequestsImpl) SetData(counter model.MsgCounterType, data any) *ErrorType {
@@ -65,53 +70,35 @@ func (r *PendingRequestsImpl) GetData(counter model.MsgCounterType) (any, *Error
 	}
 
 	data := <-request.response
-	err = r.Remove(counter)
+	r.removeRequest(request)
 
-	if err != nil {
-		return nil, err
-	}
 	return data.data, data.errorResult
 }
 
 func (r *PendingRequestsImpl) Remove(counter model.MsgCounterType) *ErrorType {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	request, err := r.getRequest(counter)
 	if err != nil {
 		return err
 	}
-	request.countdown.Stop()
-
-	delete(r.requestMap, counter)
+	r.removeRequest(request)
 	return nil
 }
 
+func (r *PendingRequestsImpl) removeRequest(request *request) {
+	request.countdown.Stop()
+	r.requestMap.Delete(request.counter)
+}
+
 func (r *PendingRequestsImpl) getRequest(counter model.MsgCounterType) (*request, *ErrorType) {
-	request, exists := r.requestMap[counter]
+	rq, exists := r.requestMap.Load(counter)
 	if !exists {
 		return nil, NewErrorTypeFromString(fmt.Sprintf("No pending request with message counter '%s' found", counter.String()))
 	}
 
-	return request, nil
-}
-
-func (r *PendingRequestsImpl) setTimeoutResult(counter model.MsgCounterType) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	request, err := r.getRequest(counter)
-	if err == nil {
-		if len(request.response) == 0 {
-			errorResult := NewErrorType(model.ErrorNumberTypeTimeout, fmt.Sprintf("the request with the message counter '%s' timed out", counter.String()))
-			request.response <- &dataErrorPair{data: nil, errorResult: errorResult}
-		}
-	}
+	return rq.(*request), nil
 }
 
 func (r *PendingRequestsImpl) setResponse(counter model.MsgCounterType, data any, errorResult *ErrorType) *ErrorType {
-	r.mu.Lock()
-	defer r.mu.Unlock()
 
 	request, err := r.getRequest(counter)
 	if err != nil {
