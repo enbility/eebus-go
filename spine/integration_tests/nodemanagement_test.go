@@ -10,15 +10,16 @@ import (
 )
 
 const (
-	nm_detaileddiscoverydata_send_read_file_prefix     = "./testdata/nm_detaileddiscoverydata_send_read"
-	nm_detaileddiscoverydata_recv_read_file_path       = "./testdata/nm_detaileddiscoverydata_recv_read.json"
-	nm_detaileddiscoverydata_send_reply_file_prefix    = "./testdata/nm_detaileddiscoverydata_send_reply"
-	nm_detaileddiscoverydata_recv_read_ack_file_path   = "./testdata/nm_detaileddiscoverydata_recv_read_ack.json"
-	nm_detaileddiscoverydata_send_result_file_prefix   = "./testdata/nm_detaileddiscoverydata_send_result"
-	nm_subscriptionRequestCall_recv_call_file_path     = "./testdata/nm_subscriptionRequestCall_recv_call.json"
-	nm_subscriptionRequestCall_send_result_file_prefix = "./testdata/nm_subscriptionRequestCall_send_result"
-	nm_destinationListData_recv_read_file_path         = "./testdata/nm_destinationListData_recv_read.json"
-	nm_destinationListData_send_reply_file_prefix      = "./testdata/nm_destinationListData_send_reply"
+	nm_detaileddiscoverydata_send_read_file_prefix      = "./testdata/nm_detaileddiscoverydata_send_read"
+	nm_detaileddiscoverydata_recv_read_file_path        = "./testdata/nm_detaileddiscoverydata_recv_read.json"
+	nm_detaileddiscoverydata_send_reply_file_prefix     = "./testdata/nm_detaileddiscoverydata_send_reply"
+	nm_detaileddiscoverydata_recv_read_ack_file_path    = "./testdata/nm_detaileddiscoverydata_recv_read_ack.json"
+	nm_detaileddiscoverydata_send_result_file_prefix    = "./testdata/nm_detaileddiscoverydata_send_result"
+	nm_subscriptionRequestCall_recv_call_file_path      = "./testdata/nm_subscriptionRequestCall_recv_call.json"
+	nm_subscriptionRequestCall_send_result_file_prefix  = "./testdata/nm_subscriptionRequestCall_send_result"
+	nm_destinationListData_recv_read_file_path          = "./testdata/nm_destinationListData_recv_read.json"
+	nm_destinationListData_send_reply_file_prefix       = "./testdata/nm_destinationListData_send_reply"
+	wallbox_detaileddiscoverydata_recv_notify_file_path = "./testdata/wallbox_detaileddiscoverydata_recv_notify.json"
 )
 
 func TestNodeManagementSuite(t *testing.T) {
@@ -76,8 +77,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 
 	// Act
 	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path)
-
-	<-s.writeC // to wait until the datagram is processed
+	<-s.writeC // ignore NodeManagementSubscriptionRequestCall
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -131,6 +131,46 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 	assert.Equal(s.T(), model.RoleTypeServer, evseec.Role())
 	assert.Equal(s.T(), 0, len(evseec.Operations()))
 
+}
+
+func (s *NodeManagementSuite) TestDetailedDiscovery_RecvNotifyAdded() {
+	// ignore NodeManagementDetailedDiscoveryData read
+	<-s.writeC
+
+	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path)
+	<-s.writeC // ignore NodeManagementSubscriptionRequestCall
+
+	// Act
+	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_notify_file_path)
+	waitForAck(s.T(), s.writeC)
+
+	// Assert
+	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
+	assert.NotNil(s.T(), remoteDevice)
+	assert.Equal(s.T(), model.DeviceTypeTypeChargingStation, *remoteDevice.DeviceType())
+	assert.Equal(s.T(), model.NetworkManagementFeatureSetTypeSmart, *remoteDevice.FeatureSet())
+
+	rEntities := remoteDevice.Entities()
+	if assert.Equal(s.T(), 3, len(rEntities)) {
+		{
+			di := rEntities[spine.DeviceInformationEntityId]
+			assert.NotNil(s.T(), di)
+			assert.Equal(s.T(), model.EntityTypeTypeDeviceInformation, di.EntityType())
+			assert.Equal(s.T(), 2, len(di.Features()))
+		}
+		{
+			evse := rEntities[1]
+			assert.NotNil(s.T(), evse)
+			assert.Equal(s.T(), model.EntityTypeTypeEVSE, evse.EntityType())
+			assert.Equal(s.T(), 3, len(evse.Features()))
+		}
+		{
+			ev := rEntities[2]
+			assert.NotNil(s.T(), ev)
+			assert.Equal(s.T(), model.EntityTypeTypeEV, ev.EntityType())
+			assert.Equal(s.T(), 10, len(ev.Features()))
+		}
+	}
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {

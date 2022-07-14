@@ -59,7 +59,7 @@ func (s *ElectricalConnectionSuite) TestPermittedValueSetListData_RecvNotifyPart
 
 	// Act
 	s.readC <- loadFileData(s.T(), ec_permittedvaluesetlistdata_recv_notify_partial_file_path)
-	<-s.writeC // wait for ack
+	waitForAck(s.T(), s.writeC)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)

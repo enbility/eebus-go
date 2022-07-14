@@ -2,6 +2,7 @@ package integrationtests
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
@@ -61,4 +62,25 @@ func saveJsonToFile(t *testing.T, data json.RawMessage, fileName string) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func waitForAck(t *testing.T, writeC chan []byte) {
+	var datagram model.Datagram
+
+	maxSentDatagram := 10
+	for i := 0; i < maxSentDatagram; i++ {
+		sentBytes := <-writeC
+		if err := json.Unmarshal(sentBytes, &datagram); err != nil {
+			t.Fatal(err)
+		}
+		cmd := datagram.Datagram.Payload.Cmd[0]
+		if cmd.ResultData != nil {
+			if cmd.ResultData.ErrorNumber != nil && uint(*cmd.ResultData.ErrorNumber) != uint(model.ErrorNumberTypeNoError) {
+				t.Fatal(fmt.Errorf("error '%d' result data received", uint(*cmd.ResultData.ErrorNumber)))
+			}
+			return
+		}
+	}
+
+	t.Fatal("acknowledge message was not sent!!")
 }
