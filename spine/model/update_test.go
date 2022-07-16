@@ -38,14 +38,13 @@ func (r *TestUpdater) UpdateSelectorMatch(item *TestUpdateData) bool {
 		item.HashKey() == *r.updateSelectorHashKey
 }
 
-// the hash key of the update selector; nil if no selector was given
-func (r *TestUpdater) UpdateSelectorHashKey() *string {
-	return r.updateSelectorHashKey
+func (r *TestUpdater) HasDeleteSelector() bool {
+	return r.deleteSelectorHashKey != nil
 }
 
-// the hash key of the delete selector; nil if no selector was given
-func (r *TestUpdater) DeleteSelectorHashKey() *string {
-	return r.deleteSelectorHashKey
+func (r *TestUpdater) DeleteSelectorMatch(item *TestUpdateData) bool {
+	return r.deleteSelectorHashKey != nil && item != nil &&
+		item.HashKey() == *r.deleteSelectorHashKey
 }
 
 // determines if the identifiers of the passed item are set
@@ -118,6 +117,21 @@ func TestUpdateList_UpdateSelektor(t *testing.T) {
 		updateSelectorHashKey: util.Ptr("1"),
 	}
 	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 3}, {id: util.Ptr(2), dataItem: 2}}
+
+	// Act
+	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
+
+	assert.Equal(t, expectedResult, result)
+}
+
+func TestUpdateList_DeleteSelektor(t *testing.T) {
+	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
+	newData := []TestUpdateData{{id: util.Ptr(0), dataItem: 0}}
+
+	dataProvider := &TestUpdater{
+		deleteSelectorHashKey: util.Ptr("1"),
+	}
+	expectedResult := []TestUpdateData{{id: util.Ptr(2), dataItem: 2}}
 
 	// Act
 	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)

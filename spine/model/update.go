@@ -18,6 +18,11 @@ type UpdateDataProvider[T util.HashKeyer] interface {
 	// checks if the given item matches the partial selector
 	UpdateSelectorMatch(*T) bool
 
+	// is a delete selector given?
+	HasDeleteSelector() bool
+	// checks if the given item matches the delete selector
+	DeleteSelectorMatch(*T) bool
+
 	// determines if the identifiers of the passed item are set
 	HasIdentifier(*T) bool
 	// copies the data (not the identifiers) from the source to the destination item
@@ -32,10 +37,17 @@ func UpdateList[T util.HashKeyer](existingData []T, newData []T, dataProvider Up
 		return existingData
 	}
 
-	// TODO: consider filterDelete
 	// TODO: Check if only single fields should be considered here
 
-	// check if update selector is used
+	// process delete selector
+	if dataProvider.HasDeleteSelector() {
+		existingData = deleteSelectedData(existingData, dataProvider)
+		if !dataProvider.HasUpdateSelector() {
+			return existingData
+		}
+	}
+
+	// process update selector
 	if dataProvider.HasUpdateSelector() {
 		return copyToSelectedData(existingData, dataProvider, &newData[0])
 	}
@@ -65,4 +77,14 @@ func copyToAllData[T util.HashKeyer](existingData []T, dataProvider UpdateDataPr
 		dataProvider.CopyData(newData, &existingData[i])
 	}
 	return existingData
+}
+
+func deleteSelectedData[T util.HashKeyer](existingData []T, dataProvider UpdateDataProvider[T]) []T {
+	result := []T{}
+	for i := range existingData {
+		if !dataProvider.DeleteSelectorMatch(util.Ptr(existingData[i])) {
+			result = append(result, existingData[i])
+		}
+	}
+	return result
 }

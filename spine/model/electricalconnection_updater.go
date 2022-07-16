@@ -25,6 +25,15 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) UpdateSelect
 		item.HashKey() == *r.selectorHashKey(r.filterPartial)
 }
 
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasDeleteSelector() bool {
+	return r.filterDelete != nil && r.filterDelete.ElectricalConnectionPermittedValueSetListDataSelectors != nil
+}
+
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) DeleteSelectorMatch(item *ElectricalConnectionPermittedValueSetDataType) bool {
+	return r.HasDeleteSelector() && item != nil &&
+		item.HashKey() == *r.selectorHashKey(r.filterDelete)
+}
+
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasIdentifier(item *ElectricalConnectionPermittedValueSetDataType) bool {
 	return item.ElectricalConnectionId != nil && item.ParameterId != nil
 }
