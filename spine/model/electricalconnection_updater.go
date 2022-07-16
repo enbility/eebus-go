@@ -13,23 +13,16 @@ type ElectricalConnectionPermittedValueSetListDataType_Updater struct {
 }
 
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) DoUpdate() {
-	r.ElectricalConnectionPermittedValueSetData = UpdateList[ElectricalConnectionPermittedValueSetDataType](r)
+	r.ElectricalConnectionPermittedValueSetData = UpdateList[ElectricalConnectionPermittedValueSetDataType](r.ElectricalConnectionPermittedValueSetData, r.newData, r)
 }
 
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) ExistingData() []ElectricalConnectionPermittedValueSetDataType {
-	return r.ElectricalConnectionPermittedValueSetData
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasUpdateSelector() bool {
+	return r.filterPartial != nil && r.filterPartial.ElectricalConnectionPermittedValueSetListDataSelectors != nil
 }
 
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) NewData() []ElectricalConnectionPermittedValueSetDataType {
-	return r.newData
-}
-
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) UpdateSelectorHashKey() *string {
-	return r.selectorHashKey(r.filterPartial)
-}
-
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) DeleteSelectorHashKey() *string {
-	return r.selectorHashKey(r.filterDelete)
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) UpdateSelectorMatch(item *ElectricalConnectionPermittedValueSetDataType) bool {
+	return r.HasUpdateSelector() && item != nil &&
+		item.HashKey() == *r.selectorHashKey(r.filterPartial)
 }
 
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasIdentifier(item *ElectricalConnectionPermittedValueSetDataType) bool {

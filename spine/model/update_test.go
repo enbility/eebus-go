@@ -25,18 +25,17 @@ func (r TestUpdateData) HashKey() string {
 var _ model.UpdateDataProvider[TestUpdateData] = (*TestUpdater)(nil)
 
 type TestUpdater struct {
-	existingData          []TestUpdateData
-	newData               []TestUpdateData
 	updateSelectorHashKey *string
 	deleteSelectorHashKey *string
 }
 
-func (r *TestUpdater) ExistingData() []TestUpdateData {
-	return r.existingData
+func (r *TestUpdater) HasUpdateSelector() bool {
+	return r.updateSelectorHashKey != nil
 }
 
-func (r *TestUpdater) NewData() []TestUpdateData {
-	return r.newData
+func (r *TestUpdater) UpdateSelectorMatch(item *TestUpdateData) bool {
+	return r.updateSelectorHashKey != nil && item != nil &&
+		item.HashKey() == *r.updateSelectorHashKey
 }
 
 // the hash key of the update selector; nil if no selector was given
@@ -60,67 +59,68 @@ func (r *TestUpdater) CopyData(source *TestUpdateData, dest *TestUpdateData) {
 }
 
 func TestUpdateList_NewItem(t *testing.T) {
-	dataProvider := &TestUpdater{
-		existingData: []TestUpdateData{{id: util.Ptr(1), dataItem: 1}},
-		newData:      []TestUpdateData{{id: util.Ptr(2), dataItem: 2}},
-	}
+	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}}
+	newData := []TestUpdateData{{id: util.Ptr(2), dataItem: 2}}
+
+	dataProvider := &TestUpdater{}
 	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](dataProvider)
+	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
 
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestUpdateList_ChangedItem(t *testing.T) {
-	dataProvider := &TestUpdater{
-		existingData: []TestUpdateData{{id: util.Ptr(1), dataItem: 1}},
-		newData:      []TestUpdateData{{id: util.Ptr(1), dataItem: 2}},
-	}
+	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}}
+	newData := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}}
+
+	dataProvider := &TestUpdater{}
 	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](dataProvider)
+	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
 
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestUpdateList_NewAndChangedItem(t *testing.T) {
-	dataProvider := &TestUpdater{
-		existingData: []TestUpdateData{{id: util.Ptr(1), dataItem: 1}},
-		newData:      []TestUpdateData{{id: util.Ptr(1), dataItem: 2}, {id: util.Ptr(3), dataItem: 3}},
-	}
+	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}}
+	newData := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}, {id: util.Ptr(3), dataItem: 3}}
+
+	dataProvider := &TestUpdater{}
 	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}, {id: util.Ptr(3), dataItem: 3}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](dataProvider)
+	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
 
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestUpdateList_ItemWithNoIdentifier(t *testing.T) {
-	dataProvider := &TestUpdater{
-		existingData: []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}},
-		newData:      []TestUpdateData{{dataItem: 3}},
-	}
+	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
+	newData := []TestUpdateData{{dataItem: 3}}
+
+	dataProvider := &TestUpdater{}
 	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 3}, {id: util.Ptr(2), dataItem: 3}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](dataProvider)
+	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
 
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestUpdateList_UpdateSelektor(t *testing.T) {
+	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
+	newData := []TestUpdateData{{dataItem: 3}}
+
 	dataProvider := &TestUpdater{
-		existingData:          []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}},
-		newData:               []TestUpdateData{{dataItem: 3}},
 		updateSelectorHashKey: util.Ptr("1"),
 	}
 	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 3}, {id: util.Ptr(2), dataItem: 2}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](dataProvider)
+	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
 
 	assert.Equal(t, expectedResult, result)
 }
