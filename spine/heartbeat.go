@@ -76,8 +76,11 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 				break
 			}
 
+			timestamp := time.Now().UTC().Format("2006-01-02T15:04:05.9Z")
+
 			cmd := []model.CmdType{{
 				DeviceDiagnosisHeartbeatData: &model.DeviceDiagnosisHeartbeatDataType{
+					Timestamp:        &timestamp,
 					HeartbeatCounter: c.heartBeatCounter(),
 					HeartbeatTimeout: c.heartBeatTimeout,
 				},
