@@ -113,6 +113,7 @@ func (m *mdns) interfaces() ([]net.Interface, []int32, error) {
 
 	if len(m.serviceDescription.Interfaces) > 0 {
 		ifaces = make([]net.Interface, len(m.serviceDescription.Interfaces))
+		ifaceIndexes = make([]int32, len(m.serviceDescription.Interfaces))
 		for i, ifaceName := range m.serviceDescription.Interfaces {
 			iface, err := net.InterfaceByName(ifaceName)
 			if err != nil {
