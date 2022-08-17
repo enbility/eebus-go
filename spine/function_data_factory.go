@@ -66,6 +66,12 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 			createFunctionData[model.BillConstraintsListDataType, F](model.FunctionTypeBillConstraintsListData),
 			createFunctionData[model.BillListDataType, F](model.FunctionTypeBillListData),
 		}
+	case model.FeatureTypeTypeHvac:
+		return []F{
+			//LUKAScreateFunctionData[model.HvacOverrunDataType, F](model.FunctionTypeHvacOverrun),
+			createFunctionData[model.HvacOverrunListDataType, F](model.FunctionTypeHvacOverrunListData),
+			createFunctionData[model.BillListDataType, F](model.FunctionTypeBillListData),
+		}
 	case model.FeatureTypeTypeGeneric:
 		// TODO: add the proper function data, this is reported by the SMA HM 2.0
 		return nil
