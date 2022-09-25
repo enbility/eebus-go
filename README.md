@@ -46,49 +46,46 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 
 - [ ] Detailed Discovery
   - [X] Request and process full data
-  - [X] Response full data 
-  - [ ] Request and process partial data 
+  - [X] Response full data
+  - [ ] Request and process partial data
   - [ ] Response partial data
-  - [ ] Notify subscribers 
+  - [ ] Notify subscribers
 - [ ] Destination List
-  - [ ] Request and process full data 
-  - [X] Response full data 
-  - [ ] Request and process partial data 
-  - [ ] Response partial data 
-  - [ ] Notify subscribers 
+  - [ ] Request and process full data
+  - [X] Response full data
+  - [ ] Request and process partial data
+  - [ ] Response partial data
+  - [ ] Notify subscribers
 - [ ] Binding
 - [ ] Subscription
   - [X] Add subscription
   - [x] Delete subscription
-  - [ ] Request and process full data 
-  - [X] Response full data 
-  - [ ] Request and process partial data 
-  - [ ] Response partial data 
+  - [ ] Request and process full data
+  - [X] Response full data
+  - [ ] Request and process partial data
+  - [ ] Response partial data
 - [ ] Use Case Discovery
-  - [X] Request and process full data 
-  - [X] Response full data 
-  - [ ] Request and process partial data 
-  - [ ] Response partial data 
-
+  - [X] Request and process full data
+  - [X] Response full data
+  - [ ] Request and process partial data
+  - [ ] Response partial data
 
 ### General feature implementation
 
 - [X] Request and process full data
 - [X] Response full data
-- [ ] Request partial data 
-- [ ] Process partial data 
+- [ ] Request partial data
+- [ ] Process partial data
   - [X] Delete Selectors
   - [X] Update Selectors
   - [ ] Elements
 - [ ] Response partial data
 - [ ] Process write call
-- [ ] Request subscription 
-- [X] Notify subscribers 
+- [ ] Request subscription
+- [X] Notify subscribers
 - [ ] Handle incoming error results
 - [X] Handle incoming success results
 
 ### Feature with partial data support
 
 - ElectricalConnection
-
-
