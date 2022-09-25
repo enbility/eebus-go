@@ -11,22 +11,63 @@ This repository contains:
 - adoptions of the SPINE and SHIP EEBUS model definitions, there are likely issues and some models are not 100% correct
 - (De-)serialization for EEBUS specific JSON format requirements
 - Certificate support incl. creating a compatible cert and key
-- mDNS Support (announcement and connecting to an announced SKI)
+- mDNS Support (announcement and connecting to an announced SKI) incl. avahi support if available
 - ... work in progress
+
+You need a basic understanding of the EEBUS concepts SHIP and SPINE to use this library. Please check the corresponding specification on the [EEBUS website](https://eebus.org).
 
 ## Usage
 
+The included small demo applications do not implement any usecases and thus will end the connection once it reached exchanging usecase information.
+
+Services with implemented use cases will be implemented in different repositories and are also early work in progress:
+
+- [HEMS](https://github.com/DerAndereAndi/eebus-go-cem)
+- [EVSE](https://github.com/DerAndereAndi/eebus-go-evse)
+
 ### HEMS
+
+#### First Run
+
+```sh
+go run cmd/hems/main.go 4715
+```
+
+`4715` is the example server port that this process should use
+
+The certificate and key and the local SKI will be generated and printed. You should then save the certificate and the key to a file.
+
+#### General Usage
 
 ```sh
 Usage: go run cmd/hems/main.go <serverport> <remoteski> <certfile> <keyfile>
 ```
 
+- `remoteski` is the SKI of the remote device or service you want to connect to
+- `certfile` is a local file containing the generated certificate in the first usage run
+- `keyfile` is a local file containing the generated key in the first usage run
+
 ### EVSE
+
+#### First Run
+
+```sh
+go run cmd/hems/main.go 4715
+```
+
+`4715` is the example server port that this process should use
+
+The certificate and key and the local SKI will be generated and printed. You should then save the certificate and the key to a file.
+
+#### General Usage
 
 ```sh
 Usage: go run cmd/evse/main.go <serverport> <remoteski> <certfile> <keyfile>
 ```
+
+- `remoteski` is the SKI of the remote device or service you want to connect to
+- `certfile` is a local file containing the generated certificate in the first usage run
+- `keyfile` is a local file containing the generated key in the first usage run
 
 ### Explanation
 

@@ -34,6 +34,7 @@ func (h *evse) run() {
 
 	var err error
 	var certificate tls.Certificate
+	var remoteSki string
 
 	serviceDescription.Port, err = strconv.Atoi(os.Args[1])
 	if err != nil {
@@ -41,10 +42,10 @@ func (h *evse) run() {
 		log.Fatal(err)
 	}
 
-	remoteSki := os.Args[2]
-
 	fmt.Println(os.Args)
 	if len(os.Args) == 5 {
+		remoteSki = os.Args[2]
+
 		certificate, err = tls.LoadX509KeyPair(os.Args[3], os.Args[4])
 		if err != nil {
 			usage()
@@ -77,6 +78,10 @@ func (h *evse) run() {
 		return
 	}
 
+	if len(remoteSki) == 0 {
+		os.Exit(0)
+	}
+
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 
@@ -99,12 +104,17 @@ func (h *evse) RemoteServiceShipIDReported(ski string, shipID string) {
 	fmt.Println("SKI", ski, "has Ship ID:", shipID)
 }
 
+// main app
 func usage() {
-	fmt.Println("Usage: go run /cmd/evse/main.go <serverport> <hems-ski> <crtfile> <keyfile>")
+	fmt.Println("First Run:")
+	fmt.Println("  go run /cmd/evse/main.go <serverport>")
+	fmt.Println()
+	fmt.Println("General Usage:")
+	fmt.Println("  go run /cmd/evse/main.go <serverport> <hems-ski> <crtfile> <keyfile>")
 }
 
 func main() {
-	if len(os.Args) < 4 {
+	if len(os.Args) < 2 {
 		usage()
 		return
 	}

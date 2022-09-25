@@ -34,6 +34,7 @@ func (h *hems) run() {
 
 	var err error
 	var certificate tls.Certificate
+	var remoteSki string
 
 	serviceDescription.Port, err = strconv.Atoi(os.Args[1])
 	if err != nil {
@@ -41,9 +42,9 @@ func (h *hems) run() {
 		log.Fatal(err)
 	}
 
-	remoteSki := os.Args[2]
-
 	if len(os.Args) == 5 {
+		remoteSki = os.Args[2]
+
 		certificate, err = tls.LoadX509KeyPair(os.Args[3], os.Args[4])
 		if err != nil {
 			usage()
@@ -74,6 +75,10 @@ func (h *hems) run() {
 	if err = h.myService.Setup(); err != nil {
 		fmt.Println(err)
 		return
+	}
+
+	if len(remoteSki) == 0 {
+		os.Exit(0)
 	}
 
 	h.myService.Start()
@@ -109,11 +114,15 @@ func (h *hems) HandleEVSEDeviceState(ski string, failure bool, errorCode string)
 
 // main app
 func usage() {
-	fmt.Println("Usage: go run /cmd/hems/main.go <serverport> <evse-ski> <crtfile> <keyfile>")
+	fmt.Println("First Run:")
+	fmt.Println("  go run /cmd/hems/main.go <serverport>")
+	fmt.Println()
+	fmt.Println("General Usage:")
+	fmt.Println("  go run /cmd/hems/main.go <serverport> <evse-ski> <crtfile> <keyfile>")
 }
 
 func main() {
-	if len(os.Args) < 4 {
+	if len(os.Args) < 2 {
 		usage()
 		return
 	}
