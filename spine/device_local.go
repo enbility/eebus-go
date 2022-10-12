@@ -13,6 +13,7 @@ type DeviceLocalImpl struct {
 	*DeviceImpl
 	entities            []*EntityLocalImpl
 	subscriptionManager SubscriptionManager
+	bindingManager      BindingManager
 	nodeManagement      *NodeManagementImpl
 
 	remoteDevices map[string]*DeviceRemoteImpl
@@ -34,6 +35,7 @@ func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, device
 	res := &DeviceLocalImpl{
 		DeviceImpl:          NewDeviceImpl(&address, &deviceType, fSet),
 		subscriptionManager: NewSubscriptionManager(),
+		bindingManager:      NewBindingManager(),
 		remoteDevices:       make(map[string]*DeviceRemoteImpl),
 		brandName:           brandName,
 		deviceModel:         deviceModel,
@@ -148,6 +150,10 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	}
 
 	return nil
+}
+
+func (r *DeviceLocalImpl) BindingManager() BindingManager {
+	return r.bindingManager
 }
 
 func (r *DeviceLocalImpl) SubscriptionManager() SubscriptionManager {

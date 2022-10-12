@@ -427,6 +427,8 @@ func (m *mdns) parseTxt(txt []string) map[string]string {
 // process an mDNS entry and manage mDNS entries map
 func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool) {
 	// check for mandatory text elements
+	fmt.Println(fmt.Sprintf("mDNS: Processing entry: %s on %s",name, host))
+
 	mapItems := []string{"txtvers", "id", "path", "ski", "register"}
 	for _, item := range mapItems {
 		if _, ok := elements[item]; !ok {

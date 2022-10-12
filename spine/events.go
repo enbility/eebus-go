@@ -19,6 +19,7 @@ const (
 	EventTypeEntityChange
 	EventTypeSubscriptionChange
 	EventTypeDataChange
+	EventTypeBindingChange
 )
 
 type EventPayload struct {

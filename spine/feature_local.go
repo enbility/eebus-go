@@ -31,6 +31,10 @@ type FeatureLocal interface {
 	SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	HandleMessage(message *Message) *ErrorType
+	WriteData(
+		function model.FunctionType,
+		data any,
+		destination *FeatureRemoteImpl) *ErrorType
 }
 
 var _ FeatureLocal = (*FeatureLocalImpl)(nil)
@@ -88,7 +92,7 @@ func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
 	fd := r.functionData(function)
 	fd.UpdateDataAny(data, nil, nil)
 
-	r.Device().NotifySubscribers(r.Address(), []model.CmdType{fd.NotifyCmdType(false)})
+	r.Device().NotifySubscribers(r.Address(), []model.CmdType{fd.WriteCmdType()})
 }
 
 func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType {
@@ -194,6 +198,19 @@ func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *
 		return nil, NewErrorTypeFromString(err.Error())
 	}
 	return msgCounter, nil
+}
+
+func (r *FeatureLocalImpl) WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) (*ErrorType) {
+	fd := r.functionData(function)
+	fd.UpdateDataAny(data, nil, nil)
+	cmd := fd.WriteCmdType()
+
+	err := destination.Sender().Write(r.Address(), destination.Address(), []model.CmdType{cmd})
+
+	if err != nil {
+		return NewErrorTypeFromString(err.Error())
+	}
+	return nil
 }
 
 func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {

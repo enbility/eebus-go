@@ -68,7 +68,7 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 		}
 	case model.FeatureTypeTypeHvac:
 		return []F{
-			//LUKAScreateFunctionData[model.HvacOverrunDataType, F](model.FunctionTypeHvacOverrun),
+			createFunctionData[model.HvacOverrunDescriptionListDataType, F](model.FunctionTypeHvacOverrunDescriptionListData),
 			createFunctionData[model.HvacOverrunListDataType, F](model.FunctionTypeHvacOverrunListData),
 			createFunctionData[model.BillListDataType, F](model.FunctionTypeBillListData),
 		}

@@ -9,6 +9,7 @@ type FunctionDataCmd interface {
 	FunctionData
 	ReadCmdType() model.CmdType
 	ReplyCmdType() model.CmdType
+	WriteCmdType() model.CmdType
 	NotifyCmdType(partial bool) model.CmdType
 }
 
@@ -33,6 +34,12 @@ func (r *FunctionDataCmdImpl[T]) ReplyCmdType() model.CmdType {
 	cmd := createCmd(r.functionType, r.data)
 	return cmd
 }
+
+func (r *FunctionDataCmdImpl[T]) WriteCmdType() model.CmdType {
+	cmd := createCmd[T](r.functionType, r.data)
+	return cmd
+}
+
 
 func (r *FunctionDataCmdImpl[T]) NotifyCmdType(partial bool) model.CmdType {
 	cmd := createCmd(r.functionType, r.data)
@@ -75,6 +82,10 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 	case model.FunctionTypeElectricalConnectionPermittedValueSetListData:
 		result.ElectricalConnectionPermittedValueSetListData = castData[model.ElectricalConnectionPermittedValueSetListDataType](data)
 		// add more model types here
+	case model.FunctionTypeHvacOverrunListData:
+		result.HvacOverrunListData = castData[model.HvacOverrunListDataType](data)
+	case model.FunctionTypeHvacOverrunDescriptionListData:
+		result.HvacOverrunDescriptionListData = castData[model.HvacOverrunDescriptionListDataType](data)
 	}
 
 	return result

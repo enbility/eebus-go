@@ -29,6 +29,7 @@ type Sender interface {
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
 	// Sends a notify cmd to indicate that a subscribed feature changed
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
+	Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
 }
 
 type SenderImpl struct {
