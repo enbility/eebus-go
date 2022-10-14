@@ -71,6 +71,8 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 			createFunctionData[model.HvacOverrunDescriptionListDataType, F](model.FunctionTypeHvacOverrunDescriptionListData),
 			createFunctionData[model.HvacOverrunListDataType, F](model.FunctionTypeHvacOverrunListData),
 			createFunctionData[model.BillListDataType, F](model.FunctionTypeBillListData),
+			createFunctionData[model.HvacSystemFunctionDataType, F](model.FunctionTypeHvacSystemFunctionListData),
+			createFunctionData[model.HvacSystemFunctionDescriptionDataType, F](model.FunctionTypeHvacSystemFunctionDescriptionListData),
 		}
 	case model.FeatureTypeTypeGeneric:
 		// TODO: add the proper function data, this is reported by the SMA HM 2.0

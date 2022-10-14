@@ -301,14 +301,16 @@ func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, r
 func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, featureRemote *FeatureRemoteImpl) *ErrorType {
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 	// TODO: send event
-	// payload := EventPayload{
-	// 	Ski:        featureRemote.Device().ski,
-	// 	EventType:  EventTypeDataChange,
-	// 	ChangeType: ElementChangeUpdate,
-	// 	Feature:    featureRemote,
-	// 	Data:       data,
-	// }
-	// Events.Publish(payload)
+	 payload := EventPayload{
+	 	Ski:        featureRemote.Device().ski,
+	 	EventType:  EventTypeDataChange,
+	 	ChangeType: ElementChangeUpdate,
+	 	Feature:    featureRemote,
+	 	Data:       data,
+	 	Entity: featureRemote.Entity(),
+	 	Device: featureRemote.Device(),
+	 }
+	 Events.Publish(payload)
 
 	return nil
 }
