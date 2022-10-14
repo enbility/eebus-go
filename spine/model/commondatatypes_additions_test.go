@@ -16,7 +16,7 @@ func TestNewScaledNumberType(t *testing.T) {
 		{6.25, 625, -2},
 		{10.0, 10, 0},
 		{12.5952, 125952, -4},
-		{13.16374, 131637, -4},
+		{13.1637, 131637, -4},
 	}
 
 	for _, tc := range tc {
@@ -28,6 +28,11 @@ func TestNewScaledNumberType(t *testing.T) {
 		}
 		if number != tc.number || scale != tc.scale {
 			t.Errorf("NewScaledNumberType(%v) = %d %d, want %d %d", tc.in, got.Number, got.Scale, tc.number, tc.scale)
+		}
+
+		val := got.GetValue()
+		if val != tc.in {
+			t.Errorf("GetValue(%d %d) = %f, want %f", tc.number, tc.scale, val, tc.in)
 		}
 	}
 }
