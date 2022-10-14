@@ -31,6 +31,7 @@ func NewScaledNumberType(value float64) *ScaledNumberType {
 		numberOfDecimals = len(temp) - index - 1
 	}
 
+	// We limit this to 4 digits for now
 	if numberOfDecimals > 4 {
 		numberOfDecimals = 4
 	}
