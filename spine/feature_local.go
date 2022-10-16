@@ -140,6 +140,7 @@ func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 	return msgCounter, NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 }
 
+// Wait and return the response from destination for a message with the msgCounter ID
 // this will block until the response is received
 func (r *FeatureLocalImpl) FetchRequestData(
 	msgCounter model.MsgCounterType,
@@ -148,6 +149,7 @@ func (r *FeatureLocalImpl) FetchRequestData(
 	return r.pendingRequests.GetData(msgCounter)
 }
 
+// Send a data request for function to destination and return the response
 // this will block until the response is received
 func (r *FeatureLocalImpl) RequestAndFetchData(
 	function model.FunctionType,
@@ -161,6 +163,7 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 	return r.FetchRequestData(*msgCounter, destination)
 }
 
+// Subscribe to a remote feature and wait for the result
 func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {
 		return NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
@@ -185,6 +188,7 @@ func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remo
 	return result
 }
 
+// Send a notification message with the current data of function to the destination
 func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.NotifyCmdType(false)
