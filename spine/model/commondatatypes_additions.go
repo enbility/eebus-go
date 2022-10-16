@@ -10,7 +10,7 @@ import (
 	"github.com/rickb777/date/period"
 )
 
-func (m ScaledNumberType) GetValue() float64 {
+func (m *ScaledNumberType) GetValue() float64 {
 	if m.Number == nil {
 		return 0
 	}
