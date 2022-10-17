@@ -15,10 +15,10 @@ const (
 type EventType uint16
 
 const (
-	EventTypeDeviceChange EventType = iota
-	EventTypeEntityChange
-	EventTypeSubscriptionChange
-	EventTypeDataChange
+	EventTypeDeviceChange       EventType = iota // Sent after successful response of NodeManagementDetailedDiscovery
+	EventTypeEntityChange                        // Sent after successful response of NodeManagementDetailedDiscovery
+	EventTypeSubscriptionChange                  // Sent after successful subscription request from remote
+	EventTypeDataChange                          // Sent after remote provided new data items for a function
 )
 
 type EventPayload struct {
