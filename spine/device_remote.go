@@ -58,6 +58,11 @@ func (d *DeviceRemoteImpl) StartHeartbeatSend(senderAddr, destinationAddr *model
 	d.heartbeatSender.StartHeartbeatSend(senderAddr, destinationAddr)
 }
 
+// Needs to be called by the CEM implementation once a subscription for the local DeviceDiagnosis server feature is removed
+func (d *DeviceRemoteImpl) Stopheartbeat() {
+	d.heartbeatSender.StopHeartbeat()
+}
+
 // this connection is closed
 func (d *DeviceRemoteImpl) CloseConnection() {
 	d.heartbeatSender.StopHeartbeat()
@@ -98,6 +103,7 @@ func (d *DeviceRemoteImpl) Sender() Sender {
 	return d.sender
 }
 
+// Return an entity with a given address
 func (d *DeviceRemoteImpl) Entity(id []model.AddressEntityType) *EntityRemoteImpl {
 	d.entitiesMutex.Lock()
 	defer d.entitiesMutex.Unlock()
@@ -110,10 +116,12 @@ func (d *DeviceRemoteImpl) Entity(id []model.AddressEntityType) *EntityRemoteImp
 	return nil
 }
 
+// Return all entities of this device
 func (d *DeviceRemoteImpl) Entities() []*EntityRemoteImpl {
 	return d.entities
 }
 
+// Return the feature for a given address
 func (d *DeviceRemoteImpl) FeatureByAddress(address *model.FeatureAddressType) *FeatureRemoteImpl {
 	entity := d.Entity(address.Entity)
 	if entity != nil {
@@ -122,6 +130,7 @@ func (d *DeviceRemoteImpl) FeatureByAddress(address *model.FeatureAddressType) *
 	return nil
 }
 
+// Remove an entity with a given address from this device
 func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *EntityRemoteImpl {
 	entityForRemoval := d.Entity(addr)
 	if entityForRemoval == nil {
@@ -138,10 +147,6 @@ func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *Enti
 		}
 	}
 	d.entities = newEntities
-
-	// if removedEntity != nil {
-	// 	events.EntityChanged.Publish(events.EntityChangedPayload{Entity: removedEntity, Mode: events.EntityRemoved})
-	// }
 
 	return entityForRemoval
 }

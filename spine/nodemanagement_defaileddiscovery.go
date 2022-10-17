@@ -102,6 +102,35 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 	lastStateChange := *data.EntityInformation[0].Description.LastStateChange
 	remoteDevice := message.FeatureRemote.Device()
 
+	// addition example:
+	// {"data":[{"header":[{"protocolId":"ee1.0"}]},{"payload":{"datagram":[{"header":[{"specificationVersion":"1.1.1"},{"addressSource":[{"device":"d:_i:19667_PorscheEVSE-00016544"},{"entity":[0]},{"feature":0}]},{"addressDestination":[{"device":"EVCC_HEMS"},{"entity":[0]},{"feature":0}]},{"msgCounter":926685},{"cmdClassifier":"notify"}]},{"payload":[{"cmd":[[{"function":"nodeManagementDetailedDiscoveryData"},{"filter":[[{"cmdControl":[{"partial":[]}]}]]},{"nodeManagementDetailedDiscoveryData":[{"deviceInformation":[{"description":[{"deviceAddress":[{"device":"d:_i:19667_PorscheEVSE-00016544"}]}]}]},{"entityInformation":[[{"description":[{"entityAddress":[{"entity":[1,1]}]},{"entityType":"EV"},{"lastStateChange":"added"},{"description":"Electric Vehicle"}]}]]},{"featureInformation":[[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":1}]},{"featureType":"LoadControl"},{"role":"server"},{"supportedFunction":[[{"function":"loadControlLimitDescriptionListData"},{"possibleOperations":[{"read":[]}]}],[{"function":"loadControlLimitListData"},{"possibleOperations":[{"read":[]},{"write":[]}]}]]},{"description":"Load Control"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":2}]},{"featureType":"ElectricalConnection"},{"role":"server"},{"supportedFunction":[[{"function":"electricalConnectionParameterDescriptionListData"},{"possibleOperations":[{"read":[]}]}],[{"function":"electricalConnectionDescriptionListData"},{"possibleOperations":[{"read":[]}]}],[{"function":"electricalConnectionPermittedValueSetListData"},{"possibleOperations":[{"read":[]}]}]]},{"description":"Electrical Connection"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":3}]},{"featureType":"Measurement"},{"specificUsage":["Electrical"]},{"role":"server"},{"supportedFunction":[[{"function":"measurementListData"},{"possibleOperations":[{"read":[]}]}],[{"function":"measurementDescriptionListData"},{"possibleOperations":[{"read":[]}]}]]},{"description":"Measurements"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":5}]},{"featureType":"DeviceConfiguration"},{"role":"server"},{"supportedFunction":[[{"function":"deviceConfigurationKeyValueDescriptionListData"},{"possibleOperations":[{"read":[]}]}],[{"function":"deviceConfigurationKeyValueListData"},{"possibleOperations":[{"read":[]}]}]]},{"description":"Device Configuration EV"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":6}]},{"featureType":"DeviceClassification"},{"role":"server"},{"supportedFunction":[[{"function":"deviceClassificationManufacturerData"},{"possibleOperations":[{"read":[]}]}]]},{"description":"Device Classification for EV"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":7}]},{"featureType":"TimeSeries"},{"role":"server"},{"supportedFunction":[[{"function":"timeSeriesConstraintsListData"},{"possibleOperations":[{"read":[]}]}],[{"function":"timeSeriesDescriptionListData"},{"possibleOperations":[{"read":[]}]}],[{"function":"timeSeriesListData"},{"possibleOperations":[{"read":[]},{"write":[]}]}]]},{"description":"Time Series"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":8}]},{"featureType":"IncentiveTable"},{"role":"server"},{"supportedFunction":[[{"function":"incentiveTableConstraintsData"},{"possibleOperations":[{"read":[]}]}],[{"function":"incentiveTableData"},{"possibleOperations":[{"read":[]},{"write":[]}]}],[{"function":"incentiveTableDescriptionData"},{"possibleOperations":[{"read":[]},{"write":[]}]}]]},{"description":"Incentive Table"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":9}]},{"featureType":"DeviceDiagnosis"},{"role":"server"},{"supportedFunction":[[{"function":"deviceDiagnosisStateData"},{"possibleOperations":[{"read":[]}]}]]},{"description":"Device Diagnosis EV"}]}],[{"description":[{"featureAddress":[{"entity":[1,1]},{"feature":10}]},{"featureType":"Identification"},{"role":"server"},{"supportedFunction":[[{"function":"identificationListData"},{"possibleOperations":[{"read":[]}]}]]},{"description":"Identification for EV"}]}]]}]}]]}]}]}}]}
+	// {
+	// 	"cmd":[[
+	// 		{"function":"nodeManagementDetailedDiscoveryData"},
+	// 		{"filter":[[{"cmdControl":[{"partial":[]}]}]]},
+	// 		{"nodeManagementDetailedDiscoveryData":[
+	// 			{"deviceInformation":[{"description":[{"deviceAddress":[{"device":"d:_i:19667_PorscheEVSE-00016544"}]}]}]},
+	// 			{"entityInformation":[[
+	// 				{"description":[
+	// 					{"entityAddress":[{"entity":[1,1]}]},
+	// 					{"entityType":"EV"},
+	// 					{"lastStateChange":"added"},
+	// 					{"description":"Electric Vehicle"}
+	// 				]}
+	// 			]]},
+	// 			{"featureInformation":[
+	// 				[{"description":[
+	// 					{"featureAddress":[{"entity":[1,1]},{"feature":1}]},
+	// 					{"featureType":"LoadControl"},
+	// 					{"role":"server"},
+	// 					{"supportedFunction":[
+	// 						[{"function":"loadControlLimitDescriptionListData"},{"possibleOperations":[{"read":[]}]}],
+	// 						[{"function":"loadControlLimitListData"},{"possibleOperations":[{"read":[]},{"write":[]}]}]
+	// 					]},
+	// 					{"description":"Load Control"}
+	// 				]}],
+	// ...
+
 	// is this addition?
 	if lastStateChange == model.NetworkManagementStateChangeTypeAdded {
 		entities, err := remoteDevice.AddEntityAndFeatures(false, data)
@@ -109,14 +138,13 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 			return err
 		}
 
-		// publish event for each remote entity added
+		// publish event for each added remote entity
 		for _, entity := range entities {
 			payload := EventPayload{
 				Ski:        remoteDevice.ski,
 				EventType:  EventTypeEntityChange,
 				ChangeType: ElementChangeAdd,
 				Entity:     entity,
-				Feature:    message.FeatureRemote,
 				Data:       data,
 			}
 			Events.Publish(payload)
@@ -136,14 +164,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 	// 								"description": [
 	// 									{"entityAddress": [{"entity": [1,1]}]},
 	// 									{"lastStateChange": "removed"}
-	// 								]
-	// 							}
-	// 						]]
-	// 					}
-	// 				]
-	// 			}
-	// 	]]
-	// }
+	// ...
 
 	// is this removal?
 	if lastStateChange == model.NetworkManagementStateChangeTypeRemoved {
@@ -153,15 +174,18 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 			}
 
 			entityAddress := ei.Description.EntityAddress.Entity
-			remoteDevice.RemoveByAddress(entityAddress)
+			removedEntity := remoteDevice.RemoveByAddress(entityAddress)
 
-			// TODO: How to identify that an entity was removed? payload is missing option for this
-			// payload := EventPayload{
-			// 	EventType:  EventTypeEntityChange,
-			// 	ChangeType: ElementChangeRemove,
-			// 	Entity:     remoteDevice,
-			// }
-			// Events.Publish(payload)
+			payload := EventPayload{
+				EventType:  EventTypeEntityChange,
+				ChangeType: ElementChangeRemove,
+				Entity:     removedEntity,
+				Data:       data,
+			}
+			Events.Publish(payload)
+
+			// remove all subscriptions for this entity
+			r.Device().SubscriptionManager().RemoveSubscriptionsForEntity(removedEntity)
 		}
 	}
 

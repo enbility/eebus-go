@@ -13,6 +13,7 @@ import (
 type SubscriptionManager interface {
 	AddSubscription(localDevice *DeviceLocalImpl, remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error
 	RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
+	RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl)
 	Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry
 	SubscriptionsOnFeature(featureAddress model.FeatureAddressType) []*SubscriptionEntry
 }
@@ -62,7 +63,12 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 		clientFeature: clientFeature,
 	}
 
-	// TOV-TODO: check if subscription already exists
+	for _, item := range c.subscriptionEntries {
+		if reflect.DeepEqual(item.serverFeature, serverFeature) && reflect.DeepEqual(item.clientFeature, clientFeature) {
+			return fmt.Errorf("requested subscription is already present")
+		}
+	}
+
 	c.subscriptionEntries = append(c.subscriptionEntries, subscriptionEntry)
 
 	payload := EventPayload{
@@ -74,11 +80,10 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 	}
 	Events.Publish(payload)
 
-	// TOV-TODO: Send heartbeat to the feature which subscribed to DeviceDiagnostic
-
 	return nil
 }
 
+// Remove a specific subscription that is provided by a delete message from a remote device
 func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error {
 	// TODO: test this!!!
 
@@ -95,6 +100,11 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 		clientAddress.Device = remoteDevice.Address()
 	}
 
+	clientFeature := remoteDevice.FeatureByAddress(data.ClientAddress)
+	if clientFeature == nil {
+		return fmt.Errorf("client feature '%s' in remote device '%s' not found", data.ClientAddress, *remoteDevice.Address())
+	}
+
 	for _, item := range c.subscriptionEntries {
 		if !reflect.DeepEqual(item.clientFeature.Address(), clientAddress) {
 			newSubscriptionEntries = append(newSubscriptionEntries, item)
@@ -107,8 +117,40 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 
 	c.subscriptionEntries = newSubscriptionEntries
 
-	// TOV-TODO: stop heartbeat for remote device when it has no subscription to DeviceDiagnostic anymore
+	payload := EventPayload{
+		Ski:        remoteDevice.ski,
+		EventType:  EventTypeSubscriptionChange,
+		ChangeType: ElementChangeRemove,
+		Data:       data,
+		Device:     remoteDevice,
+		Feature:    clientFeature,
+	}
+	Events.Publish(payload)
+
 	return nil
+}
+
+// Remove all existing subscriptions for a given remote device entity
+func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl) {
+	var newSubscriptionEntries []*SubscriptionEntry
+	for _, item := range c.subscriptionEntries {
+		if !reflect.DeepEqual(item.clientFeature.Address().Entity, remoteEntity.Address().Entity) {
+			newSubscriptionEntries = append(newSubscriptionEntries, item)
+			continue
+		}
+
+		clientFeature := remoteEntity.Feature(item.clientFeature.address.Feature)
+		payload := EventPayload{
+			Ski:        remoteEntity.Device().ski,
+			EventType:  EventTypeSubscriptionChange,
+			ChangeType: ElementChangeRemove,
+			Entity:     remoteEntity,
+			Feature:    clientFeature,
+		}
+		Events.Publish(payload)
+	}
+
+	c.subscriptionEntries = newSubscriptionEntries
 }
 
 func (c *SubscriptionManagerImpl) Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry {
