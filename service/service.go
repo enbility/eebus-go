@@ -213,6 +213,10 @@ func (s *EEBUSService) RemoveEntity(entity *spine.EntityLocalImpl) {
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
 func (s *EEBUSService) GetLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteEntity *spine.EntityRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
+	if remoteEntity == nil {
+		return nil, nil, errors.New("invalid remote entity provided")
+	}
+
 	featureLocal := s.spineLocalDevice.FeatureByTypeAndRole(featureType, model.RoleTypeClient)
 	featureRemote := remoteEntity.Device().FeatureByEntityTypeAndRole(remoteEntity, featureType, model.RoleTypeServer)
 
