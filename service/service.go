@@ -216,8 +216,12 @@ func (s *EEBUSService) GetLocalClientAndRemoteServerFeatures(featureType model.F
 	featureLocal := s.spineLocalDevice.FeatureByTypeAndRole(featureType, model.RoleTypeClient)
 	featureRemote := remoteEntity.Device().FeatureByEntityTypeAndRole(remoteEntity, featureType, model.RoleTypeServer)
 
-	if featureLocal == nil || featureRemote == nil {
-		return nil, nil, errors.New("local or remote feature not found")
+	if featureLocal == nil {
+		return nil, nil, errors.New("local feature not found")
+	}
+
+	if featureRemote == nil {
+		return nil, nil, errors.New("remote feature not found")
 	}
 
 	return featureLocal, featureRemote, nil
