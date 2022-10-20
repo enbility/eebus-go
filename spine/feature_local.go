@@ -271,31 +271,38 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 
 func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
 	featureRemote.UpdateData(function, data, nil, nil)
-	if err := r.pendingRequests.SetData(*requestHeader.MsgCounterReference, data); err != nil {
-		payload := EventPayload{
-			Ski:        featureRemote.Device().ski,
-			EventType:  EventTypeDataChange,
-			ChangeType: ElementChangeUpdate,
-			Feature:    featureRemote,
-			Data:       data,
-		}
-		Events.Publish(payload)
+	_ = r.pendingRequests.SetData(*requestHeader.MsgCounterReference, data)
+	// an error in SetData only means that there is no pendingRequest waiting for this dataset
+	// so this is nothing to consider as an error to return
+
+	// the data was updated, so send an event, other event handlers may watch out for this as well
+	payload := EventPayload{
+		Ski:        featureRemote.Device().ski,
+		EventType:  EventTypeDataChange,
+		ChangeType: ElementChangeUpdate,
+		Feature:    featureRemote,
+		Device:     featureRemote.Device(),
+		Entity:     featureRemote.Entity(),
+		Data:       data,
 	}
+	Events.Publish(payload)
 
 	return nil
 }
 
 func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, featureRemote *FeatureRemoteImpl) *ErrorType {
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
-	// TODO: send event
-	// payload := EventPayload{
-	// 	Ski:        featureRemote.Device().ski,
-	// 	EventType:  EventTypeDataChange,
-	// 	ChangeType: ElementChangeUpdate,
-	// 	Feature:    featureRemote,
-	// 	Data:       data,
-	// }
-	// Events.Publish(payload)
+
+	payload := EventPayload{
+		Ski:        featureRemote.Device().ski,
+		EventType:  EventTypeDataChange,
+		ChangeType: ElementChangeUpdate,
+		Feature:    featureRemote,
+		Device:     featureRemote.Device(),
+		Entity:     featureRemote.Entity(),
+		Data:       data,
+	}
+	Events.Publish(payload)
 
 	return nil
 }
