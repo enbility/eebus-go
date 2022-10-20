@@ -53,6 +53,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
 
 	// TODO: Add error handling
+	// If the request returned an error, it should be retried until it does not
 
 	Events.Subscribe(r)
 }
