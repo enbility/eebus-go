@@ -70,7 +70,7 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 	case model.FeatureTypeTypeGeneric:
 		// TODO: add the proper function data, this is reported e.g. by the SMA HM 2.0
 		return []F{
-			createFunctionData[model.DeviceDiagnosisHeartbeatDataType, F](model.FunctionTypeDeviceDiagnosisHeartbeatData), // Elli Charger uses thie feature type for heartbeats
+			createFunctionData[model.DeviceDiagnosisHeartbeatDataType, F](model.FunctionTypeDeviceDiagnosisHeartbeatData), // Elli Charger uses this feature type for heartbeats
 		}
 		// TODO: Add more feature types
 		// default:
