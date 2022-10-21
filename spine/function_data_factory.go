@@ -35,6 +35,7 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 		}
 	case model.FeatureTypeTypeLoadControl:
 		return []F{
+			createFunctionData[model.LoadControlLimitConstraintsListDataType, F](model.FunctionTypeLoadControlLimitConstraintsListData),
 			createFunctionData[model.LoadControlLimitDescriptionListDataType, F](model.FunctionTypeLoadControlLimitDescriptionListData),
 			createFunctionData[model.LoadControlLimitListDataType, F](model.FunctionTypeLoadControlLimitListData),
 		}

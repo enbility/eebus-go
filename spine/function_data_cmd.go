@@ -74,6 +74,12 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.ElectricalConnectionDescriptionListData = castData[model.ElectricalConnectionDescriptionListDataType](data)
 	case model.FunctionTypeElectricalConnectionPermittedValueSetListData:
 		result.ElectricalConnectionPermittedValueSetListData = castData[model.ElectricalConnectionPermittedValueSetListDataType](data)
+	case model.FunctionTypeLoadControlLimitConstraintsListData:
+		result.LoadControlLimitConstraintsListData = castData[model.LoadControlLimitConstraintsListDataType](data)
+	case model.FunctionTypeLoadControlLimitDescriptionListData:
+		result.LoadControlLimitDescriptionListData = castData[model.LoadControlLimitDescriptionListDataType](data)
+	case model.FunctionTypeLoadControlLimitListData:
+		result.LoadControlLimitListData = castData[model.LoadControlLimitListDataType](data)
 		// add more model types here
 	}
 
