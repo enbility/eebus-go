@@ -294,8 +294,8 @@ type CmdType struct {
 	ElectricalConnectionPermittedValueSetListData      *ElectricalConnectionPermittedValueSetListDataType      `json:"electricalConnectionPermittedValueSetListData,omitempty" eebus:"fct:electricalConnectionPermittedValueSetListData"`
 	ElectricalConnectionStateListData                  *ElectricalConnectionStateListDataType                  `json:"electricalConnectionStateListData,omitempty"`
 	HvacOperationModeDescriptionListData               *HvacOperationModeDescriptionListDataType               `json:"hvacOperationModeDescriptionListData,omitempty"`
-	HvacOverrunDescriptionListData                     *HvacOverrunDescriptionListDataType                     `json:"hvacOverrunDescriptionListData,omitempty"`
-	HvacOverrunListData                                *HvacOverrunListDataType                                `json:"hvacOverrunListData,omitempty"`
+	HvacOverrunDescriptionListData                     *HvacOverrunDescriptionListDataType                     `json:"hvacOverrunDescriptionListData,omitempty" eebus:"fct:hvacOverrunDescriptionListData"`
+	HvacOverrunListData                                *HvacOverrunListDataType                                `json:"hvacOverrunListData,omitempty" eebus:"fct:hvacOverrunListData"`
 	HvacSystemFunctionDescriptionListData              *HvacSystemFunctionDescriptionListDataType              `json:"hvacSystemFunctionDescriptionListData,omitempty"`
 	HvacSystemFunctionListData                         *HvacSystemFunctionListDataType                         `json:"hvacSystemFunctionListData,omitempty"`
 	HvacSystemFunctionOperationModeRelationListData    *HvacSystemFunctionOperationModeRelationListDataType    `json:"hvacSystemFunctionOperationModeRelationListData,omitempty"`

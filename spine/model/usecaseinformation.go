@@ -19,6 +19,8 @@ const (
 	UseCaseNameTypeEVSECommissioningAndConfiguration                UseCaseNameType = "evseCommissioningAndConfiguration"
 	UseCaseNameTypeEVChargingSummary                                UseCaseNameType = "evChargingSummary"
 	UseCaseNameTypeEVStateOfCharge                                  UseCaseNameType = "evStateOfCharge"
+	UseCaseNameTypeMonitoringAndControlOfSmartGridReadyConditions   UseCaseNameType = "monitoringAndControlOfSmartGridReadyConditions"
+	UseCaseNameTypeMonitoringOfPowerConsumption                     UseCaseNameType = "monitoringOfPowerConsumption"
 )
 
 type UseCaseScenarioSupportType uint
