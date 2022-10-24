@@ -31,6 +31,10 @@ type FeatureLocal interface {
 	SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	HandleMessage(message *Message) *ErrorType
+	WriteData(
+		function model.FunctionType,
+		data any,
+		destination *FeatureRemoteImpl) *ErrorType
 }
 
 var _ FeatureLocal = (*FeatureLocalImpl)(nil)
@@ -230,6 +234,19 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 		return NewErrorTypeFromString(fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
 	}
 
+	return nil
+}
+
+func (r *FeatureLocalImpl) WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) (*ErrorType) {
+	fd := r.functionData(function)
+	fd.UpdateDataAny(data, nil, nil)
+	cmd := fd.WriteCmdType()
+
+	err := destination.Sender().Write(r.Address(), destination.Address(), []model.CmdType{cmd})
+
+	if err != nil {
+		return NewErrorTypeFromString(err.Error())
+	}
 	return nil
 }
 
