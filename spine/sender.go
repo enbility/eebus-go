@@ -31,7 +31,6 @@ type Sender interface {
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
 	// Sends a write cmd, setting properties of remote features
 	Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
-
 }
 
 type SenderImpl struct {

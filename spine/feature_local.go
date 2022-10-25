@@ -237,7 +237,7 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 	return nil
 }
 
-func (r *FeatureLocalImpl) WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) (*ErrorType) {
+func (r *FeatureLocalImpl) WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) *ErrorType {
 	fd := r.functionData(function)
 	fd.UpdateDataAny(data, nil, nil)
 	cmd := fd.WriteCmdType()
