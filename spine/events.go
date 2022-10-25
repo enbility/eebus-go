@@ -18,7 +18,7 @@ const (
 	EventTypeDeviceChange       EventType = iota // Sent after successful response of NodeManagementDetailedDiscovery
 	EventTypeEntityChange                        // Sent after successful response of NodeManagementDetailedDiscovery
 	EventTypeSubscriptionChange                  // Sent after successful subscription request from remote
-	EventTypeBindingChange						 // Sent after successful binding request from remote
+	EventTypeBindingChange                       // Sent after successful binding request from remote
 	EventTypeDataChange                          // Sent after remote provided new data items for a function
 )
 

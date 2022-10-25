@@ -25,9 +25,9 @@ func (r *NodeManagementImpl) processReadBindingData(message *Message) error {
 	remoteDeviceBindingEntries := r.Device().BindingManager().Bindings(message.FeatureRemote.Device())
 	linq.From(remoteDeviceBindingEntries).SelectT(func(s *BindingEntry) model.BindingManagementEntryDataType {
 		return model.BindingManagementEntryDataType{
-			BindingId: util.Ptr(model.BindingIdType(s.id)),
-			ServerAddress:  s.serverFeature.Address(),
-			ClientAddress:  s.clientFeature.Address(),
+			BindingId:     util.Ptr(model.BindingIdType(s.id)),
+			ServerAddress: s.serverFeature.Address(),
+			ClientAddress: s.clientFeature.Address(),
 		}
 	}).ToSlice(&remoteDeviceBindings)
 
