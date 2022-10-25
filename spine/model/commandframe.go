@@ -308,9 +308,9 @@ type CmdType struct {
 	IncentiveTableData                                 *IncentiveTableDataType                                 `json:"incentiveTableData,omitempty"`
 	IncentiveTableDescriptionData                      *IncentiveTableDescriptionDataType                      `json:"incentiveTableDescriptionData,omitempty"`
 	LoadControlEventListData                           *LoadControlEventListDataType                           `json:"loadControlEventListData,omitempty"`
-	LoadControlLimitConstraintsListData                *LoadControlLimitConstraintsListDataType                `json:"loadControlLimitConstraintsListData,omitempty"`
-	LoadControlLimitDescriptionListData                *LoadControlLimitDescriptionListDataType                `json:"loadControlLimitDescriptionListData,omitempty"`
-	LoadControlLimitListData                           *LoadControlLimitListDataType                           `json:"loadControlLimitListData,omitempty"`
+	LoadControlLimitConstraintsListData                *LoadControlLimitConstraintsListDataType                `json:"loadControlLimitConstraintsListData,omitempty" eebus:"fct:loadControlLimitConstraintsListData"`
+	LoadControlLimitDescriptionListData                *LoadControlLimitDescriptionListDataType                `json:"loadControlLimitDescriptionListData,omitempty" eebus:"fct:loadControlLimitDescriptionListData"`
+	LoadControlLimitListData                           *LoadControlLimitListDataType                           `json:"loadControlLimitListData,omitempty" eebus:"fct:loadControlLimitListData"`
 	LoadControlNodeData                                *LoadControlNodeDataType                                `json:"loadControlNodeData,omitempty"`
 	LoadControlStateListData                           *LoadControlStateListDataType                           `json:"loadControlStateListData,omitempty"`
 	MeasurementConstraintsListData                     *MeasurementConstraintsListDataType                     `json:"measurementConstraintsListData,omitempty" eebus:"fct:measurementConstraintsListData"`
