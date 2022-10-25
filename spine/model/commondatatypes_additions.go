@@ -10,6 +10,54 @@ import (
 	"github.com/rickb777/date/period"
 )
 
+// string as DateType
+func GetDateFromString(s string) (time.Time, error) {
+	value, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return value, nil
+}
+
+// string as DateTimeType
+func GetDateTimeFromString(s string) (time.Time, error) {
+	value, err := time.Parse(time.RFC3339, s)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return value, nil
+}
+
+// string as TimeType
+func GetTimeFromString(s string) (time.Time, error) {
+	value, err := time.Parse("15:04:05.999999999", s)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return value, nil
+}
+
+// string as DurationType
+func NewDurationType(duration time.Duration) *string {
+	d, _ := period.NewOf(duration)
+	value := d.String()
+	return &value
+}
+
+func GetDurationFromString(s string) (time.Duration, error) {
+	p, err := period.Parse(s)
+	if err != nil {
+		return 0, err
+	}
+
+	return p.DurationApprox(), nil
+}
+
+// ScaledNumberType
+
 func (m *ScaledNumberType) GetValue() float64 {
 	if m.Number == nil {
 		return 0
@@ -47,6 +95,8 @@ func NewScaledNumberType(value float64) *ScaledNumberType {
 	return m
 }
 
+// FeatureAddressType
+
 func (r *FeatureAddressType) String() string {
 	if r == nil {
 		return ""
@@ -65,10 +115,4 @@ func (r *FeatureAddressType) String() string {
 		result += fmt.Sprintf("%d", *r.Feature)
 	}
 	return result
-}
-
-func NewISO8601Duration(duration time.Duration) *string {
-	d, _ := period.NewOf(duration)
-	value := d.String()
-	return &value
 }
