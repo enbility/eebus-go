@@ -18,7 +18,7 @@ type DeviceConfigurationKeyValueTypeType string
 const (
 	DeviceConfigurationKeyValueTypeTypeBoolean      DeviceConfigurationKeyValueTypeType = "boolean"
 	DeviceConfigurationKeyValueTypeTypeDate         DeviceConfigurationKeyValueTypeType = "date"
-	DeviceConfigurationKeyValueTypeTypeDatetime     DeviceConfigurationKeyValueTypeType = "dateTime"
+	DeviceConfigurationKeyValueTypeTypeDateTime     DeviceConfigurationKeyValueTypeType = "dateTime"
 	DeviceConfigurationKeyValueTypeTypeDuration     DeviceConfigurationKeyValueTypeType = "duration"
 	DeviceConfigurationKeyValueTypeTypeString       DeviceConfigurationKeyValueTypeType = "string"
 	DeviceConfigurationKeyValueTypeTypeTime         DeviceConfigurationKeyValueTypeType = "time"
