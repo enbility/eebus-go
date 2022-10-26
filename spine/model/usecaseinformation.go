@@ -3,9 +3,10 @@ package model
 type UseCaseActorType string
 
 const (
-	UseCaseActorTypeCEM  UseCaseActorType = "CEM"
-	UseCaseActorTypeEVSE UseCaseActorType = "EVSE"
-	UseCaseActorTypeEV   UseCaseActorType = "EV"
+	UseCaseActorTypeCEM      UseCaseActorType = "CEM"
+	UseCaseActorTypeEVSE     UseCaseActorType = "EVSE"
+	UseCaseActorTypeEV       UseCaseActorType = "EV"
+	UseCaseActorTypeHeatPump UseCaseActorType = "HeatPump"
 )
 
 type UseCaseNameType string

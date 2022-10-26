@@ -22,8 +22,8 @@ var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
 	model.UseCaseNameTypeMeasurementOfElectricityDuringEVCharging:         {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
 	model.UseCaseNameTypeOptimizationOfSelfConsumptionDuringEVCharging:    {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
 	model.UseCaseNameTypeOverloadProtectionByEVChargingCurrentCurtailment: {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
-	model.UseCaseNameTypeMonitoringOfPowerConsumption:                     {model.UseCaseActorTypeCEM},
-	model.UseCaseNameTypeMonitoringAndControlOfSmartGridReadyConditions:   {model.UseCaseActorTypeCEM},
+	model.UseCaseNameTypeMonitoringOfPowerConsumption:                     {model.UseCaseActorTypeCEM, model.UseCaseActorTypeHeatPump},
+	model.UseCaseNameTypeMonitoringAndControlOfSmartGridReadyConditions:   {model.UseCaseActorTypeCEM, model.UseCaseActorTypeHeatPump},
 }
 
 type UseCaseImpl struct {
