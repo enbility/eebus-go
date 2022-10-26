@@ -62,6 +62,12 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.DeviceConfigurationKeyValueListData = castData[model.DeviceConfigurationKeyValueListDataType](data)
 	case model.FunctionTypeIdentificationListData:
 		result.IdentificationListData = castData[model.IdentificationListDataType](data)
+	case model.FunctionTypeIncentiveTableConstraintsData:
+		result.IncentiveTableConstraintsData = castData[model.IncentiveTableConstraintsDataType](data)
+	case model.FunctionTypeIncentiveTableDescriptionData:
+		result.IncentiveTableDescriptionData = castData[model.IncentiveTableDescriptionDataType](data)
+	case model.FunctionTypeIncentiveTableData:
+		result.IncentiveTableData = castData[model.IncentiveTableDataType](data)
 	case model.FunctionTypeMeasurementConstraintsListData:
 		result.MeasurementConstraintsListData = castData[model.MeasurementConstraintsListDataType](data)
 	case model.FunctionTypeMeasurementDescriptionListData:
@@ -80,6 +86,18 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.LoadControlLimitDescriptionListData = castData[model.LoadControlLimitDescriptionListDataType](data)
 	case model.FunctionTypeLoadControlLimitListData:
 		result.LoadControlLimitListData = castData[model.LoadControlLimitListDataType](data)
+	case model.FunctionTypeTimeSeriesConstraintsListData:
+		result.TimeSeriesConstraintsListData = castData[model.TimeSeriesConstraintsListDataType](data)
+	case model.FunctionTypeTimeSeriesDescriptionListData:
+		result.TimeSeriesDescriptionListData = castData[model.TimeSeriesDescriptionListDataType](data)
+	case model.FunctionTypeTimeSeriesListData:
+		result.TimeSeriesListData = castData[model.TimeSeriesListDataType](data)
+	case model.FunctionTypeTimeTableConstraintsListData:
+		result.TimeTableConstraintsListData = castData[model.TimeTableConstraintsListDataType](data)
+	case model.FunctionTypeTimeTableDescriptionListData:
+		result.TimeTableDescriptionListData = castData[model.TimeTableDescriptionListDataType](data)
+	case model.FunctionTypeTimeTableListData:
+		result.TimeTableListData = castData[model.TimeTableListDataType](data)
 	case model.FunctionTypeHvacOverrunListData:
 		result.HvacOverrunListData = castData[model.HvacOverrunListDataType](data)
 	case model.FunctionTypeHvacOverrunDescriptionListData:
