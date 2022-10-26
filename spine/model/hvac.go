@@ -198,11 +198,11 @@ type HvacOverrunListDataSelectorsType struct {
 }
 
 type HvacOverrunDescriptionDataType struct {
-	OverrunId                *HvacOverrunIdType        `json:"overrunId,omitempty"`
-	OverrunType              *HvacOverrunTypeType      `json:"overrunType,omitempty"`
-	AffectedSystemFunctionId *HvacSystemFunctionIdType `json:"affectedSystemFunctionId,omitempty"`
-	Label                    *LabelType                `json:"label,omitempty"`
-	Description              *DescriptionType          `json:"description,omitempty"`
+	OverrunId                *HvacOverrunIdType         `json:"overrunId,omitempty"`
+	OverrunType              *HvacOverrunTypeType       `json:"overrunType,omitempty"`
+	AffectedSystemFunctionId []HvacSystemFunctionIdType `json:"affectedSystemFunctionId,omitempty"`
+	Label                    *LabelType                 `json:"label,omitempty"`
+	Description              *DescriptionType           `json:"description,omitempty"`
 }
 
 type HvacOverrunDescriptionDataElementsType struct {

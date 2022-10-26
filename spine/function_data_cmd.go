@@ -80,6 +80,10 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.LoadControlLimitDescriptionListData = castData[model.LoadControlLimitDescriptionListDataType](data)
 	case model.FunctionTypeLoadControlLimitListData:
 		result.LoadControlLimitListData = castData[model.LoadControlLimitListDataType](data)
+	case model.FunctionTypeHvacOverrunListData:
+		result.HvacOverrunListData = castData[model.HvacOverrunListDataType](data)
+	case model.FunctionTypeHvacOverrunDescriptionListData:
+		result.HvacOverrunDescriptionListData = castData[model.HvacOverrunDescriptionListDataType](data)
 		// add more model types here
 	}
 

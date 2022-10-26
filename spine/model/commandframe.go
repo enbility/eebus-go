@@ -294,8 +294,8 @@ type CmdType struct {
 	ElectricalConnectionPermittedValueSetListData      *ElectricalConnectionPermittedValueSetListDataType      `json:"electricalConnectionPermittedValueSetListData,omitempty" eebus:"fct:electricalConnectionPermittedValueSetListData"`
 	ElectricalConnectionStateListData                  *ElectricalConnectionStateListDataType                  `json:"electricalConnectionStateListData,omitempty" eebus:"fct:electricalConnectionStateListData"`
 	HvacOperationModeDescriptionListData               *HvacOperationModeDescriptionListDataType               `json:"hvacOperationModeDescriptionListData,omitempty" eebus:"fct:hvacOperationModeDescriptionListData"`
-	HvacOverrunDescriptionListData                     *HvacOverrunDescriptionListDataType                     `json:"hvacOverrunDescriptionListData,omitempty"`
-	HvacOverrunListData                                *HvacOverrunListDataType                                `json:"hvacOverrunListData,omitempty"`
+	HvacOverrunDescriptionListData                     *HvacOverrunDescriptionListDataType                     `json:"hvacOverrunDescriptionListData,omitempty" eebus:"fct:hvacOverrunDescriptionListData"`
+	HvacOverrunListData                                *HvacOverrunListDataType                                `json:"hvacOverrunListData,omitempty" eebus:"fct:hvacOverrunListData"`
 	HvacSystemFunctionDescriptionListData              *HvacSystemFunctionDescriptionListDataType              `json:"hvacSystemFunctionDescriptionListData,omitempty" eebus:"fct:hvacSystemFunctionDescriptionListData"`
 	HvacSystemFunctionListData                         *HvacSystemFunctionListDataType                         `json:"hvacSystemFunctionListData,omitempty" eebus:"fct:hvacSystemFunctionListData"`
 	HvacSystemFunctionOperationModeRelationListData    *HvacSystemFunctionOperationModeRelationListDataType    `json:"hvacSystemFunctionOperationModeRelationListData,omitempty" eebus:"fct:hvacSystemFunctionOperationModeRelationListData"`
