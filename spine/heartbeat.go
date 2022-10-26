@@ -23,7 +23,7 @@ func NewHeartbeatSender(sender Sender) *HeartbeatSender {
 		sender: sender,
 	}
 	// default to 4 seconds timeout
-	h.heartBeatTimeout = model.NewISO8601Duration(time.Second * 4)
+	h.heartBeatTimeout = model.NewDurationType(time.Second * 4)
 
 	return h
 }

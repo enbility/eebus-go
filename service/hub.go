@@ -439,10 +439,11 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 			}
 		}
 
+		fmt.Println("Trying to connect to", ski, "at", entry.Host)
 		if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
 			// connecting via the host failed, so try all of the provided addresses
 			for _, address := range entry.Addresses {
-				fmt.Println("Trying to", ski, "at", address)
+				fmt.Println("Trying to connect to", ski, "at", address)
 				if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err == nil {
 					break
 				}
