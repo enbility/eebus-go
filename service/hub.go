@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/service/util"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/gorilla/websocket"
 )
@@ -57,6 +57,8 @@ func newConnectionsHub(serviceDescription *ServiceDescription, localService *Ser
 		localService:       localService,
 		connectionDelegate: connectionDelegate,
 	}
+
+	localService.SKI = util.NormalizeSKI(localService.SKI)
 
 	mdns, err := newMDNS(localService.SKI, serviceDescription)
 	if err != nil {
@@ -260,6 +262,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ski = util.NormalizeSKI(ski)
 	fmt.Println("Incoming connection request from ", ski)
 
 	// Check if the remote service is paired
@@ -354,9 +357,7 @@ func (h *connectionsHub) registerRemoteService(service ServiceDetails) {
 	h.muxReg.Lock()
 
 	// standardize the provided SKI strings
-	service.SKI = strings.ReplaceAll(service.SKI, " ", "")
-	service.SKI = strings.ReplaceAll(service.SKI, "-", "")
-	service.SKI = strings.ToLower(service.SKI)
+	service.SKI = util.NormalizeSKI(service.SKI)
 	h.registeredServices = append(h.registeredServices, service)
 
 	h.muxReg.Unlock()

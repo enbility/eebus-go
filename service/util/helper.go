@@ -8,6 +8,15 @@ import (
 	"gitlab.com/c0b/go-ordered-json"
 )
 
+// standardize the provided SKI strings
+func NormalizeSKI(ski string) string {
+	ski = strings.ReplaceAll(ski, " ", "")
+	ski = strings.ReplaceAll(ski, "-", "")
+	ski = strings.ToLower(ski)
+
+	return ski
+}
+
 // check if a provided channel is closed
 func IsChannelClosed[T any](ch <-chan T) bool {
 	select {
