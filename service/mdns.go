@@ -165,7 +165,8 @@ func (m *mdns) Announce() error {
 
 	if m.av == nil {
 		// use Zeroconf library if avahi is not available
-		if mDNSServer, err := zeroconf.Register(serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, m.serviceDescription.Port, txt, ifaces); err == nil {
+		mDNSServer, err := zeroconf.Register(serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, m.serviceDescription.Port, txt, ifaces)
+		if err == nil {
 			m.zc = mDNSServer
 
 			m.isAnnounced = true
