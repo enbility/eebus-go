@@ -78,6 +78,21 @@ func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
+	case message.Cmd.NodeManagementBindingRequestCall != nil:
+		if err := r.handleMsgBindingRequestCall(message, message.Cmd.NodeManagementBindingRequestCall); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
+
+	case message.Cmd.NodeManagementBindingDeleteCall != nil:
+		if err := r.handleMsgBindingDeleteCall(message, message.Cmd.NodeManagementBindingDeleteCall); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
+
+	case message.Cmd.NodeManagementBindingData != nil:
+		if err := r.handleMsgBindingData(message); err != nil {
+			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+		}
+
 	case message.Cmd.NodeManagementUseCaseData != nil:
 		if err := r.handleMsgUseCaseData(message, message.Cmd.NodeManagementUseCaseData); err != nil {
 			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
