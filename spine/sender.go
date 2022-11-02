@@ -29,6 +29,8 @@ type Sender interface {
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
 	// Sends a notify cmd to indicate that a subscribed feature changed
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
+	// Sends a write cmd, setting properties of remote features
+	Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) (*model.MsgCounterType, error)
 }
 
 type SenderImpl struct {
@@ -190,7 +192,9 @@ func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddr
 }
 
 // Write sends notification to destination
-func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
+func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) (*model.MsgCounterType, error) {
+	msgCounter := c.getMsgCounter()
+
 	cmdClassifier := model.CmdClassifierTypeWrite
 	ackRequest := true
 
@@ -199,7 +203,7 @@ func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddre
 			SpecificationVersion: &SpecificationVersion,
 			AddressSource:        senderAddress,
 			AddressDestination:   destinationAddress,
-			MsgCounter:           c.getMsgCounter(),
+			MsgCounter:           msgCounter,
 			CmdClassifier:        &cmdClassifier,
 			AckRequest:           &ackRequest,
 		},
@@ -208,7 +212,7 @@ func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddre
 		},
 	}
 
-	return c.sendSpineMessage(datagram)
+	return msgCounter, c.sendSpineMessage(datagram)
 }
 
 // Send a subscription request to a remote server feature

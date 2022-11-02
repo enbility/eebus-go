@@ -10,6 +10,7 @@ type FunctionDataCmd interface {
 	ReadCmdType() model.CmdType
 	ReplyCmdType() model.CmdType
 	NotifyCmdType(partial bool) model.CmdType
+	WriteCmdType() model.CmdType
 }
 
 var _ FunctionDataCmd = (*FunctionDataCmdImpl[int])(nil)
@@ -38,6 +39,11 @@ func (r *FunctionDataCmdImpl[T]) NotifyCmdType(partial bool) model.CmdType {
 	cmd := createCmd(r.functionType, r.data)
 	cmd.Function = util.Ptr(model.FunctionType(r.functionType))
 	cmd.Filter = filterType(partial)
+	return cmd
+}
+
+func (r *FunctionDataCmdImpl[T]) WriteCmdType() model.CmdType {
+	cmd := createCmd(r.functionType, r.data)
 	return cmd
 }
 

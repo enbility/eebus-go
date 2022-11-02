@@ -30,6 +30,7 @@ type FeatureLocal interface {
 	// Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
 	SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
+	WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	HandleMessage(message *Message) *ErrorType
 }
 
@@ -197,6 +198,19 @@ func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *
 	if err != nil {
 		return nil, NewErrorTypeFromString(err.Error())
 	}
+	return msgCounter, nil
+}
+
+// Send a write message with provided data of function to the destination
+func (r *FeatureLocalImpl) WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
+	fd := r.functionData(function)
+	cmd := fd.WriteCmdType()
+
+	msgCounter, err := destination.Sender().Write(r.Address(), destination.Address(), []model.CmdType{cmd})
+	if err != nil {
+		return nil, NewErrorTypeFromString(err.Error())
+	}
+
 	return msgCounter, nil
 }
 
