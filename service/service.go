@@ -256,6 +256,15 @@ func (s *EEBUSService) RegisterRemoteService(service ServiceDetails) {
 	s.connectionsHub.registerRemoteService(service)
 }
 
+// Returns if the provided SKI is from a registered service
+func (s *EEBUSService) IsRemoteServiceRegisteredForSKI(ski string) bool {
+	if _, err := s.connectionsHub.registeredServiceForSKI(ski); err != nil {
+		return false
+	}
+
+	return true
+}
+
 // Remove a device from the list of known devices which can be connected to
 // and disconnect it if it is currently connected
 func (s *EEBUSService) UnregisterRemoteService(ski string) error {
