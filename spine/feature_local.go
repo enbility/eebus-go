@@ -314,7 +314,9 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 			}
 			fmt.Println(errorString)
 		}
-		return r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
+		// we don't need to populate this error as requests don't require a pendingRequest entry
+		_ = r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
+		return nil
 
 	default:
 		return NewErrorType(
