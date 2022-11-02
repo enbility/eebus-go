@@ -13,6 +13,29 @@ type Sender struct {
 	mock.Mock
 }
 
+// Bind provides a mock function with given fields: senderAddress, destinationAddress, serverFeatureType
+func (_m *Sender) Bind(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error) {
+	ret := _m.Called(senderAddress, destinationAddress, serverFeatureType)
+
+	var r0 *model.MsgCounterType
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.FeatureTypeType) *model.MsgCounterType); ok {
+		r0 = rf(senderAddress, destinationAddress, serverFeatureType)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.FeatureTypeType) error); ok {
+		r1 = rf(senderAddress, destinationAddress, serverFeatureType)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Notify provides a mock function with given fields: senderAddress, destinationAddress, cmd
 func (_m *Sender) Notify(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
 	ret := _m.Called(senderAddress, destinationAddress, cmd)

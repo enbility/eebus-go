@@ -27,8 +27,10 @@ type FeatureLocal interface {
 	RequestAndFetchData(
 		function model.FunctionType,
 		destination *FeatureRemoteImpl) (any, *ErrorType)
-	// Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
-	SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType
+	Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType)
+	SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
+	Bind(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType)
+	BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	HandleMessage(message *Message) *ErrorType
@@ -164,6 +166,20 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 	return r.FetchRequestData(*msgCounter, destination)
 }
 
+// Subscribe to a remote feature
+func (r *FeatureLocalImpl) Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType) {
+	if r.Role() == model.RoleTypeServer {
+		return nil, NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
+	}
+
+	msgCounter, err := remoteDevice.Sender().Subscribe(r.Address(), remoteAdress, r.ftype)
+	if err != nil {
+		return nil, NewErrorTypeFromString(err.Error())
+	}
+
+	return msgCounter, nil
+}
+
 // Subscribe to a remote feature and wait for the result
 func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {
@@ -185,6 +201,45 @@ func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remo
 	// this will block the go routine until the response is procedded
 	_, result := r.pendingRequests.GetData(*msgCounter)
 	// TODO: activate polling when subscription failed
+
+	return result
+}
+
+// Bind to a remote feature
+func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType) {
+	if r.Role() == model.RoleTypeServer {
+		return nil, NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
+	}
+
+	msgCounter, err := remoteDevice.Sender().Bind(r.Address(), remoteAddress, r.ftype)
+	if err != nil {
+		return nil, NewErrorTypeFromString(err.Error())
+	}
+
+	return msgCounter, nil
+}
+
+// Bind to a remote feature and wait for the result
+func (r *FeatureLocalImpl) BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType {
+	if r.Role() == model.RoleTypeServer {
+		return NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
+	}
+
+	msgCounter, err := remoteDevice.Sender().Bind(r.Address(), remoteAddress, r.ftype)
+	if err != nil {
+		return NewErrorTypeFromString(err.Error())
+	}
+
+	maxDelay := defaultMaxResponseDelay
+	rf := remoteDevice.FeatureByAddress(remoteAddress)
+	if rf != nil {
+		maxDelay = rf.MaxResponseDelayDuration()
+	}
+
+	r.pendingRequests.Add(*msgCounter, maxDelay)
+	// this will block the go routine until the response is procedded
+	_, result := r.pendingRequests.GetData(*msgCounter)
+	// TODO: activate polling when binding failed
 
 	return result
 }

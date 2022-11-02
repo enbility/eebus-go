@@ -27,6 +27,8 @@ type Sender interface {
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
 	// Sends a call cmd with a subscription request
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
+	// Sends a call cmd with a binding request
+	Bind(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
 	// Sends a notify cmd to indicate that a subscribed feature changed
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
 	// Sends a write cmd, setting properties of remote features
@@ -223,9 +225,23 @@ func (c *SenderImpl) Subscribe(senderAddress, destinationAddress *model.FeatureA
 	}
 
 	// we always send it to the remote NodeManagment feature, which always is at entity:[0],feature:0
+	localAddress := NodeManagementAddress(senderAddress.Device)
 	remoteAddress := NodeManagementAddress(destinationAddress.Device)
 
-	return c.Request(model.CmdClassifierTypeCall, senderAddress, remoteAddress, true, []model.CmdType{cmd})
+	return c.Request(model.CmdClassifierTypeCall, localAddress, remoteAddress, true, []model.CmdType{cmd})
+}
+
+// Send a binding request to a remote server feature
+func (c *SenderImpl) Bind(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error) {
+	cmd := model.CmdType{
+		NodeManagementBindingRequestCall: NewNodeManagementBindingRequestCallType(senderAddress, destinationAddress, serverFeatureType),
+	}
+
+	// we always send it to the remote NodeManagment feature, which always is at entity:[0],feature:0
+	localAddress := NodeManagementAddress(senderAddress.Device)
+	remoteAddress := NodeManagementAddress(destinationAddress.Device)
+
+	return c.Request(model.CmdClassifierTypeCall, localAddress, remoteAddress, true, []model.CmdType{cmd})
 }
 
 func (c *SenderImpl) getMsgCounter() *model.MsgCounterType {
