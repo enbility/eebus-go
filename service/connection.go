@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/service/util"
 	"github.com/DerAndereAndi/eebus-go/ship"
 	"github.com/gorilla/websocket"
@@ -83,11 +84,13 @@ type ConnectionHandler struct {
 	// internal handling of closed connections
 	isConnectionClosed bool
 
+	log logging.Logging
+
 	mux          sync.Mutex
 	shutdownOnce sync.Once
 }
 
-func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectionDelegate ConnectionHandlerDelegate, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
+func newConnectionHandler(log logging.Logging, unregisterChannel chan<- *ConnectionHandler, connectionDelegate ConnectionHandlerDelegate, role ShipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *ConnectionHandler {
 	return &ConnectionHandler{
 		unregisterChannel:  unregisterChannel,
 		connectionDelegate: connectionDelegate,
@@ -95,6 +98,7 @@ func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectio
 		localService:       localService,
 		remoteService:      remoteService,
 		conn:               conn,
+		log:                log,
 	}
 }
 
@@ -112,7 +116,7 @@ func (c *ConnectionHandler) startup() {
 
 	go func() {
 		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
-			fmt.Println("SHIP handshake error: ", err)
+			c.log.Error("SHIP handshake error: ", err)
 			c.shutdown(false)
 			return
 		}
@@ -198,7 +202,7 @@ func (c *ConnectionHandler) writePump() {
 			}
 
 			if err := c.sendSpineData(message); err != nil {
-				fmt.Println("Error sending spine message: ", err)
+				c.log.Error("Error sending spine message: ", err)
 				return
 			}
 		}
@@ -224,13 +228,13 @@ func (c *ConnectionHandler) writeShipPump() {
 
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				fmt.Println("Ship write channel closed")
+				c.log.Debug("Ship write channel closed")
 				// The write channel has been closed
 				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				fmt.Println("Error writing to websocket: ", err)
+				c.log.Error("Error writing to websocket: ", err)
 				return
 			}
 		case <-ticker.C:
@@ -239,7 +243,7 @@ func (c *ConnectionHandler) writeShipPump() {
 			}
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				fmt.Println("Error writing to websocket: ", err)
+				c.log.Error("Error writing to websocket: ", err)
 				return
 			}
 		}
@@ -267,14 +271,14 @@ func (c *ConnectionHandler) readShipPump() {
 			message, err := c.readWebsocketMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					fmt.Println("Error reading message: ", err)
+					c.log.Error("Error reading message: ", err)
 				}
 
 				if c.isConnClosed() {
 					return
 				}
 
-				fmt.Println("Websocket read error: ", err)
+				c.log.Error("Websocket read error: ", err)
 				c.shutdown(false)
 				return
 			}
@@ -295,12 +299,12 @@ func (c *ConnectionHandler) readShipPump() {
 				// Get the datagram from the message
 				data := ship.ShipData{}
 				if err := json.Unmarshal(jsonData, &data); err != nil {
-					fmt.Println("Error unmarshalling message: ", err)
+					c.log.Error("Error unmarshalling message: ", err)
 					continue
 				}
 
 				if data.Data.Payload == nil {
-					fmt.Println("Received no valid payload")
+					c.log.Error("Received no valid payload")
 					continue
 				}
 				go func() {
@@ -323,7 +327,7 @@ func (c *ConnectionHandler) shipMessageHandler() {
 		case msg := <-c.shipReadChannel:
 			// TODO: implement this
 			// This should only be a close/abort message, right?
-			fmt.Println(string(msg))
+			c.log.Trace(string(msg))
 		}
 	}
 }
@@ -406,7 +410,7 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 		return err
 	}
 
-	fmt.Println("Send: ", string(eebusMsg))
+	c.log.Trace("Send: ", string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{ship.MsgTypeData}
@@ -414,7 +418,7 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 
 	err = c.writeWebsocketMessage(shipMsg)
 	if err != nil {
-		fmt.Println("Error sending message: ", err)
+		c.log.Error("Error sending message: ", err)
 		return err
 	}
 
@@ -433,7 +437,7 @@ func (c *ConnectionHandler) sendShipModel(typ byte, model interface{}) error {
 		return err
 	}
 
-	fmt.Println("Send: ", string(eebusMsg))
+	c.log.Trace("Send: ", string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{typ}
@@ -457,7 +461,7 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	msg = msg[1:]
 
 	if len(msg) > 1 {
-		fmt.Println("Recv: ", string(msg))
+		c.log.Trace("Recv: ", string(msg))
 	}
 
 	if jsonFormat {

@@ -130,3 +130,16 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 ### Feature with partial data support
 
 - ElectricalConnection
+
+## Interfaces
+
+### Verbose logging
+
+Use `SetLogger` on `Service` to set the logger which needs to conform to the `logging.Logging` interface.
+
+Example:
+
+```go
+h.myService = service.NewEEBUSService(serviceDescription, h)
+h.myService.SetLogging(h)
+```

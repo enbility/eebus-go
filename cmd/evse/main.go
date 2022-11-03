@@ -31,6 +31,7 @@ func (h *evse) run() {
 	}
 
 	h.myService = service.NewEEBUSService(serviceDescription, h)
+	h.myService.SetLogging(h)
 
 	var err error
 	var certificate tls.Certificate
@@ -127,4 +128,38 @@ func main() {
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	<-sig
 	// User exit
+}
+
+// Logging interface
+
+func (h *evse) Trace(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *evse) Tracef(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
+}
+
+func (h *evse) Debug(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *evse) Debugf(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
+}
+
+func (h *evse) Info(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *evse) Infof(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
+}
+
+func (h *evse) Error(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *evse) Errorf(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
 }

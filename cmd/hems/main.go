@@ -31,6 +31,7 @@ func (h *hems) run() {
 	}
 
 	h.myService = service.NewEEBUSService(serviceDescription, h)
+	h.myService.SetLogging(h)
 
 	var err error
 	var certificate tls.Certificate
@@ -135,4 +136,38 @@ func main() {
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	<-sig
 	// User exit
+}
+
+// Logging interface
+
+func (h *hems) Trace(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *hems) Tracef(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
+}
+
+func (h *hems) Debug(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *hems) Debugf(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
+}
+
+func (h *hems) Info(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *hems) Infof(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
+}
+
+func (h *hems) Error(args ...interface{}) {
+	fmt.Println(args...)
+}
+
+func (h *hems) Errorf(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
 }

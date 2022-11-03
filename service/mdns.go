@@ -10,6 +10,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/godbus/dbus/v5"
 	"github.com/holoplot/go-avahi"
 	"github.com/libp2p/zeroconf/v2"
@@ -41,6 +42,9 @@ type mdns struct {
 
 	cancelChan chan bool
 
+	// logging
+	log logging.Logging
+
 	// the currently available mDNS entries with the SKI as the key in the map
 	entries map[string]MdnsEntry
 
@@ -57,12 +61,13 @@ type mdns struct {
 	mux sync.Mutex
 }
 
-func newMDNS(ski string, serviceDescription *ServiceDescription) (*mdns, error) {
+func newMDNS(log logging.Logging, ski string, serviceDescription *ServiceDescription) (*mdns, error) {
 	m := &mdns{
 		ski:                ski,
 		serviceDescription: serviceDescription,
 		entries:            make(map[string]MdnsEntry),
 		cancelChan:         make(chan bool),
+		log:                log,
 	}
 
 	if av, err := m.setupAvahi(); err == nil {
@@ -161,7 +166,7 @@ func (m *mdns) Announce() error {
 		"register=" + fmt.Sprintf("%v", m.serviceDescription.RegisterAutoAccept),
 	}
 
-	fmt.Println("mDNS: Announce")
+	m.log.Debug("mDNS: Announce")
 
 	if m.av == nil {
 		// use Zeroconf library if avahi is not available
@@ -219,7 +224,7 @@ func (m *mdns) Unannounce() {
 		m.av.EntryGroupFree(m.avEntryGroup)
 		m.avEntryGroup = nil
 	}
-	fmt.Println("mDNS: Stop announcement")
+	m.log.Debug("mDNS: Stop announcement")
 
 	m.isAnnounced = false
 }
@@ -254,7 +259,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	defer m.mux.Unlock()
 
 	if !m.isSearchingServices {
-		fmt.Println("mDNS: Start search")
+		m.log.Debug("mDNS: Start search")
 		go m.resolveEntries()
 	}
 }
@@ -351,7 +356,7 @@ func (m *mdns) resolveEntries() {
 // stop searching for mDNS entries
 func (m *mdns) stopResolvingEntries() {
 	if m.cancelChan != nil {
-		fmt.Println("mDNS: stop search")
+		m.log.Debug("mDNS: stop search")
 
 		m.cancelChan <- true
 	}
@@ -362,7 +367,7 @@ func (m *mdns) stopResolvingEntries() {
 func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	_, ifaceIndexes, err := m.interfaces()
 	if err != nil {
-		fmt.Println("Error getting interfaces:", err)
+		m.log.Error("Error getting interfaces:", err)
 		return
 	}
 
@@ -499,7 +504,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		}
 		m.entries[ski] = newEntry
 
-		fmt.Println("SKI:", ski, "Name:", name, "Brand:", brand, "Model:", model, "Typ:", deviceType, "Identifier:", identifier, "Register:", register)
+		m.log.Debug("SKI:", ski, "Name:", name, "Brand:", brand, "Model:", model, "Typ:", deviceType, "Identifier:", identifier, "Register:", register)
 	} else {
 		return
 	}
