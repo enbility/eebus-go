@@ -1,7 +1,6 @@
 package spine
 
 import (
-	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -88,7 +87,7 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 
 			err := c.sender.Notify(c.senderAddr, c.destinationAddr, cmd)
 			if err != nil {
-				fmt.Println("ERROR sending heartbeat: ", err)
+				log.Error("ERROR sending heartbeat: ", err)
 			}
 		case <-stopC:
 			return

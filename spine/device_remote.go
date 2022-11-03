@@ -3,7 +3,6 @@ package spine
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"reflect"
 	"sync"
 
@@ -82,12 +81,12 @@ func (d *DeviceRemoteImpl) readPump() {
 
 			datagram := model.Datagram{}
 			if err := json.Unmarshal([]byte(data), &datagram); err != nil {
-				fmt.Println(err)
+				log.Error(err)
 				continue
 			}
 			err := d.localDevice.ProcessCmd(datagram.Datagram, d)
 			if err != nil {
-				fmt.Println(err)
+				log.Error(err)
 			}
 		}
 	}

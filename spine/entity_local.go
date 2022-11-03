@@ -1,6 +1,8 @@
 package spine
 
-import "github.com/DerAndereAndi/eebus-go/spine/model"
+import (
+	"github.com/DerAndereAndi/eebus-go/spine/model"
+)
 
 type EntityLocalImpl struct {
 	*EntityImpl

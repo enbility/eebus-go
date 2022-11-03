@@ -21,7 +21,7 @@ func EEBusTags(field reflect.StructField) map[EEBusTag]string {
 	for _, tag := range strings.Split(tags, ";") {
 		pair := strings.Split(tag, ":")
 		if len(pair) != 2 {
-			fmt.Printf("Malformatted eebus tag: '%s'", tags)
+			fmt.Printf("ERROR: Malformatted eebus tag: '%s'", tags)
 		} else {
 			result[EEBusTag(pair[0])] = pair[1]
 		}

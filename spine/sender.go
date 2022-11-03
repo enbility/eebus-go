@@ -4,7 +4,6 @@ package spine
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"sync/atomic"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -69,7 +68,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 		return errors.New("message is nil")
 	}
 
-	fmt.Printf("%s\n", datagram.PrintMessageOverview(true, "", ""))
+	log.Debug(datagram.PrintMessageOverview(true, "", ""))
 
 	// write to channel
 	c.writeChannel <- msg

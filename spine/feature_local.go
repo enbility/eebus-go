@@ -312,7 +312,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 			if message.Cmd.ResultData.Description != nil {
 				errorString += fmt.Sprintf(": %s", *message.Cmd.ResultData.Description)
 			}
-			fmt.Println(errorString)
+			log.Error(errorString)
 		}
 		// we don't need to populate this error as requests don't require a pendingRequest entry
 		_ = r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))

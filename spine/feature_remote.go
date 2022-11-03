@@ -72,7 +72,7 @@ func (r *FeatureRemoteImpl) SetMaxResponseDelay(delay *model.MaxResponseDelayTyp
 	if err != nil {
 		r.maxResponseDelay = util.Ptr(p.DurationApprox())
 	} else {
-		fmt.Println(err)
+		log.Error(err)
 	}
 }
 

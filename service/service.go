@@ -98,26 +98,25 @@ type EEBUSService struct {
 	spineLocalDevice *spine.DeviceLocalImpl
 
 	serviceDelegate EEBUSServiceDelegate
-
-	// logging
-	log logging.Logging
 }
 
 func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
+	log = &logging.NoLogging{}
+
 	return &EEBUSService{
 		ServiceDescription: ServiceDescription,
 		serviceDelegate:    serviceDelegate,
-		log:                &logging.NoLogging{},
 	}
 }
 
 // Sets a custom logging implementation
 // By default NoLogging is used, so no logs are printed
-func (s *EEBUSService) SetLogging(log logging.Logging) {
-	if log == nil {
+func (s *EEBUSService) SetLogging(logger logging.Logging) {
+	if logger == nil {
 		return
 	}
-	s.log = log
+	log = logger
+	spine.SetLogging(logger)
 }
 
 // Starts the service by initializeing mDNS and the server.
@@ -130,13 +129,13 @@ func (s *EEBUSService) Setup() error {
 
 	leaf, err := x509.ParseCertificate(sd.Certificate.Certificate[0])
 	if err != nil {
-		s.log.Error(err)
+		log.Error(err)
 		return err
 	}
 
 	ski, err := skiFromCertificate(leaf)
 	if err != nil {
-		s.log.Error(err)
+		log.Error(err)
 		return err
 	}
 
@@ -147,7 +146,7 @@ func (s *EEBUSService) Setup() error {
 		registerAutoAccept: sd.RegisterAutoAccept,
 	}
 
-	s.log.Infof("Local SKI: ", ski)
+	log.Infof("Local SKI: ", ski)
 
 	vendor := sd.VendorCode
 	if vendor == "" {
@@ -177,13 +176,13 @@ func (s *EEBUSService) Setup() error {
 	case model.DeviceTypeTypeChargingStation:
 		entityType = model.EntityTypeTypeEVSE
 	default:
-		s.log.Errorf("Unknown device type: %s", sd.DeviceType)
+		log.Errorf("Unknown device type: %s", sd.DeviceType)
 	}
 	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
 	s.spineLocalDevice.AddEntity(entity)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	hub, err := newConnectionsHub(s.log, s.ServiceDescription, s.LocalService, s)
+	hub, err := newConnectionsHub(s.ServiceDescription, s.LocalService, s)
 	if err != nil {
 		return err
 	}

@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/service/util"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/gorilla/websocket"
@@ -42,16 +41,13 @@ type connectionsHub struct {
 	// Handling mDNS related tasks
 	mdns *mdns
 
-	// logging
-	log logging.Logging
-
 	connectionDelegate ConnectionHandlerDelegate
 
 	muxCon sync.Mutex
 	muxReg sync.Mutex
 }
 
-func newConnectionsHub(log logging.Logging, serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) (*connectionsHub, error) {
+func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) (*connectionsHub, error) {
 	hub := &connectionsHub{
 		connections:        make(map[string]*ConnectionHandler),
 		register:           make(chan *ConnectionHandler),
@@ -60,12 +56,11 @@ func newConnectionsHub(log logging.Logging, serviceDescription *ServiceDescripti
 		serviceDescription: serviceDescription,
 		localService:       localService,
 		connectionDelegate: connectionDelegate,
-		log:                log,
 	}
 
 	localService.SKI = util.NormalizeSKI(localService.SKI)
 
-	mdns, err := newMDNS(log, localService.SKI, serviceDescription)
+	mdns, err := newMDNS(localService.SKI, serviceDescription)
 	if err != nil {
 		return nil, err
 	}
@@ -82,12 +77,12 @@ func (h *connectionsHub) start() {
 	// start the websocket server
 	go func() {
 		if err := h.startWebsocketServer(); err != nil {
-			h.log.Error("Error during websocket server starting: ", err)
+			log.Error("Error during websocket server starting: ", err)
 		}
 	}()
 
 	if err := h.mdns.Announce(); err != nil {
-		h.log.Error("Error registering mDNS Service:", err)
+		log.Error("Error registering mDNS Service:", err)
 	}
 
 	// Automatically search and connect to services with the same setting
@@ -146,7 +141,7 @@ func (h *connectionsHub) run() {
 			}
 			// startup mDNS if a paired service is not connected
 			if len(h.connections) == 0 && len(h.registeredServices) > 0 {
-				h.log.Debug("Starting mDNS")
+				log.Debug("Starting mDNS")
 				// if this is not a CEM also start the mDNS announcement
 				if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
 					_ = h.mdns.Announce()
@@ -191,7 +186,7 @@ func (h *connectionsHub) isSkiConnected(ski string) bool {
 // start the ship websocket server
 func (h *connectionsHub) startWebsocketServer() error {
 	addr := fmt.Sprintf(":%d", h.serviceDescription.Port)
-	h.log.Debug("Starting websocket server on ", addr)
+	log.Debug("Starting websocket server on ", addr)
 
 	h.httpServer = &http.Server{
 		Addr:    addr,
@@ -242,38 +237,38 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		h.log.Error("Error during connection upgrading: ", err)
+		log.Error("Error during connection upgrading: ", err)
 		return
 	}
 
 	// check if the client supports the ship sub protocol
 	if conn.Subprotocol() != shipWebsocketSubProtocol {
-		h.log.Error("Client does not support the ship sub protocol")
+		log.Error("Client does not support the ship sub protocol")
 		conn.Close()
 		return
 	}
 
 	// check if the clients certificate provides a SKI
 	if len(r.TLS.PeerCertificates) == 0 {
-		h.log.Error("Client does not provide a certificate")
+		log.Error("Client does not provide a certificate")
 		conn.Close()
 		return
 	}
 
 	ski, err := skiFromCertificate(r.TLS.PeerCertificates[0])
 	if err != nil {
-		h.log.Error(err)
+		log.Error(err)
 		conn.Close()
 		return
 	}
 
 	ski = util.NormalizeSKI(ski)
-	h.log.Debug("Incoming connection request from ", ski)
+	log.Debug("Incoming connection request from ", ski)
 
 	// Check if the remote service is paired
 	_, err = h.registeredServiceForSKI(ski)
 	if err != nil {
-		h.log.Error("SKI is not registered!")
+		log.Error("SKI is not registered!")
 		return
 	}
 
@@ -285,7 +280,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		remoteService = remoteS
 	}
 
-	connectionHandler := newConnectionHandler(h.log, h.unregister, h.connectionDelegate, ShipRoleServer, h.localService, remoteService, conn)
+	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleServer, h.localService, remoteService, conn)
 
 	h.register <- connectionHandler
 }
@@ -296,7 +291,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		return nil
 	}
 
-	h.log.Debug("Initiating connection to", remoteService.SKI)
+	log.Debug("Initiating connection to", remoteService.SKI)
 
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
@@ -312,7 +307,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	address := fmt.Sprintf("wss://%s:%s", host, port)
 	conn, _, err := dialer.Dial(address, nil)
 	if err != nil {
-		h.log.Error(err)
+		log.Error(err)
 		return err
 	}
 
@@ -338,7 +333,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		return errors.New("Remote SKI does not match")
 	}
 
-	connectionHandler := newConnectionHandler(h.log, h.unregister, h.connectionDelegate, ShipRoleClient, h.localService, remoteService, conn)
+	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleClient, h.localService, remoteService, conn)
 
 	h.register <- connectionHandler
 
@@ -445,11 +440,11 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 			}
 		}
 
-		h.log.Debug("Trying to connect to", ski, "at", entry.Host)
+		log.Debug("Trying to connect to", ski, "at", entry.Host)
 		if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
 			// connecting via the host failed, so try all of the provided addresses
 			for _, address := range entry.Addresses {
-				h.log.Debug("Trying to connect to", ski, "at", address)
+				log.Debug("Trying to connect to", ski, "at", address)
 				if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err == nil {
 					break
 				}

@@ -63,6 +63,6 @@ func (r *FunctionDataImpl[T]) UpdateDataAny(newData any, filterPartial *model.Fi
 	err := r.UpdateData(newData.(*T), filterPartial, filterDelete)
 	if err != nil {
 		// TODO: log error
-		fmt.Print(err.String())
+		log.Error(err.String())
 	}
 }

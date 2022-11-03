@@ -133,7 +133,8 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	if remoteFeature != nil {
 		remoteFeature.Type()
 	}
-	fmt.Printf("%s\n", datagram.PrintMessageOverview(false, lfType, rfType))
+
+	log.Debug(datagram.PrintMessageOverview(false, lfType, rfType))
 
 	err := localFeature.HandleMessage(message)
 	if err != nil {
