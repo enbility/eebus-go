@@ -66,7 +66,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	if payload.EventType == EventTypeDeviceChange && payload.ChangeType == ElementChangeAdd && payload.Data != nil {
 		switch payload.Data.(type) {
 		case *model.NodeManagementDetailedDiscoveryDataType:
-			_ = r.nodeManagement.SubscribeAndWait(payload.Feature.Device(), payload.Feature.Address())
+			_, _ = r.nodeManagement.Subscribe(payload.Feature.Device(), payload.Feature.Address())
 
 			// Request Use Case Data
 			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.Address(), payload.Device.Sender())
