@@ -81,7 +81,7 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 - [x] Request / Handle acknowledgement
 - [x] Use maximum response delay to timeout requests
 - [X] Send error result when processing failed
-- [ ] Sending heartbeats
+- [X] Sending heartbeats
 
 ### Node Management
 
@@ -98,6 +98,12 @@ If no certfile or keyfile are provided, they are generated and printed in the co
   - [ ] Response partial data
   - [ ] Notify subscribers
 - [ ] Binding
+  - [X] Add Binding
+  - [x] Delete Binding
+  - [ ] Request and process full data
+  - [X] Response full data
+  - [ ] Request and process partial data
+  - [ ] Response partial data
 - [ ] Subscription
   - [X] Add subscription
   - [x] Delete subscription
@@ -129,7 +135,8 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 
 ### Feature with partial data support
 
-- ElectricalConnection
+- `ElectricalConnection`
+- `Measurement`
 
 ## Interfaces
 
