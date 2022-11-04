@@ -28,9 +28,9 @@ type FeatureLocal interface {
 		function model.FunctionType,
 		destination *FeatureRemoteImpl) (any, *ErrorType)
 	Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType)
-	SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
+	// SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
 	Bind(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType)
-	BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType
+	// BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType
 	NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	WriteData(function model.FunctionType, data any, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
 	HandleMessage(message *Message) *ErrorType
@@ -180,6 +180,8 @@ func (r *FeatureLocalImpl) Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdres
 	return msgCounter, nil
 }
 
+/*
+TODO: check if this function is needed and can be fixed, see https://github.com/DerAndereAndi/eebus-go/issues/31
 // Subscribe to a remote feature and wait for the result
 func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {
@@ -204,6 +206,7 @@ func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remo
 
 	return result
 }
+*/
 
 // Bind to a remote feature
 func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType) {
@@ -219,6 +222,8 @@ func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *m
 	return msgCounter, nil
 }
 
+/*
+TODO: check if this function is needed and can be fixed, see https://github.com/DerAndereAndi/eebus-go/issues/31
 // Bind to a remote feature and wait for the result
 func (r *FeatureLocalImpl) BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {
@@ -243,6 +248,7 @@ func (r *FeatureLocalImpl) BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAdd
 
 	return result
 }
+*/
 
 // Send a notification message with the current data of function to the destination
 func (r *FeatureLocalImpl) NotifyData(function model.FunctionType, destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
