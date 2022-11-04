@@ -137,6 +137,7 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 
 - `ElectricalConnection`
 - `Measurement`
+- `LoadControlLimit`
 
 ## Interfaces
 
