@@ -11,8 +11,8 @@ type IncentiveTable struct {
 	*FeatureImpl
 }
 
-func NewIncentiveTable(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*IncentiveTable, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
+func NewIncentiveTable(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*IncentiveTable, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, localRole, remoteRole, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

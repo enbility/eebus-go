@@ -52,8 +52,8 @@ type TimeSeries struct {
 	*FeatureImpl
 }
 
-func NewTimeSeries(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*TimeSeries, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeTimeSeries, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
+func NewTimeSeries(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*TimeSeries, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeTimeSeries, localRole, remoteRole, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

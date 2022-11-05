@@ -29,8 +29,8 @@ type ElectricalConnection struct {
 	*FeatureImpl
 }
 
-func NewElectricalConnection(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*ElectricalConnection, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
+func NewElectricalConnection(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*ElectricalConnection, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeElectricalConnection, localRole, remoteRole, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

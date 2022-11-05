@@ -16,8 +16,8 @@ type Identification struct {
 	*FeatureImpl
 }
 
-func NewIdentification(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*Identification, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeIdentification, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
+func NewIdentification(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*Identification, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeIdentification, localRole, remoteRole, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}
