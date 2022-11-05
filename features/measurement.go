@@ -67,10 +67,45 @@ func (m *Measurement) Request() (*model.MsgCounterType, error) {
 	return msgCounter, nil
 }
 
-// return current current values
+// return current value of a defined scope
+func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (float64, error) {
+	descRef, err := m.GetDescription()
+	if err != nil {
+		return 0.0, ErrMetadataNotAvailable
+	}
+
+	data := m.featureRemote.Data(model.FunctionTypeMeasurementListData).(*model.MeasurementListDataType)
+	if data == nil {
+		return 0.0, ErrDataNotAvailable
+	}
+
+	var result float64
+	for _, item := range data.MeasurementData {
+		if item.MeasurementId == nil || item.Value == nil {
+			continue
+		}
+
+		desc, exists := descRef[*item.MeasurementId]
+		if !exists {
+			continue
+		}
+
+		if desc.ScopeType == nil {
+			continue
+		}
+
+		if *desc.ScopeType == scope {
+			return item.Value.GetValue(), nil
+		}
+	}
+
+	return result, nil
+}
+
+// return current values of a defined scope per phase
 //
 // returns a map with the phase ("a", "b", "c") as a key
-func (m *Measurement) GetCurrents(electricalConnection *ElectricalConnection) (map[string]float64, error) {
+func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (map[string]float64, error) {
 	descRef, err := m.GetDescription()
 	if err != nil {
 		return nil, ErrMetadataNotAvailable
@@ -106,7 +141,7 @@ func (m *Measurement) GetCurrents(electricalConnection *ElectricalConnection) (m
 			continue
 		}
 
-		if *desc.ScopeType == model.ScopeTypeTypeACCurrent {
+		if *desc.ScopeType == scope {
 			resultSet[string(*param.AcMeasuredPhases)] = item.Value.GetValue()
 		}
 	}
