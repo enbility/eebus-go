@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -16,26 +15,32 @@ type Feature interface {
 type FeatureImpl struct {
 	featureType model.FeatureTypeType
 
+	localRole  model.RoleType
+	remoteRole model.RoleType
+
+	spineLocalDevice *spine.DeviceLocalImpl
+
 	featureLocal  spine.FeatureLocal
 	featureRemote *spine.FeatureRemoteImpl
 
-	service *service.EEBUSService
-	device  *spine.DeviceRemoteImpl
-	entity  *spine.EntityRemoteImpl
+	device *spine.DeviceRemoteImpl
+	entity *spine.EntityRemoteImpl
 }
 
 var _ Feature = (*FeatureImpl)(nil)
 
-func NewFeatureImpl(featureType model.FeatureTypeType, service *service.EEBUSService, entity *spine.EntityRemoteImpl) (*FeatureImpl, error) {
+func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*FeatureImpl, error) {
 	f := &FeatureImpl{
-		featureType: featureType,
-		service:     service,
-		device:      entity.Device(),
-		entity:      entity,
+		featureType:      featureType,
+		localRole:        localRole,
+		remoteRole:       remoteRole,
+		spineLocalDevice: spineLocalDevice,
+		device:           entity.Device(),
+		entity:           entity,
 	}
 
 	var err error
-	f.featureLocal, f.featureRemote, err = service.GetLocalClientAndRemoteServerFeatures(f.featureType, entity)
+	f.featureLocal, f.featureRemote, err = f.getLocalClientAndRemoteServerFeatures()
 
 	return f, err
 }
@@ -76,4 +81,24 @@ func (f *FeatureImpl) requestData(function model.FunctionType) (*model.MsgCounte
 	}
 
 	return msgCounter, nil
+}
+
+// internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
+func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
+	if f.entity == nil {
+		return nil, nil, errors.New("invalid remote entity provided")
+	}
+
+	featureLocal := f.spineLocalDevice.FeatureByTypeAndRole(f.featureType, f.localRole)
+	featureRemote := f.entity.Device().FeatureByEntityTypeAndRole(f.entity, f.featureType, f.remoteRole)
+
+	if featureLocal == nil {
+		return nil, nil, errors.New("local feature not found")
+	}
+
+	if featureRemote == nil {
+		return nil, nil, errors.New("remote feature not found")
+	}
+
+	return featureLocal, featureRemote, nil
 }

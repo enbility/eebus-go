@@ -3,7 +3,6 @@ package features
 import (
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -17,8 +16,8 @@ type DeviceDiagnosis struct {
 	*FeatureImpl
 }
 
-func NewDeviceDiagnosis(service *service.EEBUSService, entity *spine.EntityRemoteImpl) (*DeviceDiagnosis, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceDiagnosis, service, entity)
+func NewDeviceDiagnosis(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*DeviceDiagnosis, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

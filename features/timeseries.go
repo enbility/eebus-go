@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -53,8 +52,8 @@ type TimeSeries struct {
 	*FeatureImpl
 }
 
-func NewTimeSeries(service *service.EEBUSService, entity *spine.EntityRemoteImpl) (*TimeSeries, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeTimeSeries, service, entity)
+func NewTimeSeries(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*TimeSeries, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeTimeSeries, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

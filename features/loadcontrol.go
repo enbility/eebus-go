@@ -3,7 +3,6 @@ package features
 import (
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -23,8 +22,8 @@ type LoadControl struct {
 	*FeatureImpl
 }
 
-func NewLoadControl(service *service.EEBUSService, entity *spine.EntityRemoteImpl) (*LoadControl, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeLoadControl, service, entity)
+func NewLoadControl(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*LoadControl, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeLoadControl, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

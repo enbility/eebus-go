@@ -3,7 +3,6 @@ package service
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"fmt"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
@@ -222,26 +221,6 @@ func (s *EEBUSService) AddEntity(entity *spine.EntityLocalImpl) {
 // Only for EVSE implementations
 func (s *EEBUSService) RemoveEntity(entity *spine.EntityLocalImpl) {
 	s.spineLocalDevice.RemoveEntity(entity)
-}
-
-// internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (s *EEBUSService) GetLocalClientAndRemoteServerFeatures(featureType model.FeatureTypeType, remoteEntity *spine.EntityRemoteImpl) (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
-	if remoteEntity == nil {
-		return nil, nil, errors.New("invalid remote entity provided")
-	}
-
-	featureLocal := s.spineLocalDevice.FeatureByTypeAndRole(featureType, model.RoleTypeClient)
-	featureRemote := remoteEntity.Device().FeatureByEntityTypeAndRole(remoteEntity, featureType, model.RoleTypeServer)
-
-	if featureLocal == nil {
-		return nil, nil, errors.New("local feature not found")
-	}
-
-	if featureRemote == nil {
-		return nil, nil, errors.New("remote feature not found")
-	}
-
-	return featureLocal, featureRemote, nil
 }
 
 // return all remote devices

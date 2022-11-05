@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -24,8 +23,8 @@ type Measurement struct {
 	*FeatureImpl
 }
 
-func NewMeasurement(service *service.EEBUSService, entity *spine.EntityRemoteImpl) (*Measurement, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeMeasurement, service, entity)
+func NewMeasurement(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*Measurement, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeMeasurement, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

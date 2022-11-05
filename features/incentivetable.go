@@ -3,7 +3,6 @@ package features
 import (
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -12,8 +11,8 @@ type IncentiveTable struct {
 	*FeatureImpl
 }
 
-func NewIncentiveTable(service *service.EEBUSService, entity *spine.EntityRemoteImpl) (*IncentiveTable, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, service, entity)
+func NewIncentiveTable(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*IncentiveTable, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -26,8 +25,8 @@ type DeviceConfiguration struct {
 	*FeatureImpl
 }
 
-func NewDeviceConfiguration(service *service.EEBUSService, entity *spine.EntityRemoteImpl) (*DeviceConfiguration, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, service, entity)
+func NewDeviceConfiguration(spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*DeviceConfiguration, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeClient, model.RoleTypeServer, spineLocalDevice, entity)
 	if err != nil {
 		return nil, err
 	}
