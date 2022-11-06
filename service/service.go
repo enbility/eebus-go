@@ -106,8 +106,6 @@ type EEBUSService struct {
 }
 
 func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
-	logging.Log = &logging.NoLogging{}
-
 	return &EEBUSService{
 		ServiceDescription: ServiceDescription,
 		serviceDelegate:    serviceDelegate,
