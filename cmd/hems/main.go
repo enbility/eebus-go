@@ -106,6 +106,10 @@ func (h *hems) RemoteServiceShipIDReported(ski string, shipID string) {
 	fmt.Println("SKI", ski, "has Ship ID:", shipID)
 }
 
+func (h *hems) RemoteSKIConnected(ski string) {}
+
+func (h *hems) RemoteSKIDisconnected(ski string) {}
+
 // UCEvseCommisioningConfigurationCemDelegate
 
 // handle device state updates from the remote EVSE device

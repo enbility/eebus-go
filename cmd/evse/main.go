@@ -105,6 +105,10 @@ func (h *evse) RemoteServiceShipIDReported(ski string, shipID string) {
 	fmt.Println("SKI", ski, "has Ship ID:", shipID)
 }
 
+func (h *evse) RemoteSKIConnected(ski string) {}
+
+func (h *evse) RemoteSKIDisconnected(ski string) {}
+
 // main app
 func usage() {
 	fmt.Println("First Run:")
