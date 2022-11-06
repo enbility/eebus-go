@@ -80,6 +80,12 @@ type EEBUSServiceDelegate interface {
 
 	// report the Ship ID of a newly trusted connection
 	RemoteServiceShipIDReported(ski string, shipID string)
+
+	// report a connection to a SKI
+	RemoteSKIConnected(ski string)
+
+	// report a disconnection to a SKI
+	RemoteSKIDisconnected(ski string)
 }
 
 // A service is the central element of an EEBUS service
@@ -280,8 +286,10 @@ func (s *EEBUSService) shipIDUpdateForService(service *ServiceDetails) {
 
 func (s *EEBUSService) addRemoteDeviceConnection(ski string, readC <-chan []byte, writeC chan<- []byte) {
 	s.spineLocalDevice.AddRemoteDevice(ski, readC, writeC)
+	s.serviceDelegate.RemoteSKIConnected(ski)
 }
 
 func (s *EEBUSService) removeRemoteDeviceConnection(ski string) {
 	s.spineLocalDevice.RemoveRemoteDevice(ski)
+	s.serviceDelegate.RemoteSKIDisconnected(ski)
 }
