@@ -1,8 +1,7 @@
 package features
 
 import (
-	"fmt"
-
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -38,7 +37,7 @@ func NewLoadControl(localRole, remoteRole model.RoleType, spineLocalDevice *spin
 // request FunctionTypeLoadControlLimitDescriptionListData from a remote device
 func (l *LoadControl) RequestLimitDescription() error {
 	if _, err := l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData); err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -48,7 +47,7 @@ func (l *LoadControl) RequestLimitDescription() error {
 // request FunctionTypeLoadControlLimitConstraintsListData from a remote device
 func (l *LoadControl) RequestLimitConstraints() error {
 	if _, err := l.requestData(model.FunctionTypeLoadControlLimitConstraintsListData); err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -59,7 +58,7 @@ func (l *LoadControl) RequestLimitConstraints() error {
 func (l *LoadControl) RequestLimits() (*model.MsgCounterType, error) {
 	msgCounter, err := l.requestData(model.FunctionTypeLoadControlLimitListData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return nil, err
 	}
 

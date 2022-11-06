@@ -100,8 +100,6 @@ type EEBUSService struct {
 }
 
 func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
-	log = &logging.NoLogging{}
-
 	return &EEBUSService{
 		ServiceDescription: ServiceDescription,
 		serviceDelegate:    serviceDelegate,
@@ -114,8 +112,7 @@ func (s *EEBUSService) SetLogging(logger logging.Logging) {
 	if logger == nil {
 		return
 	}
-	log = logger
-	spine.SetLogging(logger)
+	logging.Log = logger
 }
 
 // Starts the service by initializeing mDNS and the server.
@@ -128,13 +125,13 @@ func (s *EEBUSService) Setup() error {
 
 	leaf, err := x509.ParseCertificate(sd.Certificate.Certificate[0])
 	if err != nil {
-		log.Error(err)
+		logging.Log.Error(err)
 		return err
 	}
 
 	ski, err := skiFromCertificate(leaf)
 	if err != nil {
-		log.Error(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -145,7 +142,7 @@ func (s *EEBUSService) Setup() error {
 		registerAutoAccept: sd.RegisterAutoAccept,
 	}
 
-	log.Infof("Local SKI: ", ski)
+	logging.Log.Infof("Local SKI: ", ski)
 
 	vendor := sd.VendorCode
 	if vendor == "" {
@@ -175,7 +172,7 @@ func (s *EEBUSService) Setup() error {
 	case model.DeviceTypeTypeChargingStation:
 		entityType = model.EntityTypeTypeEVSE
 	default:
-		log.Errorf("Unknown device type: %s", sd.DeviceType)
+		logging.Log.Errorf("Unknown device type: %s", sd.DeviceType)
 	}
 	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
 	s.spineLocalDevice.AddEntity(entity)

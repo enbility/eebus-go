@@ -3,6 +3,7 @@ package spine
 import (
 	"fmt"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
 )
@@ -62,7 +63,6 @@ func (r *FunctionDataImpl[T]) DataAny() any {
 func (r *FunctionDataImpl[T]) UpdateDataAny(newData any, filterPartial *model.FilterType, filterDelete *model.FilterType) {
 	err := r.UpdateData(newData.(*T), filterPartial, filterDelete)
 	if err != nil {
-		// TODO: log error
-		log.Error(err.String())
+		logging.Log.Error(err.String())
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/service/util"
 	"github.com/DerAndereAndi/eebus-go/ship"
 	"github.com/gorilla/websocket"
@@ -112,7 +113,7 @@ func (c *ConnectionHandler) startup() {
 
 	go func() {
 		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
-			log.Error("SHIP handshake error: ", err)
+			logging.Log.Error("SHIP handshake error: ", err)
 			c.shutdown(false)
 			return
 		}
@@ -198,7 +199,7 @@ func (c *ConnectionHandler) writePump() {
 			}
 
 			if err := c.sendSpineData(message); err != nil {
-				log.Error("Error sending spine message: ", err)
+				logging.Log.Error("Error sending spine message: ", err)
 				return
 			}
 		}
@@ -224,13 +225,13 @@ func (c *ConnectionHandler) writeShipPump() {
 
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				log.Debug("Ship write channel closed")
+				logging.Log.Debug("Ship write channel closed")
 				// The write channel has been closed
 				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				log.Error("Error writing to websocket: ", err)
+				logging.Log.Error("Error writing to websocket: ", err)
 				return
 			}
 		case <-ticker.C:
@@ -239,7 +240,7 @@ func (c *ConnectionHandler) writeShipPump() {
 			}
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Error("Error writing to websocket: ", err)
+				logging.Log.Error("Error writing to websocket: ", err)
 				return
 			}
 		}
@@ -267,14 +268,14 @@ func (c *ConnectionHandler) readShipPump() {
 			message, err := c.readWebsocketMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					log.Error("Error reading message: ", err)
+					logging.Log.Error("Error reading message: ", err)
 				}
 
 				if c.isConnClosed() {
 					return
 				}
 
-				log.Error("Websocket read error: ", err)
+				logging.Log.Error("Websocket read error: ", err)
 				c.shutdown(false)
 				return
 			}
@@ -295,12 +296,12 @@ func (c *ConnectionHandler) readShipPump() {
 				// Get the datagram from the message
 				data := ship.ShipData{}
 				if err := json.Unmarshal(jsonData, &data); err != nil {
-					log.Error("Error unmarshalling message: ", err)
+					logging.Log.Error("Error unmarshalling message: ", err)
 					continue
 				}
 
 				if data.Data.Payload == nil {
-					log.Error("Received no valid payload")
+					logging.Log.Error("Received no valid payload")
 					continue
 				}
 				go func() {
@@ -323,7 +324,7 @@ func (c *ConnectionHandler) shipMessageHandler() {
 		case msg := <-c.shipReadChannel:
 			// TODO: implement this
 			// This should only be a close/abort message, right?
-			log.Trace(string(msg))
+			logging.Log.Trace(string(msg))
 		}
 	}
 }
@@ -406,7 +407,7 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 		return err
 	}
 
-	log.Trace("Send: ", string(eebusMsg))
+	logging.Log.Trace("Send: ", string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{ship.MsgTypeData}
@@ -414,7 +415,7 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 
 	err = c.writeWebsocketMessage(shipMsg)
 	if err != nil {
-		log.Error("Error sending message: ", err)
+		logging.Log.Error("Error sending message: ", err)
 		return err
 	}
 
@@ -433,7 +434,7 @@ func (c *ConnectionHandler) sendShipModel(typ byte, model interface{}) error {
 		return err
 	}
 
-	log.Trace("Send: ", string(eebusMsg))
+	logging.Log.Trace("Send: ", string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{typ}
@@ -457,7 +458,7 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	msg = msg[1:]
 
 	if len(msg) > 1 {
-		log.Trace("Recv: ", string(msg))
+		logging.Log.Trace("Recv: ", string(msg))
 	}
 
 	if jsonFormat {

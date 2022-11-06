@@ -10,6 +10,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/godbus/dbus/v5"
 	"github.com/holoplot/go-avahi"
 	"github.com/libp2p/zeroconf/v2"
@@ -161,7 +162,7 @@ func (m *mdns) Announce() error {
 		"register=" + fmt.Sprintf("%v", m.serviceDescription.RegisterAutoAccept),
 	}
 
-	log.Debug("mDNS: Announce")
+	logging.Log.Debug("mDNS: Announce")
 
 	if m.av == nil {
 		// use Zeroconf library if avahi is not available
@@ -219,7 +220,7 @@ func (m *mdns) Unannounce() {
 		m.av.EntryGroupFree(m.avEntryGroup)
 		m.avEntryGroup = nil
 	}
-	log.Debug("mDNS: Stop announcement")
+	logging.Log.Debug("mDNS: Stop announcement")
 
 	m.isAnnounced = false
 }
@@ -254,7 +255,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	defer m.mux.Unlock()
 
 	if !m.isSearchingServices {
-		log.Debug("mDNS: Start search")
+		logging.Log.Debug("mDNS: Start search")
 		go m.resolveEntries()
 	}
 }
@@ -351,7 +352,7 @@ func (m *mdns) resolveEntries() {
 // stop searching for mDNS entries
 func (m *mdns) stopResolvingEntries() {
 	if m.cancelChan != nil {
-		log.Debug("mDNS: stop search")
+		logging.Log.Debug("mDNS: stop search")
 
 		m.cancelChan <- true
 	}
@@ -362,7 +363,7 @@ func (m *mdns) stopResolvingEntries() {
 func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	_, ifaceIndexes, err := m.interfaces()
 	if err != nil {
-		log.Error("Error getting interfaces:", err)
+		logging.Log.Error("Error getting interfaces:", err)
 		return
 	}
 
@@ -499,7 +500,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		}
 		m.entries[ski] = newEntry
 
-		log.Debug("SKI:", ski, "Name:", name, "Brand:", brand, "Model:", model, "Typ:", deviceType, "Identifier:", identifier, "Register:", register)
+		logging.Log.Debug("SKI:", ski, "Name:", name, "Brand:", brand, "Model:", model, "Typ:", deviceType, "Identifier:", identifier, "Register:", register)
 	} else {
 		return
 	}

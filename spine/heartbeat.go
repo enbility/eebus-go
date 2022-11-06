@@ -5,6 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
@@ -87,7 +88,7 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 
 			err := c.sender.Notify(c.senderAddr, c.destinationAddr, cmd)
 			if err != nil {
-				log.Error("ERROR sending heartbeat: ", err)
+				logging.Log.Error("ERROR sending heartbeat: ", err)
 			}
 		case <-stopC:
 			return

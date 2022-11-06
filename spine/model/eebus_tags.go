@@ -1,9 +1,10 @@
 package model
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/DerAndereAndi/eebus-go/logging"
 )
 
 type EEBusTag string
@@ -21,7 +22,7 @@ func EEBusTags(field reflect.StructField) map[EEBusTag]string {
 	for _, tag := range strings.Split(tags, ";") {
 		pair := strings.Split(tag, ":")
 		if len(pair) != 2 {
-			fmt.Printf("ERROR: Malformatted eebus tag: '%s'", tags)
+			logging.Log.Errorf("ERROR: Malformatted eebus tag: '%s'", tags)
 		} else {
 			result[EEBusTag(pair[0])] = pair[1]
 		}

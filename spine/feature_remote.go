@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
 	"github.com/rickb777/date/period"
@@ -72,7 +73,7 @@ func (r *FeatureRemoteImpl) SetMaxResponseDelay(delay *model.MaxResponseDelayTyp
 	if err != nil {
 		r.maxResponseDelay = util.Ptr(p.DurationApprox())
 	} else {
-		log.Error(err)
+		logging.Log.Error(err)
 	}
 }
 

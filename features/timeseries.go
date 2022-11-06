@@ -1,9 +1,9 @@
 package features
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -69,7 +69,7 @@ func NewTimeSeries(localRole, remoteRole model.RoleType, spineLocalDevice *spine
 func (t *TimeSeries) RequestDescription() error {
 	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -80,7 +80,7 @@ func (t *TimeSeries) RequestDescription() error {
 func (t *TimeSeries) RequestConstraints() error {
 	_, err := t.requestData(model.FunctionTypeTimeSeriesConstraintsListData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (t *TimeSeries) RequestConstraints() error {
 func (t *TimeSeries) Request() (*model.MsgCounterType, error) {
 	msgCounter, err := t.requestData(model.FunctionTypeTimeSeriesListData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return nil, err
 	}
 

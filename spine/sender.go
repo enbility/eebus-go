@@ -6,6 +6,7 @@ import (
 	"errors"
 	"sync/atomic"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
 )
@@ -68,7 +69,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 		return errors.New("message is nil")
 	}
 
-	log.Debug(datagram.PrintMessageOverview(true, "", ""))
+	logging.Log.Debug(datagram.PrintMessageOverview(true, "", ""))
 
 	// write to channel
 	c.writeChannel <- msg

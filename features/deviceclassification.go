@@ -1,8 +1,7 @@
 package features
 
 import (
-	"fmt"
-
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -44,7 +43,7 @@ func (d *DeviceClassification) RequestManufacturerDetailsForEntity() (*model.Msg
 	// request DeviceClassificationManufacturer from a remote entity
 	msgCounter, err := d.requestData(model.FunctionTypeDeviceClassificationManufacturerData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return nil, err
 	}
 

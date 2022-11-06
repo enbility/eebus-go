@@ -2,8 +2,8 @@ package features
 
 import (
 	"errors"
-	"fmt"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -76,7 +76,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType) (*model.MsgCounte
 
 	msgCounter, fErr := f.featureLocal.RequestData(function, f.featureRemote)
 	if fErr != nil {
-		fmt.Println(fErr.String())
+		logging.Log.Error(fErr.String())
 		return nil, errors.New(fErr.String())
 	}
 

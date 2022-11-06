@@ -23,3 +23,15 @@ func (l *NoLogging) Info(args ...interface{})                  {}
 func (l *NoLogging) Infof(format string, args ...interface{})  {}
 func (l *NoLogging) Error(args ...interface{})                 {}
 func (l *NoLogging) Errorf(format string, args ...interface{}) {}
+
+var Log Logging
+
+// Sets a custom logging implementation
+// By default NoLogging is used, so no logs are printed
+// This is used by service.SetLogging()
+func SetLogging(logger Logging) {
+	if logger == nil {
+		return
+	}
+	Log = logger
+}

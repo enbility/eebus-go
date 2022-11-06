@@ -1,8 +1,7 @@
 package features
 
 import (
-	"fmt"
-
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -28,7 +27,7 @@ func NewIncentiveTable(localRole, remoteRole model.RoleType, spineLocalDevice *s
 func (i *IncentiveTable) RequestDescription() error {
 	_, err := i.requestData(model.FunctionTypeIncentiveTableDescriptionData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -39,7 +38,7 @@ func (i *IncentiveTable) RequestDescription() error {
 func (i *IncentiveTable) RequestConstraints() error {
 	_, err := i.requestData(model.FunctionTypeIncentiveTableConstraintsData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -50,7 +49,7 @@ func (i *IncentiveTable) RequestConstraints() error {
 func (i *IncentiveTable) RequestValues() error {
 	_, err := i.requestData(model.FunctionTypeIncentiveTableData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 

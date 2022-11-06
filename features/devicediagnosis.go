@@ -1,8 +1,7 @@
 package features
 
 import (
-	"fmt"
-
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -34,7 +33,7 @@ func (d *DeviceDiagnosis) RequestStateForEntity() (*model.MsgCounterType, error)
 	// request FunctionTypeDeviceDiagnosisStateData from a remote entity
 	msgCounter, err := d.requestData(model.FunctionTypeDeviceDiagnosisStateData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return nil, err
 	}
 

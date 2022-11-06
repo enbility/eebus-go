@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
@@ -81,12 +82,12 @@ func (d *DeviceRemoteImpl) readPump() {
 
 			datagram := model.Datagram{}
 			if err := json.Unmarshal([]byte(data), &datagram); err != nil {
-				log.Error(err)
+				logging.Log.Error(err)
 				continue
 			}
 			err := d.localDevice.ProcessCmd(datagram.Datagram, d)
 			if err != nil {
-				log.Error(err)
+				logging.Log.Error(err)
 			}
 		}
 	}

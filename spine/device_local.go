@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
 )
@@ -134,7 +135,7 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		remoteFeature.Type()
 	}
 
-	log.Debug(datagram.PrintMessageOverview(false, lfType, rfType))
+	logging.Log.Debug(datagram.PrintMessageOverview(false, lfType, rfType))
 
 	err := localFeature.HandleMessage(message)
 	if err != nil {

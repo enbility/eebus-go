@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
@@ -318,7 +319,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 			if message.Cmd.ResultData.Description != nil {
 				errorString += fmt.Sprintf(": %s", *message.Cmd.ResultData.Description)
 			}
-			log.Error(errorString)
+			logging.Log.Error(errorString)
 		}
 		// we don't need to populate this error as requests don't require a pendingRequest entry
 		_ = r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))

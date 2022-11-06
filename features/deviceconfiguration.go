@@ -1,9 +1,9 @@
 package features
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -42,7 +42,7 @@ func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevi
 func (d *DeviceConfiguration) Request() error {
 	// request DeviceConfigurationKeyValueDescriptionListData from a remote entity
 	if _, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData); err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -54,7 +54,7 @@ func (d *DeviceConfiguration) RequestKeyValueList() (*model.MsgCounterType, erro
 	// request FunctionTypeDeviceConfigurationKeyValueListData from a remote entity
 	msgCounter, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return nil, err
 	}
 

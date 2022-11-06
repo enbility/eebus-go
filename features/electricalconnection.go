@@ -1,8 +1,7 @@
 package features
 
 import (
-	"fmt"
-
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
@@ -45,7 +44,7 @@ func NewElectricalConnection(localRole, remoteRole model.RoleType, spineLocalDev
 // request ElectricalConnectionDescriptionListDataType from a remote entity
 func (e *ElectricalConnection) RequestDescription() error {
 	if _, err := e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData); err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -55,7 +54,7 @@ func (e *ElectricalConnection) RequestDescription() error {
 // request FunctionTypeElectricalConnectionParameterDescriptionListData from a remote entity
 func (e *ElectricalConnection) RequestParameterDescription() error {
 	if _, err := e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData); err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return err
 	}
 
@@ -66,7 +65,7 @@ func (e *ElectricalConnection) RequestParameterDescription() error {
 func (e *ElectricalConnection) RequestPermittedValueSet() (*model.MsgCounterType, error) {
 	msgCounter, err := e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
 	if err != nil {
-		fmt.Println(err)
+		logging.Log.Error(err)
 		return nil, err
 	}
 
