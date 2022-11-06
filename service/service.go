@@ -100,6 +100,8 @@ type EEBUSService struct {
 }
 
 func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
+	logging.Log = &logging.NoLogging{}
+
 	return &EEBUSService{
 		ServiceDescription: ServiceDescription,
 		serviceDelegate:    serviceDelegate,
@@ -142,7 +144,7 @@ func (s *EEBUSService) Setup() error {
 		registerAutoAccept: sd.RegisterAutoAccept,
 	}
 
-	logging.Log.Infof("Local SKI: ", ski)
+	logging.Log.Info("Local SKI: ", ski)
 
 	vendor := sd.VendorCode
 	if vendor == "" {
