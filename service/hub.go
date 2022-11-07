@@ -423,22 +423,10 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 			continue
 		}
 
-		var remoteService *ServiceDetails
-		var err error
-
-		// If local and remote registration are set to auto acceppt, we can connect to the remote service
-		if h.serviceDescription.RegisterAutoAccept && entry.Register {
-			remoteService = &ServiceDetails{
-				SKI:                ski,
-				registerAutoAccept: true,
-				deviceType:         model.DeviceTypeType(entry.Type),
-			}
-		} else {
-			// Check if the remote service is paired
-			remoteService, err = h.registeredServiceForSKI(ski)
-			if err != nil {
-				continue
-			}
+		// Check if the remote service is paired
+		remoteService, err := h.registeredServiceForSKI(ski)
+		if err != nil {
+			continue
 		}
 
 		logging.Log.Debug("Trying to connect to", ski, "at", entry.Host)
