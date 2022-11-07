@@ -193,7 +193,11 @@ func (m *Measurement) GetDescriptionForScope(scope model.ScopeTypeType) (measure
 		}
 	}
 
-	return ref, ErrDataNotAvailable
+	if len(ref) == 0 {
+		return nil, ErrDataNotAvailable
+	}
+
+	return ref, nil
 }
 
 // return current SoC for measurements
