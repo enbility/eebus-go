@@ -329,7 +329,7 @@ func (c *ConnectionHandler) shipMessageHandler() {
 		case msg := <-c.shipReadChannel:
 			// TODO: implement this
 			// This should only be a close/abort message, right?
-			logging.Log.Trace(string(msg))
+			logging.Log.Trace(c.remoteService.SKI, string(msg))
 		}
 	}
 }
@@ -412,7 +412,7 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 		return err
 	}
 
-	logging.Log.Trace("Send: ", string(eebusMsg))
+	logging.Log.Trace("Send: ", c.remoteService.SKI, string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{ship.MsgTypeData}
@@ -439,7 +439,7 @@ func (c *ConnectionHandler) sendShipModel(typ byte, model interface{}) error {
 		return err
 	}
 
-	logging.Log.Trace("Send: ", string(eebusMsg))
+	logging.Log.Trace("Send: ", c.remoteService.SKI, string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{typ}
@@ -463,7 +463,7 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	msg = msg[1:]
 
 	if len(msg) > 1 {
-		logging.Log.Trace("Recv: ", string(msg))
+		logging.Log.Trace("Recv: ", c.remoteService.SKI, string(msg))
 	}
 
 	if jsonFormat {
