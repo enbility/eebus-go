@@ -295,6 +295,17 @@ func (s *EEBUSService) addRemoteDeviceConnection(ski string, readC <-chan []byte
 }
 
 func (s *EEBUSService) removeRemoteDeviceConnection(ski string) {
+	remoteDevice := s.spineLocalDevice.RemoteDeviceForSki(ski)
+
 	s.spineLocalDevice.RemoveRemoteDevice(ski)
 	s.serviceDelegate.RemoteSKIDisconnected(ski)
+
+	// inform about the disconnection
+	payload := spine.EventPayload{
+		Ski:        ski,
+		EventType:  spine.EventTypeDeviceChange,
+		ChangeType: spine.ElementChangeRemove,
+		Device:     remoteDevice,
+	}
+	spine.Events.Publish(payload)
 }
