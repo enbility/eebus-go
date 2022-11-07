@@ -79,6 +79,7 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 	if r.remoteDevices[ski] == nil {
 		return
 	}
+	Events.Unsubscribe(r)
 	r.remoteDevices[ski].CloseConnection()
 	delete(r.remoteDevices, ski)
 }

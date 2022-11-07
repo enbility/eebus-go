@@ -44,7 +44,31 @@ type events struct {
 func (r *events) Subscribe(handler EventHandler) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.handlers = append(r.handlers, handler)
+
+	exists := false
+	for _, item := range r.handlers {
+		if item == handler {
+			exists = true
+			break
+		}
+	}
+
+	if !exists {
+		r.handlers = append(r.handlers, handler)
+	}
+}
+
+func (r *events) Unsubscribe(handler EventHandler) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	var newHandlers []EventHandler
+	for _, item := range r.handlers {
+		if item != handler {
+			newHandlers = append(newHandlers, item)
+		}
+	}
+	r.handlers = newHandlers
 }
 
 func (r *events) Publish(payload EventPayload) {
