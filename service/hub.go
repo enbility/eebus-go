@@ -450,20 +450,5 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 				continue
 			}
 		}
-
-		h.muxReg.Lock()
-		registeredServiceMissing := false
-		for _, service := range h.registeredServices {
-			if !h.isSkiConnected(service.SKI) {
-				registeredServiceMissing = true
-				break
-			}
-		}
-		h.muxReg.Unlock()
-
-		if !registeredServiceMissing && !h.serviceDescription.RegisterAutoAccept {
-			h.mdns.UnregisterMdnsSearch(h)
-			break
-		}
 	}
 }
