@@ -113,7 +113,7 @@ func (c *ConnectionHandler) startup() {
 
 	go func() {
 		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
-			logging.Log.Error("SHIP handshake error: ", err)
+			logging.Log.Error(c.remoteService.SKI, "SHIP handshake error: ", err)
 			c.shutdown(false)
 			return
 		}
@@ -204,7 +204,7 @@ func (c *ConnectionHandler) writePump() {
 			}
 
 			if err := c.sendSpineData(message); err != nil {
-				logging.Log.Error("Error sending spine message: ", err)
+				logging.Log.Error(c.remoteService.SKI, "Error sending spine message: ", err)
 				return
 			}
 		}
@@ -230,13 +230,13 @@ func (c *ConnectionHandler) writeShipPump() {
 
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				logging.Log.Debug("Ship write channel closed")
+				logging.Log.Debug(c.remoteService.SKI, "Ship write channel closed")
 				// The write channel has been closed
 				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				logging.Log.Error("Error writing to websocket: ", err)
+				logging.Log.Error(c.remoteService.SKI, "Error writing to websocket: ", err)
 				return
 			}
 		case <-ticker.C:
@@ -245,7 +245,7 @@ func (c *ConnectionHandler) writeShipPump() {
 			}
 			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				logging.Log.Error("Error writing to websocket: ", err)
+				logging.Log.Error(c.remoteService.SKI, "Error writing to websocket: ", err)
 				return
 			}
 		}
@@ -273,14 +273,14 @@ func (c *ConnectionHandler) readShipPump() {
 			message, err := c.readWebsocketMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					logging.Log.Error("Error reading message: ", err)
+					logging.Log.Error(c.remoteService.SKI, "Error reading message: ", err)
 				}
 
 				if c.isConnClosed() {
 					return
 				}
 
-				logging.Log.Error("Websocket read error: ", err)
+				logging.Log.Error(c.remoteService.SKI, "Websocket read error: ", err)
 				c.shutdown(false)
 				return
 			}
@@ -301,12 +301,12 @@ func (c *ConnectionHandler) readShipPump() {
 				// Get the datagram from the message
 				data := ship.ShipData{}
 				if err := json.Unmarshal(jsonData, &data); err != nil {
-					logging.Log.Error("Error unmarshalling message: ", err)
+					logging.Log.Error(c.remoteService.SKI, "Error unmarshalling message: ", err)
 					continue
 				}
 
 				if data.Data.Payload == nil {
-					logging.Log.Error("Received no valid payload")
+					logging.Log.Error(c.remoteService.SKI, "Received no valid payload")
 					continue
 				}
 				go func() {
