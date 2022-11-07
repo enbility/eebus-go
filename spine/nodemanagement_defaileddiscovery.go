@@ -177,6 +177,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 			removedEntity := remoteDevice.RemoveByAddress(entityAddress)
 
 			payload := EventPayload{
+				Ski:        remoteDevice.ski,
 				EventType:  EventTypeEntityChange,
 				ChangeType: ElementChangeRemove,
 				Entity:     removedEntity,
