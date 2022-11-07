@@ -74,10 +74,11 @@ func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConn
 		return 0.0, ErrMetadataNotAvailable
 	}
 
-	data := m.featureRemote.Data(model.FunctionTypeMeasurementListData).(*model.MeasurementListDataType)
-	if data == nil {
+	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
+	if rData == nil {
 		return 0.0, ErrDataNotAvailable
 	}
+	data := rData.(*model.MeasurementListDataType)
 
 	var result float64
 	for _, item := range data.MeasurementData {
@@ -116,10 +117,11 @@ func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, elect
 		return nil, ErrMetadataNotAvailable
 	}
 
-	data := m.featureRemote.Data(model.FunctionTypeMeasurementListData).(*model.MeasurementListDataType)
-	if data == nil {
+	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
+	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
+	data := rData.(*model.MeasurementListDataType)
 
 	resultSet := make(map[string]float64)
 	for _, item := range data.MeasurementData {
@@ -157,10 +159,12 @@ type measurementDescriptionMap map[model.MeasurementIdType]model.MeasurementDesc
 // return a map of MeasurementDescriptionListDataType with measurementId as key
 // returns an error if no description data is available yet
 func (m *Measurement) GetDescription() (measurementDescriptionMap, error) {
-	data := m.featureRemote.Data(model.FunctionTypeMeasurementDescriptionListData).(*model.MeasurementDescriptionListDataType)
-	if data == nil {
+	rData := m.featureRemote.Data(model.FunctionTypeMeasurementDescriptionListData)
+	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+	data := rData.(*model.MeasurementDescriptionListDataType)
+
 	ref := make(measurementDescriptionMap)
 	for _, item := range data.MeasurementDescriptionData {
 		if item.MeasurementId == nil {
@@ -199,10 +203,11 @@ func (m *Measurement) GetSoC() (float64, error) {
 		return 0.0, ErrMetadataNotAvailable
 	}
 
-	data := m.featureRemote.Data(model.FunctionTypeMeasurementListData).(*model.MeasurementListDataType)
-	if data == nil {
+	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
+	if rData == nil {
 		return 0.0, ErrDataNotAvailable
 	}
+	data := rData.(*model.MeasurementListDataType)
 
 	for _, item := range data.MeasurementData {
 		if item.MeasurementId == nil || item.Value == nil {
@@ -230,10 +235,12 @@ type measurementConstraintMap map[model.MeasurementIdType]model.MeasurementConst
 
 // return a map of MeasurementDescriptionListDataType with measurementId as key
 func (m *Measurement) GetConstraints() (measurementConstraintMap, error) {
-	data := m.featureRemote.Data(model.FunctionTypeMeasurementConstraintsListData).(*model.MeasurementConstraintsListDataType)
-	if data == nil {
+	rData := m.featureRemote.Data(model.FunctionTypeMeasurementConstraintsListData)
+	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+	data := rData.(*model.MeasurementConstraintsListDataType)
+
 	ref := make(measurementConstraintMap)
 	for _, item := range data.MeasurementConstraintsData {
 		if item.MeasurementId == nil {
@@ -254,10 +261,11 @@ func (m *Measurement) GetValues() ([]MeasurementType, error) {
 		return nil, ErrMetadataNotAvailable
 	}
 
-	data := m.featureRemote.Data(model.FunctionTypeMeasurementListData).(*model.MeasurementListDataType)
-	if data == nil {
+	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
+	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
+	data := rData.(*model.MeasurementListDataType)
 
 	var resultSet []MeasurementType
 	for _, item := range data.MeasurementData {

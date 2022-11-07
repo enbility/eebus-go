@@ -78,10 +78,12 @@ type electricatlParamDescriptionMaParamId map[model.ElectricalConnectionParamete
 // return a map of ElectricalConnectionParameterDescriptionListDataType with measurementId as key and
 // ElectricalConnectionParameterDescriptionListDataType with parameterId as key
 func (e *ElectricalConnection) GetParamDescriptionListData() (electricatlParamDescriptionMapMeasurementId, electricatlParamDescriptionMaParamId, error) {
-	data := e.featureRemote.Data(model.FunctionTypeElectricalConnectionParameterDescriptionListData).(*model.ElectricalConnectionParameterDescriptionListDataType)
-	if data == nil {
+	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionParameterDescriptionListData)
+	if rData == nil {
 		return nil, nil, ErrDataNotAvailable
 	}
+	data := rData.(*model.ElectricalConnectionParameterDescriptionListDataType)
+
 	refMeasurement := make(electricatlParamDescriptionMapMeasurementId)
 	refElectrical := make(electricatlParamDescriptionMaParamId)
 	for _, item := range data.ElectricalConnectionParameterDescriptionData {
@@ -97,10 +99,11 @@ func (e *ElectricalConnection) GetParamDescriptionListData() (electricatlParamDe
 
 // return current values for Electrical Description
 func (e *ElectricalConnection) GetDescription() ([]ElectricalDescriptionType, error) {
-	data := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData).(*model.ElectricalConnectionDescriptionListDataType)
-	if data == nil {
+	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData)
+	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+	data := rData.(*model.ElectricalConnectionDescriptionListDataType)
 
 	var resultSet []ElectricalDescriptionType
 
@@ -129,10 +132,11 @@ func (e *ElectricalConnection) GetDescription() ([]ElectricalDescriptionType, er
 
 // return number of phases the device is connected with
 func (e *ElectricalConnection) GetConnectedPhases() (uint, error) {
-	data := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData).(*model.ElectricalConnectionDescriptionListDataType)
-	if data == nil {
+	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData)
+	if rData == nil {
 		return 0, ErrDataNotAvailable
 	}
+	data := rData.(*model.ElectricalConnectionDescriptionListDataType)
 
 	for _, item := range data.ElectricalConnectionDescriptionData {
 		if item.ElectricalConnectionId == nil {
@@ -158,10 +162,11 @@ func (e *ElectricalConnection) GetCurrentsLimits() (map[string]float64, map[stri
 		return nil, nil, nil, ErrMetadataNotAvailable
 	}
 
-	data := e.featureRemote.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData).(*model.ElectricalConnectionPermittedValueSetListDataType)
-	if data == nil {
+	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
+	if rData == nil {
 		return nil, nil, nil, ErrDataNotAvailable
 	}
+	data := rData.(*model.ElectricalConnectionPermittedValueSetListDataType)
 
 	resultSetMin := make(map[string]float64)
 	resultSetMax := make(map[string]float64)
@@ -221,10 +226,11 @@ func (e *ElectricalConnection) GetEVLimitValues() ([]ElectricalLimitType, error)
 		paramRef[*item.ParameterId] = item
 	}
 
-	data := e.featureRemote.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData).(*model.ElectricalConnectionPermittedValueSetListDataType)
-	if data == nil {
+	rData2 := e.featureRemote.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
+	if rData2 == nil {
 		return nil, ErrDataNotAvailable
 	}
+	data := rData2.(*model.ElectricalConnectionPermittedValueSetListDataType)
 
 	var resultSet []ElectricalLimitType
 

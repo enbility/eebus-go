@@ -64,10 +64,13 @@ func (d *DeviceConfiguration) RequestKeyValueList() (*model.MsgCounterType, erro
 // returns if a provided scopetype in the device configuration descriptions is available or not
 // returns an error if no description data is available yet
 func (d *DeviceConfiguration) GetDescriptionKeyNameSupport(keyName model.DeviceConfigurationKeyNameType) (bool, error) {
-	data := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData).(*model.DeviceConfigurationKeyValueDescriptionListDataType)
-	if data == nil {
+	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
+	if rData == nil {
 		return false, ErrDataNotAvailable
 	}
+
+	data := rData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
+
 	for _, item := range data.DeviceConfigurationKeyValueDescriptionData {
 		if item.KeyId == nil || item.KeyName == nil {
 			continue
@@ -87,10 +90,12 @@ func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
 		return nil, ErrMetadataNotAvailable
 	}
 
-	data := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueListData).(*model.DeviceConfigurationKeyValueListDataType)
-	if data == nil {
+	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueListData)
+	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
+
+	data := rData.(*model.DeviceConfigurationKeyValueListDataType)
 
 	for _, item := range data.DeviceConfigurationKeyValueData {
 		if item.KeyId == nil || item.Value == nil {

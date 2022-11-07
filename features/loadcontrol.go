@@ -70,10 +70,11 @@ type loadControlLimitDescriptionMap map[model.LoadControlLimitIdType]model.LoadC
 // returns the load control descriptions
 // returns an error if no description data is available yet
 func (l *LoadControl) GetLimitDescription() (loadControlLimitDescriptionMap, error) {
-	data := l.featureRemote.Data(model.FunctionTypeLoadControlLimitDescriptionListData).(*model.LoadControlLimitDescriptionListDataType)
-	if data == nil {
+	rData := l.featureRemote.Data(model.FunctionTypeLoadControlLimitDescriptionListData)
+	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+	data := rData.(*model.LoadControlLimitDescriptionListDataType)
 
 	ref := make(loadControlLimitDescriptionMap)
 	for _, item := range data.LoadControlLimitDescriptionData {
@@ -123,10 +124,13 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 }
 
 func (l *LoadControl) GetLimitValues() ([]LoadControlLimitType, error) {
-	descriptionData := l.featureRemote.Data(model.FunctionTypeLoadControlLimitDescriptionListData).(*model.LoadControlLimitDescriptionListDataType)
-	if descriptionData == nil {
+	rData := l.featureRemote.Data(model.FunctionTypeLoadControlLimitDescriptionListData)
+	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+
+	descriptionData := rData.(*model.LoadControlLimitDescriptionListDataType)
+
 	descRef := make(map[model.LoadControlLimitIdType]model.LoadControlLimitDescriptionDataType)
 	for _, item := range descriptionData.LoadControlLimitDescriptionData {
 		if item.MeasurementId == nil {
@@ -135,10 +139,11 @@ func (l *LoadControl) GetLimitValues() ([]LoadControlLimitType, error) {
 		descRef[*item.LimitId] = item
 	}
 
-	data := l.featureRemote.Data(model.FunctionTypeLoadControlLimitListData).(*model.LoadControlLimitListDataType)
-	if data == nil {
+	rData2 := l.featureRemote.Data(model.FunctionTypeLoadControlLimitListData)
+	if rData2 == nil {
 		return nil, ErrDataNotAvailable
 	}
+	data := rData2.(*model.LoadControlLimitListDataType)
 
 	var resultSet []LoadControlLimitType
 	for _, item := range data.LoadControlLimitData {
