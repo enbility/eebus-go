@@ -99,48 +99,34 @@ func (h *connectionsHub) run() {
 		select {
 		// connect to a paired service
 		case c := <-h.register:
-			// SHIP 12.2.2 recommends that the connection initiated with the higher SKI should retain the connection
-			if existingC := h.connectionForSKI(c.remoteService.SKI); existingC != nil {
-				// The connection initiated by the higher SKI should retain the connection
-				// and the other one should be closed
-				if (c.localService.SKI > c.remoteService.SKI && c.role == ShipRoleClient) ||
-					(c.localService.SKI < c.remoteService.SKI && c.role == ShipRoleServer) {
-					existingC.conn.Close()
+			// check if we already have a connection for the SKI
+			if connection := h.connectionForSKI(c.remoteService.SKI); connection != nil {
+				go c.shutdown(false)
+			} else {
+				h.muxCon.Lock()
+				h.connections[c.remoteService.SKI] = c
+				h.muxCon.Unlock()
 
-					h.muxCon.Lock()
-					delete(h.connections, c.remoteService.SKI)
-					h.muxCon.Unlock()
-				} else {
-					c.conn.Close()
-					continue
+				c.startup()
+
+				// shutdown mDNS if this is not a CEM
+				if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
+					h.mdns.Unannounce()
+					h.mdns.UnregisterMdnsSearch(h)
 				}
-			}
-
-			h.muxCon.Lock()
-			h.connections[c.remoteService.SKI] = c
-			h.muxCon.Unlock()
-
-			c.startup()
-
-			// shutdown mDNS if this is not a CEM
-			if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
-				h.mdns.Unannounce()
-				h.mdns.UnregisterMdnsSearch(h)
 			}
 
 		// disconnect from a no longer connected or paired service
 		case c := <-h.unregister:
-			h.muxCon.Lock()
-			chRegistered, ok := h.connections[c.remoteService.SKI]
-			h.muxCon.Unlock()
-
-			if ok {
-				if chRegistered.conn == c.conn {
+			// only remove this connection if it is the registered one for the ski!
+			if connection := h.connectionForSKI(c.remoteService.SKI); connection != nil {
+				if connection != nil && connection.conn == c.conn {
 					h.muxCon.Lock()
 					delete(h.connections, c.remoteService.SKI)
 					h.muxCon.Unlock()
 				}
 			}
+
 			// startup mDNS if a paired service is not connected
 			if len(h.connections) == 0 && len(h.registeredServices) > 0 {
 				logging.Log.Debug("Starting mDNS")
@@ -159,7 +145,11 @@ func (h *connectionsHub) connectionForSKI(ski string) *ConnectionHandler {
 	h.muxCon.Lock()
 	defer h.muxCon.Unlock()
 
-	return h.connections[ski]
+	con, ok := h.connections[ski]
+	if !ok {
+		return nil
+	}
+	return con
 }
 
 // close all connections
@@ -270,7 +260,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check if the remote service is paired
 	_, err = h.registeredServiceForSKI(ski)
 	if err != nil {
-		logging.Log.Error("SKI is not registered!")
+		logging.Log.Debug("ski is not registered, closing the connection")
 		return
 	}
 
@@ -280,6 +270,13 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// check if we already know this remote service
 	if remoteS, err := h.registeredServiceForSKI(ski); err == nil {
 		remoteService = remoteS
+	}
+
+	// don't allow a second connection
+	if existingC := h.connectionForSKI(ski); existingC != nil {
+		logging.Log.Debug("incoming double connection closed")
+		conn.Close()
+		return
 	}
 
 	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleServer, h.localService, remoteService, conn)
@@ -318,12 +315,15 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 
 	if len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
 		// Close connection as we couldn't get the remote SKI
+		errorString := "closing, could not get remote SKI"
+		logging.Log.Error(errorString)
 		conn.Close()
-		return errors.New("Could not get remote SKI")
+		return errors.New(errorString)
 	}
 
 	if _, err := skiFromCertificate(remoteCerts[0]); err != nil {
 		// Close connection as the remote SKI can't be correct
+		logging.Log.Errorf("closing", err)
 		conn.Close()
 		return err
 	}
@@ -331,8 +331,18 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	remoteSKI := fmt.Sprintf("%0x", remoteCerts[0].SubjectKeyId)
 
 	if remoteSKI != remoteService.SKI {
+		errorString := "remote SKI does not match"
+		logging.Log.Error(errorString)
 		conn.Close()
-		return errors.New("Remote SKI does not match")
+		return errors.New(errorString)
+	}
+
+	// don't allow a second connection
+	if existingC := h.connectionForSKI(remoteService.SKI); existingC != nil {
+		errorString := "outgoing double connection closed"
+		logging.Log.Debug(errorString)
+		conn.Close()
+		return errors.New(errorString)
 	}
 
 	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleClient, h.localService, remoteService, conn)
@@ -356,13 +366,16 @@ func (h *connectionsHub) registeredServiceForSKI(ski string) (*ServiceDetails, e
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
 func (h *connectionsHub) registerRemoteService(service ServiceDetails) {
-	h.muxReg.Lock()
 
 	// standardize the provided SKI strings
 	service.SKI = util.NormalizeSKI(service.SKI)
-	h.registeredServices = append(h.registeredServices, service)
 
-	h.muxReg.Unlock()
+	// check if it is already registered
+	if _, err := h.registeredServiceForSKI(service.SKI); err != nil {
+		h.muxReg.Lock()
+		h.registeredServices = append(h.registeredServices, service)
+		h.muxReg.Unlock()
+	}
 
 	if !h.isSkiConnected(service.SKI) {
 		h.mdns.RegisterMdnsSearch(h)

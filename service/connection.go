@@ -128,17 +128,19 @@ func (c *ConnectionHandler) startup() {
 // may only invoked after startup() is invoked!
 func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 	c.shutdownOnce.Do(func() {
-		c.mux.Lock()
-		defer c.mux.Unlock()
 		if c.isConnectionClosed {
 			return
 		}
 
-		if c.getSmeState() == smeComplete {
+		smeState := c.getSmeState()
+
+		if smeState == smeComplete {
 			c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
 		}
 
 		c.unregisterChannel <- c
+
+		c.mux.Lock()
 
 		if !util.IsChannelClosed(c.readChannel) {
 			close(c.readChannel)
@@ -170,8 +172,11 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 			c.closeChannel = nil
 		}
 
+		c.mux.Unlock()
+
 		if c.conn != nil {
-			if c.getSmeState() == smeComplete && safeShutdown {
+			smeState = c.getSmeState()
+			if smeState == smeComplete && safeShutdown {
 				// close the SHIP connection according to the SHIP protocol
 				c.shipClose()
 			}
