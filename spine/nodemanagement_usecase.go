@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
@@ -34,11 +35,41 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 
 	remoteUseCaseManager := message.FeatureRemote.Device().UseCaseManager()
 	for _, useCaseInfo := range useCaseInformation {
+		// this is mandatory
+		var actor model.UseCaseActorType
+		if useCaseInfo.Actor != nil {
+			actor = model.UseCaseActorType(*useCaseInfo.Actor)
+		} else {
+			logging.Log.Error("actor is missing in useCaseInformation")
+			break
+		}
+
 		for _, useCaseSupport := range useCaseInfo.UseCaseSupport {
+
+			// this is mandatory
+			var useCaseName model.UseCaseNameType
+			if useCaseSupport.UseCaseName != nil {
+				useCaseName = model.UseCaseNameType(*useCaseSupport.UseCaseName)
+			} else {
+				logging.Log.Error("useCaseName is missing in useCaseSupport")
+				continue
+			}
+
+			// this is optional
+			var useCaseVersion model.SpecificationVersionType
+			if useCaseSupport.UseCaseVersion != nil {
+				useCaseVersion = model.SpecificationVersionType(*useCaseSupport.UseCaseVersion)
+			}
+
+			if useCaseSupport.ScenarioSupport == nil {
+				logging.Log.Errorf("scenarioSupport is missing in useCaseSupport %s", useCaseName)
+				continue
+			}
+
 			remoteUseCaseManager.Add(
-				model.UseCaseActorType(*useCaseInfo.Actor),
-				model.UseCaseNameType(*useCaseSupport.UseCaseName),
-				model.SpecificationVersionType(*useCaseSupport.UseCaseVersion),
+				actor,
+				useCaseName,
+				useCaseVersion,
 				useCaseSupport.ScenarioSupport)
 		}
 	}
