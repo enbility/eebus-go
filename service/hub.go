@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 	"sync"
@@ -427,6 +428,13 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 		remoteService, err := h.registeredServiceForSKI(ski)
 		if err != nil {
 			continue
+		}
+
+		// patch the addresses list if an IPv4 address was provided
+		if remoteService.IPv4 != "" {
+			if ip := net.ParseIP(remoteService.IPv4); ip != nil {
+				entry.Addresses = []net.IP{ip}
+			}
 		}
 
 		logging.Log.Debug("Trying to connect to", ski, "at", entry.Host)

@@ -17,6 +17,13 @@ type ServiceDetails struct {
 	// This needs to be persisted
 	SKI string
 
+	// This is the IPv4 address of the device running the service
+	// This is optional only needed when this runs with
+	// zeroconf as mDNS and the remote device is using the latest
+	// avahi version and thus zeroconf can sometimes not detect
+	// the IPv4 address and not initiate a connection
+	IPv4 string
+
 	// ShipID is the ship identifier of the service
 	// This needs to be persisted
 	ShipID string
