@@ -21,7 +21,7 @@ func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.Use
 
 	useCaseInfo, exists := r.useCaseInformationMap[actor]
 	if !exists {
-		useCaseInfo = make([]model.UseCaseSupportType, 1)
+		useCaseInfo = make([]model.UseCaseSupportType, 0)
 	}
 	useCaseInfo = append(useCaseInfo, useCaseSupport)
 
