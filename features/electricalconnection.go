@@ -78,6 +78,10 @@ type electricatlParamDescriptionMaParamId map[model.ElectricalConnectionParamete
 // return a map of ElectricalConnectionParameterDescriptionListDataType with measurementId as key and
 // ElectricalConnectionParameterDescriptionListDataType with parameterId as key
 func (e *ElectricalConnection) GetParamDescriptionListData() (electricatlParamDescriptionMapMeasurementId, electricatlParamDescriptionMaParamId, error) {
+	if e.featureRemote == nil {
+		return nil, nil, ErrDataNotAvailable
+	}
+
 	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionParameterDescriptionListData)
 	if rData == nil {
 		return nil, nil, ErrDataNotAvailable
@@ -99,6 +103,10 @@ func (e *ElectricalConnection) GetParamDescriptionListData() (electricatlParamDe
 
 // return current values for Electrical Description
 func (e *ElectricalConnection) GetDescription() ([]ElectricalDescriptionType, error) {
+	if e.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
@@ -132,6 +140,10 @@ func (e *ElectricalConnection) GetDescription() ([]ElectricalDescriptionType, er
 
 // return number of phases the device is connected with
 func (e *ElectricalConnection) GetConnectedPhases() (uint, error) {
+	if e.featureRemote == nil {
+		return 0, ErrDataNotAvailable
+	}
+
 	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData)
 	if rData == nil {
 		return 0, ErrDataNotAvailable
@@ -157,6 +169,10 @@ func (e *ElectricalConnection) GetConnectedPhases() (uint, error) {
 // returns a map with the phase ("a", "b", "c") as a key for
 // minimum, maximum, default/pause values
 func (e *ElectricalConnection) GetCurrentsLimits() (map[string]float64, map[string]float64, map[string]float64, error) {
+	if e.featureRemote == nil {
+		return nil, nil, nil, ErrDataNotAvailable
+	}
+
 	_, paramRef, err := e.GetParamDescriptionListData()
 	if err != nil {
 		return nil, nil, nil, ErrMetadataNotAvailable
@@ -213,6 +229,10 @@ func (e *ElectricalConnection) GetCurrentsLimits() (map[string]float64, map[stri
 //
 // EV only: Min power data is only provided via IEC61851 or using VAS in ISO15118-2.
 func (e *ElectricalConnection) GetEVLimitValues() ([]ElectricalLimitType, error) {
+	if e.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionParameterDescriptionListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable

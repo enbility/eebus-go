@@ -69,6 +69,10 @@ func (m *Measurement) Request() (*model.MsgCounterType, error) {
 
 // return current value of a defined scope
 func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (float64, error) {
+	if m.featureRemote == nil {
+		return 0.0, ErrDataNotAvailable
+	}
+
 	descRef, err := m.GetDescription()
 	if err != nil {
 		return 0.0, ErrMetadataNotAvailable
@@ -107,6 +111,10 @@ func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConn
 //
 // returns a map with the phase ("a", "b", "c") as a key
 func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (map[string]float64, error) {
+	if m.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	descRef, err := m.GetDescription()
 	if err != nil {
 		return nil, ErrMetadataNotAvailable
@@ -159,6 +167,10 @@ type measurementDescriptionMap map[model.MeasurementIdType]model.MeasurementDesc
 // return a map of MeasurementDescriptionListDataType with measurementId as key
 // returns an error if no description data is available yet
 func (m *Measurement) GetDescription() (measurementDescriptionMap, error) {
+	if m.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := m.featureRemote.Data(model.FunctionTypeMeasurementDescriptionListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
@@ -178,6 +190,10 @@ func (m *Measurement) GetDescription() (measurementDescriptionMap, error) {
 // return a map of MeasurementDescriptionListDataType with measurementId as key for a given scope
 // returns an error if no description data is available yet
 func (m *Measurement) GetDescriptionForScope(scope model.ScopeTypeType) (measurementDescriptionMap, error) {
+	if m.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	data, err := m.GetDescription()
 	if err != nil {
 		return nil, err
@@ -202,6 +218,10 @@ func (m *Measurement) GetDescriptionForScope(scope model.ScopeTypeType) (measure
 
 // return current SoC for measurements
 func (m *Measurement) GetSoC() (float64, error) {
+	if m.featureRemote == nil {
+		return 0.0, ErrDataNotAvailable
+	}
+
 	descRef, err := m.GetDescription()
 	if err != nil {
 		return 0.0, ErrMetadataNotAvailable
@@ -239,6 +259,10 @@ type measurementConstraintMap map[model.MeasurementIdType]model.MeasurementConst
 
 // return a map of MeasurementDescriptionListDataType with measurementId as key
 func (m *Measurement) GetConstraints() (measurementConstraintMap, error) {
+	if m.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := m.featureRemote.Data(model.FunctionTypeMeasurementConstraintsListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
@@ -257,6 +281,10 @@ func (m *Measurement) GetConstraints() (measurementConstraintMap, error) {
 
 // return current values for measurements
 func (m *Measurement) GetValues() ([]MeasurementType, error) {
+	if m.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	// constraints can be optional
 	constraintsRef, _ := m.GetConstraints()
 

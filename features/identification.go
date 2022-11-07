@@ -41,6 +41,10 @@ func (i *Identification) Request() (*model.MsgCounterType, error) {
 
 // return current values for Identification
 func (i *Identification) GetValues() ([]IdentificationType, error) {
+	if i.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := i.featureRemote.Data(model.FunctionTypeIdentificationListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable

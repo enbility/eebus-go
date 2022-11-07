@@ -65,6 +65,10 @@ func (f *FeatureImpl) Bind() error {
 
 // helper method which adds checking if the feature is available and the operation is allowed
 func (f *FeatureImpl) requestData(function model.FunctionType) (*model.MsgCounterType, error) {
+	if f.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	fTypes := f.featureRemote.Operations()
 	if _, exists := fTypes[function]; !exists {
 		return nil, ErrFunctionNotSupported

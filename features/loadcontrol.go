@@ -70,6 +70,10 @@ type loadControlLimitDescriptionMap map[model.LoadControlLimitIdType]model.LoadC
 // returns the load control descriptions
 // returns an error if no description data is available yet
 func (l *LoadControl) GetLimitDescription() (loadControlLimitDescriptionMap, error) {
+	if l.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := l.featureRemote.Data(model.FunctionTypeLoadControlLimitDescriptionListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
@@ -90,6 +94,10 @@ func (l *LoadControl) GetLimitDescription() (loadControlLimitDescriptionMap, err
 // returns if a provided category in the load control limit descriptions is available or not
 // returns an error if no description data is available yet
 func (l *LoadControl) GetLimitDescriptionCategorySupport(category model.LoadControlCategoryType) (bool, error) {
+	if l.featureRemote == nil {
+		return false, ErrDataNotAvailable
+	}
+
 	data, err := l.GetLimitDescription()
 	if err != nil {
 		return false, err
@@ -110,6 +118,10 @@ func (l *LoadControl) GetLimitDescriptionCategorySupport(category model.LoadCont
 // write load control limits
 // returns an error if this failed
 func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*model.MsgCounterType, error) {
+	if l.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	if len(data) == 0 {
 		return nil, ErrMissingData
 	}
@@ -124,6 +136,10 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 }
 
 func (l *LoadControl) GetLimitValues() ([]LoadControlLimitType, error) {
+	if l.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := l.featureRemote.Data(model.FunctionTypeLoadControlLimitDescriptionListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable

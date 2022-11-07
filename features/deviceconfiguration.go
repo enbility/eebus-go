@@ -121,6 +121,10 @@ func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
 
 // return current values for Device Configuration
 func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
+	if d.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rDescData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
 	if rDescData == nil {
 		return nil, ErrMetadataNotAvailable
@@ -213,6 +217,10 @@ type deviceConfigurationKeyValueDescriptionMap map[model.DeviceConfigurationKeyI
 
 // return a map of DeviceConfigurationKeyValueDescriptionListDataType with keyId as key
 func (d *DeviceConfiguration) deviceConfigurationKeyValueDescriptionListData() (deviceConfigurationKeyValueDescriptionMap, error) {
+	if d.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	data := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData).(*model.DeviceConfigurationKeyValueDescriptionListDataType)
 	if data == nil {
 		return nil, ErrMetadataNotAvailable

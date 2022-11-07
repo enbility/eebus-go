@@ -100,6 +100,10 @@ func (t *TimeSeries) Request() (*model.MsgCounterType, error) {
 
 // return current values for Time Series
 func (t *TimeSeries) GetValues() ([]TimeSeriesType, error) {
+	if t.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -174,6 +178,10 @@ func (t *TimeSeries) GetValues() ([]TimeSeriesType, error) {
 
 // return current description values for Time Series
 func (t *TimeSeries) GetDescriptionValues() ([]TimeSeriesDescriptionType, error) {
+	if t.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesDescriptionListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -215,6 +223,10 @@ func (t *TimeSeries) GetDescriptionValues() ([]TimeSeriesDescriptionType, error)
 
 // return current constraint values for Time Series
 func (t *TimeSeries) GetConstraintValues() ([]TimeSeriesConstraintsType, error) {
+	if t.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesConstraintsListData)
 	switch constraintsData := rData.(type) {
 	case *model.TimeSeriesConstraintsListDataType:
