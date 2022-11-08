@@ -15,6 +15,7 @@ func (r *MsgCounterType) String() string {
 	return fmt.Sprintf("%d", *r)
 }
 
+// CmdData stores the function field name for a cmd field
 type CmdData struct {
 	FieldName string
 	Function  *FunctionType
@@ -26,25 +27,40 @@ func (cmd *CmdType) Data() (*CmdData, error) {
 	t := reflect.ValueOf(*cmd)
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		if f.Kind() == reflect.Ptr {
-			if !f.IsNil() {
-				sf := t.Type().Field(i)
-				if sf.Name != "Function" && sf.Name != "Filter" {
-					eebusTags := EEBusTags(sf)
-					function, exists := eebusTags[EEBusTagFunction]
-					var ft *FunctionType = nil
-					if exists && len(function) > 0 {
-						ft = util.Ptr(FunctionType(function))
-					}
-					return &CmdData{
-						FieldName: sf.Name,
-						Function:  ft,
-						Value:     f.Interface(),
-					}, nil
-				}
+		if f.Kind() != reflect.Ptr {
+			continue
+		}
+
+		if f.IsNil() {
+			continue
+		}
+
+		sf := t.Type().Field(i)
+		// Exclude the CmdOptionGroup fields
+		if sf.Name == "Function" || sf.Name == "Filter" {
+			continue
+		}
+
+		eebusTags := EEBusTags(sf)
+		function, exists := eebusTags[EEBusTagFunction]
+		if !exists {
+			continue
+		}
+
+		switch value := function.(type) {
+		case string:
+			var ft *FunctionType = nil
+			if len(value) > 0 {
+				ft = util.Ptr(FunctionType(value))
 			}
+			return &CmdData{
+				FieldName: sf.Name,
+				Function:  ft,
+				Value:     f.Interface(),
+			}, nil
 		}
 	}
+
 	return nil, errors.New("Data not found in Cmd")
 }
 
@@ -54,6 +70,7 @@ func (cmd *CmdType) DataName() string {
 	if err != nil {
 		return "unknown"
 	}
+
 	return data.FieldName
 }
 
