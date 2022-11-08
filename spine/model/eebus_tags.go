@@ -19,7 +19,7 @@ func EEBusTags(field reflect.StructField) map[EEBusTag]string {
 	if len(tags) == 0 {
 		return result
 	}
-	for _, tag := range strings.Split(tags, ";") {
+	for _, tag := range strings.Split(tags, ",") {
 		pair := strings.Split(tag, ":")
 		if len(pair) != 2 {
 			logging.Log.Errorf("ERROR: Malformatted eebus tag: '%s'", tags)
