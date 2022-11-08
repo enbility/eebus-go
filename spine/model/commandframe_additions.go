@@ -47,18 +47,16 @@ func (cmd *CmdType) Data() (*CmdData, error) {
 			continue
 		}
 
-		switch value := function.(type) {
-		case string:
-			var ft *FunctionType = nil
-			if len(value) > 0 {
-				ft = util.Ptr(FunctionType(value))
-			}
-			return &CmdData{
-				FieldName: sf.Name,
-				Function:  ft,
-				Value:     f.Interface(),
-			}, nil
+		var ft *FunctionType = nil
+		if len(function) > 0 {
+			ft = util.Ptr(FunctionType(function))
 		}
+
+		return &CmdData{
+			FieldName: sf.Name,
+			Function:  ft,
+			Value:     f.Interface(),
+		}, nil
 	}
 
 	return nil, errors.New("Data not found in Cmd")
