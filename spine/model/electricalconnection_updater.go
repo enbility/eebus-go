@@ -96,6 +96,7 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) CopyData(sou
 	}
 }
 
+/*
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) selectorHashKey(filter *FilterType) *string {
 	var result *string = nil
 	if filter != nil && filter.ElectricalConnectionPermittedValueSetListDataSelectors != nil {
@@ -105,6 +106,7 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) selectorHash
 	}
 	return result
 }
+*/
 
 // ElectricalConnectionDescriptionListDataType
 
