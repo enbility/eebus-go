@@ -25,6 +25,8 @@ type TimestampIntervalType struct {
 
 type TimeType string
 
+type DateTimeType string
+
 type DurationType string
 
 type AbsoluteOrRelativeTimeType string
@@ -95,7 +97,7 @@ const (
 )
 
 type AbsoluteOrRecurringTimeType struct {
-	DateTime            *string           `json:"dateTime,omitempty"`
+	DateTime            *DateTimeType     `json:"dateTime,omitempty"`
 	Month               *MonthType        `json:"month,omitempty"`
 	DayOfMonth          *DayOfMonthType   `json:"dayOfMonth,omitempty"`
 	CalendarWeek        *CalendarWeekType `json:"calendarWeek,omitempty"`
@@ -117,11 +119,11 @@ type AbsoluteOrRecurringTimeElementsType struct {
 }
 
 type RecurrenceInformationType struct {
-	RecurringInterval     *string `json:"recurringInterval,omitempty"`
-	RecurringIntervalStep *uint   `json:"recurringIntervalStep,omitempty"`
-	FirstExecution        *string `json:"firstExecution,omitempty"`
-	ExecutionCount        *uint   `json:"executionCount,omitempty"`
-	LastExecution         *string `json:"lastExecution,omitempty"`
+	RecurringInterval     *RecurringIntervalType `json:"recurringInterval,omitempty"`
+	RecurringIntervalStep *uint                  `json:"recurringIntervalStep,omitempty"`
+	FirstExecution        *DateTimeType          `json:"firstExecution,omitempty"`
+	ExecutionCount        *uint                  `json:"executionCount,omitempty"`
+	LastExecution         *DateTimeType          `json:"lastExecution,omitempty"`
 }
 
 type RecurrenceInformationElementsType struct {

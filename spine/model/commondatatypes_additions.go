@@ -32,6 +32,7 @@ func GetDateTimeFromString(s string) (time.Time, error) {
 }
 
 // TimeType
+
 func NewTimeType(t string) *TimeType {
 	value := TimeType(t)
 	return &value
@@ -56,7 +57,33 @@ func (s *TimeType) GetTime() (time.Time, error) {
 	return time.Time{}, errors.New("unsupported time format")
 }
 
-//  DurationType
+// DateTimeType
+
+func NewDateTimeType(t string) *DateTimeType {
+	value := DateTimeType(t)
+	return &value
+}
+
+func (d *DateTimeType) GetTime() (time.Time, error) {
+	allowedFormats := []string{
+		"2006-01-02T15:04:05.999999999",
+		"2006-01-02T15:04:05.999999999Z",
+		"2006-01-02T15:04:05",
+		"2006-01-02T15:04:05Z",
+		"2006-01-02T15:04:05+07:00",
+		"2006-01-02T15:04:05-07:00",
+	}
+
+	for _, format := range allowedFormats {
+		if value, err := time.Parse(format, string(*d)); err == nil {
+			return value, nil
+		}
+	}
+
+	return time.Time{}, errors.New("unsupported datetime format")
+}
+
+// DurationType
 
 func NewDurationType(duration time.Duration) *DurationType {
 	d, _ := period.NewOf(duration)
@@ -81,13 +108,13 @@ func getTimeDurationFromString(s string) (time.Duration, error) {
 // AbsoluteOrRelativeTimeType
 // can be of type TimeType or DurationType
 
-func (a *AbsoluteOrRelativeTimeType) GetTimeType() *TimeType {
-	value := NewTimeType(string(*a))
+func (a *AbsoluteOrRelativeTimeType) GetDateTimeType() *DateTimeType {
+	value := NewDateTimeType(string(*a))
 	return value
 }
 
 func (a *AbsoluteOrRelativeTimeType) GetTime() (time.Time, error) {
-	value := NewTimeType(string(*a))
+	value := NewDateTimeType(string(*a))
 	t, err := value.GetTime()
 	if err != nil {
 		return time.Time{}, err

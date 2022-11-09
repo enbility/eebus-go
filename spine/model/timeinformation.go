@@ -1,7 +1,7 @@
 package model
 
 type TimeInformationDataType struct {
-	Utc          *string           `json:"utc,omitempty"`
+	Utc          *DateTimeType     `json:"utc,omitempty"`
 	UtcOffset    *DurationType     `json:"utcOffset,omitempty"`
 	DayOfWeek    *DayOfWeekType    `json:"dayOfWeek,omitempty"`
 	CalendarWeek *CalendarWeekType `json:"calendarWeek,omitempty"`
@@ -25,9 +25,9 @@ type TimeDistributorDataElementsType struct {
 }
 
 type TimePrecisionDataType struct {
-	IsSynchronised *bool   `json:"isSynchronised,omitempty"`
-	LastSyncAt     *string `json:"lastSyncAt,omitempty"`
-	ClockDrift     *int    `json:"clockDrift,omitempty"`
+	IsSynchronised *bool         `json:"isSynchronised,omitempty"`
+	LastSyncAt     *DateTimeType `json:"lastSyncAt,omitempty"`
+	ClockDrift     *int          `json:"clockDrift,omitempty"`
 }
 
 type TimePrecisionDataElementsType struct {
