@@ -78,19 +78,88 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 
 ### General request processing
 
-- [x] Request / Handle acknowledgement
+- [X] Request and process full data
+- [ ] Request partial data
+  - [ ] Delete Selectors
+  - [ ] Update Selectors
+  - [ ] Elements
+- [ ] Send
+  - [X] Full data
+  - [ ] Partial data
+- [ ] Process partial data
+  - [/] Delete Selectors
+  - [/] Update Selectors
+  - [ ] Elements
+- [ ] Request types
+  - [X] Read
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+      - [ ] Partial Delete
+    - [ ] Receive
+      - [X] Full Request
+      - [/] Partial Request
+      - [/] Partial Delete
+  - [X] Reply
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+      - [ ] Partial Delete
+    - [ ] Receive
+      - [X] Full Request
+      - [ ] Partial Request
+      - [ ] Partial Delete
+  - [X] Notify
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+      - [ ] Partial Delete
+    - [ ] Receive
+      - [X] Full Request
+      - [ ] Partial Request
+      - [ ] Partial Delete
+  - [X] Write
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+      - [ ] Partial Delete
+    - [ ] Receive
+      - [X] Full Request
+      - [ ] Partial Request
+      - [ ] Partial Delete
+- [ ] Result message handling
+  - [ ] Handle incoming error results
+  - [X] Handle incoming success results
+  - [X] Respond with error result when processing failed
+- [X] Acknowledgement support
+  - [X] Request
+  - [X] Respond
 - [x] Use maximum response delay to timeout requests
-- [X] Send error result when processing failed
-- [X] Sending heartbeats
 
 ### Node Management
 
 - [ ] Detailed Discovery
-  - [X] Request and process full data
-  - [X] Response full data
-  - [ ] Request and process partial data
-  - [ ] Response partial data
-  - [ ] Notify subscribers
+  - [ ] Read Messages
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+    - [ ] Receive
+      - [X] Full Request
+      - [X] Partial Request
+  - [ ] Reply Messages
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+    - [X] Receive
+      - [X] Full Request
+      - [X] Partial Request
+  - [ ] Notify Messages
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+    - [X] Receive
+      - [X] Full Request
+      - [X] Partial Request
 - [ ] Destination List
   - [ ] Request and process full data
   - [X] Response full data
@@ -98,40 +167,48 @@ If no certfile or keyfile are provided, they are generated and printed in the co
   - [ ] Response partial data
   - [ ] Notify subscribers
 - [ ] Binding
-  - [X] Add Binding
-  - [x] Delete Binding
-  - [ ] Request and process full data
-  - [X] Response full data
-  - [ ] Request and process partial data
-  - [ ] Response partial data
+  - [ ] Send Requests
+    - [X] Add Binding
+    - [ ] Delete Binding
+  - [X] Receive Requests
+    - [X] Add Binding
+    - [X] Delete Binding
 - [ ] Subscription
-  - [X] Add subscription
-  - [x] Delete subscription
-  - [ ] Request and process full data
-  - [X] Response full data
-  - [ ] Request and process partial data
-  - [ ] Response partial data
+  - [ ] Send Requests
+    - [X] Add Subscription
+    - [ ] Delete Subscription
+  - [X] Receive Requests
+    - [X] Add Subscription
+    - [X] Delete Subscription
+  - [X] Notify subscribers
 - [ ] Use Case Discovery
-  - [X] Request and process full data
-  - [X] Response full data
-  - [ ] Request and process partial data
-  - [ ] Response partial data
+  - [ ] Read Messages
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+    - [ ] Receive
+      - [X] Full Request
+      - [ ] Partial Request
+  - [ ] Reply Messages
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+    - [X] Receive
+      - [X] Full Request
+      - [ ] Partial Request
+  - [ ] Notify Messages
+    - [ ] Send
+      - [X] Full Request
+      - [ ] Partial Request
+    - [X] Receive
+      - [X] Full Request
+      - [ ] Partial Request
 
 ### General feature implementation
 
-- [X] Request and process full data
-- [X] Response full data
-- [ ] Request partial data
-- [ ] Process partial data
-  - [X] Delete Selectors
-  - [X] Update Selectors
-  - [ ] Elements
-- [ ] Response partial data
-- [ ] Process write call
-- [ ] Request subscription
-- [X] Notify subscribers
-- [ ] Handle incoming error results
-- [X] Handle incoming success results
+- [ ] Hearbeat Support
+  - [X] Send hearbeats
+  - [ ] Receive hearbeats
 
 ### Feature with partial data support
 
