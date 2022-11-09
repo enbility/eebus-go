@@ -170,13 +170,13 @@ func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
 			}
 		case model.DeviceConfigurationKeyValueTypeTypeDate:
 			if item.Value.Date != nil {
-				if value, err := model.GetDateFromString(*item.Value.Date); err == nil {
+				if value, err := item.Value.Date.GetTime(); err == nil {
 					result.ValueDate = value
 				}
 			}
 		case model.DeviceConfigurationKeyValueTypeTypeDateTime:
 			if item.Value.DateTime != nil {
-				if value, err := model.GetDateTimeFromString(*item.Value.DateTime); err == nil {
+				if value, err := item.Value.DateTime.GetTime(); err == nil {
 					result.ValueDatetime = value
 				}
 			}

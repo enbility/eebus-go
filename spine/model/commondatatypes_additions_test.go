@@ -37,6 +37,35 @@ func TestTimeType(t *testing.T) {
 	}
 }
 
+func TestDateType(t *testing.T) {
+	tc := []struct {
+		in    string
+		parse string
+	}{
+		{"2022-02-01", "2006-01-02"},
+		{"2022-02-01Z", "2006-01-02Z"},
+		{"2022-02-01+07:00", "2006-01-02+07:00"},
+	}
+
+	for _, tc := range tc {
+		got := NewDateType(tc.in)
+		expect, err := time.Parse(tc.parse, tc.in)
+		if err != nil {
+			t.Errorf("Parsing failure with %s and parser %s: %s", tc.in, tc.parse, err)
+			continue
+		}
+		value, err := got.GetTime()
+		if err != nil {
+			t.Errorf("Test Failure with %s and parser %s: %s", tc.in, tc.parse, err)
+			continue
+		}
+
+		if value.UTC() != expect.UTC() {
+			t.Errorf("Test failure for %s, expected %s and got %s", tc.in, value.String(), expect.String())
+		}
+	}
+}
+
 func TestDateTimeType(t *testing.T) {
 	tc := []struct {
 		in    string

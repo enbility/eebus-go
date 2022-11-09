@@ -27,7 +27,7 @@ const (
 
 type DeviceConfigurationKeyValueValueType struct {
 	Boolean      *bool                                  `json:"boolean,omitempty"`
-	Date         *string                                `json:"date,omitempty"`
+	Date         *DateType                              `json:"date,omitempty"`
 	DateTime     *DateTimeType                          `json:"dateTime,omitempty"`
 	Duration     *DurationType                          `json:"duration,omitempty"`
 	String       *DeviceConfigurationKeyValueStringType `json:"string,omitempty"`

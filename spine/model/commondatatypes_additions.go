@@ -11,27 +11,7 @@ import (
 	"github.com/rickb777/date/period"
 )
 
-// string as DateType
-func GetDateFromString(s string) (time.Time, error) {
-	value, err := time.Parse("2006-01-02", s)
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	return value, nil
-}
-
-// string as DateTimeType
-func GetDateTimeFromString(s string) (time.Time, error) {
-	value, err := time.Parse(time.RFC3339, s)
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	return value, nil
-}
-
-// TimeType
+// TimeType xs:time
 
 func NewTimeType(t string) *TimeType {
 	value := TimeType(t)
@@ -57,7 +37,31 @@ func (s *TimeType) GetTime() (time.Time, error) {
 	return time.Time{}, errors.New("unsupported time format")
 }
 
-// DateTimeType
+// DateType xs:date
+
+func NewDateType(t string) *DateType {
+	value := DateType(t)
+	return &value
+}
+
+// 2001-10-26, 2001-10-26+02:00, 2001-10-26Z, 2001-10-26+00:00, -2001-10-26, or -20000-04-01
+func (d *DateType) GetTime() (time.Time, error) {
+	allowedFormats := []string{
+		"2006-01-02",
+		"2006-01-02Z",
+		"2006-01-02+07:00",
+	}
+
+	for _, format := range allowedFormats {
+		if value, err := time.Parse(format, string(*d)); err == nil {
+			return value, nil
+		}
+	}
+
+	return time.Time{}, errors.New("unsupported date format")
+}
+
+// DateTimeType xs:datetime
 
 func NewDateTimeType(t string) *DateTimeType {
 	value := DateTimeType(t)
@@ -72,6 +76,7 @@ func (d *DateTimeType) GetTime() (time.Time, error) {
 		"2006-01-02T15:04:05Z",
 		"2006-01-02T15:04:05+07:00",
 		"2006-01-02T15:04:05-07:00",
+		time.RFC3339,
 	}
 
 	for _, format := range allowedFormats {

@@ -25,6 +25,8 @@ type TimestampIntervalType struct {
 
 type TimeType string
 
+type DateType string
+
 type DateTimeType string
 
 type DurationType string
