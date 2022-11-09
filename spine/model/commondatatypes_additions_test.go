@@ -2,7 +2,40 @@ package model
 
 import (
 	"testing"
+	"time"
 )
+
+func TestTimeType(t *testing.T) {
+	tc := []struct {
+		in    string
+		parse string
+	}{
+		{"21:32:52", "15:04:05"},
+		{"21:32:52.12679", "15:04:05.999999999"},
+		{"21:32:52.12679Z", "15:04:05.999999999Z"},
+		{"19:32:52Z", "15:04:05Z"},
+		{"19:32:52+07:00", "15:04:05+07:00"},
+		{"19:32:52-07:00", "15:04:05-07:00"},
+	}
+
+	for _, tc := range tc {
+		got := NewTimeType(tc.in)
+		expect, err := time.Parse(tc.parse, tc.in)
+		if err != nil {
+			t.Errorf("Parsing failure with %s and parser %s: %s", tc.in, tc.parse, err)
+			continue
+		}
+		value, err := got.GetTime()
+		if err != nil {
+			t.Errorf("Test Failure with %s and parser %s: %s", tc.in, tc.parse, err)
+			continue
+		}
+
+		if value.UTC() != expect.UTC() {
+			t.Errorf("Test failure for %s, expected %s and got %s", tc.in, value.String(), expect.String())
+		}
+	}
+}
 
 func TestNewScaledNumberType(t *testing.T) {
 	tc := []struct {

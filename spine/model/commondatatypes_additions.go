@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -36,17 +37,23 @@ func NewTimeType(t string) *TimeType {
 	return &value
 }
 
-func GetTime(s *TimeType) (time.Time, error) {
-	if s == nil {
-		return time.Time{}, fmt.Errorf("invalid time pointer")
+func (s *TimeType) GetTime() (time.Time, error) {
+	allowedFormats := []string{
+		"15:04:05.999999999",
+		"15:04:05.999999999Z",
+		"15:04:05",
+		"15:04:05Z",
+		"15:04:05+07:00",
+		"15:04:05-07:00",
 	}
 
-	value, err := time.Parse("15:04:05.999999999", string(*s))
-	if err != nil {
-		return time.Time{}, err
+	for _, format := range allowedFormats {
+		if value, err := time.Parse(format, string(*s)); err == nil {
+			return value, nil
+		}
 	}
 
-	return value, nil
+	return time.Time{}, errors.New("unsupported time format")
 }
 
 //  DurationType
@@ -74,9 +81,19 @@ func getTimeDurationFromString(s string) (time.Duration, error) {
 // AbsoluteOrRelativeTimeType
 // can be of type TimeType or DurationType
 
-func (a *AbsoluteOrRelativeTimeType) GetTime() *TimeType {
+func (a *AbsoluteOrRelativeTimeType) GetTimeType() *TimeType {
 	value := NewTimeType(string(*a))
 	return value
+}
+
+func (a *AbsoluteOrRelativeTimeType) GetTime() (time.Time, error) {
+	value := NewTimeType(string(*a))
+	t, err := value.GetTime()
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return t, nil
 }
 
 func (a *AbsoluteOrRelativeTimeType) GetDuration() (*DurationType, error) {

@@ -269,12 +269,12 @@ func (t *TimeSeries) GetConstraintValues() ([]TimeSeriesConstraintsType, error) 
 			}
 		}
 		if item.EarliestTimeSeriesStartTime != nil {
-			if value, err := model.GetTime(item.EarliestTimeSeriesStartTime.GetTime()); err == nil {
+			if value, err := item.EarliestTimeSeriesStartTime.GetTime(); err == nil {
 				result.EarliestStartTime = value
 			}
 		}
 		if item.LatestTimeSeriesEndTime != nil {
-			if value, err := model.GetTime(item.LatestTimeSeriesEndTime.GetTime()); err == nil {
+			if value, err := item.LatestTimeSeriesEndTime.GetTime(); err == nil {
 				result.LatestEndTime = value
 			}
 		}

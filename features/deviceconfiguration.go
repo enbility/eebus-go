@@ -192,7 +192,7 @@ func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
 			}
 		case model.DeviceConfigurationKeyValueTypeTypeTime:
 			if item.Value.Time != nil {
-				if value, err := model.GetTime(item.Value.Time); err != nil {
+				if value, err := item.Value.Time.GetTime(); err != nil {
 					result.ValueTime = value
 				}
 			}
