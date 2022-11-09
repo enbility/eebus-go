@@ -37,11 +37,11 @@ func (_m *Sender) Bind(senderAddress *model.FeatureAddressType, destinationAddre
 }
 
 // Notify provides a mock function with given fields: senderAddress, destinationAddress, cmd
-func (_m *Sender) Notify(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
+func (_m *Sender) Notify(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd model.CmdType) error {
 	ret := _m.Called(senderAddress, destinationAddress, cmd)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, []model.CmdType) error); ok {
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.CmdType) error); ok {
 		r0 = rf(senderAddress, destinationAddress, cmd)
 	} else {
 		r0 = ret.Error(0)
@@ -139,11 +139,11 @@ func (_m *Sender) Subscribe(senderAddress *model.FeatureAddressType, destination
 }
 
 // Write provides a mock function with given fields: senderAddress, destinationAddress, cmd
-func (_m *Sender) Write(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) (*model.MsgCounterType, error) {
+func (_m *Sender) Write(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error) {
 	ret := _m.Called(senderAddress, destinationAddress, cmd)
 
 	var r0 *model.MsgCounterType
-	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, []model.CmdType) *model.MsgCounterType); ok {
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.CmdType) *model.MsgCounterType); ok {
 		r0 = rf(senderAddress, destinationAddress, cmd)
 	} else {
 		if ret.Get(0) != nil {
@@ -152,7 +152,7 @@ func (_m *Sender) Write(senderAddress *model.FeatureAddressType, destinationAddr
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*model.FeatureAddressType, *model.FeatureAddressType, []model.CmdType) error); ok {
+	if rf, ok := ret.Get(1).(func(*model.FeatureAddressType, *model.FeatureAddressType, model.CmdType) error); ok {
 		r1 = rf(senderAddress, destinationAddress, cmd)
 	} else {
 		r1 = ret.Error(1)

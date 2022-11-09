@@ -92,7 +92,7 @@ func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
 	fd := r.functionData(function)
 	fd.UpdateDataAny(data, nil, nil)
 
-	r.Device().NotifySubscribers(r.Address(), []model.CmdType{fd.NotifyCmdType(false)})
+	r.Device().NotifySubscribers(r.Address(), fd.NotifyCmdType(false))
 }
 
 func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType {
@@ -268,7 +268,7 @@ func (r *FeatureLocalImpl) WriteData(function model.FunctionType, data any, dest
 	fd := r.functionData(function)
 	cmd := fd.WriteCmdType()
 
-	msgCounter, err := destination.Sender().Write(r.Address(), destination.Address(), []model.CmdType{cmd})
+	msgCounter, err := destination.Sender().Write(r.Address(), destination.Address(), cmd)
 	if err != nil {
 		return nil, NewErrorTypeFromString(err.Error())
 	}

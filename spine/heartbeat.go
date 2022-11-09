@@ -51,10 +51,8 @@ func (c *HeartbeatSender) StopHeartbeat() {
 	}
 }
 
-func (c *HeartbeatSender) SendHeartBeatData(requestHeader *model.HeaderType) error {
-	// TODO is this all we need here?
-
-	timestamp := time.Time{}.Format(time.RFC3339)
+func (c *HeartbeatSender) heartbeatCmd(t time.Time) model.CmdType {
+	timestamp := t.UTC().Format(time.RFC3339)
 	cmd := model.CmdType{
 		DeviceDiagnosisHeartbeatData: &model.DeviceDiagnosisHeartbeatDataType{
 			Timestamp:        &timestamp,
@@ -62,6 +60,14 @@ func (c *HeartbeatSender) SendHeartBeatData(requestHeader *model.HeaderType) err
 			HeartbeatTimeout: c.heartBeatTimeout,
 		},
 	}
+
+	return cmd
+}
+
+func (c *HeartbeatSender) SendHeartBeatData(requestHeader *model.HeaderType) error {
+	// TODO is this all we need here?
+
+	cmd := c.heartbeatCmd(time.Now())
 
 	return c.sender.Reply(requestHeader, c.senderAddr, cmd)
 }
@@ -76,15 +82,7 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 				break
 			}
 
-			timestamp := time.Now().UTC().Format("2006-01-02T15:04:05.9Z")
-
-			cmd := []model.CmdType{{
-				DeviceDiagnosisHeartbeatData: &model.DeviceDiagnosisHeartbeatDataType{
-					Timestamp:        &timestamp,
-					HeartbeatCounter: c.heartBeatCounter(),
-					HeartbeatTimeout: c.heartBeatTimeout,
-				},
-			}}
+			cmd := c.heartbeatCmd(time.Now())
 
 			err := c.sender.Notify(c.senderAddr, c.destinationAddr, cmd)
 			if err != nil {

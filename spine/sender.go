@@ -30,9 +30,9 @@ type Sender interface {
 	// Sends a call cmd with a binding request
 	Bind(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
 	// Sends a notify cmd to indicate that a subscribed feature changed
-	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error
+	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) error
 	// Sends a write cmd, setting properties of remote features
-	Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) (*model.MsgCounterType, error)
+	Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error)
 }
 
 type SenderImpl struct {
@@ -174,7 +174,7 @@ func (c *SenderImpl) Reply(requestHeader *model.HeaderType, senderAddress *model
 }
 
 // Notify sends notification to destination
-func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) error {
+func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) error {
 	cmdClassifier := model.CmdClassifierTypeNotify
 
 	datagram := model.DatagramType{
@@ -186,7 +186,7 @@ func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddr
 			CmdClassifier:        &cmdClassifier,
 		},
 		Payload: model.PayloadType{
-			Cmd: cmd,
+			Cmd: []model.CmdType{cmd},
 		},
 	}
 
@@ -194,7 +194,7 @@ func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddr
 }
 
 // Write sends notification to destination
-func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd []model.CmdType) (*model.MsgCounterType, error) {
+func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error) {
 	msgCounter := c.getMsgCounter()
 
 	cmdClassifier := model.CmdClassifierTypeWrite
@@ -210,7 +210,7 @@ func (c *SenderImpl) Write(senderAddress, destinationAddress *model.FeatureAddre
 			AckRequest:           &ackRequest,
 		},
 		Payload: model.PayloadType{
-			Cmd: cmd,
+			Cmd: []model.CmdType{cmd},
 		},
 	}
 

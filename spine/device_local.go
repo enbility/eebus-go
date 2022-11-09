@@ -230,7 +230,7 @@ func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDe
 	return &res
 }
 
-func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddressType, cmd []model.CmdType) {
+func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddressType, cmd model.CmdType) {
 	subscriptions := r.SubscriptionManager().SubscriptionsOnFeature(*featureAddress)
 	for _, subscription := range subscriptions {
 		// TODO: error handling
@@ -250,7 +250,7 @@ func (r *DeviceLocalImpl) notifySubscribersOfEntity(entity *EntityLocalImpl, sta
 		}
 	}
 
-	cmd := []model.CmdType{{
+	cmd := model.CmdType{
 		Function: util.Ptr(model.FunctionTypeNodeManagementDetailedDiscoveryData),
 		Filter:   filterType(true),
 		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{
@@ -261,7 +261,7 @@ func (r *DeviceLocalImpl) notifySubscribersOfEntity(entity *EntityLocalImpl, sta
 			EntityInformation:  []model.NodeManagementDetailedDiscoveryEntityInformationType{entityInformation},
 			FeatureInformation: featureInformation,
 		},
-	}}
+	}
 
 	r.NotifySubscribers(r.nodeManagement.Address(), cmd)
 }

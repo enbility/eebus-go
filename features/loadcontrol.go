@@ -126,11 +126,11 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 		return nil, ErrMissingData
 	}
 
-	cmd := []model.CmdType{{
+	cmd := model.CmdType{
 		LoadControlLimitListData: &model.LoadControlLimitListDataType{
 			LoadControlLimitData: data,
 		},
-	}}
+	}
 
 	return l.featureRemote.Sender().Write(l.featureLocal.Address(), l.featureRemote.Address(), cmd)
 }
