@@ -78,7 +78,9 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasIdentifie
 
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) CopyData(source *ElectricalConnectionPermittedValueSetDataType, dest *ElectricalConnectionPermittedValueSetDataType) {
 	if source != nil && dest != nil {
-		dest.PermittedValueSet = source.PermittedValueSet
+		if source.PermittedValueSet != nil {
+			dest.PermittedValueSet = source.PermittedValueSet
+		}
 	}
 }
 
@@ -154,13 +156,27 @@ func (r *ElectricalConnectionDescriptionListDataType_Updater) HasIdentifier(item
 
 func (r *ElectricalConnectionDescriptionListDataType_Updater) CopyData(source *ElectricalConnectionDescriptionDataType, dest *ElectricalConnectionDescriptionDataType) {
 	if source != nil && dest != nil {
-		dest.AcConnectedPhases = source.AcConnectedPhases
-		dest.AcRmsPeriodDuration = source.AcRmsPeriodDuration
-		dest.Description = source.Description
-		dest.Label = source.Label
-		dest.PositiveEnergyDirection = source.PositiveEnergyDirection
-		dest.PowerSupplyType = source.PowerSupplyType
-		dest.ScopeType = source.ScopeType
+		if source.AcConnectedPhases != nil {
+			dest.AcConnectedPhases = source.AcConnectedPhases
+		}
+		if source.AcRmsPeriodDuration != nil {
+			dest.AcRmsPeriodDuration = source.AcRmsPeriodDuration
+		}
+		if source.Description != nil {
+			dest.Description = source.Description
+		}
+		if source.Label != nil {
+			dest.Label = source.Label
+		}
+		if source.PositiveEnergyDirection != nil {
+			dest.PositiveEnergyDirection = source.PositiveEnergyDirection
+		}
+		if source.PowerSupplyType != nil {
+			dest.PowerSupplyType = source.PowerSupplyType
+		}
+		if source.ScopeType != nil {
+			dest.ScopeType = source.ScopeType
+		}
 	}
 }
 
@@ -245,16 +261,38 @@ func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) HasIdenti
 
 func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) CopyData(source *ElectricalConnectionParameterDescriptionDataType, dest *ElectricalConnectionParameterDescriptionDataType) {
 	if source != nil && dest != nil {
-		dest.AcMeasuredHarmonic = source.AcMeasuredHarmonic
-		dest.AcMeasuredInReferenceTo = source.AcMeasuredInReferenceTo
-		dest.AcMeasuredPhases = source.AcMeasuredPhases
-		dest.AcMeasurementType = source.AcMeasurementType
-		dest.AcMeasurementVariant = source.AcMeasurementVariant
-		dest.Description = source.Description
-		dest.Label = source.Label
-		dest.MeasurementId = source.MeasurementId
-		dest.ParameterId = source.ParameterId
-		dest.ScopeType = source.ScopeType
-		dest.VoltageType = source.VoltageType
+		if source.AcMeasuredHarmonic != nil {
+			dest.AcMeasuredHarmonic = source.AcMeasuredHarmonic
+		}
+		if source.AcMeasuredInReferenceTo != nil {
+			dest.AcMeasuredInReferenceTo = source.AcMeasuredInReferenceTo
+		}
+		if source.AcMeasuredPhases != nil {
+			dest.AcMeasuredPhases = source.AcMeasuredPhases
+		}
+		if source.AcMeasurementType != nil {
+			dest.AcMeasurementType = source.AcMeasurementType
+		}
+		if source.AcMeasurementVariant != nil {
+			dest.AcMeasurementVariant = source.AcMeasurementVariant
+		}
+		if source.Description != nil {
+			dest.Description = source.Description
+		}
+		if source.Label != nil {
+			dest.Label = source.Label
+		}
+		if source.MeasurementId != nil {
+			dest.MeasurementId = source.MeasurementId
+		}
+		if source.ParameterId != nil {
+			dest.ParameterId = source.ParameterId
+		}
+		if source.ScopeType != nil {
+			dest.ScopeType = source.ScopeType
+		}
+		if source.VoltageType != nil {
+			dest.VoltageType = source.VoltageType
+		}
 	}
 }

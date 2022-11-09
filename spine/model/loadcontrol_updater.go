@@ -74,10 +74,18 @@ func (r *LoadControlLimitListDataType_Updater) HasIdentifier(item *LoadControlLi
 
 func (r *LoadControlLimitListDataType_Updater) CopyData(source *LoadControlLimitDataType, dest *LoadControlLimitDataType) {
 	if source != nil && dest != nil {
-		dest.IsLimitChangeable = source.IsLimitChangeable
-		dest.IsLimitActive = source.IsLimitActive
-		dest.TimePeriod = source.TimePeriod
-		dest.Value = source.Value
+		if source.IsLimitChangeable != nil {
+			dest.IsLimitChangeable = source.IsLimitChangeable
+		}
+		if source.IsLimitActive != nil {
+			dest.IsLimitActive = source.IsLimitActive
+		}
+		if source.TimePeriod != nil {
+			dest.TimePeriod = source.TimePeriod
+		}
+		if source.Value != nil {
+			dest.Value = source.Value
+		}
 	}
 }
 
@@ -165,13 +173,29 @@ func (r *LoadControlLimitDescriptionListDataType_Updater) HasIdentifier(item *Lo
 
 func (r *LoadControlLimitDescriptionListDataType_Updater) CopyData(source *LoadControlLimitDescriptionDataType, dest *LoadControlLimitDescriptionDataType) {
 	if source != nil && dest != nil {
-		dest.LimitType = source.LimitType
-		dest.LimitCategory = source.LimitCategory
-		dest.LimitDirection = source.LimitDirection
-		dest.MeasurementId = source.MeasurementId
-		dest.Unit = source.Unit
-		dest.ScopeType = source.ScopeType
-		dest.Label = source.Label
-		dest.Description = source.Description
+		if source.LimitType != nil {
+			dest.LimitType = source.LimitType
+		}
+		if source.LimitCategory != nil {
+			dest.LimitCategory = source.LimitCategory
+		}
+		if source.LimitDirection != nil {
+			dest.LimitDirection = source.LimitDirection
+		}
+		if source.MeasurementId != nil {
+			dest.MeasurementId = source.MeasurementId
+		}
+		if source.Unit != nil {
+			dest.Unit = source.Unit
+		}
+		if source.ScopeType != nil {
+			dest.ScopeType = source.ScopeType
+		}
+		if source.Label != nil {
+			dest.Label = source.Label
+		}
+		if source.Description != nil {
+			dest.Description = source.Description
+		}
 	}
 }

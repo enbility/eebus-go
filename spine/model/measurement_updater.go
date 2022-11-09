@@ -80,10 +80,20 @@ func (r *MeasurementListDataType_Updater) HasIdentifier(item *MeasurementDataTyp
 
 func (r *MeasurementListDataType_Updater) CopyData(source *MeasurementDataType, dest *MeasurementDataType) {
 	if source != nil && dest != nil {
-		dest.Timestamp = source.Timestamp
-		dest.EvaluationPeriod = source.EvaluationPeriod
-		dest.ValueState = source.ValueState
-		dest.Value = source.Value
-		dest.ValueTendency = source.ValueTendency
+		if source.Timestamp != nil {
+			dest.Timestamp = source.Timestamp
+		}
+		if source.EvaluationPeriod != nil {
+			dest.EvaluationPeriod = source.EvaluationPeriod
+		}
+		if source.ValueState != nil {
+			dest.ValueState = source.ValueState
+		}
+		if source.Value != nil {
+			dest.Value = source.Value
+		}
+		if source.ValueTendency != nil {
+			dest.ValueTendency = source.ValueTendency
+		}
 	}
 }
