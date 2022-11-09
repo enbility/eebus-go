@@ -31,7 +31,7 @@ type DeviceConfigurationKeyValueValueType struct {
 	DateTime     *string                                `json:"dateTime,omitempty"`
 	Duration     *DurationType                          `json:"duration,omitempty"`
 	String       *DeviceConfigurationKeyValueStringType `json:"string,omitempty"`
-	Time         *string                                `json:"time,omitempty"`
+	Time         *TimeType                              `json:"time,omitempty"`
 	ScaledNumber *ScaledNumberType                      `json:"scaledNumber,omitempty"`
 }
 

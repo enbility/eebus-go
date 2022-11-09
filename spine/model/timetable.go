@@ -47,7 +47,7 @@ type TimeTableConstraintsDataType struct {
 	SlotDurationMax      *DurationType      `json:"slotDurationMax,omitempty"`
 	SlotDurationStepSize *DurationType      `json:"slotDurationStepSize,omitempty"`
 	SlotShiftStepSize    *DurationType      `json:"slotShiftStepSize,omitempty"`
-	FirstSlotBeginsAt    *string            `json:"firstSlotBeginsAt,omitempty"`
+	FirstSlotBeginsAt    *TimeType          `json:"firstSlotBeginsAt,omitempty"`
 }
 
 type TimeTableConstraintsDataElementsType struct {

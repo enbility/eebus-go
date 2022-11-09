@@ -30,9 +30,18 @@ func GetDateTimeFromString(s string) (time.Time, error) {
 	return value, nil
 }
 
-// string as TimeType
-func GetTimeFromString(s string) (time.Time, error) {
-	value, err := time.Parse("15:04:05.999999999", s)
+// TimeType
+func NewTimeType(t string) *TimeType {
+	value := TimeType(t)
+	return &value
+}
+
+func GetTime(s *TimeType) (time.Time, error) {
+	if s == nil {
+		return time.Time{}, fmt.Errorf("invalid time pointer")
+	}
+
+	value, err := time.Parse("15:04:05.999999999", string(*s))
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -40,20 +49,47 @@ func GetTimeFromString(s string) (time.Time, error) {
 	return value, nil
 }
 
-// string as DurationType
+//  DurationType
+
 func NewDurationType(duration time.Duration) *DurationType {
 	d, _ := period.NewOf(duration)
 	value := DurationType(d.String())
 	return &value
 }
 
-func GetTimeDuration(s DurationType) (time.Duration, error) {
+func (d *DurationType) GetTimeDuration() (time.Duration, error) {
+	return getTimeDurationFromString(string(*d))
+}
+
+// helper for DurationType and AbsoluteOrRelativeTimeType
+func getTimeDurationFromString(s string) (time.Duration, error) {
 	p, err := period.Parse(string(s))
 	if err != nil {
 		return 0, err
 	}
 
 	return p.DurationApprox(), nil
+}
+
+// AbsoluteOrRelativeTimeType
+// can be of type TimeType or DurationType
+
+func (a *AbsoluteOrRelativeTimeType) GetTime() *TimeType {
+	value := NewTimeType(string(*a))
+	return value
+}
+
+func (a *AbsoluteOrRelativeTimeType) GetDuration() (*DurationType, error) {
+	value, err := a.GetTimeDuration()
+	if err != nil {
+		return nil, err
+	}
+
+	return NewDurationType(value), nil
+}
+
+func (a *AbsoluteOrRelativeTimeType) GetTimeDuration() (time.Duration, error) {
+	return getTimeDurationFromString(string(*a))
 }
 
 // ScaledNumberType

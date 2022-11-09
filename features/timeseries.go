@@ -123,12 +123,12 @@ func (t *TimeSeries) GetValues() ([]TimeSeriesType, error) {
 
 		if item.TimePeriod != nil {
 			if item.TimePeriod.StartTime != nil {
-				if value, err := model.GetTimeDuration(model.DurationType(*item.TimePeriod.StartTime)); err == nil {
+				if value, err := item.TimePeriod.StartTime.GetTimeDuration(); err == nil {
 					result.PeriodStartTime = value
 				}
 			}
 			if item.TimePeriod.EndTime != nil {
-				if value, err := model.GetTimeDuration(model.DurationType(*item.TimePeriod.EndTime)); err == nil {
+				if value, err := item.TimePeriod.EndTime.GetTimeDuration(); err == nil {
 					result.PeriodEndTime = value
 				}
 			}
@@ -150,18 +150,18 @@ func (t *TimeSeries) GetValues() ([]TimeSeriesType, error) {
 			}
 			if slot.TimePeriod != nil {
 				if slot.TimePeriod.StartTime != nil {
-					if value, err := model.GetTimeDuration(model.DurationType(*slot.TimePeriod.StartTime)); err == nil {
+					if value, err := slot.TimePeriod.StartTime.GetTimeDuration(); err == nil {
 						element.PeriodStartTime = value
 					}
 				}
 				if slot.TimePeriod.EndTime != nil {
-					if value, err := model.GetTimeDuration(model.DurationType(*slot.TimePeriod.EndTime)); err == nil {
+					if value, err := slot.TimePeriod.EndTime.GetTimeDuration(); err == nil {
 						element.PeriodEndTime = value
 					}
 				}
 			}
 			if slot.Duration != nil {
-				if value, err := model.GetTimeDuration(*slot.Duration); err == nil {
+				if value, err := slot.Duration.GetTimeDuration(); err == nil {
 					element.Duration = value
 				}
 			}
@@ -254,27 +254,27 @@ func (t *TimeSeries) GetConstraintValues() ([]TimeSeriesConstraintsType, error) 
 			result.SlotCountMax = uint(*item.SlotCountMax)
 		}
 		if item.SlotDurationMin != nil {
-			if value, err := model.GetTimeDuration(*item.SlotDurationMin); err == nil {
+			if value, err := item.SlotDurationMin.GetTimeDuration(); err == nil {
 				result.SlotDurationMin = value
 			}
 		}
 		if item.SlotDurationMax != nil {
-			if value, err := model.GetTimeDuration(*item.SlotDurationMax); err == nil {
+			if value, err := item.SlotDurationMax.GetTimeDuration(); err == nil {
 				result.SlotDurationMax = value
 			}
 		}
 		if item.SlotDurationStepSize != nil {
-			if value, err := model.GetTimeDuration(*item.SlotDurationStepSize); err == nil {
+			if value, err := item.SlotDurationStepSize.GetTimeDuration(); err == nil {
 				result.SlotDurationStep = value
 			}
 		}
 		if item.EarliestTimeSeriesStartTime != nil {
-			if value, err := model.GetTimeFromString(string(*item.EarliestTimeSeriesStartTime)); err == nil {
+			if value, err := model.GetTime(item.EarliestTimeSeriesStartTime.GetTime()); err == nil {
 				result.EarliestStartTime = value
 			}
 		}
 		if item.LatestTimeSeriesEndTime != nil {
-			if value, err := model.GetTimeFromString(string(*item.LatestTimeSeriesEndTime)); err == nil {
+			if value, err := model.GetTime(item.LatestTimeSeriesEndTime.GetTime()); err == nil {
 				result.LatestEndTime = value
 			}
 		}

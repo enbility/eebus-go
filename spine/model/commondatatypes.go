@@ -9,8 +9,8 @@ type DescriptionType string
 type SpecificationVersionType string
 
 type TimePeriodType struct {
-	StartTime *string `json:"startTime,omitempty"`
-	EndTime   *string `json:"endTime,omitempty"`
+	StartTime *AbsoluteOrRelativeTimeType `json:"startTime,omitempty"`
+	EndTime   *AbsoluteOrRelativeTimeType `json:"endTime,omitempty"`
 }
 
 type TimePeriodElementsType struct {
@@ -19,9 +19,11 @@ type TimePeriodElementsType struct {
 }
 
 type TimestampIntervalType struct {
-	StartTime *string `json:"startTime,omitempty"`
-	EndTime   *string `json:"endTime,omitempty"`
+	StartTime *AbsoluteOrRelativeTimeType `json:"startTime,omitempty"`
+	EndTime   *AbsoluteOrRelativeTimeType `json:"endTime,omitempty"`
 }
+
+type TimeType string
 
 type DurationType string
 
@@ -99,7 +101,7 @@ type AbsoluteOrRecurringTimeType struct {
 	CalendarWeek        *CalendarWeekType `json:"calendarWeek,omitempty"`
 	DayOfWeekOccurrence *OccurrenceType   `json:"dayOfWeekOccurrence,omitempty"`
 	DaysOfWeek          *DaysOfWeekType   `json:"daysOfWeek,omitempty"`
-	Time                *string           `json:"time,omitempty"`
+	Time                *TimeType         `json:"time,omitempty"`
 	Relative            *DurationType     `json:"relative,omitempty"`
 }
 
