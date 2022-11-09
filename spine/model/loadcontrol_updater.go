@@ -53,8 +53,20 @@ func (r *LoadControlLimitListDataType_Updater) HasSelector(filterType FilterEnum
 func (r *LoadControlLimitListDataType_Updater) SelectorMatch(filterType FilterEnumType, item *LoadControlLimitDataType) bool {
 	filter := r.FilterForEnumType(filterType)
 
-	return r.HasSelector(filterType) && item != nil && filter != nil &&
-		item.HashKey() == *r.selectorHashKey(filter)
+	if item == nil || filter == nil {
+		return false
+	}
+
+	selector := filter.LoadControlLimitListDataSelectors
+	if selector == nil {
+		return false
+	}
+
+	if selector.LimitId != nil && *selector.LimitId != *item.LimitId {
+		return false
+	}
+
+	return true
 }
 
 func (r *LoadControlLimitListDataType_Updater) HasIdentifier(item *LoadControlLimitDataType) bool {
@@ -68,16 +80,6 @@ func (r *LoadControlLimitListDataType_Updater) CopyData(source *LoadControlLimit
 		dest.TimePeriod = source.TimePeriod
 		dest.Value = source.Value
 	}
-}
-
-func (r *LoadControlLimitListDataType_Updater) selectorHashKey(filter *FilterType) *string {
-	var result *string = nil
-	if filter != nil && filter.LoadControlLimitListDataSelectors != nil {
-		result = util.Ptr(loadControlDataHashKey(
-			filter.LoadControlLimitListDataSelectors.LimitId,
-		))
-	}
-	return result
 }
 
 // LoadControlLimitDescriptionListDataType
@@ -131,8 +133,36 @@ func (r *LoadControlLimitDescriptionListDataType_Updater) HasSelector(filterType
 func (r *LoadControlLimitDescriptionListDataType_Updater) SelectorMatch(filterType FilterEnumType, item *LoadControlLimitDescriptionDataType) bool {
 	filter := r.FilterForEnumType(filterType)
 
-	return r.HasSelector(filterType) && item != nil && filter != nil &&
-		item.HashKey() == *r.selectorHashKey(filter)
+	if item == nil || filter == nil {
+		return false
+	}
+
+	selector := filter.LoadControlLimitDescriptionListDataSelectors
+	if selector == nil {
+		return false
+	}
+
+	if selector.LimitId != nil && *selector.LimitId != *item.LimitId {
+		return false
+	}
+
+	if selector.LimitDirection != nil && *selector.LimitDirection != *item.LimitDirection {
+		return false
+	}
+
+	if selector.LimitType != nil && *selector.LimitType != *item.LimitType {
+		return false
+	}
+
+	if selector.MeasurementId != nil && *selector.MeasurementId != *item.MeasurementId {
+		return false
+	}
+
+	if selector.ScopeType != nil && *selector.ScopeType != *item.ScopeType {
+		return false
+	}
+
+	return true
 }
 
 func (r *LoadControlLimitDescriptionListDataType_Updater) HasIdentifier(item *LoadControlLimitDescriptionDataType) bool {
@@ -150,14 +180,4 @@ func (r *LoadControlLimitDescriptionListDataType_Updater) CopyData(source *LoadC
 		dest.Label = source.Label
 		dest.Description = source.Description
 	}
-}
-
-func (r *LoadControlLimitDescriptionListDataType_Updater) selectorHashKey(filter *FilterType) *string {
-	var result *string = nil
-	if filter != nil && filter.LoadControlLimitDescriptionListDataSelectors != nil {
-		result = util.Ptr(loadControlDataHashKey(
-			filter.LoadControlLimitDescriptionListDataSelectors.LimitId,
-		))
-	}
-	return result
 }

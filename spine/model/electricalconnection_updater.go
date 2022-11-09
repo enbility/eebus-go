@@ -67,23 +67,15 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) SelectorMatc
 		return false
 	}
 
-	selectorsMatch := true
-
-	if selector.ElectricalConnectionId != nil && *selector.ElectricalConnectionId == *item.ElectricalConnectionId &&
-		selector.ParameterId != nil && *selector.ParameterId == *item.ParameterId {
-		return true
+	if selector.ElectricalConnectionId != nil && *selector.ElectricalConnectionId != *item.ElectricalConnectionId {
+		return false
 	}
 
-	if selector.ElectricalConnectionId != nil && *selector.ElectricalConnectionId == *item.ElectricalConnectionId {
-		return true
+	if selector.ParameterId != nil && *selector.ParameterId != *item.ParameterId {
+		return false
 	}
 
-	if selector.ParameterId != nil && *selector.ParameterId == *item.ParameterId {
-		return true
-	}
-
-	return selectorsMatch
-	// return item.HashKey() == *r.selectorHashKey(r.filterPartial)
+	return true
 }
 
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasIdentifier(item *ElectricalConnectionPermittedValueSetDataType) bool {
@@ -95,18 +87,6 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) CopyData(sou
 		dest.PermittedValueSet = source.PermittedValueSet
 	}
 }
-
-/*
-func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) selectorHashKey(filter *FilterType) *string {
-	var result *string = nil
-	if filter != nil && filter.ElectricalConnectionPermittedValueSetListDataSelectors != nil {
-		result = util.Ptr(electricalConnectionPermittedValueSetDataHashKey(
-			filter.ElectricalConnectionPermittedValueSetListDataSelectors.ElectricalConnectionId,
-			filter.ElectricalConnectionPermittedValueSetListDataSelectors.ParameterId))
-	}
-	return result
-}
-*/
 
 // ElectricalConnectionDescriptionListDataType
 
@@ -159,8 +139,24 @@ func (r *ElectricalConnectionDescriptionListDataType_Updater) HasSelector(filter
 func (r *ElectricalConnectionDescriptionListDataType_Updater) SelectorMatch(filterType FilterEnumType, item *ElectricalConnectionDescriptionDataType) bool {
 	filter := r.FilterForEnumType(filterType)
 
-	return r.HasSelector(filterType) && item != nil && filter != nil &&
-		item.HashKey() == *r.selectorHashKey(filter)
+	if item == nil || filter == nil {
+		return false
+	}
+
+	selector := filter.ElectricalConnectionDescriptionListDataSelectors
+	if selector == nil {
+		return false
+	}
+
+	if selector.ElectricalConnectionId != nil && *selector.ElectricalConnectionId != *item.ElectricalConnectionId {
+		return false
+	}
+
+	if selector.ScopeType != nil && *selector.ScopeType != *item.ScopeType {
+		return false
+	}
+
+	return true
 }
 
 func (r *ElectricalConnectionDescriptionListDataType_Updater) HasIdentifier(item *ElectricalConnectionDescriptionDataType) bool {
@@ -177,15 +173,6 @@ func (r *ElectricalConnectionDescriptionListDataType_Updater) CopyData(source *E
 		dest.PowerSupplyType = source.PowerSupplyType
 		dest.ScopeType = source.ScopeType
 	}
-}
-
-func (r *ElectricalConnectionDescriptionListDataType_Updater) selectorHashKey(filter *FilterType) *string {
-	var result *string = nil
-	if filter != nil && filter.ElectricalConnectionDescriptionListDataSelectors != nil {
-		result = util.Ptr(electricalConnectionDescriptionDataHashKey(
-			filter.ElectricalConnectionDescriptionListDataSelectors.ElectricalConnectionId))
-	}
-	return result
 }
 
 // ElectricalConnectionParameterDescriptionListDataType
@@ -214,10 +201,6 @@ func (r ElectricalConnectionParameterDescriptionDataType) HashKey() string {
 		r.ElectricalConnectionId)
 }
 
-func electricalConnectionParameterDescriptionDataHashKey(electricalConnectionId *ElectricalConnectionIdType) string {
-	return fmt.Sprintf("%d", *electricalConnectionId)
-}
-
 var _ Updater = (*ElectricalConnectionParameterDescriptionListDataType_Updater)(nil)
 var _ UpdateDataProvider[ElectricalConnectionParameterDescriptionDataType] = (*ElectricalConnectionParameterDescriptionListDataType_Updater)(nil)
 
@@ -240,8 +223,32 @@ func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) HasSelect
 func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) SelectorMatch(filterType FilterEnumType, item *ElectricalConnectionParameterDescriptionDataType) bool {
 	filter := r.FilterForEnumType(filterType)
 
-	return r.HasSelector(filterType) && item != nil && filter != nil &&
-		item.HashKey() == *r.selectorHashKey(filter)
+	if item == nil || filter == nil {
+		return false
+	}
+
+	selector := filter.ElectricalConnectionParameterDescriptionListDataSelectors
+	if selector == nil {
+		return false
+	}
+
+	if selector.ElectricalConnectionId != nil && *selector.ElectricalConnectionId != *item.ElectricalConnectionId {
+		return false
+	}
+
+	if selector.ParameterId != nil && *selector.ParameterId != *item.ParameterId {
+		return false
+	}
+
+	if selector.MeasurementId != nil && *selector.MeasurementId != *item.MeasurementId {
+		return false
+	}
+
+	if selector.ScopeType != nil && *selector.ScopeType != *item.ScopeType {
+		return false
+	}
+
+	return true
 }
 
 func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) HasIdentifier(item *ElectricalConnectionParameterDescriptionDataType) bool {
@@ -262,13 +269,4 @@ func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) CopyData(
 		dest.ScopeType = source.ScopeType
 		dest.VoltageType = source.VoltageType
 	}
-}
-
-func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) selectorHashKey(filter *FilterType) *string {
-	var result *string = nil
-	if filter != nil && filter.ElectricalConnectionParameterDescriptionListDataSelectors != nil {
-		result = util.Ptr(electricalConnectionParameterDescriptionDataHashKey(
-			filter.ElectricalConnectionParameterDescriptionListDataSelectors.ElectricalConnectionId))
-	}
-	return result
 }

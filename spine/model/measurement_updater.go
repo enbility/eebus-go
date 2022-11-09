@@ -57,8 +57,26 @@ func (r *MeasurementListDataType_Updater) HasSelector(filterType FilterEnumType)
 func (r *MeasurementListDataType_Updater) SelectorMatch(filterType FilterEnumType, item *MeasurementDataType) bool {
 	filter := r.FilterForEnumType(filterType)
 
-	return r.HasSelector(filterType) && item != nil && filter != nil &&
-		item.HashKey() == *r.selectorHashKey(filter)
+	if item == nil || filter == nil {
+		return false
+	}
+
+	selector := filter.MeasurementListDataSelectors
+	if selector == nil {
+		return false
+	}
+
+	if selector.MeasurementId != nil && *selector.MeasurementId != *item.MeasurementId {
+		return false
+	}
+
+	if selector.ValueType != nil && *selector.ValueType != *item.ValueType {
+		return false
+	}
+
+	// TODO: Add selector.TimestampInterval
+
+	return true
 }
 
 func (r *MeasurementListDataType_Updater) HasIdentifier(item *MeasurementDataType) bool {
@@ -73,14 +91,4 @@ func (r *MeasurementListDataType_Updater) CopyData(source *MeasurementDataType, 
 		dest.Value = source.Value
 		dest.ValueTendency = source.ValueTendency
 	}
-}
-
-func (r *MeasurementListDataType_Updater) selectorHashKey(filter *FilterType) *string {
-	var result *string = nil
-	if filter != nil && filter.MeasurementListDataSelectors != nil {
-		result = util.Ptr(measurementDataHashKey(
-			filter.MeasurementListDataSelectors.MeasurementId,
-		))
-	}
-	return result
 }
