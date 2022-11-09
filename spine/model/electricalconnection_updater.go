@@ -27,13 +27,7 @@ func (r *ElectricalConnectionPermittedValueSetListDataType) NewUpdater(
 }
 
 func (r ElectricalConnectionPermittedValueSetDataType) HashKey() string {
-	return electricalConnectionPermittedValueSetDataHashKey(
-		r.ElectricalConnectionId,
-		r.ParameterId)
-}
-
-func electricalConnectionPermittedValueSetDataHashKey(electricalConnectionId *ElectricalConnectionIdType, parameterId *ElectricalConnectionParameterIdType) string {
-	return fmt.Sprintf("%d|%d", *electricalConnectionId, *parameterId)
+	return fmt.Sprintf("%d|%d", *r.ElectricalConnectionId, *r.ParameterId)
 }
 
 var _ Updater = (*ElectricalConnectionPermittedValueSetListDataType_Updater)(nil)
@@ -109,12 +103,7 @@ func (r *ElectricalConnectionDescriptionListDataType) NewUpdater(
 }
 
 func (r ElectricalConnectionDescriptionDataType) HashKey() string {
-	return electricalConnectionDescriptionDataHashKey(
-		r.ElectricalConnectionId)
-}
-
-func electricalConnectionDescriptionDataHashKey(electricalConnectionId *ElectricalConnectionIdType) string {
-	return fmt.Sprintf("%d", *electricalConnectionId)
+	return fmt.Sprintf("%d", *r.ElectricalConnectionId)
 }
 
 var _ Updater = (*ElectricalConnectionDescriptionListDataType_Updater)(nil)
@@ -197,8 +186,7 @@ func (r *ElectricalConnectionParameterDescriptionListDataType) NewUpdater(
 
 // TODO: selector should support any of electricalconnectionid, measurementid, parameterid
 func (r ElectricalConnectionParameterDescriptionDataType) HashKey() string {
-	return electricalConnectionDescriptionDataHashKey(
-		r.ElectricalConnectionId)
+	return fmt.Sprintf("%d|%d|%d", *r.ElectricalConnectionId, *r.ParameterId, *r.MeasurementId)
 }
 
 var _ Updater = (*ElectricalConnectionParameterDescriptionListDataType_Updater)(nil)

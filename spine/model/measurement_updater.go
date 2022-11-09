@@ -27,12 +27,7 @@ func (r *MeasurementListDataType) NewUpdater(
 }
 
 func (r MeasurementDataType) HashKey() string {
-	return measurementDataHashKey(
-		r.MeasurementId)
-}
-
-func measurementDataHashKey(measurementId *MeasurementIdType) string {
-	return fmt.Sprintf("%d", *measurementId)
+	return fmt.Sprintf("%d", r.MeasurementId)
 }
 
 var _ Updater = (*MeasurementListDataType_Updater)(nil)

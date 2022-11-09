@@ -27,8 +27,7 @@ func (r *LoadControlLimitListDataType) NewUpdater(
 }
 
 func (r LoadControlLimitDataType) HashKey() string {
-	return loadControlDataHashKey(
-		r.LimitId)
+	return fmt.Sprintf("%d", *r.LimitId)
 }
 
 var _ Updater = (*LoadControlLimitListDataType_Updater)(nil)
@@ -103,12 +102,7 @@ func (r *LoadControlLimitDescriptionListDataType) NewUpdater(
 }
 
 func (r LoadControlLimitDescriptionDataType) HashKey() string {
-	return loadControlDataHashKey(
-		r.LimitId)
-}
-
-func loadControlDataHashKey(limitId *LoadControlLimitIdType) string {
-	return fmt.Sprintf("%d", *limitId)
+	return fmt.Sprintf("%d|%d", *r.LimitId, *r.MeasurementId)
 }
 
 var _ Updater = (*LoadControlLimitDescriptionListDataType_Updater)(nil)
