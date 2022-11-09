@@ -14,7 +14,7 @@ type NetworkManagementCommunicationsTechnologyInformationType string
 
 type NetworkManagementMinimumTrustLevelType string
 
-type NetworkManagementProcessTimeoutType string
+type NetworkManagementProcessTimeoutType DurationType
 
 type NetworkManagementFeatureSetType string
 

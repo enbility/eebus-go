@@ -48,8 +48,8 @@ type PowerTimeSlotScheduleDataType struct {
 	SequenceId          *PowerSequenceIdType     `json:"sequenceId,omitempty"`
 	SlotNumber          *PowerTimeSlotNumberType `json:"slotNumber,omitempty"`
 	TimePeriod          *TimePeriodType          `json:"timePeriod,omitempty"`
-	DefaultDuration     *string                  `json:"defaultDuration,omitempty"`
-	DurationUncertainty *string                  `json:"durationUncertainty,omitempty"`
+	DefaultDuration     *DurationType            `json:"defaultDuration,omitempty"`
+	DurationUncertainty *DurationType            `json:"durationUncertainty,omitempty"`
 	SlotActivated       *bool                    `json:"slotActivated,omitempty"`
 	Description         *DescriptionType         `json:"description,omitempty"`
 }
@@ -102,8 +102,8 @@ type PowerTimeSlotScheduleConstraintsDataType struct {
 	SlotNumber        *PowerTimeSlotNumberType    `json:"slotNumber,omitempty"`
 	EarliestStartTime *AbsoluteOrRelativeTimeType `json:"earliestStartTime,omitempty"`
 	LatestEndTime     *AbsoluteOrRelativeTimeType `json:"latestEndTime,omitempty"`
-	MinDuration       *string                     `json:"minDuration,omitempty"`
-	MaxDuration       *string                     `json:"maxDuration,omitempty"`
+	MinDuration       *DurationType               `json:"minDuration,omitempty"`
+	MaxDuration       *DurationType               `json:"maxDuration,omitempty"`
 	OptionalSlot      *bool                       `json:"optionalSlot,omitempty"`
 }
 
@@ -181,11 +181,11 @@ type PowerSequenceStateDataType struct {
 	SequenceId                 *PowerSequenceIdType     `json:"sequenceId,omitempty"`
 	State                      *PowerSequenceStateType  `json:"state,omitempty"`
 	ActiveSlotNumber           *PowerTimeSlotNumberType `json:"activeSlotNumber,omitempty"`
-	ElapsedSlotTime            *string                  `json:"elapsedSlotTime,omitempty"`
-	RemainingSlotTime          *string                  `json:"remainingSlotTime,omitempty"`
+	ElapsedSlotTime            *DurationType            `json:"elapsedSlotTime,omitempty"`
+	RemainingSlotTime          *DurationType            `json:"remainingSlotTime,omitempty"`
 	SequenceRemoteControllable *bool                    `json:"sequenceRemoteControllable,omitempty"`
 	ActiveRepetitionNumber     *uint                    `json:"activeRepetitionNumber,omitempty"`
-	RemainingPauseTime         *string                  `json:"remainingPauseTime,omitempty"`
+	RemainingPauseTime         *DurationType            `json:"remainingPauseTime,omitempty"`
 }
 
 type PowerSequenceStateDataElementsType struct {

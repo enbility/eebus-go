@@ -23,6 +23,8 @@ type TimestampIntervalType struct {
 	EndTime   *string `json:"endTime,omitempty"`
 }
 
+type DurationType string
+
 type AbsoluteOrRelativeTimeType string
 
 type RecurringIntervalType string
@@ -98,7 +100,7 @@ type AbsoluteOrRecurringTimeType struct {
 	DayOfWeekOccurrence *OccurrenceType   `json:"dayOfWeekOccurrence,omitempty"`
 	DaysOfWeek          *DaysOfWeekType   `json:"daysOfWeek,omitempty"`
 	Time                *string           `json:"time,omitempty"`
-	Relative            *string           `json:"relative,omitempty"`
+	Relative            *DurationType     `json:"relative,omitempty"`
 }
 
 type AbsoluteOrRecurringTimeElementsType struct {
@@ -162,7 +164,7 @@ type ScaledNumberElementsType struct {
 	Scale  *ElementTagType `json:"scale,omitempty"`
 }
 
-type MaxResponseDelayType string
+type MaxResponseDelayType DurationType
 
 type CommodityTypeType string
 

@@ -32,8 +32,8 @@ type DeviceDiagnosisStateDataType struct {
 	OperatingState       *DeviceDiagnosisOperatingStateType `json:"operatingState,omitempty"`
 	VendorStateCode      *VendorStateCodeType               `json:"vendorStateCode,omitempty"`
 	LastErrorCode        *LastErrorCodeType                 `json:"lastErrorCode,omitempty"`
-	UpTime               *string                            `json:"upTime,omitempty"`
-	TotalUpTime          *string                            `json:"totalUpTime,omitempty"`
+	UpTime               *DurationType                      `json:"upTime,omitempty"`
+	TotalUpTime          *DurationType                      `json:"totalUpTime,omitempty"`
 	PowerSupplyCondition *PowerSupplyConditionType          `json:"powerSupplyCondition,omitempty"`
 }
 
@@ -48,9 +48,9 @@ type DeviceDiagnosisStateDataElementsType struct {
 }
 
 type DeviceDiagnosisHeartbeatDataType struct {
-	Timestamp        *string `json:"timestamp,omitempty"`
-	HeartbeatCounter *uint64 `json:"heartbeatCounter,omitempty"`
-	HeartbeatTimeout *string `json:"heartbeatTimeout,omitempty"`
+	Timestamp        *string       `json:"timestamp,omitempty"`
+	HeartbeatCounter *uint64       `json:"heartbeatCounter,omitempty"`
+	HeartbeatTimeout *DurationType `json:"heartbeatTimeout,omitempty"`
 }
 
 type DeviceDiagnosisHeartbeatDataElementsType struct {

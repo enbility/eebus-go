@@ -121,10 +121,10 @@ type ElectricalConnectionStateDataType struct {
 	ElectricalConnectionId *ElectricalConnectionIdType `json:"electricalConnectionId,omitempty"`
 	Timestamp              *AbsoluteOrRelativeTimeType `json:"timestamp,omitempty"`
 	CurrentEnergyMode      *EnergyModeType             `json:"currentEnergyMode,omitempty"`
-	ConsumptionTime        *string                     `json:"consumptionTime,omitempty"`
-	ProductionTime         *string                     `json:"productionTime,omitempty"`
-	TotalConsumptionTime   *string                     `json:"totalConsumptionTime,omitempty"`
-	TotalProductionTime    *string                     `json:"totalProductionTime,omitempty"`
+	ConsumptionTime        *DurationType               `json:"consumptionTime,omitempty"`
+	ProductionTime         *DurationType               `json:"productionTime,omitempty"`
+	TotalConsumptionTime   *DurationType               `json:"totalConsumptionTime,omitempty"`
+	TotalProductionTime    *DurationType               `json:"totalProductionTime,omitempty"`
 }
 
 type ElectricalConnectionStateDataElementsType struct {
@@ -149,7 +149,7 @@ type ElectricalConnectionDescriptionDataType struct {
 	ElectricalConnectionId  *ElectricalConnectionIdType          `json:"electricalConnectionId,omitempty"`
 	PowerSupplyType         *ElectricalConnectionVoltageTypeType `json:"powerSupplyType,omitempty"`
 	AcConnectedPhases       *uint                                `json:"acConnectedPhases,omitempty"`
-	AcRmsPeriodDuration     *string                              `json:"acRmsPeriodDuration,omitempty"`
+	AcRmsPeriodDuration     *DurationType                        `json:"acRmsPeriodDuration,omitempty"`
 	PositiveEnergyDirection *EnergyDirectionType                 `json:"positiveEnergyDirection,omitempty"`
 	ScopeType               *ScopeTypeType                       `json:"scopeType,omitempty"`
 	Label                   *LabelType                           `json:"label,omitempty"`

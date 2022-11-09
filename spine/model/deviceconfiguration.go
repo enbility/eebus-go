@@ -29,7 +29,7 @@ type DeviceConfigurationKeyValueValueType struct {
 	Boolean      *bool                                  `json:"boolean,omitempty"`
 	Date         *string                                `json:"date,omitempty"`
 	DateTime     *string                                `json:"dateTime,omitempty"`
-	Duration     *string                                `json:"duration,omitempty"`
+	Duration     *DurationType                          `json:"duration,omitempty"`
 	String       *DeviceConfigurationKeyValueStringType `json:"string,omitempty"`
 	Time         *string                                `json:"time,omitempty"`
 	ScaledNumber *ScaledNumberType                      `json:"scaledNumber,omitempty"`

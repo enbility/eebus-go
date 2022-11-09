@@ -78,8 +78,8 @@ type TaskManagementJobDataType struct {
 	JobId         *TaskManagementJobIdType    `json:"jobId,omitempty"`
 	Timestamp     *AbsoluteOrRelativeTimeType `json:"timestamp,omitempty"`
 	JobState      *TaskManagementJobStateType `json:"jobState,omitempty"`
-	ElapsedTime   *string                     `json:"elapsedTime,omitempty"`
-	RemainingTime *string                     `json:"remainingTime,omitempty"`
+	ElapsedTime   *DurationType               `json:"elapsedTime,omitempty"`
+	RemainingTime *DurationType               `json:"remainingTime,omitempty"`
 }
 
 type TaskManagementJobDataElementsType struct {

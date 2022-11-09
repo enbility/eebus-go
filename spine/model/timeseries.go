@@ -17,7 +17,7 @@ const (
 type TimeSeriesSlotType struct {
 	TimeSeriesSlotId      *TimeSeriesSlotIdType        `json:"timeSeriesSlotId,omitempty"`
 	TimePeriod            *TimePeriodType              `json:"timePeriod,omitempty"`
-	Duration              *string                      `json:"duration,omitempty"`
+	Duration              *DurationType                `json:"duration,omitempty"`
 	RecurrenceInformation *AbsoluteOrRecurringTimeType `json:"recurrenceInformation,omitempty"`
 	Value                 *ScaledNumberType            `json:"value,omitempty"`
 	MinValue              *ScaledNumberType            `json:"minValue,omitempty"`
@@ -96,9 +96,9 @@ type TimeSeriesConstraintsDataType struct {
 	TimeSeriesId                *TimeSeriesIdType           `json:"timeSeriesId,omitempty"`
 	SlotCountMin                *TimeSeriesSlotCountType    `json:"slotCountMin,omitempty"`
 	SlotCountMax                *TimeSeriesSlotCountType    `json:"slotCountMax,omitempty"`
-	SlotDurationMin             *string                     `json:"slotDurationMin,omitempty"`
-	SlotDurationMax             *string                     `json:"slotDurationMax,omitempty"`
-	SlotDurationStepSize        *string                     `json:"slotDurationStepSize,omitempty"`
+	SlotDurationMin             *DurationType               `json:"slotDurationMin,omitempty"`
+	SlotDurationMax             *DurationType               `json:"slotDurationMax,omitempty"`
+	SlotDurationStepSize        *DurationType               `json:"slotDurationStepSize,omitempty"`
 	EarliestTimeSeriesStartTime *AbsoluteOrRelativeTimeType `json:"earliestTimeSeriesStartTime,omitempty"`
 	LatestTimeSeriesEndTime     *AbsoluteOrRelativeTimeType `json:"latestTimeSeriesEndTime,omitempty"`
 	SlotValueMin                *ScaledNumberType           `json:"slotValueMin,omitempty"`

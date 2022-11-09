@@ -26,12 +26,12 @@ type OperatingConstraintsInterruptListDataSelectorsType struct {
 
 type OperatingConstraintsDurationDataType struct {
 	SequenceId           *PowerSequenceIdType `json:"sequenceId,omitempty"`
-	ActiveDurationMin    *string              `json:"activeDurationMin,omitempty"`
-	ActiveDurationMax    *string              `json:"activeDurationMax,omitempty"`
-	PauseDurationMin     *string              `json:"pauseDurationMin,omitempty"`
-	PauseDurationMax     *string              `json:"pauseDurationMax,omitempty"`
-	ActiveDurationSumMin *string              `json:"activeDurationSumMin,omitempty"`
-	ActiveDurationSumMax *string              `json:"activeDurationSumMax,omitempty"`
+	ActiveDurationMin    *DurationType        `json:"activeDurationMin,omitempty"`
+	ActiveDurationMax    *DurationType        `json:"activeDurationMax,omitempty"`
+	PauseDurationMin     *DurationType        `json:"pauseDurationMin,omitempty"`
+	PauseDurationMax     *DurationType        `json:"pauseDurationMax,omitempty"`
+	ActiveDurationSumMin *DurationType        `json:"activeDurationSumMin,omitempty"`
+	ActiveDurationSumMax *DurationType        `json:"activeDurationSumMax,omitempty"`
 }
 
 type OperatingConstraintsDurationDataElementsType struct {

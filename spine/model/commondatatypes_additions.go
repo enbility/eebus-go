@@ -41,14 +41,14 @@ func GetTimeFromString(s string) (time.Time, error) {
 }
 
 // string as DurationType
-func NewDurationType(duration time.Duration) *string {
+func NewDurationType(duration time.Duration) *DurationType {
 	d, _ := period.NewOf(duration)
-	value := d.String()
+	value := DurationType(d.String())
 	return &value
 }
 
-func GetDurationFromString(s string) (time.Duration, error) {
-	p, err := period.Parse(s)
+func GetTimeDuration(s DurationType) (time.Duration, error) {
+	p, err := period.Parse(string(s))
 	if err != nil {
 		return 0, err
 	}

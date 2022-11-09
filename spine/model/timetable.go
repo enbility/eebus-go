@@ -43,10 +43,10 @@ type TimeTableConstraintsDataType struct {
 	TimeTableId          *uint              `json:"timeTableId,omitempty"`
 	SlotCountMin         *TimeSlotCountType `json:"slotCountMin,omitempty"`
 	SlotCountMax         *TimeSlotCountType `json:"slotCountMax,omitempty"`
-	SlotDurationMin      *string            `json:"slotDurationMin,omitempty"`
-	SlotDurationMax      *string            `json:"slotDurationMax,omitempty"`
-	SlotDurationStepSize *string            `json:"slotDurationStepSize,omitempty"`
-	SlotShiftStepSize    *string            `json:"slotShiftStepSize,omitempty"`
+	SlotDurationMin      *DurationType      `json:"slotDurationMin,omitempty"`
+	SlotDurationMax      *DurationType      `json:"slotDurationMax,omitempty"`
+	SlotDurationStepSize *DurationType      `json:"slotDurationStepSize,omitempty"`
+	SlotShiftStepSize    *DurationType      `json:"slotShiftStepSize,omitempty"`
 	FirstSlotBeginsAt    *string            `json:"firstSlotBeginsAt,omitempty"`
 }
 

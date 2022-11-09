@@ -2,7 +2,7 @@ package model
 
 type TimeInformationDataType struct {
 	Utc          *string           `json:"utc,omitempty"`
-	UtcOffset    *string           `json:"utcOffset,omitempty"`
+	UtcOffset    *DurationType     `json:"utcOffset,omitempty"`
 	DayOfWeek    *DayOfWeekType    `json:"dayOfWeek,omitempty"`
 	CalendarWeek *CalendarWeekType `json:"calendarWeek,omitempty"`
 }

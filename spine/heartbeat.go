@@ -15,7 +15,7 @@ type HeartbeatSender struct {
 	stopMux                     sync.Mutex
 	senderAddr, destinationAddr *model.FeatureAddressType
 	sender                      Sender
-	heartBeatTimeout            *string
+	heartBeatTimeout            *model.DurationType
 }
 
 func NewHeartbeatSender(sender Sender) *HeartbeatSender {
