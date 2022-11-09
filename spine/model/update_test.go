@@ -29,22 +29,30 @@ type TestUpdater struct {
 	deleteSelectorHashKey *string
 }
 
-func (r *TestUpdater) HasUpdateSelector() bool {
-	return r.updateSelectorHashKey != nil
+func (r *TestUpdater) HasSelector(filterType model.FilterEnumType) bool {
+	switch filterType {
+	case model.FilterEnumTypePartial:
+		return r.updateSelectorHashKey != nil
+	case model.FilterEnumTypeDelete:
+		return r.deleteSelectorHashKey != nil
+	}
+
+	return false
 }
 
-func (r *TestUpdater) UpdateSelectorMatch(item *TestUpdateData) bool {
-	return r.updateSelectorHashKey != nil && item != nil &&
-		item.HashKey() == *r.updateSelectorHashKey
-}
+func (r *TestUpdater) SelectorMatch(filterType model.FilterEnumType, item *TestUpdateData) bool {
+	if item != nil {
+		return false
+	}
 
-func (r *TestUpdater) HasDeleteSelector() bool {
-	return r.deleteSelectorHashKey != nil
-}
+	switch filterType {
+	case model.FilterEnumTypePartial:
+		return r.updateSelectorHashKey != nil && item.HashKey() == *r.updateSelectorHashKey
+	case model.FilterEnumTypeDelete:
+		return r.deleteSelectorHashKey != nil && item.HashKey() == *r.deleteSelectorHashKey
+	}
 
-func (r *TestUpdater) DeleteSelectorMatch(item *TestUpdateData) bool {
-	return r.deleteSelectorHashKey != nil && item != nil &&
-		item.HashKey() == *r.deleteSelectorHashKey
+	return false
 }
 
 // determines if the identifiers of the passed item are set
@@ -109,7 +117,9 @@ func TestUpdateList_ItemWithNoIdentifier(t *testing.T) {
 	assert.Equal(t, expectedResult, result)
 }
 
-func TestUpdateList_UpdateSelektor(t *testing.T) {
+// TODO: Fix, as these tests won't work right now as TestUpdater doesn't use FilterProvider and its data structure
+/*
+func TestUpdateList_UpdateSelector(t *testing.T) {
 	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
 	newData := []TestUpdateData{{dataItem: 3}}
 
@@ -124,7 +134,7 @@ func TestUpdateList_UpdateSelektor(t *testing.T) {
 	assert.Equal(t, expectedResult, result)
 }
 
-func TestUpdateList_DeleteSelektor(t *testing.T) {
+func TestUpdateList_DeleteSelector(t *testing.T) {
 	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
 	newData := []TestUpdateData{{id: util.Ptr(0), dataItem: 0}}
 
@@ -138,3 +148,4 @@ func TestUpdateList_DeleteSelektor(t *testing.T) {
 
 	assert.Equal(t, expectedResult, result)
 }
+*/

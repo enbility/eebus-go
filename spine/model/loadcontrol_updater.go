@@ -1,37 +1,60 @@
 package model
 
-import "github.com/DerAndereAndi/eebus-go/util"
+import (
+	"fmt"
+
+	"github.com/DerAndereAndi/eebus-go/util"
+)
+
+// LoadControlLimitListDataType
+
+var _ UpdaterFactory[LoadControlLimitListDataType] = (*LoadControlLimitListDataType)(nil)
+var _ util.HashKeyer = (*LoadControlLimitDataType)(nil)
+
+func (r *LoadControlLimitListDataType) NewUpdater(
+	newList *LoadControlLimitListDataType,
+	filterPartial *FilterType,
+	filterDelete *FilterType) Updater {
+
+	return &LoadControlLimitListDataType_Updater{
+		LoadControlLimitListDataType: r,
+		newData:                      newList.LoadControlLimitData,
+		FilterProvider: &FilterProvider{
+			filterPartial: filterPartial,
+			filterDelete:  filterDelete,
+		},
+	}
+}
+
+func (r LoadControlLimitDataType) HashKey() string {
+	return loadControlDataHashKey(
+		r.LimitId)
+}
 
 var _ Updater = (*LoadControlLimitListDataType_Updater)(nil)
 var _ UpdateDataProvider[LoadControlLimitDataType] = (*LoadControlLimitListDataType_Updater)(nil)
 
 type LoadControlLimitListDataType_Updater struct {
 	*LoadControlLimitListDataType
-	newData       []LoadControlLimitDataType
-	filterPartial *FilterType
-	filterDelete  *FilterType
+	*FilterProvider
+	newData []LoadControlLimitDataType
 }
 
 func (r *LoadControlLimitListDataType_Updater) DoUpdate() {
 	r.LoadControlLimitData = UpdateList[LoadControlLimitDataType](r.LoadControlLimitData, r.newData, r)
 }
 
-func (r *LoadControlLimitListDataType_Updater) HasUpdateSelector() bool {
-	return r.filterPartial != nil && r.filterPartial.LoadControlLimitListDataSelectors != nil
+func (r *LoadControlLimitListDataType_Updater) HasSelector(filterType FilterEnumType) bool {
+	filter := r.FilterForEnumType(filterType)
+
+	return filter != nil && filter.LoadControlLimitListDataSelectors != nil
 }
 
-func (r *LoadControlLimitListDataType_Updater) UpdateSelectorMatch(item *LoadControlLimitDataType) bool {
-	return r.HasUpdateSelector() && item != nil &&
-		item.HashKey() == *r.selectorHashKey(r.filterPartial)
-}
+func (r *LoadControlLimitListDataType_Updater) SelectorMatch(filterType FilterEnumType, item *LoadControlLimitDataType) bool {
+	filter := r.FilterForEnumType(filterType)
 
-func (r *LoadControlLimitListDataType_Updater) HasDeleteSelector() bool {
-	return r.filterDelete != nil && r.filterDelete.LoadControlLimitListDataSelectors != nil
-}
-
-func (r *LoadControlLimitListDataType_Updater) DeleteSelectorMatch(item *LoadControlLimitDataType) bool {
-	return r.HasDeleteSelector() && item != nil &&
-		item.HashKey() == *r.selectorHashKey(r.filterDelete)
+	return r.HasSelector(filterType) && item != nil && filter != nil &&
+		item.HashKey() == *r.selectorHashKey(filter)
 }
 
 func (r *LoadControlLimitListDataType_Updater) HasIdentifier(item *LoadControlLimitDataType) bool {
@@ -57,36 +80,59 @@ func (r *LoadControlLimitListDataType_Updater) selectorHashKey(filter *FilterTyp
 	return result
 }
 
+// LoadControlLimitDescriptionListDataType
+
+var _ UpdaterFactory[LoadControlLimitDescriptionListDataType] = (*LoadControlLimitDescriptionListDataType)(nil)
+var _ util.HashKeyer = (*LoadControlLimitDescriptionDataType)(nil)
+
+func (r *LoadControlLimitDescriptionListDataType) NewUpdater(
+	newList *LoadControlLimitDescriptionListDataType,
+	filterPartial *FilterType,
+	filterDelete *FilterType) Updater {
+
+	return &LoadControlLimitDescriptionListDataType_Updater{
+		LoadControlLimitDescriptionListDataType: r,
+		newData:                                 newList.LoadControlLimitDescriptionData,
+		FilterProvider: &FilterProvider{
+			filterPartial: filterPartial,
+			filterDelete:  filterDelete,
+		},
+	}
+}
+
+func (r LoadControlLimitDescriptionDataType) HashKey() string {
+	return loadControlDataHashKey(
+		r.LimitId)
+}
+
+func loadControlDataHashKey(limitId *LoadControlLimitIdType) string {
+	return fmt.Sprintf("%d", *limitId)
+}
+
 var _ Updater = (*LoadControlLimitDescriptionListDataType_Updater)(nil)
 var _ UpdateDataProvider[LoadControlLimitDescriptionDataType] = (*LoadControlLimitDescriptionListDataType_Updater)(nil)
 
 type LoadControlLimitDescriptionListDataType_Updater struct {
 	*LoadControlLimitDescriptionListDataType
-	newData       []LoadControlLimitDescriptionDataType
-	filterPartial *FilterType
-	filterDelete  *FilterType
+	*FilterProvider
+	newData []LoadControlLimitDescriptionDataType
 }
 
 func (r *LoadControlLimitDescriptionListDataType_Updater) DoUpdate() {
 	r.LoadControlLimitDescriptionData = UpdateList[LoadControlLimitDescriptionDataType](r.LoadControlLimitDescriptionData, r.newData, r)
 }
 
-func (r *LoadControlLimitDescriptionListDataType_Updater) HasUpdateSelector() bool {
-	return r.filterPartial != nil && r.filterPartial.LoadControlLimitListDataSelectors != nil
+func (r *LoadControlLimitDescriptionListDataType_Updater) HasSelector(filterType FilterEnumType) bool {
+	filter := r.FilterForEnumType(filterType)
+
+	return filter != nil && filter.LoadControlLimitDescriptionListDataSelectors != nil
 }
 
-func (r *LoadControlLimitDescriptionListDataType_Updater) UpdateSelectorMatch(item *LoadControlLimitDescriptionDataType) bool {
-	return r.HasUpdateSelector() && item != nil &&
-		item.HashKey() == *r.selectorHashKey(r.filterPartial)
-}
+func (r *LoadControlLimitDescriptionListDataType_Updater) SelectorMatch(filterType FilterEnumType, item *LoadControlLimitDescriptionDataType) bool {
+	filter := r.FilterForEnumType(filterType)
 
-func (r *LoadControlLimitDescriptionListDataType_Updater) HasDeleteSelector() bool {
-	return r.filterDelete != nil && r.filterDelete.LoadControlLimitDescriptionListDataSelectors != nil
-}
-
-func (r *LoadControlLimitDescriptionListDataType_Updater) DeleteSelectorMatch(item *LoadControlLimitDescriptionDataType) bool {
-	return r.HasDeleteSelector() && item != nil &&
-		item.HashKey() == *r.selectorHashKey(r.filterDelete)
+	return r.HasSelector(filterType) && item != nil && filter != nil &&
+		item.HashKey() == *r.selectorHashKey(filter)
 }
 
 func (r *LoadControlLimitDescriptionListDataType_Updater) HasIdentifier(item *LoadControlLimitDescriptionDataType) bool {

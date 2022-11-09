@@ -2,6 +2,32 @@ package model
 
 import "github.com/DerAndereAndi/eebus-go/util"
 
+type FilterEnumType string
+
+const (
+	FilterEnumTypePartial FilterEnumType = "partial"
+	FilterEnumTypeDelete  FilterEnumType = "delete"
+)
+
+// Helper for easier handling of filters
+type FilterProvider struct {
+	filterPartial *FilterType
+	filterDelete  *FilterType
+}
+
+// return the filter field for an enum type
+func (f *FilterProvider) FilterForEnumType(filterType FilterEnumType) *FilterType {
+	var filter *FilterType
+	switch filterType {
+	case FilterEnumTypePartial:
+		filter = f.filterPartial
+	case FilterEnumTypeDelete:
+		filter = f.filterDelete
+	}
+
+	return filter
+}
+
 type Updater interface {
 	DoUpdate()
 }
@@ -13,15 +39,11 @@ type UpdaterFactory[T any] interface {
 }
 
 type UpdateDataProvider[T util.HashKeyer] interface {
-	// is a partial selector given?
-	HasUpdateSelector() bool
-	// checks if the given item matches the partial selector
-	UpdateSelectorMatch(*T) bool
+	// is a selector for a provided selector type available
+	HasSelector(FilterEnumType) bool
 
-	// is a delete selector given?
-	HasDeleteSelector() bool
-	// checks if the given item matches the delete selector
-	DeleteSelectorMatch(*T) bool
+	// checks if the given item matches a selector of the provided type
+	SelectorMatch(FilterEnumType, *T) bool
 
 	// determines if the identifiers of the passed item are set
 	HasIdentifier(*T) bool
@@ -40,15 +62,15 @@ func UpdateList[T util.HashKeyer](existingData []T, newData []T, dataProvider Up
 	// TODO: Check if only single fields should be considered here
 
 	// process delete selector
-	if dataProvider.HasDeleteSelector() {
+	if dataProvider.HasSelector(FilterEnumTypeDelete) {
 		existingData = deleteSelectedData(existingData, dataProvider)
-		if !dataProvider.HasUpdateSelector() {
+		if !dataProvider.HasSelector(FilterEnumTypePartial) {
 			return existingData
 		}
 	}
 
 	// process update selector
-	if dataProvider.HasUpdateSelector() {
+	if dataProvider.HasSelector(FilterEnumTypePartial) {
 		return copyToSelectedData(existingData, dataProvider, &newData[0])
 	}
 
@@ -64,7 +86,7 @@ func UpdateList[T util.HashKeyer](existingData []T, newData []T, dataProvider Up
 
 func copyToSelectedData[T util.HashKeyer](existingData []T, dataProvider UpdateDataProvider[T], newData *T) []T {
 	for i := range existingData {
-		if dataProvider.UpdateSelectorMatch(util.Ptr(existingData[i])) {
+		if dataProvider.SelectorMatch(FilterEnumTypePartial, util.Ptr(existingData[i])) {
 			dataProvider.CopyData(newData, &existingData[i])
 			break
 		}
@@ -82,7 +104,7 @@ func copyToAllData[T util.HashKeyer](existingData []T, dataProvider UpdateDataPr
 func deleteSelectedData[T util.HashKeyer](existingData []T, dataProvider UpdateDataProvider[T]) []T {
 	result := []T{}
 	for i := range existingData {
-		if !dataProvider.DeleteSelectorMatch(util.Ptr(existingData[i])) {
+		if !dataProvider.SelectorMatch(FilterEnumTypeDelete, util.Ptr(existingData[i])) {
 			result = append(result, existingData[i])
 		}
 	}
