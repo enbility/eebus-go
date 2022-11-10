@@ -55,6 +55,10 @@ func (r *TestUpdater) SelectorMatch(filterType model.FilterEnumType, item *TestU
 	return false
 }
 
+func (r *TestUpdater) Sort(item []TestUpdateData) []TestUpdateData {
+	return item
+}
+
 // determines if the identifiers of the passed item are set
 func (r *TestUpdater) HasIdentifier(item *TestUpdateData) bool {
 	return item.id != nil

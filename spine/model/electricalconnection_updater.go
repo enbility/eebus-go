@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/DerAndereAndi/eebus-go/util"
 )
@@ -70,6 +71,24 @@ func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) SelectorMatc
 	}
 
 	return true
+}
+
+func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) Sort(data []ElectricalConnectionPermittedValueSetDataType) []ElectricalConnectionPermittedValueSetDataType {
+	sort.Slice(data, func(i, j int) bool {
+		item1 := data[i]
+		item2 := data[j]
+		if item1.ElectricalConnectionId != nil && item2.ElectricalConnectionId != nil && *item1.ElectricalConnectionId != *item2.ElectricalConnectionId {
+			return *item1.ElectricalConnectionId < *item2.ElectricalConnectionId
+		}
+
+		if item1.ParameterId != nil && item2.ParameterId != nil && *item1.ParameterId != *item2.ParameterId {
+			return *item1.ParameterId < *item2.ParameterId
+		}
+
+		return false
+	})
+
+	return data
 }
 
 func (r *ElectricalConnectionPermittedValueSetListDataType_Updater) HasIdentifier(item *ElectricalConnectionPermittedValueSetDataType) bool {
@@ -148,6 +167,20 @@ func (r *ElectricalConnectionDescriptionListDataType_Updater) SelectorMatch(filt
 	}
 
 	return true
+}
+
+func (r *ElectricalConnectionDescriptionListDataType_Updater) Sort(data []ElectricalConnectionDescriptionDataType) []ElectricalConnectionDescriptionDataType {
+	sort.Slice(data, func(i, j int) bool {
+		item1 := data[i]
+		item2 := data[j]
+		if item1.ElectricalConnectionId != nil && item2.ElectricalConnectionId != nil && *item1.ElectricalConnectionId != *item2.ElectricalConnectionId {
+			return *item1.ElectricalConnectionId < *item2.ElectricalConnectionId
+		}
+
+		return false
+	})
+
+	return data
 }
 
 func (r *ElectricalConnectionDescriptionListDataType_Updater) HasIdentifier(item *ElectricalConnectionDescriptionDataType) bool {
@@ -253,6 +286,28 @@ func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) SelectorM
 	}
 
 	return true
+}
+
+func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) Sort(data []ElectricalConnectionParameterDescriptionDataType) []ElectricalConnectionParameterDescriptionDataType {
+	sort.Slice(data, func(i, j int) bool {
+		item1 := data[i]
+		item2 := data[j]
+		if item1.ElectricalConnectionId != nil && item2.ElectricalConnectionId != nil && *item1.ElectricalConnectionId != *item2.ElectricalConnectionId {
+			return *item1.ElectricalConnectionId < *item2.ElectricalConnectionId
+		}
+
+		if item1.ParameterId != nil && item2.ParameterId != nil && *item1.ParameterId != *item2.ParameterId {
+			return *item1.ParameterId < *item2.ParameterId
+		}
+
+		if item1.MeasurementId != nil && item2.MeasurementId != nil {
+			return *item1.MeasurementId < *item2.MeasurementId
+		}
+
+		return false
+	})
+
+	return data
 }
 
 func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) HasIdentifier(item *ElectricalConnectionParameterDescriptionDataType) bool {

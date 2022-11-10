@@ -49,6 +49,8 @@ type UpdateDataProvider[T util.HashKeyer] interface {
 	HasIdentifier(*T) bool
 	// copies the data (not the identifiers) from the source to the destination item
 	CopyData(source *T, dest *T)
+	// sorts the list into a chronological order
+	Sort(data []T) []T
 }
 
 // Generates a new list of function items by applying the rules mentioned in the spec
@@ -78,7 +80,11 @@ func UpdateList[T util.HashKeyer](existingData []T, newData []T, dataProvider Up
 		return copyToAllData(existingData, dataProvider, &newData[0])
 	}
 
-	return util.Merge(existingData, newData)
+	result := util.Merge(existingData, newData)
+
+	result = dataProvider.Sort(result)
+
+	return result
 }
 
 func copyToSelectedData[T util.HashKeyer](existingData []T, dataProvider UpdateDataProvider[T], newData *T) []T {

@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/DerAndereAndi/eebus-go/util"
 )
@@ -72,6 +73,20 @@ func (r *MeasurementListDataType_Updater) SelectorMatch(filterType FilterEnumTyp
 	// TODO: Add selector.TimestampInterval
 
 	return true
+}
+
+func (r *MeasurementListDataType_Updater) Sort(data []MeasurementDataType) []MeasurementDataType {
+	sort.Slice(data, func(i, j int) bool {
+		item1 := data[i]
+		item2 := data[j]
+		if item1.MeasurementId != nil && item2.MeasurementId != nil && *item1.MeasurementId != *item2.MeasurementId {
+			return *item1.MeasurementId < *item2.MeasurementId
+		}
+
+		return false
+	})
+
+	return data
 }
 
 func (r *MeasurementListDataType_Updater) HasIdentifier(item *MeasurementDataType) bool {

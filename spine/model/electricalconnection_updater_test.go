@@ -151,7 +151,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify(t *test
 }
 
 // verifies that a subset of existing items will be updated with identified new values
-func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete(t *testing.T) {
+func TestElectricalConnectionPermittedValueSetListDataType_Update_DeleteModify(t *testing.T) {
 	existingDataJson := `{
 		"electricalConnectionPermittedValueSetData":[
 			{
@@ -295,6 +295,174 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete(t *test
 	assert.Equal(t, 1, int(*item1.ParameterId))
 	assert.Equal(t, 1, len(item1.PermittedValueSet))
 	valueSet := item1.PermittedValueSet[0]
+	assert.Equal(t, 1, len(valueSet.Range))
+	rangeSet := valueSet.Range[0]
+	assert.Equal(t, 2.0, rangeSet.Min.GetValue())
+	assert.Equal(t, 16.0, rangeSet.Max.GetValue())
+}
+
+// verifies that a subset of existing items will be updated with identified new values
+func TestElectricalConnectionPermittedValueSetListDataType_Update_DeleteAdd(t *testing.T) {
+	existingDataJson := `{
+		"electricalConnectionPermittedValueSetData":[
+			{
+				"electricalConnectionId":0,
+				"parameterId":0,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":1,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":1,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":2,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":3,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			}
+		]
+	}`
+
+	var sut model.ElectricalConnectionPermittedValueSetListDataType
+	err := json.Unmarshal([]byte(existingDataJson), &sut)
+	if assert.Nil(t, err) == false {
+		return
+	}
+
+	newDataJson := `{
+		"electricalConnectionPermittedValueSetData":[
+			{
+				"electricalConnectionId":0,
+				"parameterId":0,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":1,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":1,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":2,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":2,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":2,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":3,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":2,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			}
+		]
+	}`
+
+	var newData model.ElectricalConnectionPermittedValueSetListDataType
+	err = json.Unmarshal([]byte(newDataJson), &newData)
+	if assert.Nil(t, err) == false {
+		return
+	}
+
+	electricalConnecctionId := model.ElectricalConnectionIdType(0)
+	parameterId := model.ElectricalConnectionParameterIdType(0)
+
+	delete := &model.FilterType{
+		CmdControl: &model.CmdControlType{
+			Delete: &model.ElementTagType{},
+		},
+		ElectricalConnectionPermittedValueSetListDataSelectors: &model.ElectricalConnectionPermittedValueSetListDataSelectorsType{
+			ElectricalConnectionId: &electricalConnecctionId,
+			ParameterId:            &parameterId,
+		},
+	}
+
+	// Act
+	sut.NewUpdater(&newData, model.NewFilterTypePartial(), delete).DoUpdate()
+
+	// check the deleted item is added again
+	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
+	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, 0, int(*item1.ParameterId))
+	assert.Equal(t, 1, len(item1.PermittedValueSet))
+	// check properties of updated item
+	item2 := sut.ElectricalConnectionPermittedValueSetData[1]
+	assert.Equal(t, 0, int(*item2.ElectricalConnectionId))
+	assert.Equal(t, 1, int(*item2.ParameterId))
+	assert.Equal(t, 1, len(item2.PermittedValueSet))
+	valueSet := item2.PermittedValueSet[0]
 	assert.Equal(t, 1, len(valueSet.Range))
 	rangeSet := valueSet.Range[0]
 	assert.Equal(t, 2.0, rangeSet.Min.GetValue())

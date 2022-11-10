@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/DerAndereAndi/eebus-go/util"
 )
@@ -66,6 +67,20 @@ func (r *LoadControlLimitListDataType_Updater) SelectorMatch(filterType FilterEn
 	}
 
 	return true
+}
+
+func (r *LoadControlLimitListDataType_Updater) Sort(data []LoadControlLimitDataType) []LoadControlLimitDataType {
+	sort.Slice(data, func(i, j int) bool {
+		item1 := data[i]
+		item2 := data[j]
+		if item1.LimitId != nil && item2.LimitId != nil && *item1.LimitId != *item2.LimitId {
+			return *item1.LimitId < *item2.LimitId
+		}
+
+		return false
+	})
+
+	return data
 }
 
 func (r *LoadControlLimitListDataType_Updater) HasIdentifier(item *LoadControlLimitDataType) bool {
@@ -165,6 +180,24 @@ func (r *LoadControlLimitDescriptionListDataType_Updater) SelectorMatch(filterTy
 	}
 
 	return true
+}
+
+func (r *LoadControlLimitDescriptionListDataType_Updater) Sort(data []LoadControlLimitDescriptionDataType) []LoadControlLimitDescriptionDataType {
+	sort.Slice(data, func(i, j int) bool {
+		item1 := data[i]
+		item2 := data[j]
+		if item1.LimitId != nil && item2.LimitId != nil && *item1.LimitId != *item2.LimitId {
+			return *item1.LimitId < *item2.LimitId
+		}
+
+		if item1.MeasurementId != nil && item2.MeasurementId != nil {
+			return *item1.MeasurementId < *item2.MeasurementId
+		}
+
+		return false
+	})
+
+	return data
 }
 
 func (r *LoadControlLimitDescriptionListDataType_Updater) HasIdentifier(item *LoadControlLimitDescriptionDataType) bool {
