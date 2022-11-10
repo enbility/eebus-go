@@ -182,9 +182,6 @@ func (r *LoadControlLimitDescriptionListDataType_Updater) CopyData(source *LoadC
 		if source.LimitDirection != nil {
 			dest.LimitDirection = source.LimitDirection
 		}
-		if source.MeasurementId != nil {
-			dest.MeasurementId = source.MeasurementId
-		}
 		if source.Unit != nil {
 			dest.Unit = source.Unit
 		}

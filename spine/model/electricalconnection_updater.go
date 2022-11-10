@@ -282,12 +282,6 @@ func (r *ElectricalConnectionParameterDescriptionListDataType_Updater) CopyData(
 		if source.Label != nil {
 			dest.Label = source.Label
 		}
-		if source.MeasurementId != nil {
-			dest.MeasurementId = source.MeasurementId
-		}
-		if source.ParameterId != nil {
-			dest.ParameterId = source.ParameterId
-		}
 		if source.ScopeType != nil {
 			dest.ScopeType = source.ScopeType
 		}
