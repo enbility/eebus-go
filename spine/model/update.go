@@ -64,9 +64,6 @@ func UpdateList[T util.HashKeyer](existingData []T, newData []T, dataProvider Up
 	// process delete selector
 	if dataProvider.HasSelector(FilterEnumTypeDelete) {
 		existingData = deleteSelectedData(existingData, dataProvider)
-		if !dataProvider.HasSelector(FilterEnumTypePartial) {
-			return existingData
-		}
 	}
 
 	// process update selector
