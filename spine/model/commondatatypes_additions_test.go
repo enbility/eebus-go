@@ -98,6 +98,96 @@ func TestDateTimeType(t *testing.T) {
 	}
 }
 
+func TestDurationType(t *testing.T) {
+	tc := []struct {
+		in  time.Duration
+		out string
+	}{
+		{time.Duration(4) * time.Second, "PT4S"},
+	}
+
+	for _, tc := range tc {
+		duration := NewDurationType(tc.in)
+		got, err := duration.GetTimeDuration()
+		if err != nil {
+			t.Errorf("Test Failure with %s: %s", tc.in, err)
+			continue
+		}
+		if got != tc.in {
+			t.Errorf("Test failure for %d, got %d", tc.in, got)
+		}
+		if string(*duration) != tc.out {
+			t.Errorf("Test failure for %d, expected %s got %s", tc.in, tc.out, string(*duration))
+		}
+	}
+}
+
+func TestAbsoluteOrRelativeTimeTypeAbsolute(t *testing.T) {
+	tc := []struct {
+		in       string
+		dateTime time.Time
+	}{
+		{"2022-02-01T19:32:52Z", time.Date(2022, 02, 01, 19, 32, 52, 0, time.UTC)},
+	}
+
+	for _, tc := range tc {
+		a := NewAbsoluteOrRelativeTimeType(tc.in)
+		got, err := a.GetTime()
+		if err != nil {
+			t.Errorf("Test Failure with %s: %s", tc.in, err)
+			continue
+		}
+		if got != tc.dateTime {
+			t.Errorf("Test failure for %s, expected %s got %s", tc.in, tc.dateTime.String(), got.String())
+		}
+
+		d := a.GetDateTimeType()
+		got, err = d.GetTime()
+		if err != nil {
+			t.Errorf("Test Failure with %s: %s", tc.in, err)
+			continue
+		}
+		if got != tc.dateTime {
+			t.Errorf("Test failure for %s, expected %s got %s", tc.in, tc.dateTime.String(), got.String())
+		}
+	}
+}
+
+func TestAbsoluteOrRelativeTimeTypeRelative(t *testing.T) {
+	tc := []struct {
+		in  string
+		out time.Duration
+	}{
+		{"PT4S", time.Duration(4) * time.Second},
+	}
+
+	for _, tc := range tc {
+		a := NewAbsoluteOrRelativeTimeType(tc.in)
+		got, err := a.GetTimeDuration()
+		if err != nil {
+			t.Errorf("Test Failure with %s: %s", tc.in, err)
+			continue
+		}
+		if got != tc.out {
+			t.Errorf("Test failure for %s, expected %d got %d", tc.in, tc.out, got)
+		}
+
+		d, err := a.GetDurationType()
+		if err != nil {
+			t.Errorf("Test Failure with %s: %s", tc.in, err)
+			continue
+		}
+		got, err = d.GetTimeDuration()
+		if err != nil {
+			t.Errorf("Test Failure with %s: %s", tc.in, err)
+			continue
+		}
+		if got != tc.out {
+			t.Errorf("Test failure for %s, expected %d got %d", tc.in, tc.out, got)
+		}
+	}
+}
+
 func TestNewScaledNumberType(t *testing.T) {
 	tc := []struct {
 		in     float64

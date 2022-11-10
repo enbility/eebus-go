@@ -113,6 +113,11 @@ func getTimeDurationFromString(s string) (time.Duration, error) {
 // AbsoluteOrRelativeTimeType
 // can be of type TimeType or DurationType
 
+func NewAbsoluteOrRelativeTimeType(s string) *AbsoluteOrRelativeTimeType {
+	value := AbsoluteOrRelativeTimeType(s)
+	return &value
+}
+
 func (a *AbsoluteOrRelativeTimeType) GetDateTimeType() *DateTimeType {
 	value := NewDateTimeType(string(*a))
 	return value
@@ -128,7 +133,7 @@ func (a *AbsoluteOrRelativeTimeType) GetTime() (time.Time, error) {
 	return t, nil
 }
 
-func (a *AbsoluteOrRelativeTimeType) GetDuration() (*DurationType, error) {
+func (a *AbsoluteOrRelativeTimeType) GetDurationType() (*DurationType, error) {
 	value, err := a.GetTimeDuration()
 	if err != nil {
 		return nil, err
