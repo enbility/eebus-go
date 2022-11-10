@@ -197,8 +197,11 @@ func (r *FeatureAddressType) String() string {
 		result += string(*r.Device)
 	}
 	result += ":["
-	for _, id := range r.Entity {
-		result += fmt.Sprintf("%d,", id)
+	for index, id := range r.Entity {
+		if index > 0 {
+			result += ","
+		}
+		result += fmt.Sprintf("%d", id)
 	}
 	result += "]:"
 	if r.Feature != nil {

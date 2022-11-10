@@ -220,3 +220,32 @@ func TestNewScaledNumberType(t *testing.T) {
 		}
 	}
 }
+
+func TestFeatureAddressTypeString(t *testing.T) {
+	tc := []struct {
+		device  AddressDeviceType
+		entity  []AddressEntityType
+		feature AddressFeatureType
+		out     string
+	}{
+		{
+			"Device",
+			[]AddressEntityType{1, 1},
+			0,
+			"Device:[1,1]:0",
+		},
+	}
+
+	for _, tc := range tc {
+		f := FeatureAddressType{
+			Device:  &tc.device,
+			Entity:  tc.entity,
+			Feature: &tc.feature,
+		}
+
+		got := f.String()
+		if got != tc.out {
+			t.Errorf("TestFeatureAddressTypeString(), got %s, expectes %s", got, tc.out)
+		}
+	}
+}
