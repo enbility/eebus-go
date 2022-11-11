@@ -57,10 +57,6 @@ type UpdateDataProvider[T util.HashKeyer] interface {
 // (EEBus_SPINE_TS_ProtocolSpecification.pdf; chapter "5.3.4 Restricted function exchange with cmdOptions").
 // The given data provider is used the get the current items and the items and the filters in the payload.
 func UpdateList[T util.HashKeyer](existingData []T, newData []T, dataProvider UpdateDataProvider[T]) []T {
-	if len(newData) == 0 {
-		return existingData
-	}
-
 	// TODO: Check if only single fields should be considered here
 
 	// process delete selector
@@ -74,7 +70,7 @@ func UpdateList[T util.HashKeyer](existingData []T, newData []T, dataProvider Up
 	}
 
 	// check if items have no identifiers
-	if !dataProvider.HasIdentifier(&newData[0]) {
+	if len(newData) > 0 && !dataProvider.HasIdentifier(&newData[0]) {
 		// no identifiers specified --> copy data to all existing items
 		// (see EEBus_SPINE_TS_ProtocolSpecification.pdf, Table 7: Considered cmdOptions combinations for classifier "notify")
 		return copyToAllData(existingData, dataProvider, &newData[0])

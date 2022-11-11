@@ -302,6 +302,104 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_DeleteModify(t
 }
 
 // verifies that a subset of existing items will be updated with identified new values
+func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete(t *testing.T) {
+	existingDataJson := `{
+		"electricalConnectionPermittedValueSetData":[
+			{
+				"electricalConnectionId":0,
+				"parameterId":0,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":1,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":1,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":2,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":3,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			}
+		]
+	}`
+
+	var sut model.ElectricalConnectionPermittedValueSetListDataType
+	err := json.Unmarshal([]byte(existingDataJson), &sut)
+	if assert.Nil(t, err) == false {
+		return
+	}
+
+	electricalConnecctionId := model.ElectricalConnectionIdType(0)
+	parameterId := model.ElectricalConnectionParameterIdType(0)
+
+	delete := &model.FilterType{
+		CmdControl: &model.CmdControlType{
+			Delete: &model.ElementTagType{},
+		},
+		ElectricalConnectionPermittedValueSetListDataSelectors: &model.ElectricalConnectionPermittedValueSetListDataSelectorsType{
+			ElectricalConnectionId: &electricalConnecctionId,
+			ParameterId:            &parameterId,
+		},
+	}
+
+	// Act
+	sut.NewUpdater(nil, nil, delete).DoUpdate()
+
+	// check the deleted item is added again
+	assert.Equal(t, 3, len(sut.ElectricalConnectionPermittedValueSetData))
+	// check properties of remaining item
+	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, 1, int(*item1.ParameterId))
+	assert.Equal(t, 1, len(item1.PermittedValueSet))
+	valueSet := item1.PermittedValueSet[0]
+	assert.Equal(t, 1, len(valueSet.Range))
+	rangeSet := valueSet.Range[0]
+	assert.Equal(t, 6.0, rangeSet.Min.GetValue())
+	assert.Equal(t, 16.0, rangeSet.Max.GetValue())
+}
+
+// verifies that a subset of existing items will be updated with identified new values
 func TestElectricalConnectionPermittedValueSetListDataType_Update_DeleteAdd(t *testing.T) {
 	existingDataJson := `{
 		"electricalConnectionPermittedValueSetData":[

@@ -17,14 +17,21 @@ func (r *ElectricalConnectionPermittedValueSetListDataType) NewUpdater(
 	filterPartial *FilterType,
 	filterDelete *FilterType) Updater {
 
-	return &ElectricalConnectionPermittedValueSetListDataType_Updater{
+	var newData []ElectricalConnectionPermittedValueSetDataType
+	if newList != nil {
+		newData = newList.ElectricalConnectionPermittedValueSetData
+	}
+
+	e := &ElectricalConnectionPermittedValueSetListDataType_Updater{
 		ElectricalConnectionPermittedValueSetListDataType: r,
-		newData: newList.ElectricalConnectionPermittedValueSetData,
+		newData: newData,
 		FilterProvider: &FilterProvider{
 			filterPartial: filterPartial,
 			filterDelete:  filterDelete,
 		},
 	}
+
+	return e
 }
 
 func (r ElectricalConnectionPermittedValueSetDataType) HashKey() string {
