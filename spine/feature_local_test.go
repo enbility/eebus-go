@@ -40,7 +40,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
 
 	// send data request
-	msgCounter, err := suite.sut.RequestData(suite.function, nil, suite.remoteFeature)
+	msgCounter, err := suite.sut.RequestData(suite.function, nil, nil, suite.remoteFeature)
 	assert.Nil(suite.T(), err)
 
 	manufacturerData := &model.DeviceClassificationManufacturerDataType{
@@ -90,7 +90,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	const errorDescription = "error occured"
 
 	// send data request
-	msgCounter, err := suite.sut.RequestData(suite.function, nil, suite.remoteFeature)
+	msgCounter, err := suite.sut.RequestData(suite.function, nil, nil, suite.remoteFeature)
 	assert.Nil(suite.T(), err)
 
 	replyMsg := spine.Message{

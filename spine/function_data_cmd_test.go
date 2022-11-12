@@ -30,7 +30,7 @@ func (suite *FunctionDataCmdTestSuite) SetupSuite() {
 }
 
 func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_ReadCmd() {
-	readCmd := suite.sut.ReadCmdType(nil)
+	readCmd := suite.sut.ReadCmdType(nil, nil)
 	assert.NotNil(suite.T(), readCmd.DeviceClassificationManufacturerData)
 	assert.Nil(suite.T(), readCmd.DeviceClassificationManufacturerData.DeviceName)
 	// TODO: assert on json

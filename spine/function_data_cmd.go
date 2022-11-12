@@ -7,10 +7,10 @@ import (
 
 type FunctionDataCmd interface {
 	FunctionData
-	ReadCmdType(partialSelector any) model.CmdType
+	ReadCmdType(partialSelector any, elements any) model.CmdType
 	ReplyCmdType(partial bool) model.CmdType
-	NotifyCmdType(deleteSelector, partialSelector any, partialWithoutSelector bool) model.CmdType
-	WriteCmdType(deleteSelector, partialSelector any) model.CmdType
+	NotifyCmdType(deleteSelector, partialSelector any, partialWithoutSelector bool, deleteElements any) model.CmdType
+	WriteCmdType(deleteSelector, partialSelector any, deleteElements any) model.CmdType
 }
 
 var _ FunctionDataCmd = (*FunctionDataCmdImpl[int])(nil)
@@ -25,10 +25,12 @@ func NewFunctionDataCmd[T any](function model.FunctionType) *FunctionDataCmdImpl
 	}
 }
 
-func (r *FunctionDataCmdImpl[T]) ReadCmdType(partialSelector any) model.CmdType {
+func (r *FunctionDataCmdImpl[T]) ReadCmdType(partialSelector any, elements any) model.CmdType {
 	cmd := createCmd[T](r.functionType, nil)
 
-	if filters := filtersForSelectors(r.functionType, nil, partialSelector); len(filters) > 0 {
+	var filters []model.FilterType
+	filters = filtersForSelectorsElements(r.functionType, filters, nil, partialSelector, nil, elements)
+	if len(filters) > 0 {
 		cmd.Filter = filters
 	}
 
@@ -43,7 +45,7 @@ func (r *FunctionDataCmdImpl[T]) ReplyCmdType(partial bool) model.CmdType {
 	return cmd
 }
 
-func (r *FunctionDataCmdImpl[T]) NotifyCmdType(deleteSelector, partialSelector any, partialWithoutSelector bool) model.CmdType {
+func (r *FunctionDataCmdImpl[T]) NotifyCmdType(deleteSelector, partialSelector any, partialWithoutSelector bool, deleteElements any) model.CmdType {
 	cmd := createCmd(r.functionType, r.data)
 	cmd.Function = util.Ptr(model.FunctionType(r.functionType))
 
@@ -51,40 +53,49 @@ func (r *FunctionDataCmdImpl[T]) NotifyCmdType(deleteSelector, partialSelector a
 		cmd.Filter = filterEmptyPartial()
 		return cmd
 	}
-	if filters := filtersForSelectors(r.functionType, deleteSelector, partialSelector); len(filters) > 0 {
+	var filters []model.FilterType
+	if filters := filtersForSelectorsElements(r.functionType, filters, deleteSelector, partialSelector, deleteElements, nil); len(filters) > 0 {
 		cmd.Filter = filters
 	}
 
 	return cmd
 }
 
-func (r *FunctionDataCmdImpl[T]) WriteCmdType(deleteSelector, partialSelector any) model.CmdType {
+func (r *FunctionDataCmdImpl[T]) WriteCmdType(deleteSelector, partialSelector any, deleteElements any) model.CmdType {
 	cmd := createCmd(r.functionType, r.data)
 
-	if filters := filtersForSelectors(r.functionType, deleteSelector, partialSelector); len(filters) > 0 {
+	var filters []model.FilterType
+	if filters := filtersForSelectorsElements(r.functionType, filters, deleteSelector, partialSelector, deleteElements, nil); len(filters) > 0 {
 		cmd.Filter = filters
 	}
 
 	return cmd
 }
 
-func filtersForSelectors(functionType model.FunctionType, deleteSelector, partialSelector any) []model.FilterType {
-	var filters []model.FilterType
-	if deleteSelector != nil {
+func filtersForSelectorsElements(functionType model.FunctionType, filters []model.FilterType, deleteSelector, partialSelector any, deleteElements, readElements any) []model.FilterType {
+	if deleteSelector != nil || deleteElements != nil {
 		filter := model.FilterType{CmdControl: &model.CmdControlType{Delete: &model.ElementTagType{}}}
-		filter = addSelectorToFilter(filter, functionType, &deleteSelector)
+		if deleteSelector != nil {
+			filter = addSelectorToFilter(filter, functionType, &deleteSelector)
+		}
+		if deleteElements != nil {
+			filter = addElementToFilter(filter, functionType, &deleteElements)
+		}
 		filters = append(filters, filter)
-	}
-	if partialSelector != nil {
-		filter := model.FilterType{CmdControl: &model.CmdControlType{Partial: &model.ElementTagType{}}}
-		filter = addSelectorToFilter(filter, functionType, &partialSelector)
-		filters = append(filters, filter)
-	}
-	if len(filters) > 0 {
-		return filters
 	}
 
-	return nil
+	if partialSelector != nil || readElements != nil {
+		filter := model.FilterType{CmdControl: &model.CmdControlType{Partial: &model.ElementTagType{}}}
+		if partialSelector != nil {
+			filter = addSelectorToFilter(filter, functionType, &partialSelector)
+		}
+		if readElements != nil {
+			filter = addElementToFilter(filter, functionType, &readElements)
+		}
+		filters = append(filters, filter)
+	}
+
+	return filters
 }
 
 // simple helper for adding a single filterType without any selectors
@@ -282,6 +293,285 @@ func addSelectorToFilter[T any](filter model.FilterType, function model.Function
 		result.TimeTableListDataSelectors = castData[model.TimeTableListDataSelectorsType](data)
 	case model.FunctionTypeUseCaseInformationListData:
 		result.UseCaseInformationListDataSelectors = castData[model.UseCaseInformationListDataSelectorsType](data)
+	}
+
+	return result
+}
+
+func addElementToFilter[T any](filter model.FilterType, function model.FunctionType, data *T) model.FilterType {
+	result := filter
+
+	switch function {
+	case model.FunctionTypeActuatorLevelData:
+		result.ActuatorLevelDataElements = castData[model.ActuatorLevelDataElementsType](data)
+	case model.FunctionTypeActuatorLevelDescriptionData:
+		result.ActuatorLevelDescriptionDataElements = castData[model.ActuatorLevelDescriptionDataElementsType](data)
+	case model.FunctionTypeActuatorSwitchData:
+		result.ActuatorSwitchDataElements = castData[model.ActuatorSwitchDataElementsType](data)
+	case model.FunctionTypeActuatorSwitchDescriptionData:
+		result.ActuatorSwitchDescriptionDataElements = castData[model.ActuatorSwitchDescriptionDataElementsType](data)
+	case model.FunctionTypeAlarmListData:
+		result.AlarmDataElements = castData[model.AlarmDataElementsType](data)
+	case model.FunctionTypeBillConstraintsListData:
+		result.BillConstraintsDataElements = castData[model.BillConstraintsDataElementsType](data)
+	case model.FunctionTypeBillDescriptionListData:
+		result.BillDescriptionDataElements = castData[model.BillDescriptionDataElementsType](data)
+	case model.FunctionTypeBillListData:
+		result.BillDataElements = castData[model.BillDataElementsType](data)
+	case model.FunctionTypeBindingManagementDeleteCall:
+		result.BindingManagementDeleteCallElements = castData[model.BindingManagementDeleteCallElementsType](data)
+	case model.FunctionTypeBindingManagementEntryListData:
+		result.BindingManagementEntryDataElements = castData[model.BindingManagementEntryDataElementsType](data)
+	case model.FunctionTypeBindingManagementRequestCall:
+		result.BindingManagementRequestCallElements = castData[model.BindingManagementRequestCallElementsType](data)
+	case model.FunctionTypeCommodityListData:
+		result.CommodityDataElements = castData[model.CommodityDataElementsType](data)
+	case model.FunctionTypeDataTunnelingCall:
+		result.DataTunnelingCallElements = castData[model.DataTunnelingCallElementsType](data)
+	case model.FunctionTypeDeviceClassificationManufacturerData:
+		result.DeviceClassificationManufacturerDataElements = castData[model.DeviceClassificationManufacturerDataElementsType](data)
+	case model.FunctionTypeDeviceClassificationUserData:
+		result.DeviceClassificationUserDataElements = castData[model.DeviceClassificationUserDataElementsType](data)
+	case model.FunctionTypeDeviceConfigurationKeyValueConstraintsListData:
+		result.DeviceConfigurationKeyValueConstraintsDataElements = castData[model.DeviceConfigurationKeyValueConstraintsDataElementsType](data)
+	case model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData:
+		result.DeviceConfigurationKeyValueDescriptionDataElements = castData[model.DeviceConfigurationKeyValueDescriptionDataElementsType](data)
+	case model.FunctionTypeDeviceConfigurationKeyValueListData:
+		result.DeviceConfigurationKeyValueDataElements = castData[model.DeviceConfigurationKeyValueDataElementsType](data)
+	case model.FunctionTypeDeviceDiagnosisHeartbeatData:
+		result.DeviceDiagnosisHeartbeatDataElements = castData[model.DeviceDiagnosisHeartbeatDataElementsType](data)
+	case model.FunctionTypeDeviceDiagnosisServiceData:
+		result.DeviceDiagnosisServiceDataElements = castData[model.DeviceDiagnosisServiceDataElementsType](data)
+	case model.FunctionTypeDeviceDiagnosisStateData:
+		result.DeviceDiagnosisStateDataElements = castData[model.DeviceDiagnosisStateDataElementsType](data)
+	case model.FunctionTypeDirectControlActivityListData:
+		result.DirectControlActivityDataElements = castData[model.DirectControlActivityDataElementsType](data)
+	case model.FunctionTypeDirectControlDescriptionData:
+		result.DirectControlDescriptionDataElements = castData[model.DirectControlDescriptionDataElementsType](data)
+	case model.FunctionTypeElectricalConnectionDescriptionListData:
+		result.ElectricalConnectionDescriptionDataElements = castData[model.ElectricalConnectionDescriptionDataElementsType](data)
+	case model.FunctionTypeElectricalConnectionParameterDescriptionListData:
+		result.ElectricalConnectionParameterDescriptionDataElements = castData[model.ElectricalConnectionParameterDescriptionDataElementsType](data)
+	case model.FunctionTypeElectricalConnectionPermittedValueSetListData:
+		result.ElectricalConnectionPermittedValueSetDataElements = castData[model.ElectricalConnectionPermittedValueSetDataElementsType](data)
+	case model.FunctionTypeElectricalConnectionStateListData:
+		result.ElectricalConnectionStateDataElements = castData[model.ElectricalConnectionStateDataElementsType](data)
+	case model.FunctionTypeHvacOperationModeDescriptionListData:
+		result.HvacOperationModeDescriptionDataElements = castData[model.HvacOperationModeDescriptionDataElementsType](data)
+	case model.FunctionTypeHvacOverrunDescriptionListData:
+		result.HvacOverrunDescriptionDataElements = castData[model.HvacOverrunDescriptionDataElementsType](data)
+	case model.FunctionTypeHvacOverrunListData:
+		result.HvacOverrunDataElements = castData[model.HvacOverrunDataElementsType](data)
+	case model.FunctionTypeHvacSystemFunctionDescriptionListData:
+		result.HvacSystemFunctionDescriptionDataElements = castData[model.HvacSystemFunctionDescriptionDataElementsType](data)
+	case model.FunctionTypeHvacSystemFunctionListData:
+		result.HvacSystemFunctionDataElements = castData[model.HvacSystemFunctionDataElementsType](data)
+	case model.FunctionTypeHvacSystemFunctionOperationModeRelationListData:
+		result.HvacSystemFunctionOperationModeRelationDataElements = castData[model.HvacSystemFunctionOperationModeRelationDataElementsType](data)
+	case model.FunctionTypeHvacSystemFunctionPowerSequenceRelationListData:
+		result.HvacSystemFunctionPowerSequenceRelationDataElements = castData[model.HvacSystemFunctionPowerSequenceRelationDataElementsType](data)
+	case model.FunctionTypeHvacSystemFunctionSetPointRelationListData:
+		result.HvacSystemFunctionSetpointRelationDataElements = castData[model.HvacSystemFunctionSetpointRelationDataElementsType](data)
+	case model.FunctionTypeIdentificationListData:
+		result.IdentificationDataElements = castData[model.IdentificationDataElementsType](data)
+	case model.FunctionTypeIncentiveDescriptionListData:
+		result.IncentiveDescriptionDataElements = castData[model.IncentiveDescriptionDataElementsType](data)
+	case model.FunctionTypeIncentiveListData:
+		result.IncentiveDataElements = castData[model.IncentiveDataElementsType](data)
+	case model.FunctionTypeIncentiveTableConstraintsData:
+		result.IncentiveTableConstraintsDataElements = castData[model.IncentiveTableConstraintsDataElementsType](data)
+	case model.FunctionTypeIncentiveTableData:
+		result.IncentiveTableDataElements = castData[model.IncentiveTableDataElementsType](data)
+	case model.FunctionTypeIncentiveTableDescriptionData:
+		result.IncentiveTableDescriptionDataElements = castData[model.IncentiveTableDescriptionDataElementsType](data)
+	case model.FunctionTypeLoadControlEventListData:
+		result.LoadControlEventDataElements = castData[model.LoadControlEventDataElementsType](data)
+	case model.FunctionTypeLoadControlLimitConstraintsListData:
+		result.LoadControlLimitConstraintsDataElements = castData[model.LoadControlLimitConstraintsDataElementsType](data)
+	case model.FunctionTypeLoadControlLimitDescriptionListData:
+		result.LoadControlLimitDescriptionDataElements = castData[model.LoadControlLimitDescriptionDataElementsType](data)
+	case model.FunctionTypeLoadControlLimitListData:
+		result.LoadControlLimitDataElements = castData[model.LoadControlLimitDataElementsType](data)
+	case model.FunctionTypeLoadControlNodeData:
+		result.LoadControlNodeDataElements = castData[model.LoadControlNodeDataElementsType](data)
+	case model.FunctionTypeLoadControlStateListData:
+		result.LoadControlStateDataElements = castData[model.LoadControlStateDataElementsType](data)
+	case model.FunctionTypeMeasurementConstraintsListData:
+		result.MeasurementConstraintsDataElements = castData[model.MeasurementConstraintsDataElementsType](data)
+	case model.FunctionTypeMeasurementDescriptionListData:
+		result.MeasurementDescriptionDataElements = castData[model.MeasurementDescriptionDataElementsType](data)
+	case model.FunctionTypeMeasurementListData:
+		result.MeasurementDataElements = castData[model.MeasurementDataElementsType](data)
+	case model.FunctionTypeMeasurementThresholdRelationListData:
+		result.MeasurementThresholdRelationDataElements = castData[model.MeasurementThresholdRelationDataElementsType](data)
+	case model.FunctionTypeMessagingListData:
+		result.MessagingDataElements = castData[model.MessagingDataElementsType](data)
+	case model.FunctionTypeNetworkManagementAbortCall:
+		result.NetworkManagementAbortCallElements = castData[model.NetworkManagementAbortCallElementsType](data)
+	case model.FunctionTypeNetworkManagementAddNodeCall:
+		result.NetworkManagementAddNodeCallElements = castData[model.NetworkManagementAddNodeCallElementsType](data)
+	case model.FunctionTypeNetworkManagementDeviceDescriptionListData:
+		result.NetworkManagementDeviceDescriptionDataElements = castData[model.NetworkManagementDeviceDescriptionDataElementsType](data)
+	case model.FunctionTypeNetworkManagementDiscoverCall:
+		result.NetworkManagementDiscoverCallElements = castData[model.NetworkManagementDiscoverCallElementsType](data)
+	case model.FunctionTypeNetworkManagementEntityDescriptionListData:
+		result.NetworkManagementEntityDescriptionDataElements = castData[model.NetworkManagementEntityDescriptionDataElementsType](data)
+	case model.FunctionTypeNetworkManagementFeatureDescriptionListData:
+		result.NetworkManagementFeatureDescriptionDataElements = castData[model.NetworkManagementFeatureDescriptionDataElementsType](data)
+	case model.FunctionTypeNetworkManagementJoiningModeData:
+		result.NetworkManagementJoiningModeDataElements = castData[model.NetworkManagementJoiningModeDataElementsType](data)
+	case model.FunctionTypeNetworkManagementModifyNodeCall:
+		result.NetworkManagementModifyNodeCallElements = castData[model.NetworkManagementModifyNodeCallElementsType](data)
+	case model.FunctionTypeNetworkManagementProcessStateData:
+		result.NetworkManagementProcessStateDataElements = castData[model.NetworkManagementProcessStateDataElementsType](data)
+	case model.FunctionTypeNetworkManagementRemoveNodeCall:
+		result.NetworkManagementRemoveNodeCallElements = castData[model.NetworkManagementRemoveNodeCallElementsType](data)
+	case model.FunctionTypeNetworkManagementReportCandidateData:
+		result.NetworkManagementReportCandidateDataElements = castData[model.NetworkManagementReportCandidateDataElementsType](data)
+	case model.FunctionTypeNetworkManagementScanNetworkCall:
+		result.NetworkManagementScanNetworkCallElements = castData[model.NetworkManagementScanNetworkCallElementsType](data)
+	case model.FunctionTypeNodeManagementBindingData:
+		result.NodeManagementBindingDataElements = castData[model.NodeManagementBindingDataElementsType](data)
+	case model.FunctionTypeNodeManagementBindingDeleteCall:
+		result.NodeManagementBindingDeleteCallElements = castData[model.NodeManagementBindingDeleteCallElementsType](data)
+	case model.FunctionTypeNodeManagementBindingRequestCall:
+		result.NodeManagementBindingRequestCallElements = castData[model.NodeManagementBindingRequestCallElementsType](data)
+	case model.FunctionTypeNodeManagementDestinationListData:
+		result.NodeManagementDestinationDataElements = castData[model.NodeManagementDestinationDataElementsType](data)
+	case model.FunctionTypeNodeManagementDetailedDiscoveryData:
+		result.NodeManagementDetailedDiscoveryDataElements = castData[model.NodeManagementDetailedDiscoveryDataElementsType](data)
+	case model.FunctionTypeNodeManagementSubscriptionData:
+		result.NodeManagementSubscriptionDataElements = castData[model.NodeManagementSubscriptionDataElementsType](data)
+	case model.FunctionTypeNodeManagementSubscriptionDeleteCall:
+		result.NodeManagementSubscriptionDeleteCallElements = castData[model.NodeManagementSubscriptionDeleteCallElementsType](data)
+	case model.FunctionTypeNodeManagementSubscriptionRequestCall:
+		result.NodeManagementSubscriptionRequestCallElements = castData[model.NodeManagementSubscriptionRequestCallElementsType](data)
+	case model.FunctionTypeNodeManagementUseCaseData:
+		result.NodeManagementUseCaseDataElements = castData[model.NodeManagementUseCaseDataElementsType](data)
+	case model.FunctionTypeOperatingConstraintsDurationListData:
+		result.OperatingConstraintsDurationDataElements = castData[model.OperatingConstraintsDurationDataElementsType](data)
+	case model.FunctionTypeOperatingConstraintsInterruptListData:
+		result.OperatingConstraintsInterruptDataElements = castData[model.OperatingConstraintsInterruptDataElementsType](data)
+	case model.FunctionTypeOperatingConstraintsPowerDescriptionListData:
+		result.OperatingConstraintsPowerDescriptionDataElements = castData[model.OperatingConstraintsPowerDescriptionDataElementsType](data)
+	case model.FunctionTypeOperatingConstraintsPowerLevelListData:
+		result.OperatingConstraintsPowerLevelDataElements = castData[model.OperatingConstraintsPowerLevelDataElementsType](data)
+	case model.FunctionTypeOperatingConstraintsPowerRangeListData:
+		result.OperatingConstraintsPowerRangeDataElements = castData[model.OperatingConstraintsPowerRangeDataElementsType](data)
+	case model.FunctionTypeOperatingConstraintsResumeImplicationListData:
+		result.OperatingConstraintsResumeImplicationDataElements = castData[model.OperatingConstraintsResumeImplicationDataElementsType](data)
+	case model.FunctionTypePowerSequenceAlternativesRelationListData:
+		result.PowerSequenceAlternativesRelationDataElements = castData[model.PowerSequenceAlternativesRelationDataElementsType](data)
+	case model.FunctionTypePowerSequenceDescriptionListData:
+		result.PowerSequenceDescriptionDataElements = castData[model.PowerSequenceDescriptionDataElementsType](data)
+	case model.FunctionTypePowerSequenceNodeScheduleInformationData:
+		result.PowerSequenceNodeScheduleInformationDataElements = castData[model.PowerSequenceNodeScheduleInformationDataElementsType](data)
+	case model.FunctionTypePowerSequencePriceCalculationRequestCall:
+		result.PowerSequencePriceCalculationRequestCallElements = castData[model.PowerSequencePriceCalculationRequestCallElementsType](data)
+	case model.FunctionTypePowerSequencePriceListData:
+		result.PowerSequencePriceDataElements = castData[model.PowerSequencePriceDataElementsType](data)
+	case model.FunctionTypePowerSequenceScheduleConfigurationRequestCall:
+		result.PowerSequenceScheduleConfigurationRequestCallElements = castData[model.PowerSequenceScheduleConfigurationRequestCallElementsType](data)
+	case model.FunctionTypePowerSequenceScheduleConstraintsListData:
+		result.PowerSequenceScheduleConstraintsDataElements = castData[model.PowerSequenceScheduleConstraintsDataElementsType](data)
+	case model.FunctionTypePowerSequenceScheduleListData:
+		result.PowerSequenceScheduleDataElements = castData[model.PowerSequenceScheduleDataElementsType](data)
+	case model.FunctionTypePowerSequenceSchedulePreferenceListData:
+		result.PowerSequenceSchedulePreferenceDataElements = castData[model.PowerSequenceSchedulePreferenceDataElementsType](data)
+	case model.FunctionTypePowerSequenceStateListData:
+		result.PowerSequenceStateDataElements = castData[model.PowerSequenceStateDataElementsType](data)
+	case model.FunctionTypePowerTimeSlotScheduleConstraintsListData:
+		result.PowerTimeSlotScheduleConstraintsDataElements = castData[model.PowerTimeSlotScheduleConstraintsDataElementsType](data)
+	case model.FunctionTypePowerTimeSlotScheduleListData:
+		result.PowerTimeSlotScheduleDataElements = castData[model.PowerTimeSlotScheduleDataElementsType](data)
+	case model.FunctionTypePowerTimeSlotValueListData:
+		result.PowerTimeSlotValueDataElements = castData[model.PowerTimeSlotValueDataElementsType](data)
+	case model.FunctionTypeSensingListData:
+		result.SensingDataElements = castData[model.SensingDataElementsType](data)
+	case model.FunctionTypeSetpointConstraintsListData:
+		result.SetpointConstraintsDataElements = castData[model.SetpointConstraintsDataElementsType](data)
+	case model.FunctionTypeSetpointDescriptionListData:
+		result.SensingDescriptionDataElements = castData[model.SensingDescriptionDataElementsType](data)
+	case model.FunctionTypeSetpointListData:
+		result.SetpointDataElements = castData[model.SetpointDataElementsType](data)
+	case model.FunctionTypeSmartEnergyManagementPsConfigurationRequestCall:
+		result.SmartEnergyManagementPsConfigurationRequestCallElements = castData[model.SmartEnergyManagementPsConfigurationRequestCallElementsType](data)
+	case model.FunctionTypeSmartEnergyManagementPsData:
+		result.SmartEnergyManagementPsDataElements = castData[model.SmartEnergyManagementPsDataElementsType](data)
+	case model.FunctionTypeSmartEnergyManagementPsPriceCalculationRequestCall:
+		result.SmartEnergyManagementPsPriceCalculationRequestCallElements = castData[model.SmartEnergyManagementPsPriceCalculationRequestCallElementsType](data)
+	case model.FunctionTypeSmartEnergyManagementPsPriceData:
+		result.SmartEnergyManagementPsPriceDataElements = castData[model.SmartEnergyManagementPsPriceDataElementsType](data)
+	case model.FunctionTypeSpecificationVersionListData:
+		result.SpecificationVersionDataElements = castData[model.SpecificationVersionDataElementsType](data)
+	case model.FunctionTypeSubscriptionManagementDeleteCall:
+		result.SubscriptionManagementDeleteCallElements = castData[model.SubscriptionManagementDeleteCallElementsType](data)
+	case model.FunctionTypeSubscriptionManagementEntryListData:
+		result.SubscriptionManagementEntryDataElements = castData[model.SubscriptionManagementEntryDataElementsType](data)
+	case model.FunctionTypeSubscriptionManagementRequestCall:
+		result.SubscriptionManagementRequestCallElements = castData[model.SubscriptionManagementRequestCallElementsType](data)
+	case model.FunctionTypeSupplyConditionListData:
+		result.SupplyConditionDataElements = castData[model.SupplyConditionDataElementsType](data)
+	case model.FunctionTypeSupplyConditionDescriptionListData:
+		result.SupplyConditionDescriptionDataElements = castData[model.SupplyConditionDescriptionDataElementsType](data)
+	case model.FunctionTypeSupplyConditionThresholdRelationListData:
+		result.SupplyConditionThresholdRelationDataElements = castData[model.SupplyConditionThresholdRelationDataElementsType](data)
+	case model.FunctionTypeTariffBoundaryRelationListData:
+		result.TariffBoundaryRelationDataElements = castData[model.TariffBoundaryRelationDataElementsType](data)
+	case model.FunctionTypeTariffDescriptionListData:
+		result.TariffDescriptionDataElements = castData[model.TariffDescriptionDataElementsType](data)
+	case model.FunctionTypeTariffListData:
+		result.TariffDataElements = castData[model.TariffDataElementsType](data)
+	case model.FunctionTypeTariffOverallConstraintsData:
+		result.TariffOverallConstraintsDataElements = castData[model.TariffOverallConstraintsDataElementsType](data)
+	case model.FunctionTypeTariffTierRelationListData:
+		result.TariffTierRelationDataElements = castData[model.TariffTierRelationDataElementsType](data)
+	case model.FunctionTypeTaskManagementJobDescriptionListData:
+		result.TaskManagementJobDescriptionDataElements = castData[model.TaskManagementJobDescriptionDataElementsType](data)
+	case model.FunctionTypeTaskManagementJobListData:
+		result.TaskManagementJobDataElements = castData[model.TaskManagementJobDataElementsType](data)
+	case model.FunctionTypeTaskManagementJobRelationListData:
+		result.TaskManagementJobRelationDataElements = castData[model.TaskManagementJobRelationDataElementsType](data)
+	case model.FunctionTypeTaskManagementOverviewData:
+		result.TaskManagementOverviewDataElements = castData[model.TaskManagementOverviewDataElementsType](data)
+	case model.FunctionTypeThresholdConstraintsListData:
+		result.ThresholdConstraintsDataElements = castData[model.ThresholdConstraintsDataElementsType](data)
+	case model.FunctionTypeThresholdDescriptionListData:
+		result.ThresholdDescriptionDataElements = castData[model.ThresholdDescriptionDataElementsType](data)
+	case model.FunctionTypeThresholdListData:
+		result.ThresholdDataElements = castData[model.ThresholdDataElementsType](data)
+	case model.FunctionTypeTierBoundaryDescriptionListData:
+		result.TierBoundaryDescriptionDataElements = castData[model.TierBoundaryDescriptionDataElementsType](data)
+	case model.FunctionTypeTierBoundaryListData:
+		result.TierBoundaryDataElements = castData[model.TierBoundaryDataElementsType](data)
+	case model.FunctionTypeTierDescriptionListData:
+		result.TierDescriptionDataElements = castData[model.TierDescriptionDataElementsType](data)
+	case model.FunctionTypeTierIncentiveRelationListData:
+		result.TierIncentiveRelationDataElements = castData[model.TierIncentiveRelationDataElementsType](data)
+	case model.FunctionTypeTierListData:
+		result.TierDataElements = castData[model.TierDataElementsType](data)
+	case model.FunctionTypeTimeDistributorData:
+		result.TimeDistributorDataElements = castData[model.TimeDistributorDataElementsType](data)
+	case model.FunctionTypeTimeDistributorEnquiryCall:
+		result.TimeDistributorEnquiryCallElements = castData[model.TimeDistributorEnquiryCallElementsType](data)
+	case model.FunctionTypeTimeInformationData:
+		result.TimeInformationDataElements = castData[model.TimeInformationDataElementsType](data)
+	case model.FunctionTypeTimePrecisionData:
+		result.TimePrecisionDataElements = castData[model.TimePrecisionDataElementsType](data)
+	case model.FunctionTypeTimeSeriesConstraintsListData:
+		result.TimeSeriesConstraintsDataElements = castData[model.TimeSeriesConstraintsDataElementsType](data)
+	case model.FunctionTypeTimeSeriesDescriptionListData:
+		result.TimeSeriesDescriptionDataElements = castData[model.TimeSeriesDescriptionDataElementsType](data)
+	case model.FunctionTypeTimeSeriesListData:
+		result.TimeSeriesDataElements = castData[model.TimeSeriesDataElementsType](data)
+	case model.FunctionTypeTimeTableConstraintsListData:
+		result.TimeTableConstraintsDataElements = castData[model.TimeTableConstraintsDataElementsType](data)
+	case model.FunctionTypeTimeTableDescriptionListData:
+		result.TimeTableDescriptionDataElements = castData[model.TimeTableDescriptionDataElementsType](data)
+	case model.FunctionTypeTimeTableListData:
+		result.TimeTableDataElements = castData[model.TimeTableDataElementsType](data)
+	case model.FunctionTypeUseCaseInformationListData:
+		result.UseCaseInformationDataElements = castData[model.UseCaseInformationDataElementsType](data)
 	}
 
 	return result
