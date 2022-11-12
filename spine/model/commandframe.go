@@ -300,7 +300,7 @@ type CmdType struct {
 	HvacSystemFunctionListData                         *HvacSystemFunctionListDataType                         `json:"hvacSystemFunctionListData,omitempty" eebus:"fct:hvacSystemFunctionListData"`
 	HvacSystemFunctionOperationModeRelationListData    *HvacSystemFunctionOperationModeRelationListDataType    `json:"hvacSystemFunctionOperationModeRelationListData,omitempty" eebus:"fct:hvacSystemFunctionOperationModeRelationListData"`
 	HvacSystemFunctionPowerSequenceRelationListData    *HvacSystemFunctionPowerSequenceRelationListDataType    `json:"hvacSystemFunctionPowerSequenceRelationListData,omitempty" eebus:"fct:hvacSystemFunctionPowerSequenceRelationListData"`
-	HvacSystemFunctionSetpointRelationListData         *HvacSystemFunctionSetpointRelationListDataType         `json:"hvacSystemFunctionSetpointRelationListData,omitempty" eebus:"fct:hvacSystemFunctionSetpointRelationListData"`
+	HvacSystemFunctionSetPointRelationListData         *HvacSystemFunctionSetpointRelationListDataType         `json:"hvacSystemFunctionSetpointRelationListData,omitempty" eebus:"fct:hvacSystemFunctionSetpointRelationListData"`
 	IdentificationListData                             *IdentificationListDataType                             `json:"identificationListData,omitempty" eebus:"fct:identificationListData"`
 	IncentiveDescriptionListData                       *IncentiveDescriptionListDataType                       `json:"incentiveDescriptionListData,omitempty" eebus:"fct:incentiveDescriptionListData"`
 	IncentiveListData                                  *IncentiveListDataType                                  `json:"incentiveListData,omitempty" eebus:"fct:incentiveListData"`
