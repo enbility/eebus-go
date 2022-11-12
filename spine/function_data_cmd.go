@@ -178,6 +178,16 @@ func addSelectorToFilter[T any](filter model.FilterType, function model.Function
 		result.NetworkManagementEntityDescriptionListDataSelectors = castData[model.NetworkManagementEntityDescriptionListDataSelectorsType](data)
 	case model.FunctionTypeNetworkManagementFeatureDescriptionListData:
 		result.NetworkManagementFeatureDescriptionListDataSelectors = castData[model.NetworkManagementFeatureDescriptionListDataSelectorsType](data)
+	case model.FunctionTypeNodeManagementBindingData:
+		result.NodeManagementBindingDataSelectors = castData[model.NodeManagementBindingDataSelectorsType](data)
+	case model.FunctionTypeNodeManagementDestinationListData:
+		result.NodeManagementDestinationListDataSelectors = castData[model.NodeManagementDestinationListDataSelectorsType](data)
+	case model.FunctionTypeNodeManagementDetailedDiscoveryData:
+		result.NodeManagementDetailedDiscoveryDataSelectors = castData[model.NodeManagementDetailedDiscoveryDataSelectorsType](data)
+	case model.FunctionTypeNodeManagementSubscriptionData:
+		result.NodeManagementSubscriptionDataSelectors = castData[model.NodeManagementSubscriptionDataSelectorsType](data)
+	case model.FunctionTypeNodeManagementUseCaseData:
+		result.NodeManagementUseCaseDataSelectors = castData[model.NodeManagementUseCaseDataSelectorsType](data)
 	case model.FunctionTypeOperatingConstraintsDurationListData:
 		result.OperatingConstraintsDurationListDataSelectors = castData[model.OperatingConstraintsDurationListDataSelectorsType](data)
 	case model.FunctionTypeOperatingConstraintsInterruptListData:
@@ -270,8 +280,9 @@ func addSelectorToFilter[T any](filter model.FilterType, function model.Function
 		result.TimeTableDescriptionListDataSelectors = castData[model.TimeTableDescriptionListDataSelectorsType](data)
 	case model.FunctionTypeTimeTableListData:
 		result.TimeTableListDataSelectors = castData[model.TimeTableListDataSelectorsType](data)
+	case model.FunctionTypeUseCaseInformationListData:
+		result.UseCaseInformationListDataSelectors = castData[model.UseCaseInformationListDataSelectorsType](data)
 	}
-	return filter
 
 	return result
 }
