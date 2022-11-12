@@ -72,12 +72,12 @@ func filtersForSelectors(functionType model.FunctionType, deleteSelector, partia
 	var filters []model.FilterType
 	if deleteSelector != nil {
 		filter := model.FilterType{CmdControl: &model.CmdControlType{Delete: &model.ElementTagType{}}}
-		filter = addFilter(filter, functionType, &deleteSelector)
+		filter = addSelectorToFilter(filter, functionType, &deleteSelector)
 		filters = append(filters, filter)
 	}
 	if partialSelector != nil {
 		filter := model.FilterType{CmdControl: &model.CmdControlType{Partial: &model.ElementTagType{}}}
-		filter = addFilter(filter, functionType, &partialSelector)
+		filter = addSelectorToFilter(filter, functionType, &partialSelector)
 		filters = append(filters, filter)
 	}
 	if len(filters) > 0 {
@@ -92,7 +92,7 @@ func filterEmptyPartial() []model.FilterType {
 	return []model.FilterType{{CmdControl: &model.CmdControlType{Partial: &model.ElementTagType{}}}}
 }
 
-func addFilter[T any](filter model.FilterType, function model.FunctionType, data *T) model.FilterType {
+func addSelectorToFilter[T any](filter model.FilterType, function model.FunctionType, data *T) model.FilterType {
 	result := filter
 
 	switch function {
@@ -272,6 +272,8 @@ func addFilter[T any](filter model.FilterType, function model.FunctionType, data
 		result.TimeTableListDataSelectors = castData[model.TimeTableListDataSelectorsType](data)
 	}
 	return filter
+
+	return result
 }
 
 func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
