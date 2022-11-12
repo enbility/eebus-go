@@ -30,7 +30,7 @@ func NewIdentification(localRole, remoteRole model.RoleType, spineLocalDevice *s
 
 // request FunctionTypeIdentificationListData from a remote entity
 func (i *Identification) Request() (*model.MsgCounterType, error) {
-	msgCounter, err := i.requestData(model.FunctionTypeIdentificationListData)
+	msgCounter, err := i.requestData(model.FunctionTypeIdentificationListData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return nil, err

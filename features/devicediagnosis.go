@@ -31,7 +31,7 @@ func NewDeviceDiagnosis(localRole, remoteRole model.RoleType, spineLocalDevice *
 // request DeviceDiagnosisStateData from a remote entity
 func (d *DeviceDiagnosis) RequestStateForEntity() (*model.MsgCounterType, error) {
 	// request FunctionTypeDeviceDiagnosisStateData from a remote entity
-	msgCounter, err := d.requestData(model.FunctionTypeDeviceDiagnosisStateData)
+	msgCounter, err := d.requestData(model.FunctionTypeDeviceDiagnosisStateData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return nil, err

@@ -43,7 +43,7 @@ func NewElectricalConnection(localRole, remoteRole model.RoleType, spineLocalDev
 
 // request ElectricalConnectionDescriptionListDataType from a remote entity
 func (e *ElectricalConnection) RequestDescription() error {
-	if _, err := e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData); err != nil {
+	if _, err := e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, nil, nil); err != nil {
 		logging.Log.Error(err)
 		return err
 	}
@@ -53,7 +53,7 @@ func (e *ElectricalConnection) RequestDescription() error {
 
 // request FunctionTypeElectricalConnectionParameterDescriptionListData from a remote entity
 func (e *ElectricalConnection) RequestParameterDescription() error {
-	if _, err := e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData); err != nil {
+	if _, err := e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, nil, nil); err != nil {
 		logging.Log.Error(err)
 		return err
 	}
@@ -63,7 +63,7 @@ func (e *ElectricalConnection) RequestParameterDescription() error {
 
 // request FunctionTypeElectricalConnectionPermittedValueSetListData from a remote entity
 func (e *ElectricalConnection) RequestPermittedValueSet() (*model.MsgCounterType, error) {
-	msgCounter, err := e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
+	msgCounter, err := e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return nil, err

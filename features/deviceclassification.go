@@ -41,7 +41,7 @@ func NewDeviceClassification(localRole, remoteRole model.RoleType, spineLocalDev
 // request DeviceClassificationManufacturerData from a remote device entity
 func (d *DeviceClassification) RequestManufacturerDetailsForEntity() (*model.MsgCounterType, error) {
 	// request DeviceClassificationManufacturer from a remote entity
-	msgCounter, err := d.requestData(model.FunctionTypeDeviceClassificationManufacturerData)
+	msgCounter, err := d.requestData(model.FunctionTypeDeviceClassificationManufacturerData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return nil, err

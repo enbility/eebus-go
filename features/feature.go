@@ -64,7 +64,10 @@ func (f *FeatureImpl) Bind() error {
 }
 
 // helper method which adds checking if the feature is available and the operation is allowed
-func (f *FeatureImpl) requestData(function model.FunctionType) (*model.MsgCounterType, error) {
+// selectors and elements are used if specific data should be requested by using
+// model.FilterType DataSelectors (selectors) and/or DataElements (elements)
+// both should use the proper data types for the used function
+func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, elements any) (*model.MsgCounterType, error) {
 	if f.featureRemote == nil {
 		return nil, ErrDataNotAvailable
 	}
@@ -78,7 +81,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType) (*model.MsgCounte
 		return nil, ErrOperationOnFunctionNotSupported
 	}
 
-	msgCounter, fErr := f.featureLocal.RequestData(function, nil, nil, f.featureRemote)
+	msgCounter, fErr := f.featureLocal.RequestData(function, selectors, elements, f.featureRemote)
 	if fErr != nil {
 		logging.Log.Error(fErr.String())
 		return nil, errors.New(fErr.String())

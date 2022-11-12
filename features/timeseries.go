@@ -67,7 +67,7 @@ func NewTimeSeries(localRole, remoteRole model.RoleType, spineLocalDevice *spine
 
 // request FunctionTypeTimeSeriesDescriptionListData from a remote entity
 func (t *TimeSeries) RequestDescription() error {
-	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData)
+	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return err
@@ -78,7 +78,7 @@ func (t *TimeSeries) RequestDescription() error {
 
 // request FunctionTypeTimeSeriesConstraintsListData from a remote entity
 func (t *TimeSeries) RequestConstraints() error {
-	_, err := t.requestData(model.FunctionTypeTimeSeriesConstraintsListData)
+	_, err := t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return err
@@ -89,7 +89,7 @@ func (t *TimeSeries) RequestConstraints() error {
 
 // request FunctionTypeTimeSeriesListData from a remote device
 func (t *TimeSeries) Request() (*model.MsgCounterType, error) {
-	msgCounter, err := t.requestData(model.FunctionTypeTimeSeriesListData)
+	msgCounter, err := t.requestData(model.FunctionTypeTimeSeriesListData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return nil, err

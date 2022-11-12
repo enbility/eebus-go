@@ -25,7 +25,7 @@ func NewIncentiveTable(localRole, remoteRole model.RoleType, spineLocalDevice *s
 
 // request FunctionTypeIncentiveTableDescriptionData from a remote entity
 func (i *IncentiveTable) RequestDescription() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableDescriptionData)
+	_, err := i.requestData(model.FunctionTypeIncentiveTableDescriptionData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return err
@@ -36,7 +36,7 @@ func (i *IncentiveTable) RequestDescription() error {
 
 // request FunctionTypeIncentiveTableConstraintsData from a remote entity
 func (i *IncentiveTable) RequestConstraints() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableConstraintsData)
+	_, err := i.requestData(model.FunctionTypeIncentiveTableConstraintsData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return err
@@ -47,7 +47,7 @@ func (i *IncentiveTable) RequestConstraints() error {
 
 // request FunctionTypeIncentiveTableData from a remote entity
 func (i *IncentiveTable) RequestValues() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableData)
+	_, err := i.requestData(model.FunctionTypeIncentiveTableData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return err

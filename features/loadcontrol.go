@@ -36,7 +36,7 @@ func NewLoadControl(localRole, remoteRole model.RoleType, spineLocalDevice *spin
 
 // request FunctionTypeLoadControlLimitDescriptionListData from a remote device
 func (l *LoadControl) RequestLimitDescription() error {
-	if _, err := l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData); err != nil {
+	if _, err := l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData, nil, nil); err != nil {
 		logging.Log.Error(err)
 		return err
 	}
@@ -46,7 +46,7 @@ func (l *LoadControl) RequestLimitDescription() error {
 
 // request FunctionTypeLoadControlLimitConstraintsListData from a remote device
 func (l *LoadControl) RequestLimitConstraints() error {
-	if _, err := l.requestData(model.FunctionTypeLoadControlLimitConstraintsListData); err != nil {
+	if _, err := l.requestData(model.FunctionTypeLoadControlLimitConstraintsListData, nil, nil); err != nil {
 		logging.Log.Error(err)
 		return err
 	}
@@ -56,7 +56,7 @@ func (l *LoadControl) RequestLimitConstraints() error {
 
 // request FunctionTypeLoadControlLimitListData from a remote device
 func (l *LoadControl) RequestLimits() (*model.MsgCounterType, error) {
-	msgCounter, err := l.requestData(model.FunctionTypeLoadControlLimitListData)
+	msgCounter, err := l.requestData(model.FunctionTypeLoadControlLimitListData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return nil, err

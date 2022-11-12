@@ -41,7 +41,7 @@ func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevi
 // request DeviceConfiguration data from a remote entity
 func (d *DeviceConfiguration) Request() error {
 	// request DeviceConfigurationKeyValueDescriptionListData from a remote entity
-	if _, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData); err != nil {
+	if _, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil); err != nil {
 		logging.Log.Error(err)
 		return err
 	}
@@ -52,7 +52,7 @@ func (d *DeviceConfiguration) Request() error {
 // request DeviceConfigurationKeyValueListDataType from a remote entity
 func (d *DeviceConfiguration) RequestKeyValueList() (*model.MsgCounterType, error) {
 	// request FunctionTypeDeviceConfigurationKeyValueListData from a remote entity
-	msgCounter, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData)
+	msgCounter, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData, nil, nil)
 	if err != nil {
 		logging.Log.Error(err)
 		return nil, err
