@@ -78,7 +78,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType) (*model.MsgCounte
 		return nil, ErrOperationOnFunctionNotSupported
 	}
 
-	msgCounter, fErr := f.featureLocal.RequestData(function, f.featureRemote)
+	msgCounter, fErr := f.featureLocal.RequestData(function, nil, f.featureRemote)
 	if fErr != nil {
 		logging.Log.Error(fErr.String())
 		return nil, errors.New(fErr.String())

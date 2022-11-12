@@ -5,6 +5,7 @@ import "github.com/DerAndereAndi/eebus-go/util"
 type FilterEnumType string
 
 const (
+	FilterEnumTypeNone    FilterEnumType = "none"
 	FilterEnumTypePartial FilterEnumType = "partial"
 	FilterEnumTypeDelete  FilterEnumType = "delete"
 )

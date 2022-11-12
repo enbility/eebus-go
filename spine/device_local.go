@@ -252,7 +252,7 @@ func (r *DeviceLocalImpl) notifySubscribersOfEntity(entity *EntityLocalImpl, sta
 
 	cmd := model.CmdType{
 		Function: util.Ptr(model.FunctionTypeNodeManagementDetailedDiscoveryData),
-		Filter:   filterType(true),
+		Filter:   filterEmptyPartial(),
 		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{
 			SpecificationVersionList: &model.NodeManagementSpecificationVersionListType{
 				SpecificationVersion: []model.SpecificationVersionDataType{model.SpecificationVersionDataType(SpecificationVersion)},

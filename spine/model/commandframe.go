@@ -29,7 +29,7 @@ type FilterType struct {
 	DeviceConfigurationKeyValueConstraintsListDataSelectors   *DeviceConfigurationKeyValueConstraintsListDataSelectorsType   `json:"deviceConfigurationKeyValueConstraintsListDataSelectors,omitempty"`
 	DeviceConfigurationKeyValueDescriptionListDataSelectors   *DeviceConfigurationKeyValueDescriptionListDataSelectorsType   `json:"deviceConfigurationKeyValueDescriptionListDataSelectors,omitempty"`
 	DeviceConfigurationKeyValueListDataSelectors              *DeviceConfigurationKeyValueListDataSelectorsType              `json:"deviceConfigurationKeyValueListDataSelectors,omitempty"`
-	DirectControlActivityListDataSelectors                    *DirectControlActivityListDataType                             `json:"directControlActivityListDataSelectors,omitempty"`
+	DirectControlActivityListDataSelectors                    *DirectControlActivityListDataSelectorsType                    `json:"directControlActivityListDataSelectors,omitempty"`
 	ElectricalConnectionDescriptionListDataSelectors          *ElectricalConnectionDescriptionListDataSelectorsType          `json:"electricalConnectionDescriptionListDataSelectors,omitempty"`
 	ElectricalConnectionParameterDescriptionListDataSelectors *ElectricalConnectionParameterDescriptionListDataSelectorsType `json:"electricalConnectionParameterDescriptionListDataSelectors,omitempty"`
 	ElectricalConnectionPermittedValueSetListDataSelectors    *ElectricalConnectionPermittedValueSetListDataSelectorsType    `json:"electricalConnectionPermittedValueSetListDataSelectors,omitempty"`

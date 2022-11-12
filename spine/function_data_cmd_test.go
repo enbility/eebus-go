@@ -30,14 +30,14 @@ func (suite *FunctionDataCmdTestSuite) SetupSuite() {
 }
 
 func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_ReadCmd() {
-	readCmd := suite.sut.ReadCmdType()
+	readCmd := suite.sut.ReadCmdType(nil)
 	assert.NotNil(suite.T(), readCmd.DeviceClassificationManufacturerData)
 	assert.Nil(suite.T(), readCmd.DeviceClassificationManufacturerData.DeviceName)
 	// TODO: assert on json
 }
 
 func (suite *FunctionDataCmdTestSuite) TestFunctionDataCmd_ReplyCmd() {
-	readCmd := suite.sut.ReplyCmdType()
+	readCmd := suite.sut.ReplyCmdType(false)
 	assert.NotNil(suite.T(), readCmd.DeviceClassificationManufacturerData)
 	assert.Equal(suite.T(), suite.data.DeviceName, readCmd.DeviceClassificationManufacturerData.DeviceName)
 	// TODO: assert on json
