@@ -9,7 +9,18 @@ import (
 
 type EEBusTag string
 
-const EEBusTagFunction EEBusTag = "fct"
+const (
+	EEBusTagFunction EEBusTag = "fct"
+	EEBusTagType     EEBusTag = "typ"
+	EEBusTagKey      EEBusTag = "key"
+)
+
+type EEBusTagTypeType string
+
+const (
+	EEBusTagTypeTypeSelector EEBusTagTypeType = "selector"
+	EEbusTagTypeTypeElements EEBusTagTypeType = "elements"
+)
 
 const EEBusTagName string = "eebus"
 
@@ -21,10 +32,13 @@ func EEBusTags(field reflect.StructField) map[EEBusTag]string {
 	}
 	for _, tag := range strings.Split(tags, ",") {
 		pair := strings.Split(tag, ":")
-		if len(pair) != 2 {
-			logging.Log.Errorf("ERROR: Malformatted eebus tag: '%s'", tags)
-		} else {
+		if len(pair) == 1 {
+			// boolean tags like "key"
+			result[EEBusTag(pair[0])] = "true"
+		} else if len(pair) == 2 {
 			result[EEBusTag(pair[0])] = pair[1]
+		} else {
+			logging.Log.Errorf("ERROR: Malformatted eebus tag: '%s'", tags)
 		}
 	}
 

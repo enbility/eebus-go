@@ -1,7 +1,6 @@
 package model_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -10,127 +9,94 @@ import (
 )
 
 type TestUpdateData struct {
-	id       *int
-	dataItem int
+	Id       *uint `eebus:"key"`
+	DataItem *int
 }
-
-func (r TestUpdateData) HashKey() string {
-	if r.id != nil {
-		return fmt.Sprintf("%d", *r.id)
-	} else {
-		return ""
-	}
-}
-
-var _ model.UpdateDataProvider[TestUpdateData] = (*TestUpdater)(nil)
 
 type TestUpdater struct {
-	updateSelectorHashKey *string
-	deleteSelectorHashKey *string
-}
-
-func (r *TestUpdater) HasSelector(filterType model.FilterEnumType) bool {
-	switch filterType {
-	case model.FilterEnumTypePartial:
-		return r.updateSelectorHashKey != nil
-	case model.FilterEnumTypeDelete:
-		return r.deleteSelectorHashKey != nil
-	}
-
-	return false
-}
-
-func (r *TestUpdater) SelectorMatch(filterType model.FilterEnumType, item *TestUpdateData) bool {
-	if item != nil {
-		return false
-	}
-
-	switch filterType {
-	case model.FilterEnumTypePartial:
-		return r.updateSelectorHashKey != nil && item.HashKey() == *r.updateSelectorHashKey
-	case model.FilterEnumTypeDelete:
-		return r.deleteSelectorHashKey != nil && item.HashKey() == *r.deleteSelectorHashKey
-	}
-
-	return false
-}
-
-func (r *TestUpdater) Sort(item []TestUpdateData) []TestUpdateData {
-	return item
-}
-
-// determines if the identifiers of the passed item are set
-func (r *TestUpdater) HasIdentifier(item *TestUpdateData) bool {
-	return item.id != nil
-}
-
-// copies the data (not the identifiers) from the source to the destination item
-func (r *TestUpdater) CopyData(source *TestUpdateData, dest *TestUpdateData) {
-	dest.dataItem = source.dataItem
+	// updateSelectorHashKey *string
+	// deleteSelectorHashKey *string
 }
 
 func TestUpdateList_NewItem(t *testing.T) {
-	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}}
-	newData := []TestUpdateData{{id: util.Ptr(2), dataItem: 2}}
+	existingData := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(1))}}
+	newData := []TestUpdateData{{Id: util.Ptr(uint(2)), DataItem: util.Ptr(int(2))}}
 
-	dataProvider := &TestUpdater{}
-	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
+	expectedResult := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(1))}, {Id: util.Ptr(uint(2)), DataItem: util.Ptr(int(2))}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
+	result := model.UpdateList(existingData, newData, nil, nil)
 
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestUpdateList_ChangedItem(t *testing.T) {
-	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}}
-	newData := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}}
+	existingData := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(1))}}
+	newData := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(2))}}
 
-	dataProvider := &TestUpdater{}
-	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}}
+	expectedResult := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(2))}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
+	result := model.UpdateList(existingData, newData, nil, nil)
 
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestUpdateList_NewAndChangedItem(t *testing.T) {
-	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}}
-	newData := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}, {id: util.Ptr(3), dataItem: 3}}
+	existingData := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(1))}}
+	newData := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(2))}, {Id: util.Ptr(uint(3)), DataItem: util.Ptr(int(3))}}
 
-	dataProvider := &TestUpdater{}
-	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 2}, {id: util.Ptr(3), dataItem: 3}}
+	expectedResult := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(2))}, {Id: util.Ptr(uint(3)), DataItem: util.Ptr(int(3))}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
+	result := model.UpdateList(existingData, newData, nil, nil)
 
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestUpdateList_ItemWithNoIdentifier(t *testing.T) {
-	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
-	newData := []TestUpdateData{{dataItem: 3}}
+	existingData := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(1))}, {Id: util.Ptr(uint(2)), DataItem: util.Ptr(int(2))}}
+	newData := []TestUpdateData{{DataItem: util.Ptr(int(3))}}
 
-	dataProvider := &TestUpdater{}
-	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 3}, {id: util.Ptr(2), dataItem: 3}}
+	expectedResult := []TestUpdateData{{Id: util.Ptr(uint(1)), DataItem: util.Ptr(int(3))}, {Id: util.Ptr(uint(2)), DataItem: util.Ptr(int(3))}}
 
 	// Act
-	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
+	result := model.UpdateList(existingData, newData, nil, nil)
 
 	assert.Equal(t, expectedResult, result)
+}
+
+func TestRemoveFieldFromType(t *testing.T) {
+	items := &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(1)),
+				Value:   model.NewScaledNumberType(16.0),
+			},
+		},
+	}
+
+	elements := &model.LoadControlLimitDataElementsType{
+		Value: &model.ScaledNumberElementsType{},
+	}
+
+	model.RemoveElementFromItem(&items.LoadControlLimitData[0], elements)
+
+	var nilValue *model.ScaledNumberType
+
+	assert.Equal(t, nilValue, items.LoadControlLimitData[0].Value)
 }
 
 // TODO: Fix, as these tests won't work right now as TestUpdater doesn't use FilterProvider and its data structure
 /*
 func TestUpdateList_UpdateSelector(t *testing.T) {
-	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
-	newData := []TestUpdateData{{dataItem: 3}}
+	existingData := []TestUpdateData{{Id: util.Ptr(1), DataItem: 1}, {Id: util.Ptr(2), DataItem: 2}}
+	newData := []TestUpdateData{{DataItem: 3}}
 
 	dataProvider := &TestUpdater{
 		updateSelectorHashKey: util.Ptr("1"),
 	}
-	expectedResult := []TestUpdateData{{id: util.Ptr(1), dataItem: 3}, {id: util.Ptr(2), dataItem: 2}}
+	expectedResult := []TestUpdateData{{Id: util.Ptr(1), DataItem: 3}, {Id: util.Ptr(2), DataItem: 2}}
 
 	// Act
 	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)
@@ -139,13 +105,13 @@ func TestUpdateList_UpdateSelector(t *testing.T) {
 }
 
 func TestUpdateList_DeleteSelector(t *testing.T) {
-	existingData := []TestUpdateData{{id: util.Ptr(1), dataItem: 1}, {id: util.Ptr(2), dataItem: 2}}
-	newData := []TestUpdateData{{id: util.Ptr(0), dataItem: 0}}
+	existingData := []TestUpdateData{{Id: util.Ptr(1), DataItem: 1}, {Id: util.Ptr(2), DataItem: 2}}
+	newData := []TestUpdateData{{Id: util.Ptr(0), DataItem: 0}}
 
 	dataProvider := &TestUpdater{
 		deleteSelectorHashKey: util.Ptr("1"),
 	}
-	expectedResult := []TestUpdateData{{id: util.Ptr(2), dataItem: 2}}
+	expectedResult := []TestUpdateData{{Id: util.Ptr(2), DataItem: 2}}
 
 	// Act
 	result := model.UpdateList[TestUpdateData](existingData, newData, dataProvider)

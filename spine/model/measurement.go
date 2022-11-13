@@ -84,7 +84,7 @@ const (
 )
 
 type MeasurementDataType struct {
-	MeasurementId    *MeasurementIdType            `json:"measurementId,omitempty"`
+	MeasurementId    *MeasurementIdType            `json:"measurementId,omitempty" eebus:"key"`
 	ValueType        *MeasurementValueTypeType     `json:"valueType,omitempty"`
 	Timestamp        *string                       `json:"timestamp,omitempty"`
 	Value            *ScaledNumberType             `json:"value,omitempty"`
@@ -116,7 +116,7 @@ type MeasurementListDataSelectorsType struct {
 }
 
 type MeasurementConstraintsDataType struct {
-	MeasurementId *MeasurementIdType `json:"measurementId,omitempty"`
+	MeasurementId *MeasurementIdType `json:"measurementId,omitempty" eebus:"key"`
 	ValueRangeMin *ScaledNumberType  `json:"valueRangeMin,omitempty"`
 	ValueRangeMax *ScaledNumberType  `json:"valueRangeMax,omitempty"`
 	ValueStepSize *ScaledNumberType  `json:"valueStepSize,omitempty"`
@@ -138,7 +138,7 @@ type MeasurementConstraintsListDataSelectorsType struct {
 }
 
 type MeasurementDescriptionDataType struct {
-	MeasurementId    *MeasurementIdType     `json:"measurementId,omitempty"`
+	MeasurementId    *MeasurementIdType     `json:"measurementId,omitempty" eebus:"key"`
 	MeasurementType  *MeasurementTypeType   `json:"measurementType,omitempty"`
 	CommodityType    *CommodityTypeType     `json:"commodityType,omitempty"`
 	Unit             *UnitOfMeasurementType `json:"unit,omitempty"`

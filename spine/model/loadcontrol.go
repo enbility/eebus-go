@@ -102,7 +102,7 @@ type LoadControlStateListDataSelectorsType struct {
 }
 
 type LoadControlLimitDataType struct {
-	LimitId           *LoadControlLimitIdType `json:"limitId,omitempty"`
+	LimitId           *LoadControlLimitIdType `json:"limitId,omitempty" eebus:"key"`
 	IsLimitChangeable *bool                   `json:"isLimitChangeable,omitempty"`
 	IsLimitActive     *bool                   `json:"isLimitActive,omitempty"`
 	TimePeriod        *TimePeriodType         `json:"timePeriod,omitempty"`
@@ -126,7 +126,7 @@ type LoadControlLimitListDataSelectorsType struct {
 }
 
 type LoadControlLimitConstraintsDataType struct {
-	LimitId       *LoadControlLimitIdType `json:"limitId,omitempty"`
+	LimitId       *LoadControlLimitIdType `json:"limitId,omitempty" eebus:"key"`
 	ValueRangeMin *ScaledNumberType       `json:"valueRangeMin,omitempty"`
 	ValueRangeMax *ScaledNumberType       `json:"valueRangeMax,omitempty"`
 	ValueStepSize *ScaledNumberType       `json:"valueStepSize,omitempty"`
@@ -148,11 +148,11 @@ type LoadControlLimitConstraintsListDataSelectorsType struct {
 }
 
 type LoadControlLimitDescriptionDataType struct {
-	LimitId        *LoadControlLimitIdType   `json:"limitId,omitempty"`
+	LimitId        *LoadControlLimitIdType   `json:"limitId,omitempty" eebus:"key"`
 	LimitType      *LoadControlLimitTypeType `json:"limitType,omitempty"`
 	LimitCategory  *LoadControlCategoryType  `json:"limitCategory,omitempty"`
 	LimitDirection *EnergyDirectionType      `json:"limitDirection,omitempty"`
-	MeasurementId  *MeasurementIdType        `json:"measurementId,omitempty"`
+	MeasurementId  *MeasurementIdType        `json:"measurementId,omitempty" eebus:"key"`
 	Unit           *UnitOfMeasurementType    `json:"unit,omitempty"`
 	ScopeType      *ScopeTypeType            `json:"scopeType,omitempty"`
 	Label          *LabelType                `json:"label,omitempty"`
