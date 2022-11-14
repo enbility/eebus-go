@@ -89,7 +89,7 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 - [ ] Process partial data
   - [/] Delete Selectors
   - [/] Update Selectors
-  - [ ] Elements
+  - [/] Elements
 - [ ] Request types
   - [X] Read
     - [ ] Send
@@ -107,8 +107,8 @@ If no certfile or keyfile are provided, they are generated and printed in the co
       - [ ] Partial Delete
     - [ ] Receive
       - [X] Full Request
-      - [ ] Partial Request
-      - [ ] Partial Delete
+      - [/] Partial Request
+      - [/] Partial Delete
   - [X] Notify
     - [ ] Send
       - [X] Full Request
@@ -116,8 +116,8 @@ If no certfile or keyfile are provided, they are generated and printed in the co
       - [ ] Partial Delete
     - [ ] Receive
       - [X] Full Request
-      - [ ] Partial Request
-      - [ ] Partial Delete
+      - [/] Partial Request
+      - [/] Partial Delete
   - [X] Write
     - [ ] Send
       - [X] Full Request
@@ -125,8 +125,8 @@ If no certfile or keyfile are provided, they are generated and printed in the co
       - [ ] Partial Delete
     - [ ] Receive
       - [X] Full Request
-      - [ ] Partial Request
-      - [ ] Partial Delete
+      - [/] Partial Request
+      - [/] Partial Delete
 - [ ] Result message handling
   - [ ] Handle incoming error results
   - [X] Handle incoming success results
@@ -195,14 +195,14 @@ If no certfile or keyfile are provided, they are generated and printed in the co
       - [ ] Partial Request
     - [X] Receive
       - [X] Full Request
-      - [ ] Partial Request
+      - [/] Partial Request
   - [ ] Notify Messages
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
     - [X] Receive
       - [X] Full Request
-      - [ ] Partial Request
+      - [/] Partial Request
 
 ### General feature implementation
 
