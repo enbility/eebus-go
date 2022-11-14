@@ -13,7 +13,7 @@ const (
 type IdentificationValueType string
 
 type IdentificationDataType struct {
-	IdentificationId    *IdentificationIdType    `json:"identificationId,omitempty"`
+	IdentificationId    *IdentificationIdType    `json:"identificationId,omitempty" eebus:"key"`
 	IdentificationType  *IdentificationTypeType  `json:"identificationType,omitempty"`
 	IdentificationValue *IdentificationValueType `json:"identificationValue,omitempty"`
 	Authorized          *bool                    `json:"authorized,omitempty"`

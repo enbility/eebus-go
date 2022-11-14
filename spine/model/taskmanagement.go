@@ -75,7 +75,7 @@ type TaskManagementSmartEnergyManagementPsRelatedElementsType struct {
 }
 
 type TaskManagementJobDataType struct {
-	JobId         *TaskManagementJobIdType    `json:"jobId,omitempty"`
+	JobId         *TaskManagementJobIdType    `json:"jobId,omitempty" eebus:"key"`
 	Timestamp     *AbsoluteOrRelativeTimeType `json:"timestamp,omitempty"`
 	JobState      *TaskManagementJobStateType `json:"jobState,omitempty"`
 	ElapsedTime   *DurationType               `json:"elapsedTime,omitempty"`
@@ -100,7 +100,7 @@ type TaskManagementJobListDataSelectorsType struct {
 }
 
 type TaskManagementJobRelationDataType struct {
-	JobId                          *TaskManagementJobIdType                          `json:"jobId,omitempty"`
+	JobId                          *TaskManagementJobIdType                          `json:"jobId,omitempty" eebus:"key"`
 	DirectControlRelated           *TaskManagementDirectControlRelatedType           `json:"directControlRelated,omitempty"`
 	HvacRelated                    *TaskManagementHvacRelatedType                    `json:"hvacRelated,omitempty"`
 	LoadControlReleated            *TaskManagementLoadControlReleatedType            `json:"loadControlReleated,omitempty"`
@@ -126,7 +126,7 @@ type TaskManagementJobRelationListDataSelectorsType struct {
 }
 
 type TaskManagementJobDescriptionDataType struct {
-	JobId       *TaskManagementJobIdType     `json:"jobId,omitempty"`
+	JobId       *TaskManagementJobIdType     `json:"jobId,omitempty" eebus:"key"`
 	JobSource   *TaskManagementJobSourceType `json:"jobSource,omitempty"`
 	Label       *LabelType                   `json:"label,omitempty"`
 	Description *DescriptionType             `json:"description,omitempty"`

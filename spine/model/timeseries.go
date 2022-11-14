@@ -35,7 +35,7 @@ type TimeSeriesSlotElementsType struct {
 }
 
 type TimeSeriesDataType struct {
-	TimeSeriesId   *TimeSeriesIdType    `json:"timeSeriesId,omitempty"`
+	TimeSeriesId   *TimeSeriesIdType    `json:"timeSeriesId,omitempty" eebus:"key"`
 	TimePeriod     *TimePeriodType      `json:"timePeriod,omitempty"`
 	TimeSeriesSlot []TimeSeriesSlotType `json:"timeSeriesSlot"`
 }
@@ -56,11 +56,11 @@ type TimeSeriesListDataSelectorsType struct {
 }
 
 type TimeSeriesDescriptionDataType struct {
-	TimeSeriesId        *TimeSeriesIdType      `json:"timeSeriesId,omitempty"`
+	TimeSeriesId        *TimeSeriesIdType      `json:"timeSeriesId,omitempty" eebus:"key"`
 	TimeSeriesType      *TimeSeriesTypeType    `json:"timeSeriesType,omitempty"`
 	TimeSeriesWriteable *bool                  `json:"timeSeriesWriteable,omitempty"`
 	UpdateRequired      *bool                  `json:"updateRequired,omitempty"`
-	MeasurementId       *MeasurementIdType     `json:"measurementId,omitempty"`
+	MeasurementId       *MeasurementIdType     `json:"measurementId,omitempty" eebus:"key"`
 	Currency            *CurrencyType          `json:"currency,omitempty"`
 	Unit                *UnitOfMeasurementType `json:"unit,omitempty"`
 	Label               *LabelType             `json:"label,omitempty"`
@@ -93,7 +93,7 @@ type TimeSeriesDescriptionListDataSelectorsType struct {
 }
 
 type TimeSeriesConstraintsDataType struct {
-	TimeSeriesId                *TimeSeriesIdType           `json:"timeSeriesId,omitempty"`
+	TimeSeriesId                *TimeSeriesIdType           `json:"timeSeriesId,omitempty" eebus:"key"`
 	SlotCountMin                *TimeSeriesSlotCountType    `json:"slotCountMin,omitempty"`
 	SlotCountMax                *TimeSeriesSlotCountType    `json:"slotCountMax,omitempty"`
 	SlotDurationMin             *DurationType               `json:"slotDurationMin,omitempty"`

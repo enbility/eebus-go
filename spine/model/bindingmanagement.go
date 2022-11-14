@@ -3,7 +3,7 @@ package model
 type BindingIdType uint
 
 type BindingManagementEntryDataType struct {
-	BindingId     *BindingIdType      `json:"bindingId,omitempty"`
+	BindingId     *BindingIdType      `json:"bindingId,omitempty" eebus:"key"`
 	ClientAddress *FeatureAddressType `json:"clientAddress,omitempty"`
 	ServerAddress *FeatureAddressType `json:"serverAddress,omitempty"`
 	Label         *LabelType          `json:"label,omitempty"`

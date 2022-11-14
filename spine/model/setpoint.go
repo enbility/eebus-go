@@ -10,7 +10,7 @@ const (
 )
 
 type SetpointDataType struct {
-	SetpointId               *SetpointIdType   `json:"setpointId,omitempty"`
+	SetpointId               *SetpointIdType   `json:"setpointId,omitempty" eebus:"key"`
 	Value                    *ScaledNumberType `json:"value,omitempty"`
 	ValueMin                 *ScaledNumberType `json:"valueMin,omitempty"`
 	ValueMax                 *ScaledNumberType `json:"valueMax,omitempty"`
@@ -36,7 +36,7 @@ type SetpointListDataSelectorsType struct {
 }
 
 type SetpointConstraintsDataType struct {
-	SetpointId       *SetpointIdType   `json:"setpointId,omitempty"`
+	SetpointId       *SetpointIdType   `json:"setpointId,omitempty" eebus:"key"`
 	SetpointRangeMin *ScaledNumberType `json:"setpointRangeMin,omitempty"`
 	SetpointRangeMax *ScaledNumberType `json:"setpointRangeMax,omitempty"`
 	SetpointStepSize *ScaledNumberType `json:"setpointStepSize,omitempty"`
@@ -58,9 +58,9 @@ type SetpointConstraintsListDataSelectorsType struct {
 }
 
 type SetpointDescriptionDataType struct {
-	SetpointId    *SetpointIdType   `json:"setpointId,omitempty"`
-	MeasurementId *SetpointIdType   `json:"measurementId,omitempty"`
-	TimeTableId   *SetpointIdType   `json:"timeTableId,omitempty"`
+	SetpointId    *SetpointIdType   `json:"setpointId,omitempty" eebus:"key"`
+	MeasurementId *SetpointIdType   `json:"measurementId,omitempty" eebus:"key"`
+	TimeTableId   *SetpointIdType   `json:"timeTableId,omitempty" eebus:"key"`
 	SetpointType  *SetpointTypeType `json:"setpointType,omitempty"`
 	Unit          *ScaledNumberType `json:"unit,omitempty"`
 	ScopeType     *ScaledNumberType `json:"scopeType,omitempty"`

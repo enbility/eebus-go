@@ -171,7 +171,7 @@ type MeasurementDescriptionListDataSelectorsType struct {
 }
 
 type MeasurementThresholdRelationDataType struct {
-	MeasurementId *MeasurementIdType `json:"measurementId,omitempty"`
+	MeasurementId *MeasurementIdType `json:"measurementId,omitempty" eebus:"key"`
 	ThresholdId   []ThresholdIdType  `json:"thresholdId,omitempty"`
 }
 

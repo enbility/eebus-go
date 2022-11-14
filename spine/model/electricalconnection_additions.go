@@ -1,5 +1,18 @@
 package model
 
+// ElectricalConnectionStateListDataType
+
+var _ Updater = (*ElectricalConnectionStateListDataType)(nil)
+
+func (r *ElectricalConnectionStateListDataType) UpdateList(newList any, filterPartial, filterDelete *FilterType) {
+	var newData []ElectricalConnectionStateDataType
+	if newList != nil {
+		newData = newList.(*ElectricalConnectionStateListDataType).ElectricalConnectionStateData
+	}
+
+	r.ElectricalConnectionStateData = UpdateList(r.ElectricalConnectionStateData, newData, filterPartial, filterDelete)
+}
+
 // ElectricalConnectionPermittedValueSetListDataType
 
 var _ Updater = (*ElectricalConnectionPermittedValueSetListDataType)(nil)

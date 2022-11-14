@@ -58,7 +58,7 @@ type ThresholdConstraintsListDataSelectorsType struct {
 }
 
 type ThresholdDescriptionDataType struct {
-	ThresholdId   *ThresholdIdType       `json:"thresholdId,omitempty"`
+	ThresholdId   *ThresholdIdType       `json:"thresholdId,omitempty" eebus:"key"`
 	ThresholdType *ThresholdTypeType     `json:"thresholdType,omitempty"`
 	Unit          *UnitOfMeasurementType `json:"unit,omitempty"`
 	ScopeType     *ScopeTypeType         `json:"scopeType,omitempty"`
