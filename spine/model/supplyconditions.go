@@ -103,7 +103,7 @@ type SupplyConditionThresholdRelationDataElementsType struct {
 }
 
 type SupplyConditionThresholdRelationListDataType struct {
-	SupplyConditionThresholdRelationData []SupplyConditionDescriptionDataType `json:"SupplyConditionThresholdRelationDataType,omitempty"`
+	SupplyConditionThresholdRelationData []SupplyConditionThresholdRelationDataType `json:"SupplyConditionThresholdRelationDataType,omitempty"`
 }
 
 type SupplyConditionThresholdRelationListDataSelectorsType struct {

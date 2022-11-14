@@ -61,7 +61,7 @@ type SetpointDescriptionDataType struct {
 	SetpointId    *SetpointIdType   `json:"setpointId,omitempty"`
 	MeasurementId *SetpointIdType   `json:"measurementId,omitempty"`
 	TimeTableId   *SetpointIdType   `json:"timeTableId,omitempty"`
-	SetpointType  *SetpointIdType   `json:"setpointType,omitempty"`
+	SetpointType  *SetpointTypeType `json:"setpointType,omitempty"`
 	Unit          *ScaledNumberType `json:"unit,omitempty"`
 	ScopeType     *ScaledNumberType `json:"scopeType,omitempty"`
 	Label         *ScaledNumberType `json:"label,omitempty"`

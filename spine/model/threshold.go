@@ -50,7 +50,7 @@ type ThresholdConstraintsDataElementsType struct {
 }
 
 type ThresholdConstraintsListDataType struct {
-	ThresholdConstraintsData *[]ThresholdConstraintsDataType `json:"thresholdConstraintsData,omitempty"`
+	ThresholdConstraintsData []ThresholdConstraintsDataType `json:"thresholdConstraintsData,omitempty"`
 }
 
 type ThresholdConstraintsListDataSelectorsType struct {

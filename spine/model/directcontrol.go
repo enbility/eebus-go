@@ -35,7 +35,7 @@ type DirectControlActivityDataElementsType struct {
 }
 
 type DirectControlActivityListDataType struct {
-	DirectControlActivityDataElements []DirectControlActivityDataElementsType `json:"directControlActivityDataElements,omitempty"`
+	DirectControlActivityDataElements []DirectControlActivityDataType `json:"directControlActivityDataElements,omitempty"`
 }
 
 type DirectControlActivityListDataSelectorsType struct {
