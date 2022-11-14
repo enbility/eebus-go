@@ -42,7 +42,7 @@ func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.Filter
 		return nil
 	}
 
-	supported := util.Implements[T, model.UpdaterFactory[T]]()
+	supported := util.Implements[T, model.Updater]()
 	if !supported {
 		return NewErrorTypeFromString(fmt.Sprintf("partial updates are not supported for type '%s'", util.Type[T]().Name()))
 	}
@@ -51,8 +51,9 @@ func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.Filter
 		r.data = new(T)
 	}
 
-	updater := any(r.data).(model.UpdaterFactory[T])
-	updater.NewUpdater(newData, filterPartial, filterDelete).DoUpdate()
+	updater := any(r.data).(model.Updater)
+	updater.UpdateList(newData, filterPartial, filterDelete)
+
 	return nil
 }
 

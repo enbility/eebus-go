@@ -7,28 +7,8 @@ import (
 	"github.com/DerAndereAndi/eebus-go/util"
 )
 
-type FilterEnumType string
-
-const (
-	FilterEnumTypeNone    FilterEnumType = "none"
-	FilterEnumTypePartial FilterEnumType = "partial"
-	FilterEnumTypeDelete  FilterEnumType = "delete"
-)
-
-// Helper for easier handling of filters
-type FilterProvider struct {
-	filterPartial *FilterType
-	filterDelete  *FilterType
-}
-
 type Updater interface {
-	DoUpdate()
-}
-
-// interface which needs to be implemented by the model function type like 'ElectricalConnectionPermittedValueSetListDataType'
-// so that partial updates of the function data is supported
-type UpdaterFactory[T any] interface {
-	NewUpdater(s *T, filterPartial *FilterType, filterDelete *FilterType) Updater
+	UpdateList(newList any, filterPartial, filterDelete *FilterType)
 }
 
 // Generates a new list of function items by applying the rules mentioned in the spec

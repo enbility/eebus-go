@@ -131,7 +131,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify(t *test
 	}
 
 	// Act
-	sut.NewUpdater(&newData, model.NewFilterTypePartial(), nil).DoUpdate()
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
 
 	// check the non changing items
 	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
@@ -253,7 +253,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify_Selecto
 	}
 
 	// Act
-	sut.NewUpdater(&newData, partial, nil).DoUpdate()
+	sut.UpdateList(&newData, partial, nil)
 
 	// check the non changing items
 	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
@@ -415,7 +415,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Modify(
 	}
 
 	// Act
-	sut.NewUpdater(&newData, model.NewFilterTypePartial(), delete).DoUpdate()
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), delete)
 
 	// check the deleted item is gone
 	assert.Equal(t, 3, len(sut.ElectricalConnectionPermittedValueSetData))
@@ -510,7 +510,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete(t *test
 	}
 
 	// Act
-	sut.NewUpdater(nil, nil, delete).DoUpdate()
+	sut.UpdateList(nil, nil, delete)
 
 	// check the deleted item is added again
 	assert.Equal(t, 3, len(sut.ElectricalConnectionPermittedValueSetData))
@@ -608,7 +608,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Element
 	}
 
 	// Act
-	sut.NewUpdater(nil, nil, delete).DoUpdate()
+	sut.UpdateList(nil, nil, delete)
 
 	// check no items are deleted
 	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
@@ -776,7 +776,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Add(t *
 	}
 
 	// Act
-	sut.NewUpdater(&newData, model.NewFilterTypePartial(), delete).DoUpdate()
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), delete)
 
 	// check the deleted item is added again
 	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
@@ -857,7 +857,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_NewItem(t *tes
 	}
 
 	// Act
-	sut.NewUpdater(&newData, model.NewFilterTypePartial(), nil).DoUpdate()
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
 
 	// new item should be added
 	if assert.Equal(t, 2, len(sut.ElectricalConnectionPermittedValueSetData)) {
@@ -939,7 +939,7 @@ func TestElectricalConnectionPermittedValueSetListDataType_UpdateWithoutIdenifie
 	}
 
 	// Act
-	sut.NewUpdater(&newData, model.NewFilterTypePartial(), nil).DoUpdate()
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
 
 	// the new item should not be added
 	if assert.Equal(t, 2, len(sut.ElectricalConnectionPermittedValueSetData)) {
