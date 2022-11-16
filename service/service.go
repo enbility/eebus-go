@@ -95,8 +95,8 @@ type ServiceDescription struct {
 // Setup a ServiceDescription with the required parameters
 func NewServiceDescription(
 	vendorCode,
-	brand,
-	model,
+	deviceBrand,
+	deviceModel,
 	serialNumber string,
 	deviceType model.DeviceTypeType,
 	port int,
@@ -114,15 +114,15 @@ func NewServiceDescription(
 	} else {
 		serviceDescription.VendorCode = vendorCode
 	}
-	if len(brand) == 0 {
+	if len(deviceBrand) == 0 {
 		return nil, fmt.Errorf("brand %s", isRequired)
 	} else {
-		serviceDescription.Brand = brand
+		serviceDescription.Brand = deviceBrand
 	}
-	if len(model) == 0 {
+	if len(deviceModel) == 0 {
 		return nil, fmt.Errorf("model %s", isRequired)
 	} else {
-		serviceDescription.Model = model
+		serviceDescription.Model = deviceModel
 	}
 	if len(serialNumber) == 0 {
 		return nil, fmt.Errorf("serialNumber %s", isRequired)
@@ -134,6 +134,9 @@ func NewServiceDescription(
 	} else {
 		serviceDescription.DeviceType = deviceType
 	}
+
+	// set default
+	serviceDescription.FeatureSet = model.NetworkManagementFeatureSetTypeSmart
 
 	return serviceDescription, nil
 }
