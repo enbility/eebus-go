@@ -87,11 +87,6 @@ func (h *connectionsHub) start() {
 	if err := h.mdns.Announce(); err != nil {
 		logging.Log.Error("Error registering mDNS Service:", err)
 	}
-
-	// Automatically search and connect to services with the same setting
-	if h.serviceDescription.RegisterAutoAccept {
-		h.mdns.RegisterMdnsSearch(h)
-	}
 }
 
 // handle (dis-)connecting remote services

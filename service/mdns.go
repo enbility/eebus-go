@@ -267,7 +267,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 
 	// may this is already found
 	for _, cb := range m.searchDelegates {
-		cb.ReportMdnsEntries(m.entries)
+		go cb.ReportMdnsEntries(m.entries)
 	}
 }
 
@@ -520,6 +520,6 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 	}
 
 	for _, cb := range m.searchDelegates {
-		cb.ReportMdnsEntries(m.entries)
+		go cb.ReportMdnsEntries(m.entries)
 	}
 }
