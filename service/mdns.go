@@ -257,6 +257,17 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	if !m.isSearchingServices {
 		logging.Log.Debug("mDNS: Start search")
 		go m.resolveEntries()
+		return
+	}
+
+	// do we already know some entries?
+	if len(m.entries) == 0 {
+		return
+	}
+
+	// may this is already found
+	for _, cb := range m.searchDelegates {
+		cb.ReportMdnsEntries(m.entries)
 	}
 }
 
