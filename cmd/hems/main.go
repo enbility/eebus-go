@@ -21,27 +21,9 @@ type hems struct {
 }
 
 func (h *hems) run() {
-
-	serviceDescription := &service.ServiceDescription{
-		Brand:        "Demo",
-		Model:        "HEMS",
-		SerialNumber: "123456789",
-		Identifier:   "Demo-HEMS-123456789",
-		DeviceType:   model.DeviceTypeTypeEnergyManagementSystem,
-	}
-
-	h.myService = service.NewEEBUSService(serviceDescription, h)
-	h.myService.SetLogging(h)
-
 	var err error
 	var certificate tls.Certificate
 	var remoteSki string
-
-	serviceDescription.Port, err = strconv.Atoi(os.Args[1])
-	if err != nil {
-		usage()
-		log.Fatal(err)
-	}
 
 	if len(os.Args) == 5 {
 		remoteSki = os.Args[2]
@@ -70,6 +52,22 @@ func (h *hems) run() {
 		pemdata = pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: b})
 		fmt.Println(string(pemdata))
 	}
+
+	port, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		usage()
+		log.Fatal(err)
+	}
+
+	serviceDescription, err := service.NewServiceDescription(
+		"Demo", "Demo", "HEMS", "123456789", "Demo-HEMS-123456789",
+		model.DeviceTypeTypeEnergyManagementSystem, port, certificate)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	h.myService = service.NewEEBUSService(serviceDescription, h)
+	h.myService.SetLogging(h)
 
 	serviceDescription.Certificate = certificate
 

@@ -68,7 +68,8 @@ type ServiceDescription struct {
 	// Used for mDNS txt record: SHIP - Specification 7.3.2
 	DeviceType model.DeviceTypeType
 
-	// SPINE device network feature set type, required
+	// SPINE device network feature set type, optional
+	// SPINE Protocol Specification 6
 	FeatureSet model.NetworkManagementFeatureSetType
 
 	// Network interface to use for the service
@@ -91,6 +92,7 @@ type ServiceDescription struct {
 	RegisterAutoAccept bool
 }
 
+// Setup a ServiceDescription with the required parameters
 func NewServiceDescription(
 	vendorCode,
 	brand,
@@ -98,17 +100,12 @@ func NewServiceDescription(
 	serialNumber,
 	alternateIdentifier string,
 	deviceType model.DeviceTypeType,
-	featureSet model.NetworkManagementFeatureSetType,
-	interfaces []string,
 	port int,
 	certificate tls.Certificate,
-	registerAutoAccept bool,
 ) (*ServiceDescription, error) {
 	serviceDescription := &ServiceDescription{
-		Interfaces:         interfaces,
-		Certificate:        certificate,
-		Port:               port,
-		RegisterAutoAccept: registerAutoAccept,
+		Certificate: certificate,
+		Port:        port,
 	}
 
 	isRequired := "is required"
@@ -137,11 +134,6 @@ func NewServiceDescription(
 		return nil, fmt.Errorf("deviceType %s", isRequired)
 	} else {
 		serviceDescription.DeviceType = deviceType
-	}
-	if len(featureSet) == 0 {
-		return nil, fmt.Errorf("featureSet %s", isRequired)
-	} else {
-		serviceDescription.FeatureSet = featureSet
 	}
 
 	return serviceDescription, nil

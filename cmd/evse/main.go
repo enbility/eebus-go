@@ -21,29 +21,10 @@ type evse struct {
 }
 
 func (h *evse) run() {
-
-	serviceDescription := &service.ServiceDescription{
-		Brand:        "Demo",
-		Model:        "EVSE",
-		SerialNumber: "234567890",
-		Identifier:   "Demo-EVSE-234567890",
-		DeviceType:   model.DeviceTypeTypeChargingStation,
-	}
-
-	h.myService = service.NewEEBUSService(serviceDescription, h)
-	h.myService.SetLogging(h)
-
 	var err error
 	var certificate tls.Certificate
 	var remoteSki string
 
-	serviceDescription.Port, err = strconv.Atoi(os.Args[1])
-	if err != nil {
-		usage()
-		log.Fatal(err)
-	}
-
-	fmt.Println(os.Args)
 	if len(os.Args) == 5 {
 		remoteSki = os.Args[2]
 
@@ -72,7 +53,21 @@ func (h *evse) run() {
 		fmt.Println(string(pemdata))
 	}
 
-	serviceDescription.Certificate = certificate
+	port, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		usage()
+		log.Fatal(err)
+	}
+
+	serviceDescription, err := service.NewServiceDescription(
+		"Demo", "Demo", "EVSE", "234567890", "Demo-EVSE-234567890",
+		model.DeviceTypeTypeChargingStation, port, certificate)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	h.myService = service.NewEEBUSService(serviceDescription, h)
+	h.myService.SetLogging(h)
 
 	if err = h.myService.Setup(); err != nil {
 		fmt.Println(err)
