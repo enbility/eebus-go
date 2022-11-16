@@ -60,11 +60,12 @@ func (h *evse) run() {
 	}
 
 	serviceDescription, err := service.NewServiceDescription(
-		"Demo", "Demo", "EVSE", "234567890", "Demo-EVSE-234567890",
+		"Demo", "Demo", "EVSE", "234567890",
 		model.DeviceTypeTypeChargingStation, port, certificate)
 	if err != nil {
 		log.Fatal(err)
 	}
+	serviceDescription.AlternateIdentifier = "Demo-EVSE-234567890"
 
 	h.myService = service.NewEEBUSService(serviceDescription, h)
 	h.myService.SetLogging(h)
