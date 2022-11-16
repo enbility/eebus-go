@@ -124,7 +124,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 }
 
 func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *spine.FeatureLocalImpl {
-	localDevice := spine.NewDeviceLocalImpl("Vendor", "DeviceName", "DeviceCode", "SerialNumber", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	localDevice := spine.NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
 	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
 	localDevice.AddEntity(localEntity)
 	localFeature := spine.NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)

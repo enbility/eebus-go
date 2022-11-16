@@ -30,8 +30,8 @@ func (s *ElectricalConnectionSuite) SetupSuite() {
 }
 
 func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
-	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestDeviceCode",
-		"TestSerialNumber", "TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
 	localEntity := spine.NewEntityLocalImpl(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 	s.sut.AddEntity(localEntity)
 	f := spine.NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)

@@ -25,7 +25,12 @@ type DeviceLocalImpl struct {
 	serialNumber string
 }
 
-func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, deviceAddress string, deviceType model.DeviceTypeType, featureSet model.NetworkManagementFeatureSetType) *DeviceLocalImpl {
+// BrandName is the brand
+// DeviceModel is the model
+// SerialNumber is the serial number
+// DeviceCode is the SHIP id (accessMethods.id)
+// DeviceAddress is the SPINE device address
+func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, deviceAddress string, deviceType model.DeviceTypeType, featureSet model.NetworkManagementFeatureSetType) *DeviceLocalImpl {
 	address := model.AddressDeviceType(deviceAddress)
 
 	var fSet *model.NetworkManagementFeatureSetType
@@ -40,8 +45,8 @@ func NewDeviceLocalImpl(brandName, deviceModel, deviceCode, serialNumber, device
 		remoteDevices:       make(map[string]*DeviceRemoteImpl),
 		brandName:           brandName,
 		deviceModel:         deviceModel,
-		deviceCode:          deviceCode,
 		serialNumber:        serialNumber,
+		deviceCode:          deviceCode,
 	}
 
 	res.addDeviceInformation()

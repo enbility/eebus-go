@@ -39,27 +39,37 @@ type ServiceDetails struct {
 }
 
 type ServiceDescription struct {
+	// The vendors IANA PEN, optional but highly recommended.
+	// If not set, brand will be used instead
+	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
+	VendorCode string
+
 	// The brand of the device, required
+	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
+	// Used for mDNS txt record: SHIP - Specification 7.3.2
 	Brand string
 
 	// The device model, required
+	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
+	// Used for mDNS txt record: SHIP - Specification 7.3.2
 	Model string
 
-	// The EEBUS device type of the device model, required
-	DeviceType model.DeviceTypeType
-
-	// The EEBUS device network feature set type, required
-	FeatureSet model.NetworkManagementFeatureSetType
-
 	// Serial number of the device, required
+	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
 	SerialNumber string
 
-	// The mDNS service identifier, will also be used as SHIP ID
+	// An alternate mDNS service identifier
 	// Optional, if not set will be  generated using "Brand-Model-SerialNumber"
-	Identifier string
+	// Used for mDNS service identifier: SHIP - Specification 7.2
+	AlternateIdentifier string
 
-	// The vendors IANA PEN, optional
-	VendorCode string
+	// SPINE device type of the device model, required
+	// Used for SPINE device type
+	// Used for mDNS txt record: SHIP - Specification 7.3.2
+	DeviceType model.DeviceTypeType
+
+	// SPINE device network feature set type, required
+	FeatureSet model.NetworkManagementFeatureSetType
 
 	// Network interface to use for the service
 	// Optional, if not set all detected interfaces will be used
@@ -76,7 +86,65 @@ type ServiceDescription struct {
 	// the same setting and automatically connect to them.
 	// Has to be set on configuring the service!
 	// TODO: if disabled, user verification needs to be implemented and supported
+	// the spec defines that this should have a timeout and be activate
+	// e.g via a physical button
 	RegisterAutoAccept bool
+}
+
+func NewServiceDescription(
+	vendorCode,
+	brand,
+	model,
+	serialNumber,
+	alternateIdentifier string,
+	deviceType model.DeviceTypeType,
+	featureSet model.NetworkManagementFeatureSetType,
+	interfaces []string,
+	port int,
+	certificate tls.Certificate,
+	registerAutoAccept bool,
+) (*ServiceDescription, error) {
+	serviceDescription := &ServiceDescription{
+		Interfaces:         interfaces,
+		Certificate:        certificate,
+		Port:               port,
+		RegisterAutoAccept: registerAutoAccept,
+	}
+
+	isRequired := "is required"
+
+	if len(vendorCode) == 0 {
+		return nil, fmt.Errorf("vendorCode %s", isRequired)
+	} else {
+		serviceDescription.VendorCode = vendorCode
+	}
+	if len(brand) == 0 {
+		return nil, fmt.Errorf("brand %s", isRequired)
+	} else {
+		serviceDescription.Brand = brand
+	}
+	if len(model) == 0 {
+		return nil, fmt.Errorf("model %s", isRequired)
+	} else {
+		serviceDescription.Model = model
+	}
+	if len(serialNumber) == 0 {
+		return nil, fmt.Errorf("serialNumber %s", isRequired)
+	} else {
+		serviceDescription.SerialNumber = serialNumber
+	}
+	if len(deviceType) == 0 {
+		return nil, fmt.Errorf("deviceType %s", isRequired)
+	} else {
+		serviceDescription.DeviceType = deviceType
+	}
+	if len(featureSet) == 0 {
+		return nil, fmt.Errorf("featureSet %s", isRequired)
+	} else {
+		serviceDescription.FeatureSet = featureSet
+	}
+
+	return serviceDescription, nil
 }
 
 type EEBUSServiceDelegate interface {
@@ -148,9 +216,16 @@ func (s *EEBUSService) Setup() error {
 		return err
 	}
 
+	// SHIP identifier is identical to the mDNS ID
+	// Brand-Model-SerialNumber or AlternateIdentifier
+	shipID := fmt.Sprintf("%s-%s-%s", sd.Brand, sd.Model, sd.SerialNumber)
+	if len(sd.AlternateIdentifier) > 0 {
+		shipID = sd.AlternateIdentifier
+	}
+
 	s.LocalService = &ServiceDetails{
 		SKI:                ski,
-		ShipID:             sd.Identifier,
+		ShipID:             shipID,
 		deviceType:         sd.DeviceType,
 		registerAutoAccept: sd.RegisterAutoAccept,
 	}
@@ -162,15 +237,20 @@ func (s *EEBUSService) Setup() error {
 		vendor = sd.Brand
 	}
 
+	serial := sd.SerialNumber
+	if serial != "" {
+		serial = fmt.Sprintf("-%s", serial)
+	}
+
 	// Create the SPINE device address, according to Protocol Specification 7.1.1.2
-	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s-%s", vendor, sd.Brand, sd.Model, sd.SerialNumber)
+	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s", vendor, sd.Model, serial)
 
 	// Create the local SPINE device
 	s.spineLocalDevice = spine.NewDeviceLocalImpl(
 		sd.Brand,
 		sd.Model,
-		sd.Identifier,
 		sd.SerialNumber,
+		shipID,
 		deviceAdress,
 		sd.DeviceType,
 		sd.FeatureSet,

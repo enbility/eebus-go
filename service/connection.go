@@ -272,11 +272,11 @@ func (c *ConnectionHandler) readShipPump() {
 
 			message, err := c.readWebsocketMessage()
 			if err != nil {
-				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					logging.Log.Error(c.remoteService.SKI, "Error reading message: ", err)
-				}
-
 				if c.isConnClosed() {
+					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+						logging.Log.Error(c.remoteService.SKI, "Error reading message: ", err)
+					}
+
 					return
 				}
 
@@ -412,7 +412,7 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 		return err
 	}
 
-	logging.Log.Trace("Send: ", c.remoteService.SKI, string(eebusMsg))
+	logging.Log.Trace("Send:", c.remoteService.SKI, string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{ship.MsgTypeData}
@@ -439,7 +439,7 @@ func (c *ConnectionHandler) sendShipModel(typ byte, model interface{}) error {
 		return err
 	}
 
-	logging.Log.Trace("Send: ", c.remoteService.SKI, string(eebusMsg))
+	logging.Log.Trace("Send:", c.remoteService.SKI, string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{typ}
@@ -463,7 +463,7 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	msg = msg[1:]
 
 	if len(msg) > 1 {
-		logging.Log.Trace("Recv: ", c.remoteService.SKI, string(msg))
+		logging.Log.Trace("Recv:", c.remoteService.SKI, string(msg))
 	}
 
 	if jsonFormat {

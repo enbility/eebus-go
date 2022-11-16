@@ -147,8 +147,8 @@ func (m *mdns) Announce() error {
 	}
 
 	serviceIdentifier := fmt.Sprintf("%s-%s-%s", m.serviceDescription.Brand, m.serviceDescription.Model, m.serviceDescription.SerialNumber)
-	if len(m.serviceDescription.Identifier) > 0 {
-		serviceIdentifier = m.serviceDescription.Identifier
+	if len(m.serviceDescription.AlternateIdentifier) > 0 {
+		serviceIdentifier = m.serviceDescription.AlternateIdentifier
 	}
 
 	txt := []string{ // SHIP 7.3.2
@@ -468,6 +468,9 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 	if _, ok := elements["model"]; ok {
 		model = elements["model"]
 	}
+
+	m.mux.Lock()
+	defer m.mux.Unlock()
 
 	_, exists := m.entries[ski]
 

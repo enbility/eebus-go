@@ -45,8 +45,9 @@ type connectionsHub struct {
 
 	connectionDelegate ConnectionHandlerDelegate
 
-	muxCon sync.Mutex
-	muxReg sync.Mutex
+	muxCon  sync.Mutex
+	muxReg  sync.Mutex
+	muxMdns sync.Mutex
 }
 
 func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) (*connectionsHub, error) {
@@ -260,7 +261,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check if the remote service is paired
 	_, err = h.registeredServiceForSKI(ski)
 	if err != nil {
-		logging.Log.Debug("ski is not registered, closing the connection")
+		logging.Log.Debug("ski", ski, "is not registered, closing the connection")
 		return
 	}
 
@@ -431,6 +432,8 @@ func (h *connectionsHub) unregisterRemoteService(ski string) error {
 
 // Process reported mDNS services
 func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
+	h.muxMdns.Lock()
+	defer h.muxMdns.Unlock()
 	for ski, entry := range entries {
 		// check if this ski is already connected
 		if h.isSkiConnected(ski) {

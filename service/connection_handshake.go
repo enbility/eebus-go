@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/ship"
 )
 
@@ -535,6 +536,9 @@ func (c *ConnectionHandler) readNextShipMessage(duration time.Duration) ([]byte,
 		return nil, trust, nil
 	case msg := <-c.shipReadChannel:
 		timeout.Stop()
+		if len(msg) > 1 {
+			logging.Log.Trace("Recv:", c.remoteService.SKI, string(msg[1:]))
+		}
 		return msg, false, nil
 	}
 }

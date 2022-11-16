@@ -38,8 +38,8 @@ func (s *NodeManagementSuite) SetupSuite() {
 }
 
 func (s *NodeManagementSuite) BeforeTest(suiteName, testName string) {
-	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestDeviceCode",
-		"TestSerialNumber", "TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
 	s.remoteSki = "TestRemoteSki"
 
 	s.readC = make(chan []byte, 1)
