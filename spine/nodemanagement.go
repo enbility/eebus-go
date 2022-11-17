@@ -54,7 +54,7 @@ func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 	switch {
 	case message.Cmd.ResultData != nil:
 		if err := r.processResult(message); err != nil {
-			_ = r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference)
+			_ = r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference)
 			return err
 		}
 

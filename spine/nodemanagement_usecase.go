@@ -8,12 +8,12 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
-func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
+func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceSki string, remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
 	cmd := model.CmdType{
 		NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{},
 	}
-	return r.RequestDataBySenderAddress(cmd, sender, rfAdress, defaultMaxResponseDelay)
+	return r.RequestDataBySenderAddress(cmd, sender, remoteDeviceSki, rfAdress, defaultMaxResponseDelay)
 }
 
 func (r *NodeManagementImpl) processReadUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
@@ -83,7 +83,7 @@ func (r *NodeManagementImpl) handleMsgUseCaseData(message *Message, data *model.
 		return r.processReadUseCaseData(message.FeatureRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
-		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
+		if err := r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
 		return r.processReplyUseCaseData(message, *data)

@@ -22,6 +22,7 @@ type FeatureLocal interface {
 	RequestDataBySenderAddress(
 		cmd model.CmdType,
 		sender Sender,
+		destinationSki string,
 		destinationAddress *model.FeatureAddressType,
 		maxDelay time.Duration) (*model.MsgCounterType, *ErrorType)
 	FetchRequestData(
@@ -141,18 +142,19 @@ func (r *FeatureLocalImpl) RequestData(
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType(selector, elements)
 
-	return r.RequestDataBySenderAddress(cmd, destination.Sender(), destination.Address(), destination.MaxResponseDelayDuration())
+	return r.RequestDataBySenderAddress(cmd, destination.Sender(), destination.Device().ski, destination.Address(), destination.MaxResponseDelayDuration())
 }
 
 func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 	cmd model.CmdType,
 	sender Sender,
+	deviceSki string,
 	destinationAddress *model.FeatureAddressType,
 	maxDelay time.Duration) (*model.MsgCounterType, *ErrorType) {
 
 	msgCounter, err := sender.Request(model.CmdClassifierTypeRead, r.Address(), destinationAddress, false, []model.CmdType{cmd})
 	if err == nil {
-		r.pendingRequests.Add(*msgCounter, maxDelay)
+		r.pendingRequests.Add(deviceSki, *msgCounter, maxDelay)
 		return msgCounter, nil
 	}
 
@@ -165,7 +167,7 @@ func (r *FeatureLocalImpl) FetchRequestData(
 	msgCounter model.MsgCounterType,
 	destination *FeatureRemoteImpl) (any, *ErrorType) {
 
-	return r.pendingRequests.GetData(msgCounter)
+	return r.pendingRequests.GetData(destination.Device().ski, msgCounter)
 }
 
 // Send a data request for function to destination and return the response
@@ -348,7 +350,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 			logging.Log.Error(errorString)
 		}
 		// we don't need to populate this error as requests don't require a pendingRequest entry
-		_ = r.pendingRequests.SetResult(*message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
+		_ = r.pendingRequests.SetResult(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
 		return nil
 
 	default:
@@ -375,7 +377,7 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 
 func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
 	featureRemote.UpdateData(function, data, nil, nil)
-	_ = r.pendingRequests.SetData(*requestHeader.MsgCounterReference, data)
+	_ = r.pendingRequests.SetData(featureRemote.Device().ski, *requestHeader.MsgCounterReference, data)
 	// an error in SetData only means that there is no pendingRequest waiting for this dataset
 	// so this is nothing to consider as an error to return
 

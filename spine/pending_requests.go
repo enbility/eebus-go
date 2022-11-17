@@ -9,11 +9,11 @@ import (
 )
 
 type PendingRequests interface {
-	Add(counter model.MsgCounterType, maxDelay time.Duration)
-	SetData(counter model.MsgCounterType, data any) *ErrorType
-	SetResult(counter model.MsgCounterType, errorResult *ErrorType) *ErrorType
-	GetData(counter model.MsgCounterType) (any, *ErrorType)
-	Remove(counter model.MsgCounterType) *ErrorType
+	Add(ski string, counter model.MsgCounterType, maxDelay time.Duration)
+	SetData(ski string, counter model.MsgCounterType, data any) *ErrorType
+	SetResult(ski string, counter model.MsgCounterType, errorResult *ErrorType) *ErrorType
+	GetData(ski string, counter model.MsgCounterType) (any, *ErrorType)
+	Remove(ski string, counter model.MsgCounterType) *ErrorType
 }
 
 type dataErrorPair struct {
@@ -22,6 +22,7 @@ type dataErrorPair struct {
 }
 
 type request struct {
+	ski       string // can not use device, as this is not available for the very first requests!
 	counter   model.MsgCounterType
 	countdown *time.Timer
 	response  chan *dataErrorPair
@@ -44,27 +45,28 @@ func NewPendingRequest() PendingRequests {
 	}
 }
 
-func (r *PendingRequestsImpl) Add(counter model.MsgCounterType, maxDelay time.Duration) {
+func (r *PendingRequestsImpl) Add(ski string, counter model.MsgCounterType, maxDelay time.Duration) {
 	newRequest := &request{
+		ski:     ski,
 		counter: counter,
 		// could be a performance problem in case of many requests
 		response: make(chan *dataErrorPair, 1), // buffered, so that SetData will not block,
 	}
 	newRequest.countdown = time.AfterFunc(maxDelay, func() { newRequest.setTimeoutResult() })
 
-	r.requestMap.Store(counter, newRequest)
+	r.requestMap.Store(r.mapKey(ski, counter), newRequest)
 }
 
-func (r *PendingRequestsImpl) SetData(counter model.MsgCounterType, data any) *ErrorType {
-	return r.setResponse(counter, data, nil)
+func (r *PendingRequestsImpl) SetData(ski string, counter model.MsgCounterType, data any) *ErrorType {
+	return r.setResponse(ski, counter, data, nil)
 }
 
-func (r *PendingRequestsImpl) SetResult(counter model.MsgCounterType, errorResult *ErrorType) *ErrorType {
-	return r.setResponse(counter, nil, errorResult)
+func (r *PendingRequestsImpl) SetResult(ski string, counter model.MsgCounterType, errorResult *ErrorType) *ErrorType {
+	return r.setResponse(ski, counter, nil, errorResult)
 }
 
-func (r *PendingRequestsImpl) GetData(counter model.MsgCounterType) (any, *ErrorType) {
-	request, err := r.getRequest(counter)
+func (r *PendingRequestsImpl) GetData(ski string, counter model.MsgCounterType) (any, *ErrorType) {
+	request, err := r.getRequest(ski, counter)
 	if err != nil {
 		return nil, err
 	}
@@ -75,8 +77,8 @@ func (r *PendingRequestsImpl) GetData(counter model.MsgCounterType) (any, *Error
 	return data.data, data.errorResult
 }
 
-func (r *PendingRequestsImpl) Remove(counter model.MsgCounterType) *ErrorType {
-	request, err := r.getRequest(counter)
+func (r *PendingRequestsImpl) Remove(ski string, counter model.MsgCounterType) *ErrorType {
+	request, err := r.getRequest(ski, counter)
 	if err != nil {
 		return err
 	}
@@ -84,13 +86,17 @@ func (r *PendingRequestsImpl) Remove(counter model.MsgCounterType) *ErrorType {
 	return nil
 }
 
-func (r *PendingRequestsImpl) removeRequest(request *request) {
-	request.countdown.Stop()
-	r.requestMap.Delete(request.counter)
+func (r *PendingRequestsImpl) mapKey(ski string, counter model.MsgCounterType) string {
+	return fmt.Sprintf("%s:%d", ski, counter)
 }
 
-func (r *PendingRequestsImpl) getRequest(counter model.MsgCounterType) (*request, *ErrorType) {
-	rq, exists := r.requestMap.Load(counter)
+func (r *PendingRequestsImpl) removeRequest(request *request) {
+	request.countdown.Stop()
+	r.requestMap.Delete(r.mapKey(request.ski, request.counter))
+}
+
+func (r *PendingRequestsImpl) getRequest(ski string, counter model.MsgCounterType) (*request, *ErrorType) {
+	rq, exists := r.requestMap.Load(r.mapKey(ski, counter))
 	if !exists {
 		return nil, NewErrorTypeFromString(fmt.Sprintf("No pending request with message counter '%s' found", counter.String()))
 	}
@@ -98,9 +104,9 @@ func (r *PendingRequestsImpl) getRequest(counter model.MsgCounterType) (*request
 	return rq.(*request), nil
 }
 
-func (r *PendingRequestsImpl) setResponse(counter model.MsgCounterType, data any, errorResult *ErrorType) *ErrorType {
+func (r *PendingRequestsImpl) setResponse(ski string, counter model.MsgCounterType, data any, errorResult *ErrorType) *ErrorType {
 
-	request, err := r.getRequest(counter)
+	request, err := r.getRequest(ski, counter)
 	if err != nil {
 		return err
 	}

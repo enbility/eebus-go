@@ -64,7 +64,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 	r.mux.Unlock()
 
 	// Request Detailed Discovery Data
-	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
+	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.ski, rDevice.address, rDevice.sender)
 
 	// TODO: Add error handling
 	// If the request returned an error, it should be retried until it does not
@@ -81,7 +81,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 			_, _ = r.nodeManagement.Subscribe(payload.Feature.Device(), payload.Feature.Address())
 
 			// Request Use Case Data
-			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.Address(), payload.Device.Sender())
+			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.ski, payload.Device.Address(), payload.Device.Sender())
 		}
 	}
 }

@@ -36,7 +36,7 @@ func (r *NodeManagementImpl) handleMsgDestinationListData(message *Message, data
 		return r.processReadDestinationListData(message.FeatureRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
-		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
+		if err := r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
 		return r.processReplyDestinationListData(message, *data)

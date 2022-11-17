@@ -8,12 +8,12 @@ import (
 )
 
 // request detailed discovery data from a remote device
-func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
+func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceSki string, remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
 	cmd := model.CmdType{
 		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},
 	}
-	return r.RequestDataBySenderAddress(cmd, sender, rfAdress, defaultMaxResponseDelay)
+	return r.RequestDataBySenderAddress(cmd, sender, remoteDeviceSki, rfAdress, defaultMaxResponseDelay)
 }
 
 // handle incoming detailed discovery read call
@@ -235,7 +235,7 @@ func (r *NodeManagementImpl) handleMsgDetailedDiscoveryData(message *Message, da
 		return r.processReadDetailedDiscoveryData(message.DeviceRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
-		if err := r.pendingRequests.Remove(*message.RequestHeader.MsgCounterReference); err != nil {
+		if err := r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
 		return r.processReplyDetailedDiscoveryData(message, data)
