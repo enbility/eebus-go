@@ -249,13 +249,16 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	}
 
 	m.mux.Lock()
-	defer m.mux.Unlock()
 
 	if !m.isSearchingServices {
+		m.isSearchingServices = true
+		m.mux.Unlock()
 		logging.Log.Debug("mDNS: Start search")
 		go m.resolveEntries()
 		return
 	}
+
+	defer m.mux.Unlock()
 
 	// do we already know some entries?
 	if len(m.entries) == 0 {
@@ -308,10 +311,6 @@ func (m *mdns) resolveEntries() {
 			_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries)
 		}()
 	}
-
-	m.mux.Lock()
-	m.isSearchingServices = true
-	m.mux.Unlock()
 
 	var end bool
 	for !end {
