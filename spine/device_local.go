@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -23,6 +24,8 @@ type DeviceLocalImpl struct {
 	deviceModel  string
 	deviceCode   string
 	serialNumber string
+
+	mux sync.Mutex
 }
 
 // BrandName is the brand
@@ -55,7 +58,10 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 
 func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, writeC chan<- []byte) {
 	rDevice := NewDeviceRemoteImpl(r, ski, readC, writeC)
+
+	r.mux.Lock()
 	r.remoteDevices[ski] = rDevice
+	r.mux.Unlock()
 
 	// Request Detailed Discovery Data
 	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.address, rDevice.sender)
@@ -81,23 +87,34 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 }
 
 func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	if r.remoteDevices[ski] == nil {
 		return
 	}
+
 	Events.Unsubscribe(r)
 	r.remoteDevices[ski].CloseConnection()
 	delete(r.remoteDevices, ski)
 }
 
 func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	res := make([]*DeviceRemoteImpl, 0)
 	for _, rDevice := range r.remoteDevices {
 		res = append(res, rDevice)
 	}
+
 	return res
 }
 
 func (r *DeviceLocalImpl) RemoteDeviceForSki(ski string) *DeviceRemoteImpl {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	return r.remoteDevices[ski]
 }
 
