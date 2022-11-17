@@ -112,10 +112,10 @@ func (m *mdns) interfaces() ([]net.Interface, []int32, error) {
 	var ifaces []net.Interface
 	var ifaceIndexes []int32
 
-	if len(m.serviceDescription.Interfaces) > 0 {
-		ifaces = make([]net.Interface, len(m.serviceDescription.Interfaces))
-		ifaceIndexes = make([]int32, len(m.serviceDescription.Interfaces))
-		for i, ifaceName := range m.serviceDescription.Interfaces {
+	if len(m.serviceDescription.interfaces) > 0 {
+		ifaces = make([]net.Interface, len(m.serviceDescription.interfaces))
+		ifaceIndexes = make([]int32, len(m.serviceDescription.interfaces))
+		for i, ifaceName := range m.serviceDescription.interfaces {
 			iface, err := net.InterfaceByName(ifaceName)
 			if err != nil {
 				return nil, nil, err
@@ -146,27 +146,24 @@ func (m *mdns) Announce() error {
 		return err
 	}
 
-	serviceIdentifier := fmt.Sprintf("%s-%s-%s", m.serviceDescription.Brand, m.serviceDescription.Model, m.serviceDescription.SerialNumber)
-	if len(m.serviceDescription.AlternateIdentifier) > 0 {
-		serviceIdentifier = m.serviceDescription.AlternateIdentifier
-	}
+	serviceIdentifier := m.serviceDescription.mDNSIdentifier()
 
 	txt := []string{ // SHIP 7.3.2
 		"txtvers=1",
 		"path=" + shipWebsocketPath,
 		"id=" + serviceIdentifier,
 		"ski=" + m.ski,
-		"brand=" + m.serviceDescription.Brand,
-		"model=" + m.serviceDescription.Model,
-		"type=" + string(m.serviceDescription.DeviceType),
-		"register=" + fmt.Sprintf("%v", m.serviceDescription.RegisterAutoAccept),
+		"brand=" + m.serviceDescription.deviceBrand,
+		"model=" + m.serviceDescription.deviceModel,
+		"type=" + string(m.serviceDescription.deviceType),
+		"register=" + fmt.Sprintf("%v", m.serviceDescription.registerAutoAccept),
 	}
 
 	logging.Log.Debug("mDNS: Announce")
 
 	if m.av == nil {
 		// use Zeroconf library if avahi is not available
-		mDNSServer, err := zeroconf.Register(serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, m.serviceDescription.Port, txt, ifaces)
+		mDNSServer, err := zeroconf.Register(serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, m.serviceDescription.port, txt, ifaces)
 		if err == nil {
 			m.zc = mDNSServer
 
@@ -189,7 +186,7 @@ func (m *mdns) Announce() error {
 	}
 
 	for _, iface := range ifaceIndexes {
-		err = entryGroup.AddService(iface, avahi.ProtoUnspec, 0, serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(m.serviceDescription.Port), btxt)
+		err = entryGroup.AddService(iface, avahi.ProtoUnspec, 0, serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(m.serviceDescription.port), btxt)
 		if err != nil {
 			return err
 		}

@@ -173,14 +173,14 @@ func (h *connectionsHub) isSkiConnected(ski string) bool {
 
 // start the ship websocket server
 func (h *connectionsHub) startWebsocketServer() error {
-	addr := fmt.Sprintf(":%d", h.serviceDescription.Port)
+	addr := fmt.Sprintf(":%d", h.serviceDescription.port)
 	logging.Log.Debug("Starting websocket server on ", addr)
 
 	h.httpServer = &http.Server{
 		Addr:    addr,
 		Handler: h,
 		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{h.serviceDescription.Certificate},
+			Certificates: []tls.Certificate{h.serviceDescription.certificate},
 			ClientAuth:   tls.RequireAnyClientCert, // SHIP 9: Client authentication is required
 			CipherSuites: ciperSuites,
 			VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
@@ -292,7 +292,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 5 * time.Second,
 		TLSClientConfig: &tls.Config{
-			Certificates:       []tls.Certificate{h.serviceDescription.Certificate},
+			Certificates:       []tls.Certificate{h.serviceDescription.certificate},
 			InsecureSkipVerify: true,
 			CipherSuites:       ciperSuites,
 		},

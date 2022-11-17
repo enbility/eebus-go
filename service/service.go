@@ -42,45 +42,51 @@ type ServiceDescription struct {
 	// The vendors IANA PEN, optional but highly recommended.
 	// If not set, brand will be used instead
 	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
-	VendorCode string
+	vendorCode string
 
-	// The brand of the device, required
+	// The deviceBrand of the device, required
 	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
 	// Used for mDNS txt record: SHIP - Specification 7.3.2
-	Brand string
+	deviceBrand string
 
 	// The device model, required
 	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
 	// Used for mDNS txt record: SHIP - Specification 7.3.2
-	Model string
+	deviceModel string
 
 	// Serial number of the device, required
 	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
-	SerialNumber string
+	deviceSerialNumber string
 
 	// An alternate mDNS service identifier
-	// Optional, if not set will be  generated using "Brand-Model-SerialNumber"
-	// Used for mDNS service identifier: SHIP - Specification 7.2
-	AlternateIdentifier string
+	// Optional, if not set will be generated using "Brand-Model-SerialNumber"
+	// Used for mDNS service and SHIP identifier: SHIP - Specification 7.2
+	alternateIdentifier string
+
+	// An alternate SHIP identifier
+	// Optional, if not set will be identical to alternateIdentifier or generated using "Brand-Model-SerialNumber"
+	// Overwrites alternateIdentifier
+	// Used for SHIP identifier: SHIP - Specification 7.2
+	alternateShipIdentifier string
 
 	// SPINE device type of the device model, required
 	// Used for SPINE device type
 	// Used for mDNS txt record: SHIP - Specification 7.3.2
-	DeviceType model.DeviceTypeType
+	deviceType model.DeviceTypeType
 
 	// SPINE device network feature set type, optional
 	// SPINE Protocol Specification 6
-	FeatureSet model.NetworkManagementFeatureSetType
+	featureSet model.NetworkManagementFeatureSetType
 
 	// Network interface to use for the service
 	// Optional, if not set all detected interfaces will be used
-	Interfaces []string
+	interfaces []string
 
 	// The port address of the websocket server, required
-	Port int
+	port int
 
 	// The certificate used for the service and its connections, required
-	Certificate tls.Certificate
+	certificate tls.Certificate
 
 	// Wether remote devices should be automatically accepted
 	// If enabled will automatically search for other services with
@@ -89,7 +95,7 @@ type ServiceDescription struct {
 	// TODO: if disabled, user verification needs to be implemented and supported
 	// the spec defines that this should have a timeout and be activate
 	// e.g via a physical button
-	RegisterAutoAccept bool
+	registerAutoAccept bool
 }
 
 // Setup a ServiceDescription with the required parameters
@@ -103,8 +109,8 @@ func NewServiceDescription(
 	certificate tls.Certificate,
 ) (*ServiceDescription, error) {
 	serviceDescription := &ServiceDescription{
-		Certificate: certificate,
-		Port:        port,
+		certificate: certificate,
+		port:        port,
 	}
 
 	isRequired := "is required"
@@ -112,33 +118,93 @@ func NewServiceDescription(
 	if len(vendorCode) == 0 {
 		return nil, fmt.Errorf("vendorCode %s", isRequired)
 	} else {
-		serviceDescription.VendorCode = vendorCode
+		serviceDescription.vendorCode = vendorCode
 	}
 	if len(deviceBrand) == 0 {
 		return nil, fmt.Errorf("brand %s", isRequired)
 	} else {
-		serviceDescription.Brand = deviceBrand
+		serviceDescription.deviceBrand = deviceBrand
 	}
 	if len(deviceModel) == 0 {
 		return nil, fmt.Errorf("model %s", isRequired)
 	} else {
-		serviceDescription.Model = deviceModel
+		serviceDescription.deviceModel = deviceModel
 	}
 	if len(serialNumber) == 0 {
 		return nil, fmt.Errorf("serialNumber %s", isRequired)
 	} else {
-		serviceDescription.SerialNumber = serialNumber
+		serviceDescription.deviceSerialNumber = serialNumber
 	}
 	if len(deviceType) == 0 {
 		return nil, fmt.Errorf("deviceType %s", isRequired)
 	} else {
-		serviceDescription.DeviceType = deviceType
+		serviceDescription.deviceType = deviceType
 	}
 
 	// set default
-	serviceDescription.FeatureSet = model.NetworkManagementFeatureSetTypeSmart
+	serviceDescription.featureSet = model.NetworkManagementFeatureSetTypeSmart
 
 	return serviceDescription, nil
+}
+
+// define an alternative mDNS and SHIP identifier
+// usually this is only used when no deviceCode is available or identical to the brand
+// if this is not set, generated identifier is used
+func (s *ServiceDescription) SetAlternateIdentifier(identifier string) {
+	s.alternateIdentifier = identifier
+}
+
+// define an alternative identifier to be used for SHIP
+// usually this is only used when no deviceCode is available or identical to the brand
+//
+// will overwrite the alternateIdentifier for the SHIP id, if that is set
+// if this is not set, alternateIdentifier or generated identifier is used
+func (s *ServiceDescription) SetAlternateShipIdentifier(identifier string) {
+	s.alternateShipIdentifier = identifier
+}
+
+// define which network interfaces should be considered instead of all existing
+// expects a list of network interface names
+func (s *ServiceDescription) SetInterfaces(ifaces []string) {
+	s.interfaces = ifaces
+}
+
+// define wether this service should announce auto accept
+// TODO: this needs to be redesigned!
+func (s *ServiceDescription) SetRegisterAutoAccept(auto bool) {
+	s.registerAutoAccept = auto
+}
+
+// generates a standard identifier used for mDNS ID and SHIP ID
+// Brand-Model-SerialNumber
+func (s *ServiceDescription) generateIdentifier() string {
+	return fmt.Sprintf("%s-%s-%s", s.deviceBrand, s.deviceModel, s.deviceSerialNumber)
+}
+
+// return the identifier to be used for mDNS
+// returns in this order:
+// - alternateIdentifier
+// - generateIdentifier
+func (s *ServiceDescription) mDNSIdentifier() string {
+	// SHIP identifier is identical to the mDNS ID
+	if len(s.alternateIdentifier) > 0 {
+		return s.alternateIdentifier
+	}
+
+	return s.generateIdentifier()
+}
+
+// return the identifier to be used for mDNS
+// returns in this order:
+// - alternateShipIdentifier
+// - alternateIdentifier
+// - generateIdentifier
+func (s *ServiceDescription) shipIdentifier() string {
+	if len(s.alternateShipIdentifier) > 0 {
+		return s.alternateShipIdentifier
+	}
+
+	return s.mDNSIdentifier()
 }
 
 type EEBUSServiceDelegate interface {
@@ -174,6 +240,7 @@ type EEBUSService struct {
 	serviceDelegate EEBUSServiceDelegate
 }
 
+// creates a new EEBUS service
 func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
 	return &EEBUSService{
 		ServiceDescription: ServiceDescription,
@@ -192,13 +259,13 @@ func (s *EEBUSService) SetLogging(logger logging.Logging) {
 
 // Starts the service by initializeing mDNS and the server.
 func (s *EEBUSService) Setup() error {
-	if s.ServiceDescription.Port == 0 {
-		s.ServiceDescription.Port = defaultPort
+	if s.ServiceDescription.port == 0 {
+		s.ServiceDescription.port = defaultPort
 	}
 
 	sd := s.ServiceDescription
 
-	leaf, err := x509.ParseCertificate(sd.Certificate.Certificate[0])
+	leaf, err := x509.ParseCertificate(sd.certificate.Certificate[0])
 	if err != nil {
 		logging.Log.Error(err)
 		return err
@@ -210,56 +277,49 @@ func (s *EEBUSService) Setup() error {
 		return err
 	}
 
-	// SHIP identifier is identical to the mDNS ID
-	// Brand-Model-SerialNumber or AlternateIdentifier
-	shipID := fmt.Sprintf("%s-%s-%s", sd.Brand, sd.Model, sd.SerialNumber)
-	if len(sd.AlternateIdentifier) > 0 {
-		shipID = sd.AlternateIdentifier
-	}
-
 	s.LocalService = &ServiceDetails{
 		SKI:                ski,
-		ShipID:             shipID,
-		deviceType:         sd.DeviceType,
-		registerAutoAccept: sd.RegisterAutoAccept,
+		ShipID:             sd.shipIdentifier(),
+		deviceType:         sd.deviceType,
+		registerAutoAccept: sd.registerAutoAccept,
 	}
 
 	logging.Log.Info("Local SKI: ", ski)
 
-	vendor := sd.VendorCode
+	vendor := sd.vendorCode
 	if vendor == "" {
-		vendor = sd.Brand
+		vendor = sd.deviceBrand
 	}
 
-	serial := sd.SerialNumber
+	serial := sd.deviceSerialNumber
 	if serial != "" {
 		serial = fmt.Sprintf("-%s", serial)
 	}
 
 	// Create the SPINE device address, according to Protocol Specification 7.1.1.2
-	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s", vendor, sd.Model, serial)
+	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s", vendor, sd.deviceModel, serial)
 
 	// Create the local SPINE device
 	s.spineLocalDevice = spine.NewDeviceLocalImpl(
-		sd.Brand,
-		sd.Model,
-		sd.SerialNumber,
-		shipID,
+		sd.deviceBrand,
+		sd.deviceModel,
+		sd.deviceSerialNumber,
+		sd.shipIdentifier(),
 		deviceAdress,
-		sd.DeviceType,
-		sd.FeatureSet,
+		sd.deviceType,
+		sd.featureSet,
 	)
 
 	// Create the device entity and add it to the SPINE device
 	entityAddress := []model.AddressEntityType{1}
 	var entityType model.EntityTypeType
-	switch sd.DeviceType {
+	switch sd.deviceType {
 	case model.DeviceTypeTypeEnergyManagementSystem:
 		entityType = model.EntityTypeTypeCEM
 	case model.DeviceTypeTypeChargingStation:
 		entityType = model.EntityTypeTypeEVSE
 	default:
-		logging.Log.Errorf("Unknown device type: %s", sd.DeviceType)
+		logging.Log.Errorf("Unknown device type: %s", sd.deviceType)
 	}
 	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
 	s.spineLocalDevice.AddEntity(entity)

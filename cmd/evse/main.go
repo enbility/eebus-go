@@ -65,7 +65,7 @@ func (h *evse) run() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	serviceDescription.AlternateIdentifier = "Demo-EVSE-234567890"
+	serviceDescription.SetAlternateIdentifier("Demo-EVSE-234567890")
 
 	h.myService = service.NewEEBUSService(serviceDescription, h)
 	h.myService.SetLogging(h)

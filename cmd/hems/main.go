@@ -65,12 +65,10 @@ func (h *hems) run() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	serviceDescription.AlternateIdentifier = "Demo-HEMS-123456789"
+	serviceDescription.SetAlternateIdentifier("Demo-HEMS-123456789")
 
 	h.myService = service.NewEEBUSService(serviceDescription, h)
 	h.myService.SetLogging(h)
-
-	serviceDescription.Certificate = certificate
 
 	if err = h.myService.Setup(); err != nil {
 		fmt.Println(err)
