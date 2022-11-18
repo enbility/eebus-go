@@ -443,3 +443,8 @@ func (s *EEBUSService) removeRemoteDeviceConnection(ski string) {
 	}
 	spine.Events.Publish(payload)
 }
+
+// Close a connection to a remote SKI
+func (s *EEBUSService) DisconnectSKI(ski string) {
+	s.connectionsHub.disconnectSKI(ski)
+}

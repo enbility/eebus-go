@@ -169,6 +169,19 @@ func (h *connectionsHub) isSkiConnected(ski string) bool {
 	return ok
 }
 
+func (h *connectionsHub) disconnectSKI(ski string) {
+	h.muxCon.Lock()
+	defer h.muxCon.Unlock()
+
+	// The connection with the higher SKI should retain the connection
+	con, ok := h.connections[ski]
+	if !ok {
+		return
+	}
+
+	con.shutdown(true)
+}
+
 // Websocket connection handling
 
 // start the ship websocket server
