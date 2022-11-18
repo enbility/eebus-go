@@ -72,12 +72,12 @@ func (e *ElectricalConnection) RequestPermittedValueSet() (*model.MsgCounterType
 	return msgCounter, nil
 }
 
-type electricatlParamDescriptionMapMeasurementId map[model.MeasurementIdType]model.ElectricalConnectionParameterDescriptionDataType
-type electricatlParamDescriptionMaParamId map[model.ElectricalConnectionParameterIdType]model.ElectricalConnectionParameterDescriptionDataType
+type electricalParamDescriptionMapMeasurementId map[model.MeasurementIdType]model.ElectricalConnectionParameterDescriptionDataType
+type electricatlParamDescriptionMapParamId map[model.ElectricalConnectionParameterIdType]model.ElectricalConnectionParameterDescriptionDataType
 
 // return a map of ElectricalConnectionParameterDescriptionListDataType with measurementId as key and
 // ElectricalConnectionParameterDescriptionListDataType with parameterId as key
-func (e *ElectricalConnection) GetParamDescriptionListData() (electricatlParamDescriptionMapMeasurementId, electricatlParamDescriptionMaParamId, error) {
+func (e *ElectricalConnection) GetParamDescriptionListData() (electricalParamDescriptionMapMeasurementId, electricatlParamDescriptionMapParamId, error) {
 	if e.featureRemote == nil {
 		return nil, nil, ErrDataNotAvailable
 	}
@@ -88,8 +88,8 @@ func (e *ElectricalConnection) GetParamDescriptionListData() (electricatlParamDe
 	}
 	data := rData.(*model.ElectricalConnectionParameterDescriptionListDataType)
 
-	refMeasurement := make(electricatlParamDescriptionMapMeasurementId)
-	refElectrical := make(electricatlParamDescriptionMaParamId)
+	refMeasurement := make(electricalParamDescriptionMapMeasurementId)
+	refElectrical := make(electricatlParamDescriptionMapParamId)
 	for _, item := range data.ElectricalConnectionParameterDescriptionData {
 		if item.MeasurementId == nil || item.ElectricalConnectionId == nil {
 			continue
