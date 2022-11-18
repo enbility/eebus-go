@@ -211,16 +211,16 @@ type EEBUSServiceDelegate interface {
 	// RemoteServicesListUpdated(services []ServiceDetails)
 
 	// handle a request to trust a remote service
-	RemoteServiceTrustRequested(ski string)
+	RemoteServiceTrustRequested(service *EEBUSService, ski string)
 
 	// report the Ship ID of a newly trusted connection
-	RemoteServiceShipIDReported(ski string, shipID string)
+	RemoteServiceShipIDReported(service *EEBUSService, ski string, shipID string)
 
 	// report a connection to a SKI
-	RemoteSKIConnected(ski string)
+	RemoteSKIConnected(service *EEBUSService, ski string)
 
 	// report a disconnection to a SKI
-	RemoteSKIDisconnected(ski string)
+	RemoteSKIDisconnected(service *EEBUSService, ski string)
 }
 
 // A service is the central element of an EEBUS service
@@ -415,24 +415,24 @@ func (s *EEBUSService) UpdateRemoteServiceTrust(ski string, trusted bool) {
 }
 
 // ConnectionHandlerDelegate
-func (s *EEBUSService) requestUserTrustForService(service *ServiceDetails) {
-	s.serviceDelegate.RemoteServiceTrustRequested(service.SKI)
+func (s *EEBUSService) requestUserTrustForService(details *ServiceDetails) {
+	s.serviceDelegate.RemoteServiceTrustRequested(s, details.SKI)
 }
 
-func (s *EEBUSService) shipIDUpdateForService(service *ServiceDetails) {
-	s.serviceDelegate.RemoteServiceShipIDReported(service.SKI, service.ShipID)
+func (s *EEBUSService) shipIDUpdateForService(details *ServiceDetails) {
+	s.serviceDelegate.RemoteServiceShipIDReported(s, details.SKI, details.ShipID)
 }
 
 func (s *EEBUSService) addRemoteDeviceConnection(ski string, readC <-chan []byte, writeC chan<- []byte) {
 	s.spineLocalDevice.AddRemoteDevice(ski, readC, writeC)
-	s.serviceDelegate.RemoteSKIConnected(ski)
+	s.serviceDelegate.RemoteSKIConnected(s, ski)
 }
 
 func (s *EEBUSService) removeRemoteDeviceConnection(ski string) {
 	remoteDevice := s.spineLocalDevice.RemoteDeviceForSki(ski)
 
 	s.spineLocalDevice.RemoveRemoteDevice(ski)
-	s.serviceDelegate.RemoteSKIDisconnected(ski)
+	s.serviceDelegate.RemoteSKIDisconnected(s, ski)
 
 	// inform about the disconnection
 	payload := spine.EventPayload{
