@@ -58,6 +58,10 @@ func (d *DeviceRemoteImpl) StartHeartbeatSend(senderAddr, destinationAddr *model
 	d.heartbeatSender.StartHeartbeatSend(senderAddr, destinationAddr)
 }
 
+func (d *DeviceRemoteImpl) IsHeartbeatMsgCounter(msgCounter model.MsgCounterType) bool {
+	return d.heartbeatSender.IsHeartbeatMsgCounter(msgCounter)
+}
+
 // Needs to be called by the CEM implementation once a subscription for the local DeviceDiagnosis server feature is removed
 func (d *DeviceRemoteImpl) Stopheartbeat() {
 	d.heartbeatSender.StopHeartbeat()

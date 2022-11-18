@@ -12,6 +12,7 @@ type FeatureLocal interface {
 	Feature
 	Data(function model.FunctionType) any
 	SetData(function model.FunctionType, data any)
+	AddResultHandler(handler FeatureResult)
 	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
 	AddFunctionType(function model.FunctionType, read, write bool)
 	RequestData(
@@ -51,6 +52,10 @@ type FeatureLocal interface {
 	HandleMessage(message *Message) *ErrorType
 }
 
+type FeatureResult interface {
+	HandleResult(ResultMessage)
+}
+
 var _ FeatureLocal = (*FeatureLocalImpl)(nil)
 
 type FeatureLocalImpl struct {
@@ -58,6 +63,7 @@ type FeatureLocalImpl struct {
 	entity          *EntityLocalImpl
 	functionDataMap map[model.FunctionType]FunctionDataCmd
 	pendingRequests PendingRequests
+	resultHandler   []FeatureResult
 }
 
 func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
@@ -107,6 +113,10 @@ func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
 	fd.UpdateDataAny(data, nil, nil)
 
 	r.Device().NotifySubscribers(r.Address(), fd.NotifyCmdType(nil, nil, false, nil))
+}
+
+func (r *FeatureLocalImpl) AddResultHandler(handler FeatureResult) {
+	r.resultHandler = append(r.resultHandler, handler)
 }
 
 func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType {
@@ -341,7 +351,6 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeResult:
 		if *message.Cmd.ResultData.ErrorNumber != model.ErrorNumberTypeNoError {
-			// TODO process the return result data for the message sent with the ID in msgCounterReference
 			// error numbers explained in Resource Spec 3.11
 			errorString := fmt.Sprintf("Error Result received %d", *message.Cmd.ResultData.ErrorNumber)
 			if message.Cmd.ResultData.Description != nil {
@@ -349,8 +358,27 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 			}
 			logging.Log.Error(errorString)
 		}
+
 		// we don't need to populate this error as requests don't require a pendingRequest entry
 		_ = r.pendingRequests.SetResult(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
+
+		if r.resultHandler == nil || message.RequestHeader.MsgCounterReference == nil {
+			return nil
+		}
+
+		// call the Features Error Handler
+		errorMsg := ResultMessage{
+			MsgCounterReference: *message.RequestHeader.MsgCounterReference,
+			Result:              message.Cmd.ResultData,
+			FeatureLocal:        r,
+			FeatureRemote:       message.FeatureRemote,
+			DeviceRemote:        message.DeviceRemote,
+		}
+
+		for _, item := range r.resultHandler {
+			go item.HandleResult(errorMsg)
+		}
+
 		return nil
 
 	default:

@@ -9,6 +9,8 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
+const hearbeatMsgCountersSize = 10
+
 type HeartbeatSender struct {
 	heartBeatNum                uint64 // see https://github.com/golang/go/issues/11891
 	stopHeartbeatC              chan struct{}
@@ -16,6 +18,10 @@ type HeartbeatSender struct {
 	senderAddr, destinationAddr *model.FeatureAddressType
 	sender                      Sender
 	heartBeatTimeout            *model.DurationType
+
+	msgCounters []model.MsgCounterType
+
+	mux sync.Mutex
 }
 
 func NewHeartbeatSender(sender Sender) *HeartbeatSender {
@@ -26,6 +32,33 @@ func NewHeartbeatSender(sender Sender) *HeartbeatSender {
 	h.heartBeatTimeout = model.NewDurationType(time.Second * 4)
 
 	return h
+}
+
+func (c *HeartbeatSender) AddMsgCounter(msgCounter *model.MsgCounterType) {
+	if msgCounter == nil {
+		return
+	}
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	c.msgCounters = append(c.msgCounters, *msgCounter)
+	if len(c.msgCounters) > hearbeatMsgCountersSize {
+		c.msgCounters = c.msgCounters[1:]
+	}
+}
+
+func (c *HeartbeatSender) IsHeartbeatMsgCounter(msgCounter model.MsgCounterType) bool {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	for _, item := range c.msgCounters {
+		if item == msgCounter {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (c *HeartbeatSender) StartHeartbeatSend(senderAddr, destinationAddr *model.FeatureAddressType) {
@@ -84,10 +117,14 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 
 			cmd := c.heartbeatCmd(time.Now())
 
-			err := c.sender.Notify(c.senderAddr, c.destinationAddr, cmd)
+			msgCounter, err := c.sender.Notify(c.senderAddr, c.destinationAddr, cmd)
 			if err != nil {
 				logging.Log.Error("ERROR sending heartbeat: ", err)
 			}
+			if msgCounter != nil {
+				c.msgCounters = append(c.msgCounters, *msgCounter)
+			}
+
 		case <-stopC:
 			return
 		}

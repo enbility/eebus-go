@@ -128,6 +128,7 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	// TODO check if cmd.Function is the same as the provided cmd value
 	filterPartial, filterDelete := cmd.ExtractFilter()
 
+	remoteEntity := remoteDevice.Entity(datagram.Header.AddressSource.Entity)
 	remoteFeature := remoteDevice.FeatureByAddress(datagram.Header.AddressSource)
 	if remoteFeature == nil {
 		return fmt.Errorf("invalid remote feature address: '%s'", datagram.Header.AddressSource)
@@ -140,6 +141,7 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 		FilterPartial: filterPartial,
 		FilterDelete:  filterDelete,
 		FeatureRemote: remoteFeature,
+		EntityRemote:  remoteEntity,
 		DeviceRemote:  remoteDevice,
 	}
 
@@ -256,7 +258,7 @@ func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddress
 	subscriptions := r.SubscriptionManager().SubscriptionsOnFeature(*featureAddress)
 	for _, subscription := range subscriptions {
 		// TODO: error handling
-		_ = subscription.clientFeature.Sender().Notify(subscription.serverFeature.Address(), subscription.clientFeature.Address(), cmd)
+		_, _ = subscription.clientFeature.Sender().Notify(subscription.serverFeature.Address(), subscription.clientFeature.Address(), cmd)
 	}
 }
 

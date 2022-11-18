@@ -19,11 +19,13 @@ func TestSender_Notify_MsgCounter(t *testing.T) {
 		ResultData: &model.ResultDataType{ErrorNumber: util.Ptr(model.ErrorNumberType(model.ErrorNumberTypeNoError))},
 	}
 
-	assert.NoError(t, sut.Notify(senderAddress, destinationAddress, cmd))
+	_, err := sut.Notify(senderAddress, destinationAddress, cmd)
+	assert.NoError(t, err)
 	<-writeC
 
 	// Act
-	assert.NoError(t, sut.Notify(senderAddress, destinationAddress, cmd))
+	_, err = sut.Notify(senderAddress, destinationAddress, cmd)
+	assert.NoError(t, err)
 	expectedMsgCounter := 2 //because Notify was called twice
 
 	sentBytes := <-writeC

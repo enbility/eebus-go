@@ -30,7 +30,7 @@ type Sender interface {
 	// Sends a call cmd with a binding request
 	Bind(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
 	// Sends a notify cmd to indicate that a subscribed feature changed
-	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) error
+	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error)
 	// Sends a write cmd, setting properties of remote features
 	Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error)
 }
@@ -174,7 +174,9 @@ func (c *SenderImpl) Reply(requestHeader *model.HeaderType, senderAddress *model
 }
 
 // Notify sends notification to destination
-func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) error {
+func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error) {
+	msgCounter := c.getMsgCounter()
+
 	cmdClassifier := model.CmdClassifierTypeNotify
 
 	datagram := model.DatagramType{
@@ -190,7 +192,7 @@ func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddr
 		},
 	}
 
-	return c.sendSpineMessage(datagram)
+	return msgCounter, c.sendSpineMessage(datagram)
 }
 
 // Write sends notification to destination
