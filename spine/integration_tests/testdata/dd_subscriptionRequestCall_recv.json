@@ -1,0 +1,41 @@
+{
+  "datagram": {
+    "header": {
+      "specificationVersion": "1.1.1",
+      "addressSource": {
+        "device": "Wallbox",
+        "entity": [1],
+        "feature": 2
+      },
+      "addressDestination": {
+        "device": "HEMS",
+        "entity": [0],
+        "feature": 0
+      },
+      "msgCounter": 1,
+      "cmdClassifier": "call",
+      "ackRequest": true
+    },
+    "payload": {
+      "cmd": [
+        {
+          "nodeManagementSubscriptionRequestCall": {
+            "subscriptionRequest": {
+              "clientAddress": {
+                "device": "Wallbox",
+                "entity": [1],
+                "feature": 2
+              },
+              "serverAddress": {
+                "device": "HEMS",
+                "entity": [1],
+                "feature": 1
+              },
+              "serverFeatureType": "DeviceDiagnosis"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
