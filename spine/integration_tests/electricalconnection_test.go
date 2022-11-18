@@ -72,19 +72,23 @@ func (s *ElectricalConnectionSuite) TestPermittedValueSetListData_RecvNotifyPart
 	assert.NotNil(s.T(), ecFeature)
 
 	data := ecFeature.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData).(*model.ElectricalConnectionPermittedValueSetListDataType)
-	if assert.NotNil(s.T(), data) {
-		if assert.Equal(s.T(), 3, len(data.ElectricalConnectionPermittedValueSetData)) {
-			item1 := data.ElectricalConnectionPermittedValueSetData[0]
-			assert.Equal(s.T(), 0, int(*item1.ElectricalConnectionId))
-			assert.Equal(s.T(), 1, int(*item1.ParameterId))
-			assert.Equal(s.T(), 1, len(item1.PermittedValueSet))
-			assert.Equal(s.T(), 1, len(item1.PermittedValueSet[0].Range))
-			assert.NotNil(s.T(), item1.PermittedValueSet[0].Range)
-			assert.Equal(s.T(), 6, int(*item1.PermittedValueSet[0].Range[0].Min.Number))
-			assert.Equal(s.T(), 0, int(*item1.PermittedValueSet[0].Range[0].Min.Scale))
-			assert.Equal(s.T(), 16, int(*item1.PermittedValueSet[0].Range[0].Max.Number))
-			assert.Equal(s.T(), 0, int(*item1.PermittedValueSet[0].Range[0].Max.Scale))
-			assert.Nil(s.T(), item1.PermittedValueSet[0].Value)
-		}
+	if !assert.NotNil(s.T(), data) {
+		return
 	}
+
+	if !assert.Equal(s.T(), 3, len(data.ElectricalConnectionPermittedValueSetData)) {
+		return
+	}
+
+	item1 := data.ElectricalConnectionPermittedValueSetData[0]
+	assert.Equal(s.T(), 0, int(*item1.ElectricalConnectionId))
+	assert.Equal(s.T(), 1, int(*item1.ParameterId))
+	assert.Equal(s.T(), 1, len(item1.PermittedValueSet))
+	assert.Equal(s.T(), 1, len(item1.PermittedValueSet[0].Range))
+	assert.NotNil(s.T(), item1.PermittedValueSet[0].Range)
+	assert.Equal(s.T(), 6, int(*item1.PermittedValueSet[0].Range[0].Min.Number))
+	assert.Equal(s.T(), 0, int(*item1.PermittedValueSet[0].Range[0].Min.Scale))
+	assert.Equal(s.T(), 16, int(*item1.PermittedValueSet[0].Range[0].Max.Number))
+	assert.Equal(s.T(), 0, int(*item1.PermittedValueSet[0].Range[0].Max.Scale))
+	assert.Nil(s.T(), item1.PermittedValueSet[0].Value)
 }
