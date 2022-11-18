@@ -91,21 +91,21 @@ func (h *hems) run() {
 // EEBUSServiceDelegate
 
 // handle a request to trust a remote service
-func (h *hems) RemoteServiceTrustRequested(ski string) {
+func (h *hems) RemoteServiceTrustRequested(service *service.EEBUSService, ski string) {
 	// we directly trust it in this example
 	h.myService.UpdateRemoteServiceTrust(ski, true)
 }
 
 // report the Ship ID of a newly trusted connection
-func (h *hems) RemoteServiceShipIDReported(ski string, shipID string) {
+func (h *hems) RemoteServiceShipIDReported(service *service.EEBUSService, ski string, shipID string) {
 	// we should associated the Ship ID with the SKI and store it
 	// so the next connection can start trusted
 	fmt.Println("SKI", ski, "has Ship ID:", shipID)
 }
 
-func (h *hems) RemoteSKIConnected(ski string) {}
+func (h *hems) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
-func (h *hems) RemoteSKIDisconnected(ski string) {}
+func (h *hems) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
 
 // UCEvseCommisioningConfigurationCemDelegate
 

@@ -89,21 +89,21 @@ func (h *evse) run() {
 }
 
 // handle a request to trust a remote service
-func (h *evse) RemoteServiceTrustRequested(ski string) {
+func (h *evse) RemoteServiceTrustRequested(service *service.EEBUSService, ski string) {
 	// we directly trust it in this example
 	h.myService.UpdateRemoteServiceTrust(ski, true)
 }
 
 // report the Ship ID of a newly trusted connection
-func (h *evse) RemoteServiceShipIDReported(ski string, shipID string) {
+func (h *evse) RemoteServiceShipIDReported(service *service.EEBUSService, ski string, shipID string) {
 	// we should associated the Ship ID with the SKI and store it
 	// so the next connection can start trusted
 	fmt.Println("SKI", ski, "has Ship ID:", shipID)
 }
 
-func (h *evse) RemoteSKIConnected(ski string) {}
+func (h *evse) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
-func (h *evse) RemoteSKIDisconnected(ski string) {}
+func (h *evse) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
 
 // main app
 func usage() {
