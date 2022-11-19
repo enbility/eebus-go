@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"sync"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine"
@@ -238,6 +239,8 @@ type EEBUSService struct {
 	spineLocalDevice *spine.DeviceLocalImpl
 
 	serviceDelegate EEBUSServiceDelegate
+
+	startOnce sync.Once
 }
 
 // creates a new EEBUS service
@@ -337,7 +340,9 @@ func (s *EEBUSService) Setup() error {
 
 // Starts the service
 func (s *EEBUSService) Start() {
-	s.connectionsHub.start()
+	s.startOnce.Do(func() {
+		s.connectionsHub.start()
+	})
 }
 
 // Shutdown all services and stop the server.
