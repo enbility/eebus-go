@@ -45,8 +45,8 @@ type mdns struct {
 	// the currently available mDNS entries with the SKI as the key in the map
 	entries map[string]MdnsEntry
 
-	// the registered callbacks
-	searchDelegates []MdnsSearch
+	// the registered callback, only connectionsHub is using this
+	searchDelegate MdnsSearch
 
 	// The zeroconf service for mDNS related tasks
 	zc *zeroconf.Server
@@ -236,17 +236,11 @@ func (m *mdns) shutdown() {
 
 // Register a callback to be invoked for found mDNS entries
 func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
-	// check if callback is already registered
-	registered := false
-	for _, c := range m.searchDelegates {
-		if c == cb {
-			registered = true
-		}
+	if m.searchDelegate != nil {
+		return
 	}
 
-	if !registered {
-		m.searchDelegates = append(m.searchDelegates, cb)
-	}
+	m.searchDelegate = cb
 
 	m.mux.Lock()
 
@@ -266,26 +260,17 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	}
 
 	// may this is already found
-	for _, cb := range m.searchDelegates {
-		go cb.ReportMdnsEntries(m.entries)
-	}
+	go m.searchDelegate.ReportMdnsEntries(m.entries)
 }
 
 // Remove a callback for found mDNS entries and stop searching if no callbacks are left
 func (m *mdns) UnregisterMdnsSearch(cb MdnsSearch) {
-	var delegates []MdnsSearch
+	m.mux.Lock()
+	defer m.mux.Unlock()
 
-	for _, item := range m.searchDelegates {
-		if item != cb {
-			delegates = append(delegates, cb)
-		}
-	}
+	m.searchDelegate = nil
 
-	m.searchDelegates = delegates
-
-	if len(m.searchDelegates) == 0 {
-		m.stopResolvingEntries()
-	}
+	m.stopResolvingEntries()
 }
 
 // search for mDNS entries and report them
@@ -515,7 +500,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		return
 	}
 
-	for _, cb := range m.searchDelegates {
-		go cb.ReportMdnsEntries(m.entries)
+	if m.searchDelegate != nil {
+		go m.searchDelegate.ReportMdnsEntries(m.entries)
 	}
 }
