@@ -30,33 +30,17 @@ func (s *DeviceDiagnosisSuite) SetupSuite() {
 }
 
 func (s *DeviceDiagnosisSuite) BeforeTest(suiteName, testName string) {
-	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
-	localEntity := spine.NewEntityLocalImpl(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
-	s.sut.AddEntity(localEntity)
-	f := spine.NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	localEntity.AddFeature(f)
-	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
+	s.sut, s.remoteSki, s.readC, s.writeC = beforeTest(suiteName, testName, 1, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 
-	s.remoteSki = "TestRemoteSki"
+	// f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
 
-	s.readC = make(chan []byte, 1)
-	s.writeC = make(chan []byte, 1)
-
-	s.sut.AddRemoteDevice(s.remoteSki, s.readC, s.writeC)
+	initialCommunication(s.T(), s.readC, s.writeC)
 }
 
 func (s *DeviceDiagnosisSuite) AfterTest(suiteName, testName string) {
 }
 
 func (s *DeviceDiagnosisSuite) TestHeartbeatSubscription_RecvNotify() {
-	<-s.writeC // ignore NodeManagementDetailedDiscoveryData read
-
-	// init with detaileddiscoverydata
-	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path)
-	<-s.writeC // ignore NodeManagementSubscriptionRequestCall
-	<-s.writeC // ignore NodeManagementUseCaseData read
-
 	// Act
 	s.readC <- loadFileData(s.T(), dd_subscriptionRequestCall_recv_file_path)
 	waitForAck(s.T(), s.writeC)

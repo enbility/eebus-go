@@ -3,7 +3,7 @@
         "header": {
             "specificationVersion": "1.1.1",
             "addressSource": {
-                "device": "Wallbox",
+                "device": "TestDeviceAddress",
                 "entity": [
                     0
                 ],
@@ -32,9 +32,9 @@
                         "deviceInformation": {
                             "description": {
                                 "deviceAddress": {
-                                    "device": "Wallbox"
+                                    "device": "TestDeviceAddress"
                                 },
-                                "deviceType": "ChargingStation",
+                                "deviceType": "EnergyManagementSystem",
                                 "networkFeatureSet": "smart"
                             }
                         },
@@ -42,7 +42,7 @@
                             {
                                 "description": {
                                     "entityAddress": {
-                                        "device": "Wallbox",
+                                        "device": "TestDeviceAddress",
                                         "entity": [
                                             0
                                         ]
@@ -53,20 +53,20 @@
                             {
                                 "description": {
                                     "entityAddress": {
-                                        "device": "Wallbox",
+                                        "device": "TestDeviceAddress",
                                         "entity": [
                                             1
                                         ]
                                     },
-                                    "entityType": "EVSE"
+                                    "entityType": "CEM"
                                 }
-                            }                        
-						],
+                            }
+                        ],
                         "featureInformation": [
                             {
                                 "description": {
                                     "featureAddress": {
-                                        "device": "Wallbox",
+                                        "device": "TestDeviceAddress",
                                         "entity": [
                                             0
                                         ],
@@ -75,16 +75,6 @@
                                     "featureType": "NodeManagement",
                                     "role": "special",
                                     "supportedFunction": [
-                                        {
-                                            "function": "nodeManagementSubscriptionDeleteCall",
-                                            "possibleOperations": {}
-                                        },
-                                        {
-                                            "function": "nodeManagementBindingData",
-                                            "possibleOperations": {
-                                                "read": {}
-                                            }
-                                        },
                                         {
                                             "function": "nodeManagementBindingRequestCall",
                                             "possibleOperations": {}
@@ -100,12 +90,6 @@
                                             }
                                         },
                                         {
-                                            "function": "nodeManagementUseCaseData",
-                                            "possibleOperations": {
-                                                "read": {}
-                                            }
-                                        },
-                                        {
                                             "function": "nodeManagementSubscriptionData",
                                             "possibleOperations": {
                                                 "read": {}
@@ -114,14 +98,36 @@
                                         {
                                             "function": "nodeManagementSubscriptionRequestCall",
                                             "possibleOperations": {}
-                                        }									
+                                        },
+                                        {
+                                            "function": "nodeManagementDestinationListData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementUseCaseData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        },
+                                        {
+                                            "function": "nodeManagementSubscriptionDeleteCall",
+                                            "possibleOperations": {}
+                                        },
+                                        {
+                                            "function": "nodeManagementBindingData",
+                                            "possibleOperations": {
+                                                "read": {}
+                                            }
+                                        }
                                     ]
                                 }
                             },
                             {
                                 "description": {
                                     "featureAddress": {
-                                        "device": "Wallbox",
+                                        "device": "TestDeviceAddress",
                                         "entity": [
                                             0
                                         ],
@@ -138,46 +144,7 @@
                                         }
                                     ]
                                 }
-                            },
-                            {
-                                "description": {
-                                    "featureAddress": {
-                                        "device": "Wallbox",
-                                        "entity": [
-                                            1
-                                        ],
-                                        "feature": 1
-                                    },
-                                    "featureType": "DeviceClassification",
-                                    "role": "client"
-                                }
-                            },
-                            {
-                                "description": {
-                                    "featureAddress": {
-                                        "device": "Wallbox",
-                                        "entity": [
-                                            1
-                                        ],
-                                        "feature": 2
-                                    },
-                                    "featureType": "DeviceDiagnosis",
-                                    "role": "client"
-                                }
-                            },
-                            {
-                                "description": {
-                                    "featureAddress": {
-                                        "device": "Wallbox",
-                                        "entity": [
-                                            1
-                                        ],
-                                        "feature": 3
-                                    },
-                                    "featureType": "ElectricalConnection",
-                                    "role": "server"
-                                }
-                            }							
+                            }
                         ]
                     }
                 }

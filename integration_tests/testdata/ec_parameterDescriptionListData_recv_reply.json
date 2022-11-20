@@ -1,0 +1,67 @@
+{
+  "datagram": {
+    "header": {
+      "specificationVersion": "1.1.1",
+      "addressSource": {
+        "device": "Wallbox",
+        "entity": [1,1],
+        "feature": 7
+      },
+      "addressDestination": {
+          "device": "HEMS",
+          "entity": [1],
+          "feature": 1
+      },
+      "msgCounter": 10,
+      "msgCounterReference": 10,
+      "cmdClassifier": "reply",
+      "ackRequest": true
+    },
+    "payload": {
+      "cmd": [
+        {
+          "electricalConnectionParameterDescriptionListData": {
+            "electricalConnectionParameterDescriptionData": [
+              {
+                "electricalConnectionId": 0,
+                "parameterId": 1,
+                "measurementId": 1,
+                "voltageType": "ac",
+                "acMeasuredPhases": "a",
+                "acMeasuredInReferenceTo": "neutral",
+                "acMeasurementType": "real",
+                "acMeasurementVariant": "rms"
+              },
+              {
+                "electricalConnectionId": 0,
+                "parameterId": 2,
+                "measurementId": 4,
+                "voltageType": "ac",
+                "acMeasuredPhases": "a",
+                "acMeasuredInReferenceTo": "neutral",
+                "acMeasurementType": "real",
+                "acMeasurementVariant": "rms"
+              },
+              {
+                "electricalConnectionId": 0,
+                "parameterId": 3,
+                "measurementId": 7,
+                "voltageType": "ac",
+                "acMeasuredPhases": "a",
+                "acMeasuredInReferenceTo": "neutral",
+                "acMeasurementType": "real",
+                "acMeasurementVariant": "rms"
+              },
+              {
+                "electricalConnectionId": 0,
+                "parameterId": 8,
+                "acMeasuredPhases": "a",
+                "scopeType": "acPowerTotal"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

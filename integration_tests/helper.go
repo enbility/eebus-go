@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/DerAndereAndi/eebus-go/spine"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -13,8 +14,39 @@ import (
 )
 
 const (
-	wallbox_detaileddiscoverydata_recv_reply_file_path = "./testdata/wallbox_detaileddiscoverydata_recv_reply.json"
+	wallbox_detaileddiscoverydata_recv_reply_file_path  = "./testdata/wallbox_detaileddiscoverydata_recv_reply.json"
+	wallbox_detaileddiscoverydata_recv_notify_file_path = "./testdata/wallbox_detaileddiscoverydata_recv_notify.json"
 )
+
+func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeType, frole model.RoleType) (*spine.DeviceLocalImpl, string, chan []byte, chan []byte) {
+	sut := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	sut.AddEntity(localEntity)
+	f := spine.NewFeatureLocalImpl(fId, localEntity, ftype, frole)
+	localEntity.AddFeature(f)
+
+	remoteSki := "TestRemoteSki"
+
+	readC := make(chan []byte, 1)
+	writeC := make(chan []byte, 1)
+
+	sut.AddRemoteDevice(remoteSki, readC, writeC)
+
+	return sut, remoteSki, readC, writeC
+}
+
+func initialCommunication(t *testing.T, readC, writeC chan []byte) {
+	// Initial generic communication
+	<-writeC // ignore NodeManagementDetailedDiscoveryData read
+
+	readC <- loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path)
+	<-writeC // ignore NodeManagementSubscriptionRequestCall
+
+	// Act
+	readC <- loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path)
+	waitForAck(t, writeC)
+}
 
 func loadFileData(t *testing.T, fileName string) []byte {
 	fileData, err := os.ReadFile(fileName)
@@ -67,7 +99,7 @@ func saveJsonToFile(t *testing.T, data json.RawMessage, fileName string) {
 func waitForAck(t *testing.T, writeC chan []byte) {
 	var datagram model.Datagram
 
-	maxSentDatagram := 10
+	maxSentDatagram := 100
 	for i := 0; i < maxSentDatagram; i++ {
 		sentBytes := <-writeC
 		if err := json.Unmarshal(sentBytes, &datagram); err != nil {

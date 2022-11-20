@@ -1,0 +1,52 @@
+{
+  "datagram": {
+    "header": {
+      "specificationVersion": "1.1.1",
+      "addressSource": {
+        "device": "Wallbox",
+        "entity": [1,1],
+        "feature": 11
+      },
+      "addressDestination": {
+        "device": "HEMS",
+        "entity": [1],
+        "feature": 2
+      },
+      "msgCounter": 10,
+      "msgCounterReference": 10,
+      "cmdClassifier": "reply",
+      "ackRequest":true
+    },
+    "payload": {
+      "cmd": [
+        {
+          "measurementDescriptionListData": {
+            "measurementDescriptionData": [
+              {
+                "measurementId": 1,
+                "measurementType": "current",
+                "commodityType": "electricity",
+                "unit": "A",
+                "scopeType": "acCurrent"
+              },
+              {
+                "measurementId": 4,
+                "measurementType": "power",
+                "commodityType": "electricity",
+                "unit": "W",
+                "scopeType": "acPower"
+              },
+              {
+                "measurementId": 7,
+                "measurementType": "energy",
+                "commodityType": "electricity",
+                "unit": "Wh",
+                "scopeType": "charge"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

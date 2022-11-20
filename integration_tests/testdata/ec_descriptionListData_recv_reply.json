@@ -1,0 +1,37 @@
+{
+  "datagram": {
+    "header": {
+      "specificationVersion": "1.1.1",
+      "addressSource": {
+        "device": "Wallbox",
+        "entity": [1,1],
+        "feature": 7
+      },
+      "addressDestination": {
+          "device": "HEMS",
+          "entity": [1],
+          "feature": 1
+      },
+      "msgCounter": 10,
+      "msgCounterReference": 10,
+      "cmdClassifier": "reply",
+      "ackRequest": true
+    },
+    "payload": {
+      "cmd": [
+        {
+          "electricalConnectionDescriptionListData": {
+            "electricalConnectionDescriptionData": [
+              {
+                "electricalConnectionId": 0,
+                "powerSupplyType": "ac",
+                "acConnectedPhases": 1,
+                "positiveEnergyDirection": "consume"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

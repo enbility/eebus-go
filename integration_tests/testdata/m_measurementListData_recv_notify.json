@@ -1,0 +1,60 @@
+{
+  "datagram": {
+    "header": {
+      "specificationVersion": "1.1.1",
+      "addressSource": {
+        "device": "Wallbox",
+        "entity": [1,1],
+        "feature": 11
+      },
+      "addressDestination": {
+        "device": "HEMS",
+        "entity": [1],
+        "feature": 2
+      },
+      "msgCounter": 10,
+      "cmdClassifier": "notify",
+      "ackRequest":true
+    },
+    "payload": {
+      "cmd": [
+        {
+          "measurementListData": {
+            "measurementData": [
+              {
+                "measurementId": 1,
+                "valueType": "value",
+                "timestamp": "2022-11-19T15:21:50.003Z",
+                "value": {
+                  "number": 5,
+                  "scale": 0
+                },
+                "valueSource": "measuredValue"
+              },
+              {
+                "measurementId": 4,
+                "valueType": "value",
+                "timestamp": "2022-11-19T15:21:50.003Z",
+                "value": {
+                  "number": 1185,
+                  "scale": 0
+                },
+                "valueSource": "measuredValue"
+              },
+              {
+                "measurementId": 7,
+                "valueType": "value",
+                "timestamp": "2022-11-19T15:21:50.003Z",
+                "value": {
+                  "number": 1825,
+                  "scale": 0
+                },
+                "valueSource": "measuredValue"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
