@@ -2,6 +2,7 @@ package spine
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -19,6 +20,8 @@ var _ FunctionData = (*FunctionDataImpl[int])(nil)
 type FunctionDataImpl[T any] struct {
 	functionType model.FunctionType
 	data         *T
+
+	mux sync.Mutex
 }
 
 func NewFunctionData[T any](function model.FunctionType) *FunctionDataImpl[T] {
@@ -32,10 +35,16 @@ func (r *FunctionDataImpl[T]) Function() model.FunctionType {
 }
 
 func (r *FunctionDataImpl[T]) Data() *T {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	return r.data
 }
 
 func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.FilterType, filterDelete *model.FilterType) *ErrorType {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	if filterPartial == nil && filterDelete == nil {
 		// just set the data
 		r.data = newData
