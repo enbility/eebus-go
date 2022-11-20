@@ -57,16 +57,16 @@ type ConnectionHandler struct {
 	// The actual websocket connection
 	conn *websocket.Conn
 
-	// The read channel for incoming messages
+	// The read channel for incoming SPINE messages
 	readChannel chan []byte
 
-	// The write channel for outgoing messages
+	// The write channel for outgoing SPINE messages
 	writeChannel chan []byte
 
-	// The ship read channel for incoming messages
+	// The ship read channel for incoming SHIP messages
 	shipReadChannel chan []byte
 
-	// The ship write channel for outgoing messages
+	// The ship write channel for outgoing SHIP messages
 	shipWriteChannel chan []byte
 
 	// The connection was closed
@@ -108,7 +108,6 @@ func (c *ConnectionHandler) startup() {
 	c.closeChannel = make(chan struct{}, 1)   // Listen to close events
 
 	go c.readShipPump()
-	go c.writePump()
 	go c.writeShipPump()
 
 	go func() {
@@ -188,12 +187,19 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 	})
 }
 
-// writePump pumps messages from the writeChannel to the writeShipChannel
-func (c *ConnectionHandler) writePump() {
+// writePump pumps messages from the SPINE and SHIP writeChannels to the websocket connection
+func (c *ConnectionHandler) writeShipPump() {
+	ticker := time.NewTicker(pingPeriod)
+	defer func() {
+		ticker.Stop()
+		c.shutdown(false)
+	}()
+
 	for {
 		select {
 		case <-c.closeChannel:
 			return
+
 		case message, ok := <-c.writeChannel:
 			if !ok {
 				// The write channel is closed
@@ -207,22 +213,7 @@ func (c *ConnectionHandler) writePump() {
 				logging.Log.Error(c.remoteService.SKI, "Error sending spine message: ", err)
 				return
 			}
-		}
-	}
-}
 
-// writePump pumps messages from the writeChannel to the websocket connection
-func (c *ConnectionHandler) writeShipPump() {
-	ticker := time.NewTicker(pingPeriod)
-	defer func() {
-		ticker.Stop()
-		c.shutdown(false)
-	}()
-
-	for {
-		select {
-		case <-c.closeChannel:
-			return
 		case message, ok := <-c.shipWriteChannel:
 			if c.isConnClosed() {
 				return
