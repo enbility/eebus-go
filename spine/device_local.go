@@ -123,6 +123,9 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	localFeature := r.FeatureByAddress(destAddr)
 
 	cmdClassifier := datagram.Header.CmdClassifier
+	if len(datagram.Payload.Cmd) == 0 {
+		return errors.New("no payload cmd content available")
+	}
 	cmd := datagram.Payload.Cmd[0]
 
 	// TODO check if cmd.Function is the same as the provided cmd value
