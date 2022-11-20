@@ -319,7 +319,7 @@ func (m *Measurement) GetValues() ([]MeasurementType, error) {
 		}
 
 		if item.Timestamp != nil {
-			if value, err := time.Parse(time.RFC3339, *item.Timestamp); err == nil {
+			if value, err := item.Timestamp.GetDateTimeType().GetTime(); err == nil {
 				result.Timestamp = value
 			}
 		}
