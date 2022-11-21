@@ -184,7 +184,7 @@ func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddr
 			SpecificationVersion: &SpecificationVersion,
 			AddressSource:        senderAddress,
 			AddressDestination:   destinationAddress,
-			MsgCounter:           c.getMsgCounter(),
+			MsgCounter:           msgCounter,
 			CmdClassifier:        &cmdClassifier,
 		},
 		Payload: model.PayloadType{
