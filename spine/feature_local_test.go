@@ -106,6 +106,8 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 			MsgCounterReference: &suite.msgCounter,
 		},
 		FeatureRemote: suite.remoteFeature,
+		EntityRemote:  suite.remoteFeature.Entity(),
+		DeviceRemote:  suite.remoteFeature.Device(),
 	}
 
 	// set response
