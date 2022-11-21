@@ -52,7 +52,7 @@ func TestFunctionData_UpdateDataPartial(t *testing.T) {
 	}
 }
 
-func TestFunctionData_UpdateDataPartial_NotSupported(t *testing.T) {
+func TestFunctionData_UpdateDataPartial_Supported(t *testing.T) {
 	newData := &model.HvacOverrunListDataType{
 		HvacOverrunData: []model.HvacOverrunDataType{
 			{
@@ -64,6 +64,5 @@ func TestFunctionData_UpdateDataPartial_NotSupported(t *testing.T) {
 	sut := NewFunctionData[model.HvacOverrunListDataType](functionType)
 
 	err := sut.UpdateData(newData, &model.FilterType{CmdControl: &model.CmdControlType{Partial: &model.ElementTagType{}}}, nil)
-	assert.NotNil(t, err)
-	assert.Equal(t, "partial updates are not supported for type 'HvacOverrunListDataType'", string(*err.Description))
+	assert.Nil(t, err)
 }
