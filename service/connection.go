@@ -63,9 +63,6 @@ type ConnectionHandler struct {
 	// The write channel for outgoing SPINE messages
 	writeChannel chan []byte
 
-	// The ship read channel for incoming SHIP messages
-	shipReadChannel chan []byte
-
 	// The ship write channel for outgoing SHIP messages
 	shipWriteChannel chan []byte
 
@@ -77,6 +74,16 @@ type ConnectionHandler struct {
 
 	// The current SHIP state
 	smeState shipMessageExchangeState
+
+	// contains the error message if smeState is in state smeHandshakeError
+	handshakeError error
+
+	// handles timeouts for the current smeState
+	handshakeTimer        *time.Timer
+	handshakeTimerRunning bool
+
+	// stores if the connection should be trusted right away
+	connectionIsTrusted bool
 
 	unregisterChannel  chan<- *ConnectionHandler
 	connectionDelegate ConnectionHandlerDelegate
@@ -102,25 +109,22 @@ func newConnectionHandler(unregisterChannel chan<- *ConnectionHandler, connectio
 func (c *ConnectionHandler) startup() {
 	c.readChannel = make(chan []byte, 1)      // Listen to incoming websocket messages
 	c.writeChannel = make(chan []byte, 1)     // Send outgoing websocket messages
-	c.shipReadChannel = make(chan []byte, 1)  // Listen to incoming ship messages
 	c.shipWriteChannel = make(chan []byte, 1) // Send outgoing ship messages
 	c.shipTrustChannel = make(chan bool, 1)   // Listen to trust state update
 	c.closeChannel = make(chan struct{}, 1)   // Listen to close events
 
+	c.handshakeTimer = time.NewTimer(time.Hour * 1)
+	if !c.handshakeTimer.Stop() {
+		<-c.handshakeTimer.C
+	}
+
 	go c.readShipPump()
 	go c.writeShipPump()
 
-	go func() {
-		if err := c.shipHandshake(c.remoteService.userTrust || len(c.remoteService.ShipID) > 0); err != nil {
-			logging.Log.Error(c.remoteService.SKI, "SHIP handshake error: ", err)
-			c.shutdown(false)
-			return
-		}
-
-		// Report to SPINE local device about this remote device connection
-		c.connectionDelegate.addRemoteDeviceConnection(c.remoteService.SKI, c.readChannel, c.writeChannel)
-		c.shipMessageHandler()
-	}()
+	// if the user trusted this connection e.g. via the UI or if we already have a stored SHIP ID for this SKI
+	c.connectionIsTrusted = c.remoteService.userTrust || len(c.remoteService.ShipID) > 0
+	c.smeState = cmiStateInitStart
+	c.handleShipState(false, nil)
 }
 
 // shutdown the connection and all internals
@@ -131,7 +135,7 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 			return
 		}
 
-		smeState := c.getSmeState()
+		smeState := c.smeState
 
 		if smeState == smeComplete {
 			c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
@@ -149,11 +153,6 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 		if !util.IsChannelClosed(c.writeChannel) {
 			close(c.writeChannel)
 			c.writeChannel = nil
-		}
-
-		if !util.IsChannelClosed(c.shipReadChannel) {
-			close(c.shipReadChannel)
-			c.shipReadChannel = nil
 		}
 
 		if !util.IsChannelClosed(c.shipWriteChannel) {
@@ -174,7 +173,7 @@ func (c *ConnectionHandler) shutdown(safeShutdown bool) {
 		c.mux.Unlock()
 
 		if c.conn != nil {
-			smeState = c.getSmeState()
+			smeState = c.smeState
 			if smeState == smeComplete && safeShutdown {
 				// close the SHIP connection according to the SHIP protocol
 				c.shipClose()
@@ -256,6 +255,21 @@ func (c *ConnectionHandler) readShipPump() {
 		select {
 		case <-c.closeChannel:
 			return
+		case <-c.handshakeTimer.C:
+			if c.isConnClosed() {
+				return
+			}
+
+			if !c.handshakeTimerRunning {
+				continue
+			}
+
+			c.handleShipState(true, nil)
+		case trust := <-c.shipTrustChannel:
+			if trust {
+				c.connectionIsTrusted = true
+				c.handshakeHello_Trust()
+			}
 		default:
 			if c.isConnClosed() {
 				return
@@ -277,50 +291,31 @@ func (c *ConnectionHandler) readShipPump() {
 			}
 
 			// Check if this is a SHIP SME or SPINE message
-			isShipMessage := false
-			if c.getSmeState() != smeComplete {
-				isShipMessage = true
-			} else {
-				isShipMessage = bytes.Contains([]byte("datagram:"), message)
+			if !bytes.Contains([]byte("datagram:"), message) {
+				c.handleShipState(false, message)
+				continue
 			}
 
-			if isShipMessage {
-				c.shipReadChannel <- message
-			} else {
-				_, jsonData := c.parseMessage(message, true)
+			_, jsonData := c.parseMessage(message, true)
 
-				// Get the datagram from the message
-				data := ship.ShipData{}
-				if err := json.Unmarshal(jsonData, &data); err != nil {
-					logging.Log.Error(c.remoteService.SKI, "Error unmarshalling message: ", err)
-					continue
-				}
-
-				if data.Data.Payload == nil {
-					logging.Log.Error(c.remoteService.SKI, "Received no valid payload")
-					continue
-				}
-				go func() {
-					if c.readChannel == nil {
-						return
-					}
-					c.readChannel <- []byte(data.Data.Payload)
-				}()
+			// Get the datagram from the message
+			data := ship.ShipData{}
+			if err := json.Unmarshal(jsonData, &data); err != nil {
+				logging.Log.Error(c.remoteService.SKI, "Error unmarshalling message: ", err)
+				continue
 			}
-		}
-	}
-}
 
-// handles incoming ship specific messages outside of the handshake process
-func (c *ConnectionHandler) shipMessageHandler() {
-	for {
-		select {
-		case <-c.closeChannel:
-			return
-		case msg := <-c.shipReadChannel:
-			// TODO: implement this
-			// This should only be a close/abort message, right?
-			logging.Log.Trace(c.remoteService.SKI, string(msg))
+			if data.Data.Payload == nil {
+				logging.Log.Error(c.remoteService.SKI, "Received no valid payload")
+				continue
+			}
+
+			go func() {
+				if c.readChannel == nil {
+					return
+				}
+				c.readChannel <- []byte(data.Data.Payload)
+			}()
 		}
 	}
 }
@@ -453,7 +448,7 @@ func (c *ConnectionHandler) parseMessage(msg []byte, jsonFormat bool) (byte, []b
 	// remove the SHIP header byte from the message
 	msg = msg[1:]
 
-	if len(msg) > 1 {
+	if len(msg) > 1 && c.smeState == smeComplete {
 		logging.Log.Trace("Recv:", c.remoteService.SKI, string(msg))
 	}
 
