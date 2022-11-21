@@ -415,14 +415,28 @@ func (c *ConnectionHandler) sendSpineData(data []byte) error {
 
 // send a json message for a provided model to the websocket connection
 func (c *ConnectionHandler) sendShipModel(typ byte, model interface{}) error {
-	msg, err := json.Marshal(model)
+	shipMsg, err := c.shipMessage(typ, model)
 	if err != nil {
 		return err
 	}
 
-	eebusMsg, err := util.JsonIntoEEBUSJson(msg)
+	err = c.writeWebsocketMessage(shipMsg)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (c *ConnectionHandler) shipMessage(typ byte, model interface{}) ([]byte, error) {
+	msg, err := json.Marshal(model)
+	if err != nil {
+		return nil, err
+	}
+
+	eebusMsg, err := util.JsonIntoEEBUSJson(msg)
+	if err != nil {
+		return nil, err
 	}
 
 	logging.Log.Trace("Send:", c.remoteService.SKI, string(eebusMsg))
@@ -431,12 +445,7 @@ func (c *ConnectionHandler) sendShipModel(typ byte, model interface{}) error {
 	shipMsg := []byte{typ}
 	shipMsg = append(shipMsg, eebusMsg...)
 
-	err = c.writeWebsocketMessage(shipMsg)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return shipMsg, nil
 }
 
 // enable jsonFormat if the return message is expected to be encoded in
