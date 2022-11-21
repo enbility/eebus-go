@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/DerAndereAndi/eebus-go/service"
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -133,33 +134,47 @@ func main() {
 // Logging interface
 
 func (h *evse) Trace(args ...interface{}) {
-	fmt.Println(args...)
+	h.print("TRACE", args...)
 }
 
 func (h *evse) Tracef(format string, args ...interface{}) {
-	fmt.Printf(format, args...)
+	h.printFormat("TRACE", format, args...)
 }
 
 func (h *evse) Debug(args ...interface{}) {
-	fmt.Println(args...)
+	h.print("DEBUG", args...)
 }
 
 func (h *evse) Debugf(format string, args ...interface{}) {
-	fmt.Printf(format, args...)
+	h.printFormat("DEBUG", format, args...)
 }
 
 func (h *evse) Info(args ...interface{}) {
-	fmt.Println(args...)
+	h.print("INFO ", args...)
 }
 
 func (h *evse) Infof(format string, args ...interface{}) {
-	fmt.Printf(format, args...)
+	h.printFormat("INFO ", format, args...)
 }
 
 func (h *evse) Error(args ...interface{}) {
-	fmt.Println(args...)
+	h.print("ERROR", args...)
 }
 
 func (h *evse) Errorf(format string, args ...interface{}) {
-	fmt.Printf(format, args...)
+	h.printFormat("ERROR", format, args...)
+}
+
+func (h *evse) currentTimestamp() string {
+	return time.Now().Format("2006-01-02 15:04:05")
+}
+
+func (h *evse) print(msgType string, args ...interface{}) {
+	fmt.Printf("%s %s ", h.currentTimestamp(), msgType)
+	fmt.Println(args...)
+}
+
+func (h *evse) printFormat(msgType, format string, args ...interface{}) {
+	value := fmt.Sprintf(format, args...)
+	fmt.Println(h.currentTimestamp(), msgType, value)
 }
