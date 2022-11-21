@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ec_permittedvaluesetlistdata_recv_notify_partial_file_path = "./testdata/ec_permittedValueSetListData_recv_notify_partial.json"
+	ec_permittedvaluesetlistdata_recv_notify_partial_file_path = "./testdata/ec_permittedvaluesetlistdata_recv_notify_partial.json"
 	ec_descriptionlistdata_recv_reply_file_path                = "./testdata/ec_descriptionListData_recv_reply.json"
 	ec_parameterdescriptionlistdata_recv_reply_file_path       = "./testdata/ec_parameterDescriptionListData_recv_reply.json"
 	ec_subscriptionRequestCall_recv_result_file_path           = "./testdata/ec_subscriptionRequestCall_recv_result.json"
