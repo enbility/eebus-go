@@ -78,10 +78,6 @@ func (d *DeviceRemoteImpl) ReadMessage(message []byte) (*model.MsgCounterType, e
 		logging.Log.Error(err)
 	}
 
-	if &datagram.Datagram == nil || &datagram.Datagram.Header == nil {
-		return nil, errors.New("no msgcounter found")
-	}
-
 	return datagram.Datagram.Header.MsgCounter, nil
 }
 
