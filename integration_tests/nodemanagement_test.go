@@ -27,10 +27,12 @@ func TestNodeManagementSuite(t *testing.T) {
 
 type NodeManagementSuite struct {
 	suite.Suite
-	sut       *spine.DeviceLocalImpl
+	sut *spine.DeviceLocalImpl
+
 	remoteSki string
-	readC     chan []byte
-	writeC    chan []byte
+
+	readHandler  spine.ReadMessageI
+	writeHandler *WriteMessageHandler
 }
 
 func (s *NodeManagementSuite) SetupSuite() {
@@ -41,10 +43,9 @@ func (s *NodeManagementSuite) BeforeTest(suiteName, testName string) {
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
 	s.remoteSki = "TestRemoteSki"
 
-	s.readC = make(chan []byte, 1)
-	s.writeC = make(chan []byte, 1)
+	s.writeHandler = &WriteMessageHandler{}
 
-	s.sut.AddRemoteDevice(s.remoteSki, s.readC, s.writeC)
+	s.readHandler = s.sut.AddRemoteDevice(s.remoteSki, s.writeHandler)
 }
 
 func (s *NodeManagementSuite) AfterTest(suiteName, testName string) {
@@ -54,29 +55,22 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendRead() {
 	// Act (see BeforeTest)
 
 	// Assert
-	sendBytes := <-s.writeC
+	sendBytes := s.writeHandler.LastMessage()
 	checkSentData(s.T(), sendBytes, nm_detaileddiscoverydata_send_read_file_prefix)
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReply() {
-	// ignore NodeManagementDetailedDiscoveryData read
-	<-s.writeC
-
 	// Act
-	s.readC <- loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_file_path)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_file_path))
 
 	// Assert
-	sendBytes := <-s.writeC
+	sendBytes := s.writeHandler.MessageWithReference(msgCounter)
 	checkSentData(s.T(), sendBytes, nm_detaileddiscoverydata_send_reply_file_prefix)
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
-	// ignore NodeManagementDetailedDiscoveryData read
-	<-s.writeC
-
 	// Act
-	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path)
-	<-s.writeC // ignore NodeManagementSubscriptionRequestCall
+	_, _ = s.readHandler.ReadMessage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -133,15 +127,11 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_RecvNotifyAdded() {
-	// ignore NodeManagementDetailedDiscoveryData read
-	<-s.writeC
-
-	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path)
-	<-s.writeC // ignore NodeManagementSubscriptionRequestCall
+	_, _ = s.readHandler.ReadMessage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Act
-	s.readC <- loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_notify_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_notify_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -173,28 +163,22 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvNotifyAdded() {
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {
-	// ignore NodeManagementDetailedDiscoveryData read
-	<-s.writeC
-
 	// Act
-	s.readC <- loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_ack_file_path)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_ack_file_path))
 
 	// Assert
-	sentReply := <-s.writeC
+	sentReply := s.writeHandler.MessageWithReference(msgCounter)
 	checkSentData(s.T(), sentReply, nm_detaileddiscoverydata_send_reply_file_prefix)
-	sentResult := <-s.writeC
+	sentResult := s.writeHandler.ResultWithReference(msgCounter)
 	checkSentData(s.T(), sentResult, nm_detaileddiscoverydata_send_result_file_prefix)
 }
 
 func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscovery() {
-	// ignore NodeManagementDetailedDiscoveryData read
-	<-s.writeC
-
 	// Act
-	s.readC <- loadFileData(s.T(), nm_subscriptionRequestCall_recv_call_file_path)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_subscriptionRequestCall_recv_call_file_path))
 
 	// Assert
-	sentResult := <-s.writeC
+	sentResult := s.writeHandler.ResultWithReference(msgCounter)
 	checkSentData(s.T(), sentResult, nm_subscriptionRequestCall_send_result_file_prefix)
 
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -205,13 +189,10 @@ func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscover
 }
 
 func (s *NodeManagementSuite) TestDestinationList_SendReply() {
-	// ignore NodeManagementDetailedDiscoveryData read
-	<-s.writeC
-
 	// Act
-	s.readC <- loadFileData(s.T(), nm_destinationListData_recv_read_file_path)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_destinationListData_recv_read_file_path))
 
 	// Assert
-	sendBytes := <-s.writeC
+	sendBytes := s.writeHandler.MessageWithReference(msgCounter)
 	checkSentData(s.T(), sendBytes, nm_destinationListData_send_reply_file_prefix)
 }

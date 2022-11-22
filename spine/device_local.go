@@ -56,8 +56,8 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 	return res
 }
 
-func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, writeC chan<- []byte) {
-	rDevice := NewDeviceRemoteImpl(r, ski, readC, writeC)
+func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI WriteMessageI) ReadMessageI {
+	rDevice := NewDeviceRemoteImpl(r, ski, writeI)
 
 	r.mux.Lock()
 	r.remoteDevices[ski] = rDevice
@@ -70,6 +70,8 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, readC <-chan []byte, write
 	// If the request returned an error, it should be retried until it does not
 
 	Events.Subscribe(r)
+
+	return rDevice
 }
 
 // React to some specific events

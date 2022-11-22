@@ -9,9 +9,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type WriteMessageHandler struct {
+	sentMessage []byte
+}
+
+var _ WriteMessageI = (*WriteMessageHandler)(nil)
+
+func (t *WriteMessageHandler) WriteMessage(message []byte) {
+	t.sentMessage = message
+}
+
 func TestSender_Notify_MsgCounter(t *testing.T) {
-	writeC := make(chan []byte, 1)
-	sut := NewSender(writeC)
+	temp := &WriteMessageHandler{}
+	sut := NewSender(temp)
 
 	senderAddress := featureAddressType(1, NewEntityAddressType("Sender", []uint{1}))
 	destinationAddress := featureAddressType(2, NewEntityAddressType("destination", []uint{1}))
@@ -21,14 +31,13 @@ func TestSender_Notify_MsgCounter(t *testing.T) {
 
 	_, err := sut.Notify(senderAddress, destinationAddress, cmd)
 	assert.NoError(t, err)
-	<-writeC
 
 	// Act
 	_, err = sut.Notify(senderAddress, destinationAddress, cmd)
 	assert.NoError(t, err)
 	expectedMsgCounter := 2 //because Notify was called twice
 
-	sentBytes := <-writeC
+	sentBytes := temp.sentMessage
 	var sentDatagram model.Datagram
 	assert.NoError(t, json.Unmarshal(sentBytes, &sentDatagram))
 	assert.Equal(t, expectedMsgCounter, int(*sentDatagram.Datagram.Header.MsgCounter))

@@ -16,14 +16,17 @@ func TestEmobilityMeasurementSuite(t *testing.T) {
 
 type EmobilityMeasurementSuite struct {
 	suite.Suite
+	spine.WriteMessageI
+
 	sut *spine.DeviceLocalImpl
 
 	measurement          *features.Measurement
 	electricalconnection *features.ElectricalConnection
 
 	remoteSki string
-	readC     chan []byte
-	writeC    chan []byte
+
+	readHandler  spine.ReadMessageI
+	writeHandler *WriteMessageHandler
 }
 
 func (s *EmobilityMeasurementSuite) SetupSuite() {
@@ -42,12 +45,10 @@ func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
 
 	s.remoteSki = "TestRemoteSki"
 
-	s.readC = make(chan []byte, 1)
-	s.writeC = make(chan []byte, 1)
+	s.writeHandler = &WriteMessageHandler{}
+	s.readHandler = s.sut.AddRemoteDevice(s.remoteSki, s.writeHandler)
 
-	s.sut.AddRemoteDevice(s.remoteSki, s.readC, s.writeC)
-
-	initialCommunication(s.T(), s.readC, s.writeC)
+	initialCommunication(s.T(), s.readHandler, s.writeHandler)
 }
 
 func (s *EmobilityMeasurementSuite) AfterTest(suiteName, testName string) {
@@ -65,14 +66,14 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	assert.Nil(s.T(), err)
 
 	// Act
-	s.readC <- loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	s.readC <- loadFileData(s.T(), m_descriptionListData_recv_reply_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ = s.readHandler.ReadMessage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	s.readC <- loadFileData(s.T(), m_measurementListData_recv_notify_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ = s.readHandler.ReadMessage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	resultMap, err := s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalconnection)
 

@@ -20,21 +20,23 @@ func TestDeviceDiagnosisSuite(t *testing.T) {
 
 type DeviceDiagnosisSuite struct {
 	suite.Suite
-	sut       *spine.DeviceLocalImpl
+	sut *spine.DeviceLocalImpl
+
 	remoteSki string
-	readC     chan []byte
-	writeC    chan []byte
+
+	readHandler  spine.ReadMessageI
+	writeHandler *WriteMessageHandler
 }
 
 func (s *DeviceDiagnosisSuite) SetupSuite() {
 }
 
 func (s *DeviceDiagnosisSuite) BeforeTest(suiteName, testName string) {
-	s.sut, s.remoteSki, s.readC, s.writeC = beforeTest(suiteName, testName, 1, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
+	s.sut, s.remoteSki, s.readHandler, s.writeHandler = beforeTest(suiteName, testName, 1, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 
 	// f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
 
-	initialCommunication(s.T(), s.readC, s.writeC)
+	initialCommunication(s.T(), s.readHandler, s.writeHandler)
 }
 
 func (s *DeviceDiagnosisSuite) AfterTest(suiteName, testName string) {
@@ -42,8 +44,8 @@ func (s *DeviceDiagnosisSuite) AfterTest(suiteName, testName string) {
 
 func (s *DeviceDiagnosisSuite) TestHeartbeatSubscription_RecvNotify() {
 	// Act
-	s.readC <- loadFileData(s.T(), dd_subscriptionRequestCall_recv_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), dd_subscriptionRequestCall_recv_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)

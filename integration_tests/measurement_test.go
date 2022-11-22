@@ -22,18 +22,20 @@ func TestMeasurementSuite(t *testing.T) {
 
 type MeasurementSuite struct {
 	suite.Suite
-	sut       *spine.DeviceLocalImpl
+	sut *spine.DeviceLocalImpl
+
 	remoteSki string
-	readC     chan []byte
-	writeC    chan []byte
+
+	readHandler  spine.ReadMessageI
+	writeHandler *WriteMessageHandler
 }
 
 func (s *MeasurementSuite) SetupSuite() {
 }
 
 func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
-	s.sut, s.remoteSki, s.readC, s.writeC = beforeTest(suiteName, testName, 2, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
-	initialCommunication(s.T(), s.readC, s.writeC)
+	s.sut, s.remoteSki, s.readHandler, s.writeHandler = beforeTest(suiteName, testName, 2, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
+	initialCommunication(s.T(), s.readHandler, s.writeHandler)
 }
 
 func (s *MeasurementSuite) AfterTest(suiteName, testName string) {
@@ -41,8 +43,8 @@ func (s *MeasurementSuite) AfterTest(suiteName, testName string) {
 
 func (s *MeasurementSuite) TestDescriptionList_Recv() {
 	// Act
-	s.readC <- loadFileData(s.T(), m_descriptionListData_recv_reply_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -74,8 +76,8 @@ func (s *MeasurementSuite) TestDescriptionList_Recv() {
 
 func (s *MeasurementSuite) TestMeasurementList_Recv() {
 	// Act
-	s.readC <- loadFileData(s.T(), m_measurementListData_recv_notify_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -111,12 +113,12 @@ func (s *MeasurementSuite) TestMeasurementList_Recv() {
 
 func (s *MeasurementSuite) TestMeasurementByScope_Recv() {
 	// Act
-	s.readC <- loadFileData(s.T(), m_descriptionListData_recv_reply_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Act
-	s.readC <- loadFileData(s.T(), m_measurementListData_recv_notify_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ = s.readHandler.ReadMessage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)

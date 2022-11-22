@@ -12,6 +12,7 @@ import (
 
 type DeviceRemoteImpl struct {
 	*DeviceImpl
+
 	ski string
 
 	entities      []*EntityRemoteImpl
@@ -21,29 +22,22 @@ type DeviceRemoteImpl struct {
 
 	localDevice *DeviceLocalImpl
 
-	// The read channel for incoming messages
-	readChannel <-chan []byte
-
-	// Handles closing of the connection
-	closeChannel chan bool
-
 	// Heartbeat Sender
 	heartbeatSender *HeartbeatSender
 }
 
-func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, readC <-chan []byte, writeC chan<- []byte) *DeviceRemoteImpl {
-	sender := NewSender(writeC)
+var _ ReadMessageI = (*DeviceRemoteImpl)(nil)
+
+func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, writeHandler WriteMessageI) *DeviceRemoteImpl {
+	sender := NewSender(writeHandler)
 	res := DeviceRemoteImpl{
 		DeviceImpl:      NewDeviceImpl(nil, nil, nil),
 		ski:             ski,
 		localDevice:     localDevice,
-		readChannel:     readC,
-		closeChannel:    make(chan bool),
 		sender:          sender,
 		heartbeatSender: NewHeartbeatSender(sender),
 	}
 	res.addNodeManagement()
-	go res.readPump()
 
 	return &res
 }
@@ -70,31 +64,25 @@ func (d *DeviceRemoteImpl) Stopheartbeat() {
 // this connection is closed
 func (d *DeviceRemoteImpl) CloseConnection() {
 	d.heartbeatSender.StopHeartbeat()
-	d.closeChannel <- true
 }
 
-// read all incoming spine messages from the associated SHIP connection
-func (d *DeviceRemoteImpl) readPump() {
-	for {
-		select {
-		case <-d.closeChannel:
-			return
-		case data, ok := <-d.readChannel:
-			if !ok {
-				return
-			}
-
-			datagram := model.Datagram{}
-			if err := json.Unmarshal([]byte(data), &datagram); err != nil {
-				logging.Log.Error(err)
-				continue
-			}
-			err := d.localDevice.ProcessCmd(datagram.Datagram, d)
-			if err != nil {
-				logging.Log.Error(err)
-			}
-		}
+// processing incoming SPINE message from the associated SHIP connection
+func (d *DeviceRemoteImpl) ReadMessage(message []byte) (*model.MsgCounterType, error) {
+	datagram := model.Datagram{}
+	if err := json.Unmarshal([]byte(message), &datagram); err != nil {
+		logging.Log.Error(err)
+		return nil, err
 	}
+	err := d.localDevice.ProcessCmd(datagram.Datagram, d)
+	if err != nil {
+		logging.Log.Error(err)
+	}
+
+	if &datagram.Datagram == nil || &datagram.Datagram.Header == nil {
+		return nil, errors.New("no msgcounter found")
+	}
+
+	return datagram.Datagram.Header.MsgCounter, nil
 }
 
 func (d *DeviceRemoteImpl) addNodeManagement() {

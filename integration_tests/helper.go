@@ -18,7 +18,70 @@ const (
 	wallbox_detaileddiscoverydata_recv_notify_file_path = "./testdata/wallbox_detaileddiscoverydata_recv_notify.json"
 )
 
-func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeType, frole model.RoleType) (*spine.DeviceLocalImpl, string, chan []byte, chan []byte) {
+type WriteMessageHandler struct {
+	sentMessages [][]byte
+}
+
+var _ spine.WriteMessageI = (*WriteMessageHandler)(nil)
+
+func (t *WriteMessageHandler) WriteMessage(message []byte) {
+	t.sentMessages = append(t.sentMessages, message)
+}
+
+func (t *WriteMessageHandler) LastMessage() []byte {
+	if len(t.sentMessages) == 0 {
+		return nil
+	}
+	return t.sentMessages[len(t.sentMessages)-1]
+}
+
+func (t *WriteMessageHandler) MessageWithReference(msgCounterReference *model.MsgCounterType) []byte {
+	var datagram model.Datagram
+
+	for _, msg := range t.sentMessages {
+		if err := json.Unmarshal(msg, &datagram); err != nil {
+			return nil
+		}
+		if datagram.Datagram.Header.MsgCounterReference == nil {
+			continue
+		}
+		if uint(*datagram.Datagram.Header.MsgCounterReference) != uint(*msgCounterReference) {
+			continue
+		}
+		if datagram.Datagram.Payload.Cmd[0].ResultData != nil {
+			continue
+		}
+
+		return msg
+	}
+
+	return nil
+}
+
+func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.MsgCounterType) []byte {
+	var datagram model.Datagram
+
+	for _, msg := range t.sentMessages {
+		if err := json.Unmarshal(msg, &datagram); err != nil {
+			return nil
+		}
+		if datagram.Datagram.Header.MsgCounterReference == nil {
+			continue
+		}
+		if uint(*datagram.Datagram.Header.MsgCounterReference) != uint(*msgCounterReference) {
+			continue
+		}
+		if datagram.Datagram.Payload.Cmd[0].ResultData == nil {
+			continue
+		}
+
+		return msg
+	}
+
+	return nil
+}
+
+func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeType, frole model.RoleType) (*spine.DeviceLocalImpl, string, spine.ReadMessageI, *WriteMessageHandler) {
 	sut := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
 	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
@@ -28,24 +91,20 @@ func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeTyp
 
 	remoteSki := "TestRemoteSki"
 
-	readC := make(chan []byte, 1)
-	writeC := make(chan []byte, 1)
+	writeHandler := &WriteMessageHandler{}
+	remoteDevice := sut.AddRemoteDevice(remoteSki, writeHandler)
 
-	sut.AddRemoteDevice(remoteSki, readC, writeC)
-
-	return sut, remoteSki, readC, writeC
+	return sut, remoteSki, remoteDevice, writeHandler
 }
 
-func initialCommunication(t *testing.T, readC, writeC chan []byte) {
+func initialCommunication(t *testing.T, readHandler spine.ReadMessageI, writeHandler *WriteMessageHandler) {
 	// Initial generic communication
-	<-writeC // ignore NodeManagementDetailedDiscoveryData read
 
-	readC <- loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path)
-	<-writeC // ignore NodeManagementSubscriptionRequestCall
+	_, _ = readHandler.ReadMessage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Act
-	readC <- loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path)
-	waitForAck(t, writeC)
+	msgCounter, _ := readHandler.ReadMessage(loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path))
+	waitForAck(t, msgCounter, writeHandler)
 }
 
 func loadFileData(t *testing.T, fileName string) []byte {
@@ -96,23 +155,22 @@ func saveJsonToFile(t *testing.T, data json.RawMessage, fileName string) {
 	}
 }
 
-func waitForAck(t *testing.T, writeC chan []byte) {
+func waitForAck(t *testing.T, msgCounterReference *model.MsgCounterType, writeHandler *WriteMessageHandler) {
 	var datagram model.Datagram
 
-	maxSentDatagram := 100
-	for i := 0; i < maxSentDatagram; i++ {
-		sentBytes := <-writeC
-		if err := json.Unmarshal(sentBytes, &datagram); err != nil {
-			t.Fatal(err)
-		}
-		cmd := datagram.Datagram.Payload.Cmd[0]
-		if cmd.ResultData != nil {
-			if cmd.ResultData.ErrorNumber != nil && uint(*cmd.ResultData.ErrorNumber) != uint(model.ErrorNumberTypeNoError) {
-				t.Fatal(fmt.Errorf("error '%d' result data received", uint(*cmd.ResultData.ErrorNumber)))
-			}
-			return
-		}
+	msg := writeHandler.ResultWithReference(msgCounterReference)
+	if msg == nil {
+		t.Fatal("acknowledge message was not sent!!")
 	}
 
-	t.Fatal("acknowledge message was not sent!!")
+	if err := json.Unmarshal(msg, &datagram); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := datagram.Datagram.Payload.Cmd[0]
+	if cmd.ResultData != nil {
+		if cmd.ResultData.ErrorNumber != nil && uint(*cmd.ResultData.ErrorNumber) != uint(model.ErrorNumberTypeNoError) {
+			t.Fatal(fmt.Errorf("error '%d' result data received", uint(*cmd.ResultData.ErrorNumber)))
+		}
+	}
 }

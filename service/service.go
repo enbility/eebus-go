@@ -428,9 +428,10 @@ func (s *EEBUSService) shipIDUpdateForService(details *ServiceDetails) {
 	s.serviceDelegate.RemoteServiceShipIDReported(s, details.SKI, details.ShipID)
 }
 
-func (s *EEBUSService) addRemoteDeviceConnection(ski string, readC <-chan []byte, writeC chan<- []byte) {
-	s.spineLocalDevice.AddRemoteDevice(ski, readC, writeC)
+func (s *EEBUSService) addRemoteDeviceConnection(ski string, writeI spine.WriteMessageI) spine.ReadMessageI {
+	messageHandler := s.spineLocalDevice.AddRemoteDevice(ski, writeI)
 	s.serviceDelegate.RemoteSKIConnected(s, ski)
+	return messageHandler
 }
 
 func (s *EEBUSService) removeRemoteDeviceConnection(ski string) {

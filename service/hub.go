@@ -23,13 +23,13 @@ const shipZeroConfServiceType = "_ship._tcp"
 const shipZeroConfDomain = "local."
 
 type connectionsHub struct {
-	connections map[string]*ConnectionHandler
+	connections map[string]*shipConnection
 
 	// Register reuqests from a new connection
-	register chan *ConnectionHandler
+	register chan *shipConnection
 
 	// Unregister requests from a closing connection
-	unregister chan *ConnectionHandler
+	unregister chan *shipConnection
 
 	serviceDescription *ServiceDescription
 	localService       *ServiceDetails
@@ -43,18 +43,18 @@ type connectionsHub struct {
 	// Handling mDNS related tasks
 	mdns *mdns
 
-	connectionDelegate ConnectionHandlerDelegate
+	connectionDelegate shipDelegate
 
 	muxCon  sync.Mutex
 	muxReg  sync.Mutex
 	muxMdns sync.Mutex
 }
 
-func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate ConnectionHandlerDelegate) (*connectionsHub, error) {
+func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate shipDelegate) (*connectionsHub, error) {
 	hub := &connectionsHub{
-		connections:        make(map[string]*ConnectionHandler),
-		register:           make(chan *ConnectionHandler),
-		unregister:         make(chan *ConnectionHandler),
+		connections:        make(map[string]*shipConnection),
+		register:           make(chan *shipConnection),
+		unregister:         make(chan *shipConnection),
 		registeredServices: make([]ServiceDetails, 0),
 		serviceDescription: serviceDescription,
 		localService:       localService,
@@ -137,7 +137,7 @@ func (h *connectionsHub) run() {
 }
 
 // return the connection for a specific SKI
-func (h *connectionsHub) connectionForSKI(ski string) *ConnectionHandler {
+func (h *connectionsHub) connectionForSKI(ski string) *shipConnection {
 	h.muxCon.Lock()
 	defer h.muxCon.Unlock()
 

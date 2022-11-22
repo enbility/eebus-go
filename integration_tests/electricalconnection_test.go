@@ -22,18 +22,20 @@ func TestElectricalConnectionSuite(t *testing.T) {
 
 type ElectricalConnectionSuite struct {
 	suite.Suite
-	sut       *spine.DeviceLocalImpl
+	sut *spine.DeviceLocalImpl
+
 	remoteSki string
-	readC     chan []byte
-	writeC    chan []byte
+
+	readHandler  spine.ReadMessageI
+	writeHandler *WriteMessageHandler
 }
 
 func (s *ElectricalConnectionSuite) SetupSuite() {
 }
 
 func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
-	s.sut, s.remoteSki, s.readC, s.writeC = beforeTest(suiteName, testName, 1, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
-	initialCommunication(s.T(), s.readC, s.writeC)
+	s.sut, s.remoteSki, s.readHandler, s.writeHandler = beforeTest(suiteName, testName, 1, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	initialCommunication(s.T(), s.readHandler, s.writeHandler)
 }
 
 func (s *ElectricalConnectionSuite) AfterTest(suiteName, testName string) {
@@ -41,8 +43,8 @@ func (s *ElectricalConnectionSuite) AfterTest(suiteName, testName string) {
 
 func (s *ElectricalConnectionSuite) TestDescriptionListData_RecvReply() {
 	// Act
-	s.readC <- loadFileData(s.T(), ec_descriptionlistdata_recv_reply_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_descriptionlistdata_recv_reply_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -73,8 +75,8 @@ func (s *ElectricalConnectionSuite) TestDescriptionListData_RecvReply() {
 
 func (s *ElectricalConnectionSuite) TestParameterDescriptionListData_RecvReply() {
 	// Act
-	s.readC <- loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -109,8 +111,8 @@ func (s *ElectricalConnectionSuite) TestParameterDescriptionListData_RecvReply()
 
 func (s *ElectricalConnectionSuite) TestPermittedValueSetListData_RecvNotifyPartial() {
 	// Act
-	s.readC <- loadFileData(s.T(), ec_permittedvaluesetlistdata_recv_notify_partial_file_path)
-	waitForAck(s.T(), s.writeC)
+	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_permittedvaluesetlistdata_recv_notify_partial_file_path))
+	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)

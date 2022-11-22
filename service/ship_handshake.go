@@ -11,74 +11,8 @@ import (
 	"github.com/DerAndereAndi/eebus-go/ship"
 )
 
-const (
-	cmiTimeout              = 10 * time.Second       // SHIP 4.2
-	cmiCloseTimeout         = 100 * time.Millisecond //nolint
-	tHelloInit              = 60 * time.Second
-	tHelloProlongThrInc     = 30 * time.Second
-	tHelloProlongWaitingGap = 15 * time.Second //nolint
-	tHellogProlongMin       = 1 * time.Second  //nolint
-)
-
-type shipMessageExchangeState uint
-
-const (
-	// Connection Mode Initialisation (CMI) SHIP 13.4.3
-	cmiStateInitStart shipMessageExchangeState = iota
-	cmiStateClientSend
-	cmiStateClientWait
-	cmiStateClientEvaluate
-	cmiStateServerWait
-	cmiStateServerEvaluate
-	// Connection Data Preparation SHIP 13.4.4
-	smeHelloState
-	smeHelloStateReady //nolint
-	smeHelloStateReadyInit
-	smeHelloStateReadyListen
-	smeHelloStateReadyTimeout
-	smeHelloStatePending //nolint
-	smeHelloStatePendingInit
-	smeHelloStatePendingListen
-	smeHelloStatePendingTimeout
-	smeHelloStateOk
-	smeHelloStateAbort
-	// Connection State Protocol Handhsake SHIP 13.4.4.2
-	smeProtHStateServerInit           //nolint
-	smeProtHStateClientInit           //nolint
-	smeProtHStateServerListenProposal //nolint
-	smeProtHStateServerListenConfirm  //nolint
-	smeProtHStateClientListenChoice   //nolint
-	smeProtHStateTimeout              //nolint
-	smeProtHStateClientOk             //nolint
-	smeProtHStateServerOk             //nolint
-	// Connection PIN State 13.4.5
-	smePinStateCheckInit     //nolint
-	smePinStateCheckListen   //nolint
-	smePinStateCheckError    //nolint
-	smePinStateCheckBusyInit //nolint
-	smePinStateCheckBusyWait //nolint
-	smePinStateCheckOk       //nolint
-	smePinStateAskInit       //nolint
-	smePinStateAskProcess    //nolint
-	smePinStateAskRestricted //nolint
-	smePinStateAskOk         //nolint
-	// ConnectionAccess Methods Identification 13.4.6
-	smeAccessMethodsRequest
-
-	// Handshake approved on both ends
-	smeApproved
-
-	// Handshake process is successfully completed
-	smeComplete
-
-	// Handshake Error
-	smeHandshakeError
-)
-
-var shipInit []byte = []byte{ship.MsgTypeInit, 0x00}
-
 // handle incoming SHIP messages and coordinate Handshake States
-func (c *ConnectionHandler) handleShipState(timeout bool, message []byte) {
+func (c *shipConnection) handleShipState(timeout bool, message []byte) {
 	if c.handshakeTimerRunning {
 		if !c.handshakeTimer.Stop() {
 			<-c.handshakeTimer.C
@@ -166,14 +100,14 @@ func (c *ConnectionHandler) handleShipState(timeout bool, message []byte) {
 	}
 }
 
-func (c *ConnectionHandler) approveHandshake() {
+func (c *shipConnection) approveHandshake() {
 	// Report to SPINE local device about this remote device connection
-	c.connectionDelegate.addRemoteDeviceConnection(c.remoteService.SKI, c.readChannel, c.writeChannel)
+	c.readHandler = c.connectionDelegate.addRemoteDeviceConnection(c.remoteService.SKI, c)
 	c.smeState = smeComplete
 }
 
 // end the handshake process because of an error
-func (c *ConnectionHandler) endHandshakeWithError(err error) {
+func (c *shipConnection) endHandshakeWithError(err error) {
 	c.smeState = smeHandshakeError
 
 	if c.handshakeError != nil {
@@ -187,7 +121,7 @@ func (c *ConnectionHandler) endHandshakeWithError(err error) {
 // Handshake initialization
 
 // cmiStateInitStart
-func (c *ConnectionHandler) handshakeInit_cmiStateInitStart() {
+func (c *shipConnection) handshakeInit_cmiStateInitStart() {
 	switch c.role {
 	case ShipRoleClient:
 		// CMI_STATE_CLIENT_SEND
@@ -205,7 +139,7 @@ func (c *ConnectionHandler) handshakeInit_cmiStateInitStart() {
 }
 
 // CMI_STATE_SERVER_WAIT
-func (c *ConnectionHandler) handshakeInit_cmiStateServerWait(message []byte) {
+func (c *shipConnection) handshakeInit_cmiStateServerWait(message []byte) {
 	c.smeState = cmiStateServerEvaluate
 
 	c.handshakeInit_cmiStateEvaluate(message)
@@ -220,7 +154,7 @@ func (c *ConnectionHandler) handshakeInit_cmiStateServerWait(message []byte) {
 }
 
 // CMI_STATE_CLIENT_WAIT
-func (c *ConnectionHandler) handshakeInit_cmiStateClientWait(message []byte) {
+func (c *shipConnection) handshakeInit_cmiStateClientWait(message []byte) {
 	c.smeState = cmiStateClientEvaluate
 
 	c.handshakeInit_cmiStateEvaluate(message)
@@ -231,7 +165,7 @@ func (c *ConnectionHandler) handshakeInit_cmiStateClientWait(message []byte) {
 
 // CMI_STATE_SERVER_EVALUATE
 // CMI_STATE_CLIENT_EVALUATE
-func (c *ConnectionHandler) handshakeInit_cmiStateEvaluate(message []byte) {
+func (c *shipConnection) handshakeInit_cmiStateEvaluate(message []byte) {
 	msgType, data := c.parseMessage(message, false)
 
 	if msgType != ship.MsgTypeInit {
@@ -246,7 +180,7 @@ func (c *ConnectionHandler) handshakeInit_cmiStateEvaluate(message []byte) {
 // Handshake Hello
 
 // smeHelloState
-func (c *ConnectionHandler) handshakeHello_Init() {
+func (c *shipConnection) handshakeHello_Init() {
 	switch c.connectionIsTrusted {
 	case true:
 		c.smeState = smeHelloStateReadyInit
@@ -271,7 +205,7 @@ func (c *ConnectionHandler) handshakeHello_Init() {
 }
 
 // Timeout reached we didn't receive a user input, so ask for prolongation
-func (c *ConnectionHandler) handshakeHello_AskProlongation() {
+func (c *shipConnection) handshakeHello_AskProlongation() {
 	c.smeState = smeHelloStatePendingTimeout
 
 	if err := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypePending, 0, true); err != nil {
@@ -285,7 +219,7 @@ func (c *ConnectionHandler) handshakeHello_AskProlongation() {
 }
 
 // A user trust was received
-func (c *ConnectionHandler) handshakeHello_Trust() {
+func (c *shipConnection) handshakeHello_Trust() {
 	if err := c.handshakeHelloSend(ship.ConnectionHelloPhaseTypeReady, tHelloInit, false); err != nil {
 		c.smeState = smeHelloStateAbort
 		c.endHandshakeWithError(err)
@@ -295,7 +229,7 @@ func (c *ConnectionHandler) handshakeHello_Trust() {
 	c.smeState = smeHelloStateReadyListen
 }
 
-func (c *ConnectionHandler) handshakeHello_ReadyListen(message []byte) {
+func (c *shipConnection) handshakeHello_ReadyListen(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	var helloReturnMsg ship.ConnectionHello
@@ -334,7 +268,7 @@ func (c *ConnectionHandler) handshakeHello_ReadyListen(message []byte) {
 	}
 }
 
-func (c *ConnectionHandler) handshakeHelloSend(phase ship.ConnectionHelloPhaseType, waitingDuration time.Duration, prolongation bool) error {
+func (c *shipConnection) handshakeHelloSend(phase ship.ConnectionHelloPhaseType, waitingDuration time.Duration, prolongation bool) error {
 	helloMsg := ship.ConnectionHello{
 		ConnectionHello: ship.ConnectionHelloType{
 			Phase: phase,
@@ -357,7 +291,7 @@ func (c *ConnectionHandler) handshakeHelloSend(phase ship.ConnectionHelloPhaseTy
 
 // smeHelloStateOk
 
-func (c *ConnectionHandler) handshakeProtocol_Init() {
+func (c *shipConnection) handshakeProtocol_Init() {
 	switch c.role {
 	case ShipRoleServer:
 		c.smeState = smeProtHStateServerInit
@@ -370,7 +304,7 @@ func (c *ConnectionHandler) handshakeProtocol_Init() {
 }
 
 // provide a ship.MessageProtocolHandshake struct
-func (c *ConnectionHandler) protocolHandshake() ship.MessageProtocolHandshake {
+func (c *shipConnection) protocolHandshake() ship.MessageProtocolHandshake {
 	protocolHandshake := ship.MessageProtocolHandshake{
 		MessageProtocolHandshake: ship.MessageProtocolHandshakeType{
 			Version: ship.Version{Major: 1, Minor: 0},
@@ -383,7 +317,7 @@ func (c *ConnectionHandler) protocolHandshake() ship.MessageProtocolHandshake {
 	return protocolHandshake
 }
 
-func (c *ConnectionHandler) handshakeProtocol_smeProtHStateServerListenProposal(message []byte) {
+func (c *shipConnection) handshakeProtocol_smeProtHStateServerListenProposal(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	messageProtocolHandshake := ship.MessageProtocolHandshake{}
@@ -407,7 +341,7 @@ func (c *ConnectionHandler) handshakeProtocol_smeProtHStateServerListenProposal(
 	c.smeState = smeProtHStateServerListenConfirm
 }
 
-func (c *ConnectionHandler) handshakeProtocol_smeProtHStateServerListenConfirm(message []byte) {
+func (c *shipConnection) handshakeProtocol_smeProtHStateServerListenConfirm(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	var messageProtocolHandshake ship.MessageProtocolHandshake
@@ -425,7 +359,7 @@ func (c *ConnectionHandler) handshakeProtocol_smeProtHStateServerListenConfirm(m
 	c.handshakePin_Init()
 }
 
-func (c *ConnectionHandler) handshakeProtocol_smeProtHStateClientInit() {
+func (c *shipConnection) handshakeProtocol_smeProtHStateClientInit() {
 	c.smeState = smeProtHStateClientInit
 
 	protocolHandshake := c.protocolHandshake()
@@ -439,7 +373,7 @@ func (c *ConnectionHandler) handshakeProtocol_smeProtHStateClientInit() {
 	c.smeState = smeProtHStateClientListenChoice
 }
 
-func (c *ConnectionHandler) handshakeProtocol_smeProtHStateClientListenChoice(message []byte) {
+func (c *shipConnection) handshakeProtocol_smeProtHStateClientListenChoice(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	messageProtocolHandshake := ship.MessageProtocolHandshake{}
@@ -467,7 +401,7 @@ func (c *ConnectionHandler) handshakeProtocol_smeProtHStateClientListenChoice(me
 
 // handshake PIN
 
-func (c *ConnectionHandler) handshakePin_Init() {
+func (c *shipConnection) handshakePin_Init() {
 	c.smeState = smePinStateCheckInit
 
 	pinState := ship.ConnectionPinState{
@@ -484,7 +418,7 @@ func (c *ConnectionHandler) handshakePin_Init() {
 	c.smeState = smePinStateCheckListen
 }
 
-func (c *ConnectionHandler) handshakePin_smePinStateCheckListen(message []byte) {
+func (c *shipConnection) handshakePin_smePinStateCheckListen(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	var connectionPinState ship.ConnectionPinState
@@ -508,7 +442,7 @@ func (c *ConnectionHandler) handshakePin_smePinStateCheckListen(message []byte) 
 	}
 }
 
-func (c *ConnectionHandler) handshakeAccessMethods_Init() {
+func (c *shipConnection) handshakeAccessMethods_Init() {
 	// Access Methods
 	accessMethodsRequest := ship.AccessMethodsRequest{
 		AccessMethodsRequest: ship.AccessMethodsRequestType{},
@@ -523,7 +457,7 @@ func (c *ConnectionHandler) handshakeAccessMethods_Init() {
 	c.smeState = smeAccessMethodsRequest
 }
 
-func (c *ConnectionHandler) handshakeAccessMethods_Request(message []byte) {
+func (c *shipConnection) handshakeAccessMethods_Request(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	dataString := string(data)
@@ -571,7 +505,7 @@ func (c *ConnectionHandler) handshakeAccessMethods_Request(message []byte) {
 	c.approveHandshake()
 }
 
-func (c *ConnectionHandler) shipClose() {
+func (c *shipConnection) shipClose() {
 	if c.conn == nil {
 		return
 	}
@@ -586,7 +520,7 @@ func (c *ConnectionHandler) shipClose() {
 	_ = c.sendShipModel(ship.MsgTypeControl, closeMessage)
 }
 
-func (c *ConnectionHandler) resetHandshakeTimer(duration time.Duration) {
+func (c *shipConnection) resetHandshakeTimer(duration time.Duration) {
 	c.handshakeTimer.Reset(cmiTimeout)
 	c.handshakeTimerRunning = true
 }
