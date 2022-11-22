@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/DerAndereAndi/eebus-go/spine"
@@ -20,22 +21,34 @@ const (
 
 type WriteMessageHandler struct {
 	sentMessages [][]byte
+
+	mux sync.Mutex
 }
 
 var _ spine.WriteMessageI = (*WriteMessageHandler)(nil)
 
 func (t *WriteMessageHandler) WriteMessage(message []byte) {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
 	t.sentMessages = append(t.sentMessages, message)
 }
 
 func (t *WriteMessageHandler) LastMessage() []byte {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
 	if len(t.sentMessages) == 0 {
 		return nil
 	}
+
 	return t.sentMessages[len(t.sentMessages)-1]
 }
 
 func (t *WriteMessageHandler) MessageWithReference(msgCounterReference *model.MsgCounterType) []byte {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
 	var datagram model.Datagram
 
 	for _, msg := range t.sentMessages {
@@ -59,6 +72,9 @@ func (t *WriteMessageHandler) MessageWithReference(msgCounterReference *model.Ms
 }
 
 func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.MsgCounterType) []byte {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
 	var datagram model.Datagram
 
 	for _, msg := range t.sentMessages {

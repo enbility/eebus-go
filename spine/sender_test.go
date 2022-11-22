@@ -2,6 +2,7 @@ package spine
 
 import (
 	"encoding/json"
+	"sync"
 	"testing"
 
 	"github.com/DerAndereAndi/eebus-go/spine/model"
@@ -11,11 +12,16 @@ import (
 
 type WriteMessageHandler struct {
 	sentMessage []byte
+
+	mux sync.Mutex
 }
 
 var _ WriteMessageI = (*WriteMessageHandler)(nil)
 
 func (t *WriteMessageHandler) WriteMessage(message []byte) {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
 	t.sentMessage = message
 }
 
