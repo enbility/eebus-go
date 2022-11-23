@@ -22,14 +22,19 @@ const shipWebsocketPath = "/ship/"
 const shipZeroConfServiceType = "_ship._tcp"
 const shipZeroConfDomain = "local."
 
+// implemented by connectionsHub and used by shipConnection
+type connectionHubHandler interface {
+	HandleConnectionClosing(connection *shipConnection)
+}
+
+// interface for interactions back into a connection
+// implemented by the connection
+type connectionInteraction interface {
+	ReportUserTrust(bool)
+}
+
 type connectionsHub struct {
 	connections map[string]*shipConnection
-
-	// Register reuqests from a new connection
-	register chan *shipConnection
-
-	// Unregister requests from a closing connection
-	unregister chan *shipConnection
 
 	serviceDescription *ServiceDescription
 	localService       *ServiceDetails
@@ -43,18 +48,16 @@ type connectionsHub struct {
 	// Handling mDNS related tasks
 	mdns *mdns
 
-	connectionDelegate shipDelegate
+	connectionDelegate interactionShipSpine
 
 	muxCon  sync.Mutex
 	muxReg  sync.Mutex
 	muxMdns sync.Mutex
 }
 
-func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate shipDelegate) (*connectionsHub, error) {
+func newConnectionsHub(serviceDescription *ServiceDescription, localService *ServiceDetails, connectionDelegate interactionShipSpine) (*connectionsHub, error) {
 	hub := &connectionsHub{
 		connections:        make(map[string]*shipConnection),
-		register:           make(chan *shipConnection),
-		unregister:         make(chan *shipConnection),
 		registeredServices: make([]ServiceDetails, 0),
 		serviceDescription: serviceDescription,
 		localService:       localService,
@@ -75,8 +78,6 @@ func newConnectionsHub(serviceDescription *ServiceDescription, localService *Ser
 
 // start the ConnectionsHub with all its services
 func (h *connectionsHub) start() {
-	go h.run()
-
 	// start the websocket server
 	go func() {
 		if err := h.startWebsocketServer(); err != nil {
@@ -89,50 +90,48 @@ func (h *connectionsHub) start() {
 	}
 }
 
-// handle (dis-)connecting remote services
-func (h *connectionsHub) run() {
-	for {
-		select {
-		// connect to a paired service
-		case c := <-h.register:
-			// check if we already have a connection for the SKI
-			if connection := h.connectionForSKI(c.remoteService.SKI); connection != nil {
-				go c.shutdown(false)
-			} else {
-				h.muxCon.Lock()
-				h.connections[c.remoteService.SKI] = c
-				h.muxCon.Unlock()
+var _ connectionHubHandler = (*connectionsHub)(nil)
 
-				c.startup()
-
-				// shutdown mDNS if this is not a CEM
-				if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
-					h.mdns.Unannounce()
-					h.mdns.UnregisterMdnsSearch(h)
-				}
-			}
-
-		// disconnect from a no longer connected or paired service
-		case c := <-h.unregister:
-			// only remove this connection if it is the registered one for the ski!
-			if connection := h.connectionForSKI(c.remoteService.SKI); connection != nil {
-				if connection != nil && connection.conn == c.conn {
-					h.muxCon.Lock()
-					delete(h.connections, c.remoteService.SKI)
-					h.muxCon.Unlock()
-				}
-			}
-
-			// startup mDNS if a paired service is not connected
-			if len(h.connections) == 0 && len(h.registeredServices) > 0 {
-				logging.Log.Debug("Starting mDNS")
-				// if this is not a CEM also start the mDNS announcement
-				if c.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
-					_ = h.mdns.Announce()
-				}
-				h.mdns.RegisterMdnsSearch(h)
-			}
+// The connection was closed, we need to clean up
+func (h *connectionsHub) HandleConnectionClosing(connection *shipConnection) {
+	// only remove this connection if it is the registered one for the ski!
+	// as we can have double connections but only one can be registered
+	if existingC := h.connectionForSKI(connection.remoteService.SKI); existingC != nil {
+		if connection.dataHandler == connection.dataHandler {
+			h.muxCon.Lock()
+			delete(h.connections, connection.remoteService.SKI)
+			h.muxCon.Unlock()
 		}
+	}
+
+	// startup mDNS if a paired service is not connected
+	if len(h.connections) == 0 && len(h.registeredServices) > 0 {
+		logging.Log.Debug("Starting mDNS")
+		// if this is not a CEM also start the mDNS announcement
+		if connection.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
+			_ = h.mdns.Announce()
+		}
+		h.mdns.RegisterMdnsSearch(h)
+	}
+}
+
+// register a new ship Connection
+func (h *connectionsHub) registerConnection(connection *shipConnection) {
+	// check if we already have a connection for the SKI
+	if existingC := h.connectionForSKI(connection.remoteService.SKI); existingC != nil {
+		// TODO: provide a reason
+		go connection.CloseConnection(true)
+		return
+	}
+
+	h.muxCon.Lock()
+	h.connections[connection.remoteService.SKI] = connection
+	h.muxCon.Unlock()
+
+	// shutdown mDNS if this is not a CEM
+	if connection.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
+		h.mdns.Unannounce()
+		h.mdns.UnregisterMdnsSearch(h)
 	}
 }
 
@@ -155,7 +154,7 @@ func (h *connectionsHub) shutdown() {
 
 	h.mdns.shutdown()
 	for _, c := range h.connections {
-		c.shutdown(true)
+		c.CloseConnection(true)
 	}
 }
 
@@ -179,7 +178,7 @@ func (h *connectionsHub) disconnectSKI(ski string) {
 		return
 	}
 
-	con.shutdown(true)
+	con.CloseConnection(true)
 }
 
 // Websocket connection handling
@@ -288,9 +287,10 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleServer, h.localService, remoteService, conn)
+	dataConnection := newWebsocketConnection(conn, ski)
+	shipConnection := newConnectionHandler(h, h.connectionDelegate, ShipRoleClient, h.localService, remoteService, dataConnection)
 
-	h.register <- connectionHandler
+	h.registerConnection(shipConnection)
 }
 
 // Connect to another EEBUS service
@@ -354,9 +354,10 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		return errors.New(errorString)
 	}
 
-	connectionHandler := newConnectionHandler(h.unregister, h.connectionDelegate, ShipRoleClient, h.localService, remoteService, conn)
+	dataConnection := newWebsocketConnection(conn, remoteService.SKI)
+	shipConnection := newConnectionHandler(h, h.connectionDelegate, ShipRoleServer, h.localService, remoteService, dataConnection)
 
-	h.register <- connectionHandler
+	h.registerConnection(shipConnection)
 
 	return nil
 }
@@ -394,31 +395,28 @@ func (h *connectionsHub) registerRemoteService(service ServiceDetails) {
 // Update known device in the list of known devices which can be connected to
 func (h *connectionsHub) updateRemoteServiceTrust(ski string, trusted bool) {
 	h.muxReg.Lock()
-	defer h.muxReg.Unlock()
+
+	var conn *shipConnection
 
 	for i, device := range h.registeredServices {
 		if device.SKI == ski {
-			h.registeredServices[i].userTrust = true
+			h.registeredServices[i].userTrust = trusted
 
-			conn := h.connectionForSKI(ski)
-			if conn != nil {
-				if conn.smeState >= smeHelloState {
-					conn.shipTrustChannel <- trusted
-				} else {
-					conn.remoteService.userTrust = trusted
-				}
-			} else {
-				continue
-			}
+			conn = h.connectionForSKI(ski)
 			break
 		}
+	}
+
+	h.muxReg.Unlock()
+
+	if conn != nil {
+		conn.ReportUserTrust(trusted)
 	}
 }
 
 // Remove a device from the list of known devices which can be connected to
 // and disconnect it if it is currently connected
 func (h *connectionsHub) unregisterRemoteService(ski string) error {
-
 	newRegisteredDevice := make([]ServiceDetails, 0)
 
 	h.muxReg.Lock()
@@ -432,7 +430,7 @@ func (h *connectionsHub) unregisterRemoteService(ski string) error {
 	h.muxReg.Unlock()
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
-		existingC.shutdown(true)
+		existingC.CloseConnection(true)
 	}
 
 	return nil

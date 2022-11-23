@@ -3,8 +3,6 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -13,12 +11,16 @@ import (
 	"github.com/DerAndereAndi/eebus-go/service/util"
 	"github.com/DerAndereAndi/eebus-go/ship"
 	"github.com/DerAndereAndi/eebus-go/spine"
-	"github.com/gorilla/websocket"
 )
 
-type shipDelegate interface {
-	requestUserTrustForService(service *ServiceDetails)
-	shipIDUpdateForService(service *ServiceDetails)
+// interface for SHIP and SPINE interactions
+// implemented by service
+type interactionShipSpine interface {
+	// (dis-)approval of a connection trust is needed
+	requestUserTrustForService(ski string)
+
+	// inform about the SHIP identifier, which needs to be persisted
+	shipIDUpdateForService(details *ServiceDetails)
 
 	// new spine connection established, inform SPINE
 	addRemoteDeviceConnection(ski string, writeI spine.WriteMessageI) spine.ReadMessageI
@@ -27,7 +29,33 @@ type shipDelegate interface {
 	removeRemoteDeviceConnection(ski string)
 }
 
-// A shipConnection handles websocket connections.
+// interface for handling the actual remote device data connection
+//
+// implemented by the websocket connection
+type shipDataConnection interface {
+	// initialize data processing
+	InitDataProcessing(shipDataProcessing)
+
+	// send data via the connection to the remote device
+	WriteMessageToDataConnection([]byte) error
+
+	// close the data connection
+	CloseDataConnection()
+}
+
+// interface for handling incoming data
+//
+// implemented by shipConnection
+type shipDataProcessing interface {
+	// called for each incoming message
+	HandleIncomingMessage([]byte)
+
+	// called if the data connection is closed unsafe
+	// e.g. due to connection issues
+	ReportConnectionError(error)
+}
+
+// A shipConnection handles the data connection and coordinates SHIP and SPINE messages i/o
 type shipConnection struct {
 	// The ship connection mode of this connection
 	role shipRole
@@ -38,20 +66,11 @@ type shipConnection struct {
 	// The local service
 	localService *ServiceDetails
 
-	// The actual websocket connection
-	conn *websocket.Conn
-
 	// Where to pass incoming SPINE messages to
 	readHandler spine.ReadMessageI
 
-	// The ship write channel for outgoing SHIP messages
-	shipWriteChannel chan []byte
-
-	// The connection was closed
-	closeChannel chan struct{}
-
-	// The channel for handling local trust state update for the remote service
-	shipTrustChannel chan bool
+	// the handler for sending messages on the data connection
+	dataHandler shipDataConnection
 
 	// The current SHIP state
 	smeState shipMessageExchangeState
@@ -64,96 +83,78 @@ type shipConnection struct {
 	handshakeTimerRunning bool
 
 	// stores if the connection should be trusted right away
-	connectionIsTrusted bool
+	connectionTrustPending bool
 
-	unregisterChannel  chan<- *shipConnection
-	connectionDelegate shipDelegate
+	hubHandler         connectionHubHandler
+	interactionHandler interactionShipSpine
 
-	// internal handling of closed connections
-	isConnectionClosed bool
-
-	mux          sync.Mutex
 	shutdownOnce sync.Once
 }
 
-func newConnectionHandler(unregisterChannel chan<- *shipConnection, connectionDelegate shipDelegate, role shipRole, localService, remoteService *ServiceDetails, conn *websocket.Conn) *shipConnection {
-	return &shipConnection{
-		unregisterChannel:  unregisterChannel,
-		connectionDelegate: connectionDelegate,
+func newConnectionHandler(hubHandler connectionHubHandler, connectionDelegate interactionShipSpine, role shipRole, localService, remoteService *ServiceDetails, dataHandler shipDataConnection) *shipConnection {
+	ship := &shipConnection{
+		hubHandler:         hubHandler,
+		interactionHandler: connectionDelegate,
 		role:               role,
 		localService:       localService,
 		remoteService:      remoteService,
-		conn:               conn,
+		dataHandler:        dataHandler,
 	}
+	dataHandler.InitDataProcessing(ship)
+	ship.startup()
+
+	return ship
 }
 
+// start SHIP communication
 func (c *shipConnection) startup() {
-	c.shipWriteChannel = make(chan []byte, 1) // Send outgoing ship messages
-	c.shipTrustChannel = make(chan bool, 1)   // Listen to trust state update
-	c.closeChannel = make(chan struct{}, 1)   // Listen to close events
-
 	c.handshakeTimer = time.NewTimer(time.Hour * 1)
 	if !c.handshakeTimer.Stop() {
 		<-c.handshakeTimer.C
 	}
 
-	go c.readShipPump()
-	go c.writeShipPump()
-
 	// if the user trusted this connection e.g. via the UI or if we already have a stored SHIP ID for this SKI
-	c.connectionIsTrusted = c.remoteService.userTrust || len(c.remoteService.ShipID) > 0
+	if !c.remoteService.userTrust && len(c.remoteService.ShipID) > 0 {
+		c.remoteService.userTrust = true
+	}
+
 	c.smeState = cmiStateInitStart
-	c.handleShipState(false, nil)
+	c.handleShipMessage(false, nil)
 }
 
-// shutdown the connection and all internals
-// may only invoked after startup() is invoked!
-func (c *shipConnection) shutdown(safeShutdown bool) {
+// close this ship connection
+func (c *shipConnection) CloseConnection(safe bool) {
 	c.shutdownOnce.Do(func() {
-		if c.isConnectionClosed {
-			return
-		}
+		c.interactionHandler.removeRemoteDeviceConnection(c.remoteService.SKI)
+		c.hubHandler.HandleConnectionClosing(c)
 
-		smeState := c.smeState
-
-		if smeState == smeComplete {
-			c.connectionDelegate.removeRemoteDeviceConnection(c.remoteService.SKI)
-		}
-
-		c.unregisterChannel <- c
-
-		c.mux.Lock()
-
-		if !util.IsChannelClosed(c.shipWriteChannel) {
-			close(c.shipWriteChannel)
-			c.shipWriteChannel = nil
-		}
-
-		if !util.IsChannelClosed(c.shipTrustChannel) {
-			close(c.shipTrustChannel)
-			c.shipTrustChannel = nil
-		}
-
-		if !util.IsChannelClosed(c.closeChannel) {
-			close(c.closeChannel)
-			c.closeChannel = nil
-		}
-
-		c.mux.Unlock()
-
-		if c.conn != nil {
-			smeState = c.smeState
-			if smeState == smeComplete && safeShutdown {
-				// close the SHIP connection according to the SHIP protocol
-				c.shipClose()
+		if safe {
+			// SHIP 13.4.7: Connection Termination
+			closeMessage := ship.ConnectionClose{
+				ConnectionClose: ship.ConnectionCloseType{
+					Phase: ship.ConnectionClosePhaseTypeAnnounce,
+				},
 			}
 
-			c.conn.Close()
+			_ = c.sendShipModel(ship.MsgTypeControl, closeMessage)
+
+			// TODO: finish safe close implementation
 		}
 
-		c.isConnectionClosed = true
+		c.dataHandler.CloseDataConnection()
 	})
 }
+
+var _ connectionInteraction = (*shipConnection)(nil)
+
+// handle an incoming trust result
+func (c *shipConnection) ReportUserTrust(trust bool) {
+	c.remoteService.userTrust = trust
+	c.connectionTrustPending = false
+	c.handleShipMessage(false, nil)
+}
+
+var _ spine.WriteMessageI = (*shipConnection)(nil)
 
 // WriteMessageI interface implementation
 func (c *shipConnection) WriteMessage(message []byte) {
@@ -161,157 +162,47 @@ func (c *shipConnection) WriteMessage(message []byte) {
 		logging.Log.Error(c.remoteService.SKI, "Error sending spine message: ", err)
 		return
 	}
-
 }
 
-// writePump pumps messages from the SPINE and SHIP writeChannels to the websocket connection
-func (c *shipConnection) writeShipPump() {
-	ticker := time.NewTicker(pingPeriod)
-	defer func() {
-		ticker.Stop()
-		c.shutdown(false)
-	}()
+var _ shipDataProcessing = (*shipConnection)(nil)
 
-	for {
-		select {
-		case <-c.closeChannel:
-			return
-
-		case message, ok := <-c.shipWriteChannel:
-			if c.isConnClosed() {
-				return
-			}
-
-			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if !ok {
-				logging.Log.Debug(c.remoteService.SKI, "Ship write channel closed")
-				// The write channel has been closed
-				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-			if err := c.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				logging.Log.Error(c.remoteService.SKI, "Error writing to websocket: ", err)
-				return
-			}
-		case <-ticker.C:
-			if c.isConnClosed() {
-				return
-			}
-			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				logging.Log.Error(c.remoteService.SKI, "Error writing to websocket: ", err)
-				return
-			}
-		}
+// route the incoming message to either SHIP or SPINE message handlers
+func (c *shipConnection) HandleIncomingMessage(message []byte) {
+	// Check if this is a SHIP SME or SPINE message
+	if c.isShipMessage(message) {
+		c.handleShipMessage(false, message)
+		return
 	}
+
+	_, jsonData := c.parseMessage(message, true)
+
+	// Get the datagram from the message
+	data := ship.ShipData{}
+	if err := json.Unmarshal(jsonData, &data); err != nil {
+		logging.Log.Error(c.remoteService.SKI, "Error unmarshalling message: ", err)
+		return
+	}
+
+	if data.Data.Payload == nil {
+		logging.Log.Error(c.remoteService.SKI, "Received no valid payload")
+		return
+	}
+
+	if c.readHandler == nil {
+		return
+	}
+
+	// pass the payload to the SPINE read handler
+	_, _ = c.readHandler.ReadMessage([]byte(data.Data.Payload))
 }
 
-// readShipPump pumps messages from the websocket connection into the read message channel
-func (c *shipConnection) readShipPump() {
-	defer func() {
-		c.shutdown(false)
-	}()
-
-	_ = c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { _ = c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-
-	for {
-		select {
-		case <-c.closeChannel:
-			return
-		case <-c.handshakeTimer.C:
-			if c.isConnClosed() {
-				return
-			}
-
-			if !c.handshakeTimerRunning {
-				continue
-			}
-
-			c.handleShipState(true, nil)
-		case trust := <-c.shipTrustChannel:
-			if trust {
-				c.connectionIsTrusted = true
-				c.handshakeHello_Trust()
-			}
-		default:
-			if c.isConnClosed() {
-				return
-			}
-
-			message, err := c.readWebsocketMessage()
-			if err != nil {
-				if c.isConnClosed() {
-					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-						logging.Log.Error(c.remoteService.SKI, "Error reading message: ", err)
-					}
-
-					return
-				}
-
-				logging.Log.Error(c.remoteService.SKI, "Websocket read error: ", err)
-				c.shutdown(false)
-				return
-			}
-
-			// Check if this is a SHIP SME or SPINE message
-			if !bytes.Contains(message, []byte("datagram")) {
-				c.handleShipState(false, message)
-				continue
-			}
-
-			_, jsonData := c.parseMessage(message, true)
-
-			// Get the datagram from the message
-			data := ship.ShipData{}
-			if err := json.Unmarshal(jsonData, &data); err != nil {
-				logging.Log.Error(c.remoteService.SKI, "Error unmarshalling message: ", err)
-				continue
-			}
-
-			if data.Data.Payload == nil {
-				logging.Log.Error(c.remoteService.SKI, "Received no valid payload")
-				continue
-			}
-
-			if c.readHandler == nil {
-				return
-			}
-			_, _ = c.readHandler.ReadMessage([]byte(data.Data.Payload))
-		}
-	}
+// checks wether the provided messages is a SHIP message
+func (c *shipConnection) isShipMessage(message []byte) bool {
+	return !bytes.Contains(message, []byte("datagram"))
 }
 
-// read a message from the websocket connection
-func (c *shipConnection) readWebsocketMessage() ([]byte, error) {
-	if c.conn == nil {
-		return nil, errors.New("Connection is not initialized")
-	}
-
-	msgType, b, err := c.conn.ReadMessage()
-	if err != nil {
-		return nil, err
-	}
-
-	if msgType != websocket.BinaryMessage {
-		return nil, errors.New("Message is not a binary message")
-	}
-
-	if len(b) < 2 {
-		return nil, fmt.Errorf("Invalid ship message length")
-	}
-
-	return b, nil
-}
-
-// write a message to the websocket connection
-func (c *shipConnection) writeWebsocketMessage(message []byte) error {
-	if c.conn == nil {
-		return errors.New("Connection is not initialized")
-	}
-
-	c.shipWriteChannel <- message
-	return nil
+func (c *shipConnection) ReportConnectionError(err error) {
+	c.CloseConnection(false)
 }
 
 const payloadPlaceholder = `{"place":"holder"}`
@@ -366,7 +257,7 @@ func (c *shipConnection) sendSpineData(data []byte) error {
 	shipMsg := []byte{ship.MsgTypeData}
 	shipMsg = append(shipMsg, eebusMsg...)
 
-	err = c.writeWebsocketMessage(shipMsg)
+	err = c.dataHandler.WriteMessageToDataConnection(shipMsg)
 	if err != nil {
 		logging.Log.Error("Error sending message: ", err)
 		return err
@@ -382,7 +273,7 @@ func (c *shipConnection) sendShipModel(typ byte, model interface{}) error {
 		return err
 	}
 
-	err = c.writeWebsocketMessage(shipMsg)
+	err = c.dataHandler.WriteMessageToDataConnection(shipMsg)
 	if err != nil {
 		return err
 	}
@@ -390,6 +281,7 @@ func (c *shipConnection) sendShipModel(typ byte, model interface{}) error {
 	return nil
 }
 
+// transform a SHIP model into EEBUS specific JSON
 func (c *shipConnection) shipMessage(typ byte, model interface{}) ([]byte, error) {
 	msg, err := json.Marshal(model)
 	if err != nil {
@@ -410,9 +302,9 @@ func (c *shipConnection) shipMessage(typ byte, model interface{}) ([]byte, error
 	return shipMsg, nil
 }
 
-// enable jsonFormat if the return message is expected to be encoded in
-// the eebus json format
 // return the SHIP message type, the SHIP message and an error
+//
+// enable jsonFormat if the return message is expected to be encoded in the eebus json format
 func (c *shipConnection) parseMessage(msg []byte, jsonFormat bool) (byte, []byte) {
 	// Extract the SHIP header byte
 	shipHeaderByte := msg[0]
@@ -428,11 +320,4 @@ func (c *shipConnection) parseMessage(msg []byte, jsonFormat bool) (byte, []byte
 	}
 
 	return shipHeaderByte, msg
-}
-
-func (c *shipConnection) isConnClosed() bool {
-	c.mux.Lock()
-	defer c.mux.Unlock()
-
-	return c.isConnectionClosed
 }

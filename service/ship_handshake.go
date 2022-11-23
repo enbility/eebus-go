@@ -12,7 +12,7 @@ import (
 )
 
 // handle incoming SHIP messages and coordinate Handshake States
-func (c *shipConnection) handleShipState(timeout bool, message []byte) {
+func (c *shipConnection) handleShipMessage(timeout bool, message []byte) {
 	if c.handshakeTimerRunning {
 		if !c.handshakeTimer.Stop() {
 			<-c.handshakeTimer.C
@@ -63,11 +63,17 @@ func (c *shipConnection) handleShipState(timeout bool, message []byte) {
 			return
 		}
 
-		if !c.connectionIsTrusted {
+		if c.connectionTrustPending {
+			return
+		}
+
+		if !c.remoteService.userTrust {
 			c.smeState = smeHelloStateAbort
 			c.endHandshakeWithError(errors.New("trust denied. close connection"))
 			return
 		}
+
+		c.handshakeHello_Trust()
 
 	// smeProtocol
 
@@ -93,16 +99,17 @@ func (c *shipConnection) handleShipState(timeout bool, message []byte) {
 	// Generic
 
 	case smeHelloStateAbort, smeHandshakeError:
-		c.shutdown(true)
+		c.CloseConnection(true)
 	case smeComplete:
 		// TODO: handshake is completed, we now probably get close messages
 		return
 	}
 }
 
+// SHIP handshake is approved, now set the new state and the SPINE read handler
 func (c *shipConnection) approveHandshake() {
 	// Report to SPINE local device about this remote device connection
-	c.readHandler = c.connectionDelegate.addRemoteDeviceConnection(c.remoteService.SKI, c)
+	c.readHandler = c.interactionHandler.addRemoteDeviceConnection(c.remoteService.SKI, c)
 	c.smeState = smeComplete
 }
 
@@ -115,7 +122,7 @@ func (c *shipConnection) endHandshakeWithError(err error) {
 	} else {
 		logging.Log.Error(c.remoteService.SKI, "SHIP handshake error unknown")
 	}
-	c.shutdown(false)
+	c.CloseConnection(true)
 }
 
 // Handshake initialization
@@ -126,7 +133,7 @@ func (c *shipConnection) handshakeInit_cmiStateInitStart() {
 	case ShipRoleClient:
 		// CMI_STATE_CLIENT_SEND
 		c.smeState = cmiStateClientSend
-		if err := c.writeWebsocketMessage(shipInit); err != nil {
+		if err := c.dataHandler.WriteMessageToDataConnection(shipInit); err != nil {
 			c.endHandshakeWithError(err)
 			return
 		}
@@ -144,7 +151,7 @@ func (c *shipConnection) handshakeInit_cmiStateServerWait(message []byte) {
 
 	c.handshakeInit_cmiStateEvaluate(message)
 
-	if err := c.writeWebsocketMessage(shipInit); err != nil {
+	if err := c.dataHandler.WriteMessageToDataConnection(shipInit); err != nil {
 		c.endHandshakeWithError(err)
 		return
 	}
@@ -181,7 +188,7 @@ func (c *shipConnection) handshakeInit_cmiStateEvaluate(message []byte) {
 
 // smeHelloState
 func (c *shipConnection) handshakeHello_Init() {
-	switch c.connectionIsTrusted {
+	switch c.remoteService.userTrust {
 	case true:
 		c.smeState = smeHelloStateReadyInit
 
@@ -198,7 +205,8 @@ func (c *shipConnection) handshakeHello_Init() {
 
 		c.smeState = smeHelloStatePendingListen
 
-		c.connectionDelegate.requestUserTrustForService(c.remoteService)
+		c.connectionTrustPending = true
+		c.interactionHandler.requestUserTrustForService(c.remoteService.SKI)
 	}
 
 	c.resetHandshakeTimer(cmiTimeout)
@@ -495,7 +503,7 @@ func (c *shipConnection) handshakeAccessMethods_Request(message []byte) {
 		}
 
 		c.remoteService.ShipID = *accessMethods.AccessMethods.Id
-		c.connectionDelegate.shipIDUpdateForService(c.remoteService)
+		c.interactionHandler.shipIDUpdateForService(c.remoteService)
 	} else {
 		c.endHandshakeWithError(fmt.Errorf("access methods: invalid response: %s", dataString))
 		return
@@ -503,21 +511,6 @@ func (c *shipConnection) handshakeAccessMethods_Request(message []byte) {
 
 	c.smeState = smeApproved
 	c.approveHandshake()
-}
-
-func (c *shipConnection) shipClose() {
-	if c.conn == nil {
-		return
-	}
-
-	// SHIP 13.4.7: Connection Termination
-	closeMessage := ship.ConnectionClose{
-		ConnectionClose: ship.ConnectionCloseType{
-			Phase: ship.ConnectionClosePhaseTypeAnnounce,
-		},
-	}
-
-	_ = c.sendShipModel(ship.MsgTypeControl, closeMessage)
 }
 
 func (c *shipConnection) resetHandshakeTimer(duration time.Duration) {

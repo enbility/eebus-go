@@ -419,9 +419,16 @@ func (s *EEBUSService) UpdateRemoteServiceTrust(ski string, trusted bool) {
 	s.connectionsHub.updateRemoteServiceTrust(ski, trusted)
 }
 
+// Close a connection to a remote SKI
+func (s *EEBUSService) DisconnectSKI(ski string) {
+	s.connectionsHub.disconnectSKI(ski)
+}
+
+var _ interactionShipSpine = (*EEBUSService)(nil)
+
 // ConnectionHandlerDelegate
-func (s *EEBUSService) requestUserTrustForService(details *ServiceDetails) {
-	s.serviceDelegate.RemoteServiceTrustRequested(s, details.SKI)
+func (s *EEBUSService) requestUserTrustForService(ski string) {
+	s.serviceDelegate.RemoteServiceTrustRequested(s, ski)
 }
 
 func (s *EEBUSService) shipIDUpdateForService(details *ServiceDetails) {
@@ -448,9 +455,4 @@ func (s *EEBUSService) removeRemoteDeviceConnection(ski string) {
 		Device:     remoteDevice,
 	}
 	spine.Events.Publish(payload)
-}
-
-// Close a connection to a remote SKI
-func (s *EEBUSService) DisconnectSKI(ski string) {
-	s.connectionsHub.disconnectSKI(ski)
 }
