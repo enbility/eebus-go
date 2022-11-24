@@ -26,7 +26,7 @@ type MeasurementSuite struct {
 
 	remoteSki string
 
-	readHandler  spine.ReadMessageI
+	readHandler  spine.SpineDataProcessing
 	writeHandler *WriteMessageHandler
 }
 
@@ -43,7 +43,7 @@ func (s *MeasurementSuite) AfterTest(suiteName, testName string) {
 
 func (s *MeasurementSuite) TestDescriptionList_Recv() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -76,7 +76,7 @@ func (s *MeasurementSuite) TestDescriptionList_Recv() {
 
 func (s *MeasurementSuite) TestMeasurementList_Recv() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -113,11 +113,11 @@ func (s *MeasurementSuite) TestMeasurementList_Recv() {
 
 func (s *MeasurementSuite) TestMeasurementByScope_Recv() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Act
-	msgCounter, _ = s.readHandler.ReadMessage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert

@@ -38,12 +38,12 @@ type Sender interface {
 type SenderImpl struct {
 	msgNum uint64 // 64bit values need to be defined on top of the struct to make atomic commands work on 32bit systems
 
-	writeHandler WriteMessageI
+	writeHandler SpineDataConnection
 }
 
 var _ Sender = (*SenderImpl)(nil)
 
-func NewSender(writeI WriteMessageI) Sender {
+func NewSender(writeI SpineDataConnection) Sender {
 	return &SenderImpl{
 		writeHandler: writeI,
 	}
@@ -72,7 +72,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 	logging.Log.Debug(datagram.PrintMessageOverview(true, "", ""))
 
 	// write to channel
-	c.writeHandler.WriteMessage(msg)
+	c.writeHandler.WriteSpineMessage(msg)
 
 	return nil
 }

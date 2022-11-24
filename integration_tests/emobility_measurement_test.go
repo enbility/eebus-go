@@ -16,7 +16,7 @@ func TestEmobilityMeasurementSuite(t *testing.T) {
 
 type EmobilityMeasurementSuite struct {
 	suite.Suite
-	spine.WriteMessageI
+	spine.SpineDataConnection
 
 	sut *spine.DeviceLocalImpl
 
@@ -25,7 +25,7 @@ type EmobilityMeasurementSuite struct {
 
 	remoteSki string
 
-	readHandler  spine.ReadMessageI
+	readHandler  spine.SpineDataProcessing
 	writeHandler *WriteMessageHandler
 }
 
@@ -66,13 +66,13 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	assert.Nil(s.T(), err)
 
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	msgCounter, _ = s.readHandler.ReadMessage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	msgCounter, _ = s.readHandler.ReadMessage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	resultMap, err := s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalconnection)

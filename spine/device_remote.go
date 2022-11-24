@@ -26,9 +26,9 @@ type DeviceRemoteImpl struct {
 	heartbeatSender *HeartbeatSender
 }
 
-var _ ReadMessageI = (*DeviceRemoteImpl)(nil)
+var _ SpineDataProcessing = (*DeviceRemoteImpl)(nil)
 
-func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, writeHandler WriteMessageI) *DeviceRemoteImpl {
+func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, writeHandler SpineDataConnection) *DeviceRemoteImpl {
 	sender := NewSender(writeHandler)
 	res := DeviceRemoteImpl{
 		DeviceImpl:      NewDeviceImpl(nil, nil, nil),
@@ -67,7 +67,7 @@ func (d *DeviceRemoteImpl) CloseConnection() {
 }
 
 // processing incoming SPINE message from the associated SHIP connection
-func (d *DeviceRemoteImpl) ReadMessage(message []byte) (*model.MsgCounterType, error) {
+func (d *DeviceRemoteImpl) HandleIncomingSpineMesssage(message []byte) (*model.MsgCounterType, error) {
 	datagram := model.Datagram{}
 	if err := json.Unmarshal([]byte(message), &datagram); err != nil {
 		logging.Log.Error(err)

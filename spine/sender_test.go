@@ -16,9 +16,9 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ WriteMessageI = (*WriteMessageHandler)(nil)
+var _ SpineDataConnection = (*WriteMessageHandler)(nil)
 
-func (t *WriteMessageHandler) WriteMessage(message []byte) {
+func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
 	t.mux.Lock()
 	defer t.mux.Unlock()
 

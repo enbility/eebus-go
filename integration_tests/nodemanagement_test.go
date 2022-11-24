@@ -31,7 +31,7 @@ type NodeManagementSuite struct {
 
 	remoteSki string
 
-	readHandler  spine.ReadMessageI
+	readHandler  spine.SpineDataProcessing
 	writeHandler *WriteMessageHandler
 }
 
@@ -61,7 +61,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendRead() {
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReply() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_file_path))
 
 	// Assert
 	sendBytes := s.writeHandler.MessageWithReference(msgCounter)
@@ -70,7 +70,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendReply() {
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 	// Act
-	_, _ = s.readHandler.ReadMessage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path))
+	_, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Assert
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
@@ -127,10 +127,10 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 }
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_RecvNotifyAdded() {
-	_, _ = s.readHandler.ReadMessage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path))
+	_, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_notify_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), wallbox_detaileddiscoverydata_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -164,7 +164,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvNotifyAdded() {
 
 func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_ack_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_detaileddiscoverydata_recv_read_ack_file_path))
 
 	// Assert
 	sentReply := s.writeHandler.MessageWithReference(msgCounter)
@@ -175,7 +175,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_SendReplyWithAcknowledge() {
 
 func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscovery() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_subscriptionRequestCall_recv_call_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_subscriptionRequestCall_recv_call_file_path))
 
 	// Assert
 	sentResult := s.writeHandler.ResultWithReference(msgCounter)
@@ -190,7 +190,7 @@ func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscover
 
 func (s *NodeManagementSuite) TestDestinationList_SendReply() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), nm_destinationListData_recv_read_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_destinationListData_recv_read_file_path))
 
 	// Assert
 	sendBytes := s.writeHandler.MessageWithReference(msgCounter)

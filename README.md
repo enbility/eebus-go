@@ -74,6 +74,18 @@ Usage: go run cmd/evse/main.go <serverport> <remoteski> <certfile> <keyfile>
 The remoteski is from the eebus service to connect to.
 If no certfile or keyfile are provided, they are generated and printed in the console so they can be saved in a file and later used again. The local SKI is also printed.
 
+## SHIP implementation notes
+
+- Double connection handling is not implemented according to SHIP 12.2.2. Instead the connection initiated by the higher SKI will be kept. Much simpler and always works
+- PIN Verification is _NOT_ supported other than SHIP 13.4.4.3.5.1 _"none"_ PIN state is supported!
+- Access Methods SHIP 13.4.6 only supports the most basic scenario and only works after PIN verification state is completed.
+
+This approach has been tested with:
+
+- Elli Charger Connect
+- Porsche Mobile Charger Connect
+- SMA Home Energy Manager 2.0
+
 ## Roadmap - Spine specification implementation
 
 ### General request processing
@@ -210,11 +222,9 @@ If no certfile or keyfile are provided, they are generated and printed in the co
   - [X] Send hearbeats
   - [ ] Receive hearbeats
 
-### Feature with partial data support
+### Partial, selector, elements support
 
-- `ElectricalConnection`
-- `Measurement`
-- `LoadControlLimit`
+All list types do support processing of incoming partial messages, including selectors and elements. Sending partial messages is possible but there is no special support implemented right now.
 
 ## Interfaces
 

@@ -56,7 +56,7 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 	return res
 }
 
-func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI WriteMessageI) ReadMessageI {
+func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
 	rDevice := NewDeviceRemoteImpl(r, ski, writeI)
 
 	r.mux.Lock()

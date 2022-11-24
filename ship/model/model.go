@@ -1,4 +1,4 @@
-package ship
+package model
 
 import "encoding/json"
 
@@ -65,6 +65,13 @@ type MessageProtocolHandshake struct {
 }
 
 type MessageProtocolHandshakeErrorErrorType uint8
+
+const (
+	MessageProtocolHandshakeErrorErrorTypeRFU               MessageProtocolHandshakeErrorErrorType = 0
+	MessageProtocolHandshakeErrorErrorTypeTimeout           MessageProtocolHandshakeErrorErrorType = 1
+	MessageProtocolHandshakeErrorErrorTypeUnexpectedMessage MessageProtocolHandshakeErrorErrorType = 2
+	MessageProtocolHandshakeErrorErrorTypeSelectionMismatch MessageProtocolHandshakeErrorErrorType = 3
+)
 
 type MessageProtocolHandshakeErrorType struct {
 	Error MessageProtocolHandshakeErrorErrorType `json:"error"`

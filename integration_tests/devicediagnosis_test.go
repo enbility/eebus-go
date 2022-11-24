@@ -24,7 +24,7 @@ type DeviceDiagnosisSuite struct {
 
 	remoteSki string
 
-	readHandler  spine.ReadMessageI
+	readHandler  spine.SpineDataProcessing
 	writeHandler *WriteMessageHandler
 }
 
@@ -44,7 +44,7 @@ func (s *DeviceDiagnosisSuite) AfterTest(suiteName, testName string) {
 
 func (s *DeviceDiagnosisSuite) TestHeartbeatSubscription_RecvNotify() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), dd_subscriptionRequestCall_recv_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), dd_subscriptionRequestCall_recv_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert

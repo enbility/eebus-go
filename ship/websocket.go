@@ -1,4 +1,4 @@
-package service
+package ship
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/service/util"
+	"github.com/DerAndereAndi/eebus-go/util"
 	"github.com/gorilla/websocket"
 )
 
@@ -17,7 +17,7 @@ type websocketConnection struct {
 	conn *websocket.Conn
 
 	// The implementation handling message processing
-	dataProcessing shipDataProcessing
+	dataProcessing ShipDataProcessing
 
 	// The connection was closed
 	closeChannel chan struct{}
@@ -28,17 +28,17 @@ type websocketConnection struct {
 	// internal handling of closed connections
 	isConnectionClosed bool
 
-	ski string
+	remoteSki string
 
 	mux          sync.Mutex
 	shutdownOnce sync.Once
 }
 
 // create a new websocket based shipDataProcessing implementation
-func newWebsocketConnection(conn *websocket.Conn, ski string) *websocketConnection {
+func NewWebsocketConnection(conn *websocket.Conn, remoteSki string) *websocketConnection {
 	return &websocketConnection{
-		conn: conn,
-		ski:  ski,
+		conn:      conn,
+		remoteSki: remoteSki,
 	}
 }
 
@@ -77,13 +77,13 @@ func (w *websocketConnection) writeShipPump() {
 
 			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				logging.Log.Debug(w.ski, "Ship write channel closed")
+				logging.Log.Debug(w.remoteSki, "Ship write channel closed")
 				// The write channel has been closed
 				_ = w.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			if err := w.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				logging.Log.Error(w.ski, "Error writing to websocket: ", err)
+				logging.Log.Error(w.remoteSki, "error writing to websocket: ", err)
 				return
 			}
 
@@ -94,7 +94,7 @@ func (w *websocketConnection) writeShipPump() {
 
 			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := w.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				logging.Log.Error(w.ski, "Error writing to websocket: ", err)
+				logging.Log.Error(w.remoteSki, "error writing to websocket: ", err)
 				return
 			}
 		}
@@ -113,13 +113,13 @@ func (w *websocketConnection) readShipPump() {
 
 		message, err := w.readWebsocketMessage()
 		if err != nil {
-			logging.Log.Error(w.ski, "websocket read error: ", err)
+			logging.Log.Error(w.remoteSki, "websocket read error: ", err)
 			w.close()
 			w.dataProcessing.ReportConnectionError(err)
 			return
 		}
 
-		w.dataProcessing.HandleIncomingMessage(message)
+		w.dataProcessing.HandleIncomingShipMessage(message)
 	}
 }
 
@@ -174,9 +174,9 @@ func (w *websocketConnection) close() {
 	})
 }
 
-var _ shipDataConnection = (*websocketConnection)(nil)
+var _ ShipDataConnection = (*websocketConnection)(nil)
 
-func (w *websocketConnection) InitDataProcessing(dataProcessing shipDataProcessing) {
+func (w *websocketConnection) InitDataProcessing(dataProcessing ShipDataProcessing) {
 	w.dataProcessing = dataProcessing
 
 	w.run()

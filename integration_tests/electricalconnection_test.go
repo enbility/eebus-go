@@ -26,7 +26,7 @@ type ElectricalConnectionSuite struct {
 
 	remoteSki string
 
-	readHandler  spine.ReadMessageI
+	readHandler  spine.SpineDataProcessing
 	writeHandler *WriteMessageHandler
 }
 
@@ -43,7 +43,7 @@ func (s *ElectricalConnectionSuite) AfterTest(suiteName, testName string) {
 
 func (s *ElectricalConnectionSuite) TestDescriptionListData_RecvReply() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_descriptionlistdata_recv_reply_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_descriptionlistdata_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -75,7 +75,7 @@ func (s *ElectricalConnectionSuite) TestDescriptionListData_RecvReply() {
 
 func (s *ElectricalConnectionSuite) TestParameterDescriptionListData_RecvReply() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -111,7 +111,7 @@ func (s *ElectricalConnectionSuite) TestParameterDescriptionListData_RecvReply()
 
 func (s *ElectricalConnectionSuite) TestPermittedValueSetListData_RecvNotifyPartial() {
 	// Act
-	msgCounter, _ := s.readHandler.ReadMessage(loadFileData(s.T(), ec_permittedvaluesetlistdata_recv_notify_partial_file_path))
+	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_permittedvaluesetlistdata_recv_notify_partial_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert

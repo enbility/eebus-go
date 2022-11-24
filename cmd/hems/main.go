@@ -86,16 +86,16 @@ func (h *hems) run() {
 	remoteService := service.ServiceDetails{
 		SKI: remoteSki,
 	}
-	h.myService.RegisterRemoteService(remoteService)
+	h.myService.PairRemoteService(remoteService)
 }
 
 // EEBUSServiceDelegate
 
-// handle a request to trust a remote service
-func (h *hems) RemoteServiceTrustRequested(service *service.EEBUSService, ski string) {
-	// we directly trust it in this example
-	h.myService.UpdateRemoteServiceTrust(ski, true)
-}
+// // handle a request to trust a remote service
+// func (h *hems) RemoteServiceTrustRequested(service *service.EEBUSService, ski string) {
+// 	// we directly trust it in this example
+// 	h.myService.UpdateRemoteServiceTrust(ski, true)
+// }
 
 // report the Ship ID of a newly trusted connection
 func (h *hems) RemoteServiceShipIDReported(service *service.EEBUSService, ski string, shipID string) {
@@ -179,8 +179,8 @@ func (h *hems) currentTimestamp() string {
 }
 
 func (h *hems) print(msgType string, args ...interface{}) {
-	fmt.Printf("%s %s ", h.currentTimestamp(), msgType)
-	fmt.Println(args...)
+	value := fmt.Sprintln(args...)
+	fmt.Printf("%s %s %s", h.currentTimestamp(), msgType, value)
 }
 
 func (h *hems) printFormat(msgType, format string, args ...interface{}) {

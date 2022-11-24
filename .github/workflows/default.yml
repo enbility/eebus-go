@@ -1,5 +1,8 @@
 name: Default
 
+env:
+  ACTION_ENVIRONMENT: CI
+
 on:
   push:
     branches:

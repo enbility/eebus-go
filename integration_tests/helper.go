@@ -25,9 +25,9 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ spine.WriteMessageI = (*WriteMessageHandler)(nil)
+var _ spine.SpineDataConnection = (*WriteMessageHandler)(nil)
 
-func (t *WriteMessageHandler) WriteMessage(message []byte) {
+func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
 	t.mux.Lock()
 	defer t.mux.Unlock()
 
@@ -97,7 +97,7 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	return nil
 }
 
-func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeType, frole model.RoleType) (*spine.DeviceLocalImpl, string, spine.ReadMessageI, *WriteMessageHandler) {
+func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeType, frole model.RoleType) (*spine.DeviceLocalImpl, string, spine.SpineDataProcessing, *WriteMessageHandler) {
 	sut := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
 	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
@@ -113,13 +113,13 @@ func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeTyp
 	return sut, remoteSki, remoteDevice, writeHandler
 }
 
-func initialCommunication(t *testing.T, readHandler spine.ReadMessageI, writeHandler *WriteMessageHandler) {
+func initialCommunication(t *testing.T, readHandler spine.SpineDataProcessing, writeHandler *WriteMessageHandler) {
 	// Initial generic communication
 
-	_, _ = readHandler.ReadMessage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))
+	_, _ = readHandler.HandleIncomingSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Act
-	msgCounter, _ := readHandler.ReadMessage(loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path))
+	msgCounter, _ := readHandler.HandleIncomingSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path))
 	waitForAck(t, msgCounter, writeHandler)
 }
 
