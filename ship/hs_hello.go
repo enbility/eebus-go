@@ -1,7 +1,6 @@
 package ship
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
@@ -18,14 +17,12 @@ func (c *ShipConnection) handshakeHello_Init() {
 		c.handleState(false, nil)
 		return
 	}
-	fmt.Println("sent Hello", c.role)
 
 	c.setState(smeHelloStateReadyListen)
 }
 
 // SME_HELLO_STATE_READY_LISTEN
 func (c *ShipConnection) handshakeHello_ReadyListen(message []byte) {
-	fmt.Println("received Hello", c.role)
 	var helloReturnMsg model.ConnectionHello
 	if err := c.processShipJsonMessage(message, &helloReturnMsg); err != nil {
 		c.setState(smeHelloStateAbort)

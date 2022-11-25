@@ -2,7 +2,6 @@ package ship
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
@@ -67,12 +66,10 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case smeHelloState:
 		// go into the 1st  substate right away
-		fmt.Println("hello", c.role)
 		c.setState(smeHelloStateReadyInit)
 		c.handleState(timeout, message)
 
 	case smeHelloStateReadyInit:
-		fmt.Println("hello ready init", c.role)
 		c.handshakeHello_Init()
 
 	case smeHelloStateReadyListen:
