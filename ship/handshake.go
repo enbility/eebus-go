@@ -2,6 +2,7 @@ package ship
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
@@ -21,6 +22,9 @@ func (c *ShipConnection) handleShipMessage(timeout bool, message []byte) {
 
 // set a new handshake state and handle timers if needed
 func (c *ShipConnection) setState(newState shipMessageExchangeState) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	c.smeState = newState
 
 	switch newState {
@@ -37,9 +41,16 @@ func (c *ShipConnection) setState(newState shipMessageExchangeState) {
 	}
 }
 
+func (c *ShipConnection) getState() shipMessageExchangeState {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	return c.smeState
+}
+
 // handle handshake state transitions
 func (c *ShipConnection) handleState(timeout bool, message []byte) {
-	switch c.smeState {
+	switch c.getState() {
 	// cmiStateInit
 	case cmiStateInitStart:
 		// triggered without a message received
@@ -166,15 +177,18 @@ func (c *ShipConnection) setHandshakeTimer(timerType timeoutTimerType, duration 
 	c.handshakeTimer.Reset(cmiTimeout)
 	c.handshakeTimerRunning = true
 	c.handshakeTimerType = timerType
-	c.handshakeTimerStopChan = make(chan struct{})
 
 	go func() {
-		select {
-		case <-c.handshakeTimerStopChan:
-			return
-		case <-c.handshakeTimer.C:
-			c.handleState(true, nil)
-			return
+		for {
+			select {
+			case <-c.handshakeTimerStopChan:
+				fmt.Println("EXIT 1")
+				return
+			case <-c.handshakeTimer.C:
+				c.handleState(true, nil)
+				fmt.Println("EXIT 2")
+				return
+			}
 		}
 	}()
 }
@@ -188,7 +202,6 @@ func (c *ShipConnection) stopHandshakeTimer() {
 	c.handshakeTimer.Stop()
 	if !util.IsChannelClosed(c.handshakeTimerStopChan) {
 		close(c.handshakeTimerStopChan)
-		c.handshakeTimerStopChan = nil
 	}
 	c.handshakeTimerRunning = false
 }

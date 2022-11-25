@@ -2,6 +2,7 @@ package ship
 
 import (
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -29,6 +30,15 @@ type HelloSuite struct {
 	sut *ShipConnection
 
 	sentMessage []byte
+
+	mux sync.Mutex
+}
+
+func (s *HelloSuite) lastMessage() []byte {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.sentMessage
 }
 
 var _ ConnectionHandler = (*HelloSuite)(nil)
@@ -44,6 +54,9 @@ var _ ShipDataConnection = (*HelloSuite)(nil)
 func (s *HelloSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
 
 func (s *HelloSuite) WriteMessageToDataConnection(message []byte) error {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
 	s.sentMessage = message
 	return nil
 }
@@ -74,8 +87,8 @@ func (s *HelloSuite) Test_InitialState() {
 	s.sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloSuite) Test_ReadyListen_Init() {
@@ -100,7 +113,7 @@ func (s *HelloSuite) Test_ReadyListen_Ok() {
 	s.sut.handleState(false, msg)
 
 	// the state goes from smeHelloStateOk directly to smeProtHStateServerInit to smeProtHStateClientListenProposal
-	assert.Equal(s.T(), smeProtHStateServerListenProposal, s.sut.smeState)
+	assert.Equal(s.T(), smeProtHStateServerListenProposal, s.sut.getState())
 }
 
 func (s *HelloSuite) Test_ReadyListen_Timeout() {
@@ -111,8 +124,8 @@ func (s *HelloSuite) Test_ReadyListen_Timeout() {
 
 	time.Sleep(tHelloInit + time.Second)
 
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloSuite) Test_ReadyListen_Ignore() {
@@ -131,7 +144,7 @@ func (s *HelloSuite) Test_ReadyListen_Ignore() {
 
 	s.sut.handleState(false, msg)
 
-	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.smeState)
+	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.getState())
 }
 
 func (s *HelloSuite) Test_ReadyListen_Abort() {
@@ -151,8 +164,8 @@ func (s *HelloSuite) Test_ReadyListen_Abort() {
 	s.sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloSuite) Test_PendingInit() {
@@ -160,8 +173,8 @@ func (s *HelloSuite) Test_PendingInit() {
 	s.sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloSuite) Test_PendingListen() {
@@ -178,8 +191,8 @@ func (s *HelloSuite) Test_PendingListen_Timeout() {
 
 	time.Sleep(tHelloInit + time.Second)
 
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloSuite) Test_PendingListen_ReadyAbort() {
@@ -199,8 +212,8 @@ func (s *HelloSuite) Test_PendingListen_ReadyAbort() {
 	s.sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloSuite) Test_PendingListen_ReadyWaiting() {
@@ -221,7 +234,7 @@ func (s *HelloSuite) Test_PendingListen_ReadyWaiting() {
 	s.sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.smeState)
+	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
 }
 
 func (s *HelloSuite) Test_PendingListen_Abort() {
@@ -241,8 +254,8 @@ func (s *HelloSuite) Test_PendingListen_Abort() {
 	s.sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloSuite) Test_PendingListen_PendingWaiting() {
@@ -263,7 +276,7 @@ func (s *HelloSuite) Test_PendingListen_PendingWaiting() {
 	s.sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.smeState)
+	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
 }
 
 func (s *HelloSuite) Test_PendingListen_PendingProlongation() {
@@ -284,6 +297,6 @@ func (s *HelloSuite) Test_PendingListen_PendingProlongation() {
 	s.sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }

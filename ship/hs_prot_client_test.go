@@ -1,6 +1,7 @@
 package ship
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -21,6 +22,22 @@ type ProClientSuite struct {
 	sut *ShipConnection
 
 	sentMessage []byte
+
+	mux sync.Mutex
+}
+
+func (s *ProClientSuite) lastMessage() []byte {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.sentMessage
+}
+
+func (s *ProClientSuite) setSentMessage(value []byte) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	s.sentMessage = value
 }
 
 var _ ConnectionHandler = (*ProClientSuite)(nil)
@@ -36,7 +53,8 @@ var _ ShipDataConnection = (*ProClientSuite)(nil)
 func (s *ProClientSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
 
 func (s *ProClientSuite) WriteMessageToDataConnection(message []byte) error {
-	s.sentMessage = message
+	s.setSentMessage(message)
+
 	return nil
 }
 
@@ -46,7 +64,7 @@ func (s *ProClientSuite) SetupSuite()   {}
 func (s *ProClientSuite) TearDownTest() {}
 
 func (s *ProClientSuite) BeforeTest(suiteName, testName string) {
-	s.sentMessage = nil
+	s.setSentMessage(nil)
 
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
@@ -67,8 +85,8 @@ func (s *ProClientSuite) Test_Init() {
 	s.sut.handleState(false, nil)
 
 	// the state goes from smeHelloStateOk to smeProtHStateClientInit to smeProtHStateClientListenChoice
-	assert.Equal(s.T(), smeProtHStateClientListenChoice, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeProtHStateClientListenChoice, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *ProClientSuite) Test_ListenChoice() {
@@ -93,6 +111,6 @@ func (s *ProClientSuite) Test_ListenChoice() {
 	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
 
 	// state goes directly from smeProtHStateClientOk to smePinStateCheckInit to smePinStateCheckListen
-	assert.Equal(s.T(), smePinStateCheckListen, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smePinStateCheckListen, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }

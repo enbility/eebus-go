@@ -1,6 +1,7 @@
 package ship
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -21,6 +22,22 @@ type InitServerSuite struct {
 	sut *ShipConnection
 
 	sentMessage []byte
+
+	mux sync.Mutex
+}
+
+func (s *InitServerSuite) lastMessage() []byte {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.sentMessage
+}
+
+func (s *InitServerSuite) setSentMessage(value []byte) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	s.sentMessage = value
 }
 
 var _ ConnectionHandler = (*InitServerSuite)(nil)
@@ -36,7 +53,8 @@ var _ ShipDataConnection = (*InitServerSuite)(nil)
 func (s *InitServerSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
 
 func (s *InitServerSuite) WriteMessageToDataConnection(message []byte) error {
-	s.sentMessage = message
+	s.setSentMessage(message)
+
 	return nil
 }
 
@@ -46,7 +64,7 @@ func (s *InitServerSuite) SetupSuite()   {}
 func (s *InitServerSuite) TearDownTest() {}
 
 func (s *InitServerSuite) BeforeTest(suiteName, testName string) {
-	s.sentMessage = nil
+	s.setSentMessage(nil)
 
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
@@ -62,7 +80,7 @@ func (s *InitServerSuite) AfterTest(suiteName, testName string) {
 }
 
 func (s *InitServerSuite) Test_Init() {
-	assert.Equal(s.T(), cmiStateInitStart, s.sut.smeState)
+	assert.Equal(s.T(), cmiStateInitStart, s.sut.getState())
 }
 
 func (s *InitServerSuite) Test_Start() {
@@ -71,7 +89,7 @@ func (s *InitServerSuite) Test_Start() {
 	s.sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), cmiStateServerWait, s.sut.smeState)
+	assert.Equal(s.T(), cmiStateServerWait, s.sut.getState())
 }
 
 func (s *InitServerSuite) Test_ServerWait() {
@@ -80,8 +98,8 @@ func (s *InitServerSuite) Test_ServerWait() {
 	s.sut.handleState(false, shipInit)
 
 	// the state goes from smeHelloState directly to smeHelloStateReadyInit to smeHelloStateReadyListen
-	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *InitServerSuite) Test_ServerWait_InvalidMsgType() {
@@ -89,8 +107,8 @@ func (s *InitServerSuite) Test_ServerWait_InvalidMsgType() {
 
 	s.sut.handleState(false, []byte{0x05, 0x00})
 
-	assert.Equal(s.T(), smeError, s.sut.smeState)
-	assert.Nil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeError, s.sut.getState())
+	assert.Nil(s.T(), s.lastMessage())
 }
 
 func (s *InitServerSuite) Test_ServerWait_InvalidData() {
@@ -98,6 +116,6 @@ func (s *InitServerSuite) Test_ServerWait_InvalidData() {
 
 	s.sut.handleState(false, []byte{model.MsgTypeInit, 0x05})
 
-	assert.Equal(s.T(), smeError, s.sut.smeState)
-	assert.Nil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeError, s.sut.getState())
+	assert.Nil(s.T(), s.lastMessage())
 }

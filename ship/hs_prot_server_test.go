@@ -1,6 +1,7 @@
 package ship
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -21,6 +22,22 @@ type ProServerSuite struct {
 	sut *ShipConnection
 
 	sentMessage []byte
+
+	mux sync.Mutex
+}
+
+func (s *ProServerSuite) lastMessage() []byte {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.sentMessage
+}
+
+func (s *ProServerSuite) setSentMessage(value []byte) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	s.sentMessage = value
 }
 
 var _ ConnectionHandler = (*ProServerSuite)(nil)
@@ -36,7 +53,8 @@ var _ ShipDataConnection = (*ProServerSuite)(nil)
 func (s *ProServerSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
 
 func (s *ProServerSuite) WriteMessageToDataConnection(message []byte) error {
-	s.sentMessage = message
+	s.setSentMessage(message)
+
 	return nil
 }
 
@@ -46,7 +64,7 @@ func (s *ProServerSuite) SetupSuite()   {}
 func (s *ProServerSuite) TearDownTest() {}
 
 func (s *ProServerSuite) BeforeTest(suiteName, testName string) {
-	s.sentMessage = nil
+	s.setSentMessage(nil)
 
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
@@ -69,8 +87,8 @@ func (s *ProServerSuite) Test_Init() {
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
 
 	// the state goes from smeHelloStateOk to smeProtHStateServerInit to smeProtHStateServerListenProposal
-	assert.Equal(s.T(), smeProtHStateServerListenProposal, s.sut.smeState)
-	assert.Nil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeProtHStateServerListenProposal, s.sut.getState())
+	assert.Nil(s.T(), s.lastMessage())
 }
 
 func (s *ProServerSuite) Test_ListenProposal() {
@@ -94,8 +112,8 @@ func (s *ProServerSuite) Test_ListenProposal() {
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
 
-	assert.Equal(s.T(), smeProtHStateServerListenConfirm, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeProtHStateServerListenConfirm, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *ProServerSuite) Test_ListenConfirm() {
@@ -120,6 +138,6 @@ func (s *ProServerSuite) Test_ListenConfirm() {
 	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
 
 	// state smeProtHStateServerOk directly goes to smePinStateCheckInit to smePinStateCheckListen
-	assert.Equal(s.T(), smePinStateCheckListen, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smePinStateCheckListen, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }

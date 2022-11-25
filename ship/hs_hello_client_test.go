@@ -1,6 +1,7 @@
 package ship
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -22,6 +23,22 @@ type HelloClientSuite struct {
 	sut *ShipConnection
 
 	sentMessage []byte
+
+	mux sync.Mutex
+}
+
+func (s *HelloClientSuite) lastMessage() []byte {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.sentMessage
+}
+
+func (s *HelloClientSuite) setSentMessage(value []byte) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	s.sentMessage = value
 }
 
 var _ ConnectionHandler = (*HelloClientSuite)(nil)
@@ -37,7 +54,8 @@ var _ ShipDataConnection = (*HelloClientSuite)(nil)
 func (s *HelloClientSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
 
 func (s *HelloClientSuite) WriteMessageToDataConnection(message []byte) error {
-	s.sentMessage = message
+	s.setSentMessage(message)
+
 	return nil
 }
 
@@ -47,7 +65,7 @@ func (s *HelloClientSuite) SetupSuite()   {}
 func (s *HelloClientSuite) TearDownTest() {}
 
 func (s *HelloClientSuite) BeforeTest(suiteName, testName string) {
-	s.sentMessage = nil
+	s.setSentMessage(nil)
 
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
@@ -67,8 +85,8 @@ func (s *HelloClientSuite) Test_InitialState() {
 	s.sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.smeState)
-	assert.NotNil(s.T(), s.sentMessage)
+	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.getState())
+	assert.NotNil(s.T(), s.lastMessage())
 }
 
 func (s *HelloClientSuite) Test_ReadyListen_Ok() {
@@ -88,5 +106,5 @@ func (s *HelloClientSuite) Test_ReadyListen_Ok() {
 	s.sut.handleState(false, msg)
 
 	// the state goes from smeHelloStateOk directly to smeProtHStateClientInit to smeProtHStateClientListenChoice
-	assert.Equal(s.T(), smeProtHStateClientListenChoice, s.sut.smeState)
+	assert.Equal(s.T(), smeProtHStateClientListenChoice, s.sut.getState())
 }
