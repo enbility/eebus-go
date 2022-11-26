@@ -2,7 +2,6 @@ package ship
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
@@ -182,11 +181,9 @@ func (c *ShipConnection) setHandshakeTimer(timerType timeoutTimerType, duration 
 		for {
 			select {
 			case <-c.handshakeTimerStopChan:
-				fmt.Println("EXIT 1")
 				return
 			case <-c.handshakeTimer.C:
 				c.handleState(true, nil)
-				fmt.Println("EXIT 2")
 				return
 			}
 		}
