@@ -13,9 +13,6 @@ import (
 type EEBUSServiceDelegate interface {
 	// RemoteServicesListUpdated(services []ServiceDetails)
 
-	// report the Ship ID of a newly trusted connection
-	RemoteServiceShipIDReported(service *EEBUSService, ski string, shipID string)
-
 	// report a connection to a SKI
 	RemoteSKIConnected(service *EEBUSService, ski string)
 
