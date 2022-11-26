@@ -32,6 +32,8 @@ func (c *ShipConnection) setState(newState shipMessageExchangeState) {
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, tHelloInit)
 	case smeHelloStateOk:
 		c.stopHandshakeTimer()
+	case smeHelloStateAbort:
+		c.stopHandshakeTimer()
 	case smeProtHStateClientListenChoice:
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
 	case smeProtHStateClientOk:
@@ -104,11 +106,9 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 		c.handshakeHello_PendingListen(message)
 
 	case smeHelloStateOk:
-		c.stopHandshakeTimer()
 		c.handshakeProtocol_Init()
 
 	case smeHelloStateAbort:
-		c.stopHandshakeTimer()
 		c.handshakeHello_Abort()
 
 	// smeProtocol
@@ -173,32 +173,44 @@ func (c *ShipConnection) endHandshakeWithError(err error) {
 func (c *ShipConnection) setHandshakeTimer(timerType timeoutTimerType, duration time.Duration) {
 	c.stopHandshakeTimer()
 
-	c.handshakeTimerStopChan = make(chan struct{})
-	c.handshakeTimer.Reset(cmiTimeout)
-	c.handshakeTimerRunning = true
+	c.setHandshakeTimerRunning(true)
 	c.handshakeTimerType = timerType
 
 	go func() {
-		for {
-			select {
-			case <-c.handshakeTimerStopChan:
-				return
-			case <-c.handshakeTimer.C:
-				c.handleState(true, nil)
-				return
-			}
+		select {
+		case <-c.handshakeTimerStopChan:
+			return
+		case <-time.After(duration):
+			c.setHandshakeTimerRunning(false)
+			c.handleState(true, nil)
+			return
 		}
 	}()
 }
 
 // stop the handshake timer and close the channel
 func (c *ShipConnection) stopHandshakeTimer() {
-	if !c.handshakeTimerRunning {
+	if !c.getHandshakeTimerRunnging() {
 		return
 	}
 
-	c.handshakeTimer.Stop()
-	close(c.handshakeTimerStopChan)
-	c.handshakeTimerStopChan = nil
-	c.handshakeTimerRunning = false
+	select {
+	case c.handshakeTimerStopChan <- struct{}{}:
+	default:
+	}
+	c.setHandshakeTimerRunning(false)
+}
+
+func (c *ShipConnection) setHandshakeTimerRunning(value bool) {
+	c.handshakeTimerMux.Lock()
+	defer c.handshakeTimerMux.Unlock()
+
+	c.handshakeTimerRunning = value
+}
+
+func (c *ShipConnection) getHandshakeTimerRunnging() bool {
+	c.handshakeTimerMux.Lock()
+	defer c.handshakeTimerMux.Unlock()
+
+	return c.handshakeTimerRunning
 }

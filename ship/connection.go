@@ -55,10 +55,10 @@ type ShipConnection struct {
 	// SendProlongationRequest SHIP 13.4.4.1.3: Local timer to request for prolongation at the communication partner in time (i.e. before the communication partner's Wait-For-Ready-Timer expires).
 	//
 	// ProlongationRequestReply SHIP 13.4.4.1.3: Detection of response timeout on prolongation request.
-	handshakeTimer         *time.Timer
 	handshakeTimerRunning  bool
 	handshakeTimerType     timeoutTimerType
 	handshakeTimerStopChan chan struct{}
+	handshakeTimerMux      sync.Mutex
 
 	lastReceivedWaitingValue time.Duration // required for Prolong-Request-Reply-Timer
 
@@ -85,6 +85,8 @@ func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler Ship
 		smeState:         cmiStateInitStart,
 	}
 
+	ship.handshakeTimerStopChan = make(chan struct{})
+
 	dataHandler.InitDataProcessing(ship)
 
 	return ship
@@ -92,9 +94,6 @@ func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler Ship
 
 // start SHIP communication
 func (c *ShipConnection) Run() {
-	c.handshakeTimer = time.NewTimer(time.Hour * 1)
-	c.stopHandshakeTimer()
-
 	c.handleShipMessage(false, nil)
 }
 

@@ -69,9 +69,6 @@ func (c *ShipConnection) handshakeHello_ReadyListen(message []byte) {
 
 // SME_HELLO_ABORT
 func (c *ShipConnection) handshakeHello_Abort() {
-	c.setState(smeHelloStateAbort)
-	c.stopHandshakeTimer()
-
 	if err := c.handshakeHelloSend(model.ConnectionHelloPhaseTypeAborted, 0, false); err != nil {
 		c.endHandshakeWithError(err)
 		return
