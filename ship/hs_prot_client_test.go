@@ -1,13 +1,9 @@
 package ship
 
 import (
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/DerAndereAndi/eebus-go/ship/model"
-	"github.com/DerAndereAndi/eebus-go/spine"
-	spineModel "github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -19,78 +15,31 @@ func TestProClientSuite(t *testing.T) {
 type ProClientSuite struct {
 	suite.Suite
 
-	sut *ShipConnection
-
-	sentMessage []byte
-
-	mux sync.Mutex
+	role shipRole
 }
-
-func (s *ProClientSuite) lastMessage() []byte {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-
-	return s.sentMessage
-}
-
-func (s *ProClientSuite) setSentMessage(value []byte) {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-
-	s.sentMessage = value
-}
-
-var _ ConnectionHandler = (*ProClientSuite)(nil)
-
-func (s *ProClientSuite) HandleClosedConnection(connection *ShipConnection) {}
-
-var _ ShipServiceDataProvider = (*ProClientSuite)(nil)
-
-func (s *ProClientSuite) IsRemoteServiceForSKIPaired(string) bool { return true }
-
-var _ ShipDataConnection = (*ProClientSuite)(nil)
-
-func (s *ProClientSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
-
-func (s *ProClientSuite) WriteMessageToDataConnection(message []byte) error {
-	s.setSentMessage(message)
-
-	return nil
-}
-
-func (s *ProClientSuite) CloseDataConnection() {}
-
-func (s *ProClientSuite) SetupSuite()   {}
-func (s *ProClientSuite) TearDownTest() {}
 
 func (s *ProClientSuite) BeforeTest(suiteName, testName string) {
-	s.setSentMessage(nil)
-
-	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
-
-	s.sut = NewConnectionHandler(s, s, localDevice, ShipRoleClient, "LocalShipID", "RemoveDevice", "RemoteShipID")
-
-	s.sut.handshakeTimer = time.NewTimer(time.Hour * 1)
-	s.sut.stopHandshakeTimer()
-}
-
-func (s *ProClientSuite) AfterTest(suiteName, testName string) {
-	s.sut.stopHandshakeTimer()
+	s.role = ShipRoleClient
 }
 
 func (s *ProClientSuite) Test_Init() {
-	s.sut.setState(smeHelloStateOk)
+	sut, data := initTest(s.role)
 
-	s.sut.handleState(false, nil)
+	sut.setState(smeHelloStateOk)
+
+	sut.handleState(false, nil)
 
 	// the state goes from smeHelloStateOk to smeProtHStateClientInit to smeProtHStateClientListenChoice
-	assert.Equal(s.T(), smeProtHStateClientListenChoice, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), smeProtHStateClientListenChoice, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *ProClientSuite) Test_ListenChoice() {
-	s.sut.setState(smeProtHStateClientListenChoice)
+	sut, data := initTest(s.role)
+
+	sut.setState(smeProtHStateClientListenChoice)
 
 	protMsg := model.MessageProtocolHandshake{
 		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
@@ -102,15 +51,17 @@ func (s *ProClientSuite) Test_ListenChoice() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, protMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, protMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleState(false, msg)
+	sut.handleState(false, msg)
 
-	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 
 	// state goes directly from smeProtHStateClientOk to smePinStateCheckInit to smePinStateCheckListen
-	assert.Equal(s.T(), smePinStateCheckListen, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), smePinStateCheckListen, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }

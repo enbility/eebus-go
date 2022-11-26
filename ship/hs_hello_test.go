@@ -1,24 +1,14 @@
 package ship
 
 import (
-	"os"
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/ship/model"
-	"github.com/DerAndereAndi/eebus-go/spine"
-	spineModel "github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/DerAndereAndi/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
-
-func skipCI(t *testing.T) {
-	if os.Getenv("ACTION_ENVIRONMENT") == "CI" {
-		t.Skip("Skipping testing in CI environment")
-	}
-}
 
 func TestHelloSuite(t *testing.T) {
 	suite.Run(t, new(HelloSuite))
@@ -26,79 +16,40 @@ func TestHelloSuite(t *testing.T) {
 
 type HelloSuite struct {
 	suite.Suite
-
-	sut *ShipConnection
-
-	sentMessage []byte
-
-	mux sync.Mutex
+	role shipRole
 }
-
-func (s *HelloSuite) lastMessage() []byte {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-
-	return s.sentMessage
-}
-
-var _ ConnectionHandler = (*HelloSuite)(nil)
-
-func (s *HelloSuite) HandleClosedConnection(connection *ShipConnection) {}
-
-var _ ShipServiceDataProvider = (*HelloSuite)(nil)
-
-func (s *HelloSuite) IsRemoteServiceForSKIPaired(string) bool { return true }
-
-var _ ShipDataConnection = (*HelloSuite)(nil)
-
-func (s *HelloSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
-
-func (s *HelloSuite) WriteMessageToDataConnection(message []byte) error {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-
-	s.sentMessage = message
-	return nil
-}
-
-func (s *HelloSuite) CloseDataConnection() {}
-
-func (s *HelloSuite) SetupSuite()   {}
-func (s *HelloSuite) TearDownTest() {}
 
 func (s *HelloSuite) BeforeTest(suiteName, testName string) {
-	s.sentMessage = nil
-
-	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
-
-	s.sut = NewConnectionHandler(s, s, localDevice, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID")
-
-	s.sut.handshakeTimer = time.NewTimer(time.Hour * 1)
-	s.sut.stopHandshakeTimer()
-}
-
-func (s *HelloSuite) AfterTest(suiteName, testName string) {
-	s.sut.stopHandshakeTimer()
+	s.role = ShipRoleServer
 }
 
 func (s *HelloSuite) Test_InitialState() {
-	s.sut.setState(smeHelloState)
-	s.sut.handleState(false, nil)
+	sut, data := initTest(s.role)
 
-	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	sut.setState(smeHelloState)
+	sut.handleState(false, nil)
+
+	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStateReadyListen, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_ReadyListen_Init() {
-	s.sut.setState(smeHelloStateReadyInit)
-	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
+	sut, _ := initTest(s.role)
+
+	sut.setState(smeHelloStateReadyInit)
+	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_ReadyListen_Ok() {
-	s.sut.setState(smeHelloStateReadyInit) // inits the timer
-	s.sut.setState(smeHelloStateReadyListen)
+	sut, _ := initTest(s.role)
+
+	sut.setState(smeHelloStateReadyInit) // inits the timer
+	sut.setState(smeHelloStateReadyListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -106,31 +57,39 @@ func (s *HelloSuite) Test_ReadyListen_Ok() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleState(false, msg)
+	sut.handleState(false, msg)
 
 	// the state goes from smeHelloStateOk directly to smeProtHStateServerInit to smeProtHStateClientListenProposal
-	assert.Equal(s.T(), smeProtHStateServerListenProposal, s.sut.getState())
+	assert.Equal(s.T(), smeProtHStateServerListenProposal, sut.getState())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_ReadyListen_Timeout() {
 	skipCI(s.T())
 
-	s.sut.setState(smeHelloStateReadyInit) // inits the timer
-	s.sut.setState(smeHelloStateReadyListen)
+	sut, data := initTest(s.role)
+
+	sut.setState(smeHelloStateReadyInit) // inits the timer
+	sut.setState(smeHelloStateReadyListen)
 
 	time.Sleep(tHelloInit + time.Second)
 
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), smeHelloStateAbort, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_ReadyListen_Ignore() {
-	s.sut.setState(smeHelloStateReadyInit) // inits the timer
-	s.sut.setState(smeHelloStateReadyListen)
+	sut, _ := initTest(s.role)
+
+	sut.setState(smeHelloStateReadyInit) // inits the timer
+	sut.setState(smeHelloStateReadyListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -138,18 +97,22 @@ func (s *HelloSuite) Test_ReadyListen_Ignore() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleState(false, msg)
+	sut.handleState(false, msg)
 
-	assert.Equal(s.T(), smeHelloStateReadyListen, s.sut.getState())
+	assert.Equal(s.T(), smeHelloStateReadyListen, sut.getState())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_ReadyListen_Abort() {
-	s.sut.setState(smeHelloStateReadyInit) // inits the timer
-	s.sut.setState(smeHelloStateReadyListen)
+	sut, data := initTest(s.role)
+
+	sut.setState(smeHelloStateReadyInit) // inits the timer
+	sut.setState(smeHelloStateReadyListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -157,47 +120,63 @@ func (s *HelloSuite) Test_ReadyListen_Abort() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleShipMessage(false, msg)
+	sut.handleShipMessage(false, msg)
 
-	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStateAbort, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingInit() {
-	s.sut.setState(smeHelloStatePendingInit)
-	s.sut.handleState(false, nil)
+	sut, data := initTest(s.role)
 
-	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	sut.setState(smeHelloStatePendingInit)
+	sut.handleState(false, nil)
+
+	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStatePendingListen, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingListen() {
-	s.sut.setState(smeHelloStatePendingInit) // inits the timer
-	s.sut.setState(smeHelloStatePendingListen)
-	s.sut.handleState(false, nil)
+	sut, _ := initTest(s.role)
+
+	sut.setState(smeHelloStatePendingInit) // inits the timer
+	sut.setState(smeHelloStatePendingListen)
+	sut.handleState(false, nil)
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingListen_Timeout() {
 	skipCI(s.T())
 
-	s.sut.setState(smeHelloStatePendingInit) // inits the timer
-	s.sut.setState(smeHelloStatePendingListen)
+	sut, data := initTest(s.role)
+
+	sut.setState(smeHelloStatePendingInit) // inits the timer
+	sut.setState(smeHelloStatePendingListen)
 
 	time.Sleep(tHelloInit + time.Second)
 
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), smeHelloStateAbort, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingListen_ReadyAbort() {
-	s.sut.setState(smeHelloStatePendingInit) // inits the timer
-	s.sut.setState(smeHelloStatePendingListen)
+	sut, data := initTest(s.role)
+
+	sut.setState(smeHelloStatePendingInit) // inits the timer
+	sut.setState(smeHelloStatePendingListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -205,20 +184,24 @@ func (s *HelloSuite) Test_PendingListen_ReadyAbort() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleShipMessage(false, msg)
+	sut.handleShipMessage(false, msg)
 
-	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStateAbort, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingListen_ReadyWaiting() {
-	s.sut.setState(smeHelloStatePendingInit) // inits the timer
-	s.sut.setState(smeHelloStatePendingListen)
+	sut, _ := initTest(s.role)
+
+	sut.setState(smeHelloStatePendingInit) // inits the timer
+	sut.setState(smeHelloStatePendingListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -227,19 +210,23 @@ func (s *HelloSuite) Test_PendingListen_ReadyWaiting() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleShipMessage(false, msg)
+	sut.handleShipMessage(false, msg)
 
-	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
+	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStatePendingListen, sut.getState())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingListen_Abort() {
-	s.sut.setState(smeHelloStatePendingInit) // inits the timer
-	s.sut.setState(smeHelloStatePendingListen)
+	sut, data := initTest(s.role)
+
+	sut.setState(smeHelloStatePendingInit) // inits the timer
+	sut.setState(smeHelloStatePendingListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -247,20 +234,24 @@ func (s *HelloSuite) Test_PendingListen_Abort() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleShipMessage(false, msg)
+	sut.handleShipMessage(false, msg)
 
-	assert.Equal(s.T(), false, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateAbort, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStateAbort, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingListen_PendingWaiting() {
-	s.sut.setState(smeHelloStatePendingInit) // inits the timer
-	s.sut.setState(smeHelloStatePendingListen)
+	sut, _ := initTest(s.role)
+
+	sut.setState(smeHelloStatePendingInit) // inits the timer
+	sut.setState(smeHelloStatePendingListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -269,19 +260,23 @@ func (s *HelloSuite) Test_PendingListen_PendingWaiting() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleShipMessage(false, msg)
+	sut.handleShipMessage(false, msg)
 
-	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
+	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStatePendingListen, sut.getState())
+
+	shutdownTest(sut)
 }
 
 func (s *HelloSuite) Test_PendingListen_PendingProlongation() {
-	s.sut.setState(smeHelloStatePendingInit) // inits the timer
-	s.sut.setState(smeHelloStatePendingListen)
+	sut, data := initTest(s.role)
+
+	sut.setState(smeHelloStatePendingInit) // inits the timer
+	sut.setState(smeHelloStatePendingListen)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -290,13 +285,15 @@ func (s *HelloSuite) Test_PendingListen_PendingProlongation() {
 		},
 	}
 
-	msg, err := s.sut.shipMessage(model.MsgTypeControl, helloMsg)
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msg)
 
-	s.sut.handleShipMessage(false, msg)
+	sut.handleShipMessage(false, msg)
 
-	assert.Equal(s.T(), true, s.sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStatePendingListen, s.sut.getState())
-	assert.NotNil(s.T(), s.lastMessage())
+	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), smeHelloStatePendingListen, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
 }
