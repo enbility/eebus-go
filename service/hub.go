@@ -286,7 +286,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
-	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleClient, h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
+	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleServer, h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
 	shipConnection.Run()
 
 	h.registerConnection(shipConnection)
@@ -352,7 +352,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	}
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
-	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleServer, h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
+	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleClient, h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
 	shipConnection.Run()
 
 	h.registerConnection(shipConnection)
