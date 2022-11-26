@@ -12,7 +12,6 @@ import (
 	"github.com/DerAndereAndi/eebus-go/ship/model"
 	"github.com/DerAndereAndi/eebus-go/ship/util"
 	"github.com/DerAndereAndi/eebus-go/spine"
-	mainUtil "github.com/DerAndereAndi/eebus-go/util"
 )
 
 // implemented by connectionsHub and used by shipConnection
@@ -93,8 +92,6 @@ func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler Ship
 
 // start SHIP communication
 func (c *ShipConnection) Run() {
-	c.handshakeTimerStopChan = make(chan struct{})
-
 	c.handshakeTimer = time.NewTimer(time.Hour * 1)
 	c.stopHandshakeTimer()
 
@@ -119,10 +116,6 @@ func (c *ShipConnection) removeRemoteDeviceConnection() {
 // close this ship connection
 func (c *ShipConnection) CloseConnection(safe bool) {
 	c.shutdownOnce.Do(func() {
-		if !mainUtil.IsChannelClosed(c.handshakeTimerStopChan) {
-			close(c.handshakeTimerStopChan)
-		}
-
 		c.stopHandshakeTimer()
 
 		c.removeRemoteDeviceConnection()

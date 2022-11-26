@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/util"
 )
 
 // handle incoming SHIP messages and coordinate Handshake States
@@ -151,6 +150,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 func (c *ShipConnection) approveHandshake() {
 	// Report to SPINE local device about this remote device connection
 	c.spineDataProcessing = c.spineLocalDevice.AddRemoteDevice(c.RemoteSKI, c)
+	c.stopHandshakeTimer()
 	c.setState(smeComplete)
 }
 
@@ -173,6 +173,7 @@ func (c *ShipConnection) endHandshakeWithError(err error) {
 func (c *ShipConnection) setHandshakeTimer(timerType timeoutTimerType, duration time.Duration) {
 	c.stopHandshakeTimer()
 
+	c.handshakeTimerStopChan = make(chan struct{})
 	c.handshakeTimer.Reset(cmiTimeout)
 	c.handshakeTimerRunning = true
 	c.handshakeTimerType = timerType
@@ -197,8 +198,7 @@ func (c *ShipConnection) stopHandshakeTimer() {
 	}
 
 	c.handshakeTimer.Stop()
-	if !util.IsChannelClosed(c.handshakeTimerStopChan) {
-		close(c.handshakeTimerStopChan)
-	}
+	close(c.handshakeTimerStopChan)
+	c.handshakeTimerStopChan = nil
 	c.handshakeTimerRunning = false
 }
