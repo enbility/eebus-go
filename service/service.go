@@ -10,7 +10,8 @@ import (
 	"github.com/DerAndereAndi/eebus-go/spine/model"
 )
 
-type EEBUSServiceDelegate interface {
+// interface for receiving data for specific events
+type EEBUSServiceHandler interface {
 	// RemoteServicesListUpdated(services []ServiceDetails)
 
 	// report a connection to a SKI
@@ -18,6 +19,11 @@ type EEBUSServiceDelegate interface {
 
 	// report a disconnection to a SKI
 	RemoteSKIDisconnected(service *EEBUSService, ski string)
+
+	// Provides the SHIP ID the remote service reported during the handshake process
+	// This needs to be persisted and passed on for future remote service connections
+	// when using `PairRemoteService`
+	ReportServiceShipID(ski string, shipdID string)
 }
 
 // A service is the central element of an EEBUS service
@@ -34,17 +40,24 @@ type EEBUSService struct {
 	// The SPINE specific device definition
 	spineLocalDevice *spine.DeviceLocalImpl
 
-	serviceDelegate EEBUSServiceDelegate
+	serviceHandler EEBUSServiceHandler
 
 	startOnce sync.Once
 }
 
 // creates a new EEBUS service
-func NewEEBUSService(ServiceDescription *ServiceDescription, serviceDelegate EEBUSServiceDelegate) *EEBUSService {
+func NewEEBUSService(ServiceDescription *ServiceDescription, serviceHandler EEBUSServiceHandler) *EEBUSService {
 	return &EEBUSService{
 		ServiceDescription: ServiceDescription,
-		serviceDelegate:    serviceDelegate,
+		serviceHandler:     serviceHandler,
 	}
+}
+
+var _ serviceProvider = (*EEBUSService)(nil)
+
+// Provides the SHIP ID the remote service reported during the handshake process
+func (s *EEBUSService) ReportServiceShipID(ski string, shipdID string) {
+	s.serviceHandler.ReportServiceShipID(ski, shipdID)
 }
 
 // Sets a custom logging implementation
@@ -132,7 +145,7 @@ func (s *EEBUSService) Setup() error {
 	s.spineLocalDevice.AddEntity(entity)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	hub, err := newConnectionsHub(s.spineLocalDevice, s.ServiceDescription, s.LocalService)
+	hub, err := newConnectionsHub(s, s.spineLocalDevice, s.ServiceDescription, s.LocalService)
 	if err != nil {
 		return err
 	}

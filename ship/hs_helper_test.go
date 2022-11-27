@@ -46,6 +46,7 @@ var _ ShipServiceDataProvider = (*dataHandlerTest)(nil)
 
 func (s *dataHandlerTest) IsRemoteServiceForSKIPaired(string) bool      { return true }
 func (s *dataHandlerTest) HandleConnectionClosed(*ShipConnection, bool) {}
+func (s *dataHandlerTest) ReportServiceShipID(string, string)           {}
 
 func initTest(role shipRole) (*ShipConnection, *dataHandlerTest) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",

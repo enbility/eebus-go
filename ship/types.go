@@ -139,4 +139,7 @@ type ShipServiceDataProvider interface {
 
 	// report closing of a connection and if handshake did complete
 	HandleConnectionClosed(*ShipConnection, bool)
+
+	// report the ship ID provided during the handshake
+	ReportServiceShipID(string, string)
 }

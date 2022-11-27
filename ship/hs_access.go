@@ -58,13 +58,19 @@ func (c *ShipConnection) handshakeAccessMethods_Request(message []byte) {
 			return
 		}
 
+		// if the ID string is empty, then we don't know it yet and can't be verified
 		if len(c.remoteShipID) > 0 && c.remoteShipID != *accessMethods.AccessMethods.Id {
 			c.endHandshakeWithError(errors.New("SHIP id mismatch"))
 			return
 		}
 
-		c.remoteShipID = *accessMethods.AccessMethods.Id
-		// c.interactionHandler.shipIDUpdateForService(c.remoteService)
+		// save and report the SHIP ID
+		if len(c.remoteShipID) == 0 {
+			c.remoteShipID = *accessMethods.AccessMethods.Id
+
+			c.serviceDataProvider.ReportServiceShipID(c.RemoteSKI, c.remoteShipID)
+		}
+
 	} else {
 		c.endHandshakeWithError(fmt.Errorf("access methods: invalid response: %s", dataString))
 		return

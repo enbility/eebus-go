@@ -31,6 +31,7 @@ var _ ShipServiceDataProvider = (*ConnectionSuite)(nil)
 
 func (s *ConnectionSuite) IsRemoteServiceForSKIPaired(string) bool      { return true }
 func (s *ConnectionSuite) HandleConnectionClosed(*ShipConnection, bool) {}
+func (s *ConnectionSuite) ReportServiceShipID(string, string)           {}
 
 var _ ShipDataConnection = (*ConnectionSuite)(nil)
 

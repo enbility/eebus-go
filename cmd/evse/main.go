@@ -89,9 +89,13 @@ func (h *evse) run() {
 	h.myService.PairRemoteService(remoteService)
 }
 
+// EEBUSServiceHandler
+
 func (h *evse) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
 func (h *evse) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
+
+func (h *evse) ReportServiceShipID(ski string, shipdID string) {}
 
 // main app
 func usage() {

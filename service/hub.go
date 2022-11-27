@@ -44,6 +44,14 @@ var connectionInitiationDelayTimeRanges = []connectionInitiationDelayTimeRange{
 	{min: 180, max: 360},
 }
 
+// interface for reporting data from connectionsHub to the EEBUSService
+type serviceProvider interface {
+	// provide the SHIP ID received during SHIP handshake process
+	// the ID needs to be stored and then provided for remote services so it can be compared and verified
+	ReportServiceShipID(string, string)
+}
+
+// handling all connections to remote services
 type connectionsHub struct {
 	connections map[string]*ship.ShipConnection
 
@@ -53,6 +61,8 @@ type connectionsHub struct {
 
 	serviceDescription *ServiceDescription
 	localService       *ServiceDetails
+
+	serviceProvider serviceProvider
 
 	// The list of paired devices
 	pairedServices []ServiceDetails
@@ -72,12 +82,13 @@ type connectionsHub struct {
 	muxMdns       sync.Mutex
 }
 
-func newConnectionsHub(spineLocalDevice *spine.DeviceLocalImpl, serviceDescription *ServiceDescription, localService *ServiceDetails) (*connectionsHub, error) {
+func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.DeviceLocalImpl, serviceDescription *ServiceDescription, localService *ServiceDetails) (*connectionsHub, error) {
 	hub := &connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		connectionAttemptRunning: make(map[string]bool),
 		pairedServices:           make([]ServiceDetails, 0),
+		serviceProvider:          serviceProvider,
 		spineLocalDevice:         spineLocalDevice,
 		serviceDescription:       serviceDescription,
 		localService:             localService,
@@ -146,6 +157,11 @@ func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection,
 		}
 		h.mdns.RegisterMdnsSearch(h)
 	}
+}
+
+// Provides the SHIP ID the remote service reported during the handshake process
+func (h *connectionsHub) ReportServiceShipID(ski string, shipdID string) {
+	h.serviceProvider.ReportServiceShipID(ski, shipdID)
 }
 
 // Disconnect a connection to an SKI, used by a service implementation

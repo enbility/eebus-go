@@ -89,11 +89,13 @@ func (h *hems) run() {
 	h.myService.PairRemoteService(remoteService)
 }
 
-// EEBUSServiceDelegate
+// EEBUSServiceHandler
 
 func (h *hems) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
 func (h *hems) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
+
+func (h *hems) ReportServiceShipID(ski string, shipdID string) {}
 
 // UCEvseCommisioningConfigurationCemDelegate
 
