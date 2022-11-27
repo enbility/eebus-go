@@ -86,7 +86,7 @@ func (s *EEBUSService) Setup() error {
 	// TODO: clarify
 	s.LocalService = &ServiceDetails{
 		SKI:                ski,
-		ShipID:             sd.shipIdentifier(),
+		ShipID:             sd.Identifier(),
 		deviceType:         sd.deviceType,
 		registerAutoAccept: sd.registerAutoAccept,
 	}
@@ -111,7 +111,7 @@ func (s *EEBUSService) Setup() error {
 		sd.deviceBrand,
 		sd.deviceModel,
 		sd.deviceSerialNumber,
-		sd.shipIdentifier(),
+		sd.Identifier(),
 		deviceAdress,
 		sd.deviceType,
 		sd.featureSet,

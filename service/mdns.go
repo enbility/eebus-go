@@ -146,7 +146,7 @@ func (m *mdns) Announce() error {
 		return err
 	}
 
-	serviceIdentifier := m.serviceDescription.mDNSIdentifier()
+	serviceIdentifier := m.serviceDescription.Identifier()
 
 	txt := []string{ // SHIP 7.3.2
 		"txtvers=1",
@@ -159,11 +159,13 @@ func (m *mdns) Announce() error {
 		"register=" + fmt.Sprintf("%v", m.serviceDescription.registerAutoAccept),
 	}
 
-	logging.Log.Debug("mDNS: Announce")
+	logging.Log.Debug("mdns: announce")
+
+	serviceName := m.serviceDescription.MdnsServiceName()
 
 	if m.av == nil {
 		// use Zeroconf library if avahi is not available
-		mDNSServer, err := zeroconf.Register(serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, m.serviceDescription.port, txt, ifaces)
+		mDNSServer, err := zeroconf.Register(serviceName, shipZeroConfServiceType, shipZeroConfDomain, m.serviceDescription.port, txt, ifaces)
 		if err == nil {
 			m.zc = mDNSServer
 
@@ -186,7 +188,7 @@ func (m *mdns) Announce() error {
 	}
 
 	for _, iface := range ifaceIndexes {
-		err = entryGroup.AddService(iface, avahi.ProtoUnspec, 0, serviceIdentifier, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(m.serviceDescription.port), btxt)
+		err = entryGroup.AddService(iface, avahi.ProtoUnspec, 0, serviceName, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(m.serviceDescription.port), btxt)
 		if err != nil {
 			return err
 		}
@@ -217,7 +219,7 @@ func (m *mdns) Unannounce() {
 		m.av.EntryGroupFree(m.avEntryGroup)
 		m.avEntryGroup = nil
 	}
-	logging.Log.Debug("mDNS: Stop announcement")
+	logging.Log.Debug("mdns: stop announcement")
 
 	m.isAnnounced = false
 }
@@ -245,7 +247,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	if !m.isSearchingServices {
 		m.isSearchingServices = true
 		m.mux.Unlock()
-		logging.Log.Debug("mDNS: Start search")
+		logging.Log.Debug("mdns: start search")
 		go m.resolveEntries()
 		return
 	}
@@ -493,7 +495,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		}
 		m.entries[ski] = newEntry
 
-		logging.Log.Debug("SKI:", ski, "Name:", name, "Brand:", brand, "Model:", model, "Typ:", deviceType, "Identifier:", identifier, "Register:", register)
+		logging.Log.Debug("ski:", ski, "name:", name, "brand:", brand, "model:", model, "typ:", deviceType, "identifier:", identifier, "register:", register)
 	} else {
 		return
 	}

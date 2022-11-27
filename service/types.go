@@ -59,11 +59,9 @@ type ServiceDescription struct {
 	// Used for mDNS service and SHIP identifier: SHIP - Specification 7.2
 	alternateIdentifier string
 
-	// An alternate SHIP identifier
+	// An alternate mDNS service name
 	// Optional, if not set will be identical to alternateIdentifier or generated using "Brand-Model-SerialNumber"
-	// Overwrites alternateIdentifier
-	// Used for SHIP identifier: SHIP - Specification 7.2
-	alternateShipIdentifier string
+	alternateMdnsServiceName string
 
 	// SPINE device type of the device model, required
 	// Used for SPINE device type
@@ -150,13 +148,10 @@ func (s *ServiceDescription) SetAlternateIdentifier(identifier string) {
 	s.alternateIdentifier = identifier
 }
 
-// define an alternative identifier to be used for SHIP
-// usually this is only used when no deviceCode is available or identical to the brand
-//
-// will overwrite the alternateIdentifier for the SHIP id, if that is set
-// if this is not set, alternateIdentifier or generated identifier is used
-func (s *ServiceDescription) SetAlternateShipIdentifier(identifier string) {
-	s.alternateShipIdentifier = identifier
+// define an alternative mDNS service name
+// this is normally not needed or used
+func (s *ServiceDescription) SetAlternateMdnsServiceName(name string) {
+	s.alternateMdnsServiceName = name
 }
 
 // define which network interfaces should be considered instead of all existing
@@ -177,11 +172,11 @@ func (s *ServiceDescription) generateIdentifier() string {
 	return fmt.Sprintf("%s-%s-%s", s.deviceBrand, s.deviceModel, s.deviceSerialNumber)
 }
 
-// return the identifier to be used for mDNS
+// return the identifier to be used for mDNS and SHIP ID
 // returns in this order:
 // - alternateIdentifier
 // - generateIdentifier
-func (s *ServiceDescription) mDNSIdentifier() string {
+func (s *ServiceDescription) Identifier() string {
 	// SHIP identifier is identical to the mDNS ID
 	if len(s.alternateIdentifier) > 0 {
 		return s.alternateIdentifier
@@ -190,15 +185,15 @@ func (s *ServiceDescription) mDNSIdentifier() string {
 	return s.generateIdentifier()
 }
 
-// return the identifier to be used for mDNS
+// return the name to be used as the mDNS service name
 // returns in this order:
-// - alternateShipIdentifier
-// - alternateIdentifier
+// - alternateMdnsServiceName
 // - generateIdentifier
-func (s *ServiceDescription) shipIdentifier() string {
-	if len(s.alternateShipIdentifier) > 0 {
-		return s.alternateShipIdentifier
+func (s *ServiceDescription) MdnsServiceName() string {
+	// SHIP identifier is identical to the mDNS ID
+	if len(s.alternateMdnsServiceName) > 0 {
+		return s.alternateMdnsServiceName
 	}
 
-	return s.mDNSIdentifier()
+	return s.generateIdentifier()
 }
