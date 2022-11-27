@@ -194,7 +194,9 @@ func (w *websocketConnection) WriteMessageToDataConnection(message []byte) error
 
 // shutdown the connection and all internals
 func (w *websocketConnection) CloseDataConnection() {
-	w.close()
+	if !w.isConnClosed() {
+		w.close()
+	}
 }
 
 // return if the connection is closed

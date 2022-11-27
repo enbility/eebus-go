@@ -29,8 +29,8 @@ func (s *ConnectionSuite) HandleClosedConnection(connection *ShipConnection) {}
 
 var _ ShipServiceDataProvider = (*ConnectionSuite)(nil)
 
-func (s *ConnectionSuite) IsRemoteServiceForSKIPaired(string) bool           { return true }
-func (s *ConnectionSuite) HandleConnectionClosed(connection *ShipConnection) {}
+func (s *ConnectionSuite) IsRemoteServiceForSKIPaired(string) bool      { return true }
+func (s *ConnectionSuite) HandleConnectionClosed(*ShipConnection, bool) {}
 
 var _ ShipDataConnection = (*ConnectionSuite)(nil)
 

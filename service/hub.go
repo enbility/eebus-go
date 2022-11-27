@@ -49,6 +49,7 @@ type connectionsHub struct {
 
 	// which attempt is it to initate an connection to the remote SKI
 	connectionAttemptCounter map[string]int
+	connectionAttemptRunning map[string]bool
 
 	serviceDescription *ServiceDescription
 	localService       *ServiceDetails
@@ -75,6 +76,7 @@ func newConnectionsHub(spineLocalDevice *spine.DeviceLocalImpl, serviceDescripti
 	hub := &connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
+		connectionAttemptRunning: make(map[string]bool),
 		pairedServices:           make([]ServiceDetails, 0),
 		spineLocalDevice:         spineLocalDevice,
 		serviceDescription:       serviceDescription,
@@ -98,12 +100,12 @@ func (h *connectionsHub) start() {
 	// start the websocket server
 	go func() {
 		if err := h.startWebsocketServer(); err != nil {
-			logging.Log.Error("Error during websocket server starting: ", err)
+			logging.Log.Error("error during websocket server starting:", err)
 		}
 	}()
 
 	if err := h.mdns.Announce(); err != nil {
-		logging.Log.Error("Error registering mDNS Service:", err)
+		logging.Log.Error("error registering mDNS Service:", err)
 	}
 }
 
@@ -119,20 +121,25 @@ func (h *connectionsHub) IsRemoteServiceForSKIPaired(ski string) bool {
 }
 
 // The connection was closed, we need to clean up
-func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection) {
+func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection, handshakeCompleted bool) {
 	// only remove this connection if it is the registered one for the ski!
 	// as we can have double connections but only one can be registered
 	if existingC := h.connectionForSKI(connection.RemoteSKI); existingC != nil {
-		if connection.DataHandler == connection.DataHandler {
+		if existingC.DataHandler == connection.DataHandler {
 			h.muxCon.Lock()
 			delete(h.connections, connection.RemoteSKI)
 			h.muxCon.Unlock()
+		}
+
+		// connection close was after a completed handshake, so we can reset the attetmpt counter
+		if handshakeCompleted {
+			h.removeConnectionAttemptCounter(connection.RemoteSKI)
 		}
 	}
 
 	// startup mDNS if a paired service is not connected
 	if len(h.connections) == 0 && len(h.pairedServices) > 0 {
-		logging.Log.Debug("Starting mDNS")
+		logging.Log.Debug("starting mDNS")
 		// if this is not a CEM also start the mDNS announcement
 		if h.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
 			_ = h.mdns.Announce()
@@ -207,7 +214,7 @@ func (h *connectionsHub) isSkiConnected(ski string) bool {
 // start the ship websocket server
 func (h *connectionsHub) startWebsocketServer() error {
 	addr := fmt.Sprintf(":%d", h.serviceDescription.port)
-	logging.Log.Debug("Starting websocket server on ", addr)
+	logging.Log.Debug("starting websocket server on", addr)
 
 	h.httpServer = &http.Server{
 		Addr:    addr,
@@ -230,7 +237,7 @@ func (h *connectionsHub) startWebsocketServer() error {
 					}
 				}
 				if !skiFound {
-					return errors.New("No valid SKI provided in certificate")
+					return errors.New("no valid SKI provided in certificate")
 				}
 
 				return nil
@@ -258,20 +265,20 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		logging.Log.Error("Error during connection upgrading: ", err)
+		logging.Log.Error("error during connection upgrading:", err)
 		return
 	}
 
 	// check if the client supports the ship sub protocol
 	if conn.Subprotocol() != shipWebsocketSubProtocol {
-		logging.Log.Error("Client does not support the ship sub protocol")
+		logging.Log.Error("client does not support the ship sub protocol")
 		conn.Close()
 		return
 	}
 
 	// check if the clients certificate provides a SKI
 	if len(r.TLS.PeerCertificates) == 0 {
-		logging.Log.Error("Client does not provide a certificate")
+		logging.Log.Error("client does not provide a certificate")
 		conn.Close()
 		return
 	}
@@ -284,12 +291,12 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ski = util.NormalizeSKI(ski)
-	logging.Log.Debug("Incoming connection request from ", ski)
+	logging.Log.Debug("incoming connection request from", ski)
 
 	// Check if the remote service is paired
 	_, err = h.PairedServiceForSKI(ski)
 	if err != nil {
-		logging.Log.Debug("ski", ski, "is not registered, closing the connection")
+		logging.Log.Debug("ski", ski, "is not paired, closing the connection")
 		return
 	}
 
@@ -369,7 +376,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	}
 
 	if !h.keepThisConnection(conn, false, remoteService.SKI) {
-		return nil
+		return errors.New("ignoring this connection")
 	}
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
@@ -505,24 +512,27 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 			}
 		}
 
-		// check if an connection initiation attempt is already ongoing
-		if h.checkConnectionInitiationAttemptExists(ski) {
-			continue
-		}
-
 		h.coordinateConnectionInitations(ski, entry)
 	}
 }
 
 // coordinate connection initiation attempts to a remove service
 func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEntry) {
+	if h.isConnectionAttemptRunning(ski) {
+		return
+	}
+
+	h.setConnectionAttemptRunning(ski, true)
 	counter, duration := h.getConnectionInitiationDelayTime(ski)
 
+	logging.Log.Debugf("delaying connection by %s to minimize double connection probability", duration)
 	// we do not stop this thread and just let the timer run out
 	// otherwise we would need a stop channel for each ski
 	go func() {
 		// wait
 		<-time.After(duration)
+
+		h.setConnectionAttemptRunning(ski, false)
 
 		// check if the remoteService still exists
 		remoteService, err := h.PairedServiceForSKI(ski)
@@ -547,54 +557,37 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 		}
 
 		// now initiate the connection
-		if h.initatingConnection(remoteService, entry) {
-			return
-		} else {
-			// attempt failed, initate a new attempt
-			h.coordinateConnectionInitations(ski, entry)
-		}
+		_ = h.initateConnection(remoteService, entry)
+
 	}()
 }
 
 // attempt to establish a connection to a remote service
 // returns true if successful
-func (h *connectionsHub) initatingConnection(remoteService *ServiceDetails, entry MdnsEntry) bool {
+func (h *connectionsHub) initateConnection(remoteService *ServiceDetails, entry MdnsEntry) bool {
 	var err error
 
-	logging.Log.Debug("Trying to connect to", remoteService.SKI, "at", entry.Host)
+	logging.Log.Debug("trying to connect to", remoteService.SKI, "at", entry.Host)
 	if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
-		logging.Log.Debug("Connection failed: ", err)
+		logging.Log.Debug("connection failed: ", err)
 		// connecting via the host failed, so try all of the provided addresses
 		for _, address := range entry.Addresses {
-			logging.Log.Debug("Trying to connect to", remoteService.SKI, "at", address)
+			logging.Log.Debug("trying to connect to", remoteService.SKI, "at", address)
 			if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err != nil {
-				logging.Log.Debug("Connection failed: ", err)
+				logging.Log.Debug("connection failed: ", err)
 			} else {
 				break
 			}
 		}
 	}
-	// no connection could be estabiled via any of the provided addresses
+
+	// no connection could be estabished via any of the provided addresses
+	// because no service was reachable at any of the addresses
 	if err != nil {
-		h.increaseConnectionAttemptCounter(remoteService.SKI)
 		return false
 	}
 
-	h.removeConnectionAttemptCounter(remoteService.SKI)
-
 	return true
-}
-
-// returns if an connection initiation attempt already exists
-func (h *connectionsHub) checkConnectionInitiationAttemptExists(ski string) bool {
-	h.muxConAttempt.Lock()
-	defer h.muxConAttempt.Unlock()
-
-	if _, exists := h.connectionAttemptCounter[ski]; exists {
-		return true
-	}
-
-	return false
 }
 
 // increase the connection attempt counter for the given ski
@@ -624,6 +617,7 @@ func (h *connectionsHub) removeConnectionAttemptCounter(ski string) {
 	delete(h.connectionAttemptCounter, ski)
 }
 
+// get the current attempt counter
 func (h *connectionsHub) getCurrentConnectionAttemptCounter(ski string) (int, bool) {
 	h.muxConAttempt.Lock()
 	defer h.muxConAttempt.Unlock()
@@ -651,7 +645,7 @@ func (h *connectionsHub) getConnectionInitiationDelayTime(ski string) (int, time
 	i := new(big.Int)
 	hex := fmt.Sprintf("0x%s", h.localService.SKI)
 	if _, err := fmt.Sscan(hex, i); err == nil {
-		rand.Seed(i.Int64())
+		rand.Seed(i.Int64() + time.Now().UnixNano())
 	} else {
 		rand.Seed(time.Now().UnixNano())
 	}
@@ -659,4 +653,25 @@ func (h *connectionsHub) getConnectionInitiationDelayTime(ski string) (int, time
 	duration := rand.Intn(max-min) + min
 
 	return counter, time.Duration(duration) * time.Millisecond
+}
+
+// set if a connection attempt is running/in progress
+func (h *connectionsHub) setConnectionAttemptRunning(ski string, active bool) {
+	h.muxConAttempt.Lock()
+	defer h.muxConAttempt.Unlock()
+
+	h.connectionAttemptRunning[ski] = active
+}
+
+// return if a connection attempt is runnning/in progress
+func (h *connectionsHub) isConnectionAttemptRunning(ski string) bool {
+	h.muxConAttempt.Lock()
+	defer h.muxConAttempt.Unlock()
+
+	running, exists := h.connectionAttemptRunning[ski]
+	if !exists {
+		return false
+	}
+
+	return running
 }

@@ -30,11 +30,11 @@ func (c *ShipConnection) handleShipMessage(timeout bool, message []byte) {
 
 				//
 				c.DataHandler.CloseDataConnection()
-				c.dataProvider.HandleConnectionClosed(c)
+				c.serviceDataProvider.HandleConnectionClosed(c, c.smeState == smeComplete)
 			case model.ConnectionClosePhaseTypeConfirm:
 				// we got a confirmation so close this connection
 				c.DataHandler.CloseDataConnection()
-				c.dataProvider.HandleConnectionClosed(c)
+				c.serviceDataProvider.HandleConnectionClosed(c, c.smeState == smeComplete)
 			}
 
 			return
@@ -186,7 +186,7 @@ func (c *ShipConnection) endHandshakeWithError(err error) {
 
 	c.setState(smeError)
 
-	logging.Log.Error(c.RemoteSKI, "SHIP handshake error:", err)
+	logging.Log.Debug(c.RemoteSKI, "SHIP handshake error:", err)
 
 	c.CloseConnection(true, err.Error())
 }

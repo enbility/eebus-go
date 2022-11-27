@@ -35,7 +35,7 @@ type ShipConnection struct {
 	localShipID string
 
 	// data provider
-	dataProvider ShipServiceDataProvider
+	serviceDataProvider ShipServiceDataProvider
 
 	// Where to pass incoming SPINE messages to
 	spineDataProcessing spine.SpineDataProcessing
@@ -70,14 +70,14 @@ type ShipConnection struct {
 
 func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, spineLocalDevice *spine.DeviceLocalImpl, role shipRole, localShipID, remoteSki, remoteShipId string) *ShipConnection {
 	ship := &ShipConnection{
-		dataProvider:     dataProvider,
-		spineLocalDevice: spineLocalDevice,
-		role:             role,
-		localShipID:      localShipID,
-		RemoteSKI:        remoteSki,
-		remoteShipID:     remoteShipId,
-		DataHandler:      dataHandler,
-		smeState:         cmiStateInitStart,
+		serviceDataProvider: dataProvider,
+		spineLocalDevice:    spineLocalDevice,
+		role:                role,
+		localShipID:         localShipID,
+		RemoteSKI:           remoteSki,
+		remoteShipID:        remoteShipId,
+		DataHandler:         dataHandler,
+		smeState:            cmiStateInitStart,
 	}
 
 	ship.handshakeTimerStopChan = make(chan struct{})
@@ -128,7 +128,7 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 		}
 
 		c.DataHandler.CloseDataConnection()
-		c.dataProvider.HandleConnectionClosed(c)
+		c.serviceDataProvider.HandleConnectionClosed(c, c.smeState == smeComplete)
 	})
 }
 
@@ -195,7 +195,7 @@ func (c *ShipConnection) hasSpineDatagram(message []byte) bool {
 
 // the websocket data connection was closed from remote
 func (c *ShipConnection) ReportConnectionError(err error) {
-	// right now there is nothing to do
+	c.CloseConnection(false, "")
 }
 
 const payloadPlaceholder = `{"place":"holder"}`
@@ -245,7 +245,8 @@ func (c *ShipConnection) sendSpineData(data []byte) error {
 	}
 
 	if c.DataHandler.IsDataConnectionClosed() {
-		return err
+		c.CloseConnection(false, "")
+		return errors.New("connection is closed")
 	}
 
 	logging.Log.Trace("Send:", c.RemoteSKI, string(eebusMsg))
@@ -256,7 +257,7 @@ func (c *ShipConnection) sendSpineData(data []byte) error {
 
 	err = c.DataHandler.WriteMessageToDataConnection(shipMsg)
 	if err != nil {
-		logging.Log.Debug("Error sending message: ", err)
+		logging.Log.Debug("error sending message: ", err)
 		return err
 	}
 
@@ -287,6 +288,11 @@ func (c *ShipConnection) processShipJsonMessage(message []byte, target any) erro
 
 // transform a SHIP model into EEBUS specific JSON
 func (c *ShipConnection) shipMessage(typ byte, model interface{}) ([]byte, error) {
+	if c.DataHandler.IsDataConnectionClosed() {
+		c.CloseConnection(false, "")
+		return nil, errors.New("connection is closed")
+	}
+
 	if model == nil {
 		return nil, errors.New("invalid data")
 	}

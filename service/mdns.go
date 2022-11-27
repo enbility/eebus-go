@@ -236,11 +236,9 @@ func (m *mdns) shutdown() {
 
 // Register a callback to be invoked for found mDNS entries
 func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
-	if m.searchDelegate != nil {
-		return
+	if m.searchDelegate != cb {
+		m.searchDelegate = cb
 	}
-
-	m.searchDelegate = cb
 
 	m.mux.Lock()
 
@@ -344,7 +342,7 @@ func (m *mdns) resolveEntries() {
 // stop searching for mDNS entries
 func (m *mdns) stopResolvingEntries() {
 	if m.cancelChan != nil {
-		logging.Log.Debug("mDNS: stop search")
+		logging.Log.Debug("mdns: stop search")
 
 		m.cancelChan <- true
 	}
@@ -355,7 +353,7 @@ func (m *mdns) stopResolvingEntries() {
 func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	_, ifaceIndexes, err := m.interfaces()
 	if err != nil {
-		logging.Log.Error("Error getting interfaces:", err)
+		logging.Log.Error("error getting interfaces:", err)
 		return
 	}
 

@@ -137,6 +137,6 @@ type ShipServiceDataProvider interface {
 	// check if the SKI is paired
 	IsRemoteServiceForSKIPaired(string) bool
 
-	// report closing of a connection
-	HandleConnectionClosed(connection *ShipConnection)
+	// report closing of a connection and if handshake did complete
+	HandleConnectionClosed(*ShipConnection, bool)
 }
