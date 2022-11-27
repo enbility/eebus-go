@@ -321,7 +321,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		return nil
 	}
 
-	logging.Log.Debug("Initiating connection to", remoteService.SKI)
+	logging.Log.Debugf("Initiating connection to %s at %s:%s", remoteService.SKI, host, port)
 
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
@@ -347,14 +347,14 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	if len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
 		// Close connection as we couldn't get the remote SKI
 		errorString := "closing, could not get remote SKI"
-		logging.Log.Error(errorString)
+		logging.Log.Debug(errorString)
 		conn.Close()
 		return errors.New(errorString)
 	}
 
 	if _, err := skiFromCertificate(remoteCerts[0]); err != nil {
 		// Close connection as the remote SKI can't be correct
-		logging.Log.Errorf("closing", err)
+		logging.Log.Debugf("closing", err)
 		conn.Close()
 		return err
 	}
@@ -362,8 +362,8 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	remoteSKI := fmt.Sprintf("%0x", remoteCerts[0].SubjectKeyId)
 
 	if remoteSKI != remoteService.SKI {
-		errorString := "remote SKI does not match"
-		logging.Log.Error(errorString)
+		errorString := fmt.Sprintf("remote SKI %s does not match %s", remoteSKI, remoteService.SKI)
+		logging.Log.Debug(errorString)
 		conn.Close()
 		return errors.New(errorString)
 	}
@@ -510,13 +510,13 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 			continue
 		}
 
-		h.coordinateConnectionInitations(remoteService, entry)
+		h.coordinateConnectionInitations(ski, entry)
 	}
 }
 
 // coordinate connection initiation attempts to a remove service
-func (h *connectionsHub) coordinateConnectionInitations(remoteService *ServiceDetails, entry MdnsEntry) {
-	counter, duration := h.getConnectionInitiationDelayTime(remoteService.SKI)
+func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEntry) {
+	counter, duration := h.getConnectionInitiationDelayTime(ski)
 
 	// we do not stop this thread and just let the timer run out
 	// otherwise we would need a stop channel for each ski
@@ -525,23 +525,24 @@ func (h *connectionsHub) coordinateConnectionInitations(remoteService *ServiceDe
 		<-time.After(duration)
 
 		// check if the remoteService still exists
-		if remoteService == nil {
+		remoteService, err := h.PairedServiceForSKI(ski)
+		if err != nil {
 			return
 		}
 
 		// check if the current counter is still the same, otherwise this counter is irrelevant
-		currentCounter, exists := h.getCurrentConnectionAttemptCounter(remoteService.SKI)
+		currentCounter, exists := h.getCurrentConnectionAttemptCounter(ski)
 		if !exists || currentCounter != counter {
 			return
 		}
 
 		// connection attempt is not relevant if the device is no longer paired
-		if !h.IsRemoteServiceForSKIPaired(remoteService.SKI) {
+		if !h.IsRemoteServiceForSKIPaired(ski) {
 			return
 		}
 
 		// connection attempt is not relevant if the device is already connected
-		if h.isSkiConnected(remoteService.SKI) {
+		if h.isSkiConnected(ski) {
 			return
 		}
 
@@ -550,7 +551,7 @@ func (h *connectionsHub) coordinateConnectionInitations(remoteService *ServiceDe
 			return
 		} else {
 			// attempt failed, initate a new attempt
-			h.coordinateConnectionInitations(remoteService, entry)
+			h.coordinateConnectionInitations(ski, entry)
 		}
 	}()
 }
