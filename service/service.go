@@ -76,6 +76,14 @@ func (s *EEBUSService) Setup() error {
 		return err
 	}
 
+	// Initialize the local service
+	// The ShipID is defined in SHIP Spec 3. as
+	//   Each SHIP node has a globally unique SHIP ID. The SHIP ID is used to uniquely identify a SHIP node,
+	//   e.g. in its service discovery. This ID is present in the mDNS/DNS-SD local service discovery;
+	// In SHIP 13.4.6.2 the accessMethods.id is defined as
+	//   The originator's unique ID
+	// I assume those two to mean the same.
+	// TODO: clarify
 	s.LocalService = &ServiceDetails{
 		SKI:                ski,
 		ShipID:             sd.shipIdentifier(),
