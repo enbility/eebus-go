@@ -5,15 +5,41 @@ import (
 	"time"
 
 	"github.com/DerAndereAndi/eebus-go/logging"
+	"github.com/DerAndereAndi/eebus-go/ship/model"
 )
 
 // handle incoming SHIP messages and coordinate Handshake States
 func (c *ShipConnection) handleShipMessage(timeout bool, message []byte) {
 	if len(message) > 2 {
-		logging.Log.Trace("Recv:", c.RemoteSKI, string(message[1:]))
-	}
+		var closeMsg model.ConnectionClose
+		err := c.processShipJsonMessage(message, &closeMsg)
+		if err == nil && closeMsg.ConnectionClose.Phase != "" {
+			switch closeMsg.ConnectionClose.Phase {
+			case model.ConnectionClosePhaseTypeAnnounce:
+				// SHIP 13.4.7: Connection Termination Confirm
+				closeMessage := model.ConnectionClose{
+					ConnectionClose: model.ConnectionCloseType{
+						Phase: model.ConnectionClosePhaseTypeConfirm,
+					},
+				}
 
-	// TODO: first check if this is a close message
+				_ = c.sendShipModel(model.MsgTypeEnd, closeMessage)
+
+				// wait a bit to let it send
+				<-time.After(500 * time.Millisecond)
+
+				//
+				c.DataHandler.CloseDataConnection()
+				c.dataProvider.HandleConnectionClosed(c)
+			case model.ConnectionClosePhaseTypeConfirm:
+				// we got a confirmation so close this connection
+				c.DataHandler.CloseDataConnection()
+				c.dataProvider.HandleConnectionClosed(c)
+			}
+
+			return
+		}
+	}
 
 	c.handleState(timeout, message)
 }
@@ -160,13 +186,9 @@ func (c *ShipConnection) endHandshakeWithError(err error) {
 
 	c.setState(smeError)
 
-	if c.handshakeError != nil {
-		logging.Log.Error(c.RemoteSKI, "SHIP handshake error:", c.handshakeError)
-	} else {
-		logging.Log.Error(c.RemoteSKI, "SHIP handshake error unknown")
-	}
+	logging.Log.Error(c.RemoteSKI, "SHIP handshake error:", err)
 
-	c.CloseConnection(false)
+	c.CloseConnection(true, err.Error())
 }
 
 // set the handshake timer to a new duration and start the channel

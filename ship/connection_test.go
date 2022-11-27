@@ -29,7 +29,8 @@ func (s *ConnectionSuite) HandleClosedConnection(connection *ShipConnection) {}
 
 var _ ShipServiceDataProvider = (*ConnectionSuite)(nil)
 
-func (s *ConnectionSuite) IsRemoteServiceForSKIPaired(string) bool { return true }
+func (s *ConnectionSuite) IsRemoteServiceForSKIPaired(string) bool           { return true }
+func (s *ConnectionSuite) HandleConnectionClosed(connection *ShipConnection) {}
 
 var _ ShipDataConnection = (*ConnectionSuite)(nil)
 
@@ -40,7 +41,8 @@ func (s *ConnectionSuite) WriteMessageToDataConnection(message []byte) error {
 	return nil
 }
 
-func (s *ConnectionSuite) CloseDataConnection() {}
+func (s *ConnectionSuite) CloseDataConnection()         {}
+func (w *ConnectionSuite) IsDataConnectionClosed() bool { return false }
 
 func (s *ConnectionSuite) SetupSuite()   {}
 func (s *ConnectionSuite) TearDownTest() {}

@@ -171,5 +171,5 @@ func (c *ShipConnection) abortProtocolHandshake(err model.MessageProtocolHandsha
 
 	_ = c.sendShipModel(model.MsgTypeControl, msg)
 
-	c.CloseConnection(false)
+	c.CloseConnection(false, "")
 }

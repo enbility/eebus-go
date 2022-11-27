@@ -113,6 +113,9 @@ type ShipDataConnection interface {
 
 	// close the data connection
 	CloseDataConnection()
+
+	// report if the data connection is closed
+	IsDataConnectionClosed() bool
 }
 
 // interface for handling incoming data
@@ -131,5 +134,9 @@ type ShipDataProcessing interface {
 //
 // implemented by connectionsHub, used by shipConnection
 type ShipServiceDataProvider interface {
+	// check if the SKI is paired
 	IsRemoteServiceForSKIPaired(string) bool
+
+	// report closing of a connection
+	HandleConnectionClosed(connection *ShipConnection)
 }

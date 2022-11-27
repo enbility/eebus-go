@@ -35,7 +35,8 @@ func (s *dataHandlerTest) WriteMessageToDataConnection(message []byte) error {
 	return nil
 }
 
-func (s *dataHandlerTest) CloseDataConnection() {}
+func (s *dataHandlerTest) CloseDataConnection()         {}
+func (w *dataHandlerTest) IsDataConnectionClosed() bool { return false }
 
 var _ ConnectionHandler = (*dataHandlerTest)(nil)
 
@@ -43,7 +44,8 @@ func (s *dataHandlerTest) HandleClosedConnection(connection *ShipConnection) {}
 
 var _ ShipServiceDataProvider = (*dataHandlerTest)(nil)
 
-func (s *dataHandlerTest) IsRemoteServiceForSKIPaired(string) bool { return true }
+func (s *dataHandlerTest) IsRemoteServiceForSKIPaired(string) bool           { return true }
+func (s *dataHandlerTest) HandleConnectionClosed(connection *ShipConnection) {}
 
 func initTest(role shipRole) (*ShipConnection, *dataHandlerTest) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",

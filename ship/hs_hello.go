@@ -74,7 +74,7 @@ func (c *ShipConnection) handshakeHello_Abort() {
 		return
 	}
 
-	c.CloseConnection(false)
+	c.CloseConnection(false, "")
 }
 
 // SME_HELLO_PENDING_INIT

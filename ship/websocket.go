@@ -83,7 +83,7 @@ func (w *websocketConnection) writeShipPump() {
 				return
 			}
 			if err := w.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				logging.Log.Error(w.remoteSki, "error writing to websocket: ", err)
+				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
 				return
 			}
 
@@ -94,7 +94,7 @@ func (w *websocketConnection) writeShipPump() {
 
 			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := w.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				logging.Log.Error(w.remoteSki, "error writing to websocket: ", err)
+				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
 				return
 			}
 		}
@@ -195,4 +195,9 @@ func (w *websocketConnection) WriteMessageToDataConnection(message []byte) error
 // shutdown the connection and all internals
 func (w *websocketConnection) CloseDataConnection() {
 	w.close()
+}
+
+// return if the connection is closed
+func (w *websocketConnection) IsDataConnectionClosed() bool {
+	return w.isConnClosed()
 }

@@ -119,7 +119,7 @@ func (h *connectionsHub) IsRemoteServiceForSKIPaired(ski string) bool {
 }
 
 // The connection was closed, we need to clean up
-func (h *connectionsHub) HandleConnectionClosing(connection *ship.ShipConnection) {
+func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection) {
 	// only remove this connection if it is the registered one for the ski!
 	// as we can have double connections but only one can be registered
 	if existingC := h.connectionForSKI(connection.RemoteSKI); existingC != nil {
@@ -143,7 +143,7 @@ func (h *connectionsHub) HandleConnectionClosing(connection *ship.ShipConnection
 
 // Disconnect a connection to an SKI, used by a service implementation
 // e.g. if heartbeats go wrong
-func (h *connectionsHub) DisconnectSKI(ski string) {
+func (h *connectionsHub) DisconnectSKI(ski string, reason string) {
 	h.muxCon.Lock()
 	defer h.muxCon.Unlock()
 
@@ -153,7 +153,7 @@ func (h *connectionsHub) DisconnectSKI(ski string) {
 		return
 	}
 
-	con.CloseConnection(true)
+	con.CloseConnection(true, reason)
 }
 
 // register a new ship Connection
@@ -188,7 +188,7 @@ func (h *connectionsHub) shutdown() {
 
 	h.mdns.shutdown()
 	for _, c := range h.connections {
-		c.CloseConnection(true)
+		c.CloseConnection(false, "")
 	}
 }
 
@@ -411,7 +411,7 @@ func (h *connectionsHub) keepThisConnection(conn *websocket.Conn, incomingReques
 		// we have an existing connection
 		// so keep the new (most recent) and close the old one
 		logging.Log.Debug("closing existing double connection")
-		go existingC.CloseConnection(true)
+		go existingC.CloseConnection(false, "")
 	} else {
 		connType := "incoming"
 		if !incomingRequest {
@@ -476,7 +476,7 @@ func (h *connectionsHub) UnpairRemoteService(ski string) error {
 	h.muxReg.Unlock()
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
-		existingC.CloseConnection(true)
+		existingC.CloseConnection(true, "pairing removed")
 	}
 
 	return nil

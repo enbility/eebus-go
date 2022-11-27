@@ -213,6 +213,6 @@ func (s *EEBUSService) UnpairRemoteService(ski string) error {
 }
 
 // Close a connection to a remote SKI
-func (s *EEBUSService) DisconnectSKI(ski string) {
-	s.connectionsHub.DisconnectSKI(ski)
+func (s *EEBUSService) DisconnectSKI(ski string, reason string) {
+	s.connectionsHub.DisconnectSKI(ski, reason)
 }

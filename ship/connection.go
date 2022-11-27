@@ -10,8 +10,9 @@ import (
 
 	"github.com/DerAndereAndi/eebus-go/logging"
 	"github.com/DerAndereAndi/eebus-go/ship/model"
-	"github.com/DerAndereAndi/eebus-go/ship/util"
+	shipUtil "github.com/DerAndereAndi/eebus-go/ship/util"
 	"github.com/DerAndereAndi/eebus-go/spine"
+	"github.com/DerAndereAndi/eebus-go/util"
 )
 
 // implemented by connectionsHub and used by shipConnection
@@ -45,9 +46,6 @@ type ShipConnection struct {
 	// The current SHIP state
 	smeState shipMessageExchangeState
 
-	// contains the error message if smeState is in state smeHandshakeError
-	handshakeError error
-
 	// handles timeouts for the various states
 	//
 	// WaitForReady SHIP 13.4.4.1.3: The communication partner must send its "READY" state (or request for prolongation") before the timer expires.
@@ -64,9 +62,6 @@ type ShipConnection struct {
 
 	// the SPINE local device
 	spineLocalDevice *spine.DeviceLocalImpl
-
-	// hubHandler         connectionHubHandler
-	// interactionHandler interactionShipSpine
 
 	shutdownOnce sync.Once
 
@@ -113,27 +108,27 @@ func (c *ShipConnection) removeRemoteDeviceConnection() {
 }
 
 // close this ship connection
-func (c *ShipConnection) CloseConnection(safe bool) {
+func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 	c.shutdownOnce.Do(func() {
 		c.stopHandshakeTimer()
 
 		c.removeRemoteDeviceConnection()
-		// c.hubHandler.HandleConnectionClosing(c)
 
 		if safe && c.smeState > cmiStateInitStart {
-			// SHIP 13.4.7: Connection Termination
+			// SHIP 13.4.7: Connection Termination Announce
 			closeMessage := model.ConnectionClose{
 				ConnectionClose: model.ConnectionCloseType{
-					Phase: model.ConnectionClosePhaseTypeAnnounce,
+					Phase:  model.ConnectionClosePhaseTypeAnnounce,
+					Reason: util.Ptr(model.ConnectionCloseReasonType(reason)),
 				},
 			}
 
-			_ = c.sendShipModel(model.MsgTypeControl, closeMessage)
-
-			// TODO: finish safe close implementation
+			_ = c.sendShipModel(model.MsgTypeEnd, closeMessage)
+			return
 		}
 
 		c.DataHandler.CloseDataConnection()
+		c.dataProvider.HandleConnectionClosed(c)
 	})
 }
 
@@ -170,6 +165,10 @@ func (c *ShipConnection) shipModelFromMessage(message []byte) (*model.ShipData, 
 
 // route the incoming message to either SHIP or SPINE message handlers
 func (c *ShipConnection) HandleIncomingShipMessage(message []byte) {
+	if len(message) > 2 {
+		logging.Log.Trace("Recv:", c.RemoteSKI, string(message[1:]))
+	}
+
 	// Check if this is a SHIP SME or SPINE message
 	if !c.hasSpineDatagram(message) {
 		c.handleShipMessage(false, message)
@@ -194,14 +193,15 @@ func (c *ShipConnection) hasSpineDatagram(message []byte) bool {
 	return bytes.Contains(message, []byte("datagram"))
 }
 
+// the websocket data connection was closed from remote
 func (c *ShipConnection) ReportConnectionError(err error) {
-	c.CloseConnection(false)
+	// right now there is nothing to do
 }
 
 const payloadPlaceholder = `{"place":"holder"}`
 
 func (c *ShipConnection) transformSpineDataIntoShipJson(data []byte) ([]byte, error) {
-	spineMsg, err := util.JsonIntoEEBUSJson(data)
+	spineMsg, err := shipUtil.JsonIntoEEBUSJson(data)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (c *ShipConnection) transformSpineDataIntoShipJson(data []byte) ([]byte, er
 		return nil, err
 	}
 
-	eebusMsg, err := util.JsonIntoEEBUSJson(msg)
+	eebusMsg, err := shipUtil.JsonIntoEEBUSJson(msg)
 	if err != nil {
 		return nil, err
 	}
@@ -244,6 +244,10 @@ func (c *ShipConnection) sendSpineData(data []byte) error {
 		return err
 	}
 
+	if c.DataHandler.IsDataConnectionClosed() {
+		return err
+	}
+
 	logging.Log.Trace("Send:", c.RemoteSKI, string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
@@ -252,7 +256,7 @@ func (c *ShipConnection) sendSpineData(data []byte) error {
 
 	err = c.DataHandler.WriteMessageToDataConnection(shipMsg)
 	if err != nil {
-		logging.Log.Error("Error sending message: ", err)
+		logging.Log.Debug("Error sending message: ", err)
 		return err
 	}
 
@@ -278,13 +282,7 @@ func (c *ShipConnection) sendShipModel(typ byte, model interface{}) error {
 func (c *ShipConnection) processShipJsonMessage(message []byte, target any) error {
 	_, data := c.parseMessage(message, true)
 
-	if err := json.Unmarshal(data, &target); err != nil {
-		c.smeState = smeHelloStateAbort
-		c.endHandshakeWithError(err)
-		return err
-	}
-
-	return nil
+	return json.Unmarshal(data, &target)
 }
 
 // transform a SHIP model into EEBUS specific JSON
@@ -298,7 +296,7 @@ func (c *ShipConnection) shipMessage(typ byte, model interface{}) ([]byte, error
 		return nil, err
 	}
 
-	eebusMsg, err := util.JsonIntoEEBUSJson(msg)
+	eebusMsg, err := shipUtil.JsonIntoEEBUSJson(msg)
 	if err != nil {
 		return nil, err
 	}
@@ -325,12 +323,8 @@ func (c *ShipConnection) parseMessage(msg []byte, jsonFormat bool) (byte, []byte
 	// remove the SHIP header byte from the message
 	msg = msg[1:]
 
-	if len(msg) > 1 && c.smeState == smeComplete {
-		logging.Log.Trace("Recv:", c.RemoteSKI, string(msg))
-	}
-
 	if jsonFormat {
-		return shipHeaderByte, util.JsonFromEEBUSJson(msg)
+		return shipHeaderByte, shipUtil.JsonFromEEBUSJson(msg)
 	}
 
 	return shipHeaderByte, msg
