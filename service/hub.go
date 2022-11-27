@@ -5,6 +5,8 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"math/big"
+	"math/rand"
 	"net"
 	"net/http"
 	"strconv"
@@ -24,8 +26,29 @@ const shipWebsocketPath = "/ship/"
 const shipZeroConfServiceType = "_ship._tcp"
 const shipZeroConfDomain = "local."
 
+// used for randomizing the connection initation delay
+// this limits the possibility of concurrent connection attempts from both sides
+type connectionInitiationDelayTimeRange struct {
+	// defines the minimum and maximum wait time for when to try to initate an connection
+	min, max int
+}
+
+// defines the delay timeframes in seconds depening on the connection attempt counter
+// the last item will be re-used for higher attempt counter values
+var connectionInitiationDelayTimeRanges = []connectionInitiationDelayTimeRange{
+	{min: 0, max: 3},
+	{min: 3, max: 10},
+	{min: 10, max: 30},
+	{min: 30, max: 60},
+	{min: 60, max: 180},
+	{min: 180, max: 360},
+}
+
 type connectionsHub struct {
 	connections map[string]*ship.ShipConnection
+
+	// which attempt is it to initate an connection to the remote SKI
+	connectionAttemptCounter map[string]int
 
 	serviceDescription *ServiceDescription
 	localService       *ServiceDetails
@@ -42,18 +65,20 @@ type connectionsHub struct {
 	// the SPINE local device
 	spineLocalDevice *spine.DeviceLocalImpl
 
-	muxCon  sync.Mutex
-	muxReg  sync.Mutex
-	muxMdns sync.Mutex
+	muxCon        sync.Mutex
+	muxConAttempt sync.Mutex
+	muxReg        sync.Mutex
+	muxMdns       sync.Mutex
 }
 
 func newConnectionsHub(spineLocalDevice *spine.DeviceLocalImpl, serviceDescription *ServiceDescription, localService *ServiceDetails) (*connectionsHub, error) {
 	hub := &connectionsHub{
-		connections:        make(map[string]*ship.ShipConnection),
-		pairedServices:     make([]ServiceDetails, 0),
-		spineLocalDevice:   spineLocalDevice,
-		serviceDescription: serviceDescription,
-		localService:       localService,
+		connections:              make(map[string]*ship.ShipConnection),
+		connectionAttemptCounter: make(map[string]int),
+		pairedServices:           make([]ServiceDetails, 0),
+		spineLocalDevice:         spineLocalDevice,
+		serviceDescription:       serviceDescription,
+		localService:             localService,
 	}
 
 	localService.SKI = util.NormalizeSKI(localService.SKI)
@@ -83,10 +108,6 @@ func (h *connectionsHub) start() {
 }
 
 var _ ship.ShipServiceDataProvider = (*connectionsHub)(nil)
-
-func (h *connectionsHub) IsRemoteSKIPaired(string) bool {
-	return false
-}
 
 // Returns if the provided SKI is from a registered service
 func (h *connectionsHub) IsRemoteServiceForSKIPaired(ski string) bool {
@@ -440,6 +461,8 @@ func (h *connectionsHub) PairRemoteService(service ServiceDetails) {
 // Remove a device from the list of known devices which can be connected to
 // and disconnect it if it is currently connected
 func (h *connectionsHub) UnpairRemoteService(ski string) error {
+	h.removeConnectionAttemptCounter(ski)
+
 	newRegisteredDevice := make([]ServiceDetails, 0)
 
 	h.muxReg.Lock()
@@ -482,19 +505,154 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 			}
 		}
 
-		logging.Log.Debug("Trying to connect to", ski, "at", entry.Host)
-		if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
-			logging.Log.Debug("Connection failed: ", err)
-			// connecting via the host failed, so try all of the provided addresses
-			for _, address := range entry.Addresses {
-				logging.Log.Debug("Trying to connect to", ski, "at", address)
-				if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err == nil {
-					break
-				}
-			}
-			if err != nil {
-				continue
+		// check if an connection initiation attempt is already ongoing
+		if h.checkConnectionInitiationAttemptExists(ski) {
+			continue
+		}
+
+		h.coordinateConnectionInitations(remoteService, entry)
+	}
+}
+
+// coordinate connection initiation attempts to a remove service
+func (h *connectionsHub) coordinateConnectionInitations(remoteService *ServiceDetails, entry MdnsEntry) {
+	counter, duration := h.getConnectionInitiationDelayTime(remoteService.SKI)
+
+	// we do not stop this thread and just let the timer run out
+	// otherwise we would need a stop channel for each ski
+	go func() {
+		// wait
+		<-time.After(duration)
+
+		// check if the remoteService still exists
+		if remoteService == nil {
+			return
+		}
+
+		// check if the current counter is still the same, otherwise this counter is irrelevant
+		currentCounter, exists := h.getCurrentConnectionAttemptCounter(remoteService.SKI)
+		if !exists || currentCounter != counter {
+			return
+		}
+
+		// connection attempt is not relevant if the device is no longer paired
+		if !h.IsRemoteServiceForSKIPaired(remoteService.SKI) {
+			return
+		}
+
+		// connection attempt is not relevant if the device is already connected
+		if h.isSkiConnected(remoteService.SKI) {
+			return
+		}
+
+		// now initiate the connection
+		if h.initatingConnection(remoteService, entry) {
+			return
+		} else {
+			// attempt failed, initate a new attempt
+			h.coordinateConnectionInitations(remoteService, entry)
+		}
+	}()
+}
+
+// attempt to establish a connection to a remote service
+// returns true if successful
+func (h *connectionsHub) initatingConnection(remoteService *ServiceDetails, entry MdnsEntry) bool {
+	var err error
+
+	logging.Log.Debug("Trying to connect to", remoteService.SKI, "at", entry.Host)
+	if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
+		logging.Log.Debug("Connection failed: ", err)
+		// connecting via the host failed, so try all of the provided addresses
+		for _, address := range entry.Addresses {
+			logging.Log.Debug("Trying to connect to", remoteService.SKI, "at", address)
+			if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err != nil {
+				logging.Log.Debug("Connection failed: ", err)
+			} else {
+				break
 			}
 		}
 	}
+	// no connection could be estabiled via any of the provided addresses
+	if err != nil {
+		h.increaseConnectionAttemptCounter(remoteService.SKI)
+		return false
+	}
+
+	h.removeConnectionAttemptCounter(remoteService.SKI)
+
+	return true
+}
+
+// returns if an connection initiation attempt already exists
+func (h *connectionsHub) checkConnectionInitiationAttemptExists(ski string) bool {
+	h.muxConAttempt.Lock()
+	defer h.muxConAttempt.Unlock()
+
+	if _, exists := h.connectionAttemptCounter[ski]; exists {
+		return true
+	}
+
+	return false
+}
+
+// increase the connection attempt counter for the given ski
+func (h *connectionsHub) increaseConnectionAttemptCounter(ski string) int {
+	h.muxConAttempt.Lock()
+	defer h.muxConAttempt.Unlock()
+
+	currentCounter := 0
+	if counter, exists := h.connectionAttemptCounter[ski]; exists {
+		currentCounter = counter + 1
+
+		if currentCounter >= len(connectionInitiationDelayTimeRanges)-1 {
+			currentCounter = len(connectionInitiationDelayTimeRanges) - 1
+		}
+	}
+
+	h.connectionAttemptCounter[ski] = currentCounter
+
+	return currentCounter
+}
+
+// remove the connection attempt counter for the given ski
+func (h *connectionsHub) removeConnectionAttemptCounter(ski string) {
+	h.muxConAttempt.Lock()
+	defer h.muxConAttempt.Unlock()
+
+	delete(h.connectionAttemptCounter, ski)
+}
+
+func (h *connectionsHub) getCurrentConnectionAttemptCounter(ski string) (int, bool) {
+	h.muxConAttempt.Lock()
+	defer h.muxConAttempt.Unlock()
+
+	counter, exists := h.connectionAttemptCounter[ski]
+
+	return counter, exists
+}
+
+// get the connection initiation delay time range for a given ski
+// returns the current counter and the duration
+func (h *connectionsHub) getConnectionInitiationDelayTime(ski string) (int, time.Duration) {
+	counter := h.increaseConnectionAttemptCounter(ski)
+
+	h.muxConAttempt.Lock()
+	defer h.muxConAttempt.Unlock()
+
+	timeRange := connectionInitiationDelayTimeRanges[counter]
+
+	// get range in Milliseconds
+	min := timeRange.min * 1000
+	max := timeRange.max * 1000
+
+	// seed with the local SKI for initializing rand
+	i := new(big.Int)
+	hex := fmt.Sprintf("0x%s", h.localService.SKI)
+	fmt.Sscan(hex, i)
+	rand.Seed(i.Int64())
+
+	duration := rand.Intn(max-min) + min
+
+	return counter, time.Duration(duration) * time.Millisecond
 }
