@@ -649,8 +649,11 @@ func (h *connectionsHub) getConnectionInitiationDelayTime(ski string) (int, time
 	// seed with the local SKI for initializing rand
 	i := new(big.Int)
 	hex := fmt.Sprintf("0x%s", h.localService.SKI)
-	fmt.Sscan(hex, i)
-	rand.Seed(i.Int64())
+	if _, err := fmt.Sscan(hex, i); err == nil {
+		rand.Seed(i.Int64())
+	} else {
+		rand.Seed(time.Now().UnixNano())
+	}
 
 	duration := rand.Intn(max-min) + min
 
