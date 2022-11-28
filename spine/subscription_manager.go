@@ -45,7 +45,7 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 	if serverFeature == nil {
 		return fmt.Errorf("server feature '%s' in local device '%s' not found", data.ServerAddress, *localDevice.Address())
 	}
-	if err := c.checkRole(serverFeature, model.RoleTypeServer, *data.ServerFeatureType); err != nil {
+	if err := c.checkRoleAndType(serverFeature, model.RoleTypeServer, *data.ServerFeatureType); err != nil {
 		return err
 	}
 
@@ -53,7 +53,7 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 	if clientFeature == nil {
 		return fmt.Errorf("client feature '%s' in remote device '%s' not found", data.ClientAddress, *remoteDevice.Address())
 	}
-	if err := c.checkRole(clientFeature, model.RoleTypeClient, *data.ServerFeatureType); err != nil {
+	if err := c.checkRoleAndType(clientFeature, model.RoleTypeClient, *data.ServerFeatureType); err != nil {
 		return err
 	}
 
@@ -178,12 +178,12 @@ func (c *SubscriptionManagerImpl) subscriptionId() uint64 {
 	return i
 }
 
-func (c *SubscriptionManagerImpl) checkRole(feature Feature, role model.RoleType, featureType model.FeatureTypeType) error {
+func (c *SubscriptionManagerImpl) checkRoleAndType(feature Feature, role model.RoleType, featureType model.FeatureTypeType) error {
 	if feature.Role() != model.RoleTypeSpecial && feature.Role() != role {
 		return fmt.Errorf("found feature '%s' is not matching required role '%s'", feature.Type(), role)
 	}
 
-	if feature.Type() != featureType {
+	if feature.Type() != featureType && feature.Type() != model.FeatureTypeTypeGeneric {
 		return fmt.Errorf("found feature '%s' is not matching required type '%s'", feature.Type(), featureType)
 	}
 
