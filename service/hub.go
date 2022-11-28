@@ -46,6 +46,12 @@ var connectionInitiationDelayTimeRanges = []connectionInitiationDelayTimeRange{
 
 // interface for reporting data from connectionsHub to the EEBUSService
 type serviceProvider interface {
+	// report a connection to a SKI
+	RemoteSKIConnected(ski string)
+
+	// report a disconnection to a SKI
+	RemoteSKIDisconnected(ski string)
+
 	// provide the SHIP ID received during SHIP handshake process
 	// the ID needs to be stored and then provided for remote services so it can be compared and verified
 	ReportServiceShipID(string, string)
@@ -148,6 +154,8 @@ func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection,
 		}
 	}
 
+	h.serviceProvider.RemoteSKIDisconnected(connection.RemoteSKI)
+
 	h.checkRestartMdnsSearch()
 }
 
@@ -173,6 +181,8 @@ func (h *connectionsHub) checkRestartMdnsSearch() {
 
 // Provides the SHIP ID the remote service reported during the handshake process
 func (h *connectionsHub) ReportServiceShipID(ski string, shipdID string) {
+	h.serviceProvider.RemoteSKIConnected(ski)
+
 	h.serviceProvider.ReportServiceShipID(ski, shipdID)
 }
 

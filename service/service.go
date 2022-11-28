@@ -55,6 +55,16 @@ func NewEEBUSService(ServiceDescription *ServiceDescription, serviceHandler EEBU
 
 var _ serviceProvider = (*EEBUSService)(nil)
 
+// report a connection to a SKI
+func (s *EEBUSService) RemoteSKIConnected(ski string) {
+	s.serviceHandler.RemoteSKIConnected(s, ski)
+}
+
+// report a disconnection to a SKI
+func (s *EEBUSService) RemoteSKIDisconnected(ski string) {
+	s.serviceHandler.RemoteSKIDisconnected(s, ski)
+}
+
 // Provides the SHIP ID the remote service reported during the handshake process
 func (s *EEBUSService) ReportServiceShipID(ski string, shipdID string) {
 	s.serviceHandler.ReportServiceShipID(ski, shipdID)
