@@ -79,6 +79,7 @@ func (r *NodeManagementImpl) processReplyDetailedDiscoveryData(message *Message,
 			Ski:        remoteDevice.ski,
 			EventType:  EventTypeEntityChange,
 			ChangeType: ElementChangeAdd,
+			Device:     remoteDevice,
 			Entity:     entity,
 			Data:       data,
 		}
@@ -144,6 +145,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 				Ski:        remoteDevice.ski,
 				EventType:  EventTypeEntityChange,
 				ChangeType: ElementChangeAdd,
+				Device:     remoteDevice,
 				Entity:     entity,
 				Data:       data,
 			}
