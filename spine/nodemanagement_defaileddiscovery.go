@@ -182,6 +182,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 				Ski:        remoteDevice.ski,
 				EventType:  EventTypeEntityChange,
 				ChangeType: ElementChangeRemove,
+				Device:     remoteDevice,
 				Entity:     removedEntity,
 				Data:       data,
 			}
