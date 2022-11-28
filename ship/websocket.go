@@ -82,9 +82,14 @@ func (w *websocketConnection) writeShipPump() {
 				_ = w.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
+
 			if err := w.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
 				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
 				return
+			}
+
+			if len(message) > 2 {
+				logging.Log.Trace("Send:", w.remoteSki, string(message[1:]))
 			}
 
 		case <-ticker.C:
@@ -117,6 +122,10 @@ func (w *websocketConnection) readShipPump() {
 			w.close()
 			w.dataProcessing.ReportConnectionError(err)
 			return
+		}
+
+		if len(message) > 2 {
+			logging.Log.Trace("Recv:", w.remoteSki, string(message[1:]))
 		}
 
 		w.dataProcessing.HandleIncomingShipMessage(message)

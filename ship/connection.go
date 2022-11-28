@@ -165,10 +165,6 @@ func (c *ShipConnection) shipModelFromMessage(message []byte) (*model.ShipData, 
 
 // route the incoming message to either SHIP or SPINE message handlers
 func (c *ShipConnection) HandleIncomingShipMessage(message []byte) {
-	if len(message) > 2 {
-		logging.Log.Trace("Recv:", c.RemoteSKI, string(message[1:]))
-	}
-
 	// Check if this is a SHIP SME or SPINE message
 	if !c.hasSpineDatagram(message) {
 		c.handleShipMessage(false, message)
@@ -249,8 +245,6 @@ func (c *ShipConnection) sendSpineData(data []byte) error {
 		return errors.New("connection is closed")
 	}
 
-	logging.Log.Trace("Send:", c.RemoteSKI, string(eebusMsg))
-
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{model.MsgTypeData}
 	shipMsg = append(shipMsg, eebusMsg...)
@@ -306,8 +300,6 @@ func (c *ShipConnection) shipMessage(typ byte, model interface{}) ([]byte, error
 	if err != nil {
 		return nil, err
 	}
-
-	logging.Log.Trace("Send:", c.RemoteSKI, string(eebusMsg))
 
 	// Wrap the message into a binary message with the ship header
 	shipMsg := []byte{typ}
