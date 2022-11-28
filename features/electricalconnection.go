@@ -279,8 +279,12 @@ func (e *ElectricalConnection) GetEVLimitValues() ([]ElectricalLimitType, error)
 			}
 			// is a range set
 			if element.Range != nil && len(element.Range) > 0 {
-				minValue = element.Range[0].Min.GetValue()
-				maxValue = element.Range[0].Max.GetValue()
+				if element.Range[0].Min != nil {
+					minValue = element.Range[0].Min.GetValue()
+				}
+				if element.Range[0].Max != nil {
+					maxValue = element.Range[0].Max.GetValue()
+				}
 				hasRange = true
 			}
 		}
