@@ -148,13 +148,25 @@ func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection,
 		}
 	}
 
-	// startup mDNS if a paired service is not connected
-	if len(h.connections) == 0 && len(h.pairedServices) > 0 {
-		logging.Log.Debug("starting mDNS")
+	h.checkRestartMdnsSearch()
+}
+
+// startup mDNS if a paired service is not connected
+func (h *connectionsHub) checkRestartMdnsSearch() {
+	h.muxReg.Lock()
+	countPairedServices := len(h.pairedServices)
+	h.muxReg.Unlock()
+	h.muxCon.Lock()
+	countConnections := len(h.connections)
+	h.muxCon.Unlock()
+
+	if countPairedServices > countConnections {
 		// if this is not a CEM also start the mDNS announcement
 		if h.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
 			_ = h.mdns.Announce()
 		}
+
+		logging.Log.Debug("restarting mdns search")
 		h.mdns.RegisterMdnsSearch(h)
 	}
 }
@@ -344,7 +356,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		return nil
 	}
 
-	logging.Log.Debugf("Initiating connection to %s at %s:%s", remoteService.SKI, host, port)
+	logging.Log.Debugf("initiating connection to %s at %s:%s", remoteService.SKI, host, port)
 
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
@@ -369,30 +381,29 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 
 	if len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
 		// Close connection as we couldn't get the remote SKI
-		errorString := "closing, could not get remote SKI"
-		logging.Log.Debug(errorString)
+		errorString := fmt.Sprintf("closing connection to %s: could not get remote SKI from certificate", remoteService.SKI)
 		conn.Close()
 		return errors.New(errorString)
 	}
 
 	if _, err := skiFromCertificate(remoteCerts[0]); err != nil {
 		// Close connection as the remote SKI can't be correct
-		logging.Log.Debugf("closing", err)
+		errorString := fmt.Sprintf("closing connection to %s: %s", remoteService.SKI, err)
 		conn.Close()
-		return err
+		return errors.New(errorString)
 	}
 
 	remoteSKI := fmt.Sprintf("%0x", remoteCerts[0].SubjectKeyId)
 
 	if remoteSKI != remoteService.SKI {
-		errorString := fmt.Sprintf("remote SKI %s does not match %s", remoteSKI, remoteService.SKI)
-		logging.Log.Debug(errorString)
+		errorString := fmt.Sprintf("closing connection to %s: SKI does not match %s", remoteService.SKI, remoteSKI)
 		conn.Close()
 		return errors.New(errorString)
 	}
 
 	if !h.keepThisConnection(conn, false, remoteService.SKI) {
-		return errors.New("ignoring this connection")
+		errorString := fmt.Sprintf("closing connection to %s: ignoring this connection", remoteService.SKI)
+		return errors.New(errorString)
 	}
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
@@ -459,7 +470,7 @@ func (h *connectionsHub) PairedServiceForSKI(ski string) (*ServiceDetails, error
 			return &service, nil
 		}
 	}
-	return &ServiceDetails{}, fmt.Errorf("No registered service found for SKI %s", ski)
+	return &ServiceDetails{}, fmt.Errorf("no registered service found for SKI %s", ski)
 }
 
 // Adds a new device to the list of known devices which can be connected to
@@ -541,7 +552,7 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 	h.setConnectionAttemptRunning(ski, true)
 	counter, duration := h.getConnectionInitiationDelayTime(ski)
 
-	logging.Log.Debugf("delaying connection by %s to minimize double connection probability", duration)
+	logging.Log.Debugf("delaying connection to %s by %s to minimize double connection probability", ski, duration)
 	// we do not stop this thread and just let the timer run out
 	// otherwise we would need a stop channel for each ski
 	go func() {
@@ -573,7 +584,10 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 		}
 
 		// now initiate the connection
-		_ = h.initateConnection(remoteService, entry)
+		if success := h.initateConnection(remoteService, entry); !success {
+			logging.Log.Debug("restarting mdns search")
+			h.checkRestartMdnsSearch()
+		}
 
 	}()
 }
@@ -585,12 +599,12 @@ func (h *connectionsHub) initateConnection(remoteService *ServiceDetails, entry 
 
 	logging.Log.Debug("trying to connect to", remoteService.SKI, "at", entry.Host)
 	if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
-		logging.Log.Debug("connection failed: ", err)
+		logging.Log.Debugf("connection to %s failed: %s", remoteService.SKI, err)
 		// connecting via the host failed, so try all of the provided addresses
 		for _, address := range entry.Addresses {
 			logging.Log.Debug("trying to connect to", remoteService.SKI, "at", address)
 			if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err != nil {
-				logging.Log.Debug("connection failed: ", err)
+				logging.Log.Debug("connection to", remoteService.SKI, "failed: ", err)
 			} else {
 				break
 			}
