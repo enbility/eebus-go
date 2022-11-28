@@ -138,11 +138,11 @@ func (c *BindingManagerImpl) bindingId() uint64 {
 
 func (c *BindingManagerImpl) checkRoleAndType(feature Feature, role model.RoleType, featureType model.FeatureTypeType) error {
 	if feature.Role() != model.RoleTypeSpecial && feature.Role() != role {
-		return fmt.Errorf("found feature '%s' is not matching required role '%s'", feature.Type(), role)
+		return fmt.Errorf("found feature %s is not matching required role %s", feature.Type(), role)
 	}
 
 	if feature.Type() != featureType && feature.Type() != model.FeatureTypeTypeGeneric {
-		return fmt.Errorf("found feature '%s' is not matching required type '%s'", feature.Type(), featureType)
+		return fmt.Errorf("found feature %s is not matching required type %s", feature.Type(), featureType)
 	}
 
 	return nil
