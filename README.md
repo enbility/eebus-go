@@ -14,12 +14,13 @@ You need a basic understanding of the EEBUS concepts SHIP and SPINE to use this 
 
 This repository contains:
 
-- Adoption of the SPINE 1.0.1 and SHIP EEBUS 1.1.1 model definitions
+- Support for SHIP 1.0.1
+- Support for SPINE 1.1.1
 - (De-)serialization for EEBUS specific JSON format requirements
-- Certificate support incl. creating a compatible cert and key
-- mDNS Support (announcement and connecting to an announced SKI) incl. avahi support if available
-- Connection handling
-- ... work in progress
+- Certificate handling
+- mDNS Support, incl. avahi support (recommended)
+- Connection handling, including reconnection and double connections
+- Support for handling pairing of devices
 
 ## Usage
 
