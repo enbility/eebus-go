@@ -2,19 +2,24 @@
 
 ![Build Status](https://github.com/DerAndereAndi/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
 
-The goal is to provide a basic EEBUS implementation
+EEBUS protocol implementation in Go.
+
+The library targets services that needs to communicate via the EEBUS protocol, e.g. energy management systems, charging stations, heat pumps, and more.
+
+This library provides the foundation for implementing EEBUS use cases to enable the desired device category to communicate with other devices via the EEBUS protocol.
+
+You need a basic understanding of the EEBUS concepts SHIP and SPINE to use this library. Please check the corresponding specification on the [EEBUS website](https://eebus.org).
 
 ## Introduction
 
 This repository contains:
 
-- adoptions of the SPINE and SHIP EEBUS model definitions, there are likely issues and some models are not 100% correct
+- Adoption of the SPINE 1.0.1 and SHIP EEBUS 1.1.1 model definitions
 - (De-)serialization for EEBUS specific JSON format requirements
 - Certificate support incl. creating a compatible cert and key
 - mDNS Support (announcement and connecting to an announced SKI) incl. avahi support if available
+- Connection handling
 - ... work in progress
-
-You need a basic understanding of the EEBUS concepts SHIP and SPINE to use this library. Please check the corresponding specification on the [EEBUS website](https://eebus.org).
 
 ## Usage
 
