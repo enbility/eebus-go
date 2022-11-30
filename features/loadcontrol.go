@@ -121,7 +121,6 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 	if l.featureRemote == nil {
 		return nil, ErrDataNotAvailable
 	}
-
 	if len(data) == 0 {
 		return nil, ErrMissingData
 	}
@@ -189,11 +188,16 @@ func (l *LoadControl) GetLimitValues() ([]LoadControlLimitType, error) {
 			result.Unit = *desc.Unit
 		}
 
-		if item.IsLimitActive != nil {
-			result.IsActive = *item.IsLimitActive
-		}
+		// EEBus_UC_TS_OverloadProtectionByEvChargingCurrentCurtailment V1.01b 3.2.1.2.2.2
+		// If omitted or set to "true", the timePeriod, value and isLimitActive element SHALL be writeable by a client.
+		result.IsChangeable = true
 		if item.IsLimitChangeable != nil {
 			result.IsChangeable = *item.IsLimitChangeable
+		}
+		// If set to "true" or omitted, the timePeriod and value element SHALL be applied, at least if timePeriod or value are set.
+		result.IsActive = true
+		if item.IsLimitActive != nil {
+			result.IsActive = *item.IsLimitActive
 		}
 		if item.Value != nil {
 			result.Value = item.Value.GetValue()
