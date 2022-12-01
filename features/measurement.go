@@ -110,6 +110,8 @@ func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConn
 // return current values of a defined scope per phase
 //
 // returns a map with the phase ("a", "b", "c") as a key
+//
+// If the scope is not available, it will return an empty map
 func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (map[string]float64, error) {
 	if m.featureRemote == nil {
 		return nil, ErrDataNotAvailable
@@ -154,9 +156,6 @@ func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, elect
 		if *desc.ScopeType == scope {
 			resultSet[string(*param.AcMeasuredPhases)] = item.Value.GetValue()
 		}
-	}
-	if len(resultSet) == 0 {
-		return nil, ErrDataNotAvailable
 	}
 
 	return resultSet, nil
