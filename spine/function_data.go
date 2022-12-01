@@ -38,7 +38,15 @@ func (r *FunctionDataImpl[T]) Data() *T {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	return r.data
+	// copy the data and return it as the data can be updated
+	// and newly assigned at any time otherwise we run into panics
+	// because of invalid memory address or nil pointer dereference
+	var copiedData T
+	if r.data != nil {
+		copiedData = *r.data
+	}
+
+	return &copiedData
 }
 
 func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.FilterType, filterDelete *model.FilterType) *ErrorType {
