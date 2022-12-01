@@ -595,7 +595,6 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 
 		// now initiate the connection
 		if success := h.initateConnection(remoteService, entry); !success {
-			logging.Log.Debug("restarting mdns search")
 			h.checkRestartMdnsSearch()
 		}
 
