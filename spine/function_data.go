@@ -42,9 +42,11 @@ func (r *FunctionDataImpl[T]) Data() *T {
 	// and newly assigned at any time otherwise we run into panics
 	// because of invalid memory address or nil pointer dereference
 	var copiedData T
-	if r.data != nil {
-		copiedData = *r.data
+	if r.data == nil {
+		return nil
 	}
+
+	copiedData = *r.data
 
 	return &copiedData
 }
