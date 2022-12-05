@@ -1,6 +1,6 @@
 # eebus-go
 
-![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
+![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=main)
 
 This library provides a complete foundation for implementing [EEBUS](https://eebus.org) use cases. The use cases define various functional scenarios for different device categories, e.g. energy management systems, charging stations, heat pumps, and more.
 
@@ -9,11 +9,11 @@ This library provides a complete foundation for implementing [EEBUS](https://eeb
 The supported functionality contains:
 
 - Support for SHIP 1.0.1
-- Support for SPINE 1.1.1
+- Support for big parts of SPINE 1.1.1
 - (De-)serialization for EEBUS specific JSON format requirements
 - Certificate handling
 - mDNS Support, incl. avahi support (recommended)
-- Connection handling, including reconnection and double connections
+- Connection (websocket) handling, including reconnection and double connections
 - Support for handling pairing of devices
 
 Basic understanding of the EEBUS concepts SHIP and SPINE to use this library is required. Please check the corresponding specifications on the [EEBUS downloads website](https://www.eebus.org/media-downloads/).
@@ -101,49 +101,49 @@ This approach has been tested with:
 - [ ] Send
   - [X] Full data
   - [ ] Partial data
-- [ ] Process partial data
-  - [/] Delete Selectors
-  - [/] Update Selectors
-  - [/] Elements
+- [X] Process partial data
+  - [X] Delete Selectors
+  - [X] Update Selectors
+  - [X] Elements
 - [ ] Request types
   - [X] Read
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
       - [ ] Partial Delete
-    - [ ] Receive
+    - [X] Receive
       - [X] Full Request
-      - [/] Partial Request
-      - [/] Partial Delete
+      - [X] Partial Request
+      - [X] Partial Delete
   - [X] Reply
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
       - [ ] Partial Delete
-    - [ ] Receive
+    - [X] Receive
       - [X] Full Request
-      - [/] Partial Request
-      - [/] Partial Delete
+      - [X] Partial Request
+      - [X] Partial Delete
   - [X] Notify
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
       - [ ] Partial Delete
-    - [ ] Receive
+    - [X] Receive
       - [X] Full Request
-      - [/] Partial Request
-      - [/] Partial Delete
+      - [X] Partial Request
+      - [X] Partial Delete
   - [X] Write
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
       - [ ] Partial Delete
-    - [ ] Receive
+    - [X] Receive
       - [X] Full Request
-      - [/] Partial Request
-      - [/] Partial Delete
-- [ ] Result message handling
-  - [ ] Handle incoming error results
+      - [X] Partial Request
+      - [X] Partial Delete
+- [X] Result message handling
+  - [X] Handle incoming error results
   - [X] Handle incoming success results
   - [X] Respond with error result when processing failed
 - [X] Acknowledgement support
@@ -158,7 +158,7 @@ This approach has been tested with:
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
-    - [ ] Receive
+    - [X] Receive
       - [X] Full Request
       - [X] Partial Request
   - [ ] Reply Messages
@@ -201,23 +201,23 @@ This approach has been tested with:
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
-    - [ ] Receive
+    - [X] Receive
       - [X] Full Request
-      - [ ] Partial Request
+      - [X] Partial Request
   - [ ] Reply Messages
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
     - [X] Receive
       - [X] Full Request
-      - [/] Partial Request
+      - [X] Partial Request
   - [ ] Notify Messages
     - [ ] Send
       - [X] Full Request
       - [ ] Partial Request
     - [X] Receive
       - [X] Full Request
-      - [/] Partial Request
+      - [X] Partial Request
 
 ### General feature implementation
 
