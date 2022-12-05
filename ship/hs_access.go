@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/ship/model"
 )
 
 // Handshake Access covers the states smeAccess...

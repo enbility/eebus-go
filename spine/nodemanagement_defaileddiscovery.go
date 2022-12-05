@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 // request detailed discovery data from a remote device

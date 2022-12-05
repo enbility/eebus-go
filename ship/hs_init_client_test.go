@@ -3,7 +3,7 @@ package ship
 import (
 	"testing"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/ship/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

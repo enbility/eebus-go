@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

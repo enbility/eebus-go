@@ -8,11 +8,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/ship/model"
-	shipUtil "github.com/DerAndereAndi/eebus-go/ship/util"
-	"github.com/DerAndereAndi/eebus-go/spine"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship/model"
+	shipUtil "github.com/enbility/eebus-go/ship/util"
+	"github.com/enbility/eebus-go/spine"
+	"github.com/enbility/eebus-go/util"
 )
 
 // implemented by connectionsHub and used by shipConnection

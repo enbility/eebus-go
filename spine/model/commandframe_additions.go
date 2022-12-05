@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/util"
 )
 
 func (r *MsgCounterType) String() string {

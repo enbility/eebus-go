@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/util"
 )
 
 type Updater interface {

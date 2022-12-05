@@ -1,9 +1,9 @@
 package features
 
 import (
-	"github.com/DerAndereAndi/eebus-go/service"
-	"github.com/DerAndereAndi/eebus-go/spine"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/service"
+	"github.com/enbility/eebus-go/spine"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 // check if the given usecase, actor is supported by the remote device

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
-	"github.com/DerAndereAndi/eebus-go/ship/util"
+	"github.com/enbility/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/ship/util"
 )
 
 func TestJsonFromEEBUSJson(t *testing.T) {

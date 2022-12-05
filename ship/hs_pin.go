@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/ship/model"
 )
 
 // Handshake Pin covers the states smePin...

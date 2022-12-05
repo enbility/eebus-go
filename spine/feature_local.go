@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 type FeatureLocal interface {
@@ -211,7 +211,7 @@ func (r *FeatureLocalImpl) Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdres
 }
 
 /*
-TODO: check if this function is needed and can be fixed, see https://github.com/DerAndereAndi/eebus-go/issues/31
+TODO: check if this function is needed and can be fixed, see https://github.com/enbility/eebus-go/issues/31
 // Subscribe to a remote feature and wait for the result
 func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {
@@ -253,7 +253,7 @@ func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *m
 }
 
 /*
-TODO: check if this function is needed and can be fixed, see https://github.com/DerAndereAndi/eebus-go/issues/31
+TODO: check if this function is needed and can be fixed, see https://github.com/enbility/eebus-go/issues/31
 // Bind to a remote feature and wait for the result
 func (r *FeatureLocalImpl) BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {

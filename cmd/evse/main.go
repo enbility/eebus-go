@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/service"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/service"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 type evse struct {

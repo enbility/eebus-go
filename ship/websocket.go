@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/util"
 	"github.com/gorilla/websocket"
 )
 

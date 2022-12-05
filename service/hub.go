@@ -13,11 +13,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/ship"
-	"github.com/DerAndereAndi/eebus-go/spine"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship"
+	"github.com/enbility/eebus-go/spine"
+	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 	"github.com/gorilla/websocket"
 )
 

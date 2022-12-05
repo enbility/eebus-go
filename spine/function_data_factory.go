@@ -3,7 +3,7 @@ package spine
 import (
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {

@@ -1,8 +1,8 @@
 package spine
 
 import (
-	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 func CreateRemoteDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType, sender Sender) *FeatureRemoteImpl {

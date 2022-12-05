@@ -1,4 +1,4 @@
-module github.com/DerAndereAndi/eebus-go
+module github.com/enbility/eebus-go
 
 go 1.18
 

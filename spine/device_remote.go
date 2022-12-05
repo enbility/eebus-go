@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 type DeviceRemoteImpl struct {

@@ -7,8 +7,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/DerAndereAndi/eebus-go/spine"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/spine"
+	"github.com/enbility/eebus-go/spine/model"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"

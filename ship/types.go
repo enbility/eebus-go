@@ -3,7 +3,7 @@ package ship
 import (
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/ship/model"
 )
 
 type shipRole string

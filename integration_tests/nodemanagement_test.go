@@ -3,8 +3,8 @@ package integrationtests
 import (
 	"testing"
 
-	"github.com/DerAndereAndi/eebus-go/spine"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/spine"
+	"github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

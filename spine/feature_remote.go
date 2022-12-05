@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 	"github.com/rickb777/date/period"
 )
 

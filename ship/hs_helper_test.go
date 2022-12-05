@@ -5,8 +5,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/DerAndereAndi/eebus-go/spine"
-	spineModel "github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/spine"
+	spineModel "github.com/enbility/eebus-go/spine/model"
 )
 
 type dataHandlerTest struct {

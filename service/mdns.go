@@ -10,7 +10,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
+	"github.com/enbility/eebus-go/logging"
 	"github.com/godbus/dbus/v5"
 	"github.com/holoplot/go-avahi"
 	"github.com/libp2p/zeroconf/v2"

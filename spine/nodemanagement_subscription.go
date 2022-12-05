@@ -3,9 +3,9 @@ package spine
 import (
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/util"
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 func NewNodeManagementSubscriptionRequestCallType(clientAddress *model.FeatureAddressType, serverAddress *model.FeatureAddressType, featureType model.FeatureTypeType) *model.NodeManagementSubscriptionRequestCallType {

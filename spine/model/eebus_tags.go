@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
+	"github.com/enbility/eebus-go/logging"
 )
 
 type EEBusTag string

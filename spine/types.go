@@ -1,6 +1,6 @@
 package spine
 
-import "github.com/DerAndereAndi/eebus-go/spine/model"
+import "github.com/enbility/eebus-go/spine/model"
 
 // Used to pass an incoming SPINE message from a SHIP connection to the proper DeviceRemoteImpl
 //

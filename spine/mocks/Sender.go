@@ -3,8 +3,8 @@
 package mocks
 
 import (
-	spine "github.com/DerAndereAndi/eebus-go/spine"
-	model "github.com/DerAndereAndi/eebus-go/spine/model"
+	spine "github.com/enbility/eebus-go/spine"
+	model "github.com/enbility/eebus-go/spine/model"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 const defaultPort int = 4711

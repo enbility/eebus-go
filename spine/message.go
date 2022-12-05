@@ -1,6 +1,6 @@
 package spine
 
-import "github.com/DerAndereAndi/eebus-go/spine/model"
+import "github.com/enbility/eebus-go/spine/model"
 
 type Message struct {
 	RequestHeader *model.HeaderType

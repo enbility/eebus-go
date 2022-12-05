@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"sync/atomic"
 
-	"github.com/DerAndereAndi/eebus-go/spine/model"
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/enbility/eebus-go/spine/model"
 )
 
 type SubscriptionManager interface {

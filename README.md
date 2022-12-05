@@ -1,18 +1,12 @@
 # eebus-go
 
-![Build Status](https://github.com/DerAndereAndi/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
+![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
 
-EEBUS protocol implementation in Go.
-
-The library targets services that needs to communicate via the EEBUS protocol, e.g. energy management systems, charging stations, heat pumps, and more.
-
-This library provides the foundation for implementing EEBUS use cases to enable the desired device category to communicate with other devices via the EEBUS protocol.
-
-You need a basic understanding of the EEBUS concepts SHIP and SPINE to use this library. Please check the corresponding specification on the [EEBUS website](https://eebus.org).
+This library provides a complete foundation for implementing [EEBUS][https://eebus.org] use cases. The use cases define various functional scenarios for different device categories, e.g. energy management systems, charging stations, heat pumps, and more.
 
 ## Introduction
 
-This repository contains:
+The supported functionality contains:
 
 - Support for SHIP 1.0.1
 - Support for SPINE 1.1.1
@@ -22,14 +16,18 @@ This repository contains:
 - Connection handling, including reconnection and double connections
 - Support for handling pairing of devices
 
+Basic understanding of the EEBUS concepts SHIP and SPINE to use this library is required. Please check the corresponding specifications on the [EEBUS downloads website][https://www.eebus.org/media-downloads/].
+
+An open source SDK written in go providing the foundation to use EEBUS in your projects. Contains support for SHIP and SPINE communication.
+
 ## Usage
 
 The included small demo applications do not implement any usecases and thus will end the connection once it reached exchanging usecase information.
 
 Services with implemented use cases will be implemented in different repositories and are also early work in progress:
 
-- [HEMS](https://github.com/DerAndereAndi/eebus-go-cem)
-- [EVSE](https://github.com/DerAndereAndi/eebus-go-evse)
+- [HEMS](https://github.com/enbility/eebus-go-cem)
+- [EVSE](https://github.com/enbility/eebus-go-evse)
 
 ### HEMS
 

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship/model"
 )
 
 // handle incoming SHIP messages and coordinate Handshake States

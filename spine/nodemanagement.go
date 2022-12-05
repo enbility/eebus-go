@@ -3,8 +3,8 @@ package spine
 import (
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/spine/model"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 const NodeManagementFeatureId uint = 0

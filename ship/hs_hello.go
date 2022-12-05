@@ -3,9 +3,9 @@ package ship
 import (
 	"time"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/ship/model"
-	"github.com/DerAndereAndi/eebus-go/util"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 // Handshake Hello covers the states smeHello...

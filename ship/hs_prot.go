@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/DerAndereAndi/eebus-go/logging"
-	"github.com/DerAndereAndi/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship/model"
 )
 
 // Handshake Prot covers the states smeProt...

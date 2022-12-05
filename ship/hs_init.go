@@ -3,7 +3,7 @@ package ship
 import (
 	"fmt"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/ship/model"
 )
 
 // Handshake initialization covers the states cmiState...

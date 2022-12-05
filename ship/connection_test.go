@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/DerAndereAndi/eebus-go/ship/model"
-	"github.com/DerAndereAndi/eebus-go/spine"
-	spineModel "github.com/DerAndereAndi/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/ship/model"
+	"github.com/enbility/eebus-go/spine"
+	spineModel "github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
