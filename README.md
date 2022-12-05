@@ -2,7 +2,7 @@
 
 ![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
 
-This library provides a complete foundation for implementing [EEBUS][https://eebus.org] use cases. The use cases define various functional scenarios for different device categories, e.g. energy management systems, charging stations, heat pumps, and more.
+This library provides a complete foundation for implementing [EEBUS](https://eebus.org) use cases. The use cases define various functional scenarios for different device categories, e.g. energy management systems, charging stations, heat pumps, and more.
 
 ## Introduction
 
@@ -16,7 +16,7 @@ The supported functionality contains:
 - Connection handling, including reconnection and double connections
 - Support for handling pairing of devices
 
-Basic understanding of the EEBUS concepts SHIP and SPINE to use this library is required. Please check the corresponding specifications on the [EEBUS downloads website][https://www.eebus.org/media-downloads/].
+Basic understanding of the EEBUS concepts SHIP and SPINE to use this library is required. Please check the corresponding specifications on the [EEBUS downloads website](https://www.eebus.org/media-downloads/).
 
 An open source SDK written in go providing the foundation to use EEBUS in your projects. Contains support for SHIP and SPINE communication.
 
@@ -26,8 +26,7 @@ The included small demo applications do not implement any usecases and thus will
 
 Services with implemented use cases will be implemented in different repositories and are also early work in progress:
 
-- [HEMS](https://github.com/enbility/eebus-go-cem)
-- [EVSE](https://github.com/enbility/eebus-go-evse)
+- [HEMS](https://github.com/enbility/cemd)
 
 ### HEMS
 
