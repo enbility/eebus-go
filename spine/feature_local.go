@@ -93,7 +93,7 @@ func (r *FeatureLocalImpl) Entity() *EntityLocalImpl {
 	return r.entity
 }
 
-// Add supported function to the feature if its role is Server or Speical
+// Add supported function to the feature if its role is Server or Special
 func (r *FeatureLocalImpl) AddFunctionType(function model.FunctionType, read, write bool) {
 	if r.role != model.RoleTypeServer && r.role != model.RoleTypeSpecial {
 		return

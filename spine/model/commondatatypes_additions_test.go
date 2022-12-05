@@ -245,7 +245,7 @@ func TestFeatureAddressTypeString(t *testing.T) {
 
 		got := f.String()
 		if got != tc.out {
-			t.Errorf("TestFeatureAddressTypeString(), got %s, expectes %s", got, tc.out)
+			t.Errorf("TestFeatureAddressTypeString(), got %s, expects %s", got, tc.out)
 		}
 	}
 }

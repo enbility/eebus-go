@@ -26,7 +26,7 @@ const shipWebsocketPath = "/ship/"
 const shipZeroConfServiceType = "_ship._tcp"
 const shipZeroConfDomain = "local."
 
-// used for randomizing the connection initation delay
+// used for randomizing the connection initiation delay
 // this limits the possibility of concurrent connection attempts from both sides
 type connectionInitiationDelayTimeRange struct {
 	// defines the minimum and maximum wait time for when to try to initate an connection

@@ -317,7 +317,7 @@ func (m *mdns) resolveEntries() {
 			case <-m.cancelChan:
 				ctx.Done()
 			case service := <-zcEntries:
-				// Zeroconf has issues with merging mDNS data and sometimes reports non complety records
+				// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
 				if len(service.Text) == 0 {
 					continue
 				}

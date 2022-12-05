@@ -111,7 +111,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_GetData() {
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_GetData() {
 	errNo := model.ErrorNumberTypeTimeout
-	errDesc := "Timeout occured"
+	errDesc := "Timeout occurred"
 	_ = suite.sut.SetResult(suite.ski, suite.counter, NewErrorType(errNo, errDesc))
 
 	// Act
