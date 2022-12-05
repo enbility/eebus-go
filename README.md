@@ -1,6 +1,6 @@
 # eebus-go
 
-![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=main)
+![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
 
 This library provides a complete foundation for implementing [EEBUS](https://eebus.org) use cases. The use cases define various functional scenarios for different device categories, e.g. energy management systems, charging stations, heat pumps, and more.
 
