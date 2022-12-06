@@ -60,15 +60,15 @@ func (h *evse) run() {
 		log.Fatal(err)
 	}
 
-	serviceDescription, err := service.NewServiceDescription(
+	configuration, err := service.NewConfiguration(
 		"Demo", "Demo", "EVSE", "234567890",
-		model.DeviceTypeTypeChargingStation, port, certificate)
+		model.DeviceTypeTypeChargingStation, port, certificate, 230)
 	if err != nil {
 		log.Fatal(err)
 	}
-	serviceDescription.SetAlternateIdentifier("Demo-EVSE-234567890")
+	configuration.SetAlternateIdentifier("Demo-EVSE-234567890")
 
-	h.myService = service.NewEEBUSService(serviceDescription, h)
+	h.myService = service.NewEEBUSService(configuration, h)
 	h.myService.SetLogging(h)
 
 	if err = h.myService.Setup(); err != nil {

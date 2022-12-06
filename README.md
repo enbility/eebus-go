@@ -241,6 +241,7 @@ Use `SetLogger` on `Service` to set the logger which needs to conform to the `lo
 Example:
 
 ```go
-h.myService = service.NewEEBUSService(serviceDescription, h)
+configuration = service.NewConfiguration(...)
+h.myService = service.NewEEBUSService(configuration, h)
 h.myService.SetLogging(h)
 ```
