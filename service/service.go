@@ -29,7 +29,7 @@ type EEBUSServiceHandler interface {
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSService struct {
-	ServiceDescription *ServiceDescription
+	Configuration *Configuration
 
 	// The local service details
 	LocalService *ServiceDetails
@@ -46,10 +46,10 @@ type EEBUSService struct {
 }
 
 // creates a new EEBUS service
-func NewEEBUSService(ServiceDescription *ServiceDescription, serviceHandler EEBUSServiceHandler) *EEBUSService {
+func NewEEBUSService(configuration *Configuration, serviceHandler EEBUSServiceHandler) *EEBUSService {
 	return &EEBUSService{
-		ServiceDescription: ServiceDescription,
-		serviceHandler:     serviceHandler,
+		Configuration:  configuration,
+		serviceHandler: serviceHandler,
 	}
 }
 
@@ -81,11 +81,11 @@ func (s *EEBUSService) SetLogging(logger logging.Logging) {
 
 // Starts the service by initializeing mDNS and the server.
 func (s *EEBUSService) Setup() error {
-	if s.ServiceDescription.port == 0 {
-		s.ServiceDescription.port = defaultPort
+	if s.Configuration.port == 0 {
+		s.Configuration.port = defaultPort
 	}
 
-	sd := s.ServiceDescription
+	sd := s.Configuration
 
 	leaf, err := x509.ParseCertificate(sd.certificate.Certificate[0])
 	if err != nil {
@@ -155,7 +155,7 @@ func (s *EEBUSService) Setup() error {
 	s.spineLocalDevice.AddEntity(entity)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	hub, err := newConnectionsHub(s, s.spineLocalDevice, s.ServiceDescription, s.LocalService)
+	hub, err := newConnectionsHub(s, s.spineLocalDevice, s.Configuration, s.LocalService)
 	if err != nil {
 		return err
 	}

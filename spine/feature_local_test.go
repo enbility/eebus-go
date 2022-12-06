@@ -87,7 +87,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
 
 	const errorNumber = model.ErrorNumberTypeGeneralError
-	const errorDescription = "error occured"
+	const errorDescription = "error occurred"
 
 	// send data request
 	msgCounter, err := suite.sut.RequestData(suite.function, nil, nil, suite.remoteFeature)

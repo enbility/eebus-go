@@ -26,7 +26,7 @@ const shipWebsocketPath = "/ship/"
 const shipZeroConfServiceType = "_ship._tcp"
 const shipZeroConfDomain = "local."
 
-// used for randomizing the connection initation delay
+// used for randomizing the connection initiation delay
 // this limits the possibility of concurrent connection attempts from both sides
 type connectionInitiationDelayTimeRange struct {
 	// defines the minimum and maximum wait time for when to try to initate an connection
@@ -65,8 +65,8 @@ type connectionsHub struct {
 	connectionAttemptCounter map[string]int
 	connectionAttemptRunning map[string]bool
 
-	serviceDescription *ServiceDescription
-	localService       *ServiceDetails
+	configuration *Configuration
+	localService  *ServiceDetails
 
 	serviceProvider serviceProvider
 
@@ -88,7 +88,7 @@ type connectionsHub struct {
 	muxMdns       sync.Mutex
 }
 
-func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.DeviceLocalImpl, serviceDescription *ServiceDescription, localService *ServiceDetails) (*connectionsHub, error) {
+func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.DeviceLocalImpl, configuration *Configuration, localService *ServiceDetails) (*connectionsHub, error) {
 	hub := &connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
@@ -96,13 +96,13 @@ func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.
 		pairedServices:           make([]ServiceDetails, 0),
 		serviceProvider:          serviceProvider,
 		spineLocalDevice:         spineLocalDevice,
-		serviceDescription:       serviceDescription,
+		configuration:            configuration,
 		localService:             localService,
 	}
 
 	localService.SKI = util.NormalizeSKI(localService.SKI)
 
-	mdns, err := newMDNS(localService.SKI, serviceDescription)
+	mdns, err := newMDNS(localService.SKI, configuration)
 	if err != nil {
 		return nil, err
 	}
@@ -251,14 +251,14 @@ func (h *connectionsHub) isSkiConnected(ski string) bool {
 
 // start the ship websocket server
 func (h *connectionsHub) startWebsocketServer() error {
-	addr := fmt.Sprintf(":%d", h.serviceDescription.port)
+	addr := fmt.Sprintf(":%d", h.configuration.port)
 	logging.Log.Debug("starting websocket server on", addr)
 
 	h.httpServer = &http.Server{
 		Addr:    addr,
 		Handler: h,
 		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{h.serviceDescription.certificate},
+			Certificates: []tls.Certificate{h.configuration.certificate},
 			ClientAuth:   tls.RequireAnyClientCert, // SHIP 9: Client authentication is required
 			CipherSuites: ciperSuites,
 			VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
@@ -372,7 +372,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 5 * time.Second,
 		TLSClientConfig: &tls.Config{
-			Certificates:       []tls.Certificate{h.serviceDescription.certificate},
+			Certificates:       []tls.Certificate{h.configuration.certificate},
 			InsecureSkipVerify: true,
 			CipherSuites:       ciperSuites,
 		},

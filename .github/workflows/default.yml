@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - dev
+      - main
   pull_request:
   workflow_call:
 
@@ -36,3 +37,8 @@ jobs:
 
       - name: Test
         run: go test -race -v -coverprofile=coverage.out  -covermode=atomic ./...
+
+      - name: Send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: coverage.out

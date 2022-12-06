@@ -194,11 +194,11 @@ func TestNewScaledNumberType(t *testing.T) {
 		number int64
 		scale  int
 	}{
-		{0.0, 0, 0},
+		{0, 0, 0},
 		{0.1, 1, -1},
 		{1.0, 1, 0},
 		{6.25, 625, -2},
-		{10.0, 10, 0},
+		{10, 10, 0},
 		{12.5952, 125952, -4},
 		{13.1637, 131637, -4},
 	}
@@ -245,7 +245,7 @@ func TestFeatureAddressTypeString(t *testing.T) {
 
 		got := f.String()
 		if got != tc.out {
-			t.Errorf("TestFeatureAddressTypeString(), got %s, expectes %s", got, tc.out)
+			t.Errorf("TestFeatureAddressTypeString(), got %s, expects %s", got, tc.out)
 		}
 	}
 }

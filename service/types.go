@@ -34,7 +34,7 @@ type ServiceDetails struct {
 }
 
 // defines requires meta information about this service
-type ServiceDescription struct {
+type Configuration struct {
 	// The vendors IANA PEN, optional but highly recommended.
 	// If not set, brand will be used instead
 	// Used for the Device Address: SPINE - Protocol Specification 7.1.1.2
@@ -90,10 +90,15 @@ type ServiceDescription struct {
 	// the spec defines that this should have a timeout and be activate
 	// e.g via a physical button
 	registerAutoAccept bool
+
+	// The sites grid voltage
+	// This is useful when e.g. power values are not available and therefor
+	// need to be calculated using the current values
+	voltage float64
 }
 
-// Setup a ServiceDescription with the required parameters
-func NewServiceDescription(
+// Setup a Configuration with the required parameters
+func NewConfiguration(
 	vendorCode,
 	deviceBrand,
 	deviceModel,
@@ -101,10 +106,12 @@ func NewServiceDescription(
 	deviceType model.DeviceTypeType,
 	port int,
 	certificate tls.Certificate,
-) (*ServiceDescription, error) {
-	serviceDescription := &ServiceDescription{
+	voltage float64,
+) (*Configuration, error) {
+	configuration := &Configuration{
 		certificate: certificate,
 		port:        port,
+		voltage:     voltage,
 	}
 
 	isRequired := "is required"
@@ -112,63 +119,63 @@ func NewServiceDescription(
 	if len(vendorCode) == 0 {
 		return nil, fmt.Errorf("vendorCode %s", isRequired)
 	} else {
-		serviceDescription.vendorCode = vendorCode
+		configuration.vendorCode = vendorCode
 	}
 	if len(deviceBrand) == 0 {
 		return nil, fmt.Errorf("brand %s", isRequired)
 	} else {
-		serviceDescription.deviceBrand = deviceBrand
+		configuration.deviceBrand = deviceBrand
 	}
 	if len(deviceModel) == 0 {
 		return nil, fmt.Errorf("model %s", isRequired)
 	} else {
-		serviceDescription.deviceModel = deviceModel
+		configuration.deviceModel = deviceModel
 	}
 	if len(serialNumber) == 0 {
 		return nil, fmt.Errorf("serialNumber %s", isRequired)
 	} else {
-		serviceDescription.deviceSerialNumber = serialNumber
+		configuration.deviceSerialNumber = serialNumber
 	}
 	if len(deviceType) == 0 {
 		return nil, fmt.Errorf("deviceType %s", isRequired)
 	} else {
-		serviceDescription.deviceType = deviceType
+		configuration.deviceType = deviceType
 	}
 
 	// set default
-	serviceDescription.featureSet = model.NetworkManagementFeatureSetTypeSmart
+	configuration.featureSet = model.NetworkManagementFeatureSetTypeSmart
 
-	return serviceDescription, nil
+	return configuration, nil
 }
 
 // define an alternative mDNS and SHIP identifier
 // usually this is only used when no deviceCode is available or identical to the brand
 // if this is not set, generated identifier is used
-func (s *ServiceDescription) SetAlternateIdentifier(identifier string) {
+func (s *Configuration) SetAlternateIdentifier(identifier string) {
 	s.alternateIdentifier = identifier
 }
 
 // define an alternative mDNS service name
 // this is normally not needed or used
-func (s *ServiceDescription) SetAlternateMdnsServiceName(name string) {
+func (s *Configuration) SetAlternateMdnsServiceName(name string) {
 	s.alternateMdnsServiceName = name
 }
 
 // define which network interfaces should be considered instead of all existing
 // expects a list of network interface names
-func (s *ServiceDescription) SetInterfaces(ifaces []string) {
+func (s *Configuration) SetInterfaces(ifaces []string) {
 	s.interfaces = ifaces
 }
 
 // define wether this service should announce auto accept
 // TODO: this needs to be redesigned!
-func (s *ServiceDescription) SetRegisterAutoAccept(auto bool) {
+func (s *Configuration) SetRegisterAutoAccept(auto bool) {
 	s.registerAutoAccept = auto
 }
 
 // generates a standard identifier used for mDNS ID and SHIP ID
 // Brand-Model-SerialNumber
-func (s *ServiceDescription) generateIdentifier() string {
+func (s *Configuration) generateIdentifier() string {
 	return fmt.Sprintf("%s-%s-%s", s.deviceBrand, s.deviceModel, s.deviceSerialNumber)
 }
 
@@ -176,7 +183,7 @@ func (s *ServiceDescription) generateIdentifier() string {
 // returns in this order:
 // - alternateIdentifier
 // - generateIdentifier
-func (s *ServiceDescription) Identifier() string {
+func (s *Configuration) Identifier() string {
 	// SHIP identifier is identical to the mDNS ID
 	if len(s.alternateIdentifier) > 0 {
 		return s.alternateIdentifier
@@ -189,11 +196,16 @@ func (s *ServiceDescription) Identifier() string {
 // returns in this order:
 // - alternateMdnsServiceName
 // - generateIdentifier
-func (s *ServiceDescription) MdnsServiceName() string {
+func (s *Configuration) MdnsServiceName() string {
 	// SHIP identifier is identical to the mDNS ID
 	if len(s.alternateMdnsServiceName) > 0 {
 		return s.alternateMdnsServiceName
 	}
 
 	return s.generateIdentifier()
+}
+
+// return the sites predefined grid voltage
+func (s *Configuration) Voltage() float64 {
+	return s.voltage
 }
