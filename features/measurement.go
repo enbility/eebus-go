@@ -70,17 +70,17 @@ func (m *Measurement) Request() (*model.MsgCounterType, error) {
 // return current value of a defined scope
 func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (float64, error) {
 	if m.featureRemote == nil {
-		return 0.0, ErrDataNotAvailable
+		return 0, ErrDataNotAvailable
 	}
 
 	descRef, err := m.GetDescription()
 	if err != nil {
-		return 0.0, ErrMetadataNotAvailable
+		return 0, ErrMetadataNotAvailable
 	}
 
 	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
 	if rData == nil {
-		return 0.0, ErrDataNotAvailable
+		return 0, ErrDataNotAvailable
 	}
 	data := rData.(*model.MeasurementListDataType)
 
@@ -218,17 +218,17 @@ func (m *Measurement) GetDescriptionForScope(scope model.ScopeTypeType) (measure
 // return current SoC for measurements
 func (m *Measurement) GetSoC() (float64, error) {
 	if m.featureRemote == nil {
-		return 0.0, ErrDataNotAvailable
+		return 0, ErrDataNotAvailable
 	}
 
 	descRef, err := m.GetDescription()
 	if err != nil {
-		return 0.0, ErrMetadataNotAvailable
+		return 0, ErrMetadataNotAvailable
 	}
 
 	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
 	if rData == nil {
-		return 0.0, ErrDataNotAvailable
+		return 0, ErrDataNotAvailable
 	}
 	data := rData.(*model.MeasurementListDataType)
 
@@ -251,7 +251,7 @@ func (m *Measurement) GetSoC() (float64, error) {
 		}
 	}
 
-	return 0.0, ErrDataNotAvailable
+	return 0, ErrDataNotAvailable
 }
 
 type measurementConstraintMap map[model.MeasurementIdType]model.MeasurementConstraintsDataType
