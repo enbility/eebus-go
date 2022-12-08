@@ -50,9 +50,7 @@ func (s *HubSuite) ReportServiceShipID(string, string) {}
 
 func (s *HubSuite) Test_NewConnectionsHub() {
 	ski := "12af9e"
-	localService := &ServiceDetails{
-		SKI: ski,
-	}
+	localService := NewServiceDetails(ski)
 	configuration := &Configuration{
 		interfaces: []string{"en0"},
 	}
@@ -72,9 +70,7 @@ func (s *HubSuite) Test_IsRemoteSKIPaired() {
 	paired := sut.IsRemoteServiceForSKIPaired(ski)
 	assert.Equal(s.T(), false, paired)
 
-	service := ServiceDetails{
-		SKI: ski,
-	}
+	service := NewServiceDetails(ski)
 	// mark it as connected, so mDNS is not triggered
 	sut.connections[ski] = &ship.ShipConnection{}
 	sut.PairRemoteService(service)
@@ -117,10 +113,8 @@ func (s *HubSuite) Test_DisconnectSKI() {
 
 func (s *HubSuite) Test_RegisterConnection() {
 	ski := "12af9e"
-	localService := &ServiceDetails{
-		SKI:        ski,
-		deviceType: model.DeviceTypeTypeEnergyManagementSystem, // this won't trigger mDNS announcement
-	}
+	localService := NewServiceDetails(ski)
+	localService.SetDeviceType(model.DeviceTypeTypeEnergyManagementSystem) // this won't trigger mDNS announcement
 
 	sut := connectionsHub{
 		connections:  make(map[string]*ship.ShipConnection),
@@ -195,9 +189,7 @@ func (s *HubSuite) Test_GetCurrentConnectionAttemptCounter() {
 func (s *HubSuite) Test_GetConnectionInitiationDelayTime() {
 	// we just need a dummy for this test
 	ski := "12af9e"
-	localService := &ServiceDetails{
-		SKI: ski,
-	}
+	localService := NewServiceDetails(ski)
 	sut := connectionsHub{
 		localService:             localService,
 		connectionAttemptCounter: make(map[string]int),

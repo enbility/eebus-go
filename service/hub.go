@@ -17,7 +17,6 @@ import (
 	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
-	"github.com/enbility/eebus-go/util"
 	"github.com/gorilla/websocket"
 )
 
@@ -71,7 +70,7 @@ type connectionsHub struct {
 	serviceProvider serviceProvider
 
 	// The list of paired devices
-	pairedServices []ServiceDetails
+	pairedServices []*ServiceDetails
 
 	// The web server for handling incoming websocket connections
 	httpServer *http.Server
@@ -89,18 +88,16 @@ type connectionsHub struct {
 }
 
 func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.DeviceLocalImpl, configuration *Configuration, localService *ServiceDetails) *connectionsHub {
-	localService.SKI = util.NormalizeSKI(localService.SKI)
-
 	hub := &connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		connectionAttemptRunning: make(map[string]bool),
-		pairedServices:           make([]ServiceDetails, 0),
+		pairedServices:           make([]*ServiceDetails, 0),
 		serviceProvider:          serviceProvider,
 		spineLocalDevice:         spineLocalDevice,
 		configuration:            configuration,
 		localService:             localService,
-		mdns:                     newMDNS(localService.SKI, configuration),
+		mdns:                     newMDNS(localService.SKI(), configuration),
 	}
 
 	return hub
@@ -328,31 +325,29 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ski = util.NormalizeSKI(ski)
-	logging.Log.Debug("incoming connection request from", ski)
+	// normalize the incoming SKI
+	remoteService := NewServiceDetails(ski)
+	logging.Log.Debug("incoming connection request from", remoteService.SKI())
 
 	// Check if the remote service is paired
-	_, err = h.PairedServiceForSKI(ski)
+	_, err = h.PairedServiceForSKI(remoteService.SKI())
 	if err != nil {
 		logging.Log.Debug("ski", ski, "is not paired, closing the connection")
 		return
 	}
 
-	remoteService := &ServiceDetails{
-		SKI: ski,
-	}
 	// check if we already know this remote service
-	if remoteS, err := h.PairedServiceForSKI(ski); err == nil {
+	if remoteS, err := h.PairedServiceForSKI(remoteService.SKI()); err == nil {
 		remoteService = remoteS
 	}
 
 	// don't allow a second connection
-	if !h.keepThisConnection(conn, true, remoteService.SKI) {
+	if !h.keepThisConnection(conn, true, remoteService) {
 		return
 	}
 
-	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
-	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleServer, h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
+	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI())
+	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleServer, h.localService.ShipID(), remoteService.SKI(), remoteService.ShipID())
 	shipConnection.Run()
 
 	h.registerConnection(shipConnection)
@@ -362,7 +357,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //
 // returns error contains a reason for failing the connection or nil if no further tries should be processed
 func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host, port string) error {
-	if h.isSkiConnected(remoteService.SKI) {
+	if h.isSkiConnected(remoteService.SKI()) {
 		return nil
 	}
 
@@ -391,33 +386,33 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 
 	if len(remoteCerts) == 0 || remoteCerts[0].SubjectKeyId == nil {
 		// Close connection as we couldn't get the remote SKI
-		errorString := fmt.Sprintf("closing connection to %s: could not get remote SKI from certificate", remoteService.SKI)
+		errorString := fmt.Sprintf("closing connection to %s: could not get remote SKI from certificate", remoteService.SKI())
 		conn.Close()
 		return errors.New(errorString)
 	}
 
 	if _, err := skiFromCertificate(remoteCerts[0]); err != nil {
 		// Close connection as the remote SKI can't be correct
-		errorString := fmt.Sprintf("closing connection to %s: %s", remoteService.SKI, err)
+		errorString := fmt.Sprintf("closing connection to %s: %s", remoteService.SKI(), err)
 		conn.Close()
 		return errors.New(errorString)
 	}
 
 	remoteSKI := fmt.Sprintf("%0x", remoteCerts[0].SubjectKeyId)
 
-	if remoteSKI != remoteService.SKI {
-		errorString := fmt.Sprintf("closing connection to %s: SKI does not match %s", remoteService.SKI, remoteSKI)
+	if remoteSKI != remoteService.SKI() {
+		errorString := fmt.Sprintf("closing connection to %s: SKI does not match %s", remoteService.SKI(), remoteSKI)
 		conn.Close()
 		return errors.New(errorString)
 	}
 
-	if !h.keepThisConnection(conn, false, remoteService.SKI) {
-		errorString := fmt.Sprintf("closing connection to %s: ignoring this connection", remoteService.SKI)
+	if !h.keepThisConnection(conn, false, remoteService) {
+		errorString := fmt.Sprintf("closing connection to %s: ignoring this connection", remoteService.SKI())
 		return errors.New(errorString)
 	}
 
-	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
-	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleClient, h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
+	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI())
+	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleClient, h.localService.ShipID(), remoteService.SKI(), remoteService.ShipID())
 	shipConnection.Run()
 
 	h.registerConnection(shipConnection)
@@ -430,7 +425,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 //
 // returns true if this connection is fine to be continue
 // returns false if this connection should not be established or kept
-func (h *connectionsHub) keepThisConnection(conn *websocket.Conn, incomingRequest bool, remoteSKI string) bool {
+func (h *connectionsHub) keepThisConnection(conn *websocket.Conn, incomingRequest bool, remoteService *ServiceDetails) bool {
 	// SHIP 12.2.2 defines:
 	// prevent double connections with SKI Comparison
 	// the node with the hight SKI value kees the most recent connection and
@@ -439,6 +434,7 @@ func (h *connectionsHub) keepThisConnection(conn *websocket.Conn, incomingReques
 	// This is hard to implement without any flaws. Therefor I chose a
 	// different approach: The connection initiated by the higher SKI will be kept
 
+	remoteSKI := remoteService.SKI()
 	existingC := h.connectionForSKI(remoteSKI)
 	if existingC == nil {
 		return true
@@ -446,9 +442,9 @@ func (h *connectionsHub) keepThisConnection(conn *websocket.Conn, incomingReques
 
 	keep := false
 	if incomingRequest {
-		keep = remoteSKI > h.localService.SKI
+		keep = remoteSKI > h.localService.SKI()
 	} else {
-		keep = h.localService.SKI > remoteSKI
+		keep = h.localService.SKI() > remoteSKI
 	}
 
 	if keep {
@@ -475,29 +471,26 @@ func (h *connectionsHub) keepThisConnection(conn *websocket.Conn, incomingReques
 func (h *connectionsHub) PairedServiceForSKI(ski string) (*ServiceDetails, error) {
 	h.muxReg.Lock()
 	defer h.muxReg.Unlock()
+
 	for _, service := range h.pairedServices {
-		if service.SKI == ski {
-			return &service, nil
+		if service.SKI() == ski {
+			return service, nil
 		}
 	}
-	return &ServiceDetails{}, fmt.Errorf("no registered service found for SKI %s", ski)
+	return nil, fmt.Errorf("no registered service found for SKI %s", ski)
 }
 
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
-func (h *connectionsHub) PairRemoteService(service ServiceDetails) {
-
-	// standardize the provided SKI strings
-	service.SKI = util.NormalizeSKI(service.SKI)
-
+func (h *connectionsHub) PairRemoteService(service *ServiceDetails) {
 	// check if it is already registered
-	if _, err := h.PairedServiceForSKI(service.SKI); err != nil {
+	if _, err := h.PairedServiceForSKI(service.SKI()); err != nil {
 		h.muxReg.Lock()
 		h.pairedServices = append(h.pairedServices, service)
 		h.muxReg.Unlock()
 	}
 
-	if !h.isSkiConnected(service.SKI) {
+	if !h.isSkiConnected(service.SKI()) {
 		h.mdns.RegisterMdnsSearch(h)
 	}
 }
@@ -507,11 +500,11 @@ func (h *connectionsHub) PairRemoteService(service ServiceDetails) {
 func (h *connectionsHub) UnpairRemoteService(ski string) error {
 	h.removeConnectionAttemptCounter(ski)
 
-	newRegisteredDevice := make([]ServiceDetails, 0)
+	newRegisteredDevice := make([]*ServiceDetails, 0)
 
 	h.muxReg.Lock()
 	for _, device := range h.pairedServices {
-		if device.SKI != ski {
+		if device.SKI() != ski {
 			newRegisteredDevice = append(newRegisteredDevice, device)
 		}
 	}
@@ -543,8 +536,8 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 		}
 
 		// patch the addresses list if an IPv4 address was provided
-		if remoteService.IPv4 != "" {
-			if ip := net.ParseIP(remoteService.IPv4); ip != nil {
+		if remoteService.IPv4() != "" {
+			if ip := net.ParseIP(remoteService.IPv4()); ip != nil {
 				entry.Addresses = []net.IP{ip}
 			}
 		}
@@ -682,7 +675,7 @@ func (h *connectionsHub) getConnectionInitiationDelayTime(ski string) (int, time
 
 	// seed with the local SKI for initializing rand
 	i := new(big.Int)
-	hex := fmt.Sprintf("0x%s", h.localService.SKI)
+	hex := fmt.Sprintf("0x%s", h.localService.SKI())
 	if _, err := fmt.Sscan(hex, i); err == nil {
 		rand.Seed(i.Int64() + time.Now().UnixNano())
 	} else {

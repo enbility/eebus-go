@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 const defaultPort int = 4711
@@ -13,24 +14,72 @@ const defaultPort int = 4711
 type ServiceDetails struct {
 	// This is the SKI of the service
 	// This needs to be persisted
-	SKI string
+	ski string
 
 	// This is the IPv4 address of the device running the service
 	// This is optional only needed when this runs with
 	// zeroconf as mDNS and the remote device is using the latest
 	// avahi version and thus zeroconf can sometimes not detect
 	// the IPv4 address and not initiate a connection
-	IPv4 string
+	ipv4 string
 
-	// ShipID is the ship identifier of the service
+	// shipID is the SHIP identifier of the service
 	// This needs to be persisted
-	ShipID string
+	shipID string
 
 	// The EEBUS device type of the device model
 	deviceType model.DeviceTypeType
 
 	// Flags if the service auto auto accepts other services
 	registerAutoAccept bool
+}
+
+// create a new ServiceDetails record with a SKI
+func NewServiceDetails(ski string) *ServiceDetails {
+	service := &ServiceDetails{
+		ski: util.NormalizeSKI(ski), // standardize the provided SKI strings
+	}
+
+	return service
+}
+
+// return the services SKI
+func (s *ServiceDetails) SKI() string {
+	return s.ski
+}
+
+// SHIP ID is the ship identifier of the service
+func (s *ServiceDetails) SetShipID(shipId string) {
+	s.shipID = shipId
+}
+
+// Return the services SHIP ID
+func (s *ServiceDetails) ShipID() string {
+	return s.shipID
+}
+
+func (s *ServiceDetails) SetIPv4(ipv4 string) {
+	s.ipv4 = ipv4
+}
+
+func (s *ServiceDetails) IPv4() string {
+	return s.ipv4
+}
+
+func (s *ServiceDetails) SetDeviceType(deviceType model.DeviceTypeType) {
+	s.deviceType = deviceType
+}
+
+func (s *ServiceDetails) DeviceType() model.DeviceTypeType {
+	return s.deviceType
+}
+
+func (s *ServiceDetails) SetRegisterAutoAccept(auto bool) {
+	s.registerAutoAccept = auto
+}
+
+func (s *ServiceDetails) RegisterAutoAccept() bool {
+	return s.registerAutoAccept
 }
 
 // defines requires meta information about this service

@@ -83,9 +83,7 @@ func (h *hems) run() {
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 
-	remoteService := service.ServiceDetails{
-		SKI: remoteSki,
-	}
+	remoteService := service.NewServiceDetails(remoteSki)
 	h.myService.PairRemoteService(remoteService)
 }
 
