@@ -61,7 +61,6 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 
 	r.mux.Lock()
 	r.remoteDevices[ski] = rDevice
-	amountRemoteDevices := len(r.remoteDevices)
 	r.mux.Unlock()
 
 	// Request Detailed Discovery Data
@@ -70,10 +69,8 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 	// TODO: Add error handling
 	// If the request returned an error, it should be retried until it does not
 
-	// only add subscription if this is the first remote device
-	if amountRemoteDevices == 1 {
-		Events.Subscribe(r)
-	}
+	// always add subscription, as it checks if it already exists
+	Events.Subscribe(r)
 
 	return rDevice
 }
@@ -81,14 +78,32 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 // React to some specific events
 func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	// Subscribe to NodeManagment after DetailedDiscovery is received
-	if payload.EventType == EventTypeDeviceChange && payload.ChangeType == ElementChangeAdd && payload.Data != nil {
-		switch payload.Data.(type) {
-		case *model.NodeManagementDetailedDiscoveryDataType:
-			_, _ = r.nodeManagement.Subscribe(payload.Feature.Device(), payload.Feature.Address())
+	if payload.EventType != EventTypeDeviceChange {
+		return
+	}
 
-			// Request Use Case Data
-			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.ski, payload.Device.Address(), payload.Device.Sender())
-		}
+	if payload.ChangeType != ElementChangeAdd {
+		return
+	}
+
+	if payload.Data == nil {
+		return
+	}
+
+	if len(payload.Ski) == 0 {
+		return
+	}
+
+	if r.RemoteDeviceForSki(payload.Ski) == nil {
+		return
+	}
+
+	switch payload.Data.(type) {
+	case *model.NodeManagementDetailedDiscoveryDataType:
+		_, _ = r.nodeManagement.Subscribe(payload.Feature.Device(), payload.Feature.Address())
+
+		// Request Use Case Data
+		_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.ski, payload.Device.Address(), payload.Device.Sender())
 	}
 }
 
