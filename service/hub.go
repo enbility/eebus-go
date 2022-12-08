@@ -88,7 +88,9 @@ type connectionsHub struct {
 	muxMdns       sync.Mutex
 }
 
-func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.DeviceLocalImpl, configuration *Configuration, localService *ServiceDetails) (*connectionsHub, error) {
+func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.DeviceLocalImpl, configuration *Configuration, localService *ServiceDetails) *connectionsHub {
+	localService.SKI = util.NormalizeSKI(localService.SKI)
+
 	hub := &connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
@@ -98,22 +100,20 @@ func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.
 		spineLocalDevice:         spineLocalDevice,
 		configuration:            configuration,
 		localService:             localService,
+		mdns:                     newMDNS(localService.SKI, configuration),
 	}
 
-	localService.SKI = util.NormalizeSKI(localService.SKI)
-
-	mdns, err := newMDNS(localService.SKI, configuration)
-	if err != nil {
-		return nil, err
-	}
-
-	hub.mdns = mdns
-
-	return hub, nil
+	return hub
 }
 
 // start the ConnectionsHub with all its services
 func (h *connectionsHub) start() {
+	// start mDNS
+	err := h.mdns.Setup()
+	if err != nil {
+		logging.Log.Error("error during mdns setup:", err)
+	}
+
 	// start the websocket server
 	go func() {
 		if err := h.startWebsocketServer(); err != nil {

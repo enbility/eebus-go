@@ -58,7 +58,7 @@ type mdns struct {
 	mux sync.Mutex
 }
 
-func newMDNS(ski string, configuration *Configuration) (*mdns, error) {
+func newMDNS(ski string, configuration *Configuration) *mdns {
 	m := &mdns{
 		ski:           ski,
 		configuration: configuration,
@@ -66,13 +66,18 @@ func newMDNS(ski string, configuration *Configuration) (*mdns, error) {
 		cancelChan:    make(chan bool),
 	}
 
+	return m
+}
+
+func (m *mdns) Setup() error {
+
 	if av, err := m.setupAvahi(); err == nil {
 		m.av = av
 	}
 
 	// on startup always start mDNS announcement
 	if err := m.Announce(); err != nil {
-		return nil, err
+		return err
 	}
 
 	// catch signals
@@ -85,7 +90,7 @@ func newMDNS(ski string, configuration *Configuration) (*mdns, error) {
 		m.Unannounce()
 	}()
 
-	return m, nil
+	return nil
 }
 
 // setup avahi for mDNS

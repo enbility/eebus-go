@@ -155,12 +155,7 @@ func (s *EEBUSService) Setup() error {
 	s.spineLocalDevice.AddEntity(entity)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	hub, err := newConnectionsHub(s, s.spineLocalDevice, s.Configuration, s.LocalService)
-	if err != nil {
-		return err
-	}
-
-	s.connectionsHub = hub
+	s.connectionsHub = newConnectionsHub(s, s.spineLocalDevice, s.Configuration, s.LocalService)
 
 	return nil
 }
