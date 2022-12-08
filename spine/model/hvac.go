@@ -178,7 +178,7 @@ type HvacOperationModeDescriptionListDataSelectorsType struct {
 type HvacOverrunDataType struct {
 	OverrunId                 *HvacOverrunIdType     `json:"overrunId,omitempty" eebus:"key"`
 	OverrunStatus             *HvacOverrunStatusType `json:"overrunStatus,omitempty"`
-	TimeTableId               *TimeTableIdType       `json:"timeTableId,omitempty"`
+	TimeTableId               *TimeTableIdType       `json:"timeTableId,omitempty" eebus:"key"`
 	IsOverrunStatusChangeable *bool                  `json:"isOverrunStatusChangeable,omitempty"`
 }
 
