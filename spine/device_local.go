@@ -61,6 +61,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 
 	r.mux.Lock()
 	r.remoteDevices[ski] = rDevice
+	amountRemoteDevices := len(r.remoteDevices)
 	r.mux.Unlock()
 
 	// Request Detailed Discovery Data
@@ -69,7 +70,10 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 	// TODO: Add error handling
 	// If the request returned an error, it should be retried until it does not
 
-	Events.Subscribe(r)
+	// only add subscription if this is the first remote device
+	if amountRemoteDevices == 1 {
+		Events.Subscribe(r)
+	}
 
 	return rDevice
 }
@@ -96,9 +100,13 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 		return
 	}
 
-	Events.Unsubscribe(r)
 	r.remoteDevices[ski].CloseConnection()
 	delete(r.remoteDevices, ski)
+
+	// only unsubscribe if we don't have any remote devices left
+	if len(r.remoteDevices) == 0 {
+		Events.Unsubscribe(r)
+	}
 }
 
 func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {
