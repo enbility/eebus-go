@@ -30,6 +30,8 @@ func UpdateList[T any](existingData []T, newData []T, filterPartial, filterDelet
 	}
 
 	// check if items have no identifiers
+	// Currently all fields marked as key are required
+	// TODO: check how to handle if only one identifier is provided
 	if len(newData) > 0 && !HasIdentifiers(newData[0]) {
 		// no identifiers specified --> copy data to all existing items
 		// (see EEBus_SPINE_TS_ProtocolSpecification.pdf, Table 7: Considered cmdOptions combinations for classifier "notify")
