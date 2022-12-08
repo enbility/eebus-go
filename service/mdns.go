@@ -29,8 +29,19 @@ type MdnsEntry struct {
 	Addresses  []net.IP // mandatory
 }
 
+// implemented by hubConnection, used by mdns
 type MdnsSearch interface {
 	ReportMdnsEntries(entries map[string]MdnsEntry)
+}
+
+// implemented by mdns, used by hubConnection
+type MdnsService interface {
+	SetupMdnsService() error
+	ShutdownMdnsService()
+	AnnounceMdnsEntry() error
+	UnannounceMdnsEntry()
+	RegisterMdnsSearch(cb MdnsSearch)
+	UnregisterMdnsSearch(cb MdnsSearch)
 }
 
 type mdns struct {
@@ -69,14 +80,16 @@ func newMDNS(ski string, configuration *Configuration) *mdns {
 	return m
 }
 
-func (m *mdns) Setup() error {
+var _ MdnsService = (*mdns)(nil)
+
+func (m *mdns) SetupMdnsService() error {
 
 	if av, err := m.setupAvahi(); err == nil {
 		m.av = av
 	}
 
 	// on startup always start mDNS announcement
-	if err := m.Announce(); err != nil {
+	if err := m.AnnounceMdnsEntry(); err != nil {
 		return err
 	}
 
@@ -87,7 +100,7 @@ func (m *mdns) Setup() error {
 
 		<-signalC // wait for signal
 
-		m.Unannounce()
+		m.UnannounceMdnsEntry()
 	}()
 
 	return nil
@@ -141,7 +154,7 @@ func (m *mdns) interfaces() ([]net.Interface, []int32, error) {
 // Announces the service to the network via mDNS
 // A CEM service should always invoke this on startup
 // Any other service should only invoke this whenever it is not connected to a CEM service
-func (m *mdns) Announce() error {
+func (m *mdns) AnnounceMdnsEntry() error {
 	if m.isAnnounced {
 		return nil
 	}
@@ -214,7 +227,7 @@ func (m *mdns) Announce() error {
 }
 
 // Stop the mDNS announcement on the network
-func (m *mdns) Unannounce() {
+func (m *mdns) UnannounceMdnsEntry() {
 	if !m.isAnnounced {
 		return
 	}
@@ -233,8 +246,8 @@ func (m *mdns) Unannounce() {
 }
 
 // Shutdown all of mDNS
-func (m *mdns) shutdown() {
-	m.Unannounce()
+func (m *mdns) ShutdownMdnsService() {
+	m.UnannounceMdnsEntry()
 
 	if m.av != nil {
 		m.av.Close()

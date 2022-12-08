@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/ship"
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -48,13 +47,22 @@ func (s *HubSuite) RemoteSKIConnected(string)          {}
 func (s *HubSuite) RemoteSKIDisconnected(string)       {}
 func (s *HubSuite) ReportServiceShipID(string, string) {}
 
+var _ MdnsService = (*HubSuite)(nil)
+
+func (s *HubSuite) SetupMdnsService() error            { return nil }
+func (s *HubSuite) ShutdownMdnsService()               {}
+func (s *HubSuite) AnnounceMdnsEntry() error           { return nil }
+func (s *HubSuite) UnannounceMdnsEntry()               {}
+func (s *HubSuite) RegisterMdnsSearch(cb MdnsSearch)   {}
+func (s *HubSuite) UnregisterMdnsSearch(cb MdnsSearch) {}
+
 func (s *HubSuite) Test_NewConnectionsHub() {
 	ski := "12af9e"
 	localService := NewServiceDetails(ski)
 	configuration := &Configuration{
 		interfaces: []string{"en0"},
 	}
-	hub := newConnectionsHub(s, nil, configuration, localService)
+	hub := newConnectionsHub(s, s, nil, configuration, localService)
 	assert.NotNil(s.T(), hub)
 
 	hub.start()
@@ -114,10 +122,10 @@ func (s *HubSuite) Test_DisconnectSKI() {
 func (s *HubSuite) Test_RegisterConnection() {
 	ski := "12af9e"
 	localService := NewServiceDetails(ski)
-	localService.SetDeviceType(model.DeviceTypeTypeEnergyManagementSystem) // this won't trigger mDNS announcement
 
 	sut := connectionsHub{
 		connections:  make(map[string]*ship.ShipConnection),
+		mdns:         s,
 		localService: localService,
 	}
 

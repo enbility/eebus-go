@@ -76,7 +76,7 @@ type connectionsHub struct {
 	httpServer *http.Server
 
 	// Handling mDNS related tasks
-	mdns *mdns
+	mdns MdnsService
 
 	// the SPINE local device
 	spineLocalDevice *spine.DeviceLocalImpl
@@ -87,7 +87,7 @@ type connectionsHub struct {
 	muxMdns       sync.Mutex
 }
 
-func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.DeviceLocalImpl, configuration *Configuration, localService *ServiceDetails) *connectionsHub {
+func newConnectionsHub(serviceProvider serviceProvider, mdns MdnsService, spineLocalDevice *spine.DeviceLocalImpl, configuration *Configuration, localService *ServiceDetails) *connectionsHub {
 	hub := &connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
@@ -97,7 +97,7 @@ func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.
 		spineLocalDevice:         spineLocalDevice,
 		configuration:            configuration,
 		localService:             localService,
-		mdns:                     newMDNS(localService.SKI(), configuration),
+		mdns:                     mdns,
 	}
 
 	return hub
@@ -106,7 +106,7 @@ func newConnectionsHub(serviceProvider serviceProvider, spineLocalDevice *spine.
 // start the ConnectionsHub with all its services
 func (h *connectionsHub) start() {
 	// start mDNS
-	err := h.mdns.Setup()
+	err := h.mdns.SetupMdnsService()
 	if err != nil {
 		logging.Log.Error("error during mdns setup:", err)
 	}
@@ -118,7 +118,7 @@ func (h *connectionsHub) start() {
 		}
 	}()
 
-	if err := h.mdns.Announce(); err != nil {
+	if err := h.mdns.AnnounceMdnsEntry(); err != nil {
 		logging.Log.Error("error registering mDNS Service:", err)
 	}
 }
@@ -168,7 +168,7 @@ func (h *connectionsHub) checkRestartMdnsSearch() {
 	if countPairedServices > countConnections {
 		// if this is not a CEM also start the mDNS announcement
 		if h.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
-			_ = h.mdns.Announce()
+			_ = h.mdns.AnnounceMdnsEntry()
 		}
 
 		logging.Log.Debug("restarting mdns search")
@@ -206,7 +206,7 @@ func (h *connectionsHub) registerConnection(connection *ship.ShipConnection) {
 
 	// shutdown mDNS if this is not a CEM
 	if h.localService.deviceType != model.DeviceTypeTypeEnergyManagementSystem {
-		h.mdns.Unannounce()
+		h.mdns.UnannounceMdnsEntry()
 		h.mdns.UnregisterMdnsSearch(h)
 	}
 }
@@ -228,7 +228,7 @@ func (h *connectionsHub) shutdown() {
 	h.muxCon.Lock()
 	defer h.muxCon.Unlock()
 
-	h.mdns.shutdown()
+	h.mdns.ShutdownMdnsService()
 	for _, c := range h.connections {
 		c.CloseConnection(false, "")
 	}

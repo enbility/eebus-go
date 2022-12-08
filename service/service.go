@@ -152,8 +152,11 @@ func (s *EEBUSService) Setup() error {
 	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
 	s.spineLocalDevice.AddEntity(entity)
 
+	// setup mDNS
+	mdns := newMDNS(s.LocalService.SKI(), s.Configuration)
+
 	// Setup connections hub with mDNS and websocket connection handling
-	s.connectionsHub = newConnectionsHub(s, s.spineLocalDevice, s.Configuration, s.LocalService)
+	s.connectionsHub = newConnectionsHub(s, mdns, s.spineLocalDevice, s.Configuration, s.LocalService)
 
 	return nil
 }
