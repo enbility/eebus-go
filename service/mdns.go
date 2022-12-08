@@ -169,6 +169,7 @@ func (m *mdns) Announce() error {
 	serviceName := m.configuration.MdnsServiceName()
 
 	if m.av == nil {
+		logging.Log.Debug("mdns: using zeroconf")
 		// use Zeroconf library if avahi is not available
 		mDNSServer, err := zeroconf.Register(serviceName, shipZeroConfServiceType, shipZeroConfDomain, m.configuration.port, txt, ifaces)
 		if err == nil {
@@ -182,6 +183,8 @@ func (m *mdns) Announce() error {
 	}
 
 	// avahi
+	logging.Log.Debug("mdns: using avahi")
+
 	entryGroup, err := m.av.EntryGroupNew()
 	if err != nil {
 		return err
