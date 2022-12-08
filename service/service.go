@@ -107,12 +107,10 @@ func (s *EEBUSService) Setup() error {
 	//   The originator's unique ID
 	// I assume those two to mean the same.
 	// TODO: clarify
-	s.LocalService = &ServiceDetails{
-		SKI:                ski,
-		ShipID:             sd.Identifier(),
-		deviceType:         sd.deviceType,
-		registerAutoAccept: sd.registerAutoAccept,
-	}
+	s.LocalService = NewServiceDetails(ski)
+	s.LocalService.SetShipID(sd.Identifier())
+	s.LocalService.SetDeviceType(sd.deviceType)
+	s.LocalService.SetRegisterAutoAccept(sd.registerAutoAccept)
 
 	logging.Log.Info("Local SKI: ", ski)
 
@@ -154,13 +152,11 @@ func (s *EEBUSService) Setup() error {
 	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
 	s.spineLocalDevice.AddEntity(entity)
 
-	// Setup connections hub with mDNS and websocket connection handling
-	hub, err := newConnectionsHub(s, s.spineLocalDevice, s.Configuration, s.LocalService)
-	if err != nil {
-		return err
-	}
+	// setup mDNS
+	mdns := newMDNS(s.LocalService.SKI(), s.Configuration)
 
-	s.connectionsHub = hub
+	// Setup connections hub with mDNS and websocket connection handling
+	s.connectionsHub = newConnectionsHub(s, mdns, s.spineLocalDevice, s.Configuration, s.LocalService)
 
 	return nil
 }
@@ -220,7 +216,7 @@ func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spin
 
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
-func (s *EEBUSService) PairRemoteService(service ServiceDetails) {
+func (s *EEBUSService) PairRemoteService(service *ServiceDetails) {
 	s.connectionsHub.PairRemoteService(service)
 }
 

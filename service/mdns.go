@@ -29,8 +29,19 @@ type MdnsEntry struct {
 	Addresses  []net.IP // mandatory
 }
 
+// implemented by hubConnection, used by mdns
 type MdnsSearch interface {
 	ReportMdnsEntries(entries map[string]MdnsEntry)
+}
+
+// implemented by mdns, used by hubConnection
+type MdnsService interface {
+	SetupMdnsService() error
+	ShutdownMdnsService()
+	AnnounceMdnsEntry() error
+	UnannounceMdnsEntry()
+	RegisterMdnsSearch(cb MdnsSearch)
+	UnregisterMdnsSearch(cb MdnsSearch)
 }
 
 type mdns struct {
@@ -58,7 +69,7 @@ type mdns struct {
 	mux sync.Mutex
 }
 
-func newMDNS(ski string, configuration *Configuration) (*mdns, error) {
+func newMDNS(ski string, configuration *Configuration) *mdns {
 	m := &mdns{
 		ski:           ski,
 		configuration: configuration,
@@ -66,13 +77,20 @@ func newMDNS(ski string, configuration *Configuration) (*mdns, error) {
 		cancelChan:    make(chan bool),
 	}
 
+	return m
+}
+
+var _ MdnsService = (*mdns)(nil)
+
+func (m *mdns) SetupMdnsService() error {
+
 	if av, err := m.setupAvahi(); err == nil {
 		m.av = av
 	}
 
 	// on startup always start mDNS announcement
-	if err := m.Announce(); err != nil {
-		return nil, err
+	if err := m.AnnounceMdnsEntry(); err != nil {
+		return err
 	}
 
 	// catch signals
@@ -82,10 +100,10 @@ func newMDNS(ski string, configuration *Configuration) (*mdns, error) {
 
 		<-signalC // wait for signal
 
-		m.Unannounce()
+		m.UnannounceMdnsEntry()
 	}()
 
-	return m, nil
+	return nil
 }
 
 // setup avahi for mDNS
@@ -136,7 +154,7 @@ func (m *mdns) interfaces() ([]net.Interface, []int32, error) {
 // Announces the service to the network via mDNS
 // A CEM service should always invoke this on startup
 // Any other service should only invoke this whenever it is not connected to a CEM service
-func (m *mdns) Announce() error {
+func (m *mdns) AnnounceMdnsEntry() error {
 	if m.isAnnounced {
 		return nil
 	}
@@ -164,6 +182,7 @@ func (m *mdns) Announce() error {
 	serviceName := m.configuration.MdnsServiceName()
 
 	if m.av == nil {
+		logging.Log.Debug("mdns: using zeroconf")
 		// use Zeroconf library if avahi is not available
 		mDNSServer, err := zeroconf.Register(serviceName, shipZeroConfServiceType, shipZeroConfDomain, m.configuration.port, txt, ifaces)
 		if err == nil {
@@ -177,6 +196,8 @@ func (m *mdns) Announce() error {
 	}
 
 	// avahi
+	logging.Log.Debug("mdns: using avahi")
+
 	entryGroup, err := m.av.EntryGroupNew()
 	if err != nil {
 		return err
@@ -206,7 +227,7 @@ func (m *mdns) Announce() error {
 }
 
 // Stop the mDNS announcement on the network
-func (m *mdns) Unannounce() {
+func (m *mdns) UnannounceMdnsEntry() {
 	if !m.isAnnounced {
 		return
 	}
@@ -225,8 +246,8 @@ func (m *mdns) Unannounce() {
 }
 
 // Shutdown all of mDNS
-func (m *mdns) shutdown() {
-	m.Unannounce()
+func (m *mdns) ShutdownMdnsService() {
+	m.UnannounceMdnsEntry()
 
 	if m.av != nil {
 		m.av.Close()

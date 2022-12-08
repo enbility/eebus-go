@@ -15,8 +15,8 @@ const (
 )
 
 type TimeTableDataType struct {
-	TimeTableId           *TimeTableIdType             `json:"timeTableId,omitempty"`
-	TimeSlotId            *TimeSlotIdType              `json:"timeSlotId,omitempty"`
+	TimeTableId           *TimeTableIdType             `json:"timeTableId,omitempty" eebus:"key"`
+	TimeSlotId            *TimeSlotIdType              `json:"timeSlotId,omitempty" eebus:"key"`
 	RecurrenceInformation *RecurrenceInformationType   `json:"recurrenceInformation,omitempty"`
 	StartTime             *AbsoluteOrRecurringTimeType `json:"startTime,omitempty"`
 	EndTime               *AbsoluteOrRecurringTimeType `json:"endTime,omitempty"`
@@ -40,7 +40,7 @@ type TimeTableListDataSelectorsType struct {
 }
 
 type TimeTableConstraintsDataType struct {
-	TimeTableId          *uint              `json:"timeTableId,omitempty"`
+	TimeTableId          *TimeTableIdType   `json:"timeTableId,omitempty" eebus:"key"`
 	SlotCountMin         *TimeSlotCountType `json:"slotCountMin,omitempty"`
 	SlotCountMax         *TimeSlotCountType `json:"slotCountMax,omitempty"`
 	SlotDurationMin      *DurationType      `json:"slotDurationMin,omitempty"`
@@ -70,7 +70,7 @@ type TimeTableConstraintsListDataSelectorsType struct {
 }
 
 type TimeTableDescriptionDataType struct {
-	TimeTableId             *uint                 `json:"timeTableId,omitempty"`
+	TimeTableId             *TimeTableIdType      `json:"timeTableId,omitempty" eebus:"key"`
 	TimeSlotCountChangeable *bool                 `json:"timeSlotCountChangeable,omitempty"`
 	TimeSlotTimesChangeable *bool                 `json:"timeSlotTimesChangeable,omitempty"`
 	TimeSlotTimeMode        *TimeSlotTimeModeType `json:"timeSlotTimeMode,omitempty"`

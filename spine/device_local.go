@@ -11,6 +11,12 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
+// implemented by spine.DeviceLocalImpl and used by shipConnection
+type DeviceLocalConnection interface {
+	RemoveRemoteDeviceConnection(ski string)
+	AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing
+}
+
 type DeviceLocalImpl struct {
 	*DeviceImpl
 	entities            []*EntityLocalImpl
@@ -56,6 +62,23 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 	return res
 }
 
+var _ DeviceLocalConnection = (*DeviceLocalImpl)(nil)
+
+func (r *DeviceLocalImpl) RemoveRemoteDeviceConnection(ski string) {
+	remoteDevice := r.RemoteDeviceForSki(ski)
+
+	r.RemoveRemoteDevice(ski)
+
+	// inform about the disconnection
+	payload := EventPayload{
+		Ski:        ski,
+		EventType:  EventTypeDeviceChange,
+		ChangeType: ElementChangeRemove,
+		Device:     remoteDevice,
+	}
+	Events.Publish(payload)
+}
+
 func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
 	rDevice := NewDeviceRemoteImpl(r, ski, writeI)
 
@@ -69,6 +92,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 	// TODO: Add error handling
 	// If the request returned an error, it should be retried until it does not
 
+	// always add subscription, as it checks if it already exists
 	Events.Subscribe(r)
 
 	return rDevice
@@ -77,14 +101,32 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 // React to some specific events
 func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	// Subscribe to NodeManagment after DetailedDiscovery is received
-	if payload.EventType == EventTypeDeviceChange && payload.ChangeType == ElementChangeAdd && payload.Data != nil {
-		switch payload.Data.(type) {
-		case *model.NodeManagementDetailedDiscoveryDataType:
-			_, _ = r.nodeManagement.Subscribe(payload.Feature.Device(), payload.Feature.Address())
+	if payload.EventType != EventTypeDeviceChange {
+		return
+	}
 
-			// Request Use Case Data
-			_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.ski, payload.Device.Address(), payload.Device.Sender())
-		}
+	if payload.ChangeType != ElementChangeAdd {
+		return
+	}
+
+	if payload.Data == nil {
+		return
+	}
+
+	if len(payload.Ski) == 0 {
+		return
+	}
+
+	if r.RemoteDeviceForSki(payload.Ski) == nil {
+		return
+	}
+
+	switch payload.Data.(type) {
+	case *model.NodeManagementDetailedDiscoveryDataType:
+		_, _ = r.nodeManagement.Subscribe(payload.Feature.Device(), payload.Feature.Address())
+
+		// Request Use Case Data
+		_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.ski, payload.Device.Address(), payload.Device.Sender())
 	}
 }
 
@@ -96,9 +138,13 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 		return
 	}
 
-	Events.Unsubscribe(r)
 	r.remoteDevices[ski].CloseConnection()
 	delete(r.remoteDevices, ski)
+
+	// only unsubscribe if we don't have any remote devices left
+	if len(r.remoteDevices) == 0 {
+		Events.Unsubscribe(r)
+	}
 }
 
 func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {

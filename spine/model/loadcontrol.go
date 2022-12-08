@@ -1,6 +1,6 @@
 package model
 
-type LoadControlEventIdType string
+type LoadControlEventIdType uint
 
 type LoadControlEventActionType string
 
@@ -51,7 +51,7 @@ type LoadControlNodeDataElementsType struct {
 
 type LoadControlEventDataType struct {
 	Timestamp          *string                     `json:"timestamp,omitempty"`
-	EventId            *LoadControlEventIdType     `json:"eventId,omitempty"`
+	EventId            *LoadControlEventIdType     `json:"eventId,omitempty" eebus:"key"`
 	EventActionConsume *LoadControlEventActionType `json:"eventActionConsume,omitempty"`
 	EventActionProduce *LoadControlEventActionType `json:"eventActionProduce,omitempty"`
 	TimePeriod         *TimePeriodType             `json:"timePeriod,omitempty"`
@@ -76,7 +76,7 @@ type LoadControlEventListDataSelectorsType struct {
 
 type LoadControlStateDataType struct {
 	Timestamp                 *string                     `json:"timestamp"`
-	EventId                   *LoadControlEventIdType     `json:"eventId,omitempty"`
+	EventId                   *LoadControlEventIdType     `json:"eventId,omitempty" eebus:"key"`
 	EventStateConsume         *LoadControlEventStateType  `json:"eventStateConsume"`
 	AppliedEventActionConsume *LoadControlEventActionType `json:"appliedEventActionConsume"`
 	EventStateProduce         *LoadControlEventStateType  `json:"eventStateProduce"`

@@ -18,7 +18,7 @@ const (
 )
 
 type ThresholdDataType struct {
-	ThresholdId    *ThresholdIdType  `json:"thresholdId,omitempty"`
+	ThresholdId    *ThresholdIdType  `json:"thresholdId,omitempty" eebus:"key"`
 	ThresholdValue *ScaledNumberType `json:"thresholdValue,omitempty"`
 }
 
@@ -36,7 +36,7 @@ type ThresholdListDataSelectorsType struct {
 }
 
 type ThresholdConstraintsDataType struct {
-	ThresholdId       *ThresholdIdType  `json:"thresholdId,omitempty"`
+	ThresholdId       *ThresholdIdType  `json:"thresholdId,omitempty" eebus:"key"`
 	ThresholdRangeMin *ScaledNumberType `json:"thresholdRangeMin,omitempty"`
 	ThresholdRangeMax *ScaledNumberType `json:"thresholdRangeMax,omitempty"`
 	ThresholdStepSize *ScaledNumberType `json:"thresholdStepSize,omitempty"`

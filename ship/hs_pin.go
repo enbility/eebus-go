@@ -38,7 +38,7 @@ func (c *ShipConnection) handshakePin_smePinStateCheckListen(message []byte) {
 	switch connectionPinState.ConnectionPinState.PinState {
 	case model.PinStateTypeNone:
 		c.setState(smePinStateCheckOk)
-		c.handshakeAccessMethods_Init()
+		c.handleState(false, nil)
 	case model.PinStateTypeRequired:
 		c.endHandshakeWithError(errors.New("Got pin state: required (unsupported)"))
 	case model.PinStateTypeOptional:

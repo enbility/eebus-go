@@ -61,17 +61,17 @@ type ShipConnection struct {
 	lastReceivedWaitingValue time.Duration // required for Prolong-Request-Reply-Timer
 
 	// the SPINE local device
-	spineLocalDevice *spine.DeviceLocalImpl
+	deviceLocalCon spine.DeviceLocalConnection
 
 	shutdownOnce sync.Once
 
 	mux sync.Mutex
 }
 
-func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, spineLocalDevice *spine.DeviceLocalImpl, role shipRole, localShipID, remoteSki, remoteShipId string) *ShipConnection {
+func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, deviceLocalCon spine.DeviceLocalConnection, role shipRole, localShipID, remoteSki, remoteShipId string) *ShipConnection {
 	ship := &ShipConnection{
 		serviceDataProvider: dataProvider,
-		spineLocalDevice:    spineLocalDevice,
+		deviceLocalCon:      deviceLocalCon,
 		role:                role,
 		localShipID:         localShipID,
 		RemoteSKI:           remoteSki,
@@ -92,19 +92,9 @@ func (c *ShipConnection) Run() {
 	c.handleShipMessage(false, nil)
 }
 
+// report removing a connection
 func (c *ShipConnection) removeRemoteDeviceConnection() {
-	remoteDevice := c.spineLocalDevice.RemoteDeviceForSki(c.RemoteSKI)
-
-	c.spineLocalDevice.RemoveRemoteDevice(c.RemoteSKI)
-
-	// inform about the disconnection
-	payload := spine.EventPayload{
-		Ski:        c.RemoteSKI,
-		EventType:  spine.EventTypeDeviceChange,
-		ChangeType: spine.ElementChangeRemove,
-		Device:     remoteDevice,
-	}
-	spine.Events.Publish(payload)
+	c.deviceLocalCon.RemoveRemoteDeviceConnection(c.RemoteSKI)
 }
 
 // close this ship connection

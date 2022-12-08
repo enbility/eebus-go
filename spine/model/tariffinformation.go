@@ -250,7 +250,7 @@ type CommodityListDataSelectorsType struct {
 type TierDataType struct {
 	TierId            *TierIdType       `json:"tierId,omitempty" eebus:"key"`
 	TimePeriod        *TimePeriodType   `json:"timePeriod,omitempty"`
-	TimeTableId       *TimeTableIdType  `json:"timeTableId,omitempty"`
+	TimeTableId       *TimeTableIdType  `json:"timeTableId,omitempty" eebus:"key"`
 	ActiveIncentiveId []IncentiveIdType `json:"activeIncentiveId,omitempty"`
 }
 

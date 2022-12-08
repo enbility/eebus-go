@@ -1,7 +1,7 @@
 package model
 
 type OperatingConstraintsInterruptDataType struct {
-	SequenceId                  *PowerSequenceIdType `json:"sequenceId,omitempty"`
+	SequenceId                  *PowerSequenceIdType `json:"sequenceId,omitempty" eebus:"key"`
 	IsPausable                  *bool                `json:"isPausable,omitempty"`
 	IsStoppable                 *bool                `json:"isStoppable,omitempty"`
 	NotInterruptibleAtHighPower *bool                `json:"notInterruptibleAtHighPower,omitempty"`

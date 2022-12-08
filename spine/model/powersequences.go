@@ -88,7 +88,7 @@ type PowerTimeSlotValueDataElementsType struct {
 }
 
 type PowerTimeSlotValueListDataType struct {
-	PowerTimeSlotValueListDataType []PowerTimeSlotValueDataType `json:"powerTimeSlotValueListData,omitempty"`
+	PowerTimeSlotValueData []PowerTimeSlotValueDataType `json:"powerTimeSlotValueListData,omitempty"`
 }
 
 type PowerTimeSlotValueListDataSelectorsType struct {
