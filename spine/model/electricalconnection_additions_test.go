@@ -9,6 +9,44 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestElectricalConnectionStateListDataType_Update(t *testing.T) {
+	sut := model.ElectricalConnectionStateListDataType{
+		ElectricalConnectionStateData: []model.ElectricalConnectionStateDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				CurrentEnergyMode:      util.Ptr(model.EnergyModeTypeProduce),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
+				CurrentEnergyMode:      util.Ptr(model.EnergyModeTypeProduce),
+			},
+		},
+	}
+
+	newData := model.ElectricalConnectionStateListDataType{
+		ElectricalConnectionStateData: []model.ElectricalConnectionStateDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
+				CurrentEnergyMode:      util.Ptr(model.EnergyModeTypeConsume),
+			},
+		},
+	}
+
+	// Act
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+
+	data := sut.ElectricalConnectionStateData
+	// check the non changing items
+	assert.Equal(t, 2, len(data))
+	item1 := data[0]
+	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, model.EnergyModeTypeProduce, *item1.CurrentEnergyMode)
+	// check properties of updated item
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.ElectricalConnectionId))
+	assert.Equal(t, model.EnergyModeTypeConsume, *item2.CurrentEnergyMode)
+}
+
 // verifies that a subset of existing items will be updated with identified new values
 func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify(t *testing.T) {
 	existingDataJson := `{
@@ -133,14 +171,15 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify(t *test
 	// Act
 	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// check the non changing items
-	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
-	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	assert.Equal(t, 4, len(data))
+	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
 	assert.Equal(t, 0, int(*item1.ParameterId))
 	assert.Equal(t, 1, len(item1.PermittedValueSet))
 	// check properties of updated item
-	item2 := sut.ElectricalConnectionPermittedValueSetData[1]
+	item2 := data[1]
 	assert.Equal(t, 0, int(*item2.ElectricalConnectionId))
 	assert.Equal(t, 1, int(*item2.ParameterId))
 	assert.Equal(t, 1, len(item2.PermittedValueSet))
@@ -255,13 +294,14 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify_Selecto
 	// Act
 	sut.UpdateList(&newData, partial, nil)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// check the non changing items
-	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
-	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	assert.Equal(t, 4, len(data))
+	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
 	assert.Equal(t, 0, int(*item1.ParameterId))
 	assert.Equal(t, 1, len(item1.PermittedValueSet))
-	item3 := sut.ElectricalConnectionPermittedValueSetData[2]
+	item3 := data[2]
 	assert.Equal(t, 0, int(*item3.ElectricalConnectionId))
 	assert.Equal(t, 2, int(*item3.ParameterId))
 	assert.Equal(t, 1, len(item3.PermittedValueSet))
@@ -417,10 +457,11 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Modify(
 	// Act
 	sut.UpdateList(&newData, model.NewFilterTypePartial(), delete)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// check the deleted item is gone
-	assert.Equal(t, 3, len(sut.ElectricalConnectionPermittedValueSetData))
+	assert.Equal(t, 3, len(data))
 	// check properties of updated item
-	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
 	assert.Equal(t, 1, int(*item1.ParameterId))
 	assert.Equal(t, 1, len(item1.PermittedValueSet))
@@ -512,10 +553,11 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete(t *test
 	// Act
 	sut.UpdateList(nil, nil, delete)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// check the deleted item is added again
-	assert.Equal(t, 3, len(sut.ElectricalConnectionPermittedValueSetData))
+	assert.Equal(t, 3, len(data))
 	// check properties of remaining item
-	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
 	assert.Equal(t, 1, int(*item1.ParameterId))
 	assert.Equal(t, 1, len(item1.PermittedValueSet))
@@ -610,17 +652,18 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Element
 	// Act
 	sut.UpdateList(nil, nil, delete)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// check no items are deleted
-	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
+	assert.Equal(t, 4, len(data))
 	// check permitted value is removed from item with ID 0
-	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
 	assert.Equal(t, 0, int(*item1.ParameterId))
 	var nilValue []model.ScaledNumberSetType
 	assert.Equal(t, nilValue, item1.PermittedValueSet)
 
 	// check properties of remaining item
-	item2 := sut.ElectricalConnectionPermittedValueSetData[1]
+	item2 := data[1]
 	assert.Equal(t, 0, int(*item2.ElectricalConnectionId))
 	assert.Equal(t, 1, int(*item2.ParameterId))
 	assert.Equal(t, 1, len(item2.PermittedValueSet))
@@ -778,14 +821,15 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Add(t *
 	// Act
 	sut.UpdateList(&newData, model.NewFilterTypePartial(), delete)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// check the deleted item is added again
-	assert.Equal(t, 4, len(sut.ElectricalConnectionPermittedValueSetData))
-	item1 := sut.ElectricalConnectionPermittedValueSetData[0]
+	assert.Equal(t, 4, len(data))
+	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
 	assert.Equal(t, 0, int(*item1.ParameterId))
 	assert.Equal(t, 1, len(item1.PermittedValueSet))
 	// check properties of updated item
-	item2 := sut.ElectricalConnectionPermittedValueSetData[1]
+	item2 := data[1]
 	assert.Equal(t, 0, int(*item2.ElectricalConnectionId))
 	assert.Equal(t, 1, int(*item2.ParameterId))
 	assert.Equal(t, 1, len(item2.PermittedValueSet))
@@ -859,18 +903,18 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_NewItem(t *tes
 	// Act
 	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// new item should be added
-	if assert.Equal(t, 2, len(sut.ElectricalConnectionPermittedValueSetData)) {
-		item1 := sut.ElectricalConnectionPermittedValueSetData[0]
-		assert.Equal(t, 1, int(*item1.ElectricalConnectionId))
-		assert.Equal(t, 1, int(*item1.ParameterId))
-		assert.Equal(t, 1, len(item1.PermittedValueSet))
-		// check properties of added item
-		item2 := sut.ElectricalConnectionPermittedValueSetData[1]
-		assert.Equal(t, 1, int(*item2.ElectricalConnectionId))
-		assert.Equal(t, 2, int(*item2.ParameterId))
-		assert.Equal(t, 2, len(item2.PermittedValueSet))
-	}
+	assert.Equal(t, 2, len(data))
+	item1 := data[0]
+	assert.Equal(t, 1, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, 1, int(*item1.ParameterId))
+	assert.Equal(t, 1, len(item1.PermittedValueSet))
+	// check properties of added item
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.ElectricalConnectionId))
+	assert.Equal(t, 2, int(*item2.ParameterId))
+	assert.Equal(t, 2, len(item2.PermittedValueSet))
 }
 
 // verifies that an item in the payload which has no identifiers will be copied to all existing data
@@ -941,34 +985,112 @@ func TestElectricalConnectionPermittedValueSetListDataType_UpdateWithoutIdenifie
 	// Act
 	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
 
+	data := sut.ElectricalConnectionPermittedValueSetData
 	// the new item should not be added
-	if assert.Equal(t, 2, len(sut.ElectricalConnectionPermittedValueSetData)) {
-		item1 := sut.ElectricalConnectionPermittedValueSetData[0]
-		assert.Equal(t, 1, int(*item1.ElectricalConnectionId))
-		assert.Equal(t, 1, int(*item1.ParameterId))
-		if assert.Equal(t, 1, len(item1.PermittedValueSet)) {
-			valueSet := item1.PermittedValueSet[0]
-			if assert.Equal(t, 1, len(valueSet.Range)) {
-				// the values of the item in the payload should be copied to the first item
-				assert.Equal(t, 30, int(*valueSet.Range[0].Min.Number))
-				assert.Equal(t, 0, int(*valueSet.Range[0].Min.Scale))
-				assert.Equal(t, 36, int(*valueSet.Range[0].Max.Number))
-				assert.Equal(t, 0, int(*valueSet.Range[0].Max.Scale))
-			}
-		}
+	assert.Equal(t, 2, len(data))
+	item1 := data[0]
+	assert.Equal(t, 1, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, 1, int(*item1.ParameterId))
+	assert.Equal(t, 1, len(item1.PermittedValueSet))
+	valueSet := item1.PermittedValueSet[0]
+	assert.Equal(t, 1, len(valueSet.Range))
+	// the values of the item in the payload should be copied to the first item
+	assert.Equal(t, 30, int(*valueSet.Range[0].Min.Number))
+	assert.Equal(t, 0, int(*valueSet.Range[0].Min.Scale))
+	assert.Equal(t, 36, int(*valueSet.Range[0].Max.Number))
+	assert.Equal(t, 0, int(*valueSet.Range[0].Max.Scale))
 
-		item2 := sut.ElectricalConnectionPermittedValueSetData[1]
-		assert.Equal(t, 1, int(*item2.ElectricalConnectionId))
-		assert.Equal(t, 2, int(*item2.ParameterId))
-		if assert.Equal(t, 1, len(item2.PermittedValueSet)) {
-			valueSet := item2.PermittedValueSet[0]
-			if assert.Equal(t, 1, len(valueSet.Range)) {
-				// the values of the item in the payload should be also copied to the second item
-				assert.Equal(t, 30, int(*valueSet.Range[0].Min.Number))
-				assert.Equal(t, 0, int(*valueSet.Range[0].Min.Scale))
-				assert.Equal(t, 36, int(*valueSet.Range[0].Max.Number))
-				assert.Equal(t, 0, int(*valueSet.Range[0].Max.Scale))
-			}
-		}
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.ElectricalConnectionId))
+	assert.Equal(t, 2, int(*item2.ParameterId))
+	assert.Equal(t, 1, len(item2.PermittedValueSet))
+	valueSet = item2.PermittedValueSet[0]
+	assert.Equal(t, 1, len(valueSet.Range))
+	// the values of the item in the payload should be also copied to the second item
+	assert.Equal(t, 30, int(*valueSet.Range[0].Min.Number))
+	assert.Equal(t, 0, int(*valueSet.Range[0].Min.Scale))
+	assert.Equal(t, 36, int(*valueSet.Range[0].Max.Number))
+	assert.Equal(t, 0, int(*valueSet.Range[0].Max.Scale))
+}
+
+func TestElectricalConnectionDescriptionListDataType_Update(t *testing.T) {
+	sut := model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				PowerSupplyType:        util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
+				PowerSupplyType:        util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			},
+		},
 	}
+
+	newData := model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
+				PowerSupplyType:        util.Ptr(model.ElectricalConnectionVoltageTypeTypeDc),
+			},
+		},
+	}
+
+	// Act
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+
+	data := sut.ElectricalConnectionDescriptionData
+	// check the non changing items
+	assert.Equal(t, 2, len(data))
+	item1 := data[0]
+	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, model.ElectricalConnectionVoltageTypeTypeAc, *item1.PowerSupplyType)
+	// check properties of updated item
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.ElectricalConnectionId))
+	assert.Equal(t, model.ElectricalConnectionVoltageTypeTypeDc, *item2.PowerSupplyType)
+}
+
+func TestElectricalConnectionParameterDescriptionListDataType_Update(t *testing.T) {
+	sut := model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			},
+		},
+	}
+
+	newData := model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeDc),
+			},
+		},
+	}
+
+	// Act
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+
+	data := sut.ElectricalConnectionParameterDescriptionData
+	// check the non changing items
+	assert.Equal(t, 2, len(data))
+	item1 := data[0]
+	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, model.ElectricalConnectionVoltageTypeTypeAc, *item1.VoltageType)
+	// check properties of updated item
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.ElectricalConnectionId))
+	assert.Equal(t, model.ElectricalConnectionVoltageTypeTypeDc, *item2.VoltageType)
 }

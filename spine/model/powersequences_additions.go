@@ -20,10 +20,10 @@ var _ Updater = (*PowerTimeSlotValueListDataType)(nil)
 func (r *PowerTimeSlotValueListDataType) UpdateList(newList any, filterPartial, filterDelete *FilterType) {
 	var newData []PowerTimeSlotValueDataType
 	if newList != nil {
-		newData = newList.(*PowerTimeSlotValueListDataType).PowerTimeSlotValueListDataType
+		newData = newList.(*PowerTimeSlotValueListDataType).PowerTimeSlotValueData
 	}
 
-	r.PowerTimeSlotValueListDataType = UpdateList(r.PowerTimeSlotValueListDataType, newData, filterPartial, filterDelete)
+	r.PowerTimeSlotValueData = UpdateList(r.PowerTimeSlotValueData, newData, filterPartial, filterDelete)
 }
 
 // PowerTimeSlotScheduleConstraintsListDataType
