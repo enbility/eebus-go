@@ -157,13 +157,16 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 		c.setState(smePinStateCheckInit)
 		c.handleState(false, nil)
 
-		// smePinState
+	// smePinState
 
 	case smePinStateCheckInit:
 		c.handshakePin_Init()
 
 	case smePinStateCheckListen:
 		c.handshakePin_smePinStateCheckListen(message)
+
+	case smePinStateCheckOk:
+		c.handshakeAccessMethods_Init()
 
 	// smeAccessMethods
 
