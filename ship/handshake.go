@@ -175,7 +175,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 // SHIP handshake is approved, now set the new state and the SPINE read handler
 func (c *ShipConnection) approveHandshake() {
 	// Report to SPINE local device about this remote device connection
-	c.spineDataProcessing = c.spineLocalDevice.AddRemoteDevice(c.RemoteSKI, c)
+	c.spineDataProcessing = c.deviceLocalCon.AddRemoteDevice(c.RemoteSKI, c)
 	c.stopHandshakeTimer()
 	c.setState(smeComplete)
 }

@@ -11,6 +11,12 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
+// implemented by spine.DeviceLocalImpl and used by shipConnection
+type DeviceLocalConnection interface {
+	RemoveRemoteDeviceConnection(ski string)
+	AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing
+}
+
 type DeviceLocalImpl struct {
 	*DeviceImpl
 	entities            []*EntityLocalImpl
@@ -54,6 +60,23 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 
 	res.addDeviceInformation()
 	return res
+}
+
+var _ DeviceLocalConnection = (*DeviceLocalImpl)(nil)
+
+func (r *DeviceLocalImpl) RemoveRemoteDeviceConnection(ski string) {
+	remoteDevice := r.RemoteDeviceForSki(ski)
+
+	r.RemoveRemoteDevice(ski)
+
+	// inform about the disconnection
+	payload := EventPayload{
+		Ski:        ski,
+		EventType:  EventTypeDeviceChange,
+		ChangeType: ElementChangeRemove,
+		Device:     remoteDevice,
+	}
+	Events.Publish(payload)
 }
 
 func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
