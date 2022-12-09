@@ -12,6 +12,69 @@ func TestFunctionDataFactory_FunctionData(t *testing.T) {
 	assert.Equal(t, 2, len(result))
 	assert.IsType(t, &FunctionDataImpl[model.DeviceClassificationManufacturerDataType]{}, result[0])
 	assert.IsType(t, &FunctionDataImpl[model.DeviceClassificationUserDataType]{}, result[1])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeDeviceDiagnosis)
+	assert.Equal(t, 2, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.DeviceDiagnosisStateDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.DeviceDiagnosisHeartbeatDataType]{}, result[1])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeMeasurement)
+	assert.Equal(t, 5, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.MeasurementDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.MeasurementDescriptionDataType]{}, result[1])
+	assert.IsType(t, &FunctionDataImpl[model.MeasurementDescriptionListDataType]{}, result[2])
+	assert.IsType(t, &FunctionDataImpl[model.MeasurementConstraintsListDataType]{}, result[3])
+	assert.IsType(t, &FunctionDataImpl[model.MeasurementListDataType]{}, result[4])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeDeviceConfiguration)
+	assert.Equal(t, 2, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.DeviceConfigurationKeyValueDescriptionListDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.DeviceConfigurationKeyValueListDataType]{}, result[1])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeLoadControl)
+	assert.Equal(t, 3, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.LoadControlLimitConstraintsListDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.LoadControlLimitDescriptionListDataType]{}, result[1])
+	assert.IsType(t, &FunctionDataImpl[model.LoadControlLimitListDataType]{}, result[2])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeIdentification)
+	assert.Equal(t, 1, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.IdentificationListDataType]{}, result[0])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeElectricalConnection)
+	assert.Equal(t, 3, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.ElectricalConnectionDescriptionListDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.ElectricalConnectionParameterDescriptionListDataType]{}, result[1])
+	assert.IsType(t, &FunctionDataImpl[model.ElectricalConnectionPermittedValueSetListDataType]{}, result[2])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeTimeSeries)
+	assert.Equal(t, 3, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.TimeSeriesDescriptionListDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.TimeSeriesConstraintsListDataType]{}, result[1])
+	assert.IsType(t, &FunctionDataImpl[model.TimeSeriesListDataType]{}, result[2])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeIncentiveTable)
+	assert.Equal(t, 3, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.IncentiveTableDescriptionDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.IncentiveTableConstraintsDataType]{}, result[1])
+	assert.IsType(t, &FunctionDataImpl[model.IncentiveTableDataType]{}, result[2])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeBill)
+	assert.Equal(t, 3, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.BillDescriptionListDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.BillConstraintsListDataType]{}, result[1])
+	assert.IsType(t, &FunctionDataImpl[model.BillListDataType]{}, result[2])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeHvac)
+	assert.Equal(t, 4, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.HvacOverrunDescriptionListDataType]{}, result[0])
+	assert.IsType(t, &FunctionDataImpl[model.HvacOverrunListDataType]{}, result[1])
+	assert.IsType(t, &FunctionDataImpl[model.HvacSystemFunctionDataType]{}, result[2])
+	assert.IsType(t, &FunctionDataImpl[model.HvacSystemFunctionDescriptionDataType]{}, result[3])
+
+	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeGeneric)
+	assert.Equal(t, 1, len(result))
+	assert.IsType(t, &FunctionDataImpl[model.DeviceDiagnosisHeartbeatDataType]{}, result[0])
 }
 
 func TestFunctionDataFactory_FunctionDataCmd(t *testing.T) {
