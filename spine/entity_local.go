@@ -58,6 +58,9 @@ func (r *EntityLocalImpl) Features() []FeatureLocal {
 }
 
 func (r *EntityLocalImpl) Feature(addressFeature *model.AddressFeatureType) FeatureLocal {
+	if addressFeature == nil {
+		return nil
+	}
 	for _, f := range r.features {
 		if *f.Address().Feature == *addressFeature {
 			return f
