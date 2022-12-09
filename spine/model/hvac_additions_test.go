@@ -12,16 +12,12 @@ func TestHvacSystemFunctionListDataType_Update(t *testing.T) {
 	sut := model.HvacSystemFunctionListDataType{
 		HvacSystemFunctionData: []model.HvacSystemFunctionDataType{
 			{
-				SystemFunctionId:       util.Ptr(model.HvacSystemFunctionIdType(0)),
-				CurrentOperationModeId: util.Ptr(model.HvacOperationModeIdType(0)),
-				CurrentSetpointId:      util.Ptr(model.SetpointIdType(0)),
-				IsOverrunActive:        util.Ptr(false),
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
+				IsOverrunActive:  util.Ptr(false),
 			},
 			{
-				SystemFunctionId:       util.Ptr(model.HvacSystemFunctionIdType(1)),
-				CurrentOperationModeId: util.Ptr(model.HvacOperationModeIdType(0)),
-				CurrentSetpointId:      util.Ptr(model.SetpointIdType(0)),
-				IsOverrunActive:        util.Ptr(false),
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				IsOverrunActive:  util.Ptr(false),
 			},
 		},
 	}
@@ -29,10 +25,8 @@ func TestHvacSystemFunctionListDataType_Update(t *testing.T) {
 	newData := model.HvacSystemFunctionListDataType{
 		HvacSystemFunctionData: []model.HvacSystemFunctionDataType{
 			{
-				SystemFunctionId:       util.Ptr(model.HvacSystemFunctionIdType(1)),
-				CurrentOperationModeId: util.Ptr(model.HvacOperationModeIdType(0)),
-				CurrentSetpointId:      util.Ptr(model.SetpointIdType(0)),
-				IsOverrunActive:        util.Ptr(true),
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				IsOverrunActive:  util.Ptr(true),
 			},
 		},
 	}
@@ -171,12 +165,10 @@ func TestHvacOverrunListDataType_Update(t *testing.T) {
 		HvacOverrunData: []model.HvacOverrunDataType{
 			{
 				OverrunId:                 util.Ptr(model.HvacOverrunIdType(0)),
-				TimeTableId:               util.Ptr(model.TimeTableIdType(0)),
 				IsOverrunStatusChangeable: util.Ptr(false),
 			},
 			{
 				OverrunId:                 util.Ptr(model.HvacOverrunIdType(1)),
-				TimeTableId:               util.Ptr(model.TimeTableIdType(0)),
 				IsOverrunStatusChangeable: util.Ptr(false),
 			},
 		},
@@ -186,7 +178,6 @@ func TestHvacOverrunListDataType_Update(t *testing.T) {
 		HvacOverrunData: []model.HvacOverrunDataType{
 			{
 				OverrunId:                 util.Ptr(model.HvacOverrunIdType(1)),
-				TimeTableId:               util.Ptr(model.TimeTableIdType(0)),
 				IsOverrunStatusChangeable: util.Ptr(true),
 			},
 		},

@@ -12,3 +12,16 @@ func (r *SetpointListDataType) UpdateList(newList any, filterPartial, filterDele
 
 	r.SetpointData = UpdateList(r.SetpointData, newData, filterPartial, filterDelete)
 }
+
+// SetpointDescriptionListDataType
+
+var _ Updater = (*SetpointDescriptionListDataType)(nil)
+
+func (r *SetpointDescriptionListDataType) UpdateList(newList any, filterPartial, filterDelete *FilterType) {
+	var newData []SetpointDescriptionDataType
+	if newList != nil {
+		newData = newList.(*SetpointDescriptionListDataType).SetpointDescriptionData
+	}
+
+	r.SetpointDescriptionData = UpdateList(r.SetpointDescriptionData, newData, filterPartial, filterDelete)
+}

@@ -126,16 +126,12 @@ func TestTariffDescriptionListDataType_Update(t *testing.T) {
 	sut := model.TariffDescriptionListDataType{
 		TariffDescriptionData: []model.TariffDescriptionDataType{
 			{
-				TariffId:      util.Ptr(model.TariffIdType(0)),
-				CommodityId:   util.Ptr(model.CommodityIdType(0)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				Description:   util.Ptr(model.DescriptionType("old")),
+				TariffId:    util.Ptr(model.TariffIdType(0)),
+				Description: util.Ptr(model.DescriptionType("old")),
 			},
 			{
-				TariffId:      util.Ptr(model.TariffIdType(1)),
-				CommodityId:   util.Ptr(model.CommodityIdType(0)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				Description:   util.Ptr(model.DescriptionType("old")),
+				TariffId:    util.Ptr(model.TariffIdType(1)),
+				Description: util.Ptr(model.DescriptionType("old")),
 			},
 		},
 	}
@@ -143,10 +139,8 @@ func TestTariffDescriptionListDataType_Update(t *testing.T) {
 	newData := model.TariffDescriptionListDataType{
 		TariffDescriptionData: []model.TariffDescriptionDataType{
 			{
-				TariffId:      util.Ptr(model.TariffIdType(1)),
-				CommodityId:   util.Ptr(model.CommodityIdType(0)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				Description:   util.Ptr(model.DescriptionType("new")),
+				TariffId:    util.Ptr(model.TariffIdType(1)),
+				Description: util.Ptr(model.DescriptionType("new")),
 			},
 		},
 	}
@@ -171,12 +165,10 @@ func TestTierBoundaryListDataType_Update(t *testing.T) {
 		TierBoundaryData: []model.TierBoundaryDataType{
 			{
 				BoundaryId:         util.Ptr(model.TierBoundaryIdType(0)),
-				TimeTableId:        util.Ptr(model.TimeTableIdType(0)),
 				LowerBoundaryValue: model.NewScaledNumberType(1),
 			},
 			{
 				BoundaryId:         util.Ptr(model.TierBoundaryIdType(1)),
-				TimeTableId:        util.Ptr(model.TimeTableIdType(0)),
 				LowerBoundaryValue: model.NewScaledNumberType(1),
 			},
 		},
@@ -186,7 +178,6 @@ func TestTierBoundaryListDataType_Update(t *testing.T) {
 		TierBoundaryData: []model.TierBoundaryDataType{
 			{
 				BoundaryId:         util.Ptr(model.TierBoundaryIdType(1)),
-				TimeTableId:        util.Ptr(model.TimeTableIdType(0)),
 				LowerBoundaryValue: model.NewScaledNumberType(10),
 			},
 		},
@@ -211,18 +202,12 @@ func TestTierBoundaryDescriptionListDataType_Update(t *testing.T) {
 	sut := model.TierBoundaryDescriptionListDataType{
 		TierBoundaryDescriptionData: []model.TierBoundaryDescriptionDataType{
 			{
-				BoundaryId:               util.Ptr(model.TierBoundaryIdType(0)),
-				ValidForTierId:           util.Ptr(model.TierIdType(0)),
-				SwitchToTierIdWhenLower:  util.Ptr(model.TierIdType(0)),
-				SwitchToTierIdWhenHigher: util.Ptr(model.TierIdType(0)),
-				Description:              util.Ptr(model.DescriptionType("old")),
+				BoundaryId:  util.Ptr(model.TierBoundaryIdType(0)),
+				Description: util.Ptr(model.DescriptionType("old")),
 			},
 			{
-				BoundaryId:               util.Ptr(model.TierBoundaryIdType(1)),
-				ValidForTierId:           util.Ptr(model.TierIdType(0)),
-				SwitchToTierIdWhenLower:  util.Ptr(model.TierIdType(0)),
-				SwitchToTierIdWhenHigher: util.Ptr(model.TierIdType(0)),
-				Description:              util.Ptr(model.DescriptionType("old")),
+				BoundaryId:  util.Ptr(model.TierBoundaryIdType(1)),
+				Description: util.Ptr(model.DescriptionType("old")),
 			},
 		},
 	}
@@ -230,11 +215,8 @@ func TestTierBoundaryDescriptionListDataType_Update(t *testing.T) {
 	newData := model.TierBoundaryDescriptionListDataType{
 		TierBoundaryDescriptionData: []model.TierBoundaryDescriptionDataType{
 			{
-				BoundaryId:               util.Ptr(model.TierBoundaryIdType(1)),
-				ValidForTierId:           util.Ptr(model.TierIdType(0)),
-				SwitchToTierIdWhenLower:  util.Ptr(model.TierIdType(0)),
-				SwitchToTierIdWhenHigher: util.Ptr(model.TierIdType(0)),
-				Description:              util.Ptr(model.DescriptionType("new")),
+				BoundaryId:  util.Ptr(model.TierBoundaryIdType(1)),
+				Description: util.Ptr(model.DescriptionType("new")),
 			},
 		},
 	}
@@ -297,12 +279,10 @@ func TestTierListDataType_Update(t *testing.T) {
 		TierData: []model.TierDataType{
 			{
 				TierId:            util.Ptr(model.TierIdType(0)),
-				TimeTableId:       util.Ptr(model.TimeTableIdType(0)),
 				ActiveIncentiveId: []model.IncentiveIdType{0},
 			},
 			{
 				TierId:            util.Ptr(model.TierIdType(1)),
-				TimeTableId:       util.Ptr(model.TimeTableIdType(0)),
 				ActiveIncentiveId: []model.IncentiveIdType{0},
 			},
 		},
@@ -312,7 +292,6 @@ func TestTierListDataType_Update(t *testing.T) {
 		TierData: []model.TierDataType{
 			{
 				TierId:            util.Ptr(model.TierIdType(1)),
-				TimeTableId:       util.Ptr(model.TimeTableIdType(0)),
 				ActiveIncentiveId: []model.IncentiveIdType{1},
 			},
 		},

@@ -165,12 +165,10 @@ func TestLoadControlLimitDescriptionListDataType_Update(t *testing.T) {
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
 				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
 			},
 			{
 				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
 			},
 		},
@@ -180,7 +178,6 @@ func TestLoadControlLimitDescriptionListDataType_Update(t *testing.T) {
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
 				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				LimitCategory: util.Ptr(model.LoadControlCategoryTypeOptimization),
 			},
 		},

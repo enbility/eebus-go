@@ -49,123 +49,111 @@ func TestElectricalConnectionStateListDataType_Update(t *testing.T) {
 
 // verifies that a subset of existing items will be updated with identified new values
 func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify(t *testing.T) {
-	existingDataJson := `{
-		"electricalConnectionPermittedValueSetData":[
+	sut := model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{
-				"electricalConnectionId":0,
-				"parameterId":0,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":1,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(1),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":1,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":6,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(6),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":2,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":6,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(6),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":3,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":6,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
-			}
-		]
-	}`
-
-	var sut model.ElectricalConnectionPermittedValueSetListDataType
-	err := json.Unmarshal([]byte(existingDataJson), &sut)
-	if assert.Nil(t, err) == false {
-		return
+								Min: model.NewScaledNumberType(6),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
-	newDataJson := `{
-		"electricalConnectionPermittedValueSetData":[
+	newData := model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{
-				"electricalConnectionId":0,
-				"parameterId":1,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":2,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(2),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":2,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":2,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(2),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":3,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":2,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
-			}
-		]
-	}`
-
-	var newData model.ElectricalConnectionPermittedValueSetListDataType
-	err = json.Unmarshal([]byte(newDataJson), &newData)
-	if assert.Nil(t, err) == false {
-		return
+								Min: model.NewScaledNumberType(2),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	// Act
@@ -1057,7 +1045,6 @@ func TestElectricalConnectionParameterDescriptionListDataType_Update(t *testing.
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
-				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
 				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
 			},
 			{
@@ -1074,7 +1061,6 @@ func TestElectricalConnectionParameterDescriptionListDataType_Update(t *testing.
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
-				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
 				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeDc),
 			},
 		},

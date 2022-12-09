@@ -13,12 +13,10 @@ func TestSupplyConditionListDataType_Update(t *testing.T) {
 		SupplyConditionData: []model.SupplyConditionDataType{
 			{
 				ConditionId: util.Ptr(model.ConditionIdType(0)),
-				ThresholdId: util.Ptr(model.ThresholdIdType(0)),
 				Description: util.Ptr(model.DescriptionType("old")),
 			},
 			{
 				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				ThresholdId: util.Ptr(model.ThresholdIdType(0)),
 				Description: util.Ptr(model.DescriptionType("old")),
 			},
 		},
@@ -28,7 +26,6 @@ func TestSupplyConditionListDataType_Update(t *testing.T) {
 		SupplyConditionData: []model.SupplyConditionDataType{
 			{
 				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				ThresholdId: util.Ptr(model.ThresholdIdType(0)),
 				Description: util.Ptr(model.DescriptionType("new")),
 			},
 		},
