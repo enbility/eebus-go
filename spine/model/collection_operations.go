@@ -5,15 +5,6 @@ import (
 	"reflect"
 )
 
-func FindFirst[T any](s []T, predicate func(i T) bool) *T {
-	for _, item := range s {
-		if predicate(item) {
-			return &item
-		}
-	}
-	return nil
-}
-
 // creates an hash key by using fields that have eebus tag "key"
 func hashKey(data any) string {
 	result := ""
@@ -88,6 +79,16 @@ func ToMap[T any](s []T) map[string]T {
 	return result
 }
 
+/*
+func FindFirst[T any](s []T, predicate func(i T) bool) *T {
+	for _, item := range s {
+		if predicate(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
 func Values[K comparable, V any](m map[K]V) []V {
 	ret := make([]V, 0, len(m))
 	for _, v := range m {
@@ -104,3 +105,4 @@ func CastElements[S any, D any](s []S) []D {
 	}
 	return result
 }
+*/
