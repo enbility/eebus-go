@@ -20,16 +20,30 @@ func hashKey(data any) string {
 	for _, fieldName := range keys {
 		f := v.FieldByName(fieldName)
 
-		if f.IsNil() || !f.IsValid() || f.Elem().Kind() != reflect.Uint {
+		if f.IsNil() || !f.IsValid() {
 			return result
 		}
 
-		value := f.Elem().Uint()
+		switch f.Elem().Kind() {
+		case reflect.String:
+			value := f.Elem().String()
 
-		if len(result) > 0 {
-			result = fmt.Sprintf("%s|", result)
+			if len(result) > 0 {
+				result = fmt.Sprintf("%s|", result)
+			}
+			result = fmt.Sprintf("%s%s", result, value)
+
+		case reflect.Uint:
+			value := f.Elem().Uint()
+
+			if len(result) > 0 {
+				result = fmt.Sprintf("%s|", result)
+			}
+			result = fmt.Sprintf("%s%d", result, value)
+
+		default:
+			return result
 		}
-		result = fmt.Sprintf("%s%d", result, value)
 	}
 
 	return result
