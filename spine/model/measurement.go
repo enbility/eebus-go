@@ -85,7 +85,7 @@ const (
 
 type MeasurementDataType struct {
 	MeasurementId    *MeasurementIdType            `json:"measurementId,omitempty" eebus:"key"`
-	ValueType        *MeasurementValueTypeType     `json:"valueType,omitempty"`
+	ValueType        *MeasurementValueTypeType     `json:"valueType,omitempty" eebus:"key"`
 	Timestamp        *AbsoluteOrRelativeTimeType   `json:"timestamp,omitempty"`
 	Value            *ScaledNumberType             `json:"value,omitempty"`
 	EvaluationPeriod *TimePeriodType               `json:"evaluationPeriod,omitempty"`

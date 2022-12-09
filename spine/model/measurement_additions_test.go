@@ -8,15 +8,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMeasurementListDataType_Update(t *testing.T) {
+func TestMeasurementListDataType_Update_Add(t *testing.T) {
 	sut := model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeAverageValue),
 				Value:         model.NewScaledNumberType(1),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeAverageValue),
 				Value:         model.NewScaledNumberType(1),
 			},
 		},
@@ -26,6 +28,49 @@ func TestMeasurementListDataType_Update(t *testing.T) {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	// Act
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+
+	data := sut.MeasurementData
+	// check the non changing items
+	assert.Equal(t, 3, len(data))
+	item1 := data[0]
+	assert.Equal(t, 0, int(*item1.MeasurementId))
+	assert.Equal(t, model.MeasurementValueTypeTypeAverageValue, *item1.ValueType)
+	assert.Equal(t, 1.0, item1.Value.GetValue())
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.MeasurementId))
+	assert.Equal(t, model.MeasurementValueTypeTypeAverageValue, *item2.ValueType)
+	assert.Equal(t, 1.0, item2.Value.GetValue())
+}
+
+func TestMeasurementListDataType_Update_Replace(t *testing.T) {
+	sut := model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeAverageValue),
+				Value:         model.NewScaledNumberType(1),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(1),
+			},
+		},
+	}
+
+	newData := model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
 			},
 		},
@@ -39,10 +84,12 @@ func TestMeasurementListDataType_Update(t *testing.T) {
 	assert.Equal(t, 2, len(data))
 	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.MeasurementId))
+	assert.Equal(t, model.MeasurementValueTypeTypeAverageValue, *item1.ValueType)
 	assert.Equal(t, 1.0, item1.Value.GetValue())
 	// check properties of updated item
 	item2 := data[1]
 	assert.Equal(t, 1, int(*item2.MeasurementId))
+	assert.Equal(t, model.MeasurementValueTypeTypeValue, *item2.ValueType)
 	assert.Equal(t, 10.0, item2.Value.GetValue())
 }
 
