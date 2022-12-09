@@ -46,6 +46,82 @@ func TestHvacSystemFunctionListDataType_Update(t *testing.T) {
 	assert.Equal(t, true, *item2.IsOverrunActive)
 }
 
+func TestHvacSystemFunctionOperationModeRelationListDataType_Update(t *testing.T) {
+	sut := model.HvacSystemFunctionOperationModeRelationListDataType{
+		HvacSystemFunctionOperationModeRelationData: []model.HvacSystemFunctionOperationModeRelationDataType{
+			{
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
+				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+			},
+			{
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+			},
+		},
+	}
+
+	newData := model.HvacSystemFunctionOperationModeRelationListDataType{
+		HvacSystemFunctionOperationModeRelationData: []model.HvacSystemFunctionOperationModeRelationDataType{
+			{
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(1)),
+			},
+		},
+	}
+
+	// Act
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+
+	data := sut.HvacSystemFunctionOperationModeRelationData
+	// check the non changing items
+	assert.Equal(t, 2, len(data))
+	item1 := data[0]
+	assert.Equal(t, 0, int(*item1.SystemFunctionId))
+	assert.Equal(t, 0, int(*item1.OperationModeId))
+	// check properties of updated item
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.SystemFunctionId))
+	assert.Equal(t, 1, int(*item2.OperationModeId))
+}
+
+func TestHvacSystemFunctionSetpointRelationListDataType_Update(t *testing.T) {
+	sut := model.HvacSystemFunctionSetpointRelationListDataType{
+		HvacSystemFunctionSetpointRelationData: []model.HvacSystemFunctionSetpointRelationDataType{
+			{
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
+				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+			},
+			{
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+			},
+		},
+	}
+
+	newData := model.HvacSystemFunctionSetpointRelationListDataType{
+		HvacSystemFunctionSetpointRelationData: []model.HvacSystemFunctionSetpointRelationDataType{
+			{
+				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(1)),
+			},
+		},
+	}
+
+	// Act
+	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+
+	data := sut.HvacSystemFunctionSetpointRelationData
+	// check the non changing items
+	assert.Equal(t, 2, len(data))
+	item1 := data[0]
+	assert.Equal(t, 0, int(*item1.SystemFunctionId))
+	assert.Equal(t, 0, int(*item1.OperationModeId))
+	// check properties of updated item
+	item2 := data[1]
+	assert.Equal(t, 1, int(*item2.SystemFunctionId))
+	assert.Equal(t, 1, int(*item2.OperationModeId))
+}
+
 func TestHvacSystemFunctionPowerSequenceRelationListDataType_Update(t *testing.T) {
 	sut := model.HvacSystemFunctionPowerSequenceRelationListDataType{
 		HvacSystemFunctionPowerSequenceRelationData: []model.HvacSystemFunctionPowerSequenceRelationDataType{
