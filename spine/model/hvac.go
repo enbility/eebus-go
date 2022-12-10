@@ -50,9 +50,9 @@ const (
 
 type HvacSystemFunctionDataType struct {
 	SystemFunctionId            *HvacSystemFunctionIdType `json:"systemFunctionId,omitempty" eebus:"key"`
-	CurrentOperationModeId      *HvacOperationModeIdType  `json:"currentOperationModeId,omitempty" eebus:"key"`
+	CurrentOperationModeId      *HvacOperationModeIdType  `json:"currentOperationModeId,omitempty"`
 	IsOperationModeIdChangeable *bool                     `json:"isOperationModeIdChangeable,omitempty"`
-	CurrentSetpointId           *SetpointIdType           `json:"currentSetpointId,omitempty" eebus:"key"`
+	CurrentSetpointId           *SetpointIdType           `json:"currentSetpointId,omitempty"`
 	IsSetpointIdChangeable      *bool                     `json:"isSetpointIdChangeable,omitempty"`
 	IsOverrunActive             *bool                     `json:"isOverrunActive,omitempty"`
 }
@@ -76,7 +76,7 @@ type HvacSystemFunctionListDataSelectorsType struct {
 
 type HvacSystemFunctionOperationModeRelationDataType struct {
 	SystemFunctionId *HvacSystemFunctionIdType `json:"systemFunctionId,omitempty" eebus:"key"`
-	OperationModeId  *HvacOperationModeIdType  `json:"operationModeId,omitempty" eebus:"key"`
+	OperationModeId  *HvacOperationModeIdType  `json:"operationModeId,omitempty"`
 }
 
 type HvacSystemFunctionOperationModeRelationDataElementsType struct {
@@ -94,8 +94,8 @@ type HvacSystemFunctionOperationModeRelationListDataSelectorsType struct {
 
 type HvacSystemFunctionSetpointRelationDataType struct {
 	SystemFunctionId *HvacSystemFunctionIdType `json:"systemFunctionId,omitempty" eebus:"key"`
-	OperationModeId  *HvacOperationModeIdType  `json:"operationModeId,omitempty" eebus:"key"`
-	SetpointId       *SetpointIdType           `json:"setpointId,omitempty" eebus:"key"`
+	OperationModeId  *HvacOperationModeIdType  `json:"operationModeId,omitempty"`
+	SetpointId       *SetpointIdType           `json:"setpointId,omitempty"`
 }
 
 type HvacSystemFunctionSetpointRelationDataElementsType struct {

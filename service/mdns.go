@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/util"
 	"github.com/godbus/dbus/v5"
 	"github.com/holoplot/go-avahi"
 	"github.com/libp2p/zeroconf/v2"
@@ -365,6 +366,10 @@ func (m *mdns) resolveEntries() {
 // stop searching for mDNS entries
 func (m *mdns) stopResolvingEntries() {
 	if m.cancelChan != nil {
+		if util.IsChannelClosed(m.cancelChan) {
+			return
+		}
+
 		logging.Log.Debug("mdns: stop search")
 
 		m.cancelChan <- true

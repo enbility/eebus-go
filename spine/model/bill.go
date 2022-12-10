@@ -88,11 +88,11 @@ type BillPositionElementsType struct {
 }
 
 type BillDataType struct {
-	BillId    *BillIdType       `json:"billId,omitempty"`
-	BillType  *BillTypeType     `json:"billType,omitempty"`
-	ScopeType *ScopeTypeType    `json:"scopeType,omitempty"`
-	Total     *BillPositionType `json:"total,omitempty"`
-	Position  *BillPositionType `json:"position,omitempty"`
+	BillId    *BillIdType        `json:"billId,omitempty" eebus:"key"`
+	BillType  *BillTypeType      `json:"billType,omitempty"`
+	ScopeType *ScopeTypeType     `json:"scopeType,omitempty"`
+	Total     *BillPositionType  `json:"total,omitempty"`
+	Position  []BillPositionType `json:"position,omitempty"`
 }
 
 type BillDataElementsType struct {
@@ -113,7 +113,7 @@ type BillListDataSelectorsType struct {
 }
 
 type BillConstraintsDataType struct {
-	BillId           *BillIdType            `json:"billId,omitempty"`
+	BillId           *BillIdType            `json:"billId,omitempty" eebus:"key"`
 	PositionCountMin *BillPositionCountType `json:"positionCountMin,omitempty"`
 	PositionCountMax *BillPositionCountType `json:"positionCountMax,omitempty"`
 }
@@ -125,7 +125,7 @@ type BillConstraintsDataElementsType struct {
 }
 
 type BillConstraintsListDataType struct {
-	BillConstraintsDataElements []BillConstraintsDataType `json:"billConstraintsDataElements,omitempty"`
+	BillConstraintsData []BillConstraintsDataType `json:"billConstraintsData,omitempty"`
 }
 
 type BillConstraintsListDataSelectorsType struct {
@@ -133,7 +133,7 @@ type BillConstraintsListDataSelectorsType struct {
 }
 
 type BillDescriptionDataType struct {
-	BillId            *BillIdType    `json:"billId,omitempty"`
+	BillId            *BillIdType    `json:"billId,omitempty" eebus:"key"`
 	BillWriteable     *bool          `json:"billWriteable,omitempty"`
 	UpdateRequired    *bool          `json:"updateRequired,omitempty"`
 	SupportedBillType []BillTypeType `json:"supportedBillType,omitempty"`

@@ -134,8 +134,8 @@ type TariffBoundaryRelationListDataSelectorsType struct {
 
 type TariffDescriptionDataType struct {
 	TariffId        *TariffIdType      `json:"tariffId,omitempty" eebus:"key"`
-	CommodityId     *CommodityIdType   `json:"commodityId,omitempty" eebus:"key"`
-	MeasurementId   *MeasurementIdType `json:"measurementId,omitempty" eebus:"key"`
+	CommodityId     *CommodityIdType   `json:"commodityId,omitempty"`
+	MeasurementId   *MeasurementIdType `json:"measurementId,omitempty"`
 	TariffWriteable *bool              `json:"tariffWriteable,omitempty"`
 	UpdateRequired  *bool              `json:"updateRequired,omitempty"`
 	ScopeType       *ScopeTypeType     `json:"scopeType,omitempty"`
@@ -170,7 +170,7 @@ type TariffDescriptionListDataSelectorsType struct {
 type TierBoundaryDataType struct {
 	BoundaryId         *TierBoundaryIdType `json:"boundaryId,omitempty" eebus:"key"`
 	TimePeriod         *TimePeriodType     `json:"timePeriod,omitempty"`
-	TimeTableId        *TimeTableIdType    `json:"timeTableId,omitempty" eebus:"key"`
+	TimeTableId        *TimeTableIdType    `json:"timeTableId,omitempty"`
 	LowerBoundaryValue *ScaledNumberType   `json:"lowerBoundaryValue,omitempty"`
 	UpperBoundaryValue *ScaledNumberType   `json:"upperBoundaryValue,omitempty"`
 }
@@ -194,9 +194,9 @@ type TierBoundaryListDataSelectorsType struct {
 type TierBoundaryDescriptionDataType struct {
 	BoundaryId               *TierBoundaryIdType    `json:"boundaryId,omitempty" eebus:"key"`
 	BoundaryType             *TierBoundaryTypeType  `json:"boundaryType,omitempty"`
-	ValidForTierId           *TierIdType            `json:"validForTierId,omitempty" eebus:"key"`
-	SwitchToTierIdWhenLower  *TierIdType            `json:"switchToTierIdWhenLower,omitempty" eebus:"key"`
-	SwitchToTierIdWhenHigher *TierIdType            `json:"switchToTierIdWhenHigher,omitempty" eebus:"key"`
+	ValidForTierId           *TierIdType            `json:"validForTierId,omitempty"`
+	SwitchToTierIdWhenLower  *TierIdType            `json:"switchToTierIdWhenLower,omitempty"`
+	SwitchToTierIdWhenHigher *TierIdType            `json:"switchToTierIdWhenHigher,omitempty"`
 	BoundaryUnit             *UnitOfMeasurementType `json:"boundaryUnit,omitempty"`
 	Label                    *LabelType             `json:"label,omitempty"`
 	Description              *DescriptionType       `json:"description,omitempty"`
@@ -250,7 +250,7 @@ type CommodityListDataSelectorsType struct {
 type TierDataType struct {
 	TierId            *TierIdType       `json:"tierId,omitempty" eebus:"key"`
 	TimePeriod        *TimePeriodType   `json:"timePeriod,omitempty"`
-	TimeTableId       *TimeTableIdType  `json:"timeTableId,omitempty" eebus:"key"`
+	TimeTableId       *TimeTableIdType  `json:"timeTableId,omitempty"`
 	ActiveIncentiveId []IncentiveIdType `json:"activeIncentiveId,omitempty"`
 }
 

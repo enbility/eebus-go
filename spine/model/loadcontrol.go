@@ -152,7 +152,7 @@ type LoadControlLimitDescriptionDataType struct {
 	LimitType      *LoadControlLimitTypeType `json:"limitType,omitempty"`
 	LimitCategory  *LoadControlCategoryType  `json:"limitCategory,omitempty"`
 	LimitDirection *EnergyDirectionType      `json:"limitDirection,omitempty"`
-	MeasurementId  *MeasurementIdType        `json:"measurementId,omitempty" eebus:"key"`
+	MeasurementId  *MeasurementIdType        `json:"measurementId,omitempty"`
 	Unit           *UnitOfMeasurementType    `json:"unit,omitempty"`
 	ScopeType      *ScopeTypeType            `json:"scopeType,omitempty"`
 	Label          *LabelType                `json:"label,omitempty"`

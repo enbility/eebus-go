@@ -118,7 +118,7 @@ func (w *websocketConnection) readShipPump() {
 
 		message, err := w.readWebsocketMessage()
 		if err != nil {
-			logging.Log.Error(w.remoteSki, "websocket read error: ", err)
+			logging.Log.Debug(w.remoteSki, "websocket read error: ", err)
 			w.close()
 			w.dataProcessing.ReportConnectionError(err)
 			return

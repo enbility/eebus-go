@@ -225,9 +225,6 @@ func (h *connectionsHub) connectionForSKI(ski string) *ship.ShipConnection {
 
 // close all connections
 func (h *connectionsHub) shutdown() {
-	h.muxCon.Lock()
-	defer h.muxCon.Unlock()
-
 	h.mdns.ShutdownMdnsService()
 	for _, c := range h.connections {
 		c.CloseConnection(false, "")

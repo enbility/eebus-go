@@ -62,14 +62,12 @@ func TestTimeSeriesDescriptionListDataType_Update(t *testing.T) {
 	sut := model.TimeSeriesDescriptionListDataType{
 		TimeSeriesDescriptionData: []model.TimeSeriesDescriptionDataType{
 			{
-				TimeSeriesId:  util.Ptr(model.TimeSeriesIdType(0)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				Description:   util.Ptr(model.DescriptionType("old")),
+				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(0)),
+				Description:  util.Ptr(model.DescriptionType("old")),
 			},
 			{
-				TimeSeriesId:  util.Ptr(model.TimeSeriesIdType(1)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				Description:   util.Ptr(model.DescriptionType("old")),
+				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
+				Description:  util.Ptr(model.DescriptionType("old")),
 			},
 		},
 	}
@@ -77,9 +75,8 @@ func TestTimeSeriesDescriptionListDataType_Update(t *testing.T) {
 	newData := model.TimeSeriesDescriptionListDataType{
 		TimeSeriesDescriptionData: []model.TimeSeriesDescriptionDataType{
 			{
-				TimeSeriesId:  util.Ptr(model.TimeSeriesIdType(1)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				Description:   util.Ptr(model.DescriptionType("new")),
+				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
+				Description:  util.Ptr(model.DescriptionType("new")),
 			},
 		},
 	}

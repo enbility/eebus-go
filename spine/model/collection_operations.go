@@ -5,15 +5,6 @@ import (
 	"reflect"
 )
 
-func FindFirst[T any](s []T, predicate func(i T) bool) *T {
-	for _, item := range s {
-		if predicate(item) {
-			return &item
-		}
-	}
-	return nil
-}
-
 // creates an hash key by using fields that have eebus tag "key"
 func hashKey(data any) string {
 	result := ""
@@ -29,16 +20,30 @@ func hashKey(data any) string {
 	for _, fieldName := range keys {
 		f := v.FieldByName(fieldName)
 
-		if f.IsNil() || !f.IsValid() || f.Elem().Kind() != reflect.Uint {
+		if f.IsNil() || !f.IsValid() {
 			return result
 		}
 
-		value := f.Elem().Uint()
+		switch f.Elem().Kind() {
+		case reflect.String:
+			value := f.Elem().String()
 
-		if len(result) > 0 {
-			result = fmt.Sprintf("%s|", result)
+			if len(result) > 0 {
+				result = fmt.Sprintf("%s|", result)
+			}
+			result = fmt.Sprintf("%s%s", result, value)
+
+		case reflect.Uint:
+			value := f.Elem().Uint()
+
+			if len(result) > 0 {
+				result = fmt.Sprintf("%s|", result)
+			}
+			result = fmt.Sprintf("%s%d", result, value)
+
+		default:
+			return result
 		}
-		result = fmt.Sprintf("%s%d", result, value)
 	}
 
 	return result
@@ -88,6 +93,16 @@ func ToMap[T any](s []T) map[string]T {
 	return result
 }
 
+/*
+func FindFirst[T any](s []T, predicate func(i T) bool) *T {
+	for _, item := range s {
+		if predicate(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
 func Values[K comparable, V any](m map[K]V) []V {
 	ret := make([]V, 0, len(m))
 	for _, v := range m {
@@ -104,3 +119,4 @@ func CastElements[S any, D any](s []S) []D {
 	}
 	return result
 }
+*/

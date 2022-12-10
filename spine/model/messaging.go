@@ -17,7 +17,7 @@ const (
 
 type MessagingDataType struct {
 	Timestamp       *AbsoluteOrRelativeTimeType `json:"timestamp,omitempty"`
-	MessagingNumber *MessagingNumberType        `json:"messagingNumber,omitempty"`
+	MessagingNumber *MessagingNumberType        `json:"messagingNumber,omitempty" eebus:"key"`
 	MessagingType   *MessagingTypeType          `json:"type,omitempty"` // xsd defines "type", but that is a reserved keyword
 	Text            *MessagingDataTextType      `json:"text,omitempty"`
 }

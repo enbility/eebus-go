@@ -16,7 +16,7 @@ const (
 
 type TimeTableDataType struct {
 	TimeTableId           *TimeTableIdType             `json:"timeTableId,omitempty" eebus:"key"`
-	TimeSlotId            *TimeSlotIdType              `json:"timeSlotId,omitempty" eebus:"key"`
+	TimeSlotId            *TimeSlotIdType              `json:"timeSlotId,omitempty"`
 	RecurrenceInformation *RecurrenceInformationType   `json:"recurrenceInformation,omitempty"`
 	StartTime             *AbsoluteOrRecurringTimeType `json:"startTime,omitempty"`
 	EndTime               *AbsoluteOrRecurringTimeType `json:"endTime,omitempty"`

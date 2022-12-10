@@ -49,123 +49,111 @@ func TestElectricalConnectionStateListDataType_Update(t *testing.T) {
 
 // verifies that a subset of existing items will be updated with identified new values
 func TestElectricalConnectionPermittedValueSetListDataType_Update_Modify(t *testing.T) {
-	existingDataJson := `{
-		"electricalConnectionPermittedValueSetData":[
+	sut := model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{
-				"electricalConnectionId":0,
-				"parameterId":0,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":1,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(1),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":1,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":6,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(6),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":2,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":6,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(6),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":3,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":6,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
-			}
-		]
-	}`
-
-	var sut model.ElectricalConnectionPermittedValueSetListDataType
-	err := json.Unmarshal([]byte(existingDataJson), &sut)
-	if assert.Nil(t, err) == false {
-		return
+								Min: model.NewScaledNumberType(6),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
-	newDataJson := `{
-		"electricalConnectionPermittedValueSetData":[
+	newData := model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{
-				"electricalConnectionId":0,
-				"parameterId":1,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":2,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(2),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":2,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":2,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
+								Min: model.NewScaledNumberType(2),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
 			},
 			{
-				"electricalConnectionId":0,
-				"parameterId":3,
-				"permittedValueSet":[
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				PermittedValueSet: []model.ScaledNumberSetType{
 					{
-						"range":[
+						Range: []model.ScaledNumberRangeType{
 							{
-								"min":{"number":2,"scale":0},
-								"max":{"number":16,"scale":0}
-							}
-						]
-					}
-				]
-			}
-		]
-	}`
-
-	var newData model.ElectricalConnectionPermittedValueSetListDataType
-	err = json.Unmarshal([]byte(newDataJson), &newData)
-	if assert.Nil(t, err) == false {
-		return
+								Min: model.NewScaledNumberType(2),
+								Max: model.NewScaledNumberType(16),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	// Act
@@ -675,6 +663,113 @@ func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Element
 }
 
 // verifies that a subset of existing items will be updated with identified new values
+func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_OnlyElement(t *testing.T) {
+	existingDataJson := `{
+		"electricalConnectionPermittedValueSetData":[
+			{
+				"electricalConnectionId":0,
+				"parameterId":0,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":1,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":1,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":2,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			},
+			{
+				"electricalConnectionId":0,
+				"parameterId":3,
+				"permittedValueSet":[
+					{
+						"range":[
+							{
+								"min":{"number":6,"scale":0},
+								"max":{"number":16,"scale":0}
+							}
+						]
+					}
+				]
+			}
+		]
+	}`
+
+	var sut model.ElectricalConnectionPermittedValueSetListDataType
+	err := json.Unmarshal([]byte(existingDataJson), &sut)
+	if assert.Nil(t, err) == false {
+		return
+	}
+
+	delete := &model.FilterType{
+		CmdControl: &model.CmdControlType{
+			Delete: &model.ElementTagType{},
+		},
+		ElectricalConnectionPermittedValueSetDataElements: &model.ElectricalConnectionPermittedValueSetDataElementsType{
+			PermittedValueSet: &model.ElementTagType{},
+		},
+	}
+
+	// Act
+	sut.UpdateList(nil, nil, delete)
+
+	data := sut.ElectricalConnectionPermittedValueSetData
+	// check no items are deleted
+	assert.Equal(t, 4, len(data))
+	// check permitted value is removed from item with ID 0
+	item1 := data[0]
+	assert.Equal(t, 0, int(*item1.ElectricalConnectionId))
+	assert.Equal(t, 0, int(*item1.ParameterId))
+	var nilValue []model.ScaledNumberSetType
+	assert.Equal(t, nilValue, item1.PermittedValueSet)
+
+	// check properties
+	item2 := data[1]
+	assert.Equal(t, 0, int(*item2.ElectricalConnectionId))
+	assert.Equal(t, 1, int(*item2.ParameterId))
+	assert.Equal(t, nilValue, item2.PermittedValueSet)
+
+	item3 := data[2]
+	assert.Equal(t, 0, int(*item3.ElectricalConnectionId))
+	assert.Equal(t, 2, int(*item3.ParameterId))
+	assert.Equal(t, nilValue, item3.PermittedValueSet)
+
+	item4 := data[3]
+	assert.Equal(t, 0, int(*item4.ElectricalConnectionId))
+	assert.Equal(t, 3, int(*item4.ParameterId))
+	assert.Equal(t, nilValue, item4.PermittedValueSet)
+}
+
+// verifies that a subset of existing items will be updated with identified new values
 func TestElectricalConnectionPermittedValueSetListDataType_Update_Delete_Add(t *testing.T) {
 	existingDataJson := `{
 		"electricalConnectionPermittedValueSetData":[
@@ -1057,7 +1152,6 @@ func TestElectricalConnectionParameterDescriptionListDataType_Update(t *testing.
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
-				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
 				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
 			},
 			{
@@ -1074,7 +1168,6 @@ func TestElectricalConnectionParameterDescriptionListDataType_Update(t *testing.
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
-				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
 				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeDc),
 			},
 		},

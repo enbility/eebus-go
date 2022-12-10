@@ -58,7 +58,7 @@ const (
 type ElectricalConnectionParameterDescriptionDataType struct {
 	ElectricalConnectionId  *ElectricalConnectionIdType                `json:"electricalConnectionId,omitempty" eebus:"key"`
 	ParameterId             *ElectricalConnectionParameterIdType       `json:"parameterId,omitempty" eebus:"key"`
-	MeasurementId           *MeasurementIdType                         `json:"measurementId,omitempty" eebus:"key"`
+	MeasurementId           *MeasurementIdType                         `json:"measurementId,omitempty"`
 	VoltageType             *ElectricalConnectionVoltageTypeType       `json:"voltageType,omitempty"`
 	AcMeasuredPhases        *ElectricalConnectionPhaseNameType         `json:"acMeasuredPhases,omitempty"`
 	AcMeasuredInReferenceTo *ElectricalConnectionPhaseNameType         `json:"acMeasuredInReferenceTo,omitempty"`
