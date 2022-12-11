@@ -358,7 +358,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 		return nil
 	}
 
-	logging.Log.Debugf("initiating connection to %s at %s:%s", remoteService.SKI, host, port)
+	logging.Log.Debugf("initiating connection to %s at %s:%s", remoteService.SKI(), host, port)
 
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
@@ -596,14 +596,14 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 func (h *connectionsHub) initateConnection(remoteService *ServiceDetails, entry MdnsEntry) bool {
 	var err error
 
-	logging.Log.Debug("trying to connect to", remoteService.SKI, "at", entry.Host)
+	logging.Log.Debug("trying to connect to", remoteService.SKI(), "at", entry.Host)
 	if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
-		logging.Log.Debugf("connection to %s failed: %s", remoteService.SKI, err)
+		logging.Log.Debugf("connection to %s failed: %s", remoteService.SKI(), err)
 		// connecting via the host failed, so try all of the provided addresses
 		for _, address := range entry.Addresses {
-			logging.Log.Debug("trying to connect to", remoteService.SKI, "at", address)
+			logging.Log.Debug("trying to connect to", remoteService.SKI(), "at", address)
 			if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err != nil {
-				logging.Log.Debug("connection to", remoteService.SKI, "failed: ", err)
+				logging.Log.Debug("connection to", remoteService.SKI(), "failed: ", err)
 			} else {
 				break
 			}
