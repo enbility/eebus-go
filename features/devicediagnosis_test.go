@@ -7,75 +7,77 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestDeviceDiagnosis_GetState(t *testing.T) {
-	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
-	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
-	localDevice.AddEntity(localEntity)
+func TestDeviceDiagnosisSuite(t *testing.T) {
+	suite.Run(t, new(DeviceDiagnosisSuite))
+}
 
-	f := spine.NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	localEntity.AddFeature(f)
+type DeviceDiagnosisSuite struct {
+	suite.Suite
 
-	remoteDeviceName := "remoteDevice"
-	remoteDevice := spine.NewDeviceRemoteImpl(localDevice, "test", nil)
-	data := &model.NodeManagementDetailedDiscoveryDataType{
-		DeviceInformation: &model.NodeManagementDetailedDiscoveryDeviceInformationType{
-			Description: &model.NetworkManagementDeviceDescriptionDataType{
-				DeviceAddress: &model.DeviceAddressType{
-					Device: util.Ptr(model.AddressDeviceType(remoteDeviceName)),
-				},
-			},
-		},
-		EntityInformation: []model.NodeManagementDetailedDiscoveryEntityInformationType{
+	localDevice  *spine.DeviceLocalImpl
+	remoteEntity *spine.EntityRemoteImpl
+
+	deviceDiagnosis *DeviceDiagnosis
+	sentMessage     []byte
+}
+
+var _ spine.SpineDataConnection = (*DeviceDiagnosisSuite)(nil)
+
+func (s *DeviceDiagnosisSuite) WriteSpineMessage(message []byte) {
+	s.sentMessage = message
+}
+
+func (s *DeviceDiagnosisSuite) BeforeTest(suiteName, testName string) {
+	s.localDevice, s.remoteEntity = setupFeatures(
+		s.T(),
+		s,
+		[]featureFunctions{
 			{
-				Description: &model.NetworkManagementEntityDescriptionDataType{
-					EntityAddress: &model.EntityAddressType{
-						Device: util.Ptr(model.AddressDeviceType(remoteDeviceName)),
-						Entity: []model.AddressEntityType{1},
-					},
-					EntityType: util.Ptr(model.EntityTypeTypeEVSE),
+				featureType: model.FeatureTypeTypeDeviceDiagnosis,
+				functions: []model.FunctionType{
+					model.FunctionTypeDeviceDiagnosisStateData,
 				},
 			},
 		},
-		FeatureInformation: []model.NodeManagementDetailedDiscoveryFeatureInformationType{
-			{
-				Description: &model.NetworkManagementFeatureDescriptionDataType{
-					FeatureAddress: &model.FeatureAddressType{
-						Device:  util.Ptr(model.AddressDeviceType(remoteDeviceName)),
-						Entity:  []model.AddressEntityType{1},
-						Feature: util.Ptr(model.AddressFeatureType(1)),
-					},
-					FeatureType: util.Ptr(model.FeatureTypeTypeDeviceDiagnosis),
-					Role:        util.Ptr(model.RoleTypeClient),
-				},
-			},
-		},
-	}
-	remoteEntities, err := remoteDevice.AddEntityAndFeatures(true, data)
-	assert.Nil(t, err)
-	assert.NotNil(t, remoteEntities)
-	assert.NotEqual(t, 0, len(remoteEntities))
+	)
 
-	remoteEntity := remoteEntities[0]
+	var err error
+	s.deviceDiagnosis, err = NewDeviceDiagnosis(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), s.deviceDiagnosis)
+}
 
-	d, err := NewDeviceDiagnosis(model.RoleTypeServer, model.RoleTypeClient, localDevice, remoteEntity)
-	assert.Nil(t, err)
-	assert.NotNil(t, d)
+func (s *DeviceDiagnosisSuite) Test_RequestStateForEntity() {
+	counter, err := s.deviceDiagnosis.RequestStateForEntity()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
 
-	result, err := d.GetState()
-	assert.NotNil(t, err)
-	assert.Nil(t, result)
+func (s *DeviceDiagnosisSuite) Test_GetState() {
+	result, err := s.deviceDiagnosis.GetState()
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), result)
 
-	rF := remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.DeviceDiagnosisStateDataType{
-		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
+		OperatingState:       util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
+		PowerSupplyCondition: util.Ptr(model.PowerSupplyConditionTypeGood),
 	}
 	rF.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, fData, nil, nil)
 
-	result, err = d.GetState()
-	assert.Nil(t, err)
-	assert.NotNil(t, result)
+	result, err = s.deviceDiagnosis.GetState()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), result)
+}
 
+func (s *DeviceDiagnosisSuite) Test_SendState() {
+	data := &model.DeviceDiagnosisStateDataType{
+		OperatingState:       util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
+		PowerSupplyCondition: util.Ptr(model.PowerSupplyConditionTypeGood),
+	}
+	s.deviceDiagnosis.SendState(data)
+	assert.NotNil(s.T(), s.sentMessage)
 }

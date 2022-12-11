@@ -21,7 +21,7 @@ type DeviceClassificationManufacturerDataType struct {
 	VendorName                     *DeviceClassificationStringType `json:"vendorName,omitempty"`
 	VendorCode                     *DeviceClassificationStringType `json:"vendorCode,omitempty"`
 	BrandName                      *DeviceClassificationStringType `json:"brandName,omitempty"`
-	PowerSource                    *string                         `json:"powerSource,omitempty"`
+	PowerSource                    *PowerSourceType                `json:"powerSource,omitempty"`
 	ManufacturerNodeIdentification *DeviceClassificationStringType `json:"manufacturerNodeIdentification,omitempty"`
 	ManufacturerLabel              *LabelType                      `json:"manufacturerLabel,omitempty"`
 	ManufacturerDescription        *DescriptionType                `json:"manufacturerDescription,omitempty"`

@@ -82,7 +82,7 @@ func (d *DeviceConfiguration) GetDescriptionKeyNameSupport(keyName model.DeviceC
 		if item.KeyId == nil || item.KeyName == nil {
 			continue
 		}
-		if *item.KeyName == string(keyName) {
+		if *item.KeyName == keyName {
 			return true, nil
 		}
 	}
@@ -125,7 +125,7 @@ func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
 			continue
 		}
 
-		if *desc.KeyName == string(model.DeviceConfigurationKeyNameTypeCommunicationsStandard) {
+		if *desc.KeyName == model.DeviceConfigurationKeyNameTypeCommunicationsStandard {
 			return (*string)(item.Value.String), nil
 		}
 	}
@@ -178,7 +178,7 @@ func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
 		}
 
 		result := DeviceConfigurationType{
-			Key: *desc.KeyName,
+			Key: string(*desc.KeyName),
 		}
 		if desc.ValueType == nil {
 			continue
@@ -217,13 +217,13 @@ func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
 					result.ValueTime = value
 				}
 			}
-		case model.DeviceConfigurationKeyValueTypeTypeScalednumber:
+		case model.DeviceConfigurationKeyValueTypeTypeScaledNumber:
 			if item.Value.ScaledNumber != nil {
 				result.ValueFloat = item.Value.ScaledNumber.GetValue()
 			}
 		}
 		if desc.Unit != nil {
-			result.Unit = *desc.Unit
+			result.Unit = string(*desc.Unit)
 		}
 
 		resultSet = append(resultSet, result)

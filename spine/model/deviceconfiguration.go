@@ -22,7 +22,7 @@ const (
 	DeviceConfigurationKeyValueTypeTypeDuration     DeviceConfigurationKeyValueTypeType = "duration"
 	DeviceConfigurationKeyValueTypeTypeString       DeviceConfigurationKeyValueTypeType = "string"
 	DeviceConfigurationKeyValueTypeTypeTime         DeviceConfigurationKeyValueTypeType = "time"
-	DeviceConfigurationKeyValueTypeTypeScalednumber DeviceConfigurationKeyValueTypeType = "scaledNumber"
+	DeviceConfigurationKeyValueTypeTypeScaledNumber DeviceConfigurationKeyValueTypeType = "scaledNumber"
 )
 
 type DeviceConfigurationKeyValueValueType struct {
@@ -67,9 +67,9 @@ type DeviceConfigurationKeyValueListDataSelectorsType struct {
 
 type DeviceConfigurationKeyValueDescriptionDataType struct {
 	KeyId       *DeviceConfigurationKeyIdType        `json:"keyId,omitempty" eebus:"key"`
-	KeyName     *string                              `json:"keyName,omitempty"`
+	KeyName     *DeviceConfigurationKeyNameType      `json:"keyName,omitempty"`
 	ValueType   *DeviceConfigurationKeyValueTypeType `json:"valueType,omitempty"`
-	Unit        *string                              `json:"unit,omitempty"`
+	Unit        *UnitOfMeasurementType               `json:"unit,omitempty"`
 	Label       *LabelType                           `json:"label,omitempty"`
 	Description *DescriptionType                     `json:"description,omitempty"`
 }
