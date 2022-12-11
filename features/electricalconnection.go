@@ -87,6 +87,9 @@ func (e *ElectricalConnection) GetParamDescriptionListData() (electricalParamDes
 		return nil, nil, ErrDataNotAvailable
 	}
 	data := rData.(*model.ElectricalConnectionParameterDescriptionListDataType)
+	if data == nil {
+		return nil, nil, ErrDataNotAvailable
+	}
 
 	refMeasurement := make(electricalParamDescriptionMapMeasurementId)
 	refElectrical := make(electricatlParamDescriptionMapParamId)
@@ -112,6 +115,9 @@ func (e *ElectricalConnection) GetDescription() ([]ElectricalDescriptionType, er
 		return nil, ErrMetadataNotAvailable
 	}
 	data := rData.(*model.ElectricalConnectionDescriptionListDataType)
+	if data == nil {
+		return nil, ErrMetadataNotAvailable
+	}
 
 	var resultSet []ElectricalDescriptionType
 
@@ -148,7 +154,11 @@ func (e *ElectricalConnection) GetConnectedPhases() (uint, error) {
 	if rData == nil {
 		return 0, ErrDataNotAvailable
 	}
+
 	data := rData.(*model.ElectricalConnectionDescriptionListDataType)
+	if data == nil {
+		return 0, ErrDataNotAvailable
+	}
 
 	for _, item := range data.ElectricalConnectionDescriptionData {
 		if item.ElectricalConnectionId == nil {
@@ -182,7 +192,11 @@ func (e *ElectricalConnection) GetCurrentsLimits() (map[string]float64, map[stri
 	if rData == nil {
 		return nil, nil, nil, ErrDataNotAvailable
 	}
+
 	data := rData.(*model.ElectricalConnectionPermittedValueSetListDataType)
+	if data == nil {
+		return nil, nil, nil, ErrDataNotAvailable
+	}
 
 	resultSetMin := make(map[string]float64)
 	resultSetMax := make(map[string]float64)
@@ -237,7 +251,12 @@ func (e *ElectricalConnection) GetEVLimitValues() ([]ElectricalLimitType, error)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+
 	paramDescriptionData := rData.(*model.ElectricalConnectionParameterDescriptionListDataType)
+	if paramDescriptionData == nil {
+		return nil, ErrMetadataNotAvailable
+	}
+
 	paramRef := make(map[model.ElectricalConnectionParameterIdType]model.ElectricalConnectionParameterDescriptionDataType)
 	for _, item := range paramDescriptionData.ElectricalConnectionParameterDescriptionData {
 		if item.ParameterId == nil {
@@ -250,7 +269,11 @@ func (e *ElectricalConnection) GetEVLimitValues() ([]ElectricalLimitType, error)
 	if rData2 == nil {
 		return nil, ErrDataNotAvailable
 	}
+
 	data := rData2.(*model.ElectricalConnectionPermittedValueSetListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	var resultSet []ElectricalLimitType
 

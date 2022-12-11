@@ -52,6 +52,9 @@ func (d *DeviceDiagnosis) GetState() (*DeviceDiagnosisType, error) {
 	}
 
 	data := rData.(*model.DeviceDiagnosisStateDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	details := &DeviceDiagnosisType{}
 	if data.OperatingState != nil {
