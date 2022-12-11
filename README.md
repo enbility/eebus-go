@@ -1,8 +1,8 @@
 # eebus-go
 
-[![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=main)](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=main)
+[![Build Status](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)](https://github.com/enbility/eebus-go/actions/workflows/default.yml/badge.svg?branch=dev)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4)](https://godoc.org/github.com/enbility/eebus-go)
-[![Coverage Status](https://coveralls.io/repos/github/enbility/eebus-go/badge.svg?branch=main)](https://coveralls.io/github/enbility/eebus-go?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/enbility/eebus-go/badge.svg?branch=dev)](https://coveralls.io/github/enbility/eebus-go?branch=dev)
 [![Go report](https://goreportcard.com/badge/github.com/enbility/eebus-go)](https://goreportcard.com/report/github.com/enbility/eebus-go)
 
 This library provides a complete foundation for implementing [EEBUS](https://eebus.org) use cases. The use cases define various functional scenarios for different device categories, e.g. energy management systems, charging stations, heat pumps, and more.
