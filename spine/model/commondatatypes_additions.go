@@ -68,6 +68,11 @@ func NewDateTimeType(t string) *DateTimeType {
 	return &value
 }
 
+func NewDateTimeTypeFromTime(t time.Time) *DateTimeType {
+	s := t.Format(time.RFC3339)
+	return NewDateTimeType(s)
+}
+
 func (d *DateTimeType) GetTime() (time.Time, error) {
 	allowedFormats := []string{
 		"2006-01-02T15:04:05.999999999",
@@ -115,6 +120,12 @@ func getTimeDurationFromString(s string) (time.Duration, error) {
 
 func NewAbsoluteOrRelativeTimeType(s string) *AbsoluteOrRelativeTimeType {
 	value := AbsoluteOrRelativeTimeType(s)
+	return &value
+}
+
+func NewAbsoluteOrRelativeTimeTypeFromTime(t time.Time) *AbsoluteOrRelativeTimeType {
+	s := NewDateTimeTypeFromTime(t)
+	value := AbsoluteOrRelativeTimeType(*s)
 	return &value
 }
 
