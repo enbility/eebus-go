@@ -166,6 +166,9 @@ func (l *LoadControl) GetLimitValues() ([]LoadControlLimitType, error) {
 		return nil, ErrDataNotAvailable
 	}
 	data := rData2.(*model.LoadControlLimitListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	var resultSet []LoadControlLimitType
 	for _, item := range data.LoadControlLimitData {
