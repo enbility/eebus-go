@@ -62,6 +62,10 @@ func (d *DeviceClassification) GetManufacturerDetails() (*ManufacturerType, erro
 	}
 
 	data := rData.(*model.DeviceClassificationManufacturerDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	details := &ManufacturerType{}
 
 	if data.BrandName != nil {

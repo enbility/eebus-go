@@ -78,7 +78,11 @@ func (l *LoadControl) GetLimitDescription() (loadControlLimitDescriptionMap, err
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+
 	data := rData.(*model.LoadControlLimitDescriptionListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	ref := make(loadControlLimitDescriptionMap)
 	for _, item := range data.LoadControlLimitDescriptionData {
@@ -145,6 +149,9 @@ func (l *LoadControl) GetLimitValues() ([]LoadControlLimitType, error) {
 	}
 
 	descriptionData := rData.(*model.LoadControlLimitDescriptionListDataType)
+	if descriptionData == nil {
+		return nil, ErrMetadataNotAvailable
+	}
 
 	descRef := make(map[model.LoadControlLimitIdType]model.LoadControlLimitDescriptionDataType)
 	for _, item := range descriptionData.LoadControlLimitDescriptionData {

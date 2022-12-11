@@ -74,6 +74,9 @@ func (d *DeviceConfiguration) GetDescriptionKeyNameSupport(keyName model.DeviceC
 	}
 
 	data := rData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
+	if data == nil {
+		return false, ErrDataNotAvailable
+	}
 
 	for _, item := range data.DeviceConfigurationKeyValueDescriptionData {
 		if item.KeyId == nil || item.KeyName == nil {
@@ -104,6 +107,9 @@ func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
 	}
 
 	data := rData.(*model.DeviceConfigurationKeyValueListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	for _, item := range data.DeviceConfigurationKeyValueData {
 		if item.KeyId == nil || item.Value == nil {
@@ -138,6 +144,9 @@ func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
 		return nil, ErrMetadataNotAvailable
 	}
 	descData := rDescData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
+	if descData == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	ref := make(map[model.DeviceConfigurationKeyIdType]model.DeviceConfigurationKeyValueDescriptionDataType)
 	for _, item := range descData.DeviceConfigurationKeyValueDescriptionData {
@@ -153,6 +162,10 @@ func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
 	}
 
 	data := rData.(*model.DeviceConfigurationKeyValueListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	var resultSet []DeviceConfigurationType
 
 	for _, item := range data.DeviceConfigurationKeyValueData {
@@ -229,10 +242,16 @@ func (d *DeviceConfiguration) deviceConfigurationKeyValueDescriptionListData() (
 		return nil, ErrDataNotAvailable
 	}
 
-	data := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData).(*model.DeviceConfigurationKeyValueDescriptionListDataType)
+	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
+	if rData == nil {
+		return nil, ErrMetadataNotAvailable
+	}
+
+	data := rData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
 	if data == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+
 	ref := make(deviceConfigurationKeyValueDescriptionMap)
 	for _, item := range data.DeviceConfigurationKeyValueDescriptionData {
 		if item.KeyId == nil {

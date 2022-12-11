@@ -51,6 +51,10 @@ func (i *Identification) GetValues() ([]IdentificationType, error) {
 	}
 
 	data := rData.(*model.IdentificationListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	var resultSet []IdentificationType
 
 	for _, item := range data.IdentificationData {

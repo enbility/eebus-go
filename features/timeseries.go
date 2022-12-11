@@ -110,6 +110,10 @@ func (t *TimeSeries) GetValues() ([]TimeSeriesType, error) {
 	}
 
 	data := rData.(*model.TimeSeriesListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	var resultSet []TimeSeriesType
 
 	for _, item := range data.TimeSeriesData {
@@ -188,6 +192,10 @@ func (t *TimeSeries) GetDescriptionValues() ([]TimeSeriesDescriptionType, error)
 	}
 
 	data := rData.(*model.TimeSeriesDescriptionListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	var resultSet []TimeSeriesDescriptionType
 
 	for _, item := range data.TimeSeriesDescriptionData {
@@ -236,6 +244,10 @@ func (t *TimeSeries) GetConstraintValues() ([]TimeSeriesConstraintsType, error) 
 	}
 
 	data := rData.(*model.TimeSeriesConstraintsListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
 	var resultSet []TimeSeriesConstraintsType
 
 	for _, item := range data.TimeSeriesConstraintsData {

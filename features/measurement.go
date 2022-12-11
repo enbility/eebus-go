@@ -82,7 +82,11 @@ func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConn
 	if rData == nil {
 		return 0, ErrDataNotAvailable
 	}
+
 	data := rData.(*model.MeasurementListDataType)
+	if data == nil {
+		return 0, ErrDataNotAvailable
+	}
 
 	var result float64
 	for _, item := range data.MeasurementData {
@@ -131,7 +135,11 @@ func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, elect
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
+
 	data := rData.(*model.MeasurementListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	resultSet := make(map[string]float64)
 	for _, item := range data.MeasurementData {
@@ -174,7 +182,11 @@ func (m *Measurement) GetDescription() (measurementDescriptionMap, error) {
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+
 	data := rData.(*model.MeasurementDescriptionListDataType)
+	if data == nil {
+		return nil, ErrMetadataNotAvailable
+	}
 
 	ref := make(measurementDescriptionMap)
 	for _, item := range data.MeasurementDescriptionData {
@@ -230,7 +242,11 @@ func (m *Measurement) GetSoC() (float64, error) {
 	if rData == nil {
 		return 0, ErrDataNotAvailable
 	}
+
 	data := rData.(*model.MeasurementListDataType)
+	if data == nil {
+		return 0, ErrDataNotAvailable
+	}
 
 	for _, item := range data.MeasurementData {
 		if item.MeasurementId == nil || item.Value == nil {
@@ -266,7 +282,11 @@ func (m *Measurement) GetConstraints() (measurementConstraintMap, error) {
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
+
 	data := rData.(*model.MeasurementConstraintsListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	ref := make(measurementConstraintMap)
 	for _, item := range data.MeasurementConstraintsData {
@@ -296,7 +316,11 @@ func (m *Measurement) GetValues() ([]MeasurementType, error) {
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
+
 	data := rData.(*model.MeasurementListDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
 
 	var resultSet []MeasurementType
 	for _, item := range data.MeasurementData {
