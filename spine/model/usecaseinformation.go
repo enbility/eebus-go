@@ -3,10 +3,11 @@ package model
 type UseCaseActorType string
 
 const (
-	UseCaseActorTypeCEM      UseCaseActorType = "CEM"
-	UseCaseActorTypeEVSE     UseCaseActorType = "EVSE"
-	UseCaseActorTypeEV       UseCaseActorType = "EV"
-	UseCaseActorTypeHeatPump UseCaseActorType = "HeatPump"
+	UseCaseActorTypeCEM                 UseCaseActorType = "CEM"
+	UseCaseActorTypeEVSE                UseCaseActorType = "EVSE"
+	UseCaseActorTypeEV                  UseCaseActorType = "EV"
+	UseCaseActorTypeHeatPump            UseCaseActorType = "HeatPump"
+	UseCaseActorTypeMonitoringAppliance UseCaseActorType = "MonitoringAppliance"
 )
 
 type UseCaseNameType string
@@ -22,6 +23,7 @@ const (
 	UseCaseNameTypeEVStateOfCharge                                  UseCaseNameType = "evStateOfCharge"
 	UseCaseNameTypeMonitoringAndControlOfSmartGridReadyConditions   UseCaseNameType = "monitoringAndControlOfSmartGridReadyConditions"
 	UseCaseNameTypeMonitoringOfPowerConsumption                     UseCaseNameType = "monitoringOfPowerConsumption"
+	UseCaseNameTypeMonitoringOfGridConnectionPoint                  UseCaseNameType = "monitoringOfGridConnectionPoint"
 )
 
 type UseCaseScenarioSupportType uint

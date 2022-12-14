@@ -530,6 +530,7 @@ const (
 	ScopeTypeTypeACCurrentA            ScopeTypeType = "acCurrentA"
 	ScopeTypeTypeACCurrentB            ScopeTypeType = "acCurrentB"
 	ScopeTypeTypeACCurrentC            ScopeTypeType = "acCurrentC"
+	ScopeTypeTypeACFrequency           ScopeTypeType = "acFrequency"
 	ScopeTypeTypeACFrequencyGrid       ScopeTypeType = "acFrequencyGrid"
 	ScopeTypeTypeACPowerA              ScopeTypeType = "acPowerA"
 	ScopeTypeTypeACPowerB              ScopeTypeType = "acPowerB"

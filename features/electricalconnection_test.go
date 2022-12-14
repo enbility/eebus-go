@@ -82,6 +82,25 @@ func (s *ElectricalConnectionSuite) Test_GetParamDescriptionListData() {
 	assert.NotNil(s.T(), mapParamId)
 }
 
+func (s *ElectricalConnectionSuite) Test_GetDescriptionForMeasurementId() {
+	measurementId := model.MeasurementIdType(0)
+	data, err := s.electricalConnection.GetDescriptionForMeasurementId(measurementId)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.electricalConnection.GetDescriptionForMeasurementId(measurementId)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addParamDescription()
+
+	data, err = s.electricalConnection.GetDescriptionForMeasurementId(measurementId)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
 func (s *ElectricalConnectionSuite) Test_GetDescription() {
 	data, err := s.electricalConnection.GetDescription()
 	assert.NotNil(s.T(), err)

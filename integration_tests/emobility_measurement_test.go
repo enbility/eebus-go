@@ -75,7 +75,10 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	resultMap, err := s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalconnection)
+	measurement := model.MeasurementTypeTypeCurrent
+	commodity := model.CommodityTypeTypeElectricity
+	scope := model.ScopeTypeTypeACCurrent
+	resultMap, _, err := s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalconnection)
 
 	// Assert
 	assert.Nil(s.T(), err)
@@ -83,7 +86,9 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	assert.Equal(s.T(), 1, len(resultMap))
 	assert.Equal(s.T(), 5.0, resultMap["a"])
 
-	resultMap, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACPower, s.electricalconnection)
+	measurement = model.MeasurementTypeTypePower
+	scope = model.ScopeTypeTypeACPower
+	resultMap, _, err = s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalconnection)
 
 	// Assert
 	assert.Nil(s.T(), err)
@@ -91,7 +96,9 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	assert.Equal(s.T(), 1, len(resultMap))
 	assert.Equal(s.T(), 1185.0, resultMap["a"])
 
-	resultMap, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeCharge, s.electricalconnection)
+	measurement = model.MeasurementTypeTypeEnergy
+	scope = model.ScopeTypeTypeCharge
+	resultMap, _, err = s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalconnection)
 
 	// Assert
 	assert.Nil(s.T(), err)

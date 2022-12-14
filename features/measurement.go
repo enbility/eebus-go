@@ -67,28 +67,27 @@ func (m *Measurement) Request() (*model.MsgCounterType, error) {
 	return msgCounter, nil
 }
 
-// return current value of a defined scope
-func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (float64, error) {
+// return current value and the corresponding measurementId of a defined measurement, commodity and scope type
+func (m *Measurement) GetValueForTypeCommodityScope(measurement model.MeasurementTypeType, commodity model.CommodityTypeType, scope model.ScopeTypeType) (float64, model.MeasurementIdType, error) {
 	if m.featureRemote == nil {
-		return 0, ErrDataNotAvailable
+		return 0, 0, ErrDataNotAvailable
 	}
 
 	descRef, err := m.GetDescription()
 	if err != nil {
-		return 0, ErrMetadataNotAvailable
+		return 0, 0, ErrMetadataNotAvailable
 	}
 
 	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
 	if rData == nil {
-		return 0, ErrDataNotAvailable
+		return 0, 0, ErrDataNotAvailable
 	}
 
 	data := rData.(*model.MeasurementListDataType)
 	if data == nil {
-		return 0, ErrDataNotAvailable
+		return 0, 0, ErrDataNotAvailable
 	}
 
-	var result float64
 	for _, item := range data.MeasurementData {
 		if item.MeasurementId == nil || item.Value == nil {
 			continue
@@ -99,56 +98,65 @@ func (m *Measurement) GetValueForScope(scope model.ScopeTypeType, electricalConn
 			continue
 		}
 
-		if desc.ScopeType == nil {
+		if desc.MeasurementType == nil || *desc.MeasurementType != measurement {
 			continue
 		}
 
-		if *desc.ScopeType == scope {
-			return item.Value.GetValue(), nil
+		if desc.CommodityType == nil || *desc.CommodityType != commodity {
+			continue
 		}
+
+		if desc.ScopeType == nil || *desc.ScopeType != scope {
+			continue
+		}
+
+		return item.Value.GetValue(), *item.MeasurementId, nil
 	}
 
-	return result, nil
+	return 0, 0, ErrDataNotAvailable
 }
 
 // return current values of a defined scope per phase
 //
-// returns a map with the phase ("a", "b", "c") as a key
+// returns a value map with the phase ("a", "b", "c") as a key
+//
+//	and a measurement id map with the phase as a key
 //
 // If the scope is not available, it will return an empty map
-func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (map[string]float64, error) {
+func (m *Measurement) GetValuesPerPhaseForTypeCommodityScope(measurement model.MeasurementTypeType, commodity model.CommodityTypeType, scope model.ScopeTypeType, electricalConnection *ElectricalConnection) (map[string]float64, map[string]model.MeasurementIdType, error) {
 	if m.featureRemote == nil {
-		return nil, ErrDataNotAvailable
+		return nil, nil, ErrDataNotAvailable
 	}
 
 	descRef, err := m.GetDescription()
 	if err != nil {
-		return nil, ErrMetadataNotAvailable
+		return nil, nil, ErrMetadataNotAvailable
 	}
 
 	paramRef, _, err := electricalConnection.GetParamDescriptionListData()
 	if err != nil {
-		return nil, ErrMetadataNotAvailable
+		return nil, nil, ErrMetadataNotAvailable
 	}
 
 	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
 	if rData == nil {
-		return nil, ErrDataNotAvailable
+		return nil, nil, ErrDataNotAvailable
 	}
 
 	data := rData.(*model.MeasurementListDataType)
 	if data == nil {
-		return nil, ErrDataNotAvailable
+		return nil, nil, ErrDataNotAvailable
 	}
 
 	resultSet := make(map[string]float64)
+	measurementIdSet := make(map[string]model.MeasurementIdType)
 	for _, item := range data.MeasurementData {
 		if item.MeasurementId == nil || item.Value == nil {
 			continue
 		}
 
 		param, exists := paramRef[*item.MeasurementId]
-		if !exists {
+		if !exists || param.AcMeasuredPhases == nil {
 			continue
 		}
 
@@ -157,16 +165,23 @@ func (m *Measurement) GetValuesPerPhaseForScope(scope model.ScopeTypeType, elect
 			continue
 		}
 
-		if desc.ScopeType == nil || param.AcMeasuredPhases == nil {
+		if desc.MeasurementType == nil || *desc.MeasurementType != measurement {
 			continue
 		}
 
-		if *desc.ScopeType == scope {
-			resultSet[string(*param.AcMeasuredPhases)] = item.Value.GetValue()
+		if desc.CommodityType == nil || *desc.CommodityType != commodity {
+			continue
 		}
+
+		if desc.ScopeType == nil || *desc.ScopeType != scope {
+			continue
+		}
+
+		resultSet[string(*param.AcMeasuredPhases)] = item.Value.GetValue()
+		measurementIdSet[string(*param.AcMeasuredPhases)] = *item.MeasurementId
 	}
 
-	return resultSet, nil
+	return resultSet, measurementIdSet, nil
 }
 
 type measurementDescriptionMap map[model.MeasurementIdType]model.MeasurementDescriptionDataType

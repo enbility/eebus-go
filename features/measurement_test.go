@@ -83,43 +83,54 @@ func (s *MeasurementSuite) Test_Request() {
 }
 
 func (s *MeasurementSuite) Test_GetValueForScope() {
-	data, err := s.measurement.GetValueForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	measurement := model.MeasurementTypeTypeCurrent
+	commodity := model.CommodityTypeTypeElectricity
+	scope := model.ScopeTypeTypeACCurrent
+
+	data, mId, err := s.measurement.GetValueForTypeCommodityScope(measurement, commodity, scope)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
+	assert.Equal(s.T(), uint(0), uint(mId))
 
 	s.addDescription()
 
-	data, err = s.measurement.GetValueForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, mId, err = s.measurement.GetValueForTypeCommodityScope(measurement, commodity, scope)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
+	assert.Equal(s.T(), uint(0), uint(mId))
 
 	s.addData()
 
-	data, err = s.measurement.GetValueForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, mId, err = s.measurement.GetValueForTypeCommodityScope(measurement, commodity, scope)
 	assert.Nil(s.T(), err)
 	assert.NotEqual(s.T(), 0.0, data)
+	assert.Equal(s.T(), uint(0), uint(mId))
 }
 
 func (s *MeasurementSuite) Test_GetValuesPerPhaseForScope() {
-	data, err := s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	measurement := model.MeasurementTypeTypeCurrent
+	commodity := model.CommodityTypeTypeElectricity
+	scope := model.ScopeTypeTypeACCurrent
+
+	data, _, err := s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalConnection)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, _, err = s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalConnection)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addElectricalParamDescription()
 
-	data, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, _, err = s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalConnection)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, _, err = s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalConnection)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 }
@@ -193,13 +204,17 @@ func (s *MeasurementSuite) addDescription() {
 	fData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
 			{
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				ScopeType:     util.Ptr(model.ScopeTypeTypeACCurrent),
-				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
 			},
 			{
-				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
-				ScopeType:     util.Ptr(model.ScopeTypeTypeStateOfCharge),
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePercentage),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeStateOfCharge),
 			},
 		},
 	}

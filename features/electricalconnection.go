@@ -144,6 +144,58 @@ func (e *ElectricalConnection) GetDescription() ([]ElectricalDescriptionType, er
 	return resultSet, nil
 }
 
+// return current electrical description for a given measurementId
+func (e *ElectricalConnection) GetDescriptionForMeasurementId(measurementId model.MeasurementIdType) (*ElectricalDescriptionType, error) {
+	if e.featureRemote == nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	paramRef, _, err := e.GetParamDescriptionListData()
+	if err != nil {
+		return nil, ErrMetadataNotAvailable
+	}
+
+	param, exists := paramRef[measurementId]
+	if !exists {
+		return nil, ErrMetadataNotAvailable
+	}
+
+	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData)
+	if rData == nil {
+		return nil, ErrMetadataNotAvailable
+	}
+	data := rData.(*model.ElectricalConnectionDescriptionListDataType)
+	if data == nil {
+		return nil, ErrMetadataNotAvailable
+	}
+
+	for _, item := range data.ElectricalConnectionDescriptionData {
+		if item.ElectricalConnectionId == nil {
+			continue
+		}
+
+		if *item.ElectricalConnectionId != *param.ElectricalConnectionId {
+			continue
+		}
+
+		result := ElectricalDescriptionType{}
+
+		if item.PowerSupplyType != nil {
+			result.PowerSupplyType = *item.PowerSupplyType
+		}
+		if item.AcConnectedPhases != nil {
+			result.AcConnectedPhases = *item.AcConnectedPhases
+		}
+		if item.PositiveEnergyDirection != nil {
+			result.PositiveEnergyDirection = *item.PositiveEnergyDirection
+		}
+
+		return &result, nil
+	}
+
+	return nil, ErrMetadataNotAvailable
+}
+
 // return number of phases the device is connected with
 func (e *ElectricalConnection) GetConnectedPhases() (uint, error) {
 	if e.featureRemote == nil {

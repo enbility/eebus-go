@@ -8,9 +8,10 @@ import (
 )
 
 var entityTypeActorMap = map[model.EntityTypeType]model.UseCaseActorType{
-	model.EntityTypeTypeEV:   model.UseCaseActorTypeEV,
-	model.EntityTypeTypeEVSE: model.UseCaseActorTypeEVSE,
-	model.EntityTypeTypeCEM:  model.UseCaseActorTypeCEM,
+	model.EntityTypeTypeEV:                            model.UseCaseActorTypeEV,
+	model.EntityTypeTypeEVSE:                          model.UseCaseActorTypeEVSE,
+	model.EntityTypeTypeCEM:                           model.UseCaseActorTypeCEM,
+	model.EntityTypeTypeGridConnectionPointOfPremises: model.UseCaseActorTypeMonitoringAppliance,
 }
 
 var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
@@ -24,6 +25,7 @@ var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
 	model.UseCaseNameTypeOverloadProtectionByEVChargingCurrentCurtailment: {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
 	model.UseCaseNameTypeMonitoringOfPowerConsumption:                     {model.UseCaseActorTypeCEM, model.UseCaseActorTypeHeatPump},
 	model.UseCaseNameTypeMonitoringAndControlOfSmartGridReadyConditions:   {model.UseCaseActorTypeCEM, model.UseCaseActorTypeHeatPump},
+	model.UseCaseNameTypeMonitoringOfGridConnectionPoint:                  {model.UseCaseActorTypeCEM, model.UseCaseActorTypeMonitoringAppliance},
 }
 
 type UseCaseImpl struct {

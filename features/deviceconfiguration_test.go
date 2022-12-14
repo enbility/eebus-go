@@ -51,8 +51,8 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.deviceConfiguration)
 }
 
-func (s *DeviceConfigurationSuite) Test_Request() {
-	err := s.deviceConfiguration.Request()
+func (s *DeviceConfigurationSuite) Test_RequestDescription() {
+	err := s.deviceConfiguration.RequestDescription()
 	assert.Nil(s.T(), err)
 }
 
@@ -74,20 +74,31 @@ func (s *DeviceConfigurationSuite) Test_GetDescriptionKeyNameSupport() {
 	assert.Equal(s.T(), true, exists)
 }
 
-func (s *DeviceConfigurationSuite) Test_GetEVCommunicationStandard() {
-	value, err := s.deviceConfiguration.GetEVCommunicationStandard()
+func (s *DeviceConfigurationSuite) Test_GetValueForKey() {
+	key := model.DeviceConfigurationKeyNameTypeCommunicationsStandard
+	valueType := model.DeviceConfigurationKeyValueTypeTypeString
+
+	value, err := s.deviceConfiguration.GetValueForKeyName(key, valueType)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), value)
 
 	s.addDescription()
 
-	value, err = s.deviceConfiguration.GetEVCommunicationStandard()
+	value, err = s.deviceConfiguration.GetValueForKeyName(key, valueType)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), value)
 
 	s.addData()
 
-	value, err = s.deviceConfiguration.GetEVCommunicationStandard()
+	value, err = s.deviceConfiguration.GetValueForKeyName(key, valueType)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetValueForKeyName(model.DeviceConfigurationKeyNameTypeAsymmetricChargingSupported, model.DeviceConfigurationKeyValueTypeTypeBoolean)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetValueForKeyName(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor, model.DeviceConfigurationKeyValueTypeTypeScaledNumber)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), value)
 }
@@ -108,7 +119,6 @@ func (s *DeviceConfigurationSuite) Test_GetValues() {
 	data, err = s.deviceConfiguration.GetValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
-
 }
 
 // helper
@@ -131,6 +141,7 @@ func (s *DeviceConfigurationSuite) addDescription() {
 				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(2)),
 				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
 				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
+				Unit:      util.Ptr(model.UnitOfMeasurementTypepct),
 			},
 		},
 	}

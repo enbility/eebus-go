@@ -39,7 +39,7 @@ func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevi
 }
 
 // request DeviceConfiguration data from a remote entity
-func (d *DeviceConfiguration) Request() error {
+func (d *DeviceConfiguration) RequestDescription() error {
 	// request DeviceConfigurationKeyValueDescriptionListData from a remote entity
 	if _, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil); err != nil {
 		logging.Log.Error(err)
@@ -90,8 +90,8 @@ func (d *DeviceConfiguration) GetDescriptionKeyNameSupport(keyName model.DeviceC
 	return false, ErrDataNotAvailable
 }
 
-// return current SoC for measurements
-func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
+// return a pointer value for a given key and value type
+func (d *DeviceConfiguration) GetValueForKeyName(keyname model.DeviceConfigurationKeyNameType, valueType model.DeviceConfigurationKeyValueTypeType) (any, error) {
 	if d.featureRemote == nil {
 		return nil, ErrDataNotAvailable
 	}
@@ -125,8 +125,25 @@ func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
 			continue
 		}
 
-		if *desc.KeyName == model.DeviceConfigurationKeyNameTypeCommunicationsStandard {
-			return (*string)(item.Value.String), nil
+		if *desc.KeyName == keyname {
+			switch valueType {
+			case model.DeviceConfigurationKeyValueTypeTypeBoolean:
+				return item.Value.Boolean, nil
+			case model.DeviceConfigurationKeyValueTypeTypeDate:
+				return item.Value.Date, nil
+			case model.DeviceConfigurationKeyValueTypeTypeDateTime:
+				return item.Value.DateTime, nil
+			case model.DeviceConfigurationKeyValueTypeTypeDuration:
+				return item.Value.Duration, nil
+			case model.DeviceConfigurationKeyValueTypeTypeString:
+				return item.Value.String, nil
+			case model.DeviceConfigurationKeyValueTypeTypeTime:
+				return item.Value.Time, nil
+			case model.DeviceConfigurationKeyValueTypeTypeScaledNumber:
+				return item.Value.ScaledNumber, nil
+			default:
+				return nil, ErrDataNotAvailable
+			}
 		}
 	}
 
