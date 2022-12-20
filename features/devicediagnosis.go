@@ -1,15 +1,9 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
-
-type DeviceDiagnosisType struct {
-	OperatingState       model.DeviceDiagnosisOperatingStateType
-	PowerSupplyCondition model.PowerSupplyConditionType
-}
 
 type DeviceDiagnosis struct {
 	*FeatureImpl
@@ -30,22 +24,11 @@ func NewDeviceDiagnosis(localRole, remoteRole model.RoleType, spineLocalDevice *
 
 // request DeviceDiagnosisStateData from a remote entity
 func (d *DeviceDiagnosis) RequestStateForEntity() (*model.MsgCounterType, error) {
-	// request FunctionTypeDeviceDiagnosisStateData from a remote entity
-	msgCounter, err := d.requestData(model.FunctionTypeDeviceDiagnosisStateData, nil, nil)
-	if err != nil {
-		logging.Log.Error(err)
-		return nil, err
-	}
-
-	return msgCounter, nil
+	return d.requestData(model.FunctionTypeDeviceDiagnosisStateData, nil, nil)
 }
 
 // get the current diagnosis state for an device entity
-func (d *DeviceDiagnosis) GetState() (*DeviceDiagnosisType, error) {
-	if d.featureRemote == nil {
-		return nil, ErrDataNotAvailable
-	}
-
+func (d *DeviceDiagnosis) GetState() (*model.DeviceDiagnosisStateDataType, error) {
 	rData := d.featureRemote.Data(model.FunctionTypeDeviceDiagnosisStateData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -56,15 +39,7 @@ func (d *DeviceDiagnosis) GetState() (*DeviceDiagnosisType, error) {
 		return nil, ErrDataNotAvailable
 	}
 
-	details := &DeviceDiagnosisType{}
-	if data.OperatingState != nil {
-		details.OperatingState = *data.OperatingState
-	}
-	if data.PowerSupplyCondition != nil {
-		details.PowerSupplyCondition = *data.PowerSupplyCondition
-	}
-
-	return details, nil
+	return data, nil
 }
 
 func (d *DeviceDiagnosis) SendState(operatingState *model.DeviceDiagnosisStateDataType) {

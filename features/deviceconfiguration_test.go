@@ -62,16 +62,29 @@ func (s *DeviceConfigurationSuite) Test_RequestKeyValueList() {
 	assert.NotNil(s.T(), counter)
 }
 
-func (s *DeviceConfigurationSuite) Test_GetDescriptionKeyNameSupport() {
-	exists, err := s.deviceConfiguration.GetDescriptionKeyNameSupport(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+func (s *DeviceConfigurationSuite) Test_GetDescriptionForKeyId() {
+	keyId := model.DeviceConfigurationKeyIdType(0)
+	desc, err := s.deviceConfiguration.GetDescriptionForKeyId(keyId)
 	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), false, exists)
+	assert.Nil(s.T(), desc)
 
 	s.addDescription()
 
-	exists, err = s.deviceConfiguration.GetDescriptionKeyNameSupport(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+	desc, err = s.deviceConfiguration.GetDescriptionForKeyId(keyId)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), true, exists)
+	assert.NotNil(s.T(), desc)
+}
+
+func (s *DeviceConfigurationSuite) Test_GetDescriptionForKeyName() {
+	desc, err := s.deviceConfiguration.GetDescriptionForKeyName(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), desc)
+
+	s.addDescription()
+
+	desc, err = s.deviceConfiguration.GetDescriptionForKeyName(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), desc)
 }
 
 func (s *DeviceConfigurationSuite) Test_GetValueForKey() {

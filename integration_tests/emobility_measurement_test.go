@@ -78,31 +78,31 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	measurement := model.MeasurementTypeTypeCurrent
 	commodity := model.CommodityTypeTypeElectricity
 	scope := model.ScopeTypeTypeACCurrent
-	resultMap, _, err := s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalconnection)
+	data, err := s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), resultMap)
-	assert.Equal(s.T(), 1, len(resultMap))
-	assert.Equal(s.T(), 5.0, resultMap["a"])
+	assert.NotNil(s.T(), data)
+	assert.Equal(s.T(), 1, len(data))
+	assert.Equal(s.T(), 5.0, data[0].Value.GetValue())
 
 	measurement = model.MeasurementTypeTypePower
 	scope = model.ScopeTypeTypeACPower
-	resultMap, _, err = s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalconnection)
+	data, err = s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), resultMap)
-	assert.Equal(s.T(), 1, len(resultMap))
-	assert.Equal(s.T(), 1185.0, resultMap["a"])
+	assert.NotNil(s.T(), data)
+	assert.Equal(s.T(), 1, len(data))
+	assert.Equal(s.T(), 1185.0, data[0].Value.GetValue())
 
 	measurement = model.MeasurementTypeTypeEnergy
 	scope = model.ScopeTypeTypeCharge
-	resultMap, _, err = s.measurement.GetValuesPerPhaseForTypeCommodityScope(measurement, commodity, scope, s.electricalconnection)
+	data, err = s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), resultMap)
-	assert.Equal(s.T(), 1, len(resultMap))
-	assert.Equal(s.T(), 1825.0, resultMap["a"])
+	assert.NotNil(s.T(), data)
+	assert.Equal(s.T(), 1, len(data))
+	assert.Equal(s.T(), 1825.0, data[0].Value.GetValue())
 }

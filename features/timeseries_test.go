@@ -94,13 +94,13 @@ func (s *TimeSeriesSuite) Test_GetDescriptionValues() {
 }
 
 func (s *TimeSeriesSuite) Test_GetConstraintValues() {
-	data, err := s.timeSeries.GetConstraintValues()
+	data, err := s.timeSeries.GetConstraints()
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))
 
 	s.addConstraints()
 
-	data, err = s.timeSeries.GetConstraintValues()
+	data, err = s.timeSeries.GetConstraints()
 	assert.Nil(s.T(), err)
 	assert.NotEqual(s.T(), nil, data)
 }

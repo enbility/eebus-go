@@ -68,32 +68,50 @@ func (s *LoadControlSuite) Test_RequestLimits() {
 	assert.NotNil(s.T(), counter)
 }
 
-func (s *LoadControlSuite) Test_GetLimitDescription() {
-	data, err := s.loadControl.GetLimitDescription()
+func (s *LoadControlSuite) Test_GetLimitDescriptions() {
+	data, err := s.loadControl.GetLimitDescriptions()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.loadControl.GetLimitDescription()
+	data, err = s.loadControl.GetLimitDescriptions()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 }
 
-func (s *LoadControlSuite) Test_GetLimitDescriptionCategorySupport() {
-	exists, err := s.loadControl.GetLimitDescriptionCategorySupport(model.LoadControlCategoryTypeObligation)
+func (s *LoadControlSuite) Test_GetLimitDescriptionsForCategory() {
+	data, err := s.loadControl.GetLimitDescriptionsForCategory(model.LoadControlCategoryTypeObligation)
 	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), false, exists)
+	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	exists, err = s.loadControl.GetLimitDescriptionCategorySupport(model.LoadControlCategoryTypeOptimization)
+	data, err = s.loadControl.GetLimitDescriptionsForCategory(model.LoadControlCategoryTypeOptimization)
 	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), false, exists)
+	assert.Nil(s.T(), data)
 
-	exists, err = s.loadControl.GetLimitDescriptionCategorySupport(model.LoadControlCategoryTypeObligation)
+	data, err = s.loadControl.GetLimitDescriptionsForCategory(model.LoadControlCategoryTypeObligation)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), true, exists)
+	assert.NotNil(s.T(), data)
+}
+
+func (s *LoadControlSuite) Test_GetLimitDescriptionsForMeasurementId() {
+	measurementId := model.MeasurementIdType(0)
+	data, err := s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+
+	measurementId = model.MeasurementIdType(10)
+	data, err = s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 }
 
 func (s *LoadControlSuite) Test_WriteLimitValues() {
@@ -117,22 +135,46 @@ func (s *LoadControlSuite) Test_WriteLimitValues() {
 	assert.NotNil(s.T(), counter)
 }
 
-func (s *LoadControlSuite) Test_GetLimitValues() {
-	data, err := s.loadControl.GetLimitValues()
+func (s *LoadControlSuite) Test_GetLimitData() {
+	data, err := s.loadControl.GetLimitData()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.loadControl.GetLimitValues()
+	data, err = s.loadControl.GetLimitData()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.loadControl.GetLimitValues()
+	data, err = s.loadControl.GetLimitData()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
+}
+
+func (s *LoadControlSuite) Test_GetLimitDataForLimitId() {
+	limitId := model.LoadControlLimitIdType(0)
+	data, err := s.loadControl.GetLimitDataForLimitId(limitId)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.loadControl.GetLimitDataForLimitId(limitId)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addData()
+
+	data, err = s.loadControl.GetLimitDataForLimitId(limitId)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+
+	limitId = model.LoadControlLimitIdType(10)
+	data, err = s.loadControl.GetLimitDataForLimitId(limitId)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 }
 
 // helper
