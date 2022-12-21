@@ -311,6 +311,7 @@ func (m *mdns) resolveEntries() {
 	if m.av != nil {
 		// instead of limiting search on specific allowed interfaces, we allow all and filter the results
 		if avBrowser, err = m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0); err != nil {
+			logging.Log.Debug("mdns: error setting up avahi browser:", err)
 			return
 		}
 	} else {
