@@ -39,3 +39,69 @@ func (i *IncentiveTable) RequestValues() error {
 	_, err := i.requestData(model.FunctionTypeIncentiveTableData, nil, nil)
 	return err
 }
+
+// return current values for Time Series
+func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
+	rData := i.featureRemote.Data(model.FunctionTypeIncentiveTableData)
+	if rData == nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	data := rData.(*model.IncentiveTableDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	return data.IncentiveTable, nil
+}
+
+// return list of descriptions
+func (i *IncentiveTable) GetDescriptions() ([]model.IncentiveTableDescriptionType, error) {
+	rData := i.featureRemote.Data(model.FunctionTypeIncentiveTableDescriptionData)
+	if rData == nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	data := rData.(*model.IncentiveTableDescriptionDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	return data.IncentiveTableDescription, nil
+}
+
+// return list of descriptions
+func (i *IncentiveTable) GetDescriptionsForScope(scope model.ScopeTypeType) ([]model.IncentiveTableDescriptionType, error) {
+	data, err := i.GetDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []model.IncentiveTableDescriptionType
+	for _, item := range data {
+		if item.TariffDescription != nil && item.TariffDescription.ScopeType != nil && *item.TariffDescription.ScopeType == scope {
+			result = append(result, item)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, ErrDataNotAvailable
+	}
+
+	return result, nil
+}
+
+// return list of constraints
+func (i *IncentiveTable) GetConstraints() ([]model.IncentiveTableConstraintsType, error) {
+	rData := i.featureRemote.Data(model.FunctionTypeIncentiveTableConstraintsData)
+	if rData == nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	data := rData.(*model.IncentiveTableConstraintsDataType)
+	if data == nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	return data.IncentiveTableConstraints, nil
+}

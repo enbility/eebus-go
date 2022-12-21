@@ -93,6 +93,18 @@ func (s *TimeSeriesSuite) Test_GetDescriptions() {
 	assert.NotEqual(s.T(), nil, data)
 }
 
+func (s *TimeSeriesSuite) Test_GetDescriptionsForType() {
+	data, err := s.timeSeries.GetDescriptionsForType(model.TimeSeriesTypeTypeSingleDemand)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0, len(data))
+
+	s.addDescription()
+
+	data, err = s.timeSeries.GetDescriptionsForType(model.TimeSeriesTypeTypeSingleDemand)
+	assert.Nil(s.T(), err)
+	assert.NotEqual(s.T(), nil, data)
+}
+
 func (s *TimeSeriesSuite) Test_GetConstraints() {
 	data, err := s.timeSeries.GetConstraints()
 	assert.NotNil(s.T(), err)

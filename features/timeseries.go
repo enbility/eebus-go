@@ -69,6 +69,26 @@ func (t *TimeSeries) GetDescriptions() ([]model.TimeSeriesDescriptionDataType, e
 	return data.TimeSeriesDescriptionData, nil
 }
 
+func (t *TimeSeries) GetDescriptionsForType(timeSeriesType model.TimeSeriesTypeType) ([]model.TimeSeriesDescriptionDataType, error) {
+	data, err := t.GetDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []model.TimeSeriesDescriptionDataType
+	for _, item := range data {
+		if item.TimeSeriesType != nil && *item.TimeSeriesType == timeSeriesType {
+			result = append(result, item)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, ErrDataNotAvailable
+	}
+
+	return result, nil
+}
+
 // return current constraints for Time Series
 func (t *TimeSeries) GetConstraints() ([]model.TimeSeriesConstraintsDataType, error) {
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesConstraintsListData)
