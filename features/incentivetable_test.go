@@ -63,8 +63,9 @@ func (s *IncentiveTableSuite) Test_RequestConstraints() {
 }
 
 func (s *IncentiveTableSuite) Test_RequestValues() {
-	err := s.incentiveTable.RequestValues()
+	counter, err := s.incentiveTable.RequestValues()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *IncentiveTableSuite) Test_GetValues() {

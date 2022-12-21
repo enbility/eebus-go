@@ -35,9 +35,8 @@ func (i *IncentiveTable) RequestConstraints() error {
 }
 
 // request FunctionTypeIncentiveTableData from a remote entity
-func (i *IncentiveTable) RequestValues() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableData, nil, nil)
-	return err
+func (i *IncentiveTable) RequestValues() (*model.MsgCounterType, error) {
+	return i.requestData(model.FunctionTypeIncentiveTableData, nil, nil)
 }
 
 // return current values for Time Series
