@@ -23,7 +23,7 @@ func NewTimeSeries(localRole, remoteRole model.RoleType, spineLocalDevice *spine
 }
 
 // request FunctionTypeTimeSeriesDescriptionListData from a remote entity
-func (t *TimeSeries) RequestDescription() error {
+func (t *TimeSeries) RequestDescriptions() error {
 	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
 	return err
 }
@@ -35,7 +35,7 @@ func (t *TimeSeries) RequestConstraints() error {
 }
 
 // request FunctionTypeTimeSeriesListData from a remote device
-func (t *TimeSeries) Request() (*model.MsgCounterType, error) {
+func (t *TimeSeries) RequestValues() (*model.MsgCounterType, error) {
 	return t.requestData(model.FunctionTypeTimeSeriesListData, nil, nil)
 }
 
@@ -54,8 +54,8 @@ func (t *TimeSeries) GetValues() ([]model.TimeSeriesDataType, error) {
 	return data.TimeSeriesData, nil
 }
 
-// return current description values for Time Series
-func (t *TimeSeries) GetDescriptionValues() ([]model.TimeSeriesDescriptionDataType, error) {
+// return list of descriptions
+func (t *TimeSeries) GetDescriptions() ([]model.TimeSeriesDescriptionDataType, error) {
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesDescriptionListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable

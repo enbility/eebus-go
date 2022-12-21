@@ -78,7 +78,7 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	measurement := model.MeasurementTypeTypeCurrent
 	commodity := model.CommodityTypeTypeElectricity
 	scope := model.ScopeTypeTypeACCurrent
-	data, err := s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
+	data, err := s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)
@@ -88,7 +88,7 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 
 	measurement = model.MeasurementTypeTypePower
 	scope = model.ScopeTypeTypeACPower
-	data, err = s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)
@@ -98,7 +98,7 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 
 	measurement = model.MeasurementTypeTypeEnergy
 	scope = model.ScopeTypeTypeCharge
-	data, err = s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)

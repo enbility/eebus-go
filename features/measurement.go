@@ -23,7 +23,7 @@ func NewMeasurement(localRole, remoteRole model.RoleType, spineLocalDevice *spin
 }
 
 // request FunctionTypeMeasurementDescriptionListData from a remote device
-func (m *Measurement) RequestDescription() error {
+func (m *Measurement) RequestDescriptions() error {
 	_, err := m.requestData(model.FunctionTypeMeasurementDescriptionListData, nil, nil)
 
 	return err
@@ -36,7 +36,7 @@ func (m *Measurement) RequestConstraints() error {
 }
 
 // request FunctionTypeMeasurementListData from a remote entity
-func (m *Measurement) Request() (*model.MsgCounterType, error) {
+func (m *Measurement) RequestValues() (*model.MsgCounterType, error) {
 	return m.requestData(model.FunctionTypeMeasurementListData, nil, nil)
 }
 
@@ -112,7 +112,7 @@ func (m *Measurement) GetValues() ([]model.MeasurementDataType, error) {
 // return current values of a defined measurementType, commodityType and scopeType
 //
 // if nothing is found, it will return an error
-func (m *Measurement) GetDataForTypeCommodityScope(measurement model.MeasurementTypeType, commodity model.CommodityTypeType, scope model.ScopeTypeType) ([]model.MeasurementDataType, error) {
+func (m *Measurement) GetValuesForTypeCommodityScope(measurement model.MeasurementTypeType, commodity model.CommodityTypeType, scope model.ScopeTypeType) ([]model.MeasurementDataType, error) {
 	values, err := m.GetValues()
 	if err != nil {
 		return nil, err

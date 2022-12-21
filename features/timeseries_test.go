@@ -54,7 +54,7 @@ func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *TimeSeriesSuite) Test_RequestDescription() {
-	err := s.timeSeries.RequestDescription()
+	err := s.timeSeries.RequestDescriptions()
 	assert.Nil(s.T(), err)
 }
 
@@ -63,8 +63,8 @@ func (s *TimeSeriesSuite) Test_RequestConstraints() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *TimeSeriesSuite) Test_Request() {
-	counter, err := s.timeSeries.Request()
+func (s *TimeSeriesSuite) Test_RequestValues() {
+	counter, err := s.timeSeries.RequestValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
@@ -81,19 +81,19 @@ func (s *TimeSeriesSuite) Test_GetValues() {
 	assert.NotEqual(s.T(), nil, data)
 }
 
-func (s *TimeSeriesSuite) Test_GetDescriptionValues() {
-	data, err := s.timeSeries.GetDescriptionValues()
+func (s *TimeSeriesSuite) Test_GetDescriptions() {
+	data, err := s.timeSeries.GetDescriptions()
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))
 
 	s.addDescription()
 
-	data, err = s.timeSeries.GetDescriptionValues()
+	data, err = s.timeSeries.GetDescriptions()
 	assert.Nil(s.T(), err)
 	assert.NotEqual(s.T(), nil, data)
 }
 
-func (s *TimeSeriesSuite) Test_GetConstraintValues() {
+func (s *TimeSeriesSuite) Test_GetConstraints() {
 	data, err := s.timeSeries.GetConstraints()
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))

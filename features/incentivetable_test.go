@@ -51,8 +51,8 @@ func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.incentiveTable)
 }
 
-func (s *IncentiveTableSuite) Test_RequestDescription() {
-	err := s.incentiveTable.RequestDescription()
+func (s *IncentiveTableSuite) Test_RequestDescriptions() {
+	err := s.incentiveTable.RequestDescriptions()
 	assert.Nil(s.T(), err)
 }
 

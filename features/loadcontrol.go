@@ -23,7 +23,7 @@ func NewLoadControl(localRole, remoteRole model.RoleType, spineLocalDevice *spin
 }
 
 // request FunctionTypeLoadControlLimitDescriptionListData from a remote device
-func (l *LoadControl) RequestLimitDescription() error {
+func (l *LoadControl) RequestLimitDescriptions() error {
 	_, err := l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData, nil, nil)
 	return err
 }
@@ -35,7 +35,7 @@ func (l *LoadControl) RequestLimitConstraints() error {
 }
 
 // request FunctionTypeLoadControlLimitListData from a remote device
-func (l *LoadControl) RequestLimits() (*model.MsgCounterType, error) {
+func (l *LoadControl) RequestLimitValues() (*model.MsgCounterType, error) {
 	return l.requestData(model.FunctionTypeLoadControlLimitListData, nil, nil)
 }
 
@@ -118,7 +118,7 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 }
 
 // return limit data
-func (l *LoadControl) GetLimitData() ([]model.LoadControlLimitDataType, error) {
+func (l *LoadControl) GetLimitValues() ([]model.LoadControlLimitDataType, error) {
 	rData := l.featureRemote.Data(model.FunctionTypeLoadControlLimitListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -133,8 +133,8 @@ func (l *LoadControl) GetLimitData() ([]model.LoadControlLimitDataType, error) {
 }
 
 // return limit values
-func (l *LoadControl) GetLimitDataForLimitId(limitId model.LoadControlLimitIdType) (*model.LoadControlLimitDataType, error) {
-	data, err := l.GetLimitData()
+func (l *LoadControl) GetLimitValueForLimitId(limitId model.LoadControlLimitIdType) (*model.LoadControlLimitDataType, error) {
+	data, err := l.GetLimitValues()
 	if err != nil {
 		return nil, err
 	}

@@ -23,7 +23,7 @@ func NewIdentification(localRole, remoteRole model.RoleType, spineLocalDevice *s
 }
 
 // request FunctionTypeIdentificationListData from a remote entity
-func (i *Identification) Request() (*model.MsgCounterType, error) {
+func (i *Identification) RequestValues() (*model.MsgCounterType, error) {
 	return i.requestData(model.FunctionTypeIdentificationListData, nil, nil)
 }
 

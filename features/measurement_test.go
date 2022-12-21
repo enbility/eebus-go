@@ -61,8 +61,8 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.measurement)
 }
 
-func (s *MeasurementSuite) Test_RequestLimitDescription() {
-	err := s.measurement.RequestDescription()
+func (s *MeasurementSuite) Test_RequestDescriptions() {
+	err := s.measurement.RequestDescriptions()
 	assert.Nil(s.T(), err)
 }
 
@@ -71,35 +71,35 @@ func (s *MeasurementSuite) Test_RequestConstraints() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *MeasurementSuite) Test_Request() {
-	counter, err := s.measurement.Request()
+func (s *MeasurementSuite) Test_RequestValues() {
+	counter, err := s.measurement.RequestValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
-func (s *MeasurementSuite) Test_GetDataForTypeCommodityScope() {
+func (s *MeasurementSuite) Test_GetValuesForTypeCommodityScope() {
 	measurement := model.MeasurementTypeTypeCurrent
 	commodity := model.CommodityTypeTypeElectricity
 	scope := model.ScopeTypeTypeACCurrent
 
-	data, err := s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
+	data, err := s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 
 	measurement = model.MeasurementTypeTypeArea
-	data, err = s.measurement.GetDataForTypeCommodityScope(measurement, commodity, scope)
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 }

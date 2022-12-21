@@ -23,13 +23,13 @@ func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevi
 }
 
 // request DeviceConfiguration data from a remote entity
-func (d *DeviceConfiguration) RequestDescription() error {
+func (d *DeviceConfiguration) RequestDescriptions() error {
 	_, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil)
 	return err
 }
 
 // request DeviceConfigurationKeyValueListDataType from a remote entity
-func (d *DeviceConfiguration) RequestKeyValueList() (*model.MsgCounterType, error) {
+func (d *DeviceConfiguration) RequestKeyValues() (*model.MsgCounterType, error) {
 	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData, nil, nil)
 }
 
@@ -85,7 +85,7 @@ func (d *DeviceConfiguration) GetDescriptionForKeyName(keyName model.DeviceConfi
 }
 
 // return current values for Device Configuration
-func (d *DeviceConfiguration) GetValues() ([]model.DeviceConfigurationKeyValueDataType, error) {
+func (d *DeviceConfiguration) GetKeyValues() ([]model.DeviceConfigurationKeyValueDataType, error) {
 	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -100,8 +100,8 @@ func (d *DeviceConfiguration) GetValues() ([]model.DeviceConfigurationKeyValueDa
 }
 
 // return a pointer value for a given key and value type
-func (d *DeviceConfiguration) GetValueForKeyName(keyname model.DeviceConfigurationKeyNameType, valueType model.DeviceConfigurationKeyValueTypeType) (any, error) {
-	values, err := d.GetValues()
+func (d *DeviceConfiguration) GetKeyValueForKeyName(keyname model.DeviceConfigurationKeyNameType, valueType model.DeviceConfigurationKeyValueTypeType) (any, error) {
+	values, err := d.GetKeyValues()
 	if err != nil {
 		return nil, err
 	}

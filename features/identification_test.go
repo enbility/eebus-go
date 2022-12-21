@@ -50,8 +50,8 @@ func (s *IdentificationSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.identification)
 }
 
-func (s *IdentificationSuite) Test_Request() {
-	counter, err := s.identification.Request()
+func (s *IdentificationSuite) Test_RequestValues() {
+	counter, err := s.identification.RequestValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }

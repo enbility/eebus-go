@@ -23,21 +23,21 @@ func NewElectricalConnection(localRole, remoteRole model.RoleType, spineLocalDev
 }
 
 // request ElectricalConnectionDescriptionListDataType from a remote entity
-func (e *ElectricalConnection) RequestDescription() error {
+func (e *ElectricalConnection) RequestDescriptions() error {
 	_, err := e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, nil, nil)
 
 	return err
 }
 
 // request FunctionTypeElectricalConnectionParameterDescriptionListData from a remote entity
-func (e *ElectricalConnection) RequestParameterDescription() error {
+func (e *ElectricalConnection) RequestParameterDescriptions() error {
 	_, err := e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, nil, nil)
 
 	return err
 }
 
 // request FunctionTypeElectricalConnectionPermittedValueSetListData from a remote entity
-func (e *ElectricalConnection) RequestPermittedValueSet() (*model.MsgCounterType, error) {
+func (e *ElectricalConnection) RequestPermittedValueSets() (*model.MsgCounterType, error) {
 	return e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, nil, nil)
 }
 
@@ -149,7 +149,7 @@ func (e *ElectricalConnection) GetParameterDescriptionForMeasuredPhase(phase mod
 }
 
 // return permitted values for all Electrical Connections
-func (e *ElectricalConnection) GetPermittedValues() ([]model.ElectricalConnectionPermittedValueSetDataType, error) {
+func (e *ElectricalConnection) GetPermittedValueSets() ([]model.ElectricalConnectionPermittedValueSetDataType, error) {
 	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -164,8 +164,8 @@ func (e *ElectricalConnection) GetPermittedValues() ([]model.ElectricalConnectio
 }
 
 // return permitted valueset for a provided measuremnetId
-func (e *ElectricalConnection) GetPermittedValuesForParameterId(parameterId model.ElectricalConnectionParameterIdType) (*model.ElectricalConnectionPermittedValueSetDataType, error) {
-	values, err := e.GetPermittedValues()
+func (e *ElectricalConnection) GetPermittedValueSetForParameterId(parameterId model.ElectricalConnectionParameterIdType) (*model.ElectricalConnectionPermittedValueSetDataType, error) {
+	values, err := e.GetPermittedValueSets()
 	if err != nil {
 		return nil, err
 	}
@@ -182,13 +182,13 @@ func (e *ElectricalConnection) GetPermittedValuesForParameterId(parameterId mode
 }
 
 // return permitted valueset for a provided measuremnetId
-func (e *ElectricalConnection) GetPermittedValuesForMeasurementId(measurementId model.MeasurementIdType) (*model.ElectricalConnectionPermittedValueSetDataType, error) {
+func (e *ElectricalConnection) GetPermittedValueSetForMeasurementId(measurementId model.MeasurementIdType) (*model.ElectricalConnectionPermittedValueSetDataType, error) {
 	param, err := e.GetParameterDescriptionForMeasurementId(measurementId)
 	if err != nil {
 		return nil, err
 	}
 
-	values, err := e.GetPermittedValues()
+	values, err := e.GetPermittedValueSets()
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func (e *ElectricalConnection) GetPermittedValuesForMeasurementId(measurementId 
 
 // returns minimum, maximum, default/pause limit values
 func (e *ElectricalConnection) GetLimitsForParameterId(parameterId model.ElectricalConnectionParameterIdType) (float64, float64, float64, error) {
-	data, err := e.GetPermittedValuesForParameterId(parameterId)
+	data, err := e.GetPermittedValueSetForParameterId(parameterId)
 	if err != nil || data.ElectricalConnectionId == nil || data.PermittedValueSet == nil {
 		return 0, 0, 0, err
 	}
@@ -234,7 +234,7 @@ func (e *ElectricalConnection) GetLimitsForParameterId(parameterId model.Electri
 
 // Adjust a value to be within the permitted value range
 func (e *ElectricalConnection) AdjustValueToBeWithinPermittedValuesForParameter(value float64, parameterId model.ElectricalConnectionParameterIdType) float64 {
-	permittedValues, err := e.GetPermittedValuesForParameterId(parameterId)
+	permittedValues, err := e.GetPermittedValueSetForParameterId(parameterId)
 	if err != nil {
 		return value
 	}

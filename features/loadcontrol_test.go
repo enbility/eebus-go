@@ -53,7 +53,7 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *LoadControlSuite) Test_RequestLimitDescription() {
-	err := s.loadControl.RequestLimitDescription()
+	err := s.loadControl.RequestLimitDescriptions()
 	assert.Nil(s.T(), err)
 }
 
@@ -63,7 +63,7 @@ func (s *LoadControlSuite) Test_RequestLimitConstraints() {
 }
 
 func (s *LoadControlSuite) Test_RequestLimits() {
-	counter, err := s.loadControl.RequestLimits()
+	counter, err := s.loadControl.RequestLimitValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
@@ -136,43 +136,43 @@ func (s *LoadControlSuite) Test_WriteLimitValues() {
 }
 
 func (s *LoadControlSuite) Test_GetLimitData() {
-	data, err := s.loadControl.GetLimitData()
+	data, err := s.loadControl.GetLimitValues()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.loadControl.GetLimitData()
+	data, err = s.loadControl.GetLimitValues()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.loadControl.GetLimitData()
+	data, err = s.loadControl.GetLimitValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 }
 
 func (s *LoadControlSuite) Test_GetLimitDataForLimitId() {
 	limitId := model.LoadControlLimitIdType(0)
-	data, err := s.loadControl.GetLimitDataForLimitId(limitId)
+	data, err := s.loadControl.GetLimitValueForLimitId(limitId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.loadControl.GetLimitDataForLimitId(limitId)
+	data, err = s.loadControl.GetLimitValueForLimitId(limitId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.loadControl.GetLimitDataForLimitId(limitId)
+	data, err = s.loadControl.GetLimitValueForLimitId(limitId)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 
 	limitId = model.LoadControlLimitIdType(10)
-	data, err = s.loadControl.GetLimitDataForLimitId(limitId)
+	data, err = s.loadControl.GetLimitValueForLimitId(limitId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 }

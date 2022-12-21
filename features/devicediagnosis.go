@@ -23,7 +23,7 @@ func NewDeviceDiagnosis(localRole, remoteRole model.RoleType, spineLocalDevice *
 }
 
 // request DeviceDiagnosisStateData from a remote entity
-func (d *DeviceDiagnosis) RequestStateForEntity() (*model.MsgCounterType, error) {
+func (d *DeviceDiagnosis) RequestState() (*model.MsgCounterType, error) {
 	return d.requestData(model.FunctionTypeDeviceDiagnosisStateData, nil, nil)
 }
 

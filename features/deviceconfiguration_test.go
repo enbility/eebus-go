@@ -51,13 +51,13 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.deviceConfiguration)
 }
 
-func (s *DeviceConfigurationSuite) Test_RequestDescription() {
-	err := s.deviceConfiguration.RequestDescription()
+func (s *DeviceConfigurationSuite) Test_RequestDescriptions() {
+	err := s.deviceConfiguration.RequestDescriptions()
 	assert.Nil(s.T(), err)
 }
 
 func (s *DeviceConfigurationSuite) Test_RequestKeyValueList() {
-	counter, err := s.deviceConfiguration.RequestKeyValueList()
+	counter, err := s.deviceConfiguration.RequestKeyValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
@@ -91,45 +91,45 @@ func (s *DeviceConfigurationSuite) Test_GetValueForKey() {
 	key := model.DeviceConfigurationKeyNameTypeCommunicationsStandard
 	valueType := model.DeviceConfigurationKeyValueTypeTypeString
 
-	value, err := s.deviceConfiguration.GetValueForKeyName(key, valueType)
+	value, err := s.deviceConfiguration.GetKeyValueForKeyName(key, valueType)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), value)
 
 	s.addDescription()
 
-	value, err = s.deviceConfiguration.GetValueForKeyName(key, valueType)
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(key, valueType)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), value)
 
 	s.addData()
 
-	value, err = s.deviceConfiguration.GetValueForKeyName(key, valueType)
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(key, valueType)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), value)
 
-	value, err = s.deviceConfiguration.GetValueForKeyName(model.DeviceConfigurationKeyNameTypeAsymmetricChargingSupported, model.DeviceConfigurationKeyValueTypeTypeBoolean)
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypeAsymmetricChargingSupported, model.DeviceConfigurationKeyValueTypeTypeBoolean)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), value)
 
-	value, err = s.deviceConfiguration.GetValueForKeyName(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor, model.DeviceConfigurationKeyValueTypeTypeScaledNumber)
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor, model.DeviceConfigurationKeyValueTypeTypeScaledNumber)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), value)
 }
 
 func (s *DeviceConfigurationSuite) Test_GetValues() {
-	data, err := s.deviceConfiguration.GetValues()
+	data, err := s.deviceConfiguration.GetKeyValues()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.deviceConfiguration.GetValues()
+	data, err = s.deviceConfiguration.GetKeyValues()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.deviceConfiguration.GetValues()
+	data, err = s.deviceConfiguration.GetKeyValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 }

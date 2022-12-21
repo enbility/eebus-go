@@ -23,7 +23,7 @@ func NewDeviceClassification(localRole, remoteRole model.RoleType, spineLocalDev
 }
 
 // request DeviceClassificationManufacturerData from a remote device entity
-func (d *DeviceClassification) RequestManufacturerDetailsForEntity() (*model.MsgCounterType, error) {
+func (d *DeviceClassification) RequestManufacturerDetails() (*model.MsgCounterType, error) {
 	return d.requestData(model.FunctionTypeDeviceClassificationManufacturerData, nil, nil)
 }
 

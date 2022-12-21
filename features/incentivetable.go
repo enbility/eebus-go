@@ -23,7 +23,7 @@ func NewIncentiveTable(localRole, remoteRole model.RoleType, spineLocalDevice *s
 }
 
 // request FunctionTypeIncentiveTableDescriptionData from a remote entity
-func (i *IncentiveTable) RequestDescription() error {
+func (i *IncentiveTable) RequestDescriptions() error {
 	_, err := i.requestData(model.FunctionTypeIncentiveTableDescriptionData, nil, nil)
 	return err
 }

@@ -52,18 +52,18 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.electricalConnection)
 }
 
-func (s *ElectricalConnectionSuite) Test_RequestDescription() {
-	err := s.electricalConnection.RequestDescription()
+func (s *ElectricalConnectionSuite) Test_RequestDescriptions() {
+	err := s.electricalConnection.RequestDescriptions()
 	assert.Nil(s.T(), err)
 }
 
-func (s *ElectricalConnectionSuite) Test_RequestParameterDescription() {
-	err := s.electricalConnection.RequestParameterDescription()
+func (s *ElectricalConnectionSuite) Test_RequestParameterDescriptions() {
+	err := s.electricalConnection.RequestParameterDescriptions()
 	assert.Nil(s.T(), err)
 }
 
-func (s *ElectricalConnectionSuite) Test_RequestPermittedValueSet() {
-	counter, err := s.electricalConnection.RequestPermittedValueSet()
+func (s *ElectricalConnectionSuite) Test_RequestPermittedValueSets() {
+	counter, err := s.electricalConnection.RequestPermittedValueSets()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
@@ -183,62 +183,62 @@ func (s *ElectricalConnectionSuite) Test_GetParameterDescriptionForMeasuredPhase
 	assert.Nil(s.T(), data)
 }
 
-func (s *ElectricalConnectionSuite) Test_GetPermittedValues() {
-	data, err := s.electricalConnection.GetPermittedValues()
+func (s *ElectricalConnectionSuite) Test_GetPermittedValueSets() {
+	data, err := s.electricalConnection.GetPermittedValueSets()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addPermittedValueSet()
 
-	data, err = s.electricalConnection.GetPermittedValues()
+	data, err = s.electricalConnection.GetPermittedValueSets()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 
 	s.addParamDescriptionPower()
 
-	data, err = s.electricalConnection.GetPermittedValues()
+	data, err = s.electricalConnection.GetPermittedValueSets()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 }
 
-func (s *ElectricalConnectionSuite) Test_GetPermittedValuesForParameterId() {
+func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetForParameterId() {
 	parametertId := model.ElectricalConnectionParameterIdType(1)
-	data, err := s.electricalConnection.GetPermittedValuesForParameterId(parametertId)
+	data, err := s.electricalConnection.GetPermittedValueSetForParameterId(parametertId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addPermittedValueSet()
 
-	data, err = s.electricalConnection.GetPermittedValuesForParameterId(parametertId)
+	data, err = s.electricalConnection.GetPermittedValueSetForParameterId(parametertId)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 
 	parametertId = model.ElectricalConnectionParameterIdType(10)
-	data, err = s.electricalConnection.GetPermittedValuesForParameterId(parametertId)
+	data, err = s.electricalConnection.GetPermittedValueSetForParameterId(parametertId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 }
 
-func (s *ElectricalConnectionSuite) Test_GetPermittedValuesForMeasurementId() {
+func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetForMeasurementId() {
 	measurementId := model.MeasurementIdType(1)
-	data, err := s.electricalConnection.GetPermittedValuesForMeasurementId(measurementId)
+	data, err := s.electricalConnection.GetPermittedValueSetForMeasurementId(measurementId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addPermittedValueSet()
 
-	data, err = s.electricalConnection.GetPermittedValuesForMeasurementId(measurementId)
+	data, err = s.electricalConnection.GetPermittedValueSetForMeasurementId(measurementId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addParamDescriptionCurrents()
 
-	data, err = s.electricalConnection.GetPermittedValuesForMeasurementId(measurementId)
+	data, err = s.electricalConnection.GetPermittedValueSetForMeasurementId(measurementId)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 
 	measurementId = model.MeasurementIdType(10)
-	data, err = s.electricalConnection.GetPermittedValuesForMeasurementId(measurementId)
+	data, err = s.electricalConnection.GetPermittedValueSetForMeasurementId(measurementId)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 }
@@ -261,7 +261,7 @@ func (s *ElectricalConnectionSuite) Test_GetLimitsForParameterId() {
 	assert.Equal(s.T(), defaultV, 0.1)
 }
 
-func (s *ElectricalConnectionSuite) Test_AdjustValueWithinPermittedValues() {
+func (s *ElectricalConnectionSuite) Test_AdjustValueToBeWithinPermittedValuesForParameter() {
 	parameterId := model.ElectricalConnectionParameterIdType(1)
 	s.addPermittedValueSet()
 	s.addParamDescriptionCurrents()
