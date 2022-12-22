@@ -8,17 +8,55 @@ import (
 
 func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 	switch featureType {
-	case model.FeatureTypeTypeNodeManagement:
-		return []F{} // NodeManagement implementation is not using function data
+	case model.FeatureTypeTypeBill:
+		return []F{
+			createFunctionData[model.BillDescriptionListDataType, F](model.FunctionTypeBillDescriptionListData),
+			createFunctionData[model.BillConstraintsListDataType, F](model.FunctionTypeBillConstraintsListData),
+			createFunctionData[model.BillListDataType, F](model.FunctionTypeBillListData),
+		}
 	case model.FeatureTypeTypeDeviceClassification:
 		return []F{
 			createFunctionData[model.DeviceClassificationManufacturerDataType, F](model.FunctionTypeDeviceClassificationManufacturerData),
 			createFunctionData[model.DeviceClassificationUserDataType, F](model.FunctionTypeDeviceClassificationUserData),
 		}
+	case model.FeatureTypeTypeDeviceConfiguration:
+		return []F{
+			createFunctionData[model.DeviceConfigurationKeyValueDescriptionListDataType, F](model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData),
+			createFunctionData[model.DeviceConfigurationKeyValueListDataType, F](model.FunctionTypeDeviceConfigurationKeyValueListData),
+		}
 	case model.FeatureTypeTypeDeviceDiagnosis:
 		return []F{
 			createFunctionData[model.DeviceDiagnosisStateDataType, F](model.FunctionTypeDeviceDiagnosisStateData),
 			createFunctionData[model.DeviceDiagnosisHeartbeatDataType, F](model.FunctionTypeDeviceDiagnosisHeartbeatData),
+		}
+	case model.FeatureTypeTypeElectricalConnection:
+		return []F{
+			createFunctionData[model.ElectricalConnectionDescriptionListDataType, F](model.FunctionTypeElectricalConnectionDescriptionListData),
+			createFunctionData[model.ElectricalConnectionParameterDescriptionListDataType, F](model.FunctionTypeElectricalConnectionParameterDescriptionListData),
+			createFunctionData[model.ElectricalConnectionPermittedValueSetListDataType, F](model.FunctionTypeElectricalConnectionPermittedValueSetListData),
+		}
+	case model.FeatureTypeTypeHvac:
+		return []F{
+			createFunctionData[model.HvacOverrunDescriptionListDataType, F](model.FunctionTypeHvacOverrunDescriptionListData),
+			createFunctionData[model.HvacOverrunListDataType, F](model.FunctionTypeHvacOverrunListData),
+			createFunctionData[model.HvacSystemFunctionDataType, F](model.FunctionTypeHvacSystemFunctionListData),
+			createFunctionData[model.HvacSystemFunctionDescriptionDataType, F](model.FunctionTypeHvacSystemFunctionDescriptionListData),
+		}
+	case model.FeatureTypeTypeIdentification:
+		return []F{
+			createFunctionData[model.IdentificationListDataType, F](model.FunctionTypeIdentificationListData),
+		}
+	case model.FeatureTypeTypeIncentiveTable:
+		return []F{
+			createFunctionData[model.IncentiveTableDescriptionDataType, F](model.FunctionTypeIncentiveTableDescriptionData),
+			createFunctionData[model.IncentiveTableConstraintsDataType, F](model.FunctionTypeIncentiveTableConstraintsData),
+			createFunctionData[model.IncentiveTableDataType, F](model.FunctionTypeIncentiveTableData),
+		}
+	case model.FeatureTypeTypeLoadControl:
+		return []F{
+			createFunctionData[model.LoadControlLimitConstraintsListDataType, F](model.FunctionTypeLoadControlLimitConstraintsListData),
+			createFunctionData[model.LoadControlLimitDescriptionListDataType, F](model.FunctionTypeLoadControlLimitDescriptionListData),
+			createFunctionData[model.LoadControlLimitListDataType, F](model.FunctionTypeLoadControlLimitListData),
 		}
 	case model.FeatureTypeTypeMeasurement:
 		return []F{
@@ -28,51 +66,13 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 			createFunctionData[model.MeasurementConstraintsListDataType, F](model.FunctionTypeMeasurementConstraintsListData),
 			createFunctionData[model.MeasurementListDataType, F](model.FunctionTypeMeasurementListData),
 		}
-	case model.FeatureTypeTypeDeviceConfiguration:
-		return []F{
-			createFunctionData[model.DeviceConfigurationKeyValueDescriptionListDataType, F](model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData),
-			createFunctionData[model.DeviceConfigurationKeyValueListDataType, F](model.FunctionTypeDeviceConfigurationKeyValueListData),
-		}
-	case model.FeatureTypeTypeLoadControl:
-		return []F{
-			createFunctionData[model.LoadControlLimitConstraintsListDataType, F](model.FunctionTypeLoadControlLimitConstraintsListData),
-			createFunctionData[model.LoadControlLimitDescriptionListDataType, F](model.FunctionTypeLoadControlLimitDescriptionListData),
-			createFunctionData[model.LoadControlLimitListDataType, F](model.FunctionTypeLoadControlLimitListData),
-		}
-	case model.FeatureTypeTypeIdentification:
-		return []F{
-			createFunctionData[model.IdentificationListDataType, F](model.FunctionTypeIdentificationListData),
-		}
-	case model.FeatureTypeTypeElectricalConnection:
-		return []F{
-			createFunctionData[model.ElectricalConnectionDescriptionListDataType, F](model.FunctionTypeElectricalConnectionDescriptionListData),
-			createFunctionData[model.ElectricalConnectionParameterDescriptionListDataType, F](model.FunctionTypeElectricalConnectionParameterDescriptionListData),
-			createFunctionData[model.ElectricalConnectionPermittedValueSetListDataType, F](model.FunctionTypeElectricalConnectionPermittedValueSetListData),
-		}
+	case model.FeatureTypeTypeNodeManagement:
+		return []F{} // NodeManagement implementation is not using function data
 	case model.FeatureTypeTypeTimeSeries:
 		return []F{
 			createFunctionData[model.TimeSeriesDescriptionListDataType, F](model.FunctionTypeTimeSeriesDescriptionListData),
 			createFunctionData[model.TimeSeriesConstraintsListDataType, F](model.FunctionTypeTimeSeriesConstraintsListData),
 			createFunctionData[model.TimeSeriesListDataType, F](model.FunctionTypeTimeSeriesListData),
-		}
-	case model.FeatureTypeTypeIncentiveTable:
-		return []F{
-			createFunctionData[model.IncentiveTableDescriptionDataType, F](model.FunctionTypeIncentiveTableDescriptionData),
-			createFunctionData[model.IncentiveTableConstraintsDataType, F](model.FunctionTypeIncentiveTableConstraintsData),
-			createFunctionData[model.IncentiveTableDataType, F](model.FunctionTypeIncentiveTableData),
-		}
-	case model.FeatureTypeTypeBill:
-		return []F{
-			createFunctionData[model.BillDescriptionListDataType, F](model.FunctionTypeBillDescriptionListData),
-			createFunctionData[model.BillConstraintsListDataType, F](model.FunctionTypeBillConstraintsListData),
-			createFunctionData[model.BillListDataType, F](model.FunctionTypeBillListData),
-		}
-	case model.FeatureTypeTypeHvac:
-		return []F{
-			createFunctionData[model.HvacOverrunDescriptionListDataType, F](model.FunctionTypeHvacOverrunDescriptionListData),
-			createFunctionData[model.HvacOverrunListDataType, F](model.FunctionTypeHvacOverrunListData),
-			createFunctionData[model.HvacSystemFunctionDataType, F](model.FunctionTypeHvacSystemFunctionListData),
-			createFunctionData[model.HvacSystemFunctionDescriptionDataType, F](model.FunctionTypeHvacSystemFunctionDescriptionListData),
 		}
 	case model.FeatureTypeTypeGeneric:
 		// TODO: add the proper function data, this is reported e.g. by the SMA HM 2.0
