@@ -34,11 +34,19 @@ func (r *EntityLocalImpl) AddFeature(f FeatureLocal) {
 
 // either returns an existing feature or creates a new one
 // for a given entity, featuretype and role
-func (r *EntityLocalImpl) GetOrAddFeature(featureType model.FeatureTypeType, role model.RoleType, description string) FeatureLocal {
+func (r *EntityLocalImpl) GetOrAddFeature(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal {
 	if f := r.FeatureOfTypeAndRole(featureType, role); f != nil {
 		return f
 	}
 	f := NewFeatureLocalImpl(r.NextFeatureId(), r, featureType, role)
+
+	description := string(featureType)
+	switch role {
+	case model.RoleTypeClient:
+		description += " Client"
+	case model.RoleTypeServer:
+		description += " Server"
+	}
 	f.SetDescriptionString(description)
 	r.features = append(r.features, f)
 	return f
