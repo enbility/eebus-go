@@ -6,6 +6,7 @@ import (
 
 	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 type FeatureLocal interface {
@@ -411,13 +412,14 @@ func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, r
 
 	// the data was updated, so send an event, other event handlers may watch out for this as well
 	payload := EventPayload{
-		Ski:        featureRemote.Device().ski,
-		EventType:  EventTypeDataChange,
-		ChangeType: ElementChangeUpdate,
-		Feature:    featureRemote,
-		Device:     featureRemote.Device(),
-		Entity:     featureRemote.Entity(),
-		Data:       data,
+		Ski:           featureRemote.Device().ski,
+		EventType:     EventTypeDataChange,
+		ChangeType:    ElementChangeUpdate,
+		Feature:       featureRemote,
+		Device:        featureRemote.Device(),
+		Entity:        featureRemote.Entity(),
+		CmdClassifier: util.Ptr(model.CmdClassifierTypeReply),
+		Data:          data,
 	}
 	Events.Publish(payload)
 
@@ -428,13 +430,14 @@ func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, 
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 
 	payload := EventPayload{
-		Ski:        featureRemote.Device().ski,
-		EventType:  EventTypeDataChange,
-		ChangeType: ElementChangeUpdate,
-		Feature:    featureRemote,
-		Device:     featureRemote.Device(),
-		Entity:     featureRemote.Entity(),
-		Data:       data,
+		Ski:           featureRemote.Device().ski,
+		EventType:     EventTypeDataChange,
+		ChangeType:    ElementChangeUpdate,
+		Feature:       featureRemote,
+		Device:        featureRemote.Device(),
+		Entity:        featureRemote.Entity(),
+		CmdClassifier: util.Ptr(model.CmdClassifierTypeNotify),
+		Data:          data,
 	}
 	Events.Publish(payload)
 

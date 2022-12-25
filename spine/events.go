@@ -1,6 +1,10 @@
 package spine
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/enbility/eebus-go/spine/model"
+)
 
 var Events events
 
@@ -23,13 +27,14 @@ const (
 )
 
 type EventPayload struct {
-	Ski        string            // required
-	EventType  EventType         // required
-	ChangeType ElementChangeType // required
-	Device     *DeviceRemoteImpl // required for DetailedDiscovery Call
-	Entity     *EntityRemoteImpl // required for DetailedDiscovery Call and Notify
-	Feature    *FeatureRemoteImpl
-	Data       any
+	Ski           string            // required
+	EventType     EventType         // required
+	ChangeType    ElementChangeType // required
+	Device        *DeviceRemoteImpl // required for DetailedDiscovery Call
+	Entity        *EntityRemoteImpl // required for DetailedDiscovery Call and Notify
+	Feature       *FeatureRemoteImpl
+	CmdClassifier *model.CmdClassifierType // optional, used together with EventType EventTypeDataChange
+	Data          any
 }
 
 type EventHandler interface {
