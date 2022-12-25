@@ -68,6 +68,57 @@ func (s *IncentiveTableSuite) Test_RequestValues() {
 	assert.NotNil(s.T(), counter)
 }
 
+func (s *IncentiveTableSuite) Test_WriteValues() {
+	counter, err := s.incentiveTable.WriteValues(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data := []model.IncentiveTableType{}
+	counter, err = s.incentiveTable.WriteValues(data)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data = []model.IncentiveTableType{
+		{
+			Tariff: &model.TariffDataType{
+				TariffId: util.Ptr(model.TariffIdType(0)),
+			},
+			IncentiveSlot: []model.IncentiveTableIncentiveSlotType{
+				{
+					TimeInterval: &model.TimeTableDataType{
+						StartTime: &model.AbsoluteOrRecurringTimeType{
+							Relative: model.NewDurationType(0),
+						},
+					},
+					Tier: []model.IncentiveTableTierType{
+						{
+							Tier: &model.TierDataType{
+								TierId: util.Ptr(model.TierIdType(0)),
+							},
+							Boundary: []model.TierBoundaryDataType{
+								{
+									BoundaryId:         util.Ptr(model.TierBoundaryIdType(0)),
+									LowerBoundaryValue: model.NewScaledNumberType(0),
+								},
+							},
+							Incentive: []model.IncentiveDataType{
+								{
+									IncentiveId: util.Ptr(model.IncentiveIdType(1)),
+									Value:       model.NewScaledNumberType(100),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	counter, err = s.incentiveTable.WriteValues(data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
 func (s *IncentiveTableSuite) Test_GetValues() {
 	data, err := s.incentiveTable.GetValues()
 	assert.NotNil(s.T(), err)
@@ -78,6 +129,51 @@ func (s *IncentiveTableSuite) Test_GetValues() {
 	data, err = s.incentiveTable.GetValues()
 	assert.Nil(s.T(), err)
 	assert.NotEqual(s.T(), nil, data)
+}
+
+func (s *IncentiveTableSuite) Test_WriteDescriptions() {
+	counter, err := s.incentiveTable.WriteDescriptions(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data := []model.IncentiveTableDescriptionType{}
+	counter, err = s.incentiveTable.WriteDescriptions(data)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data = []model.IncentiveTableDescriptionType{
+		{
+			TariffDescription: &model.TariffDescriptionDataType{
+				TariffId: util.Ptr(model.TariffIdType(0)),
+			},
+			Tier: []model.IncentiveTableDescriptionTierType{
+				{
+					TierDescription: &model.TierDescriptionDataType{
+						TierId:   util.Ptr(model.TierIdType(0)),
+						TierType: util.Ptr(model.TierTypeTypeFixedCost),
+					},
+					BoundaryDescription: []model.TierBoundaryDescriptionDataType{
+						{
+							BoundaryId:   util.Ptr(model.TierBoundaryIdType(0)),
+							BoundaryType: util.Ptr(model.TierBoundaryTypeTypePowerBoundary),
+							BoundaryUnit: util.Ptr(model.UnitOfMeasurementTypeW),
+						},
+					},
+					IncentiveDescription: []model.IncentiveDescriptionDataType{
+						{
+							IncentiveId:   util.Ptr(model.IncentiveIdType(0)),
+							IncentiveType: util.Ptr(model.IncentiveTypeTypeAbsoluteCost),
+							Currency:      util.Ptr(model.CurrencyTypeEur),
+						},
+					},
+				},
+			},
+		},
+	}
+
+	counter, err = s.incentiveTable.WriteDescriptions(data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *IncentiveTableSuite) Test_GetDescriptions() {

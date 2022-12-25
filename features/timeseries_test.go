@@ -69,6 +69,26 @@ func (s *TimeSeriesSuite) Test_RequestValues() {
 	assert.NotNil(s.T(), counter)
 }
 
+func (s *TimeSeriesSuite) Test_WriteValues() {
+	counter, err := s.timeSeries.WriteValues(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data := []model.TimeSeriesDataType{}
+	counter, err = s.timeSeries.WriteValues(data)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data = []model.TimeSeriesDataType{
+		{
+			TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
+		},
+	}
+	counter, err = s.timeSeries.WriteValues(data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
 func (s *TimeSeriesSuite) Test_GetValues() {
 	data, err := s.timeSeries.GetValues()
 	assert.NotNil(s.T(), err)
@@ -79,6 +99,28 @@ func (s *TimeSeriesSuite) Test_GetValues() {
 	data, err = s.timeSeries.GetValues()
 	assert.Nil(s.T(), err)
 	assert.NotEqual(s.T(), nil, data)
+}
+
+func (s *TimeSeriesSuite) Test_GetValuesForId() {
+	data, err := s.timeSeries.GetValueForType(model.TimeSeriesTypeTypeSingleDemand)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addData()
+
+	data, err = s.timeSeries.GetValueForType(model.TimeSeriesTypeTypeSingleDemand)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.timeSeries.GetValueForType(model.TimeSeriesTypeTypeSingleDemand)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+
+	data, err = s.timeSeries.GetValueForType(model.TimeSeriesTypeTypePlan)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 }
 
 func (s *TimeSeriesSuite) Test_GetDescriptions() {
@@ -93,16 +135,34 @@ func (s *TimeSeriesSuite) Test_GetDescriptions() {
 	assert.NotEqual(s.T(), nil, data)
 }
 
-func (s *TimeSeriesSuite) Test_GetDescriptionsForType() {
-	data, err := s.timeSeries.GetDescriptionsForType(model.TimeSeriesTypeTypeSingleDemand)
+func (s *TimeSeriesSuite) Test_GetDescriptionsForId() {
+	id := model.TimeSeriesIdType(0)
+	data, err := s.timeSeries.GetDescriptionForId(id)
 	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.timeSeries.GetDescriptionsForType(model.TimeSeriesTypeTypeSingleDemand)
+	data, err = s.timeSeries.GetDescriptionForId(id)
 	assert.Nil(s.T(), err)
-	assert.NotEqual(s.T(), nil, data)
+	assert.NotNil(s.T(), data)
+
+	id = model.TimeSeriesIdType(1)
+	data, err = s.timeSeries.GetDescriptionForId(id)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+}
+
+func (s *TimeSeriesSuite) Test_GetDescriptionForType() {
+	data, err := s.timeSeries.GetDescriptionForType(model.TimeSeriesTypeTypeSingleDemand)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.timeSeries.GetDescriptionForType(model.TimeSeriesTypeTypeSingleDemand)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
 }
 
 func (s *TimeSeriesSuite) Test_GetConstraints() {

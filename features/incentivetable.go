@@ -39,6 +39,22 @@ func (i *IncentiveTable) RequestValues() (*model.MsgCounterType, error) {
 	return i.requestData(model.FunctionTypeIncentiveTableData, nil, nil)
 }
 
+// write incentivetable descriptions
+// returns an error if this failed
+func (i *IncentiveTable) WriteValues(data []model.IncentiveTableType) (*model.MsgCounterType, error) {
+	if len(data) == 0 {
+		return nil, ErrMissingData
+	}
+
+	cmd := model.CmdType{
+		IncentiveTableData: &model.IncentiveTableDataType{
+			IncentiveTable: data,
+		},
+	}
+
+	return i.featureRemote.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
+}
+
 // return current values for Time Series
 func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
 	rData := i.featureRemote.Data(model.FunctionTypeIncentiveTableData)
@@ -52,6 +68,22 @@ func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
 	}
 
 	return data.IncentiveTable, nil
+}
+
+// write incentivetable descriptions
+// returns an error if this failed
+func (i *IncentiveTable) WriteDescriptions(data []model.IncentiveTableDescriptionType) (*model.MsgCounterType, error) {
+	if len(data) == 0 {
+		return nil, ErrMissingData
+	}
+
+	cmd := model.CmdType{
+		IncentiveTableDescriptionData: &model.IncentiveTableDescriptionDataType{
+			IncentiveTableDescription: data,
+		},
+	}
+
+	return i.featureRemote.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
 }
 
 // return list of descriptions
