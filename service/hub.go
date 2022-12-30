@@ -374,7 +374,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	address := fmt.Sprintf("wss://%s:%s", host, port)
 	conn, _, err := dialer.Dial(address, nil)
 	if err != nil {
-		logging.Log.Error(err)
+		logging.Log.Debug(err)
 		return err
 	}
 
