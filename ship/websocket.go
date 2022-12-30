@@ -173,13 +173,13 @@ func (w *websocketConnection) close() {
 			w.shipWriteChannel = nil
 		}
 
-		w.mux.Unlock()
-
 		if w.conn != nil {
 			w.conn.Close()
 		}
 
 		w.isConnectionClosed = true
+
+		w.mux.Unlock()
 	})
 }
 
@@ -193,9 +193,12 @@ func (w *websocketConnection) InitDataProcessing(dataProcessing ShipDataProcessi
 
 // write a message to the websocket connection
 func (w *websocketConnection) WriteMessageToDataConnection(message []byte) error {
-	if w.conn == nil {
+	if w.conn == nil || w.shipWriteChannel == nil || w.isConnClosed() {
 		return errors.New("connection is not initialized")
 	}
+
+	w.mux.Lock()
+	defer w.mux.Unlock()
 
 	w.shipWriteChannel <- message
 	return nil
