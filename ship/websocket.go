@@ -157,7 +157,7 @@ func (w *websocketConnection) readWebsocketMessage() ([]byte, error) {
 // close the current websocket connection
 func (w *websocketConnection) close() {
 	w.shutdownOnce.Do(func() {
-		if w.isConnectionClosed {
+		if w.isConnClosed() {
 			return
 		}
 
@@ -193,12 +193,16 @@ func (w *websocketConnection) InitDataProcessing(dataProcessing ShipDataProcessi
 
 // write a message to the websocket connection
 func (w *websocketConnection) WriteMessageToDataConnection(message []byte) error {
-	if w.conn == nil || w.shipWriteChannel == nil || w.isConnClosed() {
-		return errors.New("connection is not initialized")
+	if w.isConnClosed() {
+		return errors.New("connection is closed")
 	}
 
 	w.mux.Lock()
 	defer w.mux.Unlock()
+
+	if w.conn == nil || w.shipWriteChannel == nil {
+		return errors.New("connection is closed")
+	}
 
 	w.shipWriteChannel <- message
 	return nil
