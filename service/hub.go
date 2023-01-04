@@ -520,9 +520,7 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 	h.muxMdns.Lock()
 	defer h.muxMdns.Unlock()
 
-	mdnsEntries := entries
-
-	for ski, entry := range mdnsEntries {
+	for ski, entry := range entries {
 		// check if this ski is already connected
 		if h.isSkiConnected(ski) {
 			continue
