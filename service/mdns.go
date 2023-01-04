@@ -282,7 +282,9 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	}
 
 	// may this is already found
-	go m.searchDelegate.ReportMdnsEntries(m.entries)
+	mdnsEntries := m.entries
+
+	go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 }
 
 // Remove a callback for found mDNS entries and stop searching if no callbacks are left
@@ -528,6 +530,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 	}
 
 	if m.searchDelegate != nil {
-		go m.searchDelegate.ReportMdnsEntries(m.entries)
+		mdnsEntries := m.entries
+		go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 	}
 }
