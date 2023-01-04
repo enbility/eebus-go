@@ -520,7 +520,10 @@ func (h *connectionsHub) UnpairRemoteService(ski string) error {
 func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 	h.muxMdns.Lock()
 	defer h.muxMdns.Unlock()
-	for ski, entry := range entries {
+
+	mdnsEntries := entries
+
+	for ski, entry := range mdnsEntries {
 		// check if this ski is already connected
 		if h.isSkiConnected(ski) {
 			continue
