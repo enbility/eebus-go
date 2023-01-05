@@ -50,8 +50,8 @@ func (s *DeviceClassificationSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.deviceClassification)
 }
 
-func (s *DeviceClassificationSuite) Test_RequestManufacturerDetailsForEntity() {
-	counter, err := s.deviceClassification.RequestManufacturerDetailsForEntity()
+func (s *DeviceClassificationSuite) Test_RequestManufacturerDetails() {
+	counter, err := s.deviceClassification.RequestManufacturerDetails()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }

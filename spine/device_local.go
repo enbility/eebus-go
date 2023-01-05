@@ -79,12 +79,18 @@ func (r *DeviceLocalImpl) RemoveRemoteDeviceConnection(ski string) {
 	Events.Publish(payload)
 }
 
-func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
-	rDevice := NewDeviceRemoteImpl(r, ski, writeI)
-
+// Helper method used by tests and AddRemoteDevice
+func (r *DeviceLocalImpl) AddRemoteDeviceForSki(ski string, rDevice *DeviceRemoteImpl) {
 	r.mux.Lock()
 	r.remoteDevices[ski] = rDevice
 	r.mux.Unlock()
+}
+
+// Adds a new remote device with a given SKI and triggers SPINE requesting device details
+func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
+	rDevice := NewDeviceRemoteImpl(r, ski, writeI)
+
+	r.AddRemoteDeviceForSki(ski, rDevice)
 
 	// Request Detailed Discovery Data
 	_, _ = r.nodeManagement.RequestDetailedDiscovery(rDevice.ski, rDevice.address, rDevice.sender)

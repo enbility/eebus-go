@@ -25,8 +25,8 @@ type TierCountType TierIdType
 type TierTypeType string
 
 const (
-	TierTypeTypeFixedcost   TierTypeType = "fixedCost"
-	TierTypeTypeDynamiccost TierTypeType = "dynamicCost"
+	TierTypeTypeFixedCost   TierTypeType = "fixedCost"
+	TierTypeTypeDynamicCost TierTypeType = "dynamicCost"
 )
 
 type IncentiveIdType uint
@@ -36,9 +36,9 @@ type IncentiveCountType IncentiveIdType
 type IncentiveTypeType string
 
 const (
-	IncentiveTypeTypeAbsolutecost              IncentiveTypeType = "absoluteCost"
-	IncentiveTypeTypeRelativecost              IncentiveTypeType = "relativeCost"
-	IncentiveTypeTypeRenewableenergypercentage IncentiveTypeType = "renewableEnergyPercentage"
+	IncentiveTypeTypeAbsoluteCost              IncentiveTypeType = "absoluteCost"
+	IncentiveTypeTypeRelativeCost              IncentiveTypeType = "relativeCost"
+	IncentiveTypeTypeRenewableEnergyPercentage IncentiveTypeType = "renewableEnergyPercentage"
 	IncentiveTypeTypeCo2Emission               IncentiveTypeType = "co2Emission"
 )
 
@@ -48,7 +48,7 @@ type IncentiveValueTypeType string
 
 const (
 	IncentiveValueTypeTypeValue        IncentiveValueTypeType = "value"
-	IncentiveValueTypeTypeAveragevalue IncentiveValueTypeType = "averageValue"
+	IncentiveValueTypeTypeAverageValue IncentiveValueTypeType = "averageValue"
 	IncentiveValueTypeTypeMinvalue     IncentiveValueTypeType = "minValue"
 	IncentiveValueTypeTypeMaxvalue     IncentiveValueTypeType = "maxValue"
 )

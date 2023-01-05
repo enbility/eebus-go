@@ -3,7 +3,6 @@ package features
 import (
 	"errors"
 
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -83,7 +82,6 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 
 	msgCounter, fErr := f.featureLocal.RequestData(function, selectors, elements, f.featureRemote)
 	if fErr != nil {
-		logging.Log.Error(fErr.String())
 		return nil, errors.New(fErr.String())
 	}
 

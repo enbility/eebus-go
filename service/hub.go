@@ -374,7 +374,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	address := fmt.Sprintf("wss://%s:%s", host, port)
 	conn, _, err := dialer.Dial(address, nil)
 	if err != nil {
-		logging.Log.Error(err)
+		logging.Log.Debug(err)
 		return err
 	}
 
@@ -520,6 +520,7 @@ func (h *connectionsHub) UnpairRemoteService(ski string) error {
 func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 	h.muxMdns.Lock()
 	defer h.muxMdns.Unlock()
+
 	for ski, entry := range entries {
 		// check if this ski is already connected
 		if h.isSkiConnected(ski) {

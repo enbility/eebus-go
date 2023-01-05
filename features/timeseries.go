@@ -1,52 +1,9 @@
 package features
 
 import (
-	"time"
-
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
-
-type TimeSeriesSlotType struct {
-	TimeSeriesSlotId uint
-	PeriodStartTime  time.Duration
-	PeriodEndTime    time.Duration
-	Duration         time.Duration
-	Value            float64
-	ValueMin         float64
-	ValueMax         float64
-}
-
-type TimeSeriesType struct {
-	TimeSeriesId    uint
-	PeriodStartTime time.Duration
-	PeriodEndTime   time.Duration
-	Slots           []TimeSeriesSlotType
-}
-
-type TimeSeriesDescriptionType struct {
-	TimeSeriesId     uint
-	Type             model.TimeSeriesTypeType    // Description
-	MeasurementId    uint                        // Description
-	IsWriteable      bool                        // Description
-	IsUpdateRequired bool                        // Description
-	Unit             model.UnitOfMeasurementType // Description
-}
-
-type TimeSeriesConstraintsType struct {
-	TimeSeriesId      uint
-	SlotCountMin      uint          // Constraints
-	SlotCountMax      uint          // Constraints
-	SlotDurationMin   time.Duration // Constraints
-	SlotDurationMax   time.Duration // Constraints
-	SlotDurationStep  time.Duration // Constraints
-	EarliestStartTime time.Time     // Constraints
-	LatestEndTime     time.Time     // Constraints
-	SlotValueMin      float64       // Constraints
-	SlotValueMax      float64       // Constraints
-	SlotValueStep     float64       // Constraints
-}
 
 type TimeSeries struct {
 	*FeatureImpl
@@ -66,44 +23,40 @@ func NewTimeSeries(localRole, remoteRole model.RoleType, spineLocalDevice *spine
 }
 
 // request FunctionTypeTimeSeriesDescriptionListData from a remote entity
-func (t *TimeSeries) RequestDescription() error {
+func (t *TimeSeries) RequestDescriptions() error {
 	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
-	if err != nil {
-		logging.Log.Error(err)
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // request FunctionTypeTimeSeriesConstraintsListData from a remote entity
 func (t *TimeSeries) RequestConstraints() error {
 	_, err := t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
-	if err != nil {
-		logging.Log.Error(err)
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // request FunctionTypeTimeSeriesListData from a remote device
-func (t *TimeSeries) Request() (*model.MsgCounterType, error) {
-	msgCounter, err := t.requestData(model.FunctionTypeTimeSeriesListData, nil, nil)
-	if err != nil {
-		logging.Log.Error(err)
-		return nil, err
+func (t *TimeSeries) RequestValues() (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesListData, nil, nil)
+}
+
+// write Time Series values
+// returns an error if this failed
+func (t *TimeSeries) WriteValues(data []model.TimeSeriesDataType) (*model.MsgCounterType, error) {
+	if len(data) == 0 {
+		return nil, ErrMissingData
 	}
 
-	return msgCounter, nil
+	cmd := model.CmdType{
+		TimeSeriesListData: &model.TimeSeriesListDataType{
+			TimeSeriesData: data,
+		},
+	}
+
+	return t.featureRemote.Sender().Write(t.featureLocal.Address(), t.featureRemote.Address(), cmd)
 }
 
 // return current values for Time Series
-func (t *TimeSeries) GetValues() ([]TimeSeriesType, error) {
-	if t.featureRemote == nil {
-		return nil, ErrDataNotAvailable
-	}
-
+func (t *TimeSeries) GetValues() ([]model.TimeSeriesDataType, error) {
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -114,78 +67,39 @@ func (t *TimeSeries) GetValues() ([]TimeSeriesType, error) {
 		return nil, ErrDataNotAvailable
 	}
 
-	var resultSet []TimeSeriesType
+	return data.TimeSeriesData, nil
+}
 
-	for _, item := range data.TimeSeriesData {
+// return current value for a given TimeSeriesType
+// there can only be one item matching the type
+func (t *TimeSeries) GetValueForType(timeSeriesType model.TimeSeriesTypeType) (*model.TimeSeriesDataType, error) {
+	data, err := t.GetValues()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range data {
 		if item.TimeSeriesId == nil {
 			continue
 		}
 
-		result := TimeSeriesType{
-			TimeSeriesId: uint(*item.TimeSeriesId),
+		desc, err := t.GetDescriptionForId(*item.TimeSeriesId)
+		if err != nil {
+			continue
 		}
 
-		if item.TimePeriod != nil {
-			if item.TimePeriod.StartTime != nil {
-				if value, err := item.TimePeriod.StartTime.GetTimeDuration(); err == nil {
-					result.PeriodStartTime = value
-				}
-			}
-			if item.TimePeriod.EndTime != nil {
-				if value, err := item.TimePeriod.EndTime.GetTimeDuration(); err == nil {
-					result.PeriodEndTime = value
-				}
-			}
+		if desc.TimeSeriesType == nil || *desc.TimeSeriesType != timeSeriesType {
+			continue
 		}
 
-		var slots []TimeSeriesSlotType
-		for _, slot := range item.TimeSeriesSlot {
-			element := TimeSeriesSlotType{
-				TimeSeriesSlotId: uint(*slot.TimeSeriesSlotId),
-			}
-			if slot.Value != nil {
-				element.Value = slot.Value.GetValue()
-			}
-			if slot.MinValue != nil {
-				element.ValueMin = slot.MinValue.GetValue()
-			}
-			if slot.MaxValue != nil {
-				element.ValueMax = slot.MaxValue.GetValue()
-			}
-			if slot.TimePeriod != nil {
-				if slot.TimePeriod.StartTime != nil {
-					if value, err := slot.TimePeriod.StartTime.GetTimeDuration(); err == nil {
-						element.PeriodStartTime = value
-					}
-				}
-				if slot.TimePeriod.EndTime != nil {
-					if value, err := slot.TimePeriod.EndTime.GetTimeDuration(); err == nil {
-						element.PeriodEndTime = value
-					}
-				}
-			}
-			if slot.Duration != nil {
-				if value, err := slot.Duration.GetTimeDuration(); err == nil {
-					element.Duration = value
-				}
-			}
-
-			slots = append(slots, element)
-		}
-		result.Slots = slots
-
-		resultSet = append(resultSet, result)
+		return &item, nil
 	}
 
-	return resultSet, nil
+	return nil, ErrDataNotAvailable
 }
 
-// return current description values for Time Series
-func (t *TimeSeries) GetDescriptionValues() ([]TimeSeriesDescriptionType, error) {
-	if t.featureRemote == nil {
-		return nil, ErrDataNotAvailable
-	}
-
+// return list of descriptions
+func (t *TimeSeries) GetDescriptions() ([]model.TimeSeriesDescriptionDataType, error) {
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesDescriptionListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -196,45 +110,41 @@ func (t *TimeSeries) GetDescriptionValues() ([]TimeSeriesDescriptionType, error)
 		return nil, ErrDataNotAvailable
 	}
 
-	var resultSet []TimeSeriesDescriptionType
-
-	for _, item := range data.TimeSeriesDescriptionData {
-		if item.TimeSeriesId == nil {
-			continue
-		}
-
-		result := TimeSeriesDescriptionType{
-			TimeSeriesId: uint(*item.TimeSeriesId),
-		}
-
-		if item.TimeSeriesType != nil {
-			result.Type = *item.TimeSeriesType
-		}
-		if item.MeasurementId != nil {
-			result.MeasurementId = uint(*item.MeasurementId)
-		}
-		if item.TimeSeriesWriteable != nil {
-			result.IsWriteable = *item.TimeSeriesWriteable
-		}
-		if item.UpdateRequired != nil {
-			result.IsUpdateRequired = *item.UpdateRequired
-		}
-		if item.Unit != nil {
-			result.Unit = *item.Unit
-		}
-
-		resultSet = append(resultSet, result)
-	}
-
-	return resultSet, nil
+	return data.TimeSeriesDescriptionData, nil
 }
 
-// return current constraint values for Time Series
-func (t *TimeSeries) GetConstraintValues() ([]TimeSeriesConstraintsType, error) {
-	if t.featureRemote == nil {
-		return nil, ErrDataNotAvailable
+func (t *TimeSeries) GetDescriptionForId(id model.TimeSeriesIdType) (*model.TimeSeriesDescriptionDataType, error) {
+	data, err := t.GetDescriptions()
+	if err != nil {
+		return nil, err
 	}
 
+	for _, item := range data {
+		if item.TimeSeriesId != nil && *item.TimeSeriesId == id {
+			return &item, nil
+		}
+	}
+
+	return nil, ErrDataNotAvailable
+}
+
+func (t *TimeSeries) GetDescriptionForType(timeSeriesType model.TimeSeriesTypeType) (*model.TimeSeriesDescriptionDataType, error) {
+	data, err := t.GetDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range data {
+		if item.TimeSeriesType != nil && *item.TimeSeriesType == timeSeriesType {
+			return &item, nil
+		}
+	}
+
+	return nil, ErrDataNotAvailable
+}
+
+// return current constraints for Time Series
+func (t *TimeSeries) GetConstraints() ([]model.TimeSeriesConstraintsDataType, error) {
 	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesConstraintsListData)
 	switch constraintsData := rData.(type) {
 	case *model.TimeSeriesConstraintsListDataType:
@@ -248,60 +158,5 @@ func (t *TimeSeries) GetConstraintValues() ([]TimeSeriesConstraintsType, error) 
 		return nil, ErrDataNotAvailable
 	}
 
-	var resultSet []TimeSeriesConstraintsType
-
-	for _, item := range data.TimeSeriesConstraintsData {
-		if item.TimeSeriesId == nil {
-			continue
-		}
-
-		result := TimeSeriesConstraintsType{
-			TimeSeriesId: uint(*item.TimeSeriesId),
-		}
-
-		if item.SlotCountMin != nil {
-			result.SlotCountMin = uint(*item.SlotCountMin)
-		}
-		if item.SlotCountMax != nil {
-			result.SlotCountMax = uint(*item.SlotCountMax)
-		}
-		if item.SlotDurationMin != nil {
-			if value, err := item.SlotDurationMin.GetTimeDuration(); err == nil {
-				result.SlotDurationMin = value
-			}
-		}
-		if item.SlotDurationMax != nil {
-			if value, err := item.SlotDurationMax.GetTimeDuration(); err == nil {
-				result.SlotDurationMax = value
-			}
-		}
-		if item.SlotDurationStepSize != nil {
-			if value, err := item.SlotDurationStepSize.GetTimeDuration(); err == nil {
-				result.SlotDurationStep = value
-			}
-		}
-		if item.EarliestTimeSeriesStartTime != nil {
-			if value, err := item.EarliestTimeSeriesStartTime.GetTime(); err == nil {
-				result.EarliestStartTime = value
-			}
-		}
-		if item.LatestTimeSeriesEndTime != nil {
-			if value, err := item.LatestTimeSeriesEndTime.GetTime(); err == nil {
-				result.LatestEndTime = value
-			}
-		}
-		if item.SlotValueMin != nil {
-			result.SlotValueMin = item.SlotValueMin.GetValue()
-		}
-		if item.SlotValueMax != nil {
-			result.SlotValueMax = item.SlotValueMax.GetValue()
-		}
-		if item.SlotValueStepSize != nil {
-			result.SlotValueStep = item.SlotValueStepSize.GetValue()
-		}
-
-		resultSet = append(resultSet, result)
-	}
-
-	return resultSet, nil
+	return data.TimeSeriesConstraintsData, nil
 }

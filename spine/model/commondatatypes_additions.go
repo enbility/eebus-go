@@ -123,6 +123,12 @@ func NewAbsoluteOrRelativeTimeType(s string) *AbsoluteOrRelativeTimeType {
 	return &value
 }
 
+func NewAbsoluteOrRelativeTimeTypeFromDuration(t time.Duration) *AbsoluteOrRelativeTimeType {
+	s := NewDurationType(t)
+	value := AbsoluteOrRelativeTimeType(*s)
+	return &value
+}
+
 func NewAbsoluteOrRelativeTimeTypeFromTime(t time.Time) *AbsoluteOrRelativeTimeType {
 	s := NewDateTimeTypeFromTime(t)
 	value := AbsoluteOrRelativeTimeType(*s)

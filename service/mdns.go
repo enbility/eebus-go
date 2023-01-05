@@ -282,7 +282,9 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 	}
 
 	// may this is already found
-	go m.searchDelegate.ReportMdnsEntries(m.entries)
+	mdnsEntries := m.entries
+
+	go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 }
 
 // Remove a callback for found mDNS entries and stop searching if no callbacks are left
@@ -311,6 +313,7 @@ func (m *mdns) resolveEntries() {
 	if m.av != nil {
 		// instead of limiting search on specific allowed interfaces, we allow all and filter the results
 		if avBrowser, err = m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0); err != nil {
+			logging.Log.Debug("mdns: error setting up avahi browser:", err)
 			return
 		}
 	} else {
@@ -527,6 +530,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 	}
 
 	if m.searchDelegate != nil {
-		go m.searchDelegate.ReportMdnsEntries(m.entries)
+		mdnsEntries := m.entries
+		go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 	}
 }
