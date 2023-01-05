@@ -26,12 +26,13 @@ type websocketConnection struct {
 	shipWriteChannel chan []byte
 
 	// internal handling of closed connections
-	isConnectionClosed bool
+	connectionClosed bool
 
 	remoteSki string
 
-	mux          sync.Mutex
-	shutdownOnce sync.Once
+	muxConnClosed sync.Mutex
+	muxShipWrite  sync.Mutex
+	shutdownOnce  sync.Once
 }
 
 // create a new websocket based shipDataProcessing implementation
@@ -44,10 +45,18 @@ func NewWebsocketConnection(conn *websocket.Conn, remoteSki string) *websocketCo
 
 // check if the websocket connection is closed
 func (w *websocketConnection) isConnClosed() bool {
-	w.mux.Lock()
-	defer w.mux.Unlock()
+	w.muxConnClosed.Lock()
+	defer w.muxConnClosed.Unlock()
 
-	return w.isConnectionClosed
+	return w.connectionClosed
+}
+
+// check if the websocket connection is closed
+func (w *websocketConnection) setConnClosed() {
+	w.muxConnClosed.Lock()
+	defer w.muxConnClosed.Unlock()
+
+	w.connectionClosed = true
 }
 
 func (w *websocketConnection) run() {
@@ -161,7 +170,9 @@ func (w *websocketConnection) close() {
 			return
 		}
 
-		w.mux.Lock()
+		w.setConnClosed()
+
+		w.muxShipWrite.Lock()
 
 		if !util.IsChannelClosed(w.closeChannel) {
 			close(w.closeChannel)
@@ -177,9 +188,7 @@ func (w *websocketConnection) close() {
 			w.conn.Close()
 		}
 
-		w.isConnectionClosed = true
-
-		w.mux.Unlock()
+		w.muxShipWrite.Unlock()
 	})
 }
 
@@ -197,8 +206,8 @@ func (w *websocketConnection) WriteMessageToDataConnection(message []byte) error
 		return errors.New("connection is closed")
 	}
 
-	w.mux.Lock()
-	defer w.mux.Unlock()
+	w.muxShipWrite.Lock()
+	defer w.muxShipWrite.Unlock()
 
 	if w.conn == nil || w.shipWriteChannel == nil {
 		return errors.New("connection is closed")
