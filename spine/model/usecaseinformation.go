@@ -9,6 +9,7 @@ const (
 	UseCaseActorTypeHeatPump               UseCaseActorType = "HeatPump"
 	UseCaseActorTypeMonitoringAppliance    UseCaseActorType = "MonitoringAppliance"
 	UseCaseActorTypeBatterySystem          UseCaseActorType = "BatterySystem"
+	UseCaseActorTypePVSystem               UseCaseActorType = "PVSystem"
 	UseCaseActorTypeVisualizationAppliance UseCaseActorType = "VisualizationAppliance"
 )
 
@@ -27,6 +28,7 @@ const (
 	UseCaseNameTypeMonitoringOfPowerConsumption                     UseCaseNameType = "monitoringOfPowerConsumption"
 	UseCaseNameTypeMonitoringOfGridConnectionPoint                  UseCaseNameType = "monitoringOfGridConnectionPoint"
 	UseCaseNameTypeVisualizationOfAggregatedBatteryData             UseCaseNameType = "visualizationOfAggregatedBatteryData"
+	UseCaseNameTypeVisualizationOfAggregatedPhotovoltaicData        UseCaseNameType = "visualizationOfAggregatedPhotovoltaicData"
 )
 
 type UseCaseScenarioSupportType uint

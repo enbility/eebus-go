@@ -13,6 +13,7 @@ var entityTypeActorMap = map[model.EntityTypeType]model.UseCaseActorType{
 	model.EntityTypeTypeCEM:                           model.UseCaseActorTypeCEM,
 	model.EntityTypeTypeGridConnectionPointOfPremises: model.UseCaseActorTypeMonitoringAppliance,
 	model.EntityTypeTypeElectricityStorageSystem:      model.UseCaseActorTypeBatterySystem,
+	model.EntityTypeTypeElectricityGenerationSystem:   model.UseCaseActorTypePVSystem,
 }
 
 var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
@@ -28,6 +29,7 @@ var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
 	model.UseCaseNameTypeMonitoringAndControlOfSmartGridReadyConditions:   {model.UseCaseActorTypeCEM, model.UseCaseActorTypeHeatPump},
 	model.UseCaseNameTypeMonitoringOfGridConnectionPoint:                  {model.UseCaseActorTypeCEM, model.UseCaseActorTypeMonitoringAppliance},
 	model.UseCaseNameTypeVisualizationOfAggregatedBatteryData:             {model.UseCaseActorTypeCEM, model.UseCaseActorTypeBatterySystem, model.UseCaseActorTypeVisualizationAppliance},
+	model.UseCaseNameTypeVisualizationOfAggregatedPhotovoltaicData:        {model.UseCaseActorTypeCEM, model.UseCaseActorTypePVSystem, model.UseCaseActorTypeVisualizationAppliance},
 }
 
 type UseCaseImpl struct {
