@@ -73,8 +73,7 @@ func TestFunctionDataFactory_FunctionData(t *testing.T) {
 	assert.IsType(t, &FunctionDataImpl[model.TimeSeriesListDataType]{}, result[2])
 
 	result = CreateFunctionData[FunctionData](model.FeatureTypeTypeGeneric)
-	assert.Equal(t, 1, len(result))
-	assert.IsType(t, &FunctionDataImpl[model.DeviceDiagnosisHeartbeatDataType]{}, result[0])
+	assert.Equal(t, 31, len(result))
 }
 
 func TestFunctionDataFactory_FunctionDataCmd(t *testing.T) {
