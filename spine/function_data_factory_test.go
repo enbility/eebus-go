@@ -85,9 +85,9 @@ func TestFunctionDataFactory_FunctionDataCmd(t *testing.T) {
 	assert.IsType(t, &FunctionDataCmdImpl[model.DeviceClassificationUserDataType]{}, result[1])
 }
 
-func TestFunctionDataFactory_unknownFeatureType(t *testing.T) {
-	assert.PanicsWithError(t, "unknown featureType 'Alarm'",
-		func() { CreateFunctionData[FunctionDataCmd](model.FeatureTypeTypeAlarm) })
+func TestFunctionDataFactory_NodeMgmtFeatureType(t *testing.T) {
+	result := CreateFunctionData[FunctionDataCmd](model.FeatureTypeTypeNodeManagement)
+	assert.Equal(t, 0, len(result))
 }
 
 func TestFunctionDataFactory_unknownFunctionDataType(t *testing.T) {
