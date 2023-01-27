@@ -70,7 +70,6 @@ func (d *DeviceRemoteImpl) CloseConnection() {
 func (d *DeviceRemoteImpl) HandleIncomingSpineMesssage(message []byte) (*model.MsgCounterType, error) {
 	datagram := model.Datagram{}
 	if err := json.Unmarshal([]byte(message), &datagram); err != nil {
-		logging.Log.Error(err)
 		return nil, err
 	}
 	err := d.localDevice.ProcessCmd(datagram.Datagram, d)

@@ -108,18 +108,18 @@ func (h *connectionsHub) start() {
 	// start mDNS
 	err := h.mdns.SetupMdnsService()
 	if err != nil {
-		logging.Log.Error("error during mdns setup:", err)
+		logging.Log.Debug("error during mdns setup:", err)
 	}
 
 	// start the websocket server
 	go func() {
 		if err := h.startWebsocketServer(); err != nil {
-			logging.Log.Error("error during websocket server starting:", err)
+			logging.Log.Debug("error during websocket server starting:", err)
 		}
 	}()
 
 	if err := h.mdns.AnnounceMdnsEntry(); err != nil {
-		logging.Log.Error("error registering mDNS Service:", err)
+		logging.Log.Debug("error registering mDNS Service:", err)
 	}
 }
 
@@ -297,27 +297,27 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		logging.Log.Error("error during connection upgrading:", err)
+		logging.Log.Debug("error during connection upgrading:", err)
 		return
 	}
 
 	// check if the client supports the ship sub protocol
 	if conn.Subprotocol() != shipWebsocketSubProtocol {
-		logging.Log.Error("client does not support the ship sub protocol")
+		logging.Log.Debug("client does not support the ship sub protocol")
 		conn.Close()
 		return
 	}
 
 	// check if the clients certificate provides a SKI
 	if len(r.TLS.PeerCertificates) == 0 {
-		logging.Log.Error("client does not provide a certificate")
+		logging.Log.Debug("client does not provide a certificate")
 		conn.Close()
 		return
 	}
 
 	ski, err := skiFromCertificate(r.TLS.PeerCertificates[0])
 	if err != nil {
-		logging.Log.Error(err)
+		logging.Log.Debug(err)
 		conn.Close()
 		return
 	}
@@ -374,7 +374,6 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 	address := fmt.Sprintf("wss://%s:%s", host, port)
 	conn, _, err := dialer.Dial(address, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 

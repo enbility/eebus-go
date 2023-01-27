@@ -3,7 +3,6 @@ package features
 import (
 	"time"
 
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -39,7 +38,6 @@ func NewMeasurement(localRole, remoteRole model.RoleType, spineLocalDevice *spin
 // request FunctionTypeMeasurementDescriptionListData from a remote device
 func (m *Measurement) RequestDescription() error {
 	if _, err := m.requestData(model.FunctionTypeMeasurementDescriptionListData, nil, nil); err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 
@@ -49,7 +47,6 @@ func (m *Measurement) RequestDescription() error {
 // request FunctionTypeMeasurementConstraintsListData from a remote entity
 func (m *Measurement) RequestConstraints() error {
 	if _, err := m.requestData(model.FunctionTypeMeasurementConstraintsListData, nil, nil); err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 
@@ -60,7 +57,6 @@ func (m *Measurement) RequestConstraints() error {
 func (m *Measurement) Request() (*model.MsgCounterType, error) {
 	msgCounter, err := m.requestData(model.FunctionTypeMeasurementListData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return nil, err
 	}
 
