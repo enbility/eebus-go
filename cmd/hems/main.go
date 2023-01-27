@@ -108,18 +108,30 @@ func (h *hems) HandleEVSEDeviceState(ski string, failure bool, errorCode string)
 }
 
 func (h *hems) HandleEvent(payload spine.EventPayload) {
-	if payload.Entity != nil {
-		entityType := payload.Entity.EntityType()
-		if entityType != model.EntityTypeTypeGeneric {
-			return
-		}
-	}
-
 	switch payload.EventType {
 	case spine.EventTypeEntityChange:
+		entityType := payload.Entity.EntityType()
+
 		switch payload.ChangeType {
 		case spine.ElementChangeAdd:
-			h.heatpumpConnected(payload.Entity)
+			switch entityType {
+			case model.EntityTypeTypeDeviceInformation:
+				h.deviceInformationConnected(payload.Entity)
+			case model.EntityTypeTypeGeneric:
+				h.heatpumpConnected(payload.Entity)
+			}
+		}
+	}
+}
+
+func (h *hems) deviceInformationConnected(entity *spine.EntityRemoteImpl) {
+	localDevice := h.myService.LocalDevice()
+
+	deviceClassification, _ := features.NewDeviceClassification(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity)
+
+	if deviceClassification != nil {
+		if _, err := deviceClassification.RequestManufacturerDetails(); err != nil {
+			logging.Log.Debug(err)
 		}
 	}
 }
@@ -127,16 +139,9 @@ func (h *hems) HandleEvent(payload spine.EventPayload) {
 func (h *hems) heatpumpConnected(entity *spine.EntityRemoteImpl) {
 	localDevice := h.myService.LocalDevice()
 
-	deviceClassification, _ := features.NewDeviceClassification(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity.Device().Entity([]model.AddressEntityType{0}))
 	electricalConnection, _ := features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
 	measurement, _ := features.NewMeasurement(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
 	hvac, _ := features.NewHVAC(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
-
-	if deviceClassification != nil {
-		if _, err := deviceClassification.RequestManufacturerDetails(); err != nil {
-			logging.Log.Debug(err)
-		}
-	}
 
 	if electricalConnection != nil {
 		if err := electricalConnection.SubscribeForEntity(); err != nil {
