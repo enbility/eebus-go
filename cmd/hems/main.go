@@ -127,57 +127,65 @@ func (h *hems) HandleEvent(payload spine.EventPayload) {
 func (h *hems) heatpumpConnected(entity *spine.EntityRemoteImpl) {
 	localDevice := h.myService.LocalDevice()
 
-	deviceClassification, _ := features.NewDeviceClassification(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity)
-	electricalConnection, _ := features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity)
-	measurement, _ := features.NewMeasurement(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity)
-	hvac, _ := features.NewHVAC(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity)
+	deviceClassification, _ := features.NewDeviceClassification(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity.Device().Entity([]model.AddressEntityType{0}))
+	electricalConnection, _ := features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
+	measurement, _ := features.NewMeasurement(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
+	hvac, _ := features.NewHVAC(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
 
-	if err := electricalConnection.SubscribeForEntity(); err != nil {
-		logging.Log.Error(err)
+	if deviceClassification != nil {
+		if _, err := deviceClassification.RequestManufacturerDetails(); err != nil {
+			logging.Log.Debug(err)
+		}
 	}
 
-	if err := measurement.SubscribeForEntity(); err != nil {
-		logging.Log.Error(err)
+	if electricalConnection != nil {
+		if err := electricalConnection.SubscribeForEntity(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := electricalConnection.RequestDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := electricalConnection.RequestParameterDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
 	}
 
-	if err := hvac.SubscribeForEntity(); err != nil {
-		logging.Log.Error(err)
+	if measurement != nil {
+		if err := measurement.SubscribeForEntity(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := measurement.RequestDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := measurement.RequestConstraints(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if _, err := measurement.RequestValues(); err != nil {
+			logging.Log.Error(err)
+		}
 	}
 
-	if _, err := deviceClassification.RequestManufacturerDetails(); err != nil {
-		logging.Log.Debug(err)
-	}
+	if hvac != nil {
+		if err := hvac.SubscribeForEntity(); err != nil {
+			logging.Log.Error(err)
+		}
 
-	if err := electricalConnection.RequestDescriptions(); err != nil {
-		logging.Log.Error(err)
-	}
+		if _, err := hvac.RequestOverrunDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
 
-	if err := electricalConnection.RequestParameterDescriptions(); err != nil {
-		logging.Log.Error(err)
-	}
+		if _, err := hvac.RequestOverrunValues(); err != nil {
+			logging.Log.Error(err)
+		}
 
-	if err := measurement.RequestDescriptions(); err != nil {
-		logging.Log.Error(err)
-	}
-
-	if err := measurement.RequestConstraints(); err != nil {
-		logging.Log.Error(err)
-	}
-
-	if _, err := measurement.RequestValues(); err != nil {
-		logging.Log.Error(err)
-	}
-
-	if _, err := hvac.RequestOverrunDescriptions(); err != nil {
-		logging.Log.Error(err)
-	}
-
-	if _, err := hvac.RequestOverrunValues(); err != nil {
-		logging.Log.Error(err)
-	}
-
-	if _, err := hvac.RequestSystemFunctionDescriptions(); err != nil {
-		logging.Log.Error(err)
+		if _, err := hvac.RequestSystemFunctionDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
 	}
 }
 
