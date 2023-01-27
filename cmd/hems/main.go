@@ -110,7 +110,7 @@ func (h *hems) HandleEVSEDeviceState(ski string, failure bool, errorCode string)
 func (h *hems) HandleEvent(payload spine.EventPayload) {
 	if payload.Entity != nil {
 		entityType := payload.Entity.EntityType()
-		if entityType != model.EntityTypeTypeHeatPumpAppliance {
+		if entityType != model.EntityTypeTypeGeneric {
 			return
 		}
 	}
