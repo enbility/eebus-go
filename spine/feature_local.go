@@ -357,7 +357,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 			if message.Cmd.ResultData.Description != nil {
 				errorString += fmt.Sprintf(": %s", *message.Cmd.ResultData.Description)
 			}
-			logging.Log.Error(errorString)
+			logging.Log.Debug(errorString)
 		}
 
 		// we don't need to populate this error as requests don't require a pendingRequest entry

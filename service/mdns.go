@@ -384,7 +384,7 @@ func (m *mdns) stopResolvingEntries() {
 func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	_, ifaceIndexes, err := m.interfaces()
 	if err != nil {
-		logging.Log.Error("error getting interfaces:", err)
+		logging.Log.Debug("error getting interfaces:", err)
 		return
 	}
 

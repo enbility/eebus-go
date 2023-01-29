@@ -119,7 +119,7 @@ func (c *HeartbeatSender) sendHearbeat(stopC chan struct{}, d time.Duration) {
 
 			msgCounter, err := c.sender.Notify(c.senderAddr, c.destinationAddr, cmd)
 			if err != nil {
-				logging.Log.Error("ERROR sending heartbeat: ", err)
+				logging.Log.Debug("ERROR sending heartbeat: ", err)
 			}
 			if msgCounter != nil {
 				c.msgCounters = append(c.msgCounters, *msgCounter)

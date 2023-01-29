@@ -89,13 +89,11 @@ func (s *EEBUSService) Setup() error {
 
 	leaf, err := x509.ParseCertificate(sd.certificate.Certificate[0])
 	if err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 
 	ski, err := skiFromCertificate(leaf)
 	if err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 

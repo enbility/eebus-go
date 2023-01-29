@@ -83,6 +83,6 @@ func (r *FunctionDataImpl[T]) DataAny() any {
 func (r *FunctionDataImpl[T]) UpdateDataAny(newData any, filterPartial *model.FilterType, filterDelete *model.FilterType) {
 	err := r.UpdateData(newData.(*T), filterPartial, filterDelete)
 	if err != nil {
-		logging.Log.Error(err.String())
+		logging.Log.Debug(err.String())
 	}
 }
