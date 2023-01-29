@@ -1,7 +1,6 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -32,7 +31,6 @@ func NewIdentification(localRole, remoteRole model.RoleType, spineLocalDevice *s
 func (i *Identification) Request() (*model.MsgCounterType, error) {
 	msgCounter, err := i.requestData(model.FunctionTypeIdentificationListData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return nil, err
 	}
 

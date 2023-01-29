@@ -40,7 +40,7 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 		if useCaseInfo.Actor != nil {
 			actor = model.UseCaseActorType(*useCaseInfo.Actor)
 		} else {
-			logging.Log.Error("actor is missing in useCaseInformation")
+			logging.Log.Debug("actor is missing in useCaseInformation")
 			break
 		}
 
@@ -51,7 +51,7 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 			if useCaseSupport.UseCaseName != nil {
 				useCaseName = model.UseCaseNameType(*useCaseSupport.UseCaseName)
 			} else {
-				logging.Log.Error("useCaseName is missing in useCaseSupport")
+				logging.Log.Debug("useCaseName is missing in useCaseSupport")
 				continue
 			}
 

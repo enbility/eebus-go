@@ -1,7 +1,6 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -33,7 +32,6 @@ func (d *DeviceDiagnosis) RequestStateForEntity() (*model.MsgCounterType, error)
 	// request FunctionTypeDeviceDiagnosisStateData from a remote entity
 	msgCounter, err := d.requestData(model.FunctionTypeDeviceDiagnosisStateData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return nil, err
 	}
 

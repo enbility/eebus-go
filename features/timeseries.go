@@ -3,7 +3,6 @@ package features
 import (
 	"time"
 
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -69,7 +68,6 @@ func NewTimeSeries(localRole, remoteRole model.RoleType, spineLocalDevice *spine
 func (t *TimeSeries) RequestDescription() error {
 	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 
@@ -80,7 +78,6 @@ func (t *TimeSeries) RequestDescription() error {
 func (t *TimeSeries) RequestConstraints() error {
 	_, err := t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 
@@ -91,7 +88,6 @@ func (t *TimeSeries) RequestConstraints() error {
 func (t *TimeSeries) Request() (*model.MsgCounterType, error) {
 	msgCounter, err := t.requestData(model.FunctionTypeTimeSeriesListData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return nil, err
 	}
 

@@ -3,7 +3,6 @@ package features
 import (
 	"time"
 
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -42,7 +41,6 @@ func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevi
 func (d *DeviceConfiguration) Request() error {
 	// request DeviceConfigurationKeyValueDescriptionListData from a remote entity
 	if _, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil); err != nil {
-		logging.Log.Error(err)
 		return err
 	}
 
@@ -54,7 +52,6 @@ func (d *DeviceConfiguration) RequestKeyValueList() (*model.MsgCounterType, erro
 	// request FunctionTypeDeviceConfigurationKeyValueListData from a remote entity
 	msgCounter, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return nil, err
 	}
 

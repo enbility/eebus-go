@@ -1,7 +1,6 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -43,7 +42,6 @@ func (d *DeviceClassification) RequestManufacturerDetailsForEntity() (*model.Msg
 	// request DeviceClassificationManufacturer from a remote entity
 	msgCounter, err := d.requestData(model.FunctionTypeDeviceClassificationManufacturerData, nil, nil)
 	if err != nil {
-		logging.Log.Error(err)
 		return nil, err
 	}
 

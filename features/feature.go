@@ -83,7 +83,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 
 	msgCounter, fErr := f.featureLocal.RequestData(function, selectors, elements, f.featureRemote)
 	if fErr != nil {
-		logging.Log.Error(fErr.String())
+		logging.Log.Debug(fErr.String())
 		return nil, errors.New(fErr.String())
 	}
 
