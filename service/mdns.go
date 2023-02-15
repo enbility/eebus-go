@@ -429,7 +429,6 @@ func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 
 	// Ignore IPv6 addresses for now
 	if address.To4() == nil {
-		logging.Log.Debug("avahi - service has no IPv4 address:", service.Name)
 		return
 	}
 
