@@ -383,7 +383,7 @@ func (m *mdns) stopResolvingEntries() {
 func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	_, ifaceIndexes, err := m.interfaces()
 	if err != nil {
-		logging.Log.Debug("error getting interfaces:", err)
+		logging.Log.Debug("avahi - error getting interfaces:", err)
 		return
 	}
 
@@ -401,11 +401,13 @@ func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	}
 
 	if !allow {
+		logging.Log.Debug("avahi - gnoring service as its interface is not in the allowed list:", service.Name)
 		return
 	}
 
 	resolved, err := m.av.ResolveService(service.Interface, service.Protocol, service.Name, service.Type, service.Domain, avahi.ProtoUnspec, 0)
 	if err != nil {
+		logging.Log.Debug("avahi - error resolving service:", err)
 		return
 	}
 
@@ -420,11 +422,13 @@ func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	address := net.ParseIP(resolved.Address)
 	// if the address can not be used, ignore the entry
 	if address == nil || address.IsUnspecified() {
+		logging.Log.Debug("avahi - service provides unusable address:", service.Name)
 		return
 	}
 
 	// Ignore IPv6 addresses for now
 	if address.To4() == nil {
+		logging.Log.Debug("avahi - service has no IPv4 address:", service.Name)
 		return
 	}
 
@@ -523,7 +527,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		}
 		m.entries[ski] = newEntry
 
-		logging.Log.Debug("ski:", ski, "name:", name, "brand:", brand, "model:", model, "typ:", deviceType, "identifier:", identifier, "register:", register)
+		logging.Log.Debug("ski:", ski, "name:", name, "brand:", brand, "model:", model, "typ:", deviceType, "identifier:", identifier, "register:", register, "host:", host, "port:", port, "addresses:", addresses)
 	} else {
 		return
 	}
