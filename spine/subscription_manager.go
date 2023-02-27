@@ -132,6 +132,10 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 
 // Remove all existing subscriptions for a given remote device entity
 func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl) {
+	if remoteEntity == nil {
+		return
+	}
+
 	var newSubscriptionEntries []*SubscriptionEntry
 	for _, item := range c.subscriptionEntries {
 		if !reflect.DeepEqual(item.clientFeature.Address().Entity, remoteEntity.Address().Entity) {
