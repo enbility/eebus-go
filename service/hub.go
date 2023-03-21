@@ -673,15 +673,16 @@ func (h *connectionsHub) getConnectionInitiationDelayTime(ski string) (int, time
 	max := timeRange.max * 1000
 
 	// seed with the local SKI for initializing rand
+	// TODO: remove when upping minimum go version to 1.20
 	i := new(big.Int)
 	hex := fmt.Sprintf("0x%s", h.localService.SKI())
+	randSource := rand.NewSource(time.Now().UnixNano())
 	if _, err := fmt.Sscan(hex, i); err == nil {
-		rand.Seed(i.Int64() + time.Now().UnixNano())
-	} else {
-		rand.Seed(time.Now().UnixNano())
+		randSource = rand.NewSource(i.Int64() + time.Now().UnixNano())
 	}
 
-	duration := rand.Intn(max-min) + min
+	r := rand.New(randSource)
+	duration := r.Intn(max-min) + min
 
 	return counter, time.Duration(duration) * time.Millisecond
 }
