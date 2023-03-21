@@ -178,6 +178,11 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 			entityAddress := ei.Description.EntityAddress.Entity
 			removedEntity := remoteDevice.RemoveByAddress(entityAddress)
 
+			// only continue if the entity existed
+			if removedEntity == nil {
+				continue
+			}
+
 			payload := EventPayload{
 				Ski:        remoteDevice.ski,
 				EventType:  EventTypeEntityChange,
