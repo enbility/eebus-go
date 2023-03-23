@@ -596,27 +596,29 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 func (h *connectionsHub) initateConnection(remoteService *ServiceDetails, entry MdnsEntry) bool {
 	var err error
 
-	logging.Log.Debug("trying to connect to", remoteService.SKI(), "at", entry.Host)
-	if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
-		logging.Log.Debugf("connection to %s failed: %s", remoteService.SKI(), err)
-		// connecting via the host failed, so try all of the provided addresses
-		for _, address := range entry.Addresses {
-			logging.Log.Debug("trying to connect to", remoteService.SKI(), "at", address)
-			if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err != nil {
-				logging.Log.Debug("connection to", remoteService.SKI(), "failed: ", err)
-			} else {
-				break
-			}
+	// try connecting via an IP address first
+	for _, address := range entry.Addresses {
+		logging.Log.Debug("trying to connect to", remoteService.SKI(), "at", address)
+		if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err != nil {
+			logging.Log.Debug("connection to", remoteService.SKI(), "failed: ", err)
+		} else {
+			return true
+		}
+	}
+
+	// connectdion via IP address failed, try hostname
+	if len(entry.Host) > 0 {
+		logging.Log.Debug("trying to connect to", remoteService.SKI(), "at", entry.Host)
+		if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
+			logging.Log.Debugf("connection to %s failed: %s", remoteService.SKI(), err)
+		} else {
+			return true
 		}
 	}
 
 	// no connection could be estabished via any of the provided addresses
 	// because no service was reachable at any of the addresses
-	if err != nil {
-		return false
-	}
-
-	return true
+	return false
 }
 
 // increase the connection attempt counter for the given ski
@@ -671,15 +673,16 @@ func (h *connectionsHub) getConnectionInitiationDelayTime(ski string) (int, time
 	max := timeRange.max * 1000
 
 	// seed with the local SKI for initializing rand
+	// TODO: remove when upping minimum go version to 1.20
 	i := new(big.Int)
 	hex := fmt.Sprintf("0x%s", h.localService.SKI())
+	randSource := rand.NewSource(time.Now().UnixNano())
 	if _, err := fmt.Sscan(hex, i); err == nil {
-		rand.Seed(i.Int64() + time.Now().UnixNano())
-	} else {
-		rand.Seed(time.Now().UnixNano())
+		randSource = rand.NewSource(i.Int64() + time.Now().UnixNano())
 	}
 
-	duration := rand.Intn(max-min) + min
+	r := rand.New(randSource)
+	duration := r.Intn(max-min) + min
 
 	return counter, time.Duration(duration) * time.Millisecond
 }
