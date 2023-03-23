@@ -402,7 +402,7 @@ func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
 	}
 
 	if !allow {
-		logging.Log.Debug("avahi - gnoring service as its interface is not in the allowed list:", service.Name)
+		logging.Log.Debug("avahi - ignoring service as its interface is not in the allowed list:", service.Name)
 		return
 	}
 
