@@ -84,7 +84,6 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case cmiStateClientWait:
 		if timeout {
-			logging.Log.Trace("timeout")
 			c.endHandshakeWithError(errors.New("ship handshake timeout"))
 			return
 		}
@@ -93,7 +92,6 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case cmiStateServerWait:
 		if timeout {
-			logging.Log.Trace("timeout")
 			c.endHandshakeWithError(errors.New("ship handshake timeout"))
 			return
 		}
@@ -111,7 +109,6 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case smeHelloStateReadyListen:
 		if timeout {
-			logging.Log.Trace("timeout")
 			c.setState(smeHelloStateAbort)
 			c.handleState(false, nil)
 			return
@@ -124,7 +121,6 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case smeHelloStatePendingListen:
 		if timeout {
-			logging.Log.Trace("timeout")
 			c.handshakeHello_PendingTimeout()
 			return
 		}
