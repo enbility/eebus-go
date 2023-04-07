@@ -58,6 +58,20 @@ func (s *InitClientSuite) Test_ClientWait() {
 	shutdownTest(sut)
 }
 
+func (s *InitClientSuite) Test_ClientWait_Timeout() {
+	sut, data := initTest(s.role)
+
+	sut.setState(cmiStateClientWait)
+
+	sut.handleState(true, nil)
+
+	assert.Equal(s.T(), smeError, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+	assert.Equal(s.T(), data.handleConnectionClosedInvoked, true)
+
+	shutdownTest(sut)
+}
+
 func (s *InitClientSuite) Test_ClientWait_InvalidMsgType() {
 	sut, data := initTest(s.role)
 
