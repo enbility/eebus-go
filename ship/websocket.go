@@ -1,6 +1,7 @@
 package ship
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"sync"
@@ -97,9 +98,15 @@ func (w *websocketConnection) writeShipPump() {
 				return
 			}
 
+			var text string
 			if len(message) > 2 {
-				logging.Log.Trace("Send:", w.remoteSki, string(message[1:]))
+				text = string(message[1:])
+			} else if bytes.Equal(message, shipInit) {
+				text = "ship init"
+			} else {
+				text = "unknown single byte"
 			}
+			logging.Log.Trace("Send:", w.remoteSki, text)
 
 		case <-ticker.C:
 			if w.isConnClosed() {
@@ -133,9 +140,15 @@ func (w *websocketConnection) readShipPump() {
 			return
 		}
 
+		var text string
 		if len(message) > 2 {
-			logging.Log.Trace("Recv:", w.remoteSki, string(message[1:]))
+			text = string(message[1:])
+		} else if bytes.Equal(message, shipInit) {
+			text = "ship init"
+		} else {
+			text = "unknown single byte"
 		}
+		logging.Log.Trace("Recv:", w.remoteSki, text)
 
 		w.dataProcessing.HandleIncomingShipMessage(message)
 	}
