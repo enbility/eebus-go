@@ -75,27 +75,34 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	resultMap, err := s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalconnection)
+	measurement := model.MeasurementTypeTypeCurrent
+	commodity := model.CommodityTypeTypeElectricity
+	scope := model.ScopeTypeTypeACCurrent
+	data, err := s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), resultMap)
-	assert.Equal(s.T(), 1, len(resultMap))
-	assert.Equal(s.T(), 5.0, resultMap["a"])
+	assert.NotNil(s.T(), data)
+	assert.Equal(s.T(), 1, len(data))
+	assert.Equal(s.T(), 5.0, data[0].Value.GetValue())
 
-	resultMap, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACPower, s.electricalconnection)
-
-	// Assert
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), resultMap)
-	assert.Equal(s.T(), 1, len(resultMap))
-	assert.Equal(s.T(), 1185.0, resultMap["a"])
-
-	resultMap, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeCharge, s.electricalconnection)
+	measurement = model.MeasurementTypeTypePower
+	scope = model.ScopeTypeTypeACPower
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 
 	// Assert
 	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), resultMap)
-	assert.Equal(s.T(), 1, len(resultMap))
-	assert.Equal(s.T(), 1825.0, resultMap["a"])
+	assert.NotNil(s.T(), data)
+	assert.Equal(s.T(), 1, len(data))
+	assert.Equal(s.T(), 1185.0, data[0].Value.GetValue())
+
+	measurement = model.MeasurementTypeTypeEnergy
+	scope = model.ScopeTypeTypeCharge
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
+
+	// Assert
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+	assert.Equal(s.T(), 1, len(data))
+	assert.Equal(s.T(), 1825.0, data[0].Value.GetValue())
 }

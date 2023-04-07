@@ -1,24 +1,9 @@
 package features
 
 import (
-	"time"
-
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
-
-type DeviceConfigurationType struct {
-	Key           string
-	ValueBool     bool
-	ValueDate     time.Time
-	ValueDatetime time.Time
-	ValueDuration time.Duration
-	ValueString   string
-	ValueTime     time.Time
-	ValueFloat    float64
-	Type          model.DeviceConfigurationKeyValueTypeType
-	Unit          string
-}
 
 type DeviceConfiguration struct {
 	*FeatureImpl
@@ -38,92 +23,61 @@ func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevi
 }
 
 // request DeviceConfiguration data from a remote entity
-func (d *DeviceConfiguration) Request() error {
-	// request DeviceConfigurationKeyValueDescriptionListData from a remote entity
-	if _, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil); err != nil {
-		return err
-	}
-
-	return nil
+func (d *DeviceConfiguration) RequestDescriptions() error {
+	_, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil)
+	return err
 }
 
 // request DeviceConfigurationKeyValueListDataType from a remote entity
-func (d *DeviceConfiguration) RequestKeyValueList() (*model.MsgCounterType, error) {
-	// request FunctionTypeDeviceConfigurationKeyValueListData from a remote entity
-	msgCounter, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return msgCounter, nil
+func (d *DeviceConfiguration) RequestKeyValues() (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData, nil, nil)
 }
 
-// returns if a provided scopetype in the device configuration descriptions is available or not
-// returns an error if no description data is available yet
-func (d *DeviceConfiguration) GetDescriptionKeyNameSupport(keyName model.DeviceConfigurationKeyNameType) (bool, error) {
-	if d.featureRemote == nil {
-		return false, ErrDataNotAvailable
-	}
-
+// return current descriptions for Device Configuration
+func (d *DeviceConfiguration) GetDescriptions() ([]model.DeviceConfigurationKeyValueDescriptionDataType, error) {
 	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
 	if rData == nil {
-		return false, ErrDataNotAvailable
+		return nil, ErrDataNotAvailable
 	}
 
 	data := rData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
 	if data == nil {
-		return false, ErrDataNotAvailable
+		return nil, ErrDataNotAvailable
 	}
 
-	for _, item := range data.DeviceConfigurationKeyValueDescriptionData {
+	return data.DeviceConfigurationKeyValueDescriptionData, nil
+}
+
+// returns the description of a provided key name
+func (d *DeviceConfiguration) GetDescriptionForKeyId(keyId model.DeviceConfigurationKeyIdType) (*model.DeviceConfigurationKeyValueDescriptionDataType, error) {
+	descriptions, err := d.GetDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range descriptions {
+		if item.KeyId != nil && *item.KeyId == keyId {
+			return &item, nil
+		}
+	}
+
+	return nil, ErrDataNotAvailable
+}
+
+// returns the description of a provided key name
+// returns an error if the key name was not found
+func (d *DeviceConfiguration) GetDescriptionForKeyName(keyName model.DeviceConfigurationKeyNameType) (*model.DeviceConfigurationKeyValueDescriptionDataType, error) {
+	descriptions, err := d.GetDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range descriptions {
 		if item.KeyId == nil || item.KeyName == nil {
 			continue
 		}
 		if *item.KeyName == keyName {
-			return true, nil
-		}
-	}
-
-	return false, ErrDataNotAvailable
-}
-
-// return current SoC for measurements
-func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
-	if d.featureRemote == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	descRef, err := d.deviceConfigurationKeyValueDescriptionListData()
-	if err != nil {
-		return nil, ErrMetadataNotAvailable
-	}
-
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceConfigurationKeyValueListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	for _, item := range data.DeviceConfigurationKeyValueData {
-		if item.KeyId == nil || item.Value == nil {
-			continue
-		}
-
-		desc, exists := descRef[*item.KeyId]
-		if !exists {
-			continue
-		}
-
-		if desc.KeyName == nil {
-			continue
-		}
-
-		if *desc.KeyName == model.DeviceConfigurationKeyNameTypeCommunicationsStandard {
-			return (*string)(item.Value.String), nil
+			return &item, nil
 		}
 	}
 
@@ -131,28 +85,7 @@ func (d *DeviceConfiguration) GetEVCommunicationStandard() (*string, error) {
 }
 
 // return current values for Device Configuration
-func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
-	if d.featureRemote == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	rDescData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
-	if rDescData == nil {
-		return nil, ErrMetadataNotAvailable
-	}
-	descData := rDescData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
-	if descData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	ref := make(map[model.DeviceConfigurationKeyIdType]model.DeviceConfigurationKeyValueDescriptionDataType)
-	for _, item := range descData.DeviceConfigurationKeyValueDescriptionData {
-		if item.KeyName == nil || item.KeyId == nil {
-			continue
-		}
-		ref[*item.KeyId] = item
-	}
-
+func (d *DeviceConfiguration) GetKeyValues() ([]model.DeviceConfigurationKeyValueDataType, error) {
 	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
@@ -163,98 +96,51 @@ func (d *DeviceConfiguration) GetValues() ([]DeviceConfigurationType, error) {
 		return nil, ErrDataNotAvailable
 	}
 
-	var resultSet []DeviceConfigurationType
-
-	for _, item := range data.DeviceConfigurationKeyValueData {
-		if item.KeyId == nil {
-			continue
-		}
-		desc, exists := ref[*item.KeyId]
-		if !exists || desc.KeyName == nil {
-			continue
-		}
-
-		result := DeviceConfigurationType{
-			Key: string(*desc.KeyName),
-		}
-		if desc.ValueType == nil {
-			continue
-		}
-		result.Type = *desc.ValueType
-		switch *desc.ValueType {
-		case model.DeviceConfigurationKeyValueTypeTypeBoolean:
-			if item.Value.Boolean != nil {
-				result.ValueBool = bool(*item.Value.Boolean)
-			}
-		case model.DeviceConfigurationKeyValueTypeTypeDate:
-			if item.Value.Date != nil {
-				if value, err := item.Value.Date.GetTime(); err == nil {
-					result.ValueDate = value
-				}
-			}
-		case model.DeviceConfigurationKeyValueTypeTypeDateTime:
-			if item.Value.DateTime != nil {
-				if value, err := item.Value.DateTime.GetTime(); err == nil {
-					result.ValueDatetime = value
-				}
-			}
-		case model.DeviceConfigurationKeyValueTypeTypeDuration:
-			if item.Value.Duration != nil {
-				if value, err := item.Value.Duration.GetTimeDuration(); err == nil {
-					result.ValueDuration = value
-				}
-			}
-		case model.DeviceConfigurationKeyValueTypeTypeString:
-			if item.Value.String != nil {
-				result.ValueString = string(*item.Value.String)
-			}
-		case model.DeviceConfigurationKeyValueTypeTypeTime:
-			if item.Value.Time != nil {
-				if value, err := item.Value.Time.GetTime(); err != nil {
-					result.ValueTime = value
-				}
-			}
-		case model.DeviceConfigurationKeyValueTypeTypeScaledNumber:
-			if item.Value.ScaledNumber != nil {
-				result.ValueFloat = item.Value.ScaledNumber.GetValue()
-			}
-		}
-		if desc.Unit != nil {
-			result.Unit = string(*desc.Unit)
-		}
-
-		resultSet = append(resultSet, result)
-	}
-
-	return resultSet, nil
+	return data.DeviceConfigurationKeyValueData, nil
 }
 
-// helper
-
-type deviceConfigurationKeyValueDescriptionMap map[model.DeviceConfigurationKeyIdType]model.DeviceConfigurationKeyValueDescriptionDataType
-
-// return a map of DeviceConfigurationKeyValueDescriptionListDataType with keyId as key
-func (d *DeviceConfiguration) deviceConfigurationKeyValueDescriptionListData() (deviceConfigurationKeyValueDescriptionMap, error) {
-	if d.featureRemote == nil {
-		return nil, ErrDataNotAvailable
+// return a pointer value for a given key and value type
+func (d *DeviceConfiguration) GetKeyValueForKeyName(keyname model.DeviceConfigurationKeyNameType, valueType model.DeviceConfigurationKeyValueTypeType) (any, error) {
+	values, err := d.GetKeyValues()
+	if err != nil {
+		return nil, err
 	}
 
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
-	if rData == nil {
-		return nil, ErrMetadataNotAvailable
-	}
-
-	data := rData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
-	if data == nil {
-		return nil, ErrMetadataNotAvailable
-	}
-
-	ref := make(deviceConfigurationKeyValueDescriptionMap)
-	for _, item := range data.DeviceConfigurationKeyValueDescriptionData {
-		if item.KeyId == nil {
+	for _, item := range values {
+		if item.KeyId == nil || item.Value == nil {
 			continue
 		}
-		ref[*item.KeyId] = item
+
+		desc, err := d.GetDescriptionForKeyId(*item.KeyId)
+		if err != nil {
+			continue
+		}
+
+		if desc.KeyName == nil {
+			continue
+		}
+
+		if *desc.KeyName == keyname {
+			switch valueType {
+			case model.DeviceConfigurationKeyValueTypeTypeBoolean:
+				return item.Value.Boolean, nil
+			case model.DeviceConfigurationKeyValueTypeTypeDate:
+				return item.Value.Date, nil
+			case model.DeviceConfigurationKeyValueTypeTypeDateTime:
+				return item.Value.DateTime, nil
+			case model.DeviceConfigurationKeyValueTypeTypeDuration:
+				return item.Value.Duration, nil
+			case model.DeviceConfigurationKeyValueTypeTypeString:
+				return item.Value.String, nil
+			case model.DeviceConfigurationKeyValueTypeTypeTime:
+				return item.Value.Time, nil
+			case model.DeviceConfigurationKeyValueTypeTypeScaledNumber:
+				return item.Value.ScaledNumber, nil
+			default:
+				return nil, ErrDataNotAvailable
+			}
+		}
 	}
-	return ref, nil
+
+	return nil, ErrDataNotAvailable
 }

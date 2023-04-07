@@ -114,7 +114,10 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 			}
 
 			_ = c.sendShipModel(model.MsgTypeEnd, closeMessage)
-			return
+
+			if c.smeState != smeError {
+				return
+			}
 		}
 
 		c.DataHandler.CloseDataConnection()

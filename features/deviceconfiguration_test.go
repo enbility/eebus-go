@@ -51,64 +51,87 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.deviceConfiguration)
 }
 
-func (s *DeviceConfigurationSuite) Test_Request() {
-	err := s.deviceConfiguration.Request()
+func (s *DeviceConfigurationSuite) Test_RequestDescriptions() {
+	err := s.deviceConfiguration.RequestDescriptions()
 	assert.Nil(s.T(), err)
 }
 
 func (s *DeviceConfigurationSuite) Test_RequestKeyValueList() {
-	counter, err := s.deviceConfiguration.RequestKeyValueList()
+	counter, err := s.deviceConfiguration.RequestKeyValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
-func (s *DeviceConfigurationSuite) Test_GetDescriptionKeyNameSupport() {
-	exists, err := s.deviceConfiguration.GetDescriptionKeyNameSupport(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+func (s *DeviceConfigurationSuite) Test_GetDescriptionForKeyId() {
+	keyId := model.DeviceConfigurationKeyIdType(0)
+	desc, err := s.deviceConfiguration.GetDescriptionForKeyId(keyId)
 	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), false, exists)
+	assert.Nil(s.T(), desc)
 
 	s.addDescription()
 
-	exists, err = s.deviceConfiguration.GetDescriptionKeyNameSupport(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+	desc, err = s.deviceConfiguration.GetDescriptionForKeyId(keyId)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), true, exists)
+	assert.NotNil(s.T(), desc)
 }
 
-func (s *DeviceConfigurationSuite) Test_GetEVCommunicationStandard() {
-	value, err := s.deviceConfiguration.GetEVCommunicationStandard()
+func (s *DeviceConfigurationSuite) Test_GetDescriptionForKeyName() {
+	desc, err := s.deviceConfiguration.GetDescriptionForKeyName(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), desc)
+
+	s.addDescription()
+
+	desc, err = s.deviceConfiguration.GetDescriptionForKeyName(model.DeviceConfigurationKeyNameTypeCommunicationsStandard)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), desc)
+}
+
+func (s *DeviceConfigurationSuite) Test_GetValueForKey() {
+	key := model.DeviceConfigurationKeyNameTypeCommunicationsStandard
+	valueType := model.DeviceConfigurationKeyValueTypeTypeString
+
+	value, err := s.deviceConfiguration.GetKeyValueForKeyName(key, valueType)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), value)
 
 	s.addDescription()
 
-	value, err = s.deviceConfiguration.GetEVCommunicationStandard()
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(key, valueType)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), value)
 
 	s.addData()
 
-	value, err = s.deviceConfiguration.GetEVCommunicationStandard()
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(key, valueType)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypeAsymmetricChargingSupported, model.DeviceConfigurationKeyValueTypeTypeBoolean)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor, model.DeviceConfigurationKeyValueTypeTypeScaledNumber)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), value)
 }
 
 func (s *DeviceConfigurationSuite) Test_GetValues() {
-	data, err := s.deviceConfiguration.GetValues()
+	data, err := s.deviceConfiguration.GetKeyValues()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.deviceConfiguration.GetValues()
+	data, err = s.deviceConfiguration.GetKeyValues()
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.deviceConfiguration.GetValues()
+	data, err = s.deviceConfiguration.GetKeyValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
-
 }
 
 // helper
@@ -131,6 +154,7 @@ func (s *DeviceConfigurationSuite) addDescription() {
 				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(2)),
 				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
 				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
+				Unit:      util.Ptr(model.UnitOfMeasurementTypepct),
 			},
 		},
 	}

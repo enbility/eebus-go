@@ -153,6 +153,37 @@ func TestAbsoluteOrRelativeTimeTypeAbsolute(t *testing.T) {
 	}
 }
 
+func TestAbsoluteOrRelativeTimeTypeDuration(t *testing.T) {
+	tc := []struct {
+		in  time.Duration
+		out string
+	}{
+		{time.Duration(4) * time.Second, "PT4S"},
+	}
+
+	for _, tc := range tc {
+		a := NewAbsoluteOrRelativeTimeTypeFromDuration(tc.in)
+		got, err := a.GetDurationType()
+		if err != nil {
+			t.Errorf("Test Failure with %d: %s", tc.in, err)
+			continue
+		}
+		if string(*got) != tc.out {
+			t.Errorf("Test failure for %d, expected %s got %s", tc.in, tc.out, string(*got))
+		}
+
+		d, err := a.GetTimeDuration()
+		if err != nil {
+			t.Errorf("Test Failure with %d: %s", tc.in, err)
+			continue
+		}
+		got = NewDurationType(d)
+		if string(*got) != tc.out {
+			t.Errorf("Test failure for %d, expected %s got %s", tc.in, tc.out, string(*got))
+		}
+	}
+}
+
 func TestAbsoluteOrRelativeTimeTypeRelative(t *testing.T) {
 	tc := []struct {
 		in  string

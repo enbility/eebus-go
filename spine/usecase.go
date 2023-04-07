@@ -8,9 +8,12 @@ import (
 )
 
 var entityTypeActorMap = map[model.EntityTypeType]model.UseCaseActorType{
-	model.EntityTypeTypeEV:   model.UseCaseActorTypeEV,
-	model.EntityTypeTypeEVSE: model.UseCaseActorTypeEVSE,
-	model.EntityTypeTypeCEM:  model.UseCaseActorTypeCEM,
+	model.EntityTypeTypeEV:                            model.UseCaseActorTypeEV,
+	model.EntityTypeTypeEVSE:                          model.UseCaseActorTypeEVSE,
+	model.EntityTypeTypeCEM:                           model.UseCaseActorTypeCEM,
+	model.EntityTypeTypeGridConnectionPointOfPremises: model.UseCaseActorTypeMonitoringAppliance,
+	model.EntityTypeTypeElectricityStorageSystem:      model.UseCaseActorTypeBatterySystem,
+	model.EntityTypeTypeElectricityGenerationSystem:   model.UseCaseActorTypePVSystem,
 }
 
 var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
@@ -24,6 +27,9 @@ var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
 	model.UseCaseNameTypeOverloadProtectionByEVChargingCurrentCurtailment: {model.UseCaseActorTypeEV, model.UseCaseActorTypeCEM},
 	model.UseCaseNameTypeMonitoringOfPowerConsumption:                     {model.UseCaseActorTypeCEM, model.UseCaseActorTypeHeatPump},
 	model.UseCaseNameTypeMonitoringAndControlOfSmartGridReadyConditions:   {model.UseCaseActorTypeCEM, model.UseCaseActorTypeHeatPump},
+	model.UseCaseNameTypeMonitoringOfGridConnectionPoint:                  {model.UseCaseActorTypeCEM, model.UseCaseActorTypeMonitoringAppliance},
+	model.UseCaseNameTypeVisualizationOfAggregatedBatteryData:             {model.UseCaseActorTypeCEM, model.UseCaseActorTypeBatterySystem, model.UseCaseActorTypeVisualizationAppliance},
+	model.UseCaseNameTypeVisualizationOfAggregatedPhotovoltaicData:        {model.UseCaseActorTypeCEM, model.UseCaseActorTypePVSystem, model.UseCaseActorTypeVisualizationAppliance},
 }
 
 type UseCaseImpl struct {
@@ -36,9 +42,13 @@ type UseCaseImpl struct {
 }
 
 func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
-	checkArguments(*entity.EntityImpl, ucEnumType)
-
 	actor := entityTypeActorMap[entity.EntityType()]
+
+	return NewUseCaseWithActor(entity, actor, ucEnumType, useCaseVersion, scenarioSupport)
+}
+
+func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
+	checkArguments(*entity.EntityImpl, ucEnumType)
 
 	ucManager := entity.Device().UseCaseManager()
 	ucManager.Add(actor, ucEnumType, useCaseVersion, scenarioSupport)

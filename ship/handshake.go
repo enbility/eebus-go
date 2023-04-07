@@ -77,6 +77,10 @@ func (c *ShipConnection) getState() shipMessageExchangeState {
 // handle handshake state transitions
 func (c *ShipConnection) handleState(timeout bool, message []byte) {
 	switch c.getState() {
+	case smeError:
+		logging.Log.Debug(c.RemoteSKI, "connection is in error state")
+		return
+
 	// cmiStateInit
 	case cmiStateInitStart:
 		// triggered without a message received
@@ -84,8 +88,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case cmiStateClientWait:
 		if timeout {
-			logging.Log.Trace("timeout")
-			c.endHandshakeWithError(errors.New("ship handshake timeout"))
+			c.endHandshakeWithError(errors.New("ship client handshake timeout"))
 			return
 		}
 
@@ -93,8 +96,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case cmiStateServerWait:
 		if timeout {
-			logging.Log.Trace("timeout")
-			c.endHandshakeWithError(errors.New("ship handshake timeout"))
+			c.endHandshakeWithError(errors.New("ship server handshake timeout"))
 			return
 		}
 		c.handshakeInit_cmiStateServerWait(message)
@@ -111,7 +113,6 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case smeHelloStateReadyListen:
 		if timeout {
-			logging.Log.Trace("timeout")
 			c.setState(smeHelloStateAbort)
 			c.handleState(false, nil)
 			return
@@ -124,7 +125,6 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case smeHelloStatePendingListen:
 		if timeout {
-			logging.Log.Trace("timeout")
 			c.handshakeHello_PendingTimeout()
 			return
 		}

@@ -21,9 +21,8 @@ type MeasurementSuite struct {
 	localDevice  *spine.DeviceLocalImpl
 	remoteEntity *spine.EntityRemoteImpl
 
-	measurement          *Measurement
-	electricalConnection *ElectricalConnection
-	sentMessage          []byte
+	measurement *Measurement
+	sentMessage []byte
 }
 
 var _ spine.SpineDataConnection = (*MeasurementSuite)(nil)
@@ -60,14 +59,10 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 	s.measurement, err = NewMeasurement(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.measurement)
-
-	s.electricalConnection, err = NewElectricalConnection(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), s.electricalConnection)
 }
 
-func (s *MeasurementSuite) Test_RequestLimitDescription() {
-	err := s.measurement.RequestDescription()
+func (s *MeasurementSuite) Test_RequestDescriptions() {
+	err := s.measurement.RequestDescriptions()
 	assert.Nil(s.T(), err)
 }
 
@@ -76,82 +71,49 @@ func (s *MeasurementSuite) Test_RequestConstraints() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *MeasurementSuite) Test_Request() {
-	counter, err := s.measurement.Request()
+func (s *MeasurementSuite) Test_RequestValues() {
+	counter, err := s.measurement.RequestValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
-func (s *MeasurementSuite) Test_GetValueForScope() {
-	data, err := s.measurement.GetValueForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), 0.0, data)
+func (s *MeasurementSuite) Test_GetValuesForTypeCommodityScope() {
+	measurement := model.MeasurementTypeTypeCurrent
+	commodity := model.CommodityTypeTypeElectricity
+	scope := model.ScopeTypeTypeACCurrent
 
-	s.addDescription()
-
-	data, err = s.measurement.GetValueForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), 0.0, data)
-
-	s.addData()
-
-	data, err = s.measurement.GetValueForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
-	assert.Nil(s.T(), err)
-	assert.NotEqual(s.T(), 0.0, data)
-}
-
-func (s *MeasurementSuite) Test_GetValuesPerPhaseForScope() {
-	data, err := s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, err := s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
-	assert.NotNil(s.T(), err)
-	assert.Nil(s.T(), data)
-
-	s.addElectricalParamDescription()
-
-	data, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addData()
 
-	data, err = s.measurement.GetValuesPerPhaseForScope(model.ScopeTypeTypeACCurrent, s.electricalConnection)
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
+
+	measurement = model.MeasurementTypeTypeArea
+	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 }
 
-func (s *MeasurementSuite) Test_GetDescriptionForScope() {
-	data, err := s.measurement.GetDescriptionForScope(model.ScopeTypeTypeACCurrent)
+func (s *MeasurementSuite) Test_GetDescriptionsForScope() {
+	data, err := s.measurement.GetDescriptionsForScope(model.ScopeTypeTypeACCurrent)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	s.addDescription()
 
-	data, err = s.measurement.GetDescriptionForScope(model.ScopeTypeTypeACCurrent)
+	data, err = s.measurement.GetDescriptionsForScope(model.ScopeTypeTypeACCurrent)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
-}
-
-func (s *MeasurementSuite) Test_GetSoC() {
-	data, err := s.measurement.GetSoC()
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), 0.0, data)
-
-	s.addDescription()
-
-	data, err = s.measurement.GetSoC()
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), 0.0, data)
-
-	s.addData()
-
-	data, err = s.measurement.GetSoC()
-	assert.Nil(s.T(), err)
-	assert.NotEqual(s.T(), 0, data)
 }
 
 func (s *MeasurementSuite) Test_GetConstraints() {
@@ -193,13 +155,17 @@ func (s *MeasurementSuite) addDescription() {
 	fData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
 			{
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				ScopeType:     util.Ptr(model.ScopeTypeTypeACCurrent),
-				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
 			},
 			{
-				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
-				ScopeType:     util.Ptr(model.ScopeTypeTypeStateOfCharge),
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePercentage),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeStateOfCharge),
 			},
 		},
 	}
@@ -225,23 +191,6 @@ func (s *MeasurementSuite) addConstraints() {
 		},
 	}
 	rF.UpdateData(model.FunctionTypeMeasurementConstraintsListData, fData, nil, nil)
-}
-
-func (s *MeasurementSuite) addElectricalParamDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(2)))
-	fData := &model.ElectricalConnectionParameterDescriptionListDataType{
-		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
-			{
-				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
-				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
-				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
-				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
-				ScopeType:              util.Ptr(model.ScopeTypeTypeACCurrent),
-			},
-		},
-	}
-	rF.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
 }
 
 func (s *MeasurementSuite) addData() {
