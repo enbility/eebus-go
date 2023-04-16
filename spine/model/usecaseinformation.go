@@ -10,6 +10,7 @@ const (
 	UseCaseActorTypeControllableSystem     UseCaseActorType = "ControllableSystem"
 	UseCaseActorTypeDHWCircuit             UseCaseActorType = "DHWCircuit"
 	UseCaseActorTypeEnergyGuard            UseCaseActorType = "EnergyGuard"
+	UseCaseActorTypeEnergyBroker           UseCaseActorType = "EnergyBroker"
 	UseCaseActorTypeEVSE                   UseCaseActorType = "EVSE"
 	UseCaseActorTypeEV                     UseCaseActorType = "EV"
 	UseCaseActorTypeGridConnectionPoint    UseCaseActorType = "GridConnectionPoint"
