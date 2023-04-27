@@ -37,10 +37,7 @@ type connectionInitiationDelayTimeRange struct {
 var connectionInitiationDelayTimeRanges = []connectionInitiationDelayTimeRange{
 	{min: 0, max: 3},
 	{min: 3, max: 10},
-	{min: 10, max: 30},
-	{min: 30, max: 60},
-	{min: 60, max: 180},
-	{min: 180, max: 360},
+	{min: 10, max: 20},
 }
 
 // interface for reporting data from connectionsHub to the EEBUSService

@@ -29,14 +29,14 @@ func (s *HubSuite) SetupSuite() {
 		{0, connectionInitiationDelayTimeRanges[0]},
 		{1, connectionInitiationDelayTimeRanges[1]},
 		{2, connectionInitiationDelayTimeRanges[2]},
-		{3, connectionInitiationDelayTimeRanges[3]},
-		{4, connectionInitiationDelayTimeRanges[4]},
-		{5, connectionInitiationDelayTimeRanges[5]},
-		{6, connectionInitiationDelayTimeRanges[5]},
-		{7, connectionInitiationDelayTimeRanges[5]},
-		{8, connectionInitiationDelayTimeRanges[5]},
-		{9, connectionInitiationDelayTimeRanges[5]},
-		{10, connectionInitiationDelayTimeRanges[5]},
+		{3, connectionInitiationDelayTimeRanges[2]},
+		{4, connectionInitiationDelayTimeRanges[2]},
+		{5, connectionInitiationDelayTimeRanges[2]},
+		{6, connectionInitiationDelayTimeRanges[2]},
+		{7, connectionInitiationDelayTimeRanges[2]},
+		{8, connectionInitiationDelayTimeRanges[2]},
+		{9, connectionInitiationDelayTimeRanges[2]},
+		{10, connectionInitiationDelayTimeRanges[2]},
 	}
 }
 
