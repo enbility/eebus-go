@@ -14,6 +14,9 @@ import (
 type EEBUSServiceHandler interface {
 	// RemoteServicesListUpdated(services []ServiceDetails)
 
+	// report all currently visible EEBUS services
+	VisibleMDNSRecordsUpdated(service *EEBUSService, entries []MdnsEntry)
+
 	// report a connection to a SKI
 	RemoteSKIConnected(service *EEBUSService, ski string)
 
@@ -55,6 +58,10 @@ func NewEEBUSService(configuration *Configuration, serviceHandler EEBUSServiceHa
 
 var _ serviceProvider = (*EEBUSService)(nil)
 
+func (s *EEBUSService) VisibleMDNSRecordsUpdated(entries []MdnsEntry) {
+	s.serviceHandler.VisibleMDNSRecordsUpdated(s, entries)
+}
+
 // report a connection to a SKI
 func (s *EEBUSService) RemoteSKIConnected(ski string) {
 	s.serviceHandler.RemoteSKIConnected(s, ski)
@@ -68,6 +75,16 @@ func (s *EEBUSService) RemoteSKIDisconnected(ski string) {
 // Provides the SHIP ID the remote service reported during the handshake process
 func (s *EEBUSService) ReportServiceShipID(ski string, shipdID string) {
 	s.serviceHandler.ReportServiceShipID(ski, shipdID)
+}
+
+// Starts browsing for any EEBUS mDNS entry
+func (s *EEBUSService) StartBrowseMdnsEntries() {
+	s.connectionsHub.StartBrowseMdnsSearch()
+}
+
+// Stop brwosing for any EEBUS mDNS entry
+func (s *EEBUSService) StopBrowseMdnsEntries() {
+	s.connectionsHub.StopBrowseMdnsSearch()
 }
 
 // Sets a custom logging implementation

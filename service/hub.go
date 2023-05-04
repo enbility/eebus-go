@@ -9,7 +9,9 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
+	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -42,6 +44,9 @@ var connectionInitiationDelayTimeRanges = []connectionInitiationDelayTimeRange{
 
 // interface for reporting data from connectionsHub to the EEBUSService
 type serviceProvider interface {
+	// report a newly discovered remote EEBUS service
+	VisibleMDNSRecordsUpdated(entries []MdnsEntry)
+
 	// report a connection to a SKI
 	RemoteSKIConnected(ski string)
 
@@ -75,6 +80,9 @@ type connectionsHub struct {
 	// Handling mDNS related tasks
 	mdns MdnsService
 
+	// list of currently known/reported mDNS entries
+	knownMdnsEntries []MdnsEntry
+
 	// the SPINE local device
 	spineLocalDevice *spine.DeviceLocalImpl
 
@@ -90,6 +98,7 @@ func newConnectionsHub(serviceProvider serviceProvider, mdns MdnsService, spineL
 		connectionAttemptCounter: make(map[string]int),
 		connectionAttemptRunning: make(map[string]bool),
 		pairedServices:           make([]*ServiceDetails, 0),
+		knownMdnsEntries:         make([]MdnsEntry, 0),
 		serviceProvider:          serviceProvider,
 		spineLocalDevice:         spineLocalDevice,
 		configuration:            configuration,
@@ -171,6 +180,16 @@ func (h *connectionsHub) checkRestartMdnsSearch() {
 		logging.Log.Debug("restarting mdns search")
 		h.mdns.RegisterMdnsSearch(h)
 	}
+}
+
+func (h *connectionsHub) StartBrowseMdnsSearch() {
+	// TODO: this currently collides with searching for a specific SKI
+	h.mdns.RegisterMdnsSearch(h)
+}
+
+func (h *connectionsHub) StopBrowseMdnsSearch() {
+	// TODO: this currently collides with searching for a specific SKI
+	h.mdns.UnregisterMdnsSearch(h)
 }
 
 // Provides the SHIP ID the remote service reported during the handshake process
@@ -517,7 +536,11 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 	h.muxMdns.Lock()
 	defer h.muxMdns.Unlock()
 
+	var mdnsEntries []MdnsEntry
+
 	for ski, entry := range entries {
+		mdnsEntries = append(mdnsEntries, entry)
+
 		// check if this ski is already connected
 		if h.isSkiConnected(ski) {
 			continue
@@ -538,6 +561,15 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 
 		h.coordinateConnectionInitations(ski, entry)
 	}
+
+	sort.Slice(mdnsEntries, func(i, j int) bool {
+		item1 := mdnsEntries[i]
+		item2 := mdnsEntries[j]
+		a := strings.ToLower(item1.Brand + item1.Model + item1.Ski)
+		b := strings.ToLower(item2.Brand + item2.Model + item2.Ski)
+		return a < b
+	})
+	h.serviceProvider.VisibleMDNSRecordsUpdated(mdnsEntries)
 }
 
 // coordinate connection initiation attempts to a remove service

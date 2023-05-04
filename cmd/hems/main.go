@@ -93,6 +93,9 @@ func (h *hems) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
 func (h *hems) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
 
+func (h *hems) VisibleMDNSRecordsUpdated(service *service.EEBUSService, entries []service.MdnsEntry) {
+}
+
 func (h *hems) ReportServiceShipID(ski string, shipdID string) {}
 
 // UCEvseCommisioningConfigurationCemDelegate

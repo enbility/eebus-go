@@ -93,6 +93,9 @@ func (h *evse) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
 func (h *evse) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
 
+func (h *evse) VisibleMDNSRecordsUpdated(service *service.EEBUSService, entries []service.MdnsEntry) {
+}
+
 func (h *evse) ReportServiceShipID(ski string, shipdID string) {}
 
 // main app

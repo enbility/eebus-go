@@ -43,9 +43,10 @@ func (s *HubSuite) SetupSuite() {
 // Service Provider Interface
 var _ serviceProvider = (*HubSuite)(nil)
 
-func (s *HubSuite) RemoteSKIConnected(string)          {}
-func (s *HubSuite) RemoteSKIDisconnected(string)       {}
-func (s *HubSuite) ReportServiceShipID(string, string) {}
+func (s *HubSuite) VisibleMDNSRecordsUpdated([]MdnsEntry) {}
+func (s *HubSuite) RemoteSKIConnected(string)             {}
+func (s *HubSuite) RemoteSKIDisconnected(string)          {}
+func (s *HubSuite) ReportServiceShipID(string, string)    {}
 
 var _ MdnsService = (*HubSuite)(nil)
 
