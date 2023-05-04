@@ -508,7 +508,21 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		entry := m.entries[ski]
 
 		// we assume only network addresses are added
-		entry.Addresses = append(entry.Addresses, addresses...)
+		for _, address := range addresses {
+			// only add if it is not added yet
+			isNewElement := true
+
+			for _, item := range entry.Addresses {
+				if item.String() == address.String() {
+					isNewElement = false
+					break
+				}
+			}
+
+			if isNewElement {
+				entry.Addresses = append(entry.Addresses, address)
+			}
+		}
 
 		m.entries[ski] = entry
 	} else if !exists && !remove {
