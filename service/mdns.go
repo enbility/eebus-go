@@ -19,6 +19,7 @@ import (
 
 type MdnsEntry struct {
 	Name       string
+	Ski        string
 	Identifier string   // mandatory
 	Path       string   // mandatory
 	Register   bool     // mandatory
@@ -529,6 +530,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		// new
 		newEntry := MdnsEntry{
 			Name:       name,
+			Ski:        ski,
 			Identifier: identifier,
 			Path:       path,
 			Register:   register == "true",
