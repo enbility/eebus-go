@@ -20,11 +20,11 @@ type AccessSuite struct {
 func (s *AccessSuite) Test_Init() {
 	sut, data := initTest(ShipRoleClient)
 
-	sut.setState(smePinStateCheckOk)
+	sut.setState(SmePinStateCheckOk, nil)
 	sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeAccessMethodsRequest, sut.getState())
+	assert.Equal(s.T(), SmeAccessMethodsRequest, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -33,7 +33,7 @@ func (s *AccessSuite) Test_Init() {
 func (s *AccessSuite) Test_Request() {
 	sut, data := initTest(ShipRoleClient)
 
-	sut.setState(smeAccessMethodsRequest)
+	sut.setState(SmeAccessMethodsRequest, nil)
 
 	accessMsg := model.AccessMethodsRequest{
 		AccessMethodsRequest: model.AccessMethodsRequestType{},
@@ -45,7 +45,7 @@ func (s *AccessSuite) Test_Request() {
 	sut.handleState(false, msg)
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeAccessMethodsRequest, sut.getState())
+	assert.Equal(s.T(), SmeAccessMethodsRequest, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -54,7 +54,7 @@ func (s *AccessSuite) Test_Request() {
 func (s *AccessSuite) Test_Methods_Ok() {
 	sut, data := initTest(ShipRoleClient)
 
-	sut.setState(smeAccessMethodsRequest)
+	sut.setState(SmeAccessMethodsRequest, nil)
 
 	accessMsg := model.AccessMethods{
 		AccessMethods: model.AccessMethodsType{
@@ -68,7 +68,7 @@ func (s *AccessSuite) Test_Methods_Ok() {
 	sut.handleState(false, msg)
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeComplete, sut.getState())
+	assert.Equal(s.T(), SmeComplete, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -77,7 +77,7 @@ func (s *AccessSuite) Test_Methods_Ok() {
 func (s *AccessSuite) Test_Methods_WrongShipID() {
 	sut, data := initTest(ShipRoleClient)
 
-	sut.setState(smeAccessMethodsRequest)
+	sut.setState(SmeAccessMethodsRequest, nil)
 
 	accessMsg := model.AccessMethods{
 		AccessMethods: model.AccessMethodsType{
@@ -91,7 +91,7 @@ func (s *AccessSuite) Test_Methods_WrongShipID() {
 	sut.handleState(false, msg)
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeError, sut.getState())
+	assert.Equal(s.T(), SmeError, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

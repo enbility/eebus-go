@@ -83,8 +83,7 @@ func (h *hems) run() {
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 
-	remoteService := service.NewServiceDetails(remoteSki)
-	h.myService.PairRemoteService(remoteService)
+	h.myService.EnablePairingForSKI(remoteSki, true)
 }
 
 // EEBUSServiceHandler
@@ -93,10 +92,14 @@ func (h *hems) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
 func (h *hems) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
 
-func (h *hems) VisibleMDNSRecordsUpdated(service *service.EEBUSService, entries []service.MdnsEntry) {
+func (h *hems) VisibleRemoteServicesUpdated(service *service.EEBUSService, entries []service.RemoteService) {
 }
 
-func (h *hems) ReportServiceShipID(ski string, shipdID string) {}
+func (h *hems) ServiceShipIDUpdate(ski string, shipdID string) {}
+
+func (h *hems) ServicePairingDetailUpdate(ski string, detail service.PairingDetail) {}
+
+func (h *hems) AllowWaitingForTrust(ski string) bool { return true }
 
 // UCEvseCommisioningConfigurationCemDelegate
 

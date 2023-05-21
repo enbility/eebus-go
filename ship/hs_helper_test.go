@@ -37,12 +37,8 @@ func (s *dataHandlerTest) WriteMessageToDataConnection(message []byte) error {
 	return nil
 }
 
-func (s *dataHandlerTest) CloseDataConnection()         {}
-func (w *dataHandlerTest) IsDataConnectionClosed() bool { return false }
-
-var _ ConnectionHandler = (*dataHandlerTest)(nil)
-
-func (s *dataHandlerTest) HandleClosedConnection(connection *ShipConnection) {}
+func (s *dataHandlerTest) CloseDataConnection(int, string)       {}
+func (w *dataHandlerTest) IsDataConnectionClosed() (bool, error) { return false, nil }
 
 var _ ShipServiceDataProvider = (*dataHandlerTest)(nil)
 
@@ -50,14 +46,16 @@ func (s *dataHandlerTest) IsRemoteServiceForSKIPaired(string) bool { return true
 func (s *dataHandlerTest) HandleConnectionClosed(*ShipConnection, bool) {
 	s.handleConnectionClosedInvoked = true
 }
-func (s *dataHandlerTest) ReportServiceShipID(string, string) {}
+func (s *dataHandlerTest) ReportServiceShipID(string, string)               {}
+func (s *dataHandlerTest) AllowWaitingForTrust(string) bool                 { return false }
+func (s *dataHandlerTest) HandleShipHandshakeStateUpdate(string, ShipState) {}
 
 func initTest(role shipRole) (*ShipConnection, *dataHandlerTest) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
 
 	dataHandler := &dataHandlerTest{}
-	conhandler := NewConnectionHandler(dataHandler, dataHandler, localDevice, role, "LocalShipID", "RemoveDevice", "RemoteShipID")
+	conhandler := NewConnectionHandler(dataHandler, dataHandler, localDevice, role, "LocalShipID", "RemoveDevice", "RemoteShipID", false)
 
 	return conhandler, dataHandler
 }

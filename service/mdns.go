@@ -31,6 +31,8 @@ type MdnsEntry struct {
 	Addresses  []net.IP // mandatory
 }
 
+//go:generate mockgen -destination=mock_mdns.go -package=service github.com/enbility/eebus-go/service MdnsSearch,MdnsService
+
 // implemented by hubConnection, used by mdns
 type MdnsSearch interface {
 	ReportMdnsEntries(entries map[string]MdnsEntry)
@@ -282,7 +284,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 		return
 	}
 
-	// may this is already found
+	// maybe entries are already found
 	mdnsEntries := m.entries
 
 	go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
@@ -497,6 +499,8 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
+	updated := true
+
 	_, exists := m.entries[ski]
 
 	if remove && exists {
@@ -505,6 +509,8 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		delete(m.entries, ski)
 	} else if exists {
 		// update
+		updated = false
+
 		// avahi sends an item for each network address, merge them
 		entry := m.entries[ski]
 
@@ -522,6 +528,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 
 			if isNewElement {
 				entry.Addresses = append(entry.Addresses, address)
+				updated = true
 			}
 		}
 
@@ -548,7 +555,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		return
 	}
 
-	if m.searchDelegate != nil {
+	if m.searchDelegate != nil && updated {
 		mdnsEntries := m.entries
 		go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 	}

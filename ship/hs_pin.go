@@ -10,7 +10,7 @@ import (
 // Handshake Pin covers the states smePin...
 
 func (c *ShipConnection) handshakePin_Init() {
-	c.setState(smePinStateCheckInit)
+	c.setState(SmePinStateCheckInit, nil)
 
 	pinState := model.ConnectionPinState{
 		ConnectionPinState: model.ConnectionPinStateType{
@@ -23,7 +23,7 @@ func (c *ShipConnection) handshakePin_Init() {
 		return
 	}
 
-	c.setState(smePinStateCheckListen)
+	c.setState(SmePinStateCheckListen, nil)
 }
 
 func (c *ShipConnection) handshakePin_smePinStateCheckListen(message []byte) {
@@ -37,7 +37,7 @@ func (c *ShipConnection) handshakePin_smePinStateCheckListen(message []byte) {
 
 	switch connectionPinState.ConnectionPinState.PinState {
 	case model.PinStateTypeNone:
-		c.setState(smePinStateCheckOk)
+		c.setState(SmePinStateCheckOk, nil)
 		c.handleState(false, nil)
 	case model.PinStateTypeRequired:
 		c.endHandshakeWithError(errors.New("Got pin state: required (unsupported)"))

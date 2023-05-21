@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 
 	"github.com/enbility/eebus-go/spine/model"
@@ -10,76 +11,64 @@ import (
 
 const defaultPort int = 4711
 
+// pairing state for global usage, e.g. UI
+type PairingState uint
+
+const (
+	PairingStateNone       PairingState = iota // The initial state, when no pairing exists
+	PairingStateQueued                         // The pairing request has been started and is pending connection initialization
+	PairingStateInitiated                      // This service initiated the pairing process
+	PairingStateReceived                       // A remote service initiated the pairing process
+	PairingStateInProgress                     // The pairing handshake is in progress
+	PairingStatePin                            // PIN processing, not supported right now!
+	PairingStateAccepted                       // The pairing handshake is accepted from both ends
+	PairingStateError                          // The pairing resulted in an error
+)
+
+// the pairing state of a service and error if applicable
+type PairingDetail struct {
+	State PairingState
+	Error error
+}
+
 // generic service details about the local or any remote service
 type ServiceDetails struct {
 	// This is the SKI of the service
 	// This needs to be persisted
-	ski string
+	SKI string
 
 	// This is the IPv4 address of the device running the service
 	// This is optional only needed when this runs with
 	// zeroconf as mDNS and the remote device is using the latest
 	// avahi version and thus zeroconf can sometimes not detect
 	// the IPv4 address and not initiate a connection
-	ipv4 string
+	IPv4 string
 
 	// shipID is the SHIP identifier of the service
 	// This needs to be persisted
-	shipID string
+	ShipID string
 
 	// The EEBUS device type of the device model
-	deviceType model.DeviceTypeType
+	DeviceType model.DeviceTypeType
 
 	// Flags if the service auto auto accepts other services
-	registerAutoAccept bool
+	RegisterAutoAccept bool
+
+	// Flags if the service is paired and should be connected to
+	// Should be enabled after the pairing process resulted PairingDetail = PairingStateAccepted
+	Paired bool
+
+	// the current pairing details
+	PairingDetail PairingDetail
 }
 
 // create a new ServiceDetails record with a SKI
 func NewServiceDetails(ski string) *ServiceDetails {
 	service := &ServiceDetails{
-		ski: util.NormalizeSKI(ski), // standardize the provided SKI strings
+		SKI: util.NormalizeSKI(ski), // standardize the provided SKI strings
 	}
 
 	return service
-}
-
-// return the services SKI
-func (s *ServiceDetails) SKI() string {
-	return s.ski
-}
-
-// SHIP ID is the ship identifier of the service
-func (s *ServiceDetails) SetShipID(shipId string) {
-	s.shipID = shipId
-}
-
-// Return the services SHIP ID
-func (s *ServiceDetails) ShipID() string {
-	return s.shipID
-}
-
-func (s *ServiceDetails) SetIPv4(ipv4 string) {
-	s.ipv4 = ipv4
-}
-
-func (s *ServiceDetails) IPv4() string {
-	return s.ipv4
-}
-
-func (s *ServiceDetails) SetDeviceType(deviceType model.DeviceTypeType) {
-	s.deviceType = deviceType
-}
-
-func (s *ServiceDetails) DeviceType() model.DeviceTypeType {
-	return s.deviceType
-}
-
-func (s *ServiceDetails) SetRegisterAutoAccept(auto bool) {
-	s.registerAutoAccept = auto
-}
-
-func (s *ServiceDetails) RegisterAutoAccept() bool {
-	return s.registerAutoAccept
 }
 
 // defines requires meta information about this service
@@ -144,6 +133,11 @@ type Configuration struct {
 	// This is useful when e.g. power values are not available and therefor
 	// need to be calculated using the current values
 	voltage float64
+
+	// Automatically retry a connection that ends in a SHIP abort, error or timeout
+	// Defaut: false
+	// Useful if the service does not have a pairing UI
+	autoRetryShipHandshake bool
 }
 
 // Setup a Configuration with the required parameters
@@ -195,6 +189,13 @@ func NewConfiguration(
 	configuration.featureSet = model.NetworkManagementFeatureSetTypeSmart
 
 	return configuration, nil
+}
+
+// defines if SHIP handshakes not completing successfully should
+// also be considered as disconnections that need to be retried automatically
+// default: false
+func (s *Configuration) SetAutoRetryShipHandshake(retry bool) {
+	s.autoRetryShipHandshake = retry
 }
 
 // define an alternative mDNS and SHIP identifier
@@ -258,3 +259,9 @@ func (s *Configuration) MdnsServiceName() string {
 func (s *Configuration) Voltage() float64 {
 	return s.voltage
 }
+
+// ErrServiceNotPaired if the given SKI is not paired yet
+var ErrServiceNotPaired = errors.New("the provided SKI is not paired")
+
+// ErrConnectionNotFound that there was no active connection for a given SKI found
+var ErrConnectionNotFound = errors.New("no connection for provided SKI found")

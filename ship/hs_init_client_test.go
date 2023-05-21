@@ -24,7 +24,7 @@ func (s *InitClientSuite) BeforeTest(suiteName, testName string) {
 func (s *InitClientSuite) Test_Init() {
 	sut, _ := initTest(s.role)
 
-	assert.Equal(s.T(), cmiStateInitStart, sut.getState())
+	assert.Equal(s.T(), CmiStateInitStart, sut.getState())
 
 	shutdownTest(sut)
 }
@@ -32,12 +32,12 @@ func (s *InitClientSuite) Test_Init() {
 func (s *InitClientSuite) Test_Start() {
 	sut, data := initTest(s.role)
 
-	sut.setState(cmiStateInitStart)
+	sut.setState(CmiStateInitStart, nil)
 
 	sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), cmiStateClientWait, sut.getState())
+	assert.Equal(s.T(), CmiStateClientWait, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 	assert.Equal(s.T(), shipInit, data.lastMessage())
 
@@ -47,12 +47,12 @@ func (s *InitClientSuite) Test_Start() {
 func (s *InitClientSuite) Test_ClientWait() {
 	sut, data := initTest(s.role)
 
-	sut.setState(cmiStateClientWait)
+	sut.setState(CmiStateClientWait, nil)
 
 	sut.handleState(false, shipInit)
 
 	// the state goes from smeHelloState directly to smeHelloStateReadyInit to smeHelloStateReadyListen
-	assert.Equal(s.T(), smeHelloStateReadyListen, sut.getState())
+	assert.Equal(s.T(), SmeHelloStateReadyListen, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -61,11 +61,11 @@ func (s *InitClientSuite) Test_ClientWait() {
 func (s *InitClientSuite) Test_ClientWait_Timeout() {
 	sut, data := initTest(s.role)
 
-	sut.setState(cmiStateClientWait)
+	sut.setState(CmiStateClientWait, nil)
 
 	sut.handleState(true, nil)
 
-	assert.Equal(s.T(), smeError, sut.getState())
+	assert.Equal(s.T(), SmeError, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 	assert.Equal(s.T(), data.handleConnectionClosedInvoked, true)
 
@@ -75,11 +75,11 @@ func (s *InitClientSuite) Test_ClientWait_Timeout() {
 func (s *InitClientSuite) Test_ClientWait_InvalidMsgType() {
 	sut, data := initTest(s.role)
 
-	sut.setState(cmiStateClientWait)
+	sut.setState(CmiStateClientWait, nil)
 
 	sut.handleState(false, []byte{0x05, 0x00})
 
-	assert.Equal(s.T(), smeError, sut.getState())
+	assert.Equal(s.T(), SmeError, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -88,11 +88,11 @@ func (s *InitClientSuite) Test_ClientWait_InvalidMsgType() {
 func (s *InitClientSuite) Test_ClientWait_InvalidData() {
 	sut, data := initTest(s.role)
 
-	sut.setState(cmiStateClientWait)
+	sut.setState(CmiStateClientWait, nil)
 
 	sut.handleState(false, []byte{model.MsgTypeInit, 0x05})
 
-	assert.Equal(s.T(), smeError, sut.getState())
+	assert.Equal(s.T(), SmeError, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

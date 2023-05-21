@@ -29,6 +29,9 @@ type websocketConnection struct {
 	// internal handling of closed connections
 	connectionClosed bool
 
+	// the error message received for the closed connection
+	connectionClosedError error
+
 	remoteSki string
 
 	muxConnClosed sync.Mutex
@@ -39,9 +42,29 @@ type websocketConnection struct {
 // create a new websocket based shipDataProcessing implementation
 func NewWebsocketConnection(conn *websocket.Conn, remoteSki string) *websocketConnection {
 	return &websocketConnection{
-		conn:      conn,
-		remoteSki: remoteSki,
+		conn:                  conn,
+		remoteSki:             remoteSki,
+		connectionClosedError: nil,
 	}
+}
+
+// sets the error message for the closed connection
+func (w *websocketConnection) setConnClosedError(err error) {
+	w.muxConnClosed.Lock()
+	defer w.muxConnClosed.Unlock()
+
+	w.connectionClosed = true
+
+	if err != nil {
+		w.connectionClosedError = err
+	}
+}
+
+func (w *websocketConnection) connClosedError() error {
+	w.muxConnClosed.Lock()
+	defer w.muxConnClosed.Unlock()
+
+	return w.connectionClosedError
 }
 
 // check if the websocket connection is closed
@@ -50,14 +73,6 @@ func (w *websocketConnection) isConnClosed() bool {
 	defer w.muxConnClosed.Unlock()
 
 	return w.connectionClosed
-}
-
-// check if the websocket connection is closed
-func (w *websocketConnection) setConnClosed() {
-	w.muxConnClosed.Lock()
-	defer w.muxConnClosed.Unlock()
-
-	w.connectionClosed = true
 }
 
 func (w *websocketConnection) run() {
@@ -95,6 +110,8 @@ func (w *websocketConnection) writeShipPump() {
 
 			if err := w.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
 				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
+				w.setConnClosedError(err)
+				w.dataProcessing.ReportConnectionError(err)
 				return
 			}
 
@@ -116,6 +133,8 @@ func (w *websocketConnection) writeShipPump() {
 			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := w.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
+				w.setConnClosedError(err)
+				w.dataProcessing.ReportConnectionError(err)
 				return
 			}
 		}
@@ -136,6 +155,7 @@ func (w *websocketConnection) readShipPump() {
 		if err != nil {
 			logging.Log.Debug(w.remoteSki, "websocket read error: ", err)
 			w.close()
+			w.setConnClosedError(err)
 			w.dataProcessing.ReportConnectionError(err)
 			return
 		}
@@ -183,7 +203,7 @@ func (w *websocketConnection) close() {
 			return
 		}
 
-		w.setConnClosed()
+		w.setConnClosedError(nil)
 
 		w.muxShipWrite.Lock()
 
@@ -231,13 +251,23 @@ func (w *websocketConnection) WriteMessageToDataConnection(message []byte) error
 }
 
 // shutdown the connection and all internals
-func (w *websocketConnection) CloseDataConnection() {
+func (w *websocketConnection) CloseDataConnection(closeCode int, reason string) {
 	if !w.isConnClosed() {
+		if reason != "" {
+			_ = w.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, reason))
+		}
 		w.close()
 	}
 }
 
 // return if the connection is closed
-func (w *websocketConnection) IsDataConnectionClosed() bool {
-	return w.isConnClosed()
+func (w *websocketConnection) IsDataConnectionClosed() (bool, error) {
+	isClosed := w.isConnClosed()
+	err := w.connClosedError()
+
+	if isClosed && err == nil {
+		err = errors.New("connection is closed")
+	}
+
+	return isClosed, err
 }

@@ -13,11 +13,11 @@ import (
 func (c *ShipConnection) handshakeProtocol_Init() {
 	switch c.role {
 	case ShipRoleServer:
-		c.setState(smeProtHStateServerInit)
+		c.setState(SmeProtHStateServerInit, nil)
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
-		c.setState(smeProtHStateServerListenProposal)
+		c.setState(SmeProtHStateServerListenProposal, nil)
 	case ShipRoleClient:
-		c.setState(smeProtHStateClientInit)
+		c.setState(SmeProtHStateClientInit, nil)
 		c.handshakeProtocol_smeProtHStateClientInit()
 	}
 }
@@ -61,7 +61,7 @@ func (c *ShipConnection) handshakeProtocol_smeProtHStateServerListenProposal(mes
 
 	c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
 
-	c.setState(smeProtHStateServerListenConfirm)
+	c.setState(SmeProtHStateServerListenConfirm, nil)
 }
 
 func (c *ShipConnection) handshakeProtocol_smeProtHStateServerListenConfirm(message []byte) {
@@ -82,12 +82,12 @@ func (c *ShipConnection) handshakeProtocol_smeProtHStateServerListenConfirm(mess
 
 	c.stopHandshakeTimer()
 
-	c.setState(smeProtHStateServerOk)
+	c.setState(SmeProtHStateServerOk, nil)
 	c.handleState(false, nil)
 }
 
 func (c *ShipConnection) handshakeProtocol_smeProtHStateClientInit() {
-	c.setState(smeProtHStateClientInit)
+	c.setState(SmeProtHStateClientInit, nil)
 
 	protocolHandshake := c.protocolHandshake()
 	protocolHandshake.MessageProtocolHandshake.HandshakeType = model.ProtocolHandshakeTypeTypeAnnounceMax
@@ -97,7 +97,7 @@ func (c *ShipConnection) handshakeProtocol_smeProtHStateClientInit() {
 		return
 	}
 
-	c.setState(smeProtHStateClientListenChoice)
+	c.setState(SmeProtHStateClientListenChoice, nil)
 }
 
 func (c *ShipConnection) handshakeProtocol_smeProtHStateClientListenChoice(message []byte) {
@@ -158,7 +158,7 @@ func (c *ShipConnection) handshakeProtocol_smeProtHStateClientListenChoice(messa
 		return
 	}
 
-	c.setState(smeProtHStateClientOk)
+	c.setState(SmeProtHStateClientOk, nil)
 	c.handleState(false, nil)
 }
 

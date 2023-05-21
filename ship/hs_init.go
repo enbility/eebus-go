@@ -13,14 +13,14 @@ func (c *ShipConnection) handshakeInit_cmiStateInitStart() {
 	switch c.role {
 	case ShipRoleClient:
 		// CMI_STATE_CLIENT_SEND
-		c.setState(cmiStateClientSend)
+		c.setState(CmiStateClientSend, nil)
 		if err := c.DataHandler.WriteMessageToDataConnection(shipInit); err != nil {
 			c.endHandshakeWithError(err)
 			return
 		}
-		c.setState(cmiStateClientWait)
+		c.setState(CmiStateClientWait, nil)
 	case ShipRoleServer:
-		c.setState(cmiStateServerWait)
+		c.setState(CmiStateServerWait, nil)
 	}
 
 	c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
@@ -28,7 +28,7 @@ func (c *ShipConnection) handshakeInit_cmiStateInitStart() {
 
 // CMI_STATE_SERVER_WAIT
 func (c *ShipConnection) handshakeInit_cmiStateServerWait(message []byte) {
-	c.smeState = cmiStateServerEvaluate
+	c.setState(CmiStateServerEvaluate, nil)
 
 	if !c.handshakeInit_cmiStateEvaluate(message) {
 		return
@@ -39,19 +39,19 @@ func (c *ShipConnection) handshakeInit_cmiStateServerWait(message []byte) {
 		return
 	}
 
-	c.setState(smeHelloState)
+	c.setState(SmeHelloState, nil)
 	c.handleState(false, nil)
 }
 
 // CMI_STATE_CLIENT_WAIT
 func (c *ShipConnection) handshakeInit_cmiStateClientWait(message []byte) {
-	c.smeState = cmiStateClientEvaluate
+	c.setState(CmiStateClientEvaluate, nil)
 
 	if !c.handshakeInit_cmiStateEvaluate(message) {
 		return
 	}
 
-	c.setState(smeHelloState)
+	c.setState(SmeHelloState, nil)
 	c.handleState(false, nil)
 }
 
@@ -65,7 +65,7 @@ func (c *ShipConnection) handshakeInit_cmiStateEvaluate(message []byte) bool {
 		c.endHandshakeWithError(fmt.Errorf("Invalid SHIP MessageType, expected 0 and got %s" + string(msgType)))
 		return false
 	}
-	if data[0] != byte(0) {
+	if len(data) > 0 && data[0] != byte(0) {
 		c.endHandshakeWithError(fmt.Errorf("Invalid SHIP MessageValue, expected 0 and got %s" + string(data)))
 		return false
 	}

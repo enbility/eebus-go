@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/ship"
+	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -20,6 +21,9 @@ type testStruct struct {
 
 type HubSuite struct {
 	suite.Suite
+
+	serviceProvider *MockServiceProvider
+	mdnsService     *MockMdnsService
 
 	tests []testStruct
 }
@@ -38,24 +42,20 @@ func (s *HubSuite) SetupSuite() {
 		{9, connectionInitiationDelayTimeRanges[2]},
 		{10, connectionInitiationDelayTimeRanges[2]},
 	}
+
+	ctrl := gomock.NewController(s.T())
+
+	s.serviceProvider = NewMockServiceProvider(ctrl)
+	s.serviceProvider.EXPECT().RemoteSKIConnected(gomock.Any()).AnyTimes()
+	s.serviceProvider.EXPECT().ServiceShipIDUpdate(gomock.Any(), gomock.Any()).AnyTimes()
+	s.serviceProvider.EXPECT().ServicePairingDetailUpdate(gomock.Any(), gomock.Any()).AnyTimes()
+
+	s.mdnsService = NewMockMdnsService(ctrl)
+	s.mdnsService.EXPECT().SetupMdnsService().AnyTimes()
+	s.mdnsService.EXPECT().AnnounceMdnsEntry().AnyTimes()
+	s.mdnsService.EXPECT().UnannounceMdnsEntry().AnyTimes()
+	s.mdnsService.EXPECT().UnregisterMdnsSearch(gomock.Any()).AnyTimes()
 }
-
-// Service Provider Interface
-var _ serviceProvider = (*HubSuite)(nil)
-
-func (s *HubSuite) VisibleMDNSRecordsUpdated([]MdnsEntry) {}
-func (s *HubSuite) RemoteSKIConnected(string)             {}
-func (s *HubSuite) RemoteSKIDisconnected(string)          {}
-func (s *HubSuite) ReportServiceShipID(string, string)    {}
-
-var _ MdnsService = (*HubSuite)(nil)
-
-func (s *HubSuite) SetupMdnsService() error            { return nil }
-func (s *HubSuite) ShutdownMdnsService()               {}
-func (s *HubSuite) AnnounceMdnsEntry() error           { return nil }
-func (s *HubSuite) UnannounceMdnsEntry()               {}
-func (s *HubSuite) RegisterMdnsSearch(cb MdnsSearch)   {}
-func (s *HubSuite) UnregisterMdnsSearch(cb MdnsSearch) {}
 
 func (s *HubSuite) Test_NewConnectionsHub() {
 	ski := "12af9e"
@@ -63,7 +63,8 @@ func (s *HubSuite) Test_NewConnectionsHub() {
 	configuration := &Configuration{
 		interfaces: []string{"en0"},
 	}
-	hub := newConnectionsHub(s, s, nil, configuration, localService)
+
+	hub := newConnectionsHub(s.serviceProvider, s.mdnsService, nil, configuration, localService)
 	assert.NotNil(s.T(), hub)
 
 	hub.start()
@@ -73,24 +74,24 @@ func (s *HubSuite) Test_IsRemoteSKIPaired() {
 	sut := connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
+		remoteServices:           make(map[string]*ServiceDetails),
+		serviceProvider:          s.serviceProvider,
 	}
 	ski := "test"
 
 	paired := sut.IsRemoteServiceForSKIPaired(ski)
 	assert.Equal(s.T(), false, paired)
 
-	service := NewServiceDetails(ski)
 	// mark it as connected, so mDNS is not triggered
 	sut.connections[ski] = &ship.ShipConnection{}
-	sut.PairRemoteService(service)
+	sut.EnablePairingForSKI(ski, true)
 
 	paired = sut.IsRemoteServiceForSKIPaired(ski)
 	assert.Equal(s.T(), true, paired)
 
 	// remove the connection, so the test doesn't try to close it
 	delete(sut.connections, ski)
-	err := sut.UnpairRemoteService(ski)
-	assert.Nil(s.T(), err)
+	sut.EnablePairingForSKI(ski, false)
 	paired = sut.IsRemoteServiceForSKIPaired(ski)
 	assert.Equal(s.T(), false, paired)
 }
@@ -106,7 +107,7 @@ func (s *HubSuite) Test_CheckRestartMdnsSearch() {
 
 func (s *HubSuite) Test_ReportServiceShipID() {
 	sut := connectionsHub{
-		serviceProvider: s,
+		serviceProvider: s.serviceProvider,
 	}
 	sut.ReportServiceShipID("", "")
 	// Nothing to verify yet
@@ -126,7 +127,7 @@ func (s *HubSuite) Test_RegisterConnection() {
 
 	sut := connectionsHub{
 		connections:  make(map[string]*ship.ShipConnection),
-		mdns:         s,
+		mdns:         s.mdnsService,
 		localService: localService,
 	}
 

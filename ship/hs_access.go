@@ -23,7 +23,7 @@ func (c *ShipConnection) handshakeAccessMethods_Init() {
 	}
 
 	c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
-	c.setState(smeAccessMethodsRequest)
+	c.setState(SmeAccessMethodsRequest, nil)
 }
 
 func (c *ShipConnection) handshakeAccessMethods_Request(message []byte) {
@@ -76,6 +76,6 @@ func (c *ShipConnection) handshakeAccessMethods_Request(message []byte) {
 		return
 	}
 
-	c.setState(smeApproved)
+	c.setState(SmeApproved, nil)
 	c.approveHandshake()
 }

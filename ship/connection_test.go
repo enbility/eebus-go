@@ -7,6 +7,7 @@ import (
 	"github.com/enbility/eebus-go/ship/model"
 	"github.com/enbility/eebus-go/spine"
 	spineModel "github.com/enbility/eebus-go/spine/model"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -20,30 +21,11 @@ type ConnectionSuite struct {
 
 	sut *ShipConnection
 
+	shipDataProvider *MockShipServiceDataProvider
+	shipDataConn     *MockShipDataConnection
+
 	sentMessage []byte
 }
-
-var _ ConnectionHandler = (*ConnectionSuite)(nil)
-
-func (s *ConnectionSuite) HandleClosedConnection(connection *ShipConnection) {}
-
-var _ ShipServiceDataProvider = (*ConnectionSuite)(nil)
-
-func (s *ConnectionSuite) IsRemoteServiceForSKIPaired(string) bool      { return true }
-func (s *ConnectionSuite) HandleConnectionClosed(*ShipConnection, bool) {}
-func (s *ConnectionSuite) ReportServiceShipID(string, string)           {}
-
-var _ ShipDataConnection = (*ConnectionSuite)(nil)
-
-func (s *ConnectionSuite) InitDataProcessing(dataProcessing ShipDataProcessing) {}
-
-func (s *ConnectionSuite) WriteMessageToDataConnection(message []byte) error {
-	s.sentMessage = message
-	return nil
-}
-
-func (s *ConnectionSuite) CloseDataConnection()         {}
-func (w *ConnectionSuite) IsDataConnectionClosed() bool { return false }
 
 func (s *ConnectionSuite) SetupSuite()   {}
 func (s *ConnectionSuite) TearDownTest() {}
@@ -53,7 +35,16 @@ func (s *ConnectionSuite) BeforeTest(suiteName, testName string) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
 
-	s.sut = NewConnectionHandler(s, s, localDevice, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID")
+	ctrl := gomock.NewController(s.T())
+
+	s.shipDataProvider = NewMockShipServiceDataProvider(ctrl)
+
+	s.shipDataConn = NewMockShipDataConnection(ctrl)
+	s.shipDataConn.EXPECT().InitDataProcessing(gomock.Any()).AnyTimes()
+	s.shipDataConn.EXPECT().WriteMessageToDataConnection(gomock.Any()).DoAndReturn(func(message []byte) error { s.sentMessage = message; return nil }).AnyTimes()
+	s.shipDataConn.EXPECT().IsDataConnectionClosed().DoAndReturn(func() (bool, error) { return false, nil }).AnyTimes()
+
+	s.sut = NewConnectionHandler(s.shipDataProvider, s.shipDataConn, localDevice, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID", false)
 }
 
 func (s *ConnectionSuite) TestSendShipModel() {

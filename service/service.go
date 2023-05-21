@@ -10,12 +10,19 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 )
 
+type RemoteService struct {
+	Name       string `json:"name"`
+	Ski        string `json:"ski"`
+	Identifier string `json:"identifier"`
+	Brand      string `json:"brand"`
+	Type       string `json:"type"`
+	Model      string `json:"model"`
+}
+
 // interface for receiving data for specific events
 type EEBUSServiceHandler interface {
-	// RemoteServicesListUpdated(services []ServiceDetails)
-
 	// report all currently visible EEBUS services
-	VisibleMDNSRecordsUpdated(service *EEBUSService, entries []MdnsEntry)
+	VisibleRemoteServicesUpdated(service *EEBUSService, entries []RemoteService)
 
 	// report a connection to a SKI
 	RemoteSKIConnected(service *EEBUSService, ski string)
@@ -26,7 +33,15 @@ type EEBUSServiceHandler interface {
 	// Provides the SHIP ID the remote service reported during the handshake process
 	// This needs to be persisted and passed on for future remote service connections
 	// when using `PairRemoteService`
-	ReportServiceShipID(ski string, shipdID string)
+	ServiceShipIDUpdate(ski string, shipdID string)
+
+	// Provides the current pairing state for the remote service
+	// This is called whenever the state changes and can be used to
+	// provide user information for the pairing/connection process
+	ServicePairingDetailUpdate(ski string, detail PairingDetail)
+
+	// return if the user is still able to trust the connection
+	AllowWaitingForTrust(ski string) bool
 }
 
 // A service is the central element of an EEBUS service
@@ -56,10 +71,24 @@ func NewEEBUSService(configuration *Configuration, serviceHandler EEBUSServiceHa
 	}
 }
 
-var _ serviceProvider = (*EEBUSService)(nil)
+var _ ServiceProvider = (*EEBUSService)(nil)
 
 func (s *EEBUSService) VisibleMDNSRecordsUpdated(entries []MdnsEntry) {
-	s.serviceHandler.VisibleMDNSRecordsUpdated(s, entries)
+	var remoteServices []RemoteService
+
+	for _, entry := range entries {
+		remoteService := RemoteService{
+			Name:       entry.Name,
+			Ski:        entry.Ski,
+			Identifier: entry.Identifier,
+			Brand:      entry.Brand,
+			Type:       entry.Type,
+			Model:      entry.Model,
+		}
+
+		remoteServices = append(remoteServices, remoteService)
+	}
+	s.serviceHandler.VisibleRemoteServicesUpdated(s, remoteServices)
 }
 
 // report a connection to a SKI
@@ -73,8 +102,25 @@ func (s *EEBUSService) RemoteSKIDisconnected(ski string) {
 }
 
 // Provides the SHIP ID the remote service reported during the handshake process
-func (s *EEBUSService) ReportServiceShipID(ski string, shipdID string) {
-	s.serviceHandler.ReportServiceShipID(ski, shipdID)
+func (s *EEBUSService) ServiceShipIDUpdate(ski string, shipdID string) {
+	s.serviceHandler.ServiceShipIDUpdate(ski, shipdID)
+}
+
+// Provides the current pairing state for the remote service
+// This is called whenever the state changes and can be used to
+// provide user information for the pairing/connection process
+func (s *EEBUSService) ServicePairingDetailUpdate(ski string, detail PairingDetail) {
+	s.serviceHandler.ServicePairingDetailUpdate(ski, detail)
+}
+
+// Get the current pairing details for a given SKI
+func (s *EEBUSService) PairingDetailForSki(ski string) PairingDetail {
+	return s.connectionsHub.PairingDetailForSki(ski)
+}
+
+// return if the user is still able to trust the connection
+func (s *EEBUSService) AllowWaitingForTrust(ski string) bool {
+	return s.serviceHandler.AllowWaitingForTrust(ski)
 }
 
 // Starts browsing for any EEBUS mDNS entry
@@ -123,9 +169,9 @@ func (s *EEBUSService) Setup() error {
 	// I assume those two to mean the same.
 	// TODO: clarify
 	s.LocalService = NewServiceDetails(ski)
-	s.LocalService.SetShipID(sd.Identifier())
-	s.LocalService.SetDeviceType(sd.deviceType)
-	s.LocalService.SetRegisterAutoAccept(sd.registerAutoAccept)
+	s.LocalService.ShipID = sd.Identifier()
+	s.LocalService.DeviceType = sd.deviceType
+	s.LocalService.RegisterAutoAccept = sd.registerAutoAccept
 
 	logging.Log.Info("Local SKI: ", ski)
 
@@ -168,7 +214,7 @@ func (s *EEBUSService) Setup() error {
 	s.spineLocalDevice.AddEntity(entity)
 
 	// setup mDNS
-	mdns := newMDNS(s.LocalService.SKI(), s.Configuration)
+	mdns := newMDNS(s.LocalService.SKI, s.Configuration)
 
 	// Setup connections hub with mDNS and websocket connection handling
 	s.connectionsHub = newConnectionsHub(s, mdns, s.spineLocalDevice, s.Configuration, s.LocalService)
@@ -229,21 +275,25 @@ func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spin
 	return nil
 }
 
+// Returns the Service detail of a given remote SKI
+func (s *EEBUSService) RemoteServiceForSKI(ski string) *ServiceDetails {
+	return s.connectionsHub.serviceForSKI(ski)
+}
+
 // Adds a new device to the list of known devices which can be connected to
 // and connect it if it is currently not connected
-func (s *EEBUSService) PairRemoteService(service *ServiceDetails) {
-	s.connectionsHub.PairRemoteService(service)
+func (s *EEBUSService) EnablePairingForSKI(ski string, enable bool) {
+	s.connectionsHub.EnablePairingForSKI(ski, enable)
 }
 
-// Returns if the provided SKI is from a registered service
-func (s *EEBUSService) IsRemoteServiceForSKIPaired(ski string) bool {
-	return s.connectionsHub.IsRemoteServiceForSKIPaired(ski)
+// Triggers the pairing process for a SKI
+func (s *EEBUSService) InitiatePairingWithSKI(ski string) {
+	s.connectionsHub.InitiatePairingWithSKI(ski)
 }
 
-// Remove a device from the list of known devices which can be connected to
-// and disconnect it if it is currently connected
-func (s *EEBUSService) UnpairRemoteService(ski string) error {
-	return s.connectionsHub.UnpairRemoteService(ski)
+// Cancels the pairing process for a SKI
+func (s *EEBUSService) CancelPairingWithSKI(ski string) {
+	s.connectionsHub.CancelPairingWithSKI(ski)
 }
 
 // Close a connection to a remote SKI

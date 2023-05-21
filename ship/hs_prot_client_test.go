@@ -25,12 +25,12 @@ func (s *ProClientSuite) BeforeTest(suiteName, testName string) {
 func (s *ProClientSuite) Test_Init() {
 	sut, data := initTest(s.role)
 
-	sut.setState(smeHelloStateOk)
+	sut.setState(SmeHelloStateOk, nil)
 
 	sut.handleState(false, nil)
 
 	// the state goes from smeHelloStateOk to smeProtHStateClientInit to smeProtHStateClientListenChoice
-	assert.Equal(s.T(), smeProtHStateClientListenChoice, sut.getState())
+	assert.Equal(s.T(), SmeProtHStateClientListenChoice, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -39,7 +39,7 @@ func (s *ProClientSuite) Test_Init() {
 func (s *ProClientSuite) Test_ListenChoice() {
 	sut, data := initTest(s.role)
 
-	sut.setState(smeProtHStateClientListenChoice)
+	sut.setState(SmeProtHStateClientListenChoice, nil)
 
 	protMsg := model.MessageProtocolHandshake{
 		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
@@ -60,7 +60,7 @@ func (s *ProClientSuite) Test_ListenChoice() {
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 
 	// state goes directly from smeProtHStateClientOk to smePinStateCheckInit to smePinStateCheckListen
-	assert.Equal(s.T(), smePinStateCheckListen, sut.getState())
+	assert.Equal(s.T(), SmePinStateCheckListen, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

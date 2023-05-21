@@ -15,11 +15,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-// implemented by connectionsHub and used by shipConnection
-type ConnectionHandler interface {
-	HandleClosedConnection(connection *ShipConnection)
-}
-
 // A ShipConnection handles the data connection and coordinates SHIP and SPINE messages i/o
 type ShipConnection struct {
 	// The ship connection mode of this connection
@@ -43,8 +38,14 @@ type ShipConnection struct {
 	// the handler for sending messages on the data connection
 	DataHandler ShipDataConnection
 
+	// defines if connections where handshakes do not complete successfully should be automatically retried as closed connections
+	autoRetryHandshake bool
+
 	// The current SHIP state
-	smeState shipMessageExchangeState
+	smeState ShipMessageExchangeState
+
+	// the current error value if SHIP state is in error
+	smeError error
 
 	// handles timeouts for the various states
 	//
@@ -68,7 +69,7 @@ type ShipConnection struct {
 	mux sync.Mutex
 }
 
-func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, deviceLocalCon spine.DeviceLocalConnection, role shipRole, localShipID, remoteSki, remoteShipId string) *ShipConnection {
+func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, deviceLocalCon spine.DeviceLocalConnection, role shipRole, localShipID, remoteSki, remoteShipId string, retry bool) *ShipConnection {
 	ship := &ShipConnection{
 		serviceDataProvider: dataProvider,
 		deviceLocalCon:      deviceLocalCon,
@@ -77,7 +78,9 @@ func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler Ship
 		RemoteSKI:           remoteSki,
 		remoteShipID:        remoteShipId,
 		DataHandler:         dataHandler,
-		smeState:            cmiStateInitStart,
+		smeState:            CmiStateInitStart,
+		smeError:            nil,
+		autoRetryHandshake:  retry,
 	}
 
 	ship.handshakeTimerStopChan = make(chan struct{})
@@ -92,6 +95,32 @@ func (c *ShipConnection) Run() {
 	c.handleShipMessage(false, nil)
 }
 
+// provides the current ship state and error value if the state is in error
+func (c *ShipConnection) ShipHandshakeState() (ShipMessageExchangeState, error) {
+	return c.getState(), c.smeError
+}
+
+// invoked when pairing for a pending request is approved
+func (c *ShipConnection) ApprovePendingHandshake() {
+	state := c.getState()
+	if state != SmeHelloStatePendingListen {
+		// TODO: what to do if the state is different?
+
+		return
+	}
+
+	// TODO: move this into hs_hello.go and add tests
+
+	// HELLO_OK
+	c.stopHandshakeTimer()
+	c.setState(SmeHelloStateReadyInit, nil)
+	c.handleState(false, nil)
+
+	// TODO: check if we need to do some validations before moving on to the next state
+	c.setState(SmeHelloStateOk, nil)
+	c.handleState(false, nil)
+}
+
 // report removing a connection
 func (c *ShipConnection) removeRemoteDeviceConnection() {
 	c.deviceLocalCon.RemoveRemoteDeviceConnection(c.RemoteSKI)
@@ -104,7 +133,7 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 
 		c.removeRemoteDeviceConnection()
 
-		if safe && c.smeState > cmiStateInitStart {
+		if safe && c.getState() > CmiStateInitStart {
 			// SHIP 13.4.7: Connection Termination Announce
 			closeMessage := model.ConnectionClose{
 				ConnectionClose: model.ConnectionCloseType{
@@ -115,13 +144,13 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 
 			_ = c.sendShipModel(model.MsgTypeEnd, closeMessage)
 
-			if c.smeState != smeError {
+			if c.getState() != SmeError {
 				return
 			}
 		}
 
-		c.DataHandler.CloseDataConnection()
-		c.serviceDataProvider.HandleConnectionClosed(c, c.smeState == smeComplete)
+		c.DataHandler.CloseDataConnection(4495, "Timeout")
+		c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeComplete)
 	})
 }
 
@@ -184,7 +213,15 @@ func (c *ShipConnection) hasSpineDatagram(message []byte) bool {
 
 // the websocket data connection was closed from remote
 func (c *ShipConnection) ReportConnectionError(err error) {
+	c.setState(SmeError, err)
+
 	c.CloseConnection(false, "")
+
+	state := ShipState{
+		State: SmeError,
+		Error: err,
+	}
+	c.serviceDataProvider.HandleShipHandshakeStateUpdate(c.RemoteSKI, state)
 }
 
 const payloadPlaceholder = `{"place":"holder"}`
@@ -233,9 +270,9 @@ func (c *ShipConnection) sendSpineData(data []byte) error {
 		return err
 	}
 
-	if c.DataHandler.IsDataConnectionClosed() {
+	if isClosed, err := c.DataHandler.IsDataConnectionClosed(); isClosed {
 		c.CloseConnection(false, "")
-		return errors.New("connection is closed")
+		return err
 	}
 
 	// Wrap the message into a binary message with the ship header
@@ -275,9 +312,9 @@ func (c *ShipConnection) processShipJsonMessage(message []byte, target any) erro
 
 // transform a SHIP model into EEBUS specific JSON
 func (c *ShipConnection) shipMessage(typ byte, model interface{}) ([]byte, error) {
-	if c.DataHandler.IsDataConnectionClosed() {
+	if isClosed, err := c.DataHandler.IsDataConnectionClosed(); isClosed {
 		c.CloseConnection(false, "")
-		return nil, errors.New("connection is closed")
+		return nil, err
 	}
 
 	if model == nil {
