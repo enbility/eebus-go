@@ -133,11 +133,6 @@ type Configuration struct {
 	// This is useful when e.g. power values are not available and therefor
 	// need to be calculated using the current values
 	voltage float64
-
-	// Automatically retry a connection that ends in a SHIP abort, error or timeout
-	// Defaut: false
-	// Useful if the service does not have a pairing UI
-	autoRetryShipHandshake bool
 }
 
 // Setup a Configuration with the required parameters
@@ -189,13 +184,6 @@ func NewConfiguration(
 	configuration.featureSet = model.NetworkManagementFeatureSetTypeSmart
 
 	return configuration, nil
-}
-
-// defines if SHIP handshakes not completing successfully should
-// also be considered as disconnections that need to be retried automatically
-// default: false
-func (s *Configuration) SetAutoRetryShipHandshake(retry bool) {
-	s.autoRetryShipHandshake = retry
 }
 
 // define an alternative mDNS and SHIP identifier

@@ -55,7 +55,7 @@ func initTest(role shipRole) (*ShipConnection, *dataHandlerTest) {
 		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
 
 	dataHandler := &dataHandlerTest{}
-	conhandler := NewConnectionHandler(dataHandler, dataHandler, localDevice, role, "LocalShipID", "RemoveDevice", "RemoteShipID", false)
+	conhandler := NewConnectionHandler(dataHandler, dataHandler, localDevice, role, "LocalShipID", "RemoveDevice", "RemoteShipID")
 
 	return conhandler, dataHandler
 }

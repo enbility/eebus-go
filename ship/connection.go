@@ -38,9 +38,6 @@ type ShipConnection struct {
 	// the handler for sending messages on the data connection
 	DataHandler ShipDataConnection
 
-	// defines if connections where handshakes do not complete successfully should be automatically retried as closed connections
-	autoRetryHandshake bool
-
 	// The current SHIP state
 	smeState ShipMessageExchangeState
 
@@ -69,7 +66,7 @@ type ShipConnection struct {
 	mux sync.Mutex
 }
 
-func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, deviceLocalCon spine.DeviceLocalConnection, role shipRole, localShipID, remoteSki, remoteShipId string, retry bool) *ShipConnection {
+func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, deviceLocalCon spine.DeviceLocalConnection, role shipRole, localShipID, remoteSki, remoteShipId string) *ShipConnection {
 	ship := &ShipConnection{
 		serviceDataProvider: dataProvider,
 		deviceLocalCon:      deviceLocalCon,
@@ -80,7 +77,6 @@ func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler Ship
 		DataHandler:         dataHandler,
 		smeState:            CmiStateInitStart,
 		smeError:            nil,
-		autoRetryHandshake:  retry,
 	}
 
 	ship.handshakeTimerStopChan = make(chan struct{})

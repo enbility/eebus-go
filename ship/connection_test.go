@@ -44,7 +44,7 @@ func (s *ConnectionSuite) BeforeTest(suiteName, testName string) {
 	s.shipDataConn.EXPECT().WriteMessageToDataConnection(gomock.Any()).DoAndReturn(func(message []byte) error { s.sentMessage = message; return nil }).AnyTimes()
 	s.shipDataConn.EXPECT().IsDataConnectionClosed().DoAndReturn(func() (bool, error) { return false, nil }).AnyTimes()
 
-	s.sut = NewConnectionHandler(s.shipDataProvider, s.shipDataConn, localDevice, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID", false)
+	s.sut = NewConnectionHandler(s.shipDataProvider, s.shipDataConn, localDevice, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID")
 }
 
 func (s *ConnectionSuite) TestSendShipModel() {

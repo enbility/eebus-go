@@ -165,8 +165,9 @@ func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection,
 
 	h.serviceProvider.RemoteSKIDisconnected(connection.RemoteSKI)
 
-	// Do not automatically reconnect if handshake failed and autoRetry is false
-	if !handshakeCompleted && !h.configuration.autoRetryShipHandshake {
+	// Do not automatically reconnect if handshake failed and not already paired
+	remoteService := h.serviceForSKI(connection.RemoteSKI)
+	if !handshakeCompleted && !remoteService.Paired {
 		return
 	}
 
@@ -473,7 +474,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
 	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleServer,
-		h.localService.ShipID, remoteService.SKI, remoteService.ShipID, h.configuration.autoRetryShipHandshake)
+		h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
 	shipConnection.Run()
 
 	h.registerConnection(shipConnection)
@@ -538,7 +539,7 @@ func (h *connectionsHub) connectFoundService(remoteService *ServiceDetails, host
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
 	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleClient,
-		h.localService.ShipID, remoteService.SKI, remoteService.ShipID, h.configuration.autoRetryShipHandshake)
+		h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
 	shipConnection.Run()
 
 	h.registerConnection(shipConnection)
