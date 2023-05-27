@@ -92,7 +92,7 @@ func (s *AccessSuite) Test_Methods_WrongShipID() {
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 	assert.Equal(s.T(), SmeError, sut.getState())
-	assert.NotNil(s.T(), data.lastMessage())
+	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
 }

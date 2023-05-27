@@ -129,7 +129,8 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 
 		c.removeRemoteDeviceConnection()
 
-		if safe && c.getState() > CmiStateInitStart {
+		// this may not be used for Connection Data Exchange is entered!
+		if safe && c.getState() == SmeComplete {
 			// SHIP 13.4.7: Connection Termination Announce
 			closeMessage := model.ConnectionClose{
 				ConnectionClose: model.ConnectionCloseType{

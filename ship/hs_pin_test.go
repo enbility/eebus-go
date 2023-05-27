@@ -70,7 +70,7 @@ func (s *PinSuite) Test_CheckListen_Required() {
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 	assert.Equal(s.T(), SmeError, sut.getState())
-	assert.NotNil(s.T(), data.lastMessage())
+	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
 }
@@ -93,7 +93,7 @@ func (s *PinSuite) Test_CheckListen_Optional() {
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 	assert.Equal(s.T(), SmeError, sut.getState())
-	assert.NotNil(s.T(), data.lastMessage())
+	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
 }
@@ -116,7 +116,7 @@ func (s *PinSuite) Test_CheckListen_Ok() {
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 	assert.Equal(s.T(), SmeError, sut.getState())
-	assert.NotNil(s.T(), data.lastMessage())
+	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
 }
