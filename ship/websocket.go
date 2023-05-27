@@ -36,6 +36,7 @@ type websocketConnection struct {
 
 	muxConnClosed sync.Mutex
 	muxShipWrite  sync.Mutex
+	muxConWrite   sync.Mutex
 	shutdownOnce  sync.Once
 }
 
@@ -104,11 +105,11 @@ func (w *websocketConnection) writeShipPump() {
 			if !ok {
 				logging.Log.Debug(w.remoteSki, "Ship write channel closed")
 				// The write channel has been closed
-				_ = w.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = w.writeMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			if err := w.conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
+			if err := w.writeMessage(websocket.BinaryMessage, message); err != nil {
 				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
 				w.setConnClosedError(err)
 				w.dataProcessing.ReportConnectionError(err)
@@ -131,7 +132,7 @@ func (w *websocketConnection) writeShipPump() {
 			}
 
 			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := w.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			if err := w.writeMessage(websocket.PingMessage, nil); err != nil {
 				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
 				w.setConnClosedError(err)
 				w.dataProcessing.ReportConnectionError(err)
@@ -250,11 +251,19 @@ func (w *websocketConnection) WriteMessageToDataConnection(message []byte) error
 	return nil
 }
 
+// make sure websocket Write is only called once at a time
+func (w *websocketConnection) writeMessage(messageType int, data []byte) error {
+	w.muxConWrite.Lock()
+	defer w.muxConWrite.Unlock()
+
+	return w.conn.WriteMessage(messageType, data)
+}
+
 // shutdown the connection and all internals
 func (w *websocketConnection) CloseDataConnection(closeCode int, reason string) {
 	if !w.isConnClosed() {
 		if reason != "" {
-			_ = w.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, reason))
+			_ = w.writeMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, reason))
 		}
 		w.close()
 	}
