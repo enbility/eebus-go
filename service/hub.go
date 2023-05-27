@@ -233,6 +233,10 @@ func (h *connectionsHub) AllowWaitingForTrust(ski string) bool {
 func (h *connectionsHub) HandleShipHandshakeStateUpdate(ski string, state ship.ShipState) {
 	service := h.serviceForSKI(ski)
 
+	if state.State == ship.SmeComplete {
+		h.EnablePairingForSKI(ski, true)
+	}
+
 	pairingState := h.mapShipMessageExchangeState(state.State, ski)
 	if state.Error != nil && state.Error != ErrConnectionNotFound {
 		pairingState = PairingStateError
