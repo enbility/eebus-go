@@ -610,8 +610,8 @@ func (h *connectionsHub) serviceForSKI(ski string) *ServiceDetails {
 	return service
 }
 
-// Sets the SKI to be paired
-// Should be used if for services which finalized the pairing process and where
+// Sets the SKI as being paired or not
+// Should be used for services which completed the pairing process and where
 // stored as having the process completed
 func (h *connectionsHub) EnablePairingForSKI(ski string, enable bool) {
 	service := h.serviceForSKI(ski)
