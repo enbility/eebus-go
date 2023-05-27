@@ -714,44 +714,57 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 	}
 
 	h.setConnectionAttemptRunning(ski, true)
+
 	counter, duration := h.getConnectionInitiationDelayTime(ski)
 
+	service := h.serviceForSKI(ski)
+	if service.PairingDetail.State == PairingStateQueued {
+		go h.prepareConnectionInitation(ski, counter, entry)
+		return
+	}
+
 	logging.Log.Debugf("delaying connection to %s by %s to minimize double connection probability", ski, duration)
+
 	// we do not stop this thread and just let the timer run out
 	// otherwise we would need a stop channel for each ski
 	go func() {
 		// wait
 		<-time.After(duration)
 
-		h.setConnectionAttemptRunning(ski, false)
-
-		// check if the remoteService still exists
-		service := h.serviceForSKI(ski)
-
-		// check if the current counter is still the same, otherwise this counter is irrelevant
-		currentCounter, exists := h.getCurrentConnectionAttemptCounter(ski)
-		if !exists || currentCounter != counter {
-			return
-		}
-
-		// connection attempt is not relevant if the device is no longer paired
-		// or it is not queued for pairing
-		pairingState := h.serviceForSKI(ski).PairingDetail.State
-		if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != PairingStateQueued {
-			return
-		}
-
-		// connection attempt is not relevant if the device is already connected
-		if h.isSkiConnected(ski) {
-			return
-		}
-
-		// now initiate the connection
-		if success := h.initateConnection(service, entry); !success {
-			h.checkRestartMdnsSearch()
-		}
-
+		h.prepareConnectionInitation(ski, counter, entry)
 	}()
+}
+
+// invoked by coordinateConnectionInitations either with a delay or directly
+// when initating a pairing process
+func (h *connectionsHub) prepareConnectionInitation(ski string, counter int, entry MdnsEntry) {
+	h.setConnectionAttemptRunning(ski, false)
+
+	// check if the remoteService still exists
+	service := h.serviceForSKI(ski)
+
+	// check if the current counter is still the same, otherwise this counter is irrelevant
+	currentCounter, exists := h.getCurrentConnectionAttemptCounter(ski)
+	if !exists || currentCounter != counter {
+		return
+	}
+
+	// connection attempt is not relevant if the device is no longer paired
+	// or it is not queued for pairing
+	pairingState := h.serviceForSKI(ski).PairingDetail.State
+	if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != PairingStateQueued {
+		return
+	}
+
+	// connection attempt is not relevant if the device is already connected
+	if h.isSkiConnected(ski) {
+		return
+	}
+
+	// now initiate the connection
+	if success := h.initateConnection(service, entry); !success {
+		h.checkRestartMdnsSearch()
+	}
 }
 
 // attempt to establish a connection to a remote service
