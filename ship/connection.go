@@ -117,6 +117,22 @@ func (c *ShipConnection) ApprovePendingHandshake() {
 	c.handleState(false, nil)
 }
 
+// invoked when pairing for a pending request is denied
+func (c *ShipConnection) AbortPendingHandshake() {
+	state := c.getState()
+	if state != SmeHelloStatePendingListen && state != SmeHelloStateReadyListen {
+		// TODO: what to do if the state is differnet?
+
+		return
+	}
+
+	// TODO: Move this into hs_hello.go and add tests
+
+	c.stopHandshakeTimer()
+	c.setState(SmeHelloStateAbort, nil)
+	c.handleState(false, nil)
+}
+
 // report removing a connection
 func (c *ShipConnection) removeRemoteDeviceConnection() {
 	c.deviceLocalCon.RemoveRemoteDeviceConnection(c.RemoteSKI)
@@ -146,8 +162,13 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 			}
 		}
 
-		c.DataHandler.CloseDataConnection(4495, "Timeout")
-		c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeComplete)
+		c.DataHandler.CloseDataConnection(4001, reason)
+
+		// handshake is completed if approved or aborted
+		state := c.getState()
+		handshakeEnd := state == SmeComplete || state == SmeHelloStateAbort || state == SmeHelloStateAbortDone
+
+		c.serviceDataProvider.HandleConnectionClosed(c, handshakeEnd)
 	})
 }
 
@@ -210,6 +231,12 @@ func (c *ShipConnection) hasSpineDatagram(message []byte) bool {
 
 // the websocket data connection was closed from remote
 func (c *ShipConnection) ReportConnectionError(err error) {
+	// if the handshake is aborted, a closed connection is no error
+	currentState := c.getState()
+	if currentState == SmeHelloStateAbort || currentState == SmeHelloStateAbortDone {
+		return
+	}
+
 	c.setState(SmeError, err)
 
 	c.CloseConnection(false, "")

@@ -291,6 +291,8 @@ func (h *connectionsHub) mapShipMessageExchangeState(state ship.ShipMessageExcha
 		connState = PairingStateInProgress
 	case ship.SmeHelloStatePendingInit, ship.SmeHelloStatePendingListen, ship.SmeHelloStatePendingTimeout:
 		connState = PairingStateReceived
+	case ship.SmeHelloStateAbort, ship.SmeHelloStateAbortDone:
+		connState = PairingStateNone
 	case ship.SmePinStateCheckInit, ship.SmePinStateCheckListen, ship.SmePinStateCheckError,
 		ship.SmePinStateCheckBusyInit, ship.SmePinStateCheckBusyWait, ship.SmePinStateCheckOk,
 		ship.SmePinStateAskInit, ship.SmePinStateAskProcess, ship.SmePinStateAskRestricted,
@@ -620,6 +622,21 @@ func (h *connectionsHub) serviceForSKI(ski string) *ServiceDetails {
 func (h *connectionsHub) EnablePairingForSKI(ski string, enable bool) {
 	service := h.serviceForSKI(ski)
 	service.Paired = enable
+
+	if enable {
+		return
+	}
+
+	h.removeConnectionAttemptCounter(ski)
+
+	service.PairingDetail.State = PairingStateNone
+	service.Paired = false
+
+	h.serviceProvider.ServicePairingDetailUpdate(ski, service.PairingDetail)
+
+	if existingC := h.connectionForSKI(ski); existingC != nil {
+		existingC.CloseConnection(true, "pairing cancelled")
+	}
 }
 
 // Triggers the pairing process for a SKI
@@ -649,17 +666,15 @@ func (h *connectionsHub) InitiatePairingWithSKI(ski string) {
 func (h *connectionsHub) CancelPairingWithSKI(ski string) {
 	h.removeConnectionAttemptCounter(ski)
 
+	if existingC := h.connectionForSKI(ski); existingC != nil {
+		existingC.AbortPendingHandshake()
+	}
+
 	service := h.serviceForSKI(ski)
 	service.PairingDetail.State = PairingStateNone
 	service.Paired = false
 
-	h.removeConnectionAttemptCounter(ski)
-
 	h.serviceProvider.ServicePairingDetailUpdate(ski, service.PairingDetail)
-
-	if existingC := h.connectionForSKI(ski); existingC != nil {
-		existingC.CloseConnection(true, "pairing cancelled")
-	}
 }
 
 // Process reported mDNS services

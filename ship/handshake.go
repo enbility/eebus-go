@@ -29,11 +29,11 @@ func (c *ShipConnection) handleShipMessage(timeout bool, message []byte) {
 				<-time.After(500 * time.Millisecond)
 
 				//
-				c.DataHandler.CloseDataConnection(4495, "timeout")
+				c.DataHandler.CloseDataConnection(4001, "close")
 				c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeComplete)
 			case model.ConnectionClosePhaseTypeConfirm:
 				// we got a confirmation so close this connection
-				c.DataHandler.CloseDataConnection(4496, "close")
+				c.DataHandler.CloseDataConnection(4001, "close")
 				c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeComplete)
 			}
 
@@ -59,7 +59,7 @@ func (c *ShipConnection) setState(newState ShipMessageExchangeState, err error) 
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, tHelloInit)
 	case SmeHelloStateOk:
 		c.stopHandshakeTimer()
-	case SmeHelloStateAbort:
+	case SmeHelloStateAbort, SmeHelloStateAbortDone:
 		c.stopHandshakeTimer()
 	case SmeProtHStateClientListenChoice:
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
@@ -165,6 +165,12 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case SmeHelloStateAbort:
 		c.handshakeHello_Abort()
+
+	case SmeHelloStateAbortDone:
+		go func() {
+			time.Sleep(time.Second)
+			c.CloseConnection(false, "")
+		}()
 
 	// smeProtocol
 

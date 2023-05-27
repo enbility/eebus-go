@@ -60,8 +60,9 @@ func (c *ShipConnection) handshakeHello_ReadyListen(message []byte) {
 		// TODO: what to do if this is false?
 
 	case model.ConnectionHelloPhaseTypeAborted:
-		c.setState(SmeHelloStateAbort, nil)
+		c.setState(SmeHelloStateAbortDone, nil)
 		c.handleState(false, nil)
+
 		return
 
 	default:
@@ -84,7 +85,8 @@ func (c *ShipConnection) handshakeHello_Abort() {
 		return
 	}
 
-	c.CloseConnection(false, "")
+	c.setState(SmeHelloStateAbortDone, nil)
+	c.handleState(false, nil)
 }
 
 // SME_HELLO_PENDING_INIT
@@ -179,7 +181,7 @@ func (c *ShipConnection) handshakeHello_PendingListen(message []byte) {
 		c.handleState(false, nil)
 
 	case model.ConnectionHelloPhaseTypeAborted:
-		c.setState(SmeHelloStateAbort, nil)
+		c.setState(SmeHelloStateAbortDone, nil)
 		c.handleState(false, nil)
 		return
 

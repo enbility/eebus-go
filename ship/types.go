@@ -71,6 +71,8 @@ const (
 	SmeHelloStatePendingTimeout
 	SmeHelloStateOk
 	SmeHelloStateAbort
+	SmeHelloStateAbortDone
+
 	// Connection State Protocol Handhsake SHIP 13.4.4.2
 	SmeProtHStateServerInit
 	SmeProtHStateClientInit
