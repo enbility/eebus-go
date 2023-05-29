@@ -226,6 +226,12 @@ func (h *connectionsHub) ReportServiceShipID(ski string, shipdID string) {
 
 // return if the user is still able to trust the connection
 func (h *connectionsHub) AllowWaitingForTrust(ski string) bool {
+	if service := h.serviceForSKI(ski); service != nil {
+		if service.Trusted {
+			return true
+		}
+	}
+
 	return h.serviceProvider.AllowWaitingForTrust(ski)
 }
 
@@ -462,15 +468,6 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check if the remote service is paired
 	service := h.serviceForSKI(remoteService.SKI)
 	if service.ConnectionStateDetail.State == ConnectionStateQueued {
-		// Check if pairing is made possible
-		if !h.serviceProvider.AllowWaitingForTrust(ski) {
-			logging.Log.Debug("ski", ski, "is not paired, closing the connection")
-			msg := "Node rejected by application"
-			_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(4452, msg))
-			_ = conn.Close()
-			return
-		}
-
 		service.ConnectionStateDetail.State = ConnectionStateReceivedPairingRequest
 		h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 	}
