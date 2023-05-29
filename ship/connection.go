@@ -139,7 +139,7 @@ func (c *ShipConnection) removeRemoteDeviceConnection() {
 }
 
 // close this ship connection
-func (c *ShipConnection) CloseConnection(safe bool, reason string) {
+func (c *ShipConnection) CloseConnection(safe bool, code int, reason string) {
 	c.shutdownOnce.Do(func() {
 		c.stopHandshakeTimer()
 
@@ -162,7 +162,11 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 			}
 		}
 
-		c.DataHandler.CloseDataConnection(4001, reason)
+		closeCode := 4001
+		if code != 0 {
+			closeCode = code
+		}
+		c.DataHandler.CloseDataConnection(closeCode, reason)
 
 		// handshake is completed if approved or aborted
 		state := c.getState()
@@ -251,13 +255,13 @@ func (c *ShipConnection) ReportConnectionError(err error) {
 
 	if currentState == SmeHelloStateAbort ||
 		currentState == SmeHelloStateAbortDone {
-		c.CloseConnection(false, "")
+		c.CloseConnection(false, 4452, "Node rejected by application")
 		return
 	}
 
 	c.setState(SmeStateError, err)
 
-	c.CloseConnection(false, "")
+	c.CloseConnection(false, 0, "")
 
 	state := ShipState{
 		State: SmeStateError,
@@ -313,7 +317,7 @@ func (c *ShipConnection) sendSpineData(data []byte) error {
 	}
 
 	if isClosed, err := c.DataHandler.IsDataConnectionClosed(); isClosed {
-		c.CloseConnection(false, "")
+		c.CloseConnection(false, 0, "")
 		return err
 	}
 
@@ -355,7 +359,7 @@ func (c *ShipConnection) processShipJsonMessage(message []byte, target any) erro
 // transform a SHIP model into EEBUS specific JSON
 func (c *ShipConnection) shipMessage(typ byte, model interface{}) ([]byte, error) {
 	if isClosed, err := c.DataHandler.IsDataConnectionClosed(); isClosed {
-		c.CloseConnection(false, "")
+		c.CloseConnection(false, 0, "")
 		return nil, err
 	}
 

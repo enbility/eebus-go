@@ -169,7 +169,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 	case SmeHelloStateAbortDone, SmeHelloStateRemoteAbortDone:
 		go func() {
 			time.Sleep(time.Second)
-			c.CloseConnection(false, "4452: Node rejected by application")
+			c.CloseConnection(false, 4452, "Node rejected by application")
 		}()
 
 	// smeProtocol
@@ -226,7 +226,7 @@ func (c *ShipConnection) endHandshakeWithError(err error) {
 
 	logging.Log.Debug(c.RemoteSKI, "SHIP handshake error:", err)
 
-	c.CloseConnection(true, err.Error())
+	c.CloseConnection(true, 0, err.Error())
 
 	state := ShipState{
 		State: SmeStateError,

@@ -334,7 +334,7 @@ func (h *connectionsHub) DisconnectSKI(ski string, reason string) {
 		return
 	}
 
-	con.CloseConnection(true, reason)
+	con.CloseConnection(true, 0, reason)
 }
 
 // register a new ship Connection
@@ -366,7 +366,7 @@ func (h *connectionsHub) connectionForSKI(ski string) *ship.ShipConnection {
 func (h *connectionsHub) shutdown() {
 	h.mdns.ShutdownMdnsService()
 	for _, c := range h.connections {
-		c.CloseConnection(false, "")
+		c.CloseConnection(false, 0, "")
 	}
 }
 
@@ -586,7 +586,7 @@ func (h *connectionsHub) keepThisConnection(conn *websocket.Conn, incomingReques
 		// we have an existing connection
 		// so keep the new (most recent) and close the old one
 		logging.Log.Debug("closing existing double connection")
-		go existingC.CloseConnection(false, "")
+		go existingC.CloseConnection(false, 0, "")
 	} else {
 		connType := "incoming"
 		if !incomingRequest {
@@ -637,7 +637,7 @@ func (h *connectionsHub) RegisterRemoteSKI(ski string, enable bool) {
 	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
-		existingC.CloseConnection(true, "pairing cancelled")
+		existingC.CloseConnection(true, 0, "pairing cancelled")
 	}
 }
 
