@@ -169,7 +169,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 	case SmeHelloStateAbortDone, SmeHelloStateRemoteAbortDone:
 		go func() {
 			time.Sleep(time.Second)
-			c.CloseConnection(false, "")
+			c.CloseConnection(false, "4452: Node rejected by application")
 		}()
 
 	// smeProtocol
