@@ -212,7 +212,7 @@ func (c *ShipConnection) handshakeHello_PendingProlongationRequest() {
 }
 
 func (c *ShipConnection) handshakeHello_PendingTimeout() {
-	if c.handshakeTimerType != timeoutTimerTypeSendProlongationRequest {
+	if c.getHandshakeTimerType() != timeoutTimerTypeSendProlongationRequest {
 		c.setState(SmeHelloStateAbort, nil)
 		c.handleState(false, nil)
 		return

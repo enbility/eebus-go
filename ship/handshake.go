@@ -240,7 +240,7 @@ func (c *ShipConnection) setHandshakeTimer(timerType timeoutTimerType, duration 
 	c.stopHandshakeTimer()
 
 	c.setHandshakeTimerRunning(true)
-	c.handshakeTimerType = timerType
+	c.setHandshakeTimerType(timerType)
 
 	go func() {
 		select {
@@ -279,4 +279,18 @@ func (c *ShipConnection) getHandshakeTimerRunnging() bool {
 	defer c.handshakeTimerMux.Unlock()
 
 	return c.handshakeTimerRunning
+}
+
+func (c *ShipConnection) setHandshakeTimerType(timerType timeoutTimerType) {
+	c.handshakeTimerMux.Lock()
+	defer c.handshakeTimerMux.Unlock()
+
+	c.handshakeTimerType = timerType
+}
+
+func (c *ShipConnection) getHandshakeTimerType() timeoutTimerType {
+	c.handshakeTimerMux.Lock()
+	defer c.handshakeTimerMux.Unlock()
+
+	return c.handshakeTimerType
 }
