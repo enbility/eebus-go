@@ -97,6 +97,11 @@ func (c *ShipConnection) handshakeHello_PendingInit() {
 	}
 
 	c.setState(SmeHelloStatePendingListen, nil)
+
+	if !c.serviceDataProvider.AllowWaitingForTrust(c.remoteShipID) {
+		c.setState(SmeHelloStateAbort, nil)
+		c.handleState(false, nil)
+	}
 }
 
 // SME_HELLO_PENDING_LISTEN
