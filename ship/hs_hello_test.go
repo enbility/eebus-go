@@ -139,8 +139,8 @@ func (s *HelloSuite) Test_PendingInit() {
 	sut.setState(SmeHelloStatePendingInit, nil)
 	sut.handleState(false, nil)
 
-	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), SmeHelloStatePendingListen, sut.getState())
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), SmeHelloStateAbortDone, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
