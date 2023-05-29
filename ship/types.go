@@ -73,6 +73,7 @@ const (
 	SmeHelloStateAbort           // Sent abort to remote
 	SmeHelloStateAbortDone       // Sending abort to remote is done
 	SmeHelloStateRemoteAbortDone // Received abort from remote
+	SmeHelloStateRejected        // Connection closed after remote pending: "4452: Node rejected by application"
 
 	// Connection State Protocol Handhsake SHIP 13.4.4.2
 	SmeProtHStateServerInit

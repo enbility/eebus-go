@@ -166,7 +166,10 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 
 		// handshake is completed if approved or aborted
 		state := c.getState()
-		handshakeEnd := state == SmeStateComplete || state == SmeHelloStateAbortDone || state == SmeHelloStateRemoteAbortDone
+		handshakeEnd := state == SmeStateComplete ||
+			state == SmeHelloStateAbortDone ||
+			state == SmeHelloStateRemoteAbortDone ||
+			state == SmeHelloStateRejected
 
 		c.serviceDataProvider.HandleConnectionClosed(c, handshakeEnd)
 	})
@@ -233,6 +236,14 @@ func (c *ShipConnection) hasSpineDatagram(message []byte) bool {
 func (c *ShipConnection) ReportConnectionError(err error) {
 	// if the handshake is aborted, a closed connection is no error
 	currentState := c.getState()
+
+	// rejections are also received by sending `{"connectionHello":[{"phase":"pending"},{"waiting":60000}]}`
+	// and then closing the websocket connection with `4452: Node rejected by application.`
+	if currentState == SmeHelloStateReadyListen {
+		c.setState(SmeHelloStateRejected, nil)
+		return
+	}
+
 	if currentState == SmeHelloStateRemoteAbortDone {
 		// remote service should close the connection
 		return

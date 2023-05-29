@@ -296,7 +296,7 @@ func (h *connectionsHub) mapShipMessageExchangeState(state ship.ShipMessageExcha
 		connState = ConnectionStateTrusted
 	case ship.SmeHelloStateAbort, ship.SmeHelloStateAbortDone:
 		connState = ConnectionStateNone
-	case ship.SmeHelloStateRemoteAbortDone:
+	case ship.SmeHelloStateRemoteAbortDone, ship.SmeHelloStateRejected:
 		connState = ConnectionStateRemoteDeniedTrust
 	case ship.SmePinStateCheckInit, ship.SmePinStateCheckListen, ship.SmePinStateCheckError,
 		ship.SmePinStateCheckBusyInit, ship.SmePinStateCheckBusyWait, ship.SmePinStateCheckOk,

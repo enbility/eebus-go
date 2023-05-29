@@ -59,7 +59,7 @@ func (c *ShipConnection) setState(newState ShipMessageExchangeState, err error) 
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, tHelloInit)
 	case SmeHelloStateOk:
 		c.stopHandshakeTimer()
-	case SmeHelloStateAbort, SmeHelloStateAbortDone, SmeHelloStateRemoteAbortDone:
+	case SmeHelloStateAbort, SmeHelloStateAbortDone, SmeHelloStateRemoteAbortDone, SmeHelloStateRejected:
 		c.stopHandshakeTimer()
 	case SmeProtHStateClientListenChoice:
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
