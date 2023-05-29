@@ -245,11 +245,13 @@ func (c *ShipConnection) ReportConnectionError(err error) {
 	// and then closing the websocket connection with `4452: Node rejected by application.`
 	if currentState == SmeHelloStateReadyListen {
 		c.setState(SmeHelloStateRejected, nil)
+		c.CloseConnection(false, 0, "")
 		return
 	}
 
 	if currentState == SmeHelloStateRemoteAbortDone {
 		// remote service should close the connection
+		c.CloseConnection(false, 0, "")
 		return
 	}
 
