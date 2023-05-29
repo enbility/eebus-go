@@ -68,7 +68,7 @@ func (s *AccessSuite) Test_Methods_Ok() {
 	sut.handleState(false, msg)
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), SmeComplete, sut.getState())
+	assert.Equal(s.T(), SmeStateComplete, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -91,7 +91,7 @@ func (s *AccessSuite) Test_Methods_WrongShipID() {
 	sut.handleState(false, msg)
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), SmeError, sut.getState())
+	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

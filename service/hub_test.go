@@ -84,14 +84,14 @@ func (s *HubSuite) Test_IsRemoteSKIPaired() {
 
 	// mark it as connected, so mDNS is not triggered
 	sut.connections[ski] = &ship.ShipConnection{}
-	sut.EnablePairingForSKI(ski, true)
+	sut.RegisterRemoteSKI(ski, true)
 
 	paired = sut.IsRemoteServiceForSKIPaired(ski)
 	assert.Equal(s.T(), true, paired)
 
 	// remove the connection, so the test doesn't try to close it
 	delete(sut.connections, ski)
-	sut.EnablePairingForSKI(ski, false)
+	sut.RegisterRemoteSKI(ski, false)
 	paired = sut.IsRemoteServiceForSKIPaired(ski)
 	assert.Equal(s.T(), false, paired)
 }

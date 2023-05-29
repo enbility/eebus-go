@@ -65,7 +65,7 @@ func (s *InitClientSuite) Test_ClientWait_Timeout() {
 
 	sut.handleState(true, nil)
 
-	assert.Equal(s.T(), SmeError, sut.getState())
+	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 	assert.Equal(s.T(), data.handleConnectionClosedInvoked, true)
 
@@ -79,7 +79,7 @@ func (s *InitClientSuite) Test_ClientWait_InvalidMsgType() {
 
 	sut.handleState(false, []byte{0x05, 0x00})
 
-	assert.Equal(s.T(), SmeError, sut.getState())
+	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -92,7 +92,7 @@ func (s *InitClientSuite) Test_ClientWait_InvalidData() {
 
 	sut.handleState(false, []byte{model.MsgTypeInit, 0x05})
 
-	assert.Equal(s.T(), SmeError, sut.getState())
+	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

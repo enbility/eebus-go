@@ -70,8 +70,9 @@ const (
 	SmeHelloStatePendingListen
 	SmeHelloStatePendingTimeout
 	SmeHelloStateOk
-	SmeHelloStateAbort
-	SmeHelloStateAbortDone
+	SmeHelloStateAbort           // Sent abort to remote
+	SmeHelloStateAbortDone       // Sending abort to remote is done
+	SmeHelloStateRemoteAbortDone // Received abort from remote
 
 	// Connection State Protocol Handhsake SHIP 13.4.4.2
 	SmeProtHStateServerInit
@@ -97,13 +98,13 @@ const (
 	SmeAccessMethodsRequest
 
 	// Handshake approved on both ends
-	SmeApproved
+	SmeStateApproved
 
 	// Handshake process is successfully completed
-	SmeComplete
+	SmeStateComplete
 
 	// Handshake ended with an error
-	SmeError
+	SmeStateError
 )
 
 var shipInit []byte = []byte{model.MsgTypeInit, 0x00}

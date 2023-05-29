@@ -127,7 +127,7 @@ func (s *HelloSuite) Test_ReadyListen_Abort() {
 	sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), SmeHelloStateAbortDone, sut.getState())
+	assert.Equal(s.T(), SmeHelloStateRemoteAbortDone, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -241,7 +241,7 @@ func (s *HelloSuite) Test_PendingListen_Abort() {
 	sut.handleShipMessage(false, msg)
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), SmeHelloStateAbortDone, sut.getState())
+	assert.Equal(s.T(), SmeHelloStateRemoteAbortDone, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

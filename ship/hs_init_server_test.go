@@ -63,7 +63,7 @@ func (s *InitServerSuite) Test_ServerWait_InvalidMsgType() {
 
 	sut.handleState(false, []byte{0x05, 0x00})
 
-	assert.Equal(s.T(), SmeError, sut.getState())
+	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -76,7 +76,7 @@ func (s *InitServerSuite) Test_ServerWait_InvalidData() {
 
 	sut.handleState(false, []byte{model.MsgTypeInit, 0x05})
 
-	assert.Equal(s.T(), SmeError, sut.getState())
+	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

@@ -146,7 +146,7 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 		c.removeRemoteDeviceConnection()
 
 		// this may not be used for Connection Data Exchange is entered!
-		if safe && c.getState() == SmeComplete {
+		if safe && c.getState() == SmeStateComplete {
 			// SHIP 13.4.7: Connection Termination Announce
 			closeMessage := model.ConnectionClose{
 				ConnectionClose: model.ConnectionCloseType{
@@ -157,7 +157,7 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 
 			_ = c.sendShipModel(model.MsgTypeEnd, closeMessage)
 
-			if c.getState() != SmeError {
+			if c.getState() != SmeStateError {
 				return
 			}
 		}
@@ -166,7 +166,7 @@ func (c *ShipConnection) CloseConnection(safe bool, reason string) {
 
 		// handshake is completed if approved or aborted
 		state := c.getState()
-		handshakeEnd := state == SmeComplete || state == SmeHelloStateAbort || state == SmeHelloStateAbortDone
+		handshakeEnd := state == SmeStateComplete || state == SmeHelloStateAbortDone || state == SmeHelloStateRemoteAbortDone
 
 		c.serviceDataProvider.HandleConnectionClosed(c, handshakeEnd)
 	})
@@ -233,16 +233,23 @@ func (c *ShipConnection) hasSpineDatagram(message []byte) bool {
 func (c *ShipConnection) ReportConnectionError(err error) {
 	// if the handshake is aborted, a closed connection is no error
 	currentState := c.getState()
-	if currentState == SmeHelloStateAbort || currentState == SmeHelloStateAbortDone {
+	if currentState == SmeHelloStateRemoteAbortDone {
+		// remote service should close the connection
 		return
 	}
 
-	c.setState(SmeError, err)
+	if currentState == SmeHelloStateAbort ||
+		currentState == SmeHelloStateAbortDone {
+		c.CloseConnection(false, "")
+		return
+	}
+
+	c.setState(SmeStateError, err)
 
 	c.CloseConnection(false, "")
 
 	state := ShipState{
-		State: SmeError,
+		State: SmeStateError,
 		Error: err,
 	}
 	c.serviceDataProvider.HandleShipHandshakeStateUpdate(c.RemoteSKI, state)

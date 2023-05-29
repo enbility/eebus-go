@@ -76,6 +76,6 @@ func (c *ShipConnection) handshakeAccessMethods_Request(message []byte) {
 		return
 	}
 
-	c.setState(SmeApproved, nil)
+	c.setState(SmeStateApproved, nil)
 	c.approveHandshake()
 }

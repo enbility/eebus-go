@@ -72,7 +72,7 @@ func (mr *MockServiceProviderMockRecorder) RemoteSKIDisconnected(arg0 interface{
 }
 
 // ServicePairingDetailUpdate mocks base method.
-func (m *MockServiceProvider) ServicePairingDetailUpdate(arg0 string, arg1 PairingDetail) {
+func (m *MockServiceProvider) ServicePairingDetailUpdate(arg0 string, arg1 ConnectionStateDetail) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ServicePairingDetailUpdate", arg0, arg1)
 }

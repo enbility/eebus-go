@@ -85,6 +85,9 @@ If no certfile or keyfile are provided, they are generated and printed in the co
 - Double connection handling is not implemented according to SHIP 12.2.2. Instead the connection initiated by the higher SKI will be kept. Much simpler and always works
 - PIN Verification is _NOT_ supported other than SHIP 13.4.4.3.5.1 _"none"_ PIN state is supported!
 - Access Methods SHIP 13.4.6 only supports the most basic scenario and only works after PIN verification state is completed.
+- Supported registration mechanisms (SHIP 5):
+  - auto accept (without any interaction mechanism!)
+  - user verification
 
 This approach has been tested with:
 

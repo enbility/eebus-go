@@ -11,23 +11,25 @@ import (
 
 const defaultPort int = 4711
 
-// pairing state for global usage, e.g. UI
-type PairingState uint
+// connection state for global usage, e.g. UI
+type ConnectionState uint
 
 const (
-	PairingStateNone       PairingState = iota // The initial state, when no pairing exists
-	PairingStateQueued                         // The pairing request has been started and is pending connection initialization
-	PairingStateInitiated                      // This service initiated the pairing process
-	PairingStateReceived                       // A remote service initiated the pairing process
-	PairingStateInProgress                     // The pairing handshake is in progress
-	PairingStatePin                            // PIN processing, not supported right now!
-	PairingStateAccepted                       // The pairing handshake is accepted from both ends
-	PairingStateError                          // The pairing resulted in an error
+	ConnectionStateNone                   ConnectionState = iota // The initial state, when no pairing exists
+	ConnectionStateQueued                                        // The connection request has been started and is pending connection initialization
+	ConnectionStateInitiated                                     // This service initiated the connection process
+	ConnectionStateReceivedPairingRequest                        // A remote service initiated the connection process
+	ConnectionStateInProgress                                    // The connection handshake is in progress
+	ConnectionStateTrusted                                       // The connection is trusted on both ends
+	ConnectionStatePin                                           // PIN processing, not supported right now!
+	ConnectionStateCompleted                                     // The connection handshake is completed from both ends
+	ConnectionStateRemoteDeniedTrust                             // The remote service denied trust
+	ConnectionStateError                                         // The connection handshake resulted in an error
 )
 
-// the pairing state of a service and error if applicable
-type PairingDetail struct {
-	State PairingState
+// the connection state of a service and error if applicable
+type ConnectionStateDetail struct {
+	State ConnectionState
 	Error error
 }
 
@@ -54,12 +56,13 @@ type ServiceDetails struct {
 	// Flags if the service auto auto accepts other services
 	RegisterAutoAccept bool
 
-	// Flags if the service is paired and should be connected to
-	// Should be enabled after the pairing process resulted PairingDetail = PairingStateAccepted
-	Paired bool
+	// Flags if the service is trusted and should be reconnected to
+	// Should be enabled after the connection process resulted
+	// ConnectionStateDetail == ConnectionStateTrusted the first time
+	Trusted bool
 
-	// the current pairing details
-	PairingDetail PairingDetail
+	// the current connection state details
+	ConnectionStateDetail ConnectionStateDetail
 }
 
 // create a new ServiceDetails record with a SKI

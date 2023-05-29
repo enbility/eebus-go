@@ -110,6 +110,11 @@ func (w *websocketConnection) writeShipPump() {
 			}
 
 			if err := w.writeMessage(websocket.BinaryMessage, message); err != nil {
+				// ignore write errors if the connection got closed
+				if w.isConnClosed() {
+					return
+				}
+
 				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
 				w.setConnClosedError(err)
 				w.dataProcessing.ReportConnectionError(err)
@@ -153,6 +158,11 @@ func (w *websocketConnection) readShipPump() {
 		}
 
 		message, err := w.readWebsocketMessage()
+		// ignore read errors if the connection got closed
+		if w.isConnClosed() {
+			return
+		}
+
 		if err != nil {
 			logging.Log.Debug(w.remoteSki, "websocket read error: ", err)
 			w.close()

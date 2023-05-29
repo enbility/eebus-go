@@ -60,7 +60,7 @@ type ServiceProvider interface {
 	ServiceShipIDUpdate(ski string, shipID string)
 
 	// provides the current handshake state for a given SKI
-	ServicePairingDetailUpdate(ski string, detail PairingDetail)
+	ServicePairingDetailUpdate(ski string, detail ConnectionStateDetail)
 
 	// return if the user is still able to trust the connection
 	AllowWaitingForTrust(ski string) bool
@@ -143,7 +143,7 @@ var _ ship.ShipServiceDataProvider = (*connectionsHub)(nil)
 func (h *connectionsHub) IsRemoteServiceForSKIPaired(ski string) bool {
 	service := h.serviceForSKI(ski)
 
-	return service.Paired
+	return service.Trusted
 }
 
 // The connection was closed, we need to clean up
@@ -167,7 +167,7 @@ func (h *connectionsHub) HandleConnectionClosed(connection *ship.ShipConnection,
 
 	// Do not automatically reconnect if handshake failed and not already paired
 	remoteService := h.serviceForSKI(connection.RemoteSKI)
-	if !handshakeCompleted && !remoteService.Paired {
+	if !handshakeCompleted && !remoteService.Trusted {
 		return
 	}
 
@@ -180,7 +180,7 @@ func (h *connectionsHub) numberPairedServices() int {
 
 	h.muxReg.Lock()
 	for _, service := range h.remoteServices {
-		if service.Paired {
+		if service.Trusted {
 			amount++
 		}
 	}
@@ -233,23 +233,24 @@ func (h *connectionsHub) AllowWaitingForTrust(ski string) bool {
 func (h *connectionsHub) HandleShipHandshakeStateUpdate(ski string, state ship.ShipState) {
 	service := h.serviceForSKI(ski)
 
-	if state.State == ship.SmeComplete {
-		h.EnablePairingForSKI(ski, true)
+	// overwrite service Paired value
+	if state.State == ship.SmeHelloStateOk {
+		h.RegisterRemoteSKI(ski, true)
 	}
 
 	pairingState := h.mapShipMessageExchangeState(state.State, ski)
 	if state.Error != nil && state.Error != ErrConnectionNotFound {
-		pairingState = PairingStateError
+		pairingState = ConnectionStateError
 	}
 
-	pairingDetail := PairingDetail{
+	pairingDetail := ConnectionStateDetail{
 		State: pairingState,
 		Error: state.Error,
 	}
 
-	existingDetails := service.PairingDetail
+	existingDetails := service.ConnectionStateDetail
 	if existingDetails.State != pairingState || existingDetails.Error != state.Error {
-		service.PairingDetail = pairingDetail
+		service.ConnectionStateDetail = pairingDetail
 
 		h.serviceProvider.ServicePairingDetailUpdate(ski, pairingDetail)
 	}
@@ -261,51 +262,55 @@ func (h *connectionsHub) HandleShipHandshakeStateUpdate(ski string, state ship.S
 //
 //	ErrNotPaired if the SKI is not in the (to be) paired list
 //	ErrNoConnectionFound if no connection for the SKI was found
-func (h *connectionsHub) PairingDetailForSki(ski string) PairingDetail {
+func (h *connectionsHub) PairingDetailForSki(ski string) ConnectionStateDetail {
 	service := h.serviceForSKI(ski)
 
 	if conn := h.connectionForSKI(ski); conn != nil {
 		shipState, shipError := conn.ShipHandshakeState()
 		state := h.mapShipMessageExchangeState(shipState, ski)
-		return PairingDetail{
+		return ConnectionStateDetail{
 			State: state,
 			Error: shipError,
 		}
 	}
 
-	return service.PairingDetail
+	return service.ConnectionStateDetail
 }
 
 // maps ShipMessageExchangeState to PairingState
-func (h *connectionsHub) mapShipMessageExchangeState(state ship.ShipMessageExchangeState, ski string) PairingState {
-	var connState PairingState
+func (h *connectionsHub) mapShipMessageExchangeState(state ship.ShipMessageExchangeState, ski string) ConnectionState {
+	var connState ConnectionState
 
 	// map the SHIP states to a public gState
 	switch state {
 	case ship.CmiStateInitStart:
-		connState = PairingStateQueued
+		connState = ConnectionStateQueued
 	case ship.CmiStateClientSend, ship.CmiStateClientWait, ship.CmiStateClientEvaluate,
 		ship.CmiStateServerWait, ship.CmiStateServerEvaluate:
-		connState = PairingStateInitiated
+		connState = ConnectionStateInitiated
 	case ship.SmeHelloStateReadyInit, ship.SmeHelloStateReadyListen, ship.SmeHelloStateReadyTimeout:
-		connState = PairingStateInProgress
+		connState = ConnectionStateInProgress
 	case ship.SmeHelloStatePendingInit, ship.SmeHelloStatePendingListen, ship.SmeHelloStatePendingTimeout:
-		connState = PairingStateReceived
+		connState = ConnectionStateReceivedPairingRequest
+	case ship.SmeHelloStateOk:
+		connState = ConnectionStateTrusted
 	case ship.SmeHelloStateAbort, ship.SmeHelloStateAbortDone:
-		connState = PairingStateNone
+		connState = ConnectionStateNone
+	case ship.SmeHelloStateRemoteAbortDone:
+		connState = ConnectionStateRemoteDeniedTrust
 	case ship.SmePinStateCheckInit, ship.SmePinStateCheckListen, ship.SmePinStateCheckError,
 		ship.SmePinStateCheckBusyInit, ship.SmePinStateCheckBusyWait, ship.SmePinStateCheckOk,
 		ship.SmePinStateAskInit, ship.SmePinStateAskProcess, ship.SmePinStateAskRestricted,
 		ship.SmePinStateAskOk:
-		connState = PairingStatePin
-	case ship.SmeAccessMethodsRequest, ship.SmeApproved:
-		connState = PairingStateInProgress
-	case ship.SmeComplete:
-		connState = PairingStateAccepted
-	case ship.SmeError:
-		connState = PairingStateError
+		connState = ConnectionStatePin
+	case ship.SmeAccessMethodsRequest, ship.SmeStateApproved:
+		connState = ConnectionStateInProgress
+	case ship.SmeStateComplete:
+		connState = ConnectionStateCompleted
+	case ship.SmeStateError:
+		connState = ConnectionStateError
 	default:
-		connState = PairingStateInProgress
+		connState = ConnectionStateInProgress
 	}
 
 	return connState
@@ -456,7 +461,7 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the remote service is paired
 	service := h.serviceForSKI(remoteService.SKI)
-	if service.PairingDetail.State == PairingStateQueued {
+	if service.ConnectionStateDetail.State == ConnectionStateQueued {
 		// Check if pairing is made possible
 		if !h.serviceProvider.AllowWaitingForTrust(ski) {
 			logging.Log.Debug("ski", ski, "is not paired, closing the connection")
@@ -466,8 +471,8 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		service.PairingDetail.State = PairingStateReceived
-		h.serviceProvider.ServicePairingDetailUpdate(ski, service.PairingDetail)
+		service.ConnectionStateDetail.State = ConnectionStateReceivedPairingRequest
+		h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 	}
 
 	remoteService = service
@@ -609,7 +614,7 @@ func (h *connectionsHub) serviceForSKI(ski string) *ServiceDetails {
 	service, ok := h.remoteServices[ski]
 	if !ok {
 		service = NewServiceDetails(ski)
-		service.PairingDetail.State = PairingStateNone
+		service.ConnectionStateDetail.State = ConnectionStateNone
 		h.remoteServices[ski] = service
 	}
 
@@ -619,9 +624,9 @@ func (h *connectionsHub) serviceForSKI(ski string) *ServiceDetails {
 // Sets the SKI as being paired or not
 // Should be used for services which completed the pairing process and where
 // stored as having the process completed
-func (h *connectionsHub) EnablePairingForSKI(ski string, enable bool) {
+func (h *connectionsHub) RegisterRemoteSKI(ski string, enable bool) {
 	service := h.serviceForSKI(ski)
-	service.Paired = enable
+	service.Trusted = enable
 
 	if enable {
 		return
@@ -629,10 +634,10 @@ func (h *connectionsHub) EnablePairingForSKI(ski string, enable bool) {
 
 	h.removeConnectionAttemptCounter(ski)
 
-	service.PairingDetail.State = PairingStateNone
-	service.Paired = false
+	service.ConnectionStateDetail.State = ConnectionStateNone
+	service.Trusted = false
 
-	h.serviceProvider.ServicePairingDetailUpdate(ski, service.PairingDetail)
+	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
 		existingC.CloseConnection(true, "pairing cancelled")
@@ -652,9 +657,9 @@ func (h *connectionsHub) InitiatePairingWithSKI(ski string) {
 
 	// locally initiated
 	service := h.serviceForSKI(ski)
-	service.PairingDetail.State = PairingStateQueued
+	service.ConnectionStateDetail.State = ConnectionStateQueued
 
-	h.serviceProvider.ServicePairingDetailUpdate(ski, service.PairingDetail)
+	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 
 	// initiate a search and also a connection if it does not yet exist
 	if !h.isSkiConnected(service.SKI) {
@@ -671,10 +676,10 @@ func (h *connectionsHub) CancelPairingWithSKI(ski string) {
 	}
 
 	service := h.serviceForSKI(ski)
-	service.PairingDetail.State = PairingStateNone
-	service.Paired = false
+	service.ConnectionStateDetail.State = ConnectionStateNone
+	service.Trusted = false
 
-	h.serviceProvider.ServicePairingDetailUpdate(ski, service.PairingDetail)
+	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 }
 
 // Process reported mDNS services
@@ -694,8 +699,8 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 
 		// Check if the remote service is paired or queued for connection
 		service := h.serviceForSKI(ski)
-		pairingState := service.PairingDetail.State
-		if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != PairingStateQueued {
+		pairingState := service.ConnectionStateDetail.State
+		if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != ConnectionStateQueued {
 			continue
 		}
 
@@ -733,7 +738,7 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 	counter, duration := h.getConnectionInitiationDelayTime(ski)
 
 	service := h.serviceForSKI(ski)
-	if service.PairingDetail.State == PairingStateQueued {
+	if service.ConnectionStateDetail.State == ConnectionStateQueued {
 		go h.prepareConnectionInitation(ski, counter, entry)
 		return
 	}
@@ -766,8 +771,8 @@ func (h *connectionsHub) prepareConnectionInitation(ski string, counter int, ent
 
 	// connection attempt is not relevant if the device is no longer paired
 	// or it is not queued for pairing
-	pairingState := h.serviceForSKI(ski).PairingDetail.State
-	if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != PairingStateQueued {
+	pairingState := h.serviceForSKI(ski).ConnectionStateDetail.State
+	if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != ConnectionStateQueued {
 		return
 	}
 
@@ -791,8 +796,8 @@ func (h *connectionsHub) initateConnection(remoteService *ServiceDetails, entry 
 	for _, address := range entry.Addresses {
 		// connection attempt is not relevant if the device is no longer paired
 		// or it is not queued for pairing
-		pairingState := h.serviceForSKI(remoteService.SKI).PairingDetail.State
-		if !h.IsRemoteServiceForSKIPaired(remoteService.SKI) && pairingState != PairingStateQueued {
+		pairingState := h.serviceForSKI(remoteService.SKI).ConnectionStateDetail.State
+		if !h.IsRemoteServiceForSKIPaired(remoteService.SKI) && pairingState != ConnectionStateQueued {
 			return false
 		}
 

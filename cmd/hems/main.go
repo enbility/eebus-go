@@ -83,7 +83,7 @@ func (h *hems) run() {
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 
-	h.myService.EnablePairingForSKI(remoteSki, true)
+	h.myService.RegisterRemoteSKI(remoteSki, true)
 }
 
 // EEBUSServiceHandler
@@ -97,7 +97,7 @@ func (h *hems) VisibleRemoteServicesUpdated(service *service.EEBUSService, entri
 
 func (h *hems) ServiceShipIDUpdate(ski string, shipdID string) {}
 
-func (h *hems) ServicePairingDetailUpdate(ski string, detail service.PairingDetail) {}
+func (h *hems) ServicePairingDetailUpdate(ski string, detail service.ConnectionStateDetail) {}
 
 func (h *hems) AllowWaitingForTrust(ski string) bool { return true }
 

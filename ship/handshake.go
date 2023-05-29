@@ -30,11 +30,11 @@ func (c *ShipConnection) handleShipMessage(timeout bool, message []byte) {
 
 				//
 				c.DataHandler.CloseDataConnection(4001, "close")
-				c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeComplete)
+				c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeStateComplete)
 			case model.ConnectionClosePhaseTypeConfirm:
 				// we got a confirmation so close this connection
 				c.DataHandler.CloseDataConnection(4001, "close")
-				c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeComplete)
+				c.serviceDataProvider.HandleConnectionClosed(c, c.getState() == SmeStateComplete)
 			}
 
 			return
@@ -59,7 +59,7 @@ func (c *ShipConnection) setState(newState ShipMessageExchangeState, err error) 
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, tHelloInit)
 	case SmeHelloStateOk:
 		c.stopHandshakeTimer()
-	case SmeHelloStateAbort, SmeHelloStateAbortDone:
+	case SmeHelloStateAbort, SmeHelloStateAbortDone, SmeHelloStateRemoteAbortDone:
 		c.stopHandshakeTimer()
 	case SmeProtHStateClientListenChoice:
 		c.setHandshakeTimer(timeoutTimerTypeWaitForReady, cmiTimeout)
@@ -91,7 +91,7 @@ func (c *ShipConnection) getState() ShipMessageExchangeState {
 // handle handshake state transitions
 func (c *ShipConnection) handleState(timeout bool, message []byte) {
 	switch c.getState() {
-	case SmeError:
+	case SmeStateError:
 		logging.Log.Debug(c.RemoteSKI, "connection is in error state")
 		return
 
@@ -166,7 +166,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 	case SmeHelloStateAbort:
 		c.handshakeHello_Abort()
 
-	case SmeHelloStateAbortDone:
+	case SmeHelloStateAbortDone, SmeHelloStateRemoteAbortDone:
 		go func() {
 			time.Sleep(time.Second)
 			c.CloseConnection(false, "")
@@ -215,18 +215,24 @@ func (c *ShipConnection) approveHandshake() {
 	// Report to SPINE local device about this remote device connection
 	c.spineDataProcessing = c.deviceLocalCon.AddRemoteDevice(c.RemoteSKI, c)
 	c.stopHandshakeTimer()
-	c.setState(SmeComplete, nil)
+	c.setState(SmeStateComplete, nil)
 }
 
 // end the handshake process because of an error
 func (c *ShipConnection) endHandshakeWithError(err error) {
 	c.stopHandshakeTimer()
 
-	c.setState(SmeError, err)
+	c.setState(SmeStateError, err)
 
 	logging.Log.Debug(c.RemoteSKI, "SHIP handshake error:", err)
 
 	c.CloseConnection(true, err.Error())
+
+	state := ShipState{
+		State: SmeStateError,
+		Error: err,
+	}
+	c.serviceDataProvider.HandleShipHandshakeStateUpdate(c.RemoteSKI, state)
 }
 
 // set the handshake timer to a new duration and start the channel
