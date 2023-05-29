@@ -275,6 +275,7 @@ func (w *websocketConnection) CloseDataConnection(closeCode int, reason string) 
 		if reason != "" {
 			_ = w.writeMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, reason))
 		}
+		w.setConnClosedError(nil)
 		w.close()
 	}
 }
