@@ -637,7 +637,7 @@ func (h *connectionsHub) RegisterRemoteSKI(ski string, enable bool) {
 	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 
 	if existingC := h.connectionForSKI(ski); existingC != nil {
-		existingC.CloseConnection(true, 0, "pairing cancelled")
+		existingC.CloseConnection(true, 4500, "User close")
 	}
 }
 
