@@ -27,3 +27,8 @@ require (
 	github.com/stretchr/testify v1.8.2
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
 )
+
+retract (
+	v0.2.2 // Contains retractions only.
+	v0.2.1 // Published accidentally.
+)
