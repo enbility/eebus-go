@@ -12,11 +12,12 @@ func NewUseCaseManager() *UseCaseManager {
 	}
 }
 
-func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, scenarios []model.UseCaseScenarioSupportType) {
+func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarios []model.UseCaseScenarioSupportType) {
 	useCaseSupport := model.UseCaseSupportType{
-		UseCaseVersion:  &useCaseVersion,
-		UseCaseName:     &useCaseName,
-		ScenarioSupport: scenarios,
+		UseCaseVersion:   &useCaseVersion,
+		UseCaseName:      &useCaseName,
+		UseCaseAvailable: &useCaseAvailable,
+		ScenarioSupport:  scenarios,
 	}
 
 	useCaseInfo, exists := r.useCaseInformationMap[actor]
@@ -28,13 +29,19 @@ func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.Use
 	r.useCaseInformationMap[actor] = useCaseInfo
 }
 
+// this needs to be called when a new notification or reply will provide a new set of UseCases
+func (r *UseCaseManager) RemoveAll() {
+	r.useCaseInformationMap = make(map[model.UseCaseActorType][]model.UseCaseSupportType)
+}
+
 func (r *UseCaseManager) UseCaseInformation() []model.UseCaseInformationDataType {
 	var result []model.UseCaseInformationDataType
 
 	for actor, useCaseSupport := range r.useCaseInformationMap {
+		thisActor := actor
 		useCaseInfo := model.UseCaseInformationDataType{
 			//Address:        r.address, // TODO: which address ???
-			Actor:          &actor,
+			Actor:          &thisActor,
 			UseCaseSupport: useCaseSupport,
 		}
 		result = append(result, useCaseInfo)

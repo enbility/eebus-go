@@ -41,17 +41,17 @@ type UseCaseImpl struct {
 	scenarioSupport []model.UseCaseScenarioSupportType
 }
 
-func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
+func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
 	actor := entityTypeActorMap[entity.EntityType()]
 
-	return NewUseCaseWithActor(entity, actor, ucEnumType, useCaseVersion, scenarioSupport)
+	return NewUseCaseWithActor(entity, actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
 }
 
-func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
+func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
 	checkArguments(*entity.EntityImpl, ucEnumType)
 
 	ucManager := entity.Device().UseCaseManager()
-	ucManager.Add(actor, ucEnumType, useCaseVersion, scenarioSupport)
+	ucManager.Add(actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
 
 	return &UseCaseImpl{
 		Entity:          entity,

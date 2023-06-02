@@ -6,6 +6,7 @@ import (
 
 	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceSki string, remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
@@ -34,6 +35,8 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 	}
 
 	remoteUseCaseManager := message.FeatureRemote.Device().UseCaseManager()
+	remoteUseCaseManager.RemoveAll()
+
 	for _, useCaseInfo := range useCaseInformation {
 		// this is mandatory
 		var actor model.UseCaseActorType
@@ -56,6 +59,11 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 			}
 
 			// this is optional
+			useCaseAvailable := true
+			if useCaseSupport.UseCaseAvailable != nil {
+				useCaseAvailable = *useCaseSupport.UseCaseAvailable
+			}
+
 			var useCaseVersion model.SpecificationVersionType
 			if useCaseSupport.UseCaseVersion != nil {
 				useCaseVersion = model.SpecificationVersionType(*useCaseSupport.UseCaseVersion)
@@ -70,9 +78,23 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 				actor,
 				useCaseName,
 				useCaseVersion,
+				useCaseAvailable,
 				useCaseSupport.ScenarioSupport)
 		}
 	}
+
+	// the data was updated, so send an event, other event handlers may watch out for this as well
+	payload := EventPayload{
+		Ski:           message.FeatureRemote.Device().ski,
+		EventType:     EventTypeDataChange,
+		ChangeType:    ElementChangeUpdate,
+		Feature:       message.FeatureRemote,
+		Device:        message.FeatureRemote.Device(),
+		Entity:        message.FeatureRemote.Entity(),
+		CmdClassifier: util.Ptr(message.CmdClassifier),
+		Data:          data,
+	}
+	Events.Publish(payload)
 
 	return nil
 }
