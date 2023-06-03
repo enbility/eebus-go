@@ -19,6 +19,7 @@ require (
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/godbus/dbus/v5 v5.1.0
+	github.com/golang/mock v1.6.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/holoplot/go-avahi v1.0.1
 	github.com/libp2p/zeroconf/v2 v2.2.0

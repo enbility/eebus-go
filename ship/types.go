@@ -46,60 +46,71 @@ const (
 	timeoutTimerTypeProlongRequestReply
 )
 
-type shipMessageExchangeState uint
+type ShipState struct {
+	State ShipMessageExchangeState
+	Error error
+}
+
+type ShipMessageExchangeState uint
 
 const (
 	// Connection Mode Initialisation (CMI) SHIP 13.4.3
-	cmiStateInitStart shipMessageExchangeState = iota
-	cmiStateClientSend
-	cmiStateClientWait
-	cmiStateClientEvaluate
-	cmiStateServerWait
-	cmiStateServerEvaluate
+	CmiStateInitStart ShipMessageExchangeState = iota
+	CmiStateClientSend
+	CmiStateClientWait
+	CmiStateClientEvaluate
+	CmiStateServerWait
+	CmiStateServerEvaluate
 	// Connection Data Preparation SHIP 13.4.4
-	smeHelloState
-	smeHelloStateReadyInit
-	smeHelloStateReadyListen
-	smeHelloStateReadyTimeout
-	smeHelloStatePendingInit
-	smeHelloStatePendingListen
-	smeHelloStatePendingTimeout
-	smeHelloStateOk
-	smeHelloStateAbort
+	SmeHelloState
+	SmeHelloStateReadyInit
+	SmeHelloStateReadyListen
+	SmeHelloStateReadyTimeout
+	SmeHelloStatePendingInit
+	SmeHelloStatePendingListen
+	SmeHelloStatePendingTimeout
+	SmeHelloStateOk
+	SmeHelloStateAbort           // Sent abort to remote
+	SmeHelloStateAbortDone       // Sending abort to remote is done
+	SmeHelloStateRemoteAbortDone // Received abort from remote
+	SmeHelloStateRejected        // Connection closed after remote pending: "4452: Node rejected by application"
+
 	// Connection State Protocol Handhsake SHIP 13.4.4.2
-	smeProtHStateServerInit
-	smeProtHStateClientInit
-	smeProtHStateServerListenProposal
-	smeProtHStateServerListenConfirm
-	smeProtHStateClientListenChoice
-	smeProtHStateTimeout
-	smeProtHStateClientOk
-	smeProtHStateServerOk
+	SmeProtHStateServerInit
+	SmeProtHStateClientInit
+	SmeProtHStateServerListenProposal
+	SmeProtHStateServerListenConfirm
+	SmeProtHStateClientListenChoice
+	SmeProtHStateTimeout
+	SmeProtHStateClientOk
+	SmeProtHStateServerOk
 	// Connection PIN State 13.4.5
-	smePinStateCheckInit
-	smePinStateCheckListen
-	smePinStateCheckError
-	smePinStateCheckBusyInit
-	smePinStateCheckBusyWait
-	smePinStateCheckOk
-	smePinStateAskInit
-	smePinStateAskProcess
-	smePinStateAskRestricted
-	smePinStateAskOk
+	SmePinStateCheckInit
+	SmePinStateCheckListen
+	SmePinStateCheckError
+	SmePinStateCheckBusyInit
+	SmePinStateCheckBusyWait
+	SmePinStateCheckOk
+	SmePinStateAskInit
+	SmePinStateAskProcess
+	SmePinStateAskRestricted
+	SmePinStateAskOk
 	// ConnectionAccess Methods Identification 13.4.6
-	smeAccessMethodsRequest
+	SmeAccessMethodsRequest
 
 	// Handshake approved on both ends
-	smeApproved
+	SmeStateApproved
 
 	// Handshake process is successfully completed
-	smeComplete
+	SmeStateComplete
 
 	// Handshake ended with an error
-	smeError
+	SmeStateError
 )
 
 var shipInit []byte = []byte{model.MsgTypeInit, 0x00}
+
+//go:generate mockgen -destination=mock_types.go -package=ship github.com/enbility/eebus-go/ship ShipDataConnection,ShipDataProcessing,ShipServiceDataProvider
 
 // interface for handling the actual remote device data connection
 //
@@ -112,10 +123,10 @@ type ShipDataConnection interface {
 	WriteMessageToDataConnection([]byte) error
 
 	// close the data connection
-	CloseDataConnection()
+	CloseDataConnection(closeCode int, reason string)
 
-	// report if the data connection is closed
-	IsDataConnectionClosed() bool
+	// report if the data connection is closed and the error if availab le
+	IsDataConnectionClosed() (bool, error)
 }
 
 // interface for handling incoming data
@@ -142,4 +153,10 @@ type ShipServiceDataProvider interface {
 
 	// report the ship ID provided during the handshake
 	ReportServiceShipID(string, string)
+
+	// check if the user is still able to trust the connection
+	AllowWaitingForTrust(string) bool
+
+	// report the updated SHIP handshake state and optional error message for a SKI
+	HandleShipHandshakeStateUpdate(string, ShipState)
 }

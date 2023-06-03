@@ -25,11 +25,11 @@ func (s *HelloClientSuite) BeforeTest(suiteName, testName string) {
 func (s *HelloClientSuite) Test_InitialState() {
 	sut, data := initTest(s.role)
 
-	sut.setState(smeHelloState)
+	sut.setState(SmeHelloState, nil)
 	sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
-	assert.Equal(s.T(), smeHelloStateReadyListen, sut.getState())
+	assert.Equal(s.T(), SmeHelloStateReadyListen, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -38,8 +38,8 @@ func (s *HelloClientSuite) Test_InitialState() {
 func (s *HelloClientSuite) Test_ReadyListen_Ok() {
 	sut, _ := initTest(s.role)
 
-	sut.setState(smeHelloStateReadyInit) // inits the timer
-	sut.setState(smeHelloStateReadyListen)
+	sut.setState(SmeHelloStateReadyInit, nil) // inits the timer
+	sut.setState(SmeHelloStateReadyListen, nil)
 
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
@@ -54,7 +54,7 @@ func (s *HelloClientSuite) Test_ReadyListen_Ok() {
 	sut.handleState(false, msg)
 
 	// the state goes from smeHelloStateOk directly to smeProtHStateClientInit to smeProtHStateClientListenChoice
-	assert.Equal(s.T(), smeProtHStateClientListenChoice, sut.getState())
+	assert.Equal(s.T(), SmeProtHStateClientListenChoice, sut.getState())
 
 	shutdownTest(sut)
 }

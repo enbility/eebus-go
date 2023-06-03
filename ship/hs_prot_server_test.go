@@ -24,14 +24,14 @@ func (s *ProServerSuite) BeforeTest(suiteName, testName string) {
 func (s *ProServerSuite) Test_Init() {
 	sut, data := initTest(s.role)
 
-	sut.setState(smeHelloStateOk)
+	sut.setState(SmeHelloStateOk, nil)
 
 	sut.handleState(false, nil)
 
 	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
 
 	// the state goes from smeHelloStateOk to smeProtHStateServerInit to smeProtHStateServerListenProposal
-	assert.Equal(s.T(), smeProtHStateServerListenProposal, sut.getState())
+	assert.Equal(s.T(), SmeProtHStateServerListenProposal, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -40,7 +40,7 @@ func (s *ProServerSuite) Test_Init() {
 func (s *ProServerSuite) Test_ListenProposal() {
 	sut, data := initTest(s.role)
 
-	sut.setState(smeProtHStateServerListenProposal)
+	sut.setState(SmeProtHStateServerListenProposal, nil)
 
 	protMsg := model.MessageProtocolHandshake{
 		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
@@ -60,7 +60,7 @@ func (s *ProServerSuite) Test_ListenProposal() {
 
 	assert.Equal(s.T(), true, sut.handshakeTimerRunning)
 
-	assert.Equal(s.T(), smeProtHStateServerListenConfirm, sut.getState())
+	assert.Equal(s.T(), SmeProtHStateServerListenConfirm, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
@@ -69,7 +69,7 @@ func (s *ProServerSuite) Test_ListenProposal() {
 func (s *ProServerSuite) Test_ListenConfirm() {
 	sut, data := initTest(s.role)
 
-	sut.setState(smeProtHStateServerListenConfirm)
+	sut.setState(SmeProtHStateServerListenConfirm, nil)
 
 	protMsg := model.MessageProtocolHandshake{
 		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
@@ -90,7 +90,7 @@ func (s *ProServerSuite) Test_ListenConfirm() {
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 
 	// state smeProtHStateServerOk directly goes to smePinStateCheckInit to smePinStateCheckListen
-	assert.Equal(s.T(), smePinStateCheckListen, sut.getState())
+	assert.Equal(s.T(), SmePinStateCheckListen, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

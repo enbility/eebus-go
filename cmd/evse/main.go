@@ -83,8 +83,7 @@ func (h *evse) run() {
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 
-	remoteService := service.NewServiceDetails(remoteSki)
-	h.myService.PairRemoteService(remoteService)
+	h.myService.RegisterRemoteSKI(remoteSki, true)
 }
 
 // EEBUSServiceHandler
@@ -93,7 +92,14 @@ func (h *evse) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
 
 func (h *evse) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
 
-func (h *evse) ReportServiceShipID(ski string, shipdID string) {}
+func (h *evse) VisibleRemoteServicesUpdated(service *service.EEBUSService, entries []service.RemoteService) {
+}
+
+func (h *evse) ServiceShipIDUpdate(ski string, shipdID string) {}
+
+func (h *evse) ServicePairingDetailUpdate(ski string, detail service.ConnectionStateDetail) {}
+
+func (h *evse) AllowWaitingForTrust(ski string) bool { return true }
 
 // main app
 func usage() {

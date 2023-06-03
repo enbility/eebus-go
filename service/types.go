@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 
 	"github.com/enbility/eebus-go/spine/model"
@@ -10,76 +11,67 @@ import (
 
 const defaultPort int = 4711
 
+// connection state for global usage, e.g. UI
+type ConnectionState uint
+
+const (
+	ConnectionStateNone                   ConnectionState = iota // The initial state, when no pairing exists
+	ConnectionStateQueued                                        // The connection request has been started and is pending connection initialization
+	ConnectionStateInitiated                                     // This service initiated the connection process
+	ConnectionStateReceivedPairingRequest                        // A remote service initiated the connection process
+	ConnectionStateInProgress                                    // The connection handshake is in progress
+	ConnectionStateTrusted                                       // The connection is trusted on both ends
+	ConnectionStatePin                                           // PIN processing, not supported right now!
+	ConnectionStateCompleted                                     // The connection handshake is completed from both ends
+	ConnectionStateRemoteDeniedTrust                             // The remote service denied trust
+	ConnectionStateError                                         // The connection handshake resulted in an error
+)
+
+// the connection state of a service and error if applicable
+type ConnectionStateDetail struct {
+	State ConnectionState
+	Error error
+}
+
 // generic service details about the local or any remote service
 type ServiceDetails struct {
 	// This is the SKI of the service
 	// This needs to be persisted
-	ski string
+	SKI string
 
 	// This is the IPv4 address of the device running the service
 	// This is optional only needed when this runs with
 	// zeroconf as mDNS and the remote device is using the latest
 	// avahi version and thus zeroconf can sometimes not detect
 	// the IPv4 address and not initiate a connection
-	ipv4 string
+	IPv4 string
 
 	// shipID is the SHIP identifier of the service
 	// This needs to be persisted
-	shipID string
+	ShipID string
 
 	// The EEBUS device type of the device model
-	deviceType model.DeviceTypeType
+	DeviceType model.DeviceTypeType
 
 	// Flags if the service auto auto accepts other services
-	registerAutoAccept bool
+	RegisterAutoAccept bool
+
+	// Flags if the service is trusted and should be reconnected to
+	// Should be enabled after the connection process resulted
+	// ConnectionStateDetail == ConnectionStateTrusted the first time
+	Trusted bool
+
+	// the current connection state details
+	ConnectionStateDetail ConnectionStateDetail
 }
 
 // create a new ServiceDetails record with a SKI
 func NewServiceDetails(ski string) *ServiceDetails {
 	service := &ServiceDetails{
-		ski: util.NormalizeSKI(ski), // standardize the provided SKI strings
+		SKI: util.NormalizeSKI(ski), // standardize the provided SKI strings
 	}
 
 	return service
-}
-
-// return the services SKI
-func (s *ServiceDetails) SKI() string {
-	return s.ski
-}
-
-// SHIP ID is the ship identifier of the service
-func (s *ServiceDetails) SetShipID(shipId string) {
-	s.shipID = shipId
-}
-
-// Return the services SHIP ID
-func (s *ServiceDetails) ShipID() string {
-	return s.shipID
-}
-
-func (s *ServiceDetails) SetIPv4(ipv4 string) {
-	s.ipv4 = ipv4
-}
-
-func (s *ServiceDetails) IPv4() string {
-	return s.ipv4
-}
-
-func (s *ServiceDetails) SetDeviceType(deviceType model.DeviceTypeType) {
-	s.deviceType = deviceType
-}
-
-func (s *ServiceDetails) DeviceType() model.DeviceTypeType {
-	return s.deviceType
-}
-
-func (s *ServiceDetails) SetRegisterAutoAccept(auto bool) {
-	s.registerAutoAccept = auto
-}
-
-func (s *ServiceDetails) RegisterAutoAccept() bool {
-	return s.registerAutoAccept
 }
 
 // defines requires meta information about this service
@@ -258,3 +250,9 @@ func (s *Configuration) MdnsServiceName() string {
 func (s *Configuration) Voltage() float64 {
 	return s.voltage
 }
+
+// ErrServiceNotPaired if the given SKI is not paired yet
+var ErrServiceNotPaired = errors.New("the provided SKI is not paired")
+
+// ErrConnectionNotFound that there was no active connection for a given SKI found
+var ErrConnectionNotFound = errors.New("no connection for provided SKI found")

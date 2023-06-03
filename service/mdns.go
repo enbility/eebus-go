@@ -19,6 +19,7 @@ import (
 
 type MdnsEntry struct {
 	Name       string
+	Ski        string
 	Identifier string   // mandatory
 	Path       string   // mandatory
 	Register   bool     // mandatory
@@ -29,6 +30,8 @@ type MdnsEntry struct {
 	Port       int      // mandatory
 	Addresses  []net.IP // mandatory
 }
+
+//go:generate mockgen -destination=mock_mdns.go -package=service github.com/enbility/eebus-go/service MdnsSearch,MdnsService
 
 // implemented by hubConnection, used by mdns
 type MdnsSearch interface {
@@ -281,7 +284,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 		return
 	}
 
-	// may this is already found
+	// maybe entries are already found
 	mdnsEntries := m.entries
 
 	go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
@@ -496,6 +499,8 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
+	updated := true
+
 	_, exists := m.entries[ski]
 
 	if remove && exists {
@@ -504,17 +509,35 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		delete(m.entries, ski)
 	} else if exists {
 		// update
+		updated = false
+
 		// avahi sends an item for each network address, merge them
 		entry := m.entries[ski]
 
 		// we assume only network addresses are added
-		entry.Addresses = append(entry.Addresses, addresses...)
+		for _, address := range addresses {
+			// only add if it is not added yet
+			isNewElement := true
+
+			for _, item := range entry.Addresses {
+				if item.String() == address.String() {
+					isNewElement = false
+					break
+				}
+			}
+
+			if isNewElement {
+				entry.Addresses = append(entry.Addresses, address)
+				updated = true
+			}
+		}
 
 		m.entries[ski] = entry
 	} else if !exists && !remove {
 		// new
 		newEntry := MdnsEntry{
 			Name:       name,
+			Ski:        ski,
 			Identifier: identifier,
 			Path:       path,
 			Register:   register == "true",
@@ -532,7 +555,7 @@ func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, a
 		return
 	}
 
-	if m.searchDelegate != nil {
+	if m.searchDelegate != nil && updated {
 		mdnsEntries := m.entries
 		go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 	}
