@@ -311,6 +311,14 @@ func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDe
 	return &res
 }
 
+// send a notify message to all remote devices
+func (r *DeviceLocalImpl) NotifyUseCaseData() {
+	for _, remoteDevice := range r.remoteDevices {
+		// TODO: add error management
+		_, _ = r.nodeManagement.NotifyUseCaseData(remoteDevice)
+	}
+}
+
 func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddressType, cmd model.CmdType) {
 	subscriptions := r.SubscriptionManager().SubscriptionsOnFeature(*featureAddress)
 	for _, subscription := range subscriptions {

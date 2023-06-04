@@ -32,21 +32,26 @@ var useCaseValidActorsMap = map[model.UseCaseNameType][]model.UseCaseActorType{
 	model.UseCaseNameTypeVisualizationOfAggregatedPhotovoltaicData:        {model.UseCaseActorTypeCEM, model.UseCaseActorTypePVSystem, model.UseCaseActorTypeVisualizationAppliance},
 }
 
+// defines a specific usecase implementation
+// right now this is just used as a wrapper for supported usecases
 type UseCaseImpl struct {
 	Entity *EntityLocalImpl
 	Actor  model.UseCaseActorType
 
-	name            model.UseCaseNameType
-	useCaseVersion  model.SpecificationVersionType
-	scenarioSupport []model.UseCaseScenarioSupportType
+	name             model.UseCaseNameType
+	useCaseVersion   model.SpecificationVersionType
+	useCaseAvailable bool
+	scenarioSupport  []model.UseCaseScenarioSupportType
 }
 
+// returns a UseCaseImpl with a default mapping of entity to actor
 func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
 	actor := entityTypeActorMap[entity.EntityType()]
 
 	return NewUseCaseWithActor(entity, actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
 }
 
+// returns a UseCaseImpl with specific entity and actor
 func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
 	checkArguments(*entity.EntityImpl, ucEnumType)
 
@@ -54,11 +59,12 @@ func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, 
 	ucManager.Add(actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
 
 	return &UseCaseImpl{
-		Entity:          entity,
-		Actor:           actor,
-		name:            model.UseCaseNameType(ucEnumType),
-		useCaseVersion:  useCaseVersion,
-		scenarioSupport: scenarioSupport,
+		Entity:           entity,
+		Actor:            actor,
+		name:             model.UseCaseNameType(ucEnumType),
+		useCaseVersion:   useCaseVersion,
+		useCaseAvailable: useCaseAvailable,
+		scenarioSupport:  scenarioSupport,
 	}
 }
 
@@ -71,6 +77,14 @@ func checkArguments(entity EntityImpl, ucEnumType model.UseCaseNameType) {
 	if !linq.From(useCaseValidActorsMap[ucEnumType]).Contains(actor) {
 		panic(fmt.Errorf("the actor '%s' is not valid for the use case '%s'", actor, ucEnumType))
 	}
+}
+
+// Update the availability of this usecase and
+// trigger a notification being sent to the remote device
+func (u *UseCaseImpl) SetUseCaseAvailable(available bool) {
+	u.useCaseAvailable = available
+
+	u.Entity.Device().NotifyUseCaseData()
 }
 
 /*

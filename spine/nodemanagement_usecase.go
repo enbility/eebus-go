@@ -17,6 +17,21 @@ func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceSki string, remoteDe
 	return r.RequestDataBySenderAddress(cmd, sender, remoteDeviceSki, rfAdress, defaultMaxResponseDelay)
 }
 
+func (r *NodeManagementImpl) NotifyUseCaseData(remoteDevice *DeviceRemoteImpl) (*model.MsgCounterType, error) {
+	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDevice.address, DeviceInformationAddressEntity))
+	rEntity := remoteDevice.Entity([]model.AddressEntityType{model.AddressEntityType(DeviceInformationEntityId)})
+
+	featureRemote := remoteDevice.FeatureByEntityTypeAndRole(rEntity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
+
+	cmd := model.CmdType{
+		NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{
+			UseCaseInformation: r.entity.Device().UseCaseManager().UseCaseInformation(),
+		},
+	}
+
+	return featureRemote.Sender().Notify(r.Address(), rfAdress, cmd)
+}
+
 func (r *NodeManagementImpl) processReadUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
 
 	cmd := model.CmdType{

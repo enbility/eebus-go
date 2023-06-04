@@ -2,16 +2,20 @@ package spine
 
 import "github.com/enbility/eebus-go/spine/model"
 
+// manages the supported usecases for a device
+// each device has its own UseCaseManager
 type UseCaseManager struct {
 	useCaseInformationMap map[model.UseCaseActorType][]model.UseCaseSupportType
 }
 
+// return a new UseCaseManager
 func NewUseCaseManager() *UseCaseManager {
 	return &UseCaseManager{
 		useCaseInformationMap: make(map[model.UseCaseActorType][]model.UseCaseSupportType),
 	}
 }
 
+// add a usecase
 func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarios []model.UseCaseScenarioSupportType) {
 	useCaseSupport := model.UseCaseSupportType{
 		UseCaseVersion:   &useCaseVersion,
@@ -34,6 +38,7 @@ func (r *UseCaseManager) RemoveAll() {
 	r.useCaseInformationMap = make(map[model.UseCaseActorType][]model.UseCaseSupportType)
 }
 
+// return all actors and their supported usecases
 func (r *UseCaseManager) UseCaseInformation() []model.UseCaseInformationDataType {
 	var result []model.UseCaseInformationDataType
 
