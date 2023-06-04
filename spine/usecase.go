@@ -46,6 +46,8 @@ type UseCaseImpl struct {
 
 // returns a UseCaseImpl with a default mapping of entity to actor
 func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
+	checkEntityArguments(*entity.EntityImpl)
+
 	actor := entityTypeActorMap[entity.EntityType()]
 
 	return NewUseCaseWithActor(entity, actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
@@ -53,7 +55,7 @@ func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCa
 
 // returns a UseCaseImpl with specific entity and actor
 func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
-	checkArguments(*entity.EntityImpl, ucEnumType)
+	checkUCArguments(actor, ucEnumType)
 
 	ucManager := entity.Device().UseCaseManager()
 	ucManager.Add(actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
@@ -68,12 +70,16 @@ func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, 
 	}
 }
 
-func checkArguments(entity EntityImpl, ucEnumType model.UseCaseNameType) {
+// check if there is an predefined mapping available
+func checkEntityArguments(entity EntityImpl) {
 	actor := entityTypeActorMap[entity.EntityType()]
 	if actor == "" {
 		panic(fmt.Errorf("cannot derive actor for entity type '%s'", entity.EntityType()))
 	}
+}
 
+// check if the actor is valid for the given usecase type
+func checkUCArguments(actor model.UseCaseActorType, ucEnumType model.UseCaseNameType) {
 	if !linq.From(useCaseValidActorsMap[ucEnumType]).Contains(actor) {
 		panic(fmt.Errorf("the actor '%s' is not valid for the use case '%s'", actor, ucEnumType))
 	}
