@@ -626,6 +626,7 @@ func (h *connectionsHub) RegisterRemoteSKI(ski string, enable bool) {
 	service.Trusted = enable
 
 	if enable {
+		h.checkRestartMdnsSearch()
 		return
 	}
 
