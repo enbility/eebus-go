@@ -633,7 +633,7 @@ const (
 	EntityTypeTypeSmartEnergyAppliance          EntityTypeType = "SmartEnergyAppliance"
 	EntityTypeTypeSolarDHWStorage               EntityTypeType = "SolarDHWStorage"
 	EntityTypeTypeSolarThermalCircuit           EntityTypeType = "SolarThermalCircuit"
-	EntityTypeTypeSubmeterElectricity           EntityTypeType = "SubMeterElectricity"
+	EntityTypeTypeSubMeterElectricity           EntityTypeType = "SubMeterElectricity"
 	EntityTypeTypeTemperatureSensor             EntityTypeType = "TemperatureSensor"
 	EntityTypeTypeWasher                        EntityTypeType = "Washer"
 	EntityTypeTypeBatterySystem                 EntityTypeType = "BatterySystem"

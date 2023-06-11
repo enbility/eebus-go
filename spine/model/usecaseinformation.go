@@ -26,6 +26,7 @@ const (
 	UseCaseActorTypeOutdoorTemperatureSensor UseCaseActorType = "OutdoorTemperatureSensor"
 	UseCaseActorTypePVString                 UseCaseActorType = "PVString"
 	UseCaseActorTypePVSystem                 UseCaseActorType = "PVSystem"
+	UseCaseActorTypeSmartAppliance           UseCaseActorType = "SmartAppliance"
 	UseCaseActorTypeVisualizationAppliance   UseCaseActorType = "VisualizationAppliance"
 )
 
@@ -44,6 +45,8 @@ const (
 	UseCaseNameTypeEVCommissioningAndConfiguration                              UseCaseNameType = "evCommissioningAndConfiguration"
 	UseCaseNameTypeEVSECommissioningAndConfiguration                            UseCaseNameType = "evseCommissioningAndConfiguration"
 	UseCaseNameTypeEVStateOfCharge                                              UseCaseNameType = "evStateOfCharge"
+	UseCaseNameTypeFlexibleLoad                                                 UseCaseNameType = "flexibleLoad"
+	UseCaseNameTypeFlexibleStartForWhiteGoods                                   UseCaseNameType = "flexibleStartForWhiteGoods"
 	UseCaseNameTypeLimitationOfPowerConsumption                                 UseCaseNameType = "limitationOfPowerConsumption"
 	UseCaseNameTypeLimitationOfPowerProduction                                  UseCaseNameType = "limitationOfPowerProduction"
 	UseCaseNameTypeIncentiveTableBasedPowerConsumptionManagement                UseCaseNameType = "incentiveTableBasedPowerConsumptionManagement"
