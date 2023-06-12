@@ -44,6 +44,10 @@ func (r *EntityImpl) Address() *model.EntityAddressType {
 	return r.address
 }
 
+func (r *EntityImpl) Description() *model.DescriptionType {
+	return r.description
+}
+
 func (r *EntityImpl) SetDescription(d *model.DescriptionType) {
 	r.description = d
 }
