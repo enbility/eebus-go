@@ -145,8 +145,15 @@ func (c *ShipConnection) CloseConnection(safe bool, code int, reason string) {
 
 		c.removeRemoteDeviceConnection()
 
+		// handshake is completed if approved or aborted
+		state := c.getState()
+		handshakeEnd := state == SmeStateComplete ||
+			state == SmeHelloStateAbortDone ||
+			state == SmeHelloStateRemoteAbortDone ||
+			state == SmeHelloStateRejected
+
 		// this may not be used for Connection Data Exchange is entered!
-		if safe && c.getState() == SmeStateComplete {
+		if safe && state == SmeStateComplete {
 			// SHIP 13.4.7: Connection Termination Announce
 			closeMessage := model.ConnectionClose{
 				ConnectionClose: model.ConnectionCloseType{
@@ -157,7 +164,8 @@ func (c *ShipConnection) CloseConnection(safe bool, code int, reason string) {
 
 			_ = c.sendShipModel(model.MsgTypeEnd, closeMessage)
 
-			if c.getState() != SmeStateError {
+			if state != SmeStateError {
+				c.serviceDataProvider.HandleConnectionClosed(c, handshakeEnd)
 				return
 			}
 		}
@@ -167,13 +175,6 @@ func (c *ShipConnection) CloseConnection(safe bool, code int, reason string) {
 			closeCode = code
 		}
 		c.DataHandler.CloseDataConnection(closeCode, reason)
-
-		// handshake is completed if approved or aborted
-		state := c.getState()
-		handshakeEnd := state == SmeStateComplete ||
-			state == SmeHelloStateAbortDone ||
-			state == SmeHelloStateRemoteAbortDone ||
-			state == SmeHelloStateRejected
 
 		c.serviceDataProvider.HandleConnectionClosed(c, handshakeEnd)
 	})
