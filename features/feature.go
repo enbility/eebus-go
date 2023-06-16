@@ -102,7 +102,13 @@ func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (spine.FeatureLoca
 	}
 
 	if featureRemote == nil {
-		return nil, nil, errors.New("remote feature not found")
+		// as a backup, check if there is a Generic feature type available instead
+		// some heatpumps use a Generic feature type for everything
+		featureRemote = f.entity.Device().FeatureByEntityTypeAndRole(f.entity, model.FeatureTypeTypeGeneric, f.remoteRole)
+
+		if featureRemote == nil {
+			return nil, nil, errors.New("remote feature not found")
+		}
 	}
 
 	return featureLocal, featureRemote, nil

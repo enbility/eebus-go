@@ -13,7 +13,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/enbility/eebus-go/features"
+	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/service"
+	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
 
@@ -80,6 +83,8 @@ func (h *hems) run() {
 		os.Exit(0)
 	}
 
+	spine.Events.Subscribe(h)
+
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 
@@ -106,6 +111,93 @@ func (h *hems) AllowWaitingForTrust(ski string) bool { return true }
 // handle device state updates from the remote EVSE device
 func (h *hems) HandleEVSEDeviceState(ski string, failure bool, errorCode string) {
 	fmt.Println("EVSE Error State:", failure, errorCode)
+}
+
+func (h *hems) HandleEvent(payload spine.EventPayload) {
+	switch payload.EventType {
+	case spine.EventTypeEntityChange:
+		entityType := payload.Entity.EntityType()
+
+		switch payload.ChangeType {
+		case spine.ElementChangeAdd:
+			switch entityType {
+			case model.EntityTypeTypeDeviceInformation:
+				h.deviceInformationConnected(payload.Entity)
+			case model.EntityTypeTypeGeneric:
+				h.heatpumpConnected(payload.Entity)
+			}
+		}
+	}
+}
+
+func (h *hems) deviceInformationConnected(entity *spine.EntityRemoteImpl) {
+	localDevice := h.myService.LocalDevice()
+
+	deviceClassification, _ := features.NewDeviceClassification(model.RoleTypeClient, model.RoleTypeServer, localDevice, entity)
+
+	if deviceClassification != nil {
+		if _, err := deviceClassification.RequestManufacturerDetails(); err != nil {
+			logging.Log.Debug(err)
+		}
+	}
+}
+
+func (h *hems) heatpumpConnected(entity *spine.EntityRemoteImpl) {
+	localDevice := h.myService.LocalDevice()
+
+	electricalConnection, _ := features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
+	measurement, _ := features.NewMeasurement(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
+	hvac, _ := features.NewHVAC(model.RoleTypeClient, model.RoleTypeClient, localDevice, entity)
+
+	if electricalConnection != nil {
+		if err := electricalConnection.SubscribeForEntity(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := electricalConnection.RequestDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := electricalConnection.RequestParameterDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
+	}
+
+	if measurement != nil {
+		if err := measurement.SubscribeForEntity(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := measurement.RequestDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if err := measurement.RequestConstraints(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if _, err := measurement.RequestValues(); err != nil {
+			logging.Log.Error(err)
+		}
+	}
+
+	if hvac != nil {
+		if err := hvac.SubscribeForEntity(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if _, err := hvac.RequestOverrunDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if _, err := hvac.RequestOverrunValues(); err != nil {
+			logging.Log.Error(err)
+		}
+
+		if _, err := hvac.RequestSystemFunctionDescriptions(); err != nil {
+			logging.Log.Error(err)
+		}
+	}
 }
 
 // main app
