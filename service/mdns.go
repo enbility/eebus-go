@@ -10,11 +10,11 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/DerAndereAndi/zeroconf/v2"
 	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/util"
 	"github.com/godbus/dbus/v5"
 	"github.com/holoplot/go-avahi"
-	"github.com/libp2p/zeroconf/v2"
 )
 
 type MdnsEntry struct {
@@ -311,7 +311,9 @@ func (m *mdns) resolveEntries() {
 	var avBrowser *avahi.ServiceBrowser
 
 	zcEntries := make(chan *zeroconf.ServiceEntry)
+	zcRemoved := make(chan *zeroconf.ServiceEntry)
 	defer close(zcEntries)
+	defer close(zcRemoved)
 
 	if m.av != nil {
 		// instead of limiting search on specific allowed interfaces, we allow all and filter the results
@@ -321,7 +323,7 @@ func (m *mdns) resolveEntries() {
 		}
 	} else {
 		go func() {
-			_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries)
+			_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries, zcRemoved)
 		}()
 	}
 
@@ -344,6 +346,17 @@ func (m *mdns) resolveEntries() {
 				break
 			case <-m.cancelChan:
 				ctx.Done()
+			case service := <-zcRemoved:
+				// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
+				if len(service.Text) == 0 {
+					continue
+				}
+
+				elements := m.parseTxt(service.Text)
+
+				addresses := service.AddrIPv4
+				m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, true)
+
 			case service := <-zcEntries:
 				// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
 				if len(service.Text) == 0 {

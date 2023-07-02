@@ -17,12 +17,12 @@ require (
 )
 
 require (
+	github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20230702124214-98a3b1bb316f
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/holoplot/go-avahi v1.0.1
-	github.com/libp2p/zeroconf/v2 v2.2.0
 	github.com/rickb777/date v1.20.1
 	github.com/stretchr/testify v1.8.2
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
