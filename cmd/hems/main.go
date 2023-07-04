@@ -17,6 +17,8 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 )
 
+var remoteSki string
+
 type hems struct {
 	myService *service.EEBUSService
 }
@@ -24,7 +26,6 @@ type hems struct {
 func (h *hems) run() {
 	var err error
 	var certificate tls.Certificate
-	var remoteSki string
 
 	if len(os.Args) == 5 {
 		remoteSki = os.Args[2]
@@ -97,9 +98,17 @@ func (h *hems) VisibleRemoteServicesUpdated(service *service.EEBUSService, entri
 
 func (h *hems) ServiceShipIDUpdate(ski string, shipdID string) {}
 
-func (h *hems) ServicePairingDetailUpdate(ski string, detail service.ConnectionStateDetail) {}
+func (h *hems) ServicePairingDetailUpdate(ski string, detail service.ConnectionStateDetail) {
+	if ski == remoteSki && detail.State == service.ConnectionStateRemoteDeniedTrust {
+		fmt.Println("The remote service denied trust. Exiting.")
+		h.myService.Shutdown()
+		os.Exit(0)
+	}
+}
 
-func (h *hems) AllowWaitingForTrust(ski string) bool { return true }
+func (h *hems) AllowWaitingForTrust(ski string) bool {
+	return ski == remoteSki
+}
 
 // UCEvseCommisioningConfigurationCemDelegate
 
