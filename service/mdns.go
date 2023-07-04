@@ -188,7 +188,8 @@ func (m *mdns) AnnounceMdnsEntry() error {
 	if m.av == nil {
 		logging.Log.Debug("mdns: using zeroconf")
 		// use Zeroconf library if avahi is not available
-		mDNSServer, err := zeroconf.Register(serviceName, shipZeroConfServiceType, shipZeroConfDomain, m.configuration.port, txt, ifaces)
+		// Set TTL to 2 minutes as defined in SHIP chapter 7
+		mDNSServer, err := zeroconf.Register(serviceName, shipZeroConfServiceType, shipZeroConfDomain, m.configuration.port, txt, ifaces, zeroconf.TTL(120))
 		if err == nil {
 			m.zc = mDNSServer
 
