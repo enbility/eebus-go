@@ -342,12 +342,6 @@ func (h *connectionsHub) registerConnection(connection *ship.ShipConnection) {
 	h.muxCon.Lock()
 	h.connections[connection.RemoteSKI] = connection
 	h.muxCon.Unlock()
-
-	// shutdown mDNS if this is not a CEM
-	if h.localService.DeviceType != model.DeviceTypeTypeEnergyManagementSystem {
-		h.mdns.UnannounceMdnsEntry()
-		h.mdns.UnregisterMdnsSearch(h)
-	}
 }
 
 // return the connection for a specific SKI
