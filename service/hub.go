@@ -119,21 +119,15 @@ func newConnectionsHub(serviceProvider ServiceProvider, mdns MdnsService, spineL
 
 // start the ConnectionsHub with all its services
 func (h *connectionsHub) start() {
+	// start the websocket server
+	if err := h.startWebsocketServer(); err != nil {
+		logging.Log.Debug("error during websocket server starting:", err)
+	}
+
 	// start mDNS
 	err := h.mdns.SetupMdnsService()
 	if err != nil {
 		logging.Log.Debug("error during mdns setup:", err)
-	}
-
-	// start the websocket server
-	go func() {
-		if err := h.startWebsocketServer(); err != nil {
-			logging.Log.Debug("error during websocket server starting:", err)
-		}
-	}()
-
-	if err := h.mdns.AnnounceMdnsEntry(); err != nil {
-		logging.Log.Debug("error registering mDNS Service:", err)
 	}
 }
 
@@ -410,9 +404,12 @@ func (h *connectionsHub) startWebsocketServer() error {
 		},
 	}
 
-	if err := h.httpServer.ListenAndServeTLS("", ""); err != nil {
-		return err
-	}
+	go func() {
+		if err := h.httpServer.ListenAndServeTLS("", ""); err != nil {
+			logging.Log.Debug("websocket server error:", err)
+			// TODO: decide how to handle this case
+		}
+	}()
 
 	return nil
 }
