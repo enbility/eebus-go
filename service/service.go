@@ -280,8 +280,8 @@ func (s *EEBUSService) RemoteServiceForSKI(ski string) *ServiceDetails {
 	return s.connectionsHub.serviceForSKI(ski)
 }
 
-// Adds a new device to the list of known devices which can be connected to
-// and connect it if it is currently not connected
+// Sets the SKI as being paired or not
+// and connect it if paired and not currently being connected
 func (s *EEBUSService) RegisterRemoteSKI(ski string, enable bool) {
 	s.connectionsHub.RegisterRemoteSKI(ski, enable)
 }
