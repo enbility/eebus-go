@@ -81,10 +81,10 @@ func (h *hems) run() {
 		os.Exit(0)
 	}
 
+	h.myService.RegisterRemoteSKI(remoteSki, true)
+
 	h.myService.Start()
 	// defer h.myService.Shutdown()
-
-	h.myService.RegisterRemoteSKI(remoteSki, true)
 }
 
 // EEBUSServiceHandler
