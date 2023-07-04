@@ -101,6 +101,8 @@ func (h *evse) ServiceShipIDUpdate(ski string, shipdID string) {}
 func (h *evse) ServicePairingDetailUpdate(ski string, detail service.ConnectionStateDetail) {
 	if ski == remoteSki && detail.State == service.ConnectionStateRemoteDeniedTrust {
 		fmt.Println("The remote service denied trust. Exiting.")
+		h.myService.RegisterRemoteSKI(ski, false)
+		h.myService.CancelPairingWithSKI(ski)
 		h.myService.Shutdown()
 		os.Exit(0)
 	}
