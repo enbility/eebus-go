@@ -9,6 +9,7 @@ import (
 
 type Feature interface {
 	SubscribeForEntity() error
+	AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg spine.ResultMessage))
 }
 
 type FeatureImpl struct {
@@ -51,6 +52,10 @@ func (f *FeatureImpl) SubscribeForEntity() error {
 	}
 
 	return nil
+}
+
+func (f *FeatureImpl) AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg spine.ResultMessage)) {
+	f.featureLocal.AddResultCallback(msgCounterReference, function)
 }
 
 // bind to the feature of a the entity

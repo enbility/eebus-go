@@ -2,6 +2,7 @@ package spine
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/enbility/eebus-go/logging"
@@ -14,6 +15,7 @@ type FeatureLocal interface {
 	Data(function model.FunctionType) any
 	SetData(function model.FunctionType, data any)
 	AddResultHandler(handler FeatureResult)
+	AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg ResultMessage))
 	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
 	AddFunctionType(function model.FunctionType, read, write bool)
 	RequestData(
@@ -61,10 +63,13 @@ var _ FeatureLocal = (*FeatureLocalImpl)(nil)
 
 type FeatureLocalImpl struct {
 	*FeatureImpl
+
+	muxResultCB     sync.Mutex
 	entity          *EntityLocalImpl
 	functionDataMap map[model.FunctionType]FunctionDataCmd
 	pendingRequests PendingRequests
 	resultHandler   []FeatureResult
+	resultCallback  map[model.MsgCounterType]func(result ResultMessage)
 }
 
 func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
@@ -76,6 +81,7 @@ func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTy
 		entity:          entity,
 		functionDataMap: make(map[model.FunctionType]FunctionDataCmd),
 		pendingRequests: NewPendingRequest(),
+		resultCallback:  make(map[model.MsgCounterType]func(result ResultMessage)),
 	}
 
 	for _, fd := range CreateFunctionData[FunctionDataCmd](ftype) {
@@ -118,6 +124,27 @@ func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
 
 func (r *FeatureLocalImpl) AddResultHandler(handler FeatureResult) {
 	r.resultHandler = append(r.resultHandler, handler)
+}
+
+func (r *FeatureLocalImpl) AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg ResultMessage)) {
+	r.muxResultCB.Lock()
+	defer r.muxResultCB.Unlock()
+
+	r.resultCallback[msgCounterReference] = function
+}
+
+func (r *FeatureLocalImpl) processResultCallbacks(msgCounterReference model.MsgCounterType, msg ResultMessage) {
+	r.muxResultCB.Lock()
+	defer r.muxResultCB.Unlock()
+
+	cb, ok := r.resultCallback[msgCounterReference]
+	if !ok {
+		return
+	}
+
+	go cb(msg)
+
+	delete(r.resultCallback, msgCounterReference)
 }
 
 func (r *FeatureLocalImpl) Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType {
@@ -363,7 +390,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 		// we don't need to populate this error as requests don't require a pendingRequest entry
 		_ = r.pendingRequests.SetResult(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
 
-		if r.resultHandler == nil || message.RequestHeader.MsgCounterReference == nil {
+		if message.RequestHeader.MsgCounterReference == nil {
 			return nil
 		}
 
@@ -376,9 +403,13 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 			DeviceRemote:        message.DeviceRemote,
 		}
 
-		for _, item := range r.resultHandler {
-			go item.HandleResult(errorMsg)
+		if r.resultHandler != nil {
+			for _, item := range r.resultHandler {
+				go item.HandleResult(errorMsg)
+			}
 		}
+
+		r.processResultCallbacks(*message.RequestHeader.MsgCounterReference, errorMsg)
 
 		return nil
 
