@@ -610,8 +610,8 @@ func (h *connectionsHub) serviceForSKI(ski string) *ServiceDetails {
 }
 
 // Sets the SKI as being paired or not
-// Should be used for services which completed the pairing process and where
-// stored as having the process completed
+// Should be used for services which completed the pairing process and
+// which were stored as having the process completed
 func (h *connectionsHub) RegisterRemoteSKI(ski string, enable bool) {
 	service := h.serviceForSKI(ski)
 	service.Trusted = enable
@@ -624,7 +624,6 @@ func (h *connectionsHub) RegisterRemoteSKI(ski string, enable bool) {
 	h.removeConnectionAttemptCounter(ski)
 
 	service.ConnectionStateDetail.State = ConnectionStateNone
-	service.Trusted = false
 
 	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 
