@@ -127,13 +127,13 @@ func (m *mdns) setupAvahi() (*avahi.Server, error) {
 		return nil, err
 	}
 
-	avBrowser, err := m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0)
+	avBrowser, err := avahiServer.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0)
 	if err != nil {
 		return nil, err
 	}
 
 	if avBrowser != nil {
-		m.av.ServiceBrowserFree(avBrowser)
+		avahiServer.ServiceBrowserFree(avBrowser)
 		return avahiServer, nil
 	}
 
