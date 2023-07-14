@@ -316,21 +316,21 @@ func (m *mdns) resolveEntries() {
 	defer close(zcEntries)
 	defer close(zcRemoved)
 
+	var end bool
+
 	if m.av != nil {
 		// instead of limiting search on specific allowed interfaces, we allow all and filter the results
 		if avBrowser, err = m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0); err != nil {
 			logging.Log.Debug("mdns: error setting up avahi browser:", err)
 			return
 		}
-	} else {
-		go func() {
-			_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries, zcRemoved)
-		}()
-	}
 
-	var end bool
-	for !end {
-		if m.av != nil {
+		if avBrowser == nil {
+			logging.Log.Debug("mdns: avahi browser is not available")
+			return
+		}
+
+		for !end {
 			select {
 			case <-m.cancelChan:
 				end = true
@@ -340,7 +340,16 @@ func (m *mdns) resolveEntries() {
 			case service := <-avBrowser.RemoveChannel:
 				m.processAvahiService(service, true)
 			}
-		} else {
+		}
+
+		m.av.ServiceBrowserFree(avBrowser)
+	} else {
+
+		go func() {
+			_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries, zcRemoved)
+		}()
+
+		for !end {
 			select {
 			case <-ctx.Done():
 				end = true
@@ -372,10 +381,6 @@ func (m *mdns) resolveEntries() {
 				m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, false)
 			}
 		}
-	}
-
-	if m.av != nil {
-		m.av.ServiceBrowserFree(avBrowser)
 	}
 
 	m.mux.Lock()
