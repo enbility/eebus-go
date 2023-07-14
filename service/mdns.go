@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -126,7 +127,17 @@ func (m *mdns) setupAvahi() (*avahi.Server, error) {
 		return nil, err
 	}
 
-	return avahiServer, nil
+	avBrowser, err := m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	if avBrowser != nil {
+		m.av.ServiceBrowserFree(avBrowser)
+		return avahiServer, nil
+	}
+
+	return nil, errors.New("avahi service is not working as expected")
 }
 
 // Return allowed interfaces for mDNS
@@ -274,7 +285,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 		m.isSearchingServices = true
 		m.mux.Unlock()
 		logging.Log.Debug("mdns: start search")
-		go m.resolveEntries()
+		m.resolveEntries()
 		return
 	}
 
@@ -301,91 +312,101 @@ func (m *mdns) UnregisterMdnsSearch(cb MdnsSearch) {
 	m.stopResolvingEntries()
 }
 
-// search for mDNS entries and report them
-// to be invoked in a background thread!
-func (m *mdns) resolveEntries() {
-	// for Zeroconf we need a context
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
+func (m *mdns) resolveEntriesAvahi() {
 	var err error
+	var end bool
+
 	var avBrowser *avahi.ServiceBrowser
+
+	// instead of limiting search on specific allowed interfaces, we allow all and filter the results
+	if avBrowser, err = m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0); err != nil {
+		logging.Log.Debug("mdns: error setting up avahi browser:", err)
+		return
+	}
+
+	if avBrowser == nil {
+		logging.Log.Debug("mdns: avahi browser is not available")
+		return
+	}
+
+	for !end {
+		select {
+		case <-m.cancelChan:
+			end = true
+			break
+		case service := <-avBrowser.AddChannel:
+			m.processAvahiService(service, false)
+		case service := <-avBrowser.RemoveChannel:
+			m.processAvahiService(service, true)
+		}
+	}
+
+	m.av.ServiceBrowserFree(avBrowser)
+}
+
+func (m *mdns) resolveEntriesZeroconf() {
+	var end bool
 
 	zcEntries := make(chan *zeroconf.ServiceEntry)
 	zcRemoved := make(chan *zeroconf.ServiceEntry)
 	defer close(zcEntries)
 	defer close(zcRemoved)
 
-	var end bool
+	// for Zeroconf we need a context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	if m.av != nil {
-		// instead of limiting search on specific allowed interfaces, we allow all and filter the results
-		if avBrowser, err = m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0); err != nil {
-			logging.Log.Debug("mdns: error setting up avahi browser:", err)
-			return
-		}
+	go func() {
+		_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries, zcRemoved)
+	}()
 
-		if avBrowser == nil {
-			logging.Log.Debug("mdns: avahi browser is not available")
-			return
-		}
-
-		for !end {
-			select {
-			case <-m.cancelChan:
-				end = true
-				break
-			case service := <-avBrowser.AddChannel:
-				m.processAvahiService(service, false)
-			case service := <-avBrowser.RemoveChannel:
-				m.processAvahiService(service, true)
+	for !end {
+		select {
+		case <-ctx.Done():
+			end = true
+			break
+		case <-m.cancelChan:
+			ctx.Done()
+		case service := <-zcRemoved:
+			// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
+			if len(service.Text) == 0 {
+				continue
 			}
-		}
 
-		m.av.ServiceBrowserFree(avBrowser)
-	} else {
+			elements := m.parseTxt(service.Text)
 
-		go func() {
-			_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries, zcRemoved)
-		}()
+			addresses := service.AddrIPv4
+			m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, true)
 
-		for !end {
-			select {
-			case <-ctx.Done():
-				end = true
-				break
-			case <-m.cancelChan:
-				ctx.Done()
-			case service := <-zcRemoved:
-				// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
-				if len(service.Text) == 0 {
-					continue
-				}
-
-				elements := m.parseTxt(service.Text)
-
-				addresses := service.AddrIPv4
-				m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, true)
-
-			case service := <-zcEntries:
-				// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
-				if len(service.Text) == 0 {
-					continue
-				}
-
-				elements := m.parseTxt(service.Text)
-
-				addresses := service.AddrIPv4
-				// Only use IPv4 for now
-				// addresses = append(addresses, service.AddrIPv6...)
-				m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, false)
+		case service := <-zcEntries:
+			// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
+			if len(service.Text) == 0 {
+				continue
 			}
+
+			elements := m.parseTxt(service.Text)
+
+			addresses := service.AddrIPv4
+			// Only use IPv4 for now
+			// addresses = append(addresses, service.AddrIPv6...)
+			m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, false)
 		}
 	}
+}
 
-	m.mux.Lock()
-	m.isSearchingServices = false
-	m.mux.Unlock()
+// search for mDNS entries and report them
+func (m *mdns) resolveEntries() {
+	go func() {
+		if m.av != nil {
+			m.resolveEntriesAvahi()
+		} else {
+			m.resolveEntriesZeroconf()
+		}
+
+		m.mux.Lock()
+		m.isSearchingServices = false
+		m.mux.Unlock()
+	}()
 }
 
 // stop searching for mDNS entries
