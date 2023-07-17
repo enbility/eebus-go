@@ -237,6 +237,10 @@ func (m *mdnsManager) UnregisterMdnsSearch(cb MdnsSearch) {
 
 // search for mDNS entries and report them
 func (m *mdnsManager) resolveEntries() {
+	if m.mdnsProvider == nil {
+		m.isSearchingServices = false
+		return
+	}
 	go func() {
 		m.mdnsProvider.ResolveEntries(m.cancelChan)
 

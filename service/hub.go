@@ -127,6 +127,8 @@ func (h *connectionsHub) start() {
 	if err != nil {
 		logging.Log.Debug("error during mdns setup:", err)
 	}
+
+	h.checkRestartMdnsSearch()
 }
 
 var _ ship.ShipServiceDataProvider = (*connectionsHub)(nil)
