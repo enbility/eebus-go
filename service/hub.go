@@ -24,8 +24,6 @@ import (
 
 const shipWebsocketSubProtocol = "ship" // SHIP 10.2: sub protocol is required for websocket connections
 const shipWebsocketPath = "/ship/"
-const shipZeroConfServiceType = "_ship._tcp"
-const shipZeroConfDomain = "local."
 
 // used for randomizing the connection initiation delay
 // this limits the possibility of concurrent connection attempts from both sides
