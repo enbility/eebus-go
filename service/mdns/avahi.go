@@ -9,17 +9,14 @@ import (
 )
 
 type AvahiProvider struct {
-	mdnsManager MdnsManager
-
 	ifaceIndexes []int32
 
 	avServer     *avahi.Server
 	avEntryGroup *avahi.EntryGroup
 }
 
-func NewAvahiProvider(mdnsManager MdnsManager, ifaceIndexes []int32) *AvahiProvider {
+func NewAvahiProvider(ifaceIndexes []int32) *AvahiProvider {
 	return &AvahiProvider{
-		mdnsManager:  mdnsManager,
 		ifaceIndexes: ifaceIndexes,
 	}
 }
@@ -103,7 +100,7 @@ func (a *AvahiProvider) Unannounce() {
 	a.avEntryGroup = nil
 }
 
-func (a *AvahiProvider) ResolveEntries(cancelChan chan bool) {
+func (a *AvahiProvider) ResolveEntries(cancelChan chan bool, callback func(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool)) {
 	var err error
 	var end bool
 
@@ -126,9 +123,9 @@ func (a *AvahiProvider) ResolveEntries(cancelChan chan bool) {
 			end = true
 			break
 		case service := <-avBrowser.AddChannel:
-			a.processService(service, false)
+			a.processService(service, false, callback)
 		case service := <-avBrowser.RemoveChannel:
-			a.processService(service, true)
+			a.processService(service, true, callback)
 		}
 	}
 
@@ -137,7 +134,7 @@ func (a *AvahiProvider) ResolveEntries(cancelChan chan bool) {
 
 // process an avahi mDNS service
 // as avahi returns a service per interface, we need to combine them
-func (a *AvahiProvider) processService(service avahi.Service, remove bool) {
+func (a *AvahiProvider) processService(service avahi.Service, remove bool, callback func(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool)) {
 	// check if the service is within the allowed list
 	allow := false
 	if len(a.ifaceIndexes) == 1 && a.ifaceIndexes[0] == avahi.InterfaceUnspec {
@@ -182,5 +179,5 @@ func (a *AvahiProvider) processService(service avahi.Service, remove bool) {
 		return
 	}
 
-	a.mdnsManager.ProcessMdnsEntry(elements, resolved.Name, resolved.Host, []net.IP{address}, int(resolved.Port), remove)
+	callback(elements, resolved.Name, resolved.Host, []net.IP{address}, int(resolved.Port), remove)
 }

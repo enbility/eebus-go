@@ -9,17 +9,14 @@ import (
 )
 
 type ZeroconfProvider struct {
-	mdnsManager MdnsManager
-
 	ifaces []net.Interface
 
 	zc *zeroconf.Server
 }
 
-func NewZeroconfProvider(mdnsManager MdnsManager, ifaces []net.Interface) *ZeroconfProvider {
+func NewZeroconfProvider(ifaces []net.Interface) *ZeroconfProvider {
 	return &ZeroconfProvider{
-		mdnsManager: mdnsManager,
-		ifaces:      ifaces,
+		ifaces: ifaces,
 	}
 }
 
@@ -55,7 +52,7 @@ func (z *ZeroconfProvider) Unannounce() {
 	z.zc = nil
 }
 
-func (z *ZeroconfProvider) ResolveEntries(cancelChan chan bool) {
+func (z *ZeroconfProvider) ResolveEntries(cancelChan chan bool, callback func(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool)) {
 	var end bool
 
 	zcEntries := make(chan *zeroconf.ServiceEntry)
@@ -87,7 +84,7 @@ func (z *ZeroconfProvider) ResolveEntries(cancelChan chan bool) {
 			elements := parseTxt(service.Text)
 
 			addresses := service.AddrIPv4
-			z.mdnsManager.ProcessMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, true)
+			callback(elements, service.Instance, service.HostName, addresses, service.Port, true)
 
 		case service := <-zcEntries:
 			// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
@@ -100,7 +97,7 @@ func (z *ZeroconfProvider) ResolveEntries(cancelChan chan bool) {
 			addresses := service.AddrIPv4
 			// Only use IPv4 for now
 			// addresses = append(addresses, service.AddrIPv6...)
-			z.mdnsManager.ProcessMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, false)
+			callback(elements, service.Instance, service.HostName, addresses, service.Port, false)
 		}
 	}
 }

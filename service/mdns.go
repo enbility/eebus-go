@@ -111,12 +111,12 @@ func (m *mdnsManager) SetupMdnsService() error {
 		return err
 	}
 
-	m.mdnsProvider = mdns.NewAvahiProvider(m, ifaceIndexes)
+	m.mdnsProvider = mdns.NewAvahiProvider(ifaceIndexes)
 	if !m.mdnsProvider.CheckAvailability() {
 		m.mdnsProvider.Shutdown()
 
 		// Avahi is not availble, use Zeroconf
-		m.mdnsProvider = mdns.NewZeroconfProvider(m, ifaces)
+		m.mdnsProvider = mdns.NewZeroconfProvider(ifaces)
 		if !m.mdnsProvider.CheckAvailability() {
 			return errors.New("No mDNS provider available")
 		}
@@ -242,7 +242,7 @@ func (m *mdnsManager) resolveEntries() {
 		return
 	}
 	go func() {
-		m.mdnsProvider.ResolveEntries(m.cancelChan)
+		m.mdnsProvider.ResolveEntries(m.cancelChan, m.processMdnsEntry)
 
 		m.mux.Lock()
 		m.isSearchingServices = false
@@ -265,10 +265,8 @@ func (m *mdnsManager) stopResolvingEntries() {
 	m.cancelChan <- true
 }
 
-// MdnsManager interface
-
 // process an mDNS entry and manage mDNS entries map
-func (m *mdnsManager) ProcessMdnsEntry(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool) {
+func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool) {
 	// check for mandatory text elements
 	mapItems := []string{"txtvers", "id", "path", "ski", "register"}
 	for _, item := range mapItems {
