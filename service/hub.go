@@ -24,8 +24,6 @@ import (
 
 const shipWebsocketSubProtocol = "ship" // SHIP 10.2: sub protocol is required for websocket connections
 const shipWebsocketPath = "/ship/"
-const shipZeroConfServiceType = "_ship._tcp"
-const shipZeroConfDomain = "local."
 
 // used for randomizing the connection initiation delay
 // this limits the possibility of concurrent connection attempts from both sides
@@ -129,6 +127,8 @@ func (h *connectionsHub) start() {
 	if err != nil {
 		logging.Log.Debug("error during mdns setup:", err)
 	}
+
+	h.checkRestartMdnsSearch()
 }
 
 var _ ship.ShipServiceDataProvider = (*connectionsHub)(nil)
@@ -196,7 +196,6 @@ func (h *connectionsHub) checkRestartMdnsSearch() {
 			_ = h.mdns.AnnounceMdnsEntry()
 		}
 
-		logging.Log.Debug("restarting mdns search")
 		h.mdns.RegisterMdnsSearch(h)
 	}
 }

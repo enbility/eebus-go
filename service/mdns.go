@@ -1,20 +1,17 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"syscall"
 
-	"github.com/DerAndereAndi/zeroconf/v2"
 	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/service/mdns"
 	"github.com/enbility/eebus-go/util"
-	"github.com/godbus/dbus/v5"
 	"github.com/holoplot/go-avahi"
 )
 
@@ -49,7 +46,7 @@ type MdnsService interface {
 	UnregisterMdnsSearch(cb MdnsSearch)
 }
 
-type mdns struct {
+type mdnsManager struct {
 	configuration *Configuration
 	ski           string
 
@@ -64,18 +61,13 @@ type mdns struct {
 	// the registered callback, only connectionsHub is using this
 	searchDelegate MdnsSearch
 
-	// The zeroconf service for mDNS related tasks
-	zc *zeroconf.Server
-
-	// The alternative avahi mDNS service
-	av           *avahi.Server
-	avEntryGroup *avahi.EntryGroup
+	mdnsProvider mdns.MdnsProvider
 
 	mux sync.Mutex
 }
 
-func newMDNS(ski string, configuration *Configuration) *mdns {
-	m := &mdns{
+func newMDNS(ski string, configuration *Configuration) *mdnsManager {
+	m := &mdnsManager{
 		ski:           ski,
 		configuration: configuration,
 		entries:       make(map[string]MdnsEntry),
@@ -85,63 +77,8 @@ func newMDNS(ski string, configuration *Configuration) *mdns {
 	return m
 }
 
-var _ MdnsService = (*mdns)(nil)
-
-func (m *mdns) SetupMdnsService() error {
-
-	if av, err := m.setupAvahi(); err == nil {
-		m.av = av
-	}
-
-	// on startup always start mDNS announcement
-	if err := m.AnnounceMdnsEntry(); err != nil {
-		return err
-	}
-
-	// catch signals
-	go func() {
-		signalC := make(chan os.Signal, 1)
-		signal.Notify(signalC, os.Interrupt, syscall.SIGTERM)
-
-		<-signalC // wait for signal
-
-		m.UnannounceMdnsEntry()
-	}()
-
-	return nil
-}
-
-// setup avahi for mDNS
-func (m *mdns) setupAvahi() (*avahi.Server, error) {
-	dbusConn, err := dbus.SystemBus()
-	if err != nil {
-		return nil, err
-	}
-
-	avahiServer, err := avahi.ServerNew(dbusConn)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := avahiServer.GetAPIVersion(); err != nil {
-		return nil, err
-	}
-
-	avBrowser, err := avahiServer.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	if avBrowser != nil {
-		avahiServer.ServiceBrowserFree(avBrowser)
-		return avahiServer, nil
-	}
-
-	return nil, errors.New("avahi service is not working as expected")
-}
-
 // Return allowed interfaces for mDNS
-func (m *mdns) interfaces() ([]net.Interface, []int32, error) {
+func (m *mdnsManager) interfaces() ([]net.Interface, []int32, error) {
 	var ifaces []net.Interface
 	var ifaceIndexes []int32
 
@@ -166,17 +103,49 @@ func (m *mdns) interfaces() ([]net.Interface, []int32, error) {
 	return ifaces, ifaceIndexes, nil
 }
 
-// Announces the service to the network via mDNS
-// A CEM service should always invoke this on startup
-// Any other service should only invoke this whenever it is not connected to a CEM service
-func (m *mdns) AnnounceMdnsEntry() error {
-	if m.isAnnounced {
-		return nil
-	}
+var _ MdnsService = (*mdnsManager)(nil)
 
+func (m *mdnsManager) SetupMdnsService() error {
 	ifaces, ifaceIndexes, err := m.interfaces()
 	if err != nil {
 		return err
+	}
+
+	m.mdnsProvider = mdns.NewAvahiProvider(ifaceIndexes)
+	if !m.mdnsProvider.CheckAvailability() {
+		m.mdnsProvider.Shutdown()
+
+		// Avahi is not availble, use Zeroconf
+		m.mdnsProvider = mdns.NewZeroconfProvider(ifaces)
+		if !m.mdnsProvider.CheckAvailability() {
+			return errors.New("No mDNS provider available")
+		}
+	}
+
+	// on startup always start mDNS announcement
+	if err := m.AnnounceMdnsEntry(); err != nil {
+		return err
+	}
+
+	// catch signals
+	go func() {
+		signalC := make(chan os.Signal, 1)
+		signal.Notify(signalC, os.Interrupt, syscall.SIGTERM)
+
+		<-signalC // wait for signal
+
+		m.ShutdownMdnsService()
+	}()
+
+	return nil
+}
+
+// Announces the service to the network via mDNS
+// A CEM service should always invoke this on startup
+// Any other service should only invoke this whenever it is not connected to a CEM service
+func (m *mdnsManager) AnnounceMdnsEntry() error {
+	if m.isAnnounced {
+		return nil
 	}
 
 	serviceIdentifier := m.configuration.Identifier()
@@ -196,100 +165,57 @@ func (m *mdns) AnnounceMdnsEntry() error {
 
 	serviceName := m.configuration.MdnsServiceName()
 
-	if m.av == nil {
-		logging.Log.Debug("mdns: using zeroconf")
-		// use Zeroconf library if avahi is not available
-		// Set TTL to 2 minutes as defined in SHIP chapter 7
-		mDNSServer, err := zeroconf.Register(serviceName, shipZeroConfServiceType, shipZeroConfDomain, m.configuration.port, txt, ifaces, zeroconf.TTL(120))
-		if err == nil {
-			m.zc = mDNSServer
-
-			m.isAnnounced = true
-			return nil
-		}
-
+	if err := m.mdnsProvider.Announce(serviceName, m.configuration.port, txt); err != nil {
+		logging.Log.Debug("mdns: failure announcing service", err)
 		return err
 	}
 
-	// avahi
-	logging.Log.Debug("mdns: using avahi")
-
-	entryGroup, err := m.av.EntryGroupNew()
-	if err != nil {
-		return err
-	}
-
-	var btxt [][]byte
-	for _, t := range txt {
-		btxt = append(btxt, []byte(t))
-	}
-
-	for _, iface := range ifaceIndexes {
-		err = entryGroup.AddService(iface, avahi.ProtoUnspec, 0, serviceName, shipZeroConfServiceType, shipZeroConfDomain, "", uint16(m.configuration.port), btxt)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = entryGroup.Commit()
-	if err != nil {
-		return err
-	}
-
-	m.avEntryGroup = entryGroup
 	m.isAnnounced = true
 
 	return nil
 }
 
 // Stop the mDNS announcement on the network
-func (m *mdns) UnannounceMdnsEntry() {
+func (m *mdnsManager) UnannounceMdnsEntry() {
 	if !m.isAnnounced {
 		return
 	}
 
-	if m.zc != nil {
-		m.zc.Shutdown()
-		m.zc = nil
-	}
-	if m.av != nil {
-		m.av.EntryGroupFree(m.avEntryGroup)
-		m.avEntryGroup = nil
-	}
+	m.mdnsProvider.Unannounce()
 	logging.Log.Debug("mdns: stop announcement")
 
 	m.isAnnounced = false
 }
 
 // Shutdown all of mDNS
-func (m *mdns) ShutdownMdnsService() {
+func (m *mdnsManager) ShutdownMdnsService() {
 	m.UnannounceMdnsEntry()
-
-	if m.av != nil {
-		m.av.Close()
-		m.av = nil
-	}
-
 	m.stopResolvingEntries()
+
+	m.mdnsProvider.Shutdown()
+	m.mdnsProvider = nil
+}
+
+func (m *mdnsManager) setIsSearchingServices(enable bool) {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+
+	m.isSearchingServices = enable
 }
 
 // Register a callback to be invoked for found mDNS entries
-func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
+func (m *mdnsManager) RegisterMdnsSearch(cb MdnsSearch) {
+	m.mux.Lock()
 	if m.searchDelegate != cb {
 		m.searchDelegate = cb
 	}
-
-	m.mux.Lock()
+	m.mux.Unlock()
 
 	if !m.isSearchingServices {
-		m.isSearchingServices = true
-		m.mux.Unlock()
-		logging.Log.Debug("mdns: start search")
+		m.setIsSearchingServices(true)
 		m.resolveEntries()
 		return
 	}
-
-	defer m.mux.Unlock()
 
 	// do we already know some entries?
 	if len(m.entries) == 0 {
@@ -303,7 +229,7 @@ func (m *mdns) RegisterMdnsSearch(cb MdnsSearch) {
 }
 
 // Remove a callback for found mDNS entries and stop searching if no callbacks are left
-func (m *mdns) UnregisterMdnsSearch(cb MdnsSearch) {
+func (m *mdnsManager) UnregisterMdnsSearch(cb MdnsSearch) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
@@ -312,189 +238,37 @@ func (m *mdns) UnregisterMdnsSearch(cb MdnsSearch) {
 	m.stopResolvingEntries()
 }
 
-func (m *mdns) resolveEntriesAvahi() {
-	var err error
-	var end bool
-
-	var avBrowser *avahi.ServiceBrowser
-
-	// instead of limiting search on specific allowed interfaces, we allow all and filter the results
-	if avBrowser, err = m.av.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0); err != nil {
-		logging.Log.Debug("mdns: error setting up avahi browser:", err)
-		return
-	}
-
-	if avBrowser == nil {
-		logging.Log.Debug("mdns: avahi browser is not available")
-		return
-	}
-
-	for !end {
-		select {
-		case <-m.cancelChan:
-			end = true
-			break
-		case service := <-avBrowser.AddChannel:
-			m.processAvahiService(service, false)
-		case service := <-avBrowser.RemoveChannel:
-			m.processAvahiService(service, true)
-		}
-	}
-
-	m.av.ServiceBrowserFree(avBrowser)
-}
-
-func (m *mdns) resolveEntriesZeroconf() {
-	var end bool
-
-	zcEntries := make(chan *zeroconf.ServiceEntry)
-	zcRemoved := make(chan *zeroconf.ServiceEntry)
-	defer close(zcEntries)
-	defer close(zcRemoved)
-
-	// for Zeroconf we need a context
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	go func() {
-		_ = zeroconf.Browse(ctx, shipZeroConfServiceType, shipZeroConfDomain, zcEntries, zcRemoved)
-	}()
-
-	for !end {
-		select {
-		case <-ctx.Done():
-			end = true
-			break
-		case <-m.cancelChan:
-			ctx.Done()
-		case service := <-zcRemoved:
-			// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
-			if len(service.Text) == 0 {
-				continue
-			}
-
-			elements := m.parseTxt(service.Text)
-
-			addresses := service.AddrIPv4
-			m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, true)
-
-		case service := <-zcEntries:
-			// Zeroconf has issues with merging mDNS data and sometimes reports incomplete records
-			if len(service.Text) == 0 {
-				continue
-			}
-
-			elements := m.parseTxt(service.Text)
-
-			addresses := service.AddrIPv4
-			// Only use IPv4 for now
-			// addresses = append(addresses, service.AddrIPv6...)
-			m.processMdnsEntry(elements, service.Instance, service.HostName, addresses, service.Port, false)
-		}
-	}
-}
-
 // search for mDNS entries and report them
-func (m *mdns) resolveEntries() {
+func (m *mdnsManager) resolveEntries() {
+	if m.mdnsProvider == nil {
+		m.setIsSearchingServices(false)
+		return
+	}
 	go func() {
-		if m.av != nil {
-			m.resolveEntriesAvahi()
-		} else {
-			m.resolveEntriesZeroconf()
-		}
+		logging.Log.Debug("mdns: start search")
+		m.mdnsProvider.ResolveEntries(m.cancelChan, m.processMdnsEntry)
 
-		m.mux.Lock()
-		m.isSearchingServices = false
-		m.mux.Unlock()
+		m.setIsSearchingServices(false)
 	}()
 }
 
 // stop searching for mDNS entries
-func (m *mdns) stopResolvingEntries() {
-	if m.cancelChan != nil {
-		if util.IsChannelClosed(m.cancelChan) {
-			return
-		}
-
-		logging.Log.Debug("mdns: stop search")
-
-		m.cancelChan <- true
-	}
-}
-
-// process an avahi mDNS service
-// as avahi returns a service per interface, we need to combine them
-func (m *mdns) processAvahiService(service avahi.Service, remove bool) {
-	_, ifaceIndexes, err := m.interfaces()
-	if err != nil {
-		logging.Log.Debug("avahi - error getting interfaces:", err)
+func (m *mdnsManager) stopResolvingEntries() {
+	if m.cancelChan == nil {
 		return
 	}
 
-	// check if the service is within the allowed list
-	allow := false
-	if len(ifaceIndexes) == 1 && ifaceIndexes[0] == avahi.InterfaceUnspec {
-		allow = true
-	} else {
-		for _, iface := range ifaceIndexes {
-			if service.Interface == iface {
-				allow = true
-				break
-			}
-		}
-	}
-
-	if !allow {
-		logging.Log.Debug("avahi - ignoring service as its interface is not in the allowed list:", service.Name)
+	if util.IsChannelClosed(m.cancelChan) {
 		return
 	}
 
-	resolved, err := m.av.ResolveService(service.Interface, service.Protocol, service.Name, service.Type, service.Domain, avahi.ProtoUnspec, 0)
-	if err != nil {
-		logging.Log.Debug("avahi - error resolving service:", err)
-		return
-	}
+	logging.Log.Debug("mdns: stop search")
 
-	// convert [][]byte to []string manually
-	var txt []string
-	for _, element := range resolved.Txt {
-		txt = append(txt, string(element))
-	}
-	elements := m.parseTxt(txt)
-
-	// convert address to net.IP
-	address := net.ParseIP(resolved.Address)
-	// if the address can not be used, ignore the entry
-	if address == nil || address.IsUnspecified() {
-		logging.Log.Debug("avahi - service provides unusable address:", service.Name)
-		return
-	}
-
-	// Ignore IPv6 addresses for now
-	if address.To4() == nil {
-		return
-	}
-
-	m.processMdnsEntry(elements, resolved.Name, resolved.Host, []net.IP{address}, int(resolved.Port), remove)
-}
-
-// parse mDNS text fields
-func (m *mdns) parseTxt(txt []string) map[string]string {
-	result := make(map[string]string)
-
-	for _, item := range txt {
-		s := strings.Split(item, "=")
-		if len(s) != 2 {
-			continue
-		}
-		result[s[0]] = s[1]
-	}
-
-	return result
+	m.cancelChan <- true
 }
 
 // process an mDNS entry and manage mDNS entries map
-func (m *mdns) processMdnsEntry(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool) {
+func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool) {
 	// check for mandatory text elements
 	mapItems := []string{"txtvers", "id", "path", "ski", "register"}
 	for _, item := range mapItems {
