@@ -196,7 +196,6 @@ func (h *connectionsHub) checkRestartMdnsSearch() {
 			_ = h.mdns.AnnounceMdnsEntry()
 		}
 
-		logging.Log.Debug("restarting mdns search")
 		h.mdns.RegisterMdnsSearch(h)
 	}
 }
