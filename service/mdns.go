@@ -196,23 +196,26 @@ func (m *mdnsManager) ShutdownMdnsService() {
 	m.mdnsProvider = nil
 }
 
+func (m *mdnsManager) setIsSearchingServices(enable bool) {
+	m.mux.Lock()
+	defer m.mux.Unlock()
+
+	m.isSearchingServices = enable
+}
+
 // Register a callback to be invoked for found mDNS entries
 func (m *mdnsManager) RegisterMdnsSearch(cb MdnsSearch) {
+	m.mux.Lock()
 	if m.searchDelegate != cb {
 		m.searchDelegate = cb
 	}
-
-	m.mux.Lock()
+	m.mux.Unlock()
 
 	if !m.isSearchingServices {
-		m.isSearchingServices = true
-		m.mux.Unlock()
-		logging.Log.Debug("mdns: start search")
+		m.setIsSearchingServices(true)
 		m.resolveEntries()
 		return
 	}
-
-	defer m.mux.Unlock()
 
 	// do we already know some entries?
 	if len(m.entries) == 0 {
@@ -238,15 +241,14 @@ func (m *mdnsManager) UnregisterMdnsSearch(cb MdnsSearch) {
 // search for mDNS entries and report them
 func (m *mdnsManager) resolveEntries() {
 	if m.mdnsProvider == nil {
-		m.isSearchingServices = false
+		m.setIsSearchingServices(false)
 		return
 	}
 	go func() {
+		logging.Log.Debug("mdns: start search")
 		m.mdnsProvider.ResolveEntries(m.cancelChan, m.processMdnsEntry)
 
-		m.mux.Lock()
-		m.isSearchingServices = false
-		m.mux.Unlock()
+		m.setIsSearchingServices(false)
 	}()
 }
 
