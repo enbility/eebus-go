@@ -370,7 +370,10 @@ func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host st
 	}
 
 	if m.searchDelegate != nil && updated {
-		mdnsEntries := m.entries
+		mdnsEntries := make(map[string]MdnsEntry)
+		for k, v := range m.entries {
+			mdnsEntries[k] = v
+		}
 		go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 	}
 }
