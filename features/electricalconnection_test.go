@@ -201,6 +201,19 @@ func (s *ElectricalConnectionSuite) Test_GetPermittedValueSets() {
 	assert.NotNil(s.T(), data)
 }
 
+func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetsEmptyElli() {
+	data, err := s.electricalConnection.GetPermittedValueSets()
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addPermittedValueSetEmptyElli()
+
+	data, err = s.electricalConnection.GetPermittedValueSets()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+
+}
+
 func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetForParameterId() {
 	parametertId := model.ElectricalConnectionParameterIdType(1)
 	data, err := s.electricalConnection.GetPermittedValueSetForParameterId(parametertId)
@@ -456,6 +469,28 @@ func (s *ElectricalConnectionSuite) addPermittedValueSet() {
 						},
 					},
 				},
+			},
+		},
+	}
+	rF.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
+}
+
+func (s *ElectricalConnectionSuite) addPermittedValueSetEmptyElli() {
+	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	fData := &model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				PermittedValueSet:      []model.ScaledNumberSetType{},
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
 			},
 		},
 	}
