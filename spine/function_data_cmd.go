@@ -135,6 +135,8 @@ func addSelectorToFilter[T any](filter model.FilterType, function model.Function
 		result.ElectricalConnectionPermittedValueSetListDataSelectors = castData[model.ElectricalConnectionPermittedValueSetListDataSelectorsType](data)
 	case model.FunctionTypeElectricalConnectionStateListData:
 		result.ElectricalConnectionStateListDataSelectors = castData[model.ElectricalConnectionStateListDataSelectorsType](data)
+	case model.FunctionTypeElectricalConnectionCharacteristicListData:
+		result.ElectricalConnectionCharacteristicListDataSelectors = castData[model.ElectricalConnectionCharacteristicListDataSelectorsType](data)
 	case model.FunctionTypeHvacOperationModeDescriptionListData:
 		result.HvacOperationModeDescriptionListDataSelectors = castData[model.HvacOperationModeDescriptionListDataSelectorsType](data)
 	case model.FunctionTypeHvacOverrunDescriptionListData:
@@ -179,6 +181,8 @@ func addSelectorToFilter[T any](filter model.FilterType, function model.Function
 		result.MeasurementDescriptionListDataSelectors = castData[model.MeasurementDescriptionListDataSelectorsType](data)
 	case model.FunctionTypeMeasurementListData:
 		result.MeasurementListDataSelectors = castData[model.MeasurementListDataSelectorsType](data)
+	case model.FunctionTypeMeasurementSeriesListData:
+		result.MeasurementSeriesListDataSelectors = castData[model.MeasurementSeriesListDataSelectorsType](data)
 	case model.FunctionTypeMeasurementThresholdRelationListData:
 		result.MeasurementThresholdRelationListDataSelectors = castData[model.MeasurementThresholdRelationListDataSelectorsType](data)
 	case model.FunctionTypeMessagingListData:
@@ -233,6 +237,10 @@ func addSelectorToFilter[T any](filter model.FilterType, function model.Function
 		result.PowerTimeSlotValueListDataSelectors = castData[model.PowerTimeSlotValueListDataSelectorsType](data)
 	case model.FunctionTypeSensingListData:
 		result.SensingListDataSelectors = castData[model.SensingListDataSelectorsType](data)
+	case model.FunctionTypeSessionIdentificationListData:
+		result.SessionIdentificationListDataSelectors = castData[model.SessionIdentificationListDataSelectorsType](data)
+	case model.FunctionTypeSessionMeasurementRelationListData:
+		result.SessionMeasurementRelationListDataSelectors = castData[model.SessionMeasurementRelationListDataSelectorsType](data)
 	case model.FunctionTypeSetpointConstraintsListData:
 		result.SetpointConstraintsListDataSelectors = castData[model.SetpointConstraintsListDataSelectorsType](data)
 	case model.FunctionTypeSetpointDescriptionListData:
@@ -245,6 +253,8 @@ func addSelectorToFilter[T any](filter model.FilterType, function model.Function
 		result.SmartEnergyManagementPsPriceDataSelectors = castData[model.SmartEnergyManagementPsPriceDataSelectorsType](data)
 	case model.FunctionTypeSpecificationVersionListData:
 		result.SpecificationVersionListDataSelectors = castData[model.SpecificationVersionListDataSelectorsType](data)
+	case model.FunctionTypeStateInformationListData:
+		result.StateInformationListDataSelectors = castData[model.StateInformationListDataSelectorsType](data)
 	case model.FunctionTypeSupplyConditionListData:
 		result.SupplyConditionListDataSelectors = castData[model.SupplyConditionListDataSelectorsType](data)
 	case model.FunctionTypeSupplyConditionThresholdRelationListData:
@@ -356,6 +366,8 @@ func addElementToFilter[T any](filter model.FilterType, function model.FunctionT
 		result.ElectricalConnectionPermittedValueSetDataElements = castData[model.ElectricalConnectionPermittedValueSetDataElementsType](data)
 	case model.FunctionTypeElectricalConnectionStateListData:
 		result.ElectricalConnectionStateDataElements = castData[model.ElectricalConnectionStateDataElementsType](data)
+	case model.FunctionTypeElectricalConnectionCharacteristicListData:
+		result.ElectricalConnectionCharacteristicDataElements = castData[model.ElectricalConnectionCharacteristicDataElementsType](data)
 	case model.FunctionTypeHvacOperationModeDescriptionListData:
 		result.HvacOperationModeDescriptionDataElements = castData[model.HvacOperationModeDescriptionDataElementsType](data)
 	case model.FunctionTypeHvacOverrunDescriptionListData:
@@ -402,6 +414,8 @@ func addElementToFilter[T any](filter model.FilterType, function model.FunctionT
 		result.MeasurementDescriptionDataElements = castData[model.MeasurementDescriptionDataElementsType](data)
 	case model.FunctionTypeMeasurementListData:
 		result.MeasurementDataElements = castData[model.MeasurementDataElementsType](data)
+	case model.FunctionTypeMeasurementSeriesListData:
+		result.MeasurementSeriesDataElements = castData[model.MeasurementSeriesDataElementsType](data)
 	case model.FunctionTypeMeasurementThresholdRelationListData:
 		result.MeasurementThresholdRelationDataElements = castData[model.MeasurementThresholdRelationDataElementsType](data)
 	case model.FunctionTypeMessagingListData:
@@ -488,6 +502,10 @@ func addElementToFilter[T any](filter model.FilterType, function model.FunctionT
 		result.PowerTimeSlotValueDataElements = castData[model.PowerTimeSlotValueDataElementsType](data)
 	case model.FunctionTypeSensingListData:
 		result.SensingDataElements = castData[model.SensingDataElementsType](data)
+	case model.FunctionTypeSessionIdentificationListData:
+		result.SessionIdentificationDataElements = castData[model.SessionIdentificationDataElementsType](data)
+	case model.FunctionTypeSessionMeasurementRelationListData:
+		result.SessionMeasurementRelationDataElements = castData[model.SessionMeasurementRelationDataElementsType](data)
 	case model.FunctionTypeSetpointConstraintsListData:
 		result.SetpointConstraintsDataElements = castData[model.SetpointConstraintsDataElementsType](data)
 	case model.FunctionTypeSetpointDescriptionListData:
@@ -504,6 +522,8 @@ func addElementToFilter[T any](filter model.FilterType, function model.FunctionT
 		result.SmartEnergyManagementPsPriceDataElements = castData[model.SmartEnergyManagementPsPriceDataElementsType](data)
 	case model.FunctionTypeSpecificationVersionListData:
 		result.SpecificationVersionDataElements = castData[model.SpecificationVersionDataElementsType](data)
+	case model.FunctionTypeStateInformationListData:
+		result.StateInformationDataElements = castData[model.StateInformationDataElementsType](data)
 	case model.FunctionTypeSubscriptionManagementDeleteCall:
 		result.SubscriptionManagementDeleteCallElements = castData[model.SubscriptionManagementDeleteCallElementsType](data)
 	case model.FunctionTypeSubscriptionManagementEntryListData:
@@ -635,6 +655,8 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.ElectricalConnectionPermittedValueSetListData = castData[model.ElectricalConnectionPermittedValueSetListDataType](data)
 	case model.FunctionTypeElectricalConnectionStateListData:
 		result.ElectricalConnectionStateListData = castData[model.ElectricalConnectionStateListDataType](data)
+	case model.FunctionTypeElectricalConnectionCharacteristicListData:
+		result.ElectricalConnectionCharacteristicListData = castData[model.ElectricalConnectionCharacteristicListDataType](data)
 	case model.FunctionTypeHvacOperationModeDescriptionListData:
 		result.HvacOperationModeDescriptionListData = castData[model.HvacOperationModeDescriptionListDataType](data)
 	case model.FunctionTypeHvacOverrunDescriptionListData:
@@ -681,6 +703,8 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.MeasurementDescriptionListData = castData[model.MeasurementDescriptionListDataType](data)
 	case model.FunctionTypeMeasurementListData:
 		result.MeasurementListData = castData[model.MeasurementListDataType](data)
+	case model.FunctionTypeMeasurementSeriesListData:
+		result.MeasurementSeriesListData = castData[model.MeasurementSeriesListDataType](data)
 	case model.FunctionTypeMeasurementThresholdRelationListData:
 		result.MeasurementThresholdRelationListData = castData[model.MeasurementThresholdRelationListDataType](data)
 	case model.FunctionTypeMessagingListData:
@@ -753,6 +777,10 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.SensingDescriptionData = castData[model.SensingDescriptionDataType](data)
 	case model.FunctionTypeSensingListData:
 		result.SensingListData = castData[model.SensingListDataType](data)
+	case model.FunctionTypeSessionIdentificationListData:
+		result.SessionIdentificationListData = castData[model.SessionIdentificationListDataType](data)
+	case model.FunctionTypeSessionMeasurementRelationListData:
+		result.SessionMeasurementRelationListData = castData[model.SessionMeasurementRelationListDataType](data)
 	case model.FunctionTypeSetpointConstraintsListData:
 		result.SetpointConstraintsListData = castData[model.SetpointConstraintsListDataType](data)
 	case model.FunctionTypeSetpointDescriptionListData:
@@ -769,6 +797,8 @@ func createCmd[T any](function model.FunctionType, data *T) model.CmdType {
 		result.SmartEnergyManagementPsPriceData = castData[model.SmartEnergyManagementPsPriceDataType](data)
 	case model.FunctionTypeSpecificationVersionListData:
 		result.SpecificationVersionListData = castData[model.SpecificationVersionListDataType](data)
+	case model.FunctionTypeStateInformationListData:
+		result.StateInformationListData = castData[model.StateInformationListDataType](data)
 	case model.FunctionTypeSupplyConditionListData:
 		result.SupplyConditionListData = castData[model.SupplyConditionListDataType](data)
 	case model.FunctionTypeSupplyConditionThresholdRelationListData:

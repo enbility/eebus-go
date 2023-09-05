@@ -16,6 +16,9 @@ type SetpointDataType struct {
 	ValueMax                 *ScaledNumberType `json:"valueMax,omitempty"`
 	ValueToleranceAbsolute   *ScaledNumberType `json:"valueToleranceAbsolute,omitempty"`
 	ValueTolerancePercentage *ScaledNumberType `json:"valueTolerancePercentage,omitempty"`
+	IsSetpointChangeable     *bool             `json:"isSetpointChangeable,omitempty"`
+	IsSetpointActive         *bool             `json:"isSetpointActive,omitempty"`
+	TimePeriod               *TimePeriodType   `json:"timePeriod,omitempty"`
 }
 
 type SetpointDataElementsType struct {
@@ -25,6 +28,9 @@ type SetpointDataElementsType struct {
 	ValueMax                 *ScaledNumberElementsType `json:"valueMax,omitempty"`
 	ValueToleranceAbsolute   *ScaledNumberElementsType `json:"valueToleranceAbsolute,omitempty"`
 	ValueTolerancePercentage *ScaledNumberElementsType `json:"valueTolerancePercentage,omitempty"`
+	IsSetpointChangeable     *ElementTagType           `json:"isSetpointChangeable,omitempty"`
+	IsSetpointActive         *ElementTagType           `json:"isSetpointActive,omitempty"`
+	TimePeriod               *TimePeriodElementsType   `json:"timePeriod,omitempty"`
 }
 
 type SetpointListDataType struct {

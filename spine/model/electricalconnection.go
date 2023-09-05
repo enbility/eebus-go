@@ -4,6 +4,8 @@ type ElectricalConnectionIdType uint
 
 type ElectricalConnectionParameterIdType uint
 
+type ElectricalConnectionCharaceteristicsIdType uint
+
 type ElectricalConnectionMeasurandVariantType string
 
 const (
@@ -53,6 +55,36 @@ const (
 	ElectricalConnectionConnectionPointTypePv    ElectricalConnectionConnectionPointType = "pv"
 	ElectricalConnectionConnectionPointTypeSd    ElectricalConnectionConnectionPointType = "sd"
 	ElectricalConnectionConnectionPointTypeOther ElectricalConnectionConnectionPointType = "other"
+)
+
+type ElectricalConnectionCharacteristicIdType uint
+
+type ElectricalConnectionCharacteristicContextType string
+
+const (
+	ElectricalConnectionCharacteristicContextTypeDevice   ElectricalConnectionCharacteristicContextType = "device"
+	ElectricalConnectionCharacteristicContextTypeEntity   ElectricalConnectionCharacteristicContextType = "entity"
+	ElectricalConnectionCharacteristicContextTypeInverter ElectricalConnectionCharacteristicContextType = "inverter"
+	ElectricalConnectionCharacteristicContextTypePvString ElectricalConnectionCharacteristicContextType = "pvString"
+	ElectricalConnectionCharacteristicContextTypeBattery  ElectricalConnectionCharacteristicContextType = "battery"
+)
+
+type ElectricalConnectionCharacteristicTypeType string
+
+const (
+	ElectricalConnectionCharacteristicTypeTypePowerConsumptionMin                ElectricalConnectionCharacteristicTypeType = "powerConsumptionMin"
+	ElectricalConnectionCharacteristicTypeTypePowerConsumptionMax                ElectricalConnectionCharacteristicTypeType = "powerConsumptionMax"
+	ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMin         ElectricalConnectionCharacteristicTypeType = "powerConsumptionNominalMin"
+	ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax         ElectricalConnectionCharacteristicTypeType = "powerConsumptionNominalMax"
+	ElectricalConnectionCharacteristicTypeTypePowerProductionMin                 ElectricalConnectionCharacteristicTypeType = "powerProductionMin"
+	ElectricalConnectionCharacteristicTypeTypePowerProductionMax                 ElectricalConnectionCharacteristicTypeType = "powerProductionMax"
+	ElectricalConnectionCharacteristicTypeTypePowerProductionNominalMin          ElectricalConnectionCharacteristicTypeType = "powerProductionNominalMin"
+	ElectricalConnectionCharacteristicTypeTypePowerProductionNominalMax          ElectricalConnectionCharacteristicTypeType = "powerProductionNominalMax"
+	ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax           ElectricalConnectionCharacteristicTypeType = "energyCapacityNominalMax"
+	ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax   ElectricalConnectionCharacteristicTypeType = "contractualConsumptionNominalMax"
+	ElectricalConnectionCharacteristicTypeTypeContracutalProductionNominalMax    ElectricalConnectionCharacteristicTypeType = "contractualProductionNominalMax"
+	ElectricalConnectionCharacteristicTypeTypeApparentPowerProductionNominalMax  ElectricalConnectionCharacteristicTypeType = "apparentPowerProductionNominalMax"
+	ElectricalConnectionCharacteristicTypeTypeApparentPowerConsumptionNominalMax ElectricalConnectionCharacteristicTypeType = "apparentPowerConsumptionNominalMax"
 )
 
 type ElectricalConnectionParameterDescriptionDataType struct {
@@ -174,4 +206,36 @@ type ElectricalConnectionDescriptionListDataType struct {
 type ElectricalConnectionDescriptionListDataSelectorsType struct {
 	ElectricalConnectionId *ElectricalConnectionIdType `json:"electricalConnectionId,omitempty"`
 	ScopeType              *ScopeTypeType              `json:"scopeType,omitempty"`
+}
+
+type ElectricalConnectionCharacteristicDataType struct {
+	ElectricalConnectionId *ElectricalConnectionIdType                    `json:"electricalConnectionId,omitempty" eebus:"key"`
+	ParameterId            *ElectricalConnectionParameterIdType           `json:"parameterId,omitempty" eebus:"key"`
+	CharacteristicId       *ElectricalConnectionCharaceteristicsIdType    `json:"characteristicId,omitempty" eebus:"key"`
+	CharacteristicContext  *ElectricalConnectionCharacteristicContextType `json:"characteristicContext,omitempty"`
+	CharacteristicType     *ElectricalConnectionCharacteristicTypeType    `json:"characteristicType,omitempty"`
+	Value                  *ScaledNumberType                              `json:"value,omitempty"`
+	Unit                   *UnitOfMeasurementType                         `json:"unit,omitempty"`
+}
+
+type ElectricalConnectionCharacteristicDataElementsType struct {
+	ElectricalConnectionId *ElementTagType           `json:"electricalConnectionId,omitempty"`
+	ParameterId            *ElementTagType           `json:"parameterId,omitempty"`
+	CharacteristicId       *ElementTagType           `json:"characteristicId,omitempty"`
+	CharacteristicContext  *ElementTagType           `json:"characteristicContext,omitempty"`
+	CharacteristicType     *ElementTagType           `json:"characteristicType,omitempty"`
+	Value                  *ScaledNumberElementsType `json:"value,omitempty"`
+	Unit                   *ElementTagType           `json:"unit,omitempty"`
+}
+
+type ElectricalConnectionCharacteristicListDataType struct {
+	ElectricalConnectionCharacteristicListData []ElectricalConnectionCharacteristicDataType `json:"electricalConnectionCharacteristicListData,omitempty"`
+}
+
+type ElectricalConnectionCharacteristicListDataSelectorsType struct {
+	ElectricalConnectionId *ElectricalConnectionIdType                    `json:"electricalConnectionId,omitempty"`
+	ParameterId            *ElectricalConnectionParameterIdType           `json:"parameterId,omitempty"`
+	CharacteristicId       *ElectricalConnectionCharaceteristicsIdType    `json:"characteristicId,omitempty"`
+	CharacteristicContext  *ElectricalConnectionCharacteristicContextType `json:"characteristicContext,omitempty"`
+	CharacteristicType     *ElectricalConnectionCharacteristicTypeType    `json:"characteristicType,omitempty"`
 }

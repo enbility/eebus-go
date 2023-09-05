@@ -74,17 +74,19 @@ const (
 type UseCaseScenarioSupportType uint
 
 type UseCaseSupportType struct {
-	UseCaseName      *UseCaseNameType             `json:"useCaseName,omitempty"`
-	UseCaseVersion   *SpecificationVersionType    `json:"useCaseVersion,omitempty"`
-	UseCaseAvailable *bool                        `json:"useCaseAvailable,omitempty"`
-	ScenarioSupport  []UseCaseScenarioSupportType `json:"scenarioSupport,omitempty"`
+	UseCaseName                *UseCaseNameType             `json:"useCaseName,omitempty"`
+	UseCaseVersion             *SpecificationVersionType    `json:"useCaseVersion,omitempty"`
+	UseCaseAvailable           *bool                        `json:"useCaseAvailable,omitempty"`
+	ScenarioSupport            []UseCaseScenarioSupportType `json:"scenarioSupport,omitempty"`
+	UseCaseDocumentSubRevision *string                      `json:"useCaseDocumentSubRevision,omitempty"`
 }
 
 type UseCaseSupportElementsType struct {
-	UseCaseName      *ElementTagType `json:"useCaseName,omitempty"`
-	UseCaseVersion   *ElementTagType `json:"useCaseVersion,omitempty"`
-	UseCaseAvailable *ElementTagType `json:"useCaseAvailable,omitempty"`
-	ScenarioSupport  *ElementTagType `json:"scenarioSupport,omitempty"`
+	UseCaseName                *ElementTagType `json:"useCaseName,omitempty"`
+	UseCaseVersion             *ElementTagType `json:"useCaseVersion,omitempty"`
+	UseCaseAvailable           *ElementTagType `json:"useCaseAvailable,omitempty"`
+	ScenarioSupport            *ElementTagType `json:"scenarioSupport,omitempty"`
+	UseCaseDocumentSubRevision *ElementTagType `json:"useCaseDocumentSubRevision,omitempty"`
 }
 
 type UseCaseSupportSelectorsType struct {
