@@ -29,8 +29,9 @@ type LoadControlLimitIdType uint
 type LoadControlLimitTypeType string
 
 const (
-	LoadControlLimitTypeTypeMinValueLimit LoadControlLimitTypeType = "minValueLimit"
-	LoadControlLimitTypeTypeMaxValueLimit LoadControlLimitTypeType = "maxValueLimit"
+	LoadControlLimitTypeTypeMinValueLimit              LoadControlLimitTypeType = "minValueLimit"
+	LoadControlLimitTypeTypeMaxValueLimit              LoadControlLimitTypeType = "maxValueLimit"
+	LoadControlLimitTypeTypeSignDependentAbsValueLimit LoadControlLimitTypeType = "signDependentAbsValueLimit"
 )
 
 type LoadControlCategoryType string

@@ -7,10 +7,43 @@ type DeviceConfigurationKeyValueStringType string
 type DeviceConfigurationKeyNameType string
 
 const (
-	DeviceConfigurationKeyNameTypePeakPowerOfPVSystem         DeviceConfigurationKeyNameType = "peakPowerOfPvSystem"
-	DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor    DeviceConfigurationKeyNameType = "pvCurtailmentLimitFactor"
-	DeviceConfigurationKeyNameTypeAsymmetricChargingSupported DeviceConfigurationKeyNameType = "asymmetricChargingSupported"
-	DeviceConfigurationKeyNameTypeCommunicationsStandard      DeviceConfigurationKeyNameType = "communicationsStandard"
+	DeviceConfigurationKeyNameTypePeakPowerOfPVSystem                          DeviceConfigurationKeyNameType = "peakPowerOfPvSystem"
+	DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor                     DeviceConfigurationKeyNameType = "pvCurtailmentLimitFactor"
+	DeviceConfigurationKeyNameTypeAsymmetricChargingSupported                  DeviceConfigurationKeyNameType = "asymmetricChargingSupported"
+	DeviceConfigurationKeyNameTypeCommunicationsStandard                       DeviceConfigurationKeyNameType = "communicationsStandard"
+	DeviceConfigurationKeyNameTypeInverterGridCode                             DeviceConfigurationKeyNameType = "inverterGridCode"
+	DeviceConfigurationKeyNameTypePvStringAvailabilityStatus                   DeviceConfigurationKeyNameType = "pvStringAvailabilityStatus"
+	DeviceConfigurationKeyNameTypeBatteryAvailabilityStatus                    DeviceConfigurationKeyNameType = "batteryAvailabilityStatus"
+	DeviceConfigurationKeyNameTypeGridConnectionStatus                         DeviceConfigurationKeyNameType = "gridConnectionStatus"
+	DeviceConfigurationKeyNameTypeTimeToAcChargePowerMax                       DeviceConfigurationKeyNameType = "timeToAcChargePowerMax"
+	DeviceConfigurationKeyNameTypeTimeToAcDischargePowerMax                    DeviceConfigurationKeyNameType = "timeToAcDischargePowerMax"
+	DeviceConfigurationKeyNameTypeTilt                                         DeviceConfigurationKeyNameType = "tilt"
+	DeviceConfigurationKeyNameTypeAzimuth                                      DeviceConfigurationKeyNameType = "azimuth"
+	DeviceConfigurationKeyNameTypeBatteryType                                  DeviceConfigurationKeyNameType = "batteryType"
+	DeviceConfigurationKeyNameTypeMaxCycleCountPerDay                          DeviceConfigurationKeyNameType = "maxCycleCountPerDay"
+	DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit          DeviceConfigurationKeyNameType = "failsafeConsumptionActivePowerLimit"
+	DeviceConfigurationKeyNameTypeFailsafeProductionActivePowerLimit           DeviceConfigurationKeyNameType = "failsafeProductionActivePowerLimit"
+	DeviceConfigurationKeyNameTypeFailsafePositiveReactivePowerLimit           DeviceConfigurationKeyNameType = "failsafePositiveReactivePowerLimit"
+	DeviceConfigurationKeyNameTypeFailsafeNegativeReactivePowerLimit           DeviceConfigurationKeyNameType = "failsafeNegativeReactivePowerLimit"
+	DeviceConfigurationKeyNameTypeFailsafePositiveCosPhiLimit                  DeviceConfigurationKeyNameType = "failsafePositiveCosPhiLimit"
+	DeviceConfigurationKeyNameTypeFailsafeNegativeCosPhiLimit                  DeviceConfigurationKeyNameType = "failsafeNegativeCosPhiLimit"
+	DeviceConfigurationKeyNameTypeMaxAcChargePower                             DeviceConfigurationKeyNameType = "maxAcChargePower"
+	DeviceConfigurationKeyNameTypeMaxAcDischargePower                          DeviceConfigurationKeyNameType = "maxAcDischargePower"
+	DeviceConfigurationKeyNameTypeMaxDcChargePower                             DeviceConfigurationKeyNameType = "maxDcChargePower"
+	DeviceConfigurationKeyNameTypeMaxDcDischargePower                          DeviceConfigurationKeyNameType = "maxDcDischargePower"
+	DeviceConfigurationKeyNameTypeBatteryActiveControlMode                     DeviceConfigurationKeyNameType = "batteryActiveControlMode"
+	DeviceConfigurationKeyNameTypeDefaultAcPower                               DeviceConfigurationKeyNameType = "defaultAcPower"
+	DeviceConfigurationKeyNameTypeDefaultDcPower                               DeviceConfigurationKeyNameType = "defaultDcPower"
+	DeviceConfigurationKeyNameTypeDefaultPccPower                              DeviceConfigurationKeyNameType = "defaultPccPower"
+	DeviceConfigurationKeyNameTypeFailsafeAcPowerSetpoint                      DeviceConfigurationKeyNameType = "failsafeAcPowerSetpoint"
+	DeviceConfigurationKeyNameTypeFailsafeDcPowerSetpoint                      DeviceConfigurationKeyNameType = "failsafeDcPowerSetpoint"
+	DeviceConfigurationKeyNameTypeFailsafePccPowerSetpoint                     DeviceConfigurationKeyNameType = "failsafePccPowerSetpoint"
+	DeviceConfigurationKeyNameTypeFailsafeDurationMinimum                      DeviceConfigurationKeyNameType = "failsafeDurationMinimum"
+	DeviceConfigurationKeyNameTypeDischargingBelowTargetEnergyRequestPermitted DeviceConfigurationKeyNameType = "dischargingBelowTargetEnergyRequestPermitted"
+	DeviceConfigurationKeyNameTypeIncentivesSimulationCyclesMax                DeviceConfigurationKeyNameType = "incentivesSimulationCyclesMax"
+	DeviceConfigurationKeyNameTypeIncentivesSimulationConcurrent               DeviceConfigurationKeyNameType = "incentivesSimulationConcurrent"
+	DeviceConfigurationKeyNameTypeIncentivesTimeoutIncentiveRequest            DeviceConfigurationKeyNameType = "incentivesTimeoutIncentiveRequest"
+	DeviceConfigurationKeyNameTypeIncentivesWaitIncentiveWriteable             DeviceConfigurationKeyNameType = "incentivesWaitIncentiveWriteable"
 )
 
 type DeviceConfigurationKeyValueTypeType string
@@ -23,6 +56,7 @@ const (
 	DeviceConfigurationKeyValueTypeTypeString       DeviceConfigurationKeyValueTypeType = "string"
 	DeviceConfigurationKeyValueTypeTypeTime         DeviceConfigurationKeyValueTypeType = "time"
 	DeviceConfigurationKeyValueTypeTypeScaledNumber DeviceConfigurationKeyValueTypeType = "scaledNumber"
+	DeviceConfigurationKeyValueTypeTypeInteger      DeviceConfigurationKeyValueTypeType = "integer"
 )
 
 type DeviceConfigurationKeyValueValueType struct {
@@ -33,6 +67,7 @@ type DeviceConfigurationKeyValueValueType struct {
 	String       *DeviceConfigurationKeyValueStringType `json:"string,omitempty"`
 	Time         *TimeType                              `json:"time,omitempty"`
 	ScaledNumber *ScaledNumberType                      `json:"scaledNumber,omitempty"`
+	Integer      *int64                                 `json:"integer,omitempty"`
 }
 
 type DeviceConfigurationKeyValueValueElementsType struct {

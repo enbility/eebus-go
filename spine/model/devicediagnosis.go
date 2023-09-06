@@ -7,14 +7,16 @@ type LastErrorCodeType string
 type DeviceDiagnosisOperatingStateType string
 
 const (
-	DeviceDiagnosisOperatingStateTypeNormalOperation  DeviceDiagnosisOperatingStateType = "normalOperation"
-	DeviceDiagnosisOperatingStateTypeStandby          DeviceDiagnosisOperatingStateType = "standby"
-	DeviceDiagnosisOperatingStateTypeFailure          DeviceDiagnosisOperatingStateType = "failure"
-	DeviceDiagnosisOperatingStateTypeServiceNeeded    DeviceDiagnosisOperatingStateType = "serviceNeeded"
-	DeviceDiagnosisOperatingStateTypeOverrideDetected DeviceDiagnosisOperatingStateType = "overrideDetected"
-	DeviceDiagnosisOperatingStateTypeInAlarm          DeviceDiagnosisOperatingStateType = "inAlarm"
-	DeviceDiagnosisOperatingStateTypeNotReachable     DeviceDiagnosisOperatingStateType = "notReachable"
-	DeviceDiagnosisOperatingStateTypeFinished         DeviceDiagnosisOperatingStateType = "finished"
+	DeviceDiagnosisOperatingStateTypeNormalOperation     DeviceDiagnosisOperatingStateType = "normalOperation"
+	DeviceDiagnosisOperatingStateTypeStandby             DeviceDiagnosisOperatingStateType = "standby"
+	DeviceDiagnosisOperatingStateTypeFailure             DeviceDiagnosisOperatingStateType = "failure"
+	DeviceDiagnosisOperatingStateTypeServiceNeeded       DeviceDiagnosisOperatingStateType = "serviceNeeded"
+	DeviceDiagnosisOperatingStateTypeOverrideDetected    DeviceDiagnosisOperatingStateType = "overrideDetected"
+	DeviceDiagnosisOperatingStateTypeInAlarm             DeviceDiagnosisOperatingStateType = "inAlarm"
+	DeviceDiagnosisOperatingStateTypeNotReachable        DeviceDiagnosisOperatingStateType = "notReachable"
+	DeviceDiagnosisOperatingStateTypeFinished            DeviceDiagnosisOperatingStateType = "finished"
+	DeviceDiagnosisOperatingStateTypeTemporarilyNotReady DeviceDiagnosisOperatingStateType = "temporarilyNotReady"
+	DeviceDiagnosisOperatingStateTypeOff                 DeviceDiagnosisOperatingStateType = "off"
 )
 
 type PowerSupplyConditionType string

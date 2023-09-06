@@ -9,9 +9,13 @@ type TimeSeriesSlotCountType TimeSeriesSlotIdType
 type TimeSeriesTypeType string
 
 const (
-	TimeSeriesTypeTypePlan         TimeSeriesTypeType = "plan"
-	TimeSeriesTypeTypeSingleDemand TimeSeriesTypeType = "singleDemand"
-	TimeSeriesTypeTypeConstraints  TimeSeriesTypeType = "constraints"
+	TimeSeriesTypeTypePlan                     TimeSeriesTypeType = "plan"
+	TimeSeriesTypeTypeSingleDemand             TimeSeriesTypeType = "singleDemand"
+	TimeSeriesTypeTypeConstraints              TimeSeriesTypeType = "constraints"
+	TimeSeriesTypeTypeEnergyRequest            TimeSeriesTypeType = "energyRequest"
+	TimeSeriesTypeTypeDischargingEnergyRequest TimeSeriesTypeType = "dischargingEnergyRequest"
+	TimeSeriesTypeTypeConsumptionLimitCurve    TimeSeriesTypeType = "consumptionLimitCurve"
+	TimeSeriesTypeTypeProductionLimitCurve     TimeSeriesTypeType = "productionLimitCurve"
 )
 
 type TimeSeriesSlotType struct {

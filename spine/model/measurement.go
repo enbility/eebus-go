@@ -115,6 +115,38 @@ type MeasurementListDataSelectorsType struct {
 	TimestampInterval *TimestampIntervalType    `json:"timestampInterval,omitempty"`
 }
 
+type MeasurementSeriesDataType struct {
+	MeasurementId    *MeasurementIdType            `json:"measurementId,omitempty" eebus:"key"`
+	ValueType        *MeasurementValueTypeType     `json:"valueType,omitempty" eebus:"key"`
+	Timestamp        *AbsoluteOrRelativeTimeType   `json:"timestamp,omitempty"`
+	Value            *ScaledNumberType             `json:"value,omitempty"`
+	EvaluationPeriod *TimePeriodType               `json:"evaluationPeriod,omitempty"`
+	ValueSource      *MeasurementValueSourceType   `json:"valueSource,omitempty"`
+	ValueTendency    *MeasurementValueTendencyType `json:"valueTendency,omitempty"`
+	ValueState       *MeasurementValueStateType    `json:"valueState,omitempty"`
+}
+
+type MeasurementSeriesDataElementsType struct {
+	MeasurementId    *ElementTagType `json:"measurementId,omitempty"`
+	ValueType        *ElementTagType `json:"valueType,omitempty"`
+	Timestamp        *ElementTagType `json:"timestamp,omitempty"`
+	Value            *ElementTagType `json:"value,omitempty"`
+	EvaluationPeriod *ElementTagType `json:"evaluationPeriod,omitempty"`
+	ValueSource      *ElementTagType `json:"valueSource,omitempty"`
+	ValueTendency    *ElementTagType `json:"valueTendency,omitempty"`
+	ValueState       *ElementTagType `json:"valueState,omitempty"`
+}
+
+type MeasurementSeriesListDataType struct {
+	MeasurementSeriesData []MeasurementSeriesDataType `json:"measurementSeriesData,omitempty"`
+}
+
+type MeasurementSeriesListDataSelectorsType struct {
+	MeasurementId     *MeasurementIdType        `json:"measurementId,omitempty"`
+	ValueType         *MeasurementValueTypeType `json:"valueType,omitempty"`
+	TimestampInterval *TimestampIntervalType    `json:"timestampInterval,omitempty"`
+}
+
 type MeasurementConstraintsDataType struct {
 	MeasurementId *MeasurementIdType `json:"measurementId,omitempty" eebus:"key"`
 	ValueRangeMin *ScaledNumberType  `json:"valueRangeMin,omitempty"`
