@@ -13,6 +13,19 @@ func (r *MeasurementListDataType) UpdateList(newList any, filterPartial, filterD
 	r.MeasurementData = UpdateList(r.MeasurementData, newData, filterPartial, filterDelete)
 }
 
+// MeasurementSeriesListDataType
+
+var _ Updater = (*MeasurementSeriesListDataType)(nil)
+
+func (r *MeasurementSeriesListDataType) UpdateList(newList any, filterPartial, filterDelete *FilterType) {
+	var newData []MeasurementSeriesDataType
+	if newList != nil {
+		newData = newList.(*MeasurementSeriesListDataType).MeasurementSeriesData
+	}
+
+	r.MeasurementSeriesData = UpdateList(r.MeasurementSeriesData, newData, filterPartial, filterDelete)
+}
+
 // MeasurementConstraintsListDataType
 
 var _ Updater = (*MeasurementConstraintsListDataType)(nil)

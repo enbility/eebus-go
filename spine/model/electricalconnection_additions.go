@@ -39,6 +39,19 @@ func (r *ElectricalConnectionDescriptionListDataType) UpdateList(newList any, fi
 	r.ElectricalConnectionDescriptionData = UpdateList(r.ElectricalConnectionDescriptionData, newData, filterPartial, filterDelete)
 }
 
+// ElectricalConnectionCharacteristicListDataType
+
+var _ Updater = (*ElectricalConnectionCharacteristicListDataType)(nil)
+
+func (r *ElectricalConnectionCharacteristicListDataType) UpdateList(newList any, filterPartial, filterDelete *FilterType) {
+	var newData []ElectricalConnectionCharacteristicDataType
+	if newList != nil {
+		newData = newList.(*ElectricalConnectionCharacteristicListDataType).ElectricalConnectionCharacteristicListData
+	}
+
+	r.ElectricalConnectionCharacteristicListData = UpdateList(r.ElectricalConnectionCharacteristicListData, newData, filterPartial, filterDelete)
+}
+
 // ElectricalConnectionParameterDescriptionListDataType
 
 var _ Updater = (*ElectricalConnectionParameterDescriptionListDataType)(nil)
