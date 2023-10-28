@@ -99,7 +99,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 	// If the request returned an error, it should be retried until it does not
 
 	// always add subscription, as it checks if it already exists
-	Events.Subscribe(r)
+	_ = Events.subscribe(EventHandlerLevelCore, r)
 
 	return rDevice
 }
@@ -149,7 +149,7 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 
 	// only unsubscribe if we don't have any remote devices left
 	if len(r.remoteDevices) == 0 {
-		Events.Unsubscribe(r)
+		_ = Events.unsubscribe(EventHandlerLevelCore, r)
 	}
 }
 

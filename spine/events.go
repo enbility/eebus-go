@@ -1,12 +1,21 @@
 package spine
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/enbility/eebus-go/spine/model"
 )
 
 var Events events
+
+type EventHandlerLevel uint
+
+const (
+	EventHandlerLevelCore        EventHandlerLevel = iota // Shall only be used by the core stack
+	EventHandlerLevelMiddleware                           // Shall only be used by middleware implementations, e.g. CEMd
+	EventHandlerLevelApplication                          // Shall only be used by applications
+)
 
 type ElementChangeType uint16
 
@@ -41,45 +50,95 @@ type EventHandler interface {
 	HandleEvent(EventPayload)
 }
 
-type events struct {
-	mu       sync.Mutex
-	handlers []EventHandler
+type eventHandlerItem struct {
+	Level   EventHandlerLevel
+	Handler EventHandler
 }
 
-func (r *events) Subscribe(handler EventHandler) {
+type events struct {
+	mu       sync.Mutex
+	handlers []eventHandlerItem // event handling outside of the core stack
+}
+
+// will be used in EEBUS core directly to access the level EventHandlerLevelCore
+func (r *events) subscribe(level EventHandlerLevel, handler EventHandler) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	exists := false
 	for _, item := range r.handlers {
-		if item == handler {
+		if item.Level == level && item.Handler == handler {
 			exists = true
 			break
 		}
 	}
 
 	if !exists {
-		r.handlers = append(r.handlers, handler)
+		newHandlerItem := eventHandlerItem{
+			Level:   level,
+			Handler: handler,
+		}
+		r.handlers = append(r.handlers, newHandlerItem)
 	}
+
+	return nil
 }
 
-func (r *events) Unsubscribe(handler EventHandler) {
+// Subscribe to message events and handle them in
+// the Eventhandler interface implementation
+func (r *events) Subscribe(level EventHandlerLevel, handler EventHandler) error {
+	if level == EventHandlerLevelCore {
+		return errors.New("This level is restricted to the EEBUS core implenentation!")
+	}
+
+	return r.subscribe(level, handler)
+}
+
+// will be used in EEBUS core directly to access the level EventHandlerLevelCore
+func (r *events) unsubscribe(level EventHandlerLevel, handler EventHandler) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	var newHandlers []EventHandler
+	var newHandlers []eventHandlerItem
 	for _, item := range r.handlers {
-		if item != handler {
+		if item.Level != level && item.Handler != handler {
 			newHandlers = append(newHandlers, item)
 		}
 	}
+
 	r.handlers = newHandlers
+
+	return nil
 }
 
+// Unsubscribe from getting events
+func (r *events) Unsubscribe(level EventHandlerLevel, handler EventHandler) error {
+	if level == EventHandlerLevelCore {
+		return errors.New("This level is restricted to the EEBUS core implenentation!")
+	}
+
+	return r.unsubscribe(level, handler)
+}
+
+// Publish an event to all subscribers
 func (r *events) Publish(payload EventPayload) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	for _, handler := range r.handlers {
-		go handler.HandleEvent(payload)
+
+	// process subscribers by level
+	handlerLevels := []EventHandlerLevel{
+		EventHandlerLevelCore,
+		EventHandlerLevelMiddleware,
+		EventHandlerLevelApplication,
+	}
+
+	for _, level := range handlerLevels {
+		for _, item := range r.handlers {
+			if item.Level != level {
+				continue
+			}
+
+			go item.Handler.HandleEvent(payload)
+		}
 	}
 }
