@@ -138,7 +138,9 @@ func (r *events) Publish(payload EventPayload) {
 				continue
 			}
 
-			go item.Handler.HandleEvent(payload)
+			// do not run this asynchronously, to make sure all required
+			// and expected actions are taken
+			item.Handler.HandleEvent(payload)
 		}
 	}
 }
