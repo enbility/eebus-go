@@ -86,6 +86,9 @@ func (r *events) subscribe(level EventHandlerLevel, handler EventHandler) error 
 
 // Subscribe to message events and handle them in
 // the Eventhandler interface implementation
+//
+// returns an error if EventHandlerLevelCore is used as
+// that is only allowed for internal use
 func (r *events) Subscribe(level EventHandlerLevel, handler EventHandler) error {
 	if level == EventHandlerLevelCore {
 		return errors.New("This level is restricted to the EEBUS core implenentation!")
