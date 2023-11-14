@@ -126,7 +126,6 @@ func (r *events) Unsubscribe(level EventHandlerLevel, handler EventHandler) erro
 // Publish an event to all subscribers
 func (r *events) Publish(payload EventPayload) {
 	r.mu.Lock()
-	defer r.mu.Unlock()
 
 	// process subscribers by level
 	handlerLevels := []EventHandlerLevel{
@@ -146,4 +145,6 @@ func (r *events) Publish(payload EventPayload) {
 			item.Handler.HandleEvent(payload)
 		}
 	}
+
+	r.mu.Unlock()
 }
