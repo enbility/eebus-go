@@ -361,7 +361,7 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 			return err
 		}
 	case model.CmdClassifierTypeReply:
-		if err := r.processReply(*cmdData.Function, cmdData.Value, message.RequestHeader, message.FeatureRemote); err != nil {
+		if err := r.processReply(*cmdData.Function, cmdData.Value, message.FilterPartial, message.FilterDelete, message.RequestHeader, message.FeatureRemote); err != nil {
 			return err
 		}
 	case model.CmdClassifierTypeNotify:
@@ -435,8 +435,8 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 	return nil
 }
 
-func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
-	featureRemote.UpdateData(function, data, nil, nil)
+func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
+	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 	_ = r.pendingRequests.SetData(featureRemote.Device().ski, *requestHeader.MsgCounterReference, data)
 	// an error in SetData only means that there is no pendingRequest waiting for this dataset
 	// so this is nothing to consider as an error to return
