@@ -143,11 +143,17 @@ func (a *AbsoluteOrRelativeTimeType) GetDateTimeType() *DateTimeType {
 func (a *AbsoluteOrRelativeTimeType) GetTime() (time.Time, error) {
 	value := NewDateTimeType(string(*a))
 	t, err := value.GetTime()
+	if err == nil {
+		return t, nil
+	}
+
+	// Check if this is a relative time
+	d, err := getTimeDurationFromString(string(*a))
 	if err != nil {
 		return time.Time{}, err
 	}
-
-	return t, nil
+	r := time.Now().Add(d)
+	return r, nil
 }
 
 func (a *AbsoluteOrRelativeTimeType) GetDurationType() (*DurationType, error) {
