@@ -1,7 +1,6 @@
 package spine
 
 import (
-	"errors"
 	"sync"
 
 	"github.com/enbility/eebus-go/spine/model"
@@ -13,7 +12,6 @@ type EventHandlerLevel uint
 
 const (
 	EventHandlerLevelCore        EventHandlerLevel = iota // Shall only be used by the core stack
-	EventHandlerLevelMiddleware                           // Shall only be used by middleware implementations, e.g. CEMd
 	EventHandlerLevelApplication                          // Shall only be used by applications
 )
 
@@ -89,12 +87,8 @@ func (r *events) subscribe(level EventHandlerLevel, handler EventHandler) error 
 //
 // returns an error if EventHandlerLevelCore is used as
 // that is only allowed for internal use
-func (r *events) Subscribe(level EventHandlerLevel, handler EventHandler) error {
-	if level == EventHandlerLevelCore {
-		return errors.New("This level is restricted to the EEBUS core implenentation!")
-	}
-
-	return r.subscribe(level, handler)
+func (r *events) Subscribe(handler EventHandler) error {
+	return r.subscribe(EventHandlerLevelApplication, handler)
 }
 
 // will be used in EEBUS core directly to access the level EventHandlerLevelCore
@@ -115,12 +109,8 @@ func (r *events) unsubscribe(level EventHandlerLevel, handler EventHandler) erro
 }
 
 // Unsubscribe from getting events
-func (r *events) Unsubscribe(level EventHandlerLevel, handler EventHandler) error {
-	if level == EventHandlerLevelCore {
-		return errors.New("This level is restricted to the EEBUS core implenentation!")
-	}
-
-	return r.unsubscribe(level, handler)
+func (r *events) Unsubscribe(handler EventHandler) error {
+	return r.unsubscribe(EventHandlerLevelApplication, handler)
 }
 
 // Publish an event to all subscribers
@@ -130,7 +120,6 @@ func (r *events) Publish(payload EventPayload) {
 	// process subscribers by level
 	handlerLevels := []EventHandlerLevel{
 		EventHandlerLevelCore,
-		EventHandlerLevelMiddleware,
 		EventHandlerLevelApplication,
 	}
 
@@ -140,9 +129,13 @@ func (r *events) Publish(payload EventPayload) {
 				continue
 			}
 
-			// do not run this asynchronously, to make sure all required
-			// and expected actions are taken
-			item.Handler.HandleEvent(payload)
+			if level == EventHandlerLevelCore {
+				// do not run this asynchronously, to make sure all required
+				// and expected actions are taken
+				item.Handler.HandleEvent(payload)
+			} else {
+				go item.Handler.HandleEvent(payload)
+			}
 		}
 	}
 
