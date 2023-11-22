@@ -94,6 +94,24 @@ func (e *ElectricalConnection) GetParameterDescriptions() ([]model.ElectricalCon
 	return data.ElectricalConnectionParameterDescriptionData, nil
 }
 
+// return parameter description for a specific scope
+func (e *ElectricalConnection) GetParameterDescriptionForScopeType(scope model.ScopeTypeType) (*model.ElectricalConnectionParameterDescriptionDataType, error) {
+	desc, err := e.GetParameterDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, element := range desc {
+		if element.ScopeType == nil || *element.ScopeType != scope {
+			continue
+		}
+
+		return &element, nil
+	}
+
+	return nil, ErrDataNotAvailable
+}
+
 // return parameter description for a specific parameterId
 func (e *ElectricalConnection) GetParameterDescriptionForParameterId(parameterId model.ElectricalConnectionParameterIdType) (*model.ElectricalConnectionParameterDescriptionDataType, error) {
 	desc, err := e.GetParameterDescriptions()
