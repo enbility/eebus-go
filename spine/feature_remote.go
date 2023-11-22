@@ -2,6 +2,7 @@ package spine
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/enbility/eebus-go/logging"
@@ -17,6 +18,8 @@ type FeatureRemoteImpl struct {
 	entity           *EntityRemoteImpl
 	functionDataMap  map[model.FunctionType]FunctionData
 	maxResponseDelay *time.Duration
+
+	mux sync.Mutex
 }
 
 func NewFeatureRemoteImpl(id uint, entity *EntityRemoteImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
@@ -38,10 +41,16 @@ func NewFeatureRemoteImpl(id uint, entity *EntityRemoteImpl, ftype model.Feature
 }
 
 func (r *FeatureRemoteImpl) Data(function model.FunctionType) any {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	return r.functionData(function).DataAny()
 }
 
 func (r *FeatureRemoteImpl) UpdateData(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	r.functionData(function).UpdateDataAny(data, filterPartial, filterDelete)
 	// TODO: fire event
 }

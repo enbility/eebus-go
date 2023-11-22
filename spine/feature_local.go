@@ -70,6 +70,8 @@ type FeatureLocalImpl struct {
 	pendingRequests PendingRequests
 	resultHandler   []FeatureResult
 	resultCallback  map[model.MsgCounterType]func(result ResultMessage)
+
+	mux sync.Mutex
 }
 
 func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
@@ -112,12 +114,19 @@ func (r *FeatureLocalImpl) AddFunctionType(function model.FunctionType, read, wr
 }
 
 func (r *FeatureLocalImpl) Data(function model.FunctionType) any {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	return r.functionData(function).DataAny()
 }
 
 func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {
+	r.mux.Lock()
+
 	fd := r.functionData(function)
 	fd.UpdateDataAny(data, nil, nil)
+
+	r.mux.Unlock()
 
 	r.Device().NotifySubscribers(r.Address(), fd.NotifyCmdType(nil, nil, false, nil))
 }
