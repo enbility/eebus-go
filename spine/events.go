@@ -55,6 +55,8 @@ type eventHandlerItem struct {
 
 type events struct {
 	mu       sync.Mutex
+	muHandle sync.Mutex
+
 	handlers []eventHandlerItem // event handling outside of the core stack
 }
 
@@ -116,7 +118,12 @@ func (r *events) Unsubscribe(handler EventHandler) error {
 // Publish an event to all subscribers
 func (r *events) Publish(payload EventPayload) {
 	r.mu.Lock()
+	var handler []eventHandlerItem
+	copy(r.handlers, handler)
+	r.mu.Unlock()
 
+	// Use different locks, so unpublish is possible in the event handlers
+	r.muHandle.Lock()
 	// process subscribers by level
 	handlerLevels := []EventHandlerLevel{
 		EventHandlerLevelCore,
@@ -129,15 +136,10 @@ func (r *events) Publish(payload EventPayload) {
 				continue
 			}
 
-			if level == EventHandlerLevelCore {
-				// do not run this asynchronously, to make sure all required
-				// and expected actions are taken
-				item.Handler.HandleEvent(payload)
-			} else {
-				go item.Handler.HandleEvent(payload)
-			}
+			// do not run this asynchronously, to make sure all required
+			// and expected actions are taken
+			item.Handler.HandleEvent(payload)
 		}
 	}
-
-	r.mu.Unlock()
+	r.muHandle.Unlock()
 }
