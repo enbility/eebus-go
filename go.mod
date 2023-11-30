@@ -32,3 +32,5 @@ retract (
 	v0.2.2 // Contains retractions only.
 	v0.2.1 // Published accidentally.
 )
+
+replace github.com/holoplot/go-avahi => github.com/derandereandi/go-avahi v0.0.0-20231130121746-194d27d20d26 // temp replace with bugfix for crashes https://github.com/holoplot/go-avahi/pull/19
