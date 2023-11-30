@@ -22,7 +22,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/holoplot/go-avahi v1.0.1
+	github.com/holoplot/go-avahi v0.0.0-20231130181535-fd8f1d0307ed
 	github.com/rickb777/date v1.20.5
 	github.com/stretchr/testify v1.8.4
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
@@ -32,5 +32,3 @@ retract (
 	v0.2.2 // Contains retractions only.
 	v0.2.1 // Published accidentally.
 )
-
-replace github.com/holoplot/go-avahi => github.com/derandereandi/go-avahi v0.0.0-20231130121746-194d27d20d26 // temp replace with bugfix for crashes https://github.com/holoplot/go-avahi/pull/19
