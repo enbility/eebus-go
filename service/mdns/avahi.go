@@ -155,7 +155,7 @@ func (a *AvahiProvider) processService(service avahi.Service, remove bool, callb
 
 	resolved, err := a.avServer.ResolveService(service.Interface, service.Protocol, service.Name, service.Type, service.Domain, avahi.ProtoUnspec, 0)
 	if err != nil {
-		logging.Log.Debug("avahi - error resolving service:", err)
+		logging.Log.Debug("avahi - error resolving service:", service, "error:", err)
 		return
 	}
 
