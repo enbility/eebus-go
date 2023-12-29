@@ -88,6 +88,7 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 			createFunctionData[model.ElectricalConnectionParameterDescriptionListDataType, F](model.FunctionTypeElectricalConnectionParameterDescriptionListData),
 			createFunctionData[model.ElectricalConnectionPermittedValueSetListDataType, F](model.FunctionTypeElectricalConnectionPermittedValueSetListData),
 			createFunctionData[model.ElectricalConnectionStateListDataType, F](model.FunctionTypeElectricalConnectionStateListData),
+			createFunctionData[model.ElectricalConnectionCharacteristicListDataType, F](model.FunctionTypeElectricalConnectionCharacteristicListData),
 		}...)
 	}
 
@@ -107,6 +108,8 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 	if featureType == model.FeatureTypeTypeIdentification || featureType == model.FeatureTypeTypeGeneric {
 		result = append(result, []F{
 			createFunctionData[model.IdentificationListDataType, F](model.FunctionTypeIdentificationListData),
+			createFunctionData[model.SessionIdentificationListDataType, F](model.FunctionTypeSessionIdentificationListData),
+			createFunctionData[model.SessionMeasurementRelationListDataType, F](model.FunctionTypeSessionMeasurementRelationListData),
 		}...)
 	}
 
@@ -135,6 +138,7 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 			createFunctionData[model.MeasurementDescriptionListDataType, F](model.FunctionTypeMeasurementDescriptionListData),
 			createFunctionData[model.MeasurementConstraintsListDataType, F](model.FunctionTypeMeasurementConstraintsListData),
 			createFunctionData[model.MeasurementThresholdRelationListDataType, F](model.FunctionTypeMeasurementThresholdRelationListData),
+			createFunctionData[model.MeasurementSeriesListDataType, F](model.FunctionTypeMeasurementSeriesListData),
 		}...)
 	}
 
@@ -211,6 +215,12 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 			createFunctionData[model.SmartEnergyManagementPsDataType, F](model.FunctionTypeSmartEnergyManagementPsData),
 			createFunctionData[model.SmartEnergyManagementPsPriceCalculationRequestCallType, F](model.FunctionTypeSmartEnergyManagementPsPriceCalculationRequestCall),
 			createFunctionData[model.SmartEnergyManagementPsPriceDataType, F](model.FunctionTypeSmartEnergyManagementPsPriceData),
+		}...)
+	}
+
+	if featureType == model.FeatureTypeTypeStateInformation || featureType == model.FeatureTypeTypeGeneric {
+		result = append(result, []F{
+			createFunctionData[model.StateInformationListDataType, F](model.FunctionTypeStateInformationListData),
 		}...)
 	}
 
