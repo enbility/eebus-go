@@ -4,6 +4,7 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/spine"
 	spineModel "github.com/enbility/eebus-go/spine/model"
@@ -52,7 +53,7 @@ func (s *dataHandlerTest) HandleShipHandshakeStateUpdate(string, ShipState) {}
 
 func initTest(role shipRole) (*ShipConnection, *dataHandlerTest) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
+		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	dataHandler := &dataHandlerTest{}
 	conhandler := NewConnectionHandler(dataHandler, dataHandler, localDevice, role, "LocalShipID", "RemoveDevice", "RemoteShipID")

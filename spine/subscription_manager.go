@@ -4,14 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sync"
 	"sync/atomic"
 
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 type SubscriptionManager interface {
-	AddSubscription(localDevice *DeviceLocalImpl, remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error
+	AddSubscription(remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error
 	RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
 	RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl)
 	Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry
@@ -25,25 +27,30 @@ type SubscriptionEntry struct {
 }
 
 type SubscriptionManagerImpl struct {
+	localDevice *DeviceLocalImpl
+
 	subscriptionNum     uint64
 	subscriptionEntries []*SubscriptionEntry
+
+	mux sync.Mutex
 	// TODO: add persistence
 }
 
-func NewSubscriptionManager() SubscriptionManager {
+func NewSubscriptionManager(localDevice *DeviceLocalImpl) SubscriptionManager {
 	c := &SubscriptionManagerImpl{
 		subscriptionNum: 0,
+		localDevice:     localDevice,
 	}
 
 	return c
 }
 
 // is sent from the client (remote device) to the server (local device)
-func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error {
+func (c *SubscriptionManagerImpl) AddSubscription(remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error {
 
-	serverFeature := localDevice.FeatureByAddress(data.ServerAddress)
+	serverFeature := c.localDevice.FeatureByAddress(data.ServerAddress)
 	if serverFeature == nil {
-		return fmt.Errorf("server feature '%s' in local device '%s' not found", data.ServerAddress, *localDevice.Address())
+		return fmt.Errorf("server feature '%s' in local device '%s' not found", data.ServerAddress, *c.localDevice.Address())
 	}
 	if err := c.checkRoleAndType(serverFeature, model.RoleTypeServer, *data.ServerFeatureType); err != nil {
 		return err
@@ -62,6 +69,9 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 		serverFeature: serverFeature,
 		clientFeature: clientFeature,
 	}
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
 
 	for _, item := range c.subscriptionEntries {
 		if reflect.DeepEqual(item.serverFeature, serverFeature) && reflect.DeepEqual(item.clientFeature, clientFeature) {
@@ -85,8 +95,6 @@ func (c *SubscriptionManagerImpl) AddSubscription(localDevice *DeviceLocalImpl, 
 
 // Remove a specific subscription that is provided by a delete message from a remote device
 func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error {
-	// TODO: test this!!!
-
 	var newSubscriptionEntries []*SubscriptionEntry
 
 	// according to the spec 7.4.4
@@ -95,7 +103,8 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 	// b. The absence of "subscriptionDelete. serverAddress. device" SHALL be treated as if it was
 	//    present and set to the recipient's "device" address part.
 
-	clientAddress := data.ClientAddress
+	var clientAddress model.FeatureAddressType
+	util.DeepCopy(data.ClientAddress, &clientAddress)
 	if data.ClientAddress.Device == nil {
 		clientAddress.Device = remoteDevice.Address()
 	}
@@ -105,8 +114,19 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 		return fmt.Errorf("client feature '%s' in remote device '%s' not found", data.ClientAddress, *remoteDevice.Address())
 	}
 
+	serverFeature := c.localDevice.FeatureByAddress(data.ServerAddress)
+	if serverFeature == nil {
+		return fmt.Errorf("server feature '%s' in local device '%s' not found", data.ServerAddress, *c.localDevice.Address())
+	}
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	for _, item := range c.subscriptionEntries {
-		if !reflect.DeepEqual(item.clientFeature.Address(), clientAddress) {
+		itemAddress := item.clientFeature.Address()
+
+		if !reflect.DeepEqual(*itemAddress, clientAddress) &&
+			!reflect.DeepEqual(item.serverFeature, serverFeature) {
 			newSubscriptionEntries = append(newSubscriptionEntries, item)
 		}
 	}
@@ -136,6 +156,9 @@ func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity *Ent
 		return
 	}
 
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	var newSubscriptionEntries []*SubscriptionEntry
 	for _, item := range c.subscriptionEntries {
 		if !reflect.DeepEqual(item.clientFeature.Address().Entity, remoteEntity.Address().Entity) {
@@ -160,6 +183,9 @@ func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity *Ent
 func (c *SubscriptionManagerImpl) Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry {
 	var result []*SubscriptionEntry
 
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	linq.From(c.subscriptionEntries).WhereT(func(s *SubscriptionEntry) bool {
 		return s.clientFeature.Device().Ski() == remoteDevice.Ski()
 	}).ToSlice(&result)
@@ -169,6 +195,9 @@ func (c *SubscriptionManagerImpl) Subscriptions(remoteDevice *DeviceRemoteImpl) 
 
 func (c *SubscriptionManagerImpl) SubscriptionsOnFeature(featureAddress model.FeatureAddressType) []*SubscriptionEntry {
 	var result []*SubscriptionEntry
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
 
 	linq.From(c.subscriptionEntries).WhereT(func(s *SubscriptionEntry) bool {
 		return reflect.DeepEqual(*s.serverFeature.Address(), featureAddress)

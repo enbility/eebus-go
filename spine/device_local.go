@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"time"
 
 	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine/model"
@@ -22,6 +23,7 @@ type DeviceLocalImpl struct {
 	entities            []*EntityLocalImpl
 	subscriptionManager SubscriptionManager
 	bindingManager      BindingManager
+	heartbeatManager    HeartbeatManager
 	nodeManagement      *NodeManagementImpl
 
 	remoteDevices map[string]*DeviceRemoteImpl
@@ -39,7 +41,7 @@ type DeviceLocalImpl struct {
 // SerialNumber is the serial number
 // DeviceCode is the SHIP id (accessMethods.id)
 // DeviceAddress is the SPINE device address
-func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, deviceAddress string, deviceType model.DeviceTypeType, featureSet model.NetworkManagementFeatureSetType) *DeviceLocalImpl {
+func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, deviceAddress string, deviceType model.DeviceTypeType, featureSet model.NetworkManagementFeatureSetType, heartbeatTimeout time.Duration) *DeviceLocalImpl {
 	address := model.AddressDeviceType(deviceAddress)
 
 	var fSet *model.NetworkManagementFeatureSetType
@@ -48,15 +50,17 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 	}
 
 	res := &DeviceLocalImpl{
-		DeviceImpl:          NewDeviceImpl(&address, &deviceType, fSet),
-		subscriptionManager: NewSubscriptionManager(),
-		bindingManager:      NewBindingManager(),
-		remoteDevices:       make(map[string]*DeviceRemoteImpl),
-		brandName:           brandName,
-		deviceModel:         deviceModel,
-		serialNumber:        serialNumber,
-		deviceCode:          deviceCode,
+		DeviceImpl:    NewDeviceImpl(&address, &deviceType, fSet),
+		remoteDevices: make(map[string]*DeviceRemoteImpl),
+		brandName:     brandName,
+		deviceModel:   deviceModel,
+		serialNumber:  serialNumber,
+		deviceCode:    deviceCode,
 	}
+
+	res.subscriptionManager = NewSubscriptionManager(res)
+	res.bindingManager = NewBindingManager(res)
+	res.heartbeatManager = NewHeartbeatManager(res, res.subscriptionManager, heartbeatTimeout)
 
 	res.addDeviceInformation()
 	return res
@@ -88,7 +92,8 @@ func (r *DeviceLocalImpl) AddRemoteDeviceForSki(ski string, rDevice *DeviceRemot
 
 // Adds a new remote device with a given SKI and triggers SPINE requesting device details
 func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
-	rDevice := NewDeviceRemoteImpl(r, ski, writeI)
+	sender := NewSender(writeI)
+	rDevice := NewDeviceRemoteImpl(r, ski, sender)
 
 	r.AddRemoteDeviceForSki(ski, rDevice)
 
@@ -107,11 +112,7 @@ func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection
 // React to some specific events
 func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 	// Subscribe to NodeManagment after DetailedDiscovery is received
-	if payload.EventType != EventTypeDeviceChange {
-		return
-	}
-
-	if payload.ChangeType != ElementChangeAdd {
+	if payload.EventType != EventTypeDeviceChange || payload.ChangeType != ElementChangeAdd {
 		return
 	}
 
@@ -144,7 +145,7 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 		return
 	}
 
-	r.remoteDevices[ski].CloseConnection()
+	// TODO: make sure subscriptions are removed, that way heartbeat should also be removed
 	delete(r.remoteDevices, ski)
 
 	// only unsubscribe if we don't have any remote devices left
@@ -237,12 +238,20 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	return nil
 }
 
+func (r *DeviceLocalImpl) NodeManagement() NodeManagementImpl {
+	return *r.nodeManagement
+}
+
 func (r *DeviceLocalImpl) SubscriptionManager() SubscriptionManager {
 	return r.subscriptionManager
 }
 
 func (r *DeviceLocalImpl) BindingManager() BindingManager {
 	return r.bindingManager
+}
+
+func (r *DeviceLocalImpl) HeartbeatManager() HeartbeatManager {
+	return r.heartbeatManager
 }
 
 func (r *DeviceLocalImpl) AddEntity(entity *EntityLocalImpl) {
@@ -274,27 +283,20 @@ func (r *DeviceLocalImpl) Entity(id []model.AddressEntityType) *EntityLocalImpl 
 	return nil
 }
 
+func (r *DeviceLocalImpl) EntityForType(entityType model.EntityTypeType) *EntityLocalImpl {
+	for _, e := range r.entities {
+		if e.eType == entityType {
+			return e
+		}
+	}
+	return nil
+}
+
 func (r *DeviceLocalImpl) FeatureByAddress(address *model.FeatureAddressType) FeatureLocal {
 	entity := r.Entity(address.Entity)
 	if entity != nil {
 		return entity.Feature(address.Feature)
 	}
-	return nil
-}
-
-func (r *DeviceLocalImpl) FeatureByTypeAndRole(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal {
-	if len(r.entities) < 1 {
-		return nil
-	}
-
-	for _, entity := range r.entities {
-		for _, feature := range entity.Features() {
-			if feature.Type() == featureType && feature.Role() == role {
-				return feature
-			}
-		}
-	}
-
 	return nil
 }
 

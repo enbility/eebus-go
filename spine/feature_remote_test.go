@@ -1,19 +1,20 @@
-package spine
+package spine_test
 
 import (
+	"time"
+
+	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
-	"github.com/enbility/eebus-go/util"
 )
 
-func CreateRemoteDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType, sender Sender) *FeatureRemoteImpl {
-	localDevice := NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+func createRemoteDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType, sender spine.Sender) *spine.FeatureRemoteImpl {
+	localDevice := spine.NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
-	remoteDevice := NewDeviceRemoteImpl(localDevice, "ski", nil)
-	remoteDevice.address = util.Ptr(model.AddressDeviceType("Address"))
-	remoteDevice.sender = sender
-	remoteEntity := NewEntityRemoteImpl(remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
-	remoteDevice.addEntity(remoteEntity)
-	remoteFeature := NewFeatureRemoteImpl(remoteEntity.NextFeatureId(), remoteEntity, featureType, role)
+	remoteDevice := spine.NewDeviceRemoteImpl(localDevice, "ski", sender)
+	// remoteDevice.address = util.Ptr(model.AddressDeviceType("Address"))
+	remoteEntity := spine.NewEntityRemoteImpl(remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
+	remoteDevice.AddEntity(remoteEntity)
+	remoteFeature := spine.NewFeatureRemoteImpl(remoteEntity.NextFeatureId(), remoteEntity, featureType, role)
 	remoteEntity.AddFeature(remoteFeature)
 	return remoteFeature
 }

@@ -1,8 +1,9 @@
-package features
+package features_test
 
 import (
 	"testing"
 
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -17,10 +18,10 @@ func TestLoadControlSuite(t *testing.T) {
 type LoadControlSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
+	localEntity  *spine.EntityLocalImpl
 	remoteEntity *spine.EntityRemoteImpl
 
-	loadControl *LoadControl
+	loadControl *features.LoadControl
 	sentMessage []byte
 }
 
@@ -31,7 +32,7 @@ func (s *LoadControlSuite) WriteSpineMessage(message []byte) {
 }
 
 func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -47,7 +48,7 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.loadControl, err = NewLoadControl(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.loadControl, err = features.NewLoadControl(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.loadControl)
 }

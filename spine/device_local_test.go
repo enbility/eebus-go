@@ -2,6 +2,7 @@ package spine_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
@@ -23,7 +24,7 @@ var _ spine.SpineDataConnection = (*DeviceLocalTestSuite)(nil)
 func (d *DeviceLocalTestSuite) WriteSpineMessage([]byte) {}
 
 func (d *DeviceLocalTestSuite) Test_RemoveRemoteDevice() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	ski := "test"
 	sut.AddRemoteDevice(ski, d)
@@ -37,7 +38,7 @@ func (d *DeviceLocalTestSuite) Test_RemoveRemoteDevice() {
 }
 
 func (d *DeviceLocalTestSuite) Test_RemoteDevice() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 	sut.AddEntity(localEntity)
 
@@ -76,7 +77,7 @@ func (d *DeviceLocalTestSuite) Test_RemoteDevice() {
 	feature1 := sut.FeatureByAddress(featureAddress)
 	assert.NotNil(d.T(), feature1)
 
-	feature2 := sut.FeatureByTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
+	feature2 := localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
 	assert.NotNil(d.T(), feature2)
 
 	sut.RemoveEntity(entity1)
@@ -89,7 +90,7 @@ func (d *DeviceLocalTestSuite) Test_RemoteDevice() {
 }
 
 func (d *DeviceLocalTestSuite) Test_ProcessCmd_Errors() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 	sut.AddEntity(localEntity)
 
@@ -140,7 +141,7 @@ func (d *DeviceLocalTestSuite) Test_ProcessCmd_Errors() {
 }
 
 func (d *DeviceLocalTestSuite) Test_ProcessCmd() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 	sut.AddEntity(localEntity)
 

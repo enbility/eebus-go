@@ -9,8 +9,8 @@ type LoadControl struct {
 	*FeatureImpl
 }
 
-func NewLoadControl(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*LoadControl, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeLoadControl, localRole, remoteRole, spineLocalDevice, entity)
+func NewLoadControl(localRole, remoteRole model.RoleType, localEntity *spine.EntityLocalImpl, remoteEntity *spine.EntityRemoteImpl) (*LoadControl, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeLoadControl, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

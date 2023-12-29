@@ -19,24 +19,26 @@ type FeatureImpl struct {
 	remoteRole model.RoleType
 
 	spineLocalDevice *spine.DeviceLocalImpl
+	localEntity      *spine.EntityLocalImpl
 
 	featureLocal  spine.FeatureLocal
 	featureRemote *spine.FeatureRemoteImpl
 
-	device *spine.DeviceRemoteImpl
-	entity *spine.EntityRemoteImpl
+	remoteDevice *spine.DeviceRemoteImpl
+	remoteEntity *spine.EntityRemoteImpl
 }
 
 var _ Feature = (*FeatureImpl)(nil)
 
-func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*FeatureImpl, error) {
+func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity *spine.EntityLocalImpl, remoteEntity *spine.EntityRemoteImpl) (*FeatureImpl, error) {
 	f := &FeatureImpl{
 		featureType:      featureType,
 		localRole:        localRole,
 		remoteRole:       remoteRole,
-		spineLocalDevice: spineLocalDevice,
-		device:           entity.Device(),
-		entity:           entity,
+		spineLocalDevice: localEntity.Device(),
+		localEntity:      localEntity,
+		remoteDevice:     remoteEntity.Device(),
+		remoteEntity:     remoteEntity,
 	}
 
 	var err error
@@ -95,12 +97,12 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
 func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
-	if f.entity == nil {
+	if f.remoteEntity == nil {
 		return nil, nil, errors.New("invalid remote entity provided")
 	}
 
-	featureLocal := f.spineLocalDevice.FeatureByTypeAndRole(f.featureType, f.localRole)
-	featureRemote := f.entity.Device().FeatureByEntityTypeAndRole(f.entity, f.featureType, f.remoteRole)
+	featureLocal := f.localEntity.FeatureOfTypeAndRole(f.featureType, f.localRole)
+	featureRemote := f.remoteEntity.Device().FeatureByEntityTypeAndRole(f.remoteEntity, f.featureType, f.remoteRole)
 
 	if featureLocal == nil {
 		return nil, nil, errors.New("local feature not found")

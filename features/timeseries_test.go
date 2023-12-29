@@ -1,9 +1,10 @@
-package features
+package features_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -18,10 +19,10 @@ func TestTimeSeriesSuite(t *testing.T) {
 type TimeSeriesSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
+	localEntity  *spine.EntityLocalImpl
 	remoteEntity *spine.EntityRemoteImpl
 
-	timeSeries  *TimeSeries
+	timeSeries  *features.TimeSeries
 	sentMessage []byte
 }
 
@@ -32,7 +33,7 @@ func (s *TimeSeriesSuite) WriteSpineMessage(message []byte) {
 }
 
 func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -48,7 +49,7 @@ func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.timeSeries, err = NewTimeSeries(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.timeSeries, err = features.NewTimeSeries(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.timeSeries)
 }

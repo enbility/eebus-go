@@ -1,4 +1,3 @@
-//go:generate mockery --name=Sender
 package spine
 
 import (
@@ -9,12 +8,15 @@ import (
 	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
+	lru "github.com/hashicorp/golang-lru/v2"
 )
 
 type ComControl interface {
 	// This must be connected to the correct remote device !!
 	SendSpineMessage(datagram model.DatagramType) error
 }
+
+//go:generate mockery --name=Sender
 
 type Sender interface {
 	// Sends a read cmd to request some data
@@ -33,10 +35,15 @@ type Sender interface {
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error)
 	// Sends a write cmd, setting properties of remote features
 	Write(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error)
+	// return the datagram for a given msgCounter (only availbe for Notify messasges!), error if not found
+	DatagramForMsgCounter(msgCounter model.MsgCounterType) (model.DatagramType, error)
 }
 
 type SenderImpl struct {
 	msgNum uint64 // 64bit values need to be defined on top of the struct to make atomic commands work on 32bit systems
+
+	// we cache the last 100 notify messages, so we can find the matching item for result errors being returned
+	datagramNotifyCache *lru.Cache[model.MsgCounterType, model.DatagramType]
 
 	writeHandler SpineDataConnection
 }
@@ -44,9 +51,20 @@ type SenderImpl struct {
 var _ Sender = (*SenderImpl)(nil)
 
 func NewSender(writeI SpineDataConnection) Sender {
+	cache, _ := lru.New[model.MsgCounterType, model.DatagramType](100)
 	return &SenderImpl{
-		writeHandler: writeI,
+		datagramNotifyCache: cache,
+		writeHandler:        writeI,
 	}
+}
+
+// return the datagram for a given msgCounter (only availbe for Notify messasges!), error if not found
+func (c *SenderImpl) DatagramForMsgCounter(msgCounter model.MsgCounterType) (model.DatagramType, error) {
+	if datagram, ok := c.datagramNotifyCache.Get(msgCounter); ok {
+		return datagram, nil
+	}
+
+	return model.DatagramType{}, errors.New("msgCounter not found")
 }
 
 func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
@@ -191,6 +209,8 @@ func (c *SenderImpl) Notify(senderAddress, destinationAddress *model.FeatureAddr
 			Cmd: []model.CmdType{cmd},
 		},
 	}
+
+	c.datagramNotifyCache.Add(*msgCounter, datagram)
 
 	return msgCounter, c.sendSpineMessage(datagram)
 }

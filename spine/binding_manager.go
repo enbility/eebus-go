@@ -4,14 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sync"
 	"sync/atomic"
 
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 )
 
 type BindingManager interface {
-	AddBinding(localDevice *DeviceLocalImpl, remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error
+	AddBinding(remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error
 	RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
 	Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry
 	BindingsOnFeature(featureAddress model.FeatureAddressType) []*BindingEntry
@@ -24,25 +26,30 @@ type BindingEntry struct {
 }
 
 type BindingManagerImpl struct {
+	localDevice *DeviceLocalImpl
+
 	bindingNum     uint64
 	bindingEntries []*BindingEntry
+
+	mux sync.Mutex
 	// TODO: add persistence
 }
 
-func NewBindingManager() BindingManager {
+func NewBindingManager(localDevice *DeviceLocalImpl) BindingManager {
 	c := &BindingManagerImpl{
-		bindingNum: 0,
+		bindingNum:  0,
+		localDevice: localDevice,
 	}
 
 	return c
 }
 
 // is sent from the client (remote device) to the server (local device)
-func (c *BindingManagerImpl) AddBinding(localDevice *DeviceLocalImpl, remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error {
+func (c *BindingManagerImpl) AddBinding(remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error {
 
-	serverFeature := localDevice.FeatureByAddress(data.ServerAddress)
+	serverFeature := c.localDevice.FeatureByAddress(data.ServerAddress)
 	if serverFeature == nil {
-		return fmt.Errorf("server feature '%s' in local device '%s' not found", data.ServerAddress, *localDevice.Address())
+		return fmt.Errorf("server feature '%s' in local device '%s' not found", data.ServerAddress, *c.localDevice.Address())
 	}
 	if err := c.checkRoleAndType(serverFeature, model.RoleTypeServer, *data.ServerFeatureType); err != nil {
 		return err
@@ -62,7 +69,15 @@ func (c *BindingManagerImpl) AddBinding(localDevice *DeviceLocalImpl, remoteDevi
 		clientFeature: clientFeature,
 	}
 
-	// TOV-TODO: check if binding already exists
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	for _, item := range c.bindingEntries {
+		if reflect.DeepEqual(item.serverFeature, serverFeature) && reflect.DeepEqual(item.clientFeature, clientFeature) {
+			return fmt.Errorf("requested binding is already present")
+		}
+	}
+
 	c.bindingEntries = append(c.bindingEntries, bindingEntry)
 
 	payload := EventPayload{
@@ -74,14 +89,10 @@ func (c *BindingManagerImpl) AddBinding(localDevice *DeviceLocalImpl, remoteDevi
 	}
 	Events.Publish(payload)
 
-	// TOV-TODO: Send heartbeat to the feature which subscribed to DeviceDiagnostic
-
 	return nil
 }
 
 func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error {
-	// TODO: test this!!!
-
 	var newBindingEntries []*BindingEntry
 
 	// according to the spec 7.4.4
@@ -90,13 +101,30 @@ func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCal
 	// b. The absence of "bindingDelete. serverAddress. device" SHALL be treated as if it was
 	//    present and set to the recipient's "device" address part.
 
-	clientAddress := data.ClientAddress
+	var clientAddress model.FeatureAddressType
+	util.DeepCopy(data.ClientAddress, &clientAddress)
 	if data.ClientAddress.Device == nil {
 		clientAddress.Device = remoteDevice.Address()
 	}
 
+	clientFeature := remoteDevice.FeatureByAddress(data.ClientAddress)
+	if clientFeature == nil {
+		return fmt.Errorf("client feature '%s' in remote device '%s' not found", data.ClientAddress, *remoteDevice.Address())
+	}
+
+	serverFeature := c.localDevice.FeatureByAddress(data.ServerAddress)
+	if serverFeature == nil {
+		return fmt.Errorf("server feature '%s' in local device '%s' not found", data.ServerAddress, *c.localDevice.Address())
+	}
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	for _, item := range c.bindingEntries {
-		if !reflect.DeepEqual(item.clientFeature.Address(), clientAddress) {
+		itemAddress := item.clientFeature.Address()
+
+		if !reflect.DeepEqual(*itemAddress, clientAddress) &&
+			!reflect.DeepEqual(item.serverFeature, serverFeature) {
 			newBindingEntries = append(newBindingEntries, item)
 		}
 	}
@@ -107,12 +135,24 @@ func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCal
 
 	c.bindingEntries = newBindingEntries
 
-	// TOV-TODO: stop heartbeat for remote device when it has no binding to DeviceDiagnostic anymore
+	payload := EventPayload{
+		Ski:        remoteDevice.ski,
+		EventType:  EventTypeBindingChange,
+		ChangeType: ElementChangeRemove,
+		Data:       data,
+		Device:     remoteDevice,
+		Feature:    clientFeature,
+	}
+	Events.Publish(payload)
+
 	return nil
 }
 
 func (c *BindingManagerImpl) Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry {
 	var result []*BindingEntry
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
 
 	linq.From(c.bindingEntries).WhereT(func(s *BindingEntry) bool {
 		return s.clientFeature.Device().Ski() == remoteDevice.Ski()
@@ -123,6 +163,9 @@ func (c *BindingManagerImpl) Bindings(remoteDevice *DeviceRemoteImpl) []*Binding
 
 func (c *BindingManagerImpl) BindingsOnFeature(featureAddress model.FeatureAddressType) []*BindingEntry {
 	var result []*BindingEntry
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
 
 	linq.From(c.bindingEntries).WhereT(func(s *BindingEntry) bool {
 		return reflect.DeepEqual(*s.serverFeature.Address(), featureAddress)

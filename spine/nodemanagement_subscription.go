@@ -53,7 +53,14 @@ func (r *NodeManagementImpl) handleMsgSubscriptionData(message *Message) error {
 func (r *NodeManagementImpl) handleMsgSubscriptionRequestCall(message *Message, data *model.NodeManagementSubscriptionRequestCallType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeCall:
-		return r.Device().SubscriptionManager().AddSubscription(r.Device(), message.FeatureRemote.Device(), *data.SubscriptionRequest)
+		subscriptionMgr := r.Device().SubscriptionManager()
+
+		err := subscriptionMgr.AddSubscription(message.FeatureRemote.Device(), *data.SubscriptionRequest)
+		if err == nil {
+			r.Device().HeartbeatManager().UpdateHeartbeatOnSubscriptions()
+		}
+
+		return err
 
 	default:
 		return fmt.Errorf("nodemanagement.handleSubscriptionRequestCall: NodeManagementSubscriptionRequestCall CmdClassifierType not implemented: %s", message.CmdClassifier)
@@ -63,8 +70,14 @@ func (r *NodeManagementImpl) handleMsgSubscriptionRequestCall(message *Message, 
 func (r *NodeManagementImpl) handleMsgSubscriptionDeleteCall(message *Message, data *model.NodeManagementSubscriptionDeleteCallType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeCall:
-		return r.Device().SubscriptionManager().RemoveSubscription(*data.SubscriptionDelete, message.FeatureRemote.Device())
+		subscriptionMgr := r.Device().SubscriptionManager()
 
+		err := subscriptionMgr.RemoveSubscription(*data.SubscriptionDelete, message.FeatureRemote.Device())
+		if err == nil {
+			r.Device().HeartbeatManager().UpdateHeartbeatOnSubscriptions()
+		}
+
+		return err
 	default:
 		return fmt.Errorf("nodemanagement.handleSubscriptionDeleteCall: NodeManagementSubscriptionRequestCall CmdClassifierType not implemented: %s", message.CmdClassifier)
 	}

@@ -9,8 +9,8 @@ type Measurement struct {
 	*FeatureImpl
 }
 
-func NewMeasurement(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*Measurement, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeMeasurement, localRole, remoteRole, spineLocalDevice, entity)
+func NewMeasurement(localRole, remoteRole model.RoleType, localEntity *spine.EntityLocalImpl, remoteEntity *spine.EntityRemoteImpl) (*Measurement, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeMeasurement, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

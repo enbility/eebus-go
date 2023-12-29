@@ -63,7 +63,9 @@ func (h *hems) run() {
 
 	configuration, err := service.NewConfiguration(
 		"Demo", "Demo", "HEMS", "123456789",
-		model.DeviceTypeTypeEnergyManagementSystem, port, certificate, 230)
+		model.DeviceTypeTypeEnergyManagementSystem,
+		[]model.EntityTypeType{model.EntityTypeTypeCEM},
+		port, certificate, 230, time.Second*4)
 	if err != nil {
 		log.Fatal(err)
 	}

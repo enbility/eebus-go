@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -113,6 +114,10 @@ type Configuration struct {
 	// SPINE Protocol Specification 6
 	featureSet model.NetworkManagementFeatureSetType
 
+	// SPINE entity types for each entity that should be created
+	// Each entity has to have a different type!
+	entityTypes []model.EntityTypeType
+
 	// Network interface to use for the service
 	// Optional, if not set all detected interfaces will be used
 	interfaces []string
@@ -136,6 +141,9 @@ type Configuration struct {
 	// This is useful when e.g. power values are not available and therefor
 	// need to be calculated using the current values
 	voltage float64
+
+	// The timeout to be used for sending heartbeats
+	heartbeatTimeout time.Duration
 }
 
 // Setup a Configuration with the required parameters
@@ -145,14 +153,17 @@ func NewConfiguration(
 	deviceModel,
 	serialNumber string,
 	deviceType model.DeviceTypeType,
+	entityTypes []model.EntityTypeType,
 	port int,
 	certificate tls.Certificate,
 	voltage float64,
+	heartbeatTimeout time.Duration,
 ) (*Configuration, error) {
 	configuration := &Configuration{
-		certificate: certificate,
-		port:        port,
-		voltage:     voltage,
+		certificate:      certificate,
+		port:             port,
+		voltage:          voltage,
+		heartbeatTimeout: heartbeatTimeout,
 	}
 
 	isRequired := "is required"
@@ -182,7 +193,11 @@ func NewConfiguration(
 	} else {
 		configuration.deviceType = deviceType
 	}
-
+	if len(entityTypes) == 0 {
+		return nil, fmt.Errorf("entityTypes %s", isRequired)
+	} else {
+		configuration.entityTypes = entityTypes
+	}
 	// set default
 	configuration.featureSet = model.NetworkManagementFeatureSetTypeSmart
 

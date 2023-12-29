@@ -2,6 +2,7 @@ package spine_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/mocks"
@@ -32,8 +33,8 @@ func (suite *DeviceClassificationTestSuite) SetupSuite() {
 	suite.featureType = model.FeatureTypeTypeDeviceClassification
 	suite.msgCounter = model.MsgCounterType(1)
 
-	suite.remoteFeature = spine.CreateRemoteDeviceAndFeature(1, suite.featureType, model.RoleTypeServer, suite.senderMock)
-	suite.sut = CreateLocalDeviceAndFeature(1, suite.featureType, model.RoleTypeClient)
+	suite.remoteFeature = createRemoteDeviceAndFeature(1, suite.featureType, model.RoleTypeServer, suite.senderMock)
+	suite.sut = createLocalDeviceAndFeature(1, suite.featureType, model.RoleTypeClient)
 }
 
 func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Reply() {
@@ -125,8 +126,8 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	assert.Equal(suite.T(), errorDescription, string(*err.Description))
 }
 
-func CreateLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *spine.FeatureLocalImpl {
-	localDevice := spine.NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+func createLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *spine.FeatureLocalImpl {
+	localDevice := spine.NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
 	localDevice.AddEntity(localEntity)
 	localFeature := spine.NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)

@@ -197,21 +197,16 @@ func (s *EEBUSService) Setup() error {
 		deviceAdress,
 		sd.deviceType,
 		sd.featureSet,
+		sd.heartbeatTimeout,
 	)
 
-	// Create the device entity and add it to the SPINE device
-	entityAddress := []model.AddressEntityType{1}
-	var entityType model.EntityTypeType
-	switch sd.deviceType {
-	case model.DeviceTypeTypeEnergyManagementSystem:
-		entityType = model.EntityTypeTypeCEM
-	case model.DeviceTypeTypeChargingStation:
-		entityType = model.EntityTypeTypeEVSE
-	default:
-		logging.Log.Errorf("Unknown device type: %s", sd.deviceType)
+	// Create the device entities and add it to the SPINE device
+	for _, entityType := range sd.entityTypes {
+		entityAddressId := model.AddressEntityType(len(s.spineLocalDevice.Entities()))
+		entityAddress := []model.AddressEntityType{entityAddressId}
+		entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
+		s.spineLocalDevice.AddEntity(entity)
 	}
-	entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
-	s.spineLocalDevice.AddEntity(entity)
 
 	// setup mDNS
 	mdns := newMDNS(s.LocalService.SKI, s.Configuration)
@@ -237,42 +232,6 @@ func (s *EEBUSService) Shutdown() {
 
 func (s *EEBUSService) LocalDevice() *spine.DeviceLocalImpl {
 	return s.spineLocalDevice
-}
-
-// return the local entity 1
-func (s *EEBUSService) LocalEntity() *spine.EntityLocalImpl {
-	return s.spineLocalDevice.Entity([]model.AddressEntityType{1})
-}
-
-// Add a new entity, used for connected EVs
-// Only for EVSE implementations
-func (s *EEBUSService) AddEntity(entity *spine.EntityLocalImpl) {
-	s.spineLocalDevice.AddEntity(entity)
-}
-
-// Remove an entity, used for disconnected EVs
-// Only for EVSE implementations
-func (s *EEBUSService) RemoveEntity(entity *spine.EntityLocalImpl) {
-	s.spineLocalDevice.RemoveEntity(entity)
-}
-
-// return all remote devices
-func (s *EEBUSService) RemoteDevices() []*spine.DeviceRemoteImpl {
-	return s.spineLocalDevice.RemoteDevices()
-}
-
-func (s *EEBUSService) RemoteDeviceForSki(ski string) *spine.DeviceRemoteImpl {
-	return s.spineLocalDevice.RemoteDeviceForSki(ski)
-}
-
-// return a specific remote device of a given DeviceType
-func (s *EEBUSService) RemoteDeviceOfType(deviceType model.DeviceTypeType) *spine.DeviceRemoteImpl {
-	for _, device := range s.spineLocalDevice.RemoteDevices() {
-		if *device.DeviceType() == deviceType {
-			return device
-		}
-	}
-	return nil
 }
 
 // Returns the Service detail of a given remote SKI

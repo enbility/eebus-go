@@ -9,8 +9,8 @@ type DeviceConfiguration struct {
 	*FeatureImpl
 }
 
-func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*DeviceConfiguration, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, localRole, remoteRole, spineLocalDevice, entity)
+func NewDeviceConfiguration(localRole, remoteRole model.RoleType, localEntity *spine.EntityLocalImpl, remoteEntity *spine.EntityRemoteImpl) (*DeviceConfiguration, error) {
+	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

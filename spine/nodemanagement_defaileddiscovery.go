@@ -193,8 +193,12 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 			}
 			Events.Publish(payload)
 
+			subscriptionMgr := r.Device().SubscriptionManager()
 			// remove all subscriptions for this entity
-			r.Device().SubscriptionManager().RemoveSubscriptionsForEntity(removedEntity)
+			subscriptionMgr.RemoveSubscriptionsForEntity(removedEntity)
+
+			// make sure Heartbeat Manager is up to date
+			r.Device().HeartbeatManager().UpdateHeartbeatOnSubscriptions()
 		}
 	}
 

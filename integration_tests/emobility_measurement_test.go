@@ -2,6 +2,7 @@ package integrationtests
 
 import (
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/spine"
@@ -18,7 +19,8 @@ type EmobilityMeasurementSuite struct {
 	suite.Suite
 	spine.SpineDataConnection
 
-	sut *spine.DeviceLocalImpl
+	sut         *spine.DeviceLocalImpl
+	localEntity *spine.EntityLocalImpl
 
 	measurement          *features.Measurement
 	electricalconnection *features.ElectricalConnection
@@ -34,14 +36,14 @@ func (s *EmobilityMeasurementSuite) SetupSuite() {
 
 func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
 	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
-	localEntity := spine.NewEntityLocalImpl(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
-	s.sut.AddEntity(localEntity)
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	s.localEntity = spine.NewEntityLocalImpl(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	s.sut.AddEntity(s.localEntity)
 
-	f := spine.NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
-	localEntity.AddFeature(f)
-	f = spine.NewFeatureLocalImpl(2, localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
-	localEntity.AddFeature(f)
+	f := spine.NewFeatureLocalImpl(1, s.localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	s.localEntity.AddFeature(f)
+	f = spine.NewFeatureLocalImpl(2, s.localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
+	s.localEntity.AddFeature(f)
 
 	s.remoteSki = "TestRemoteSki"
 
@@ -59,10 +61,10 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	assert.NotNil(s.T(), remoteEntity)
 
 	var err error
-	s.measurement, err = features.NewMeasurement(model.RoleTypeClient, model.RoleTypeServer, s.sut, remoteEntity)
+	s.measurement, err = features.NewMeasurement(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, remoteEntity)
 	assert.Nil(s.T(), err)
 
-	s.electricalconnection, err = features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeServer, s.sut, remoteEntity)
+	s.electricalconnection, err = features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, remoteEntity)
 	assert.Nil(s.T(), err)
 
 	// Act

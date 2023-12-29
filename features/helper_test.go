@@ -1,6 +1,8 @@
-package features
+package features_test
 
 import (
+	"time"
+
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -12,9 +14,9 @@ type featureFunctions struct {
 	functions   []model.FunctionType
 }
 
-func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, featureFunctions []featureFunctions) (*spine.DeviceLocalImpl, *spine.EntityRemoteImpl) {
+func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, featureFunctions []featureFunctions) (*spine.EntityLocalImpl, *spine.EntityRemoteImpl) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 	localDevice.AddEntity(localEntity)
 
@@ -24,7 +26,8 @@ func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, feature
 	}
 
 	remoteDeviceName := "remoteDevice"
-	remoteDevice := spine.NewDeviceRemoteImpl(localDevice, "test", dataCon)
+	sender := spine.NewSender(dataCon)
+	remoteDevice := spine.NewDeviceRemoteImpl(localDevice, "test", sender)
 	data := &model.NodeManagementDetailedDiscoveryDataType{
 		DeviceInformation: &model.NodeManagementDetailedDiscoveryDeviceInformationType{
 			Description: &model.NetworkManagementDeviceDescriptionDataType{
@@ -81,5 +84,5 @@ func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, feature
 	assert.NotNil(t, remoteEntities)
 	assert.NotEqual(t, 0, len(remoteEntities))
 
-	return localDevice, remoteEntities[0]
+	return localEntity, remoteEntities[0]
 }

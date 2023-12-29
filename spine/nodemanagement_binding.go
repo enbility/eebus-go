@@ -53,7 +53,7 @@ func (r *NodeManagementImpl) handleMsgBindingData(message *Message) error {
 func (r *NodeManagementImpl) handleMsgBindingRequestCall(message *Message, data *model.NodeManagementBindingRequestCallType) error {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeCall:
-		return r.Device().BindingManager().AddBinding(r.Device(), message.FeatureRemote.Device(), *data.BindingRequest)
+		return r.Device().BindingManager().AddBinding(message.FeatureRemote.Device(), *data.BindingRequest)
 
 	default:
 		return fmt.Errorf("nodemanagement.handleBindingRequestCall: NodeManagementBindingRequestCall CmdClassifierType not implemented: %s", message.CmdClassifier)

@@ -1,8 +1,9 @@
-package features
+package features_test
 
 import (
 	"testing"
 
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -17,10 +18,10 @@ func TestIncentiveTableSuite(t *testing.T) {
 type IncentiveTableSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
+	localEntity  *spine.EntityLocalImpl
 	remoteEntity *spine.EntityRemoteImpl
 
-	incentiveTable *IncentiveTable
+	incentiveTable *features.IncentiveTable
 	sentMessage    []byte
 }
 
@@ -31,7 +32,7 @@ func (s *IncentiveTableSuite) WriteSpineMessage(message []byte) {
 }
 
 func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -47,7 +48,7 @@ func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.incentiveTable, err = NewIncentiveTable(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.incentiveTable, err = features.NewIncentiveTable(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.incentiveTable)
 }

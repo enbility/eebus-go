@@ -1,9 +1,10 @@
-package features
+package features_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -18,10 +19,10 @@ func TestMeasurementSuite(t *testing.T) {
 type MeasurementSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
+	localEntity  *spine.EntityLocalImpl
 	remoteEntity *spine.EntityRemoteImpl
 
-	measurement *Measurement
+	measurement *features.Measurement
 	sentMessage []byte
 }
 
@@ -32,7 +33,7 @@ func (s *MeasurementSuite) WriteSpineMessage(message []byte) {
 }
 
 func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -56,7 +57,7 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.measurement, err = NewMeasurement(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.measurement, err = features.NewMeasurement(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.measurement)
 }

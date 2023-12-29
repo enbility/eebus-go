@@ -2,6 +2,7 @@ package integrationtests
 
 import (
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
@@ -40,7 +41,7 @@ func (s *NodeManagementSuite) SetupSuite() {
 
 func (s *NodeManagementSuite) BeforeTest(suiteName, testName string) {
 	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	s.remoteSki = "TestRemoteSki"
 
 	s.writeHandler = &WriteMessageHandler{}

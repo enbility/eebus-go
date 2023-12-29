@@ -63,7 +63,9 @@ func (h *evse) run() {
 
 	configuration, err := service.NewConfiguration(
 		"Demo", "Demo", "EVSE", "234567890",
-		model.DeviceTypeTypeChargingStation, port, certificate, 230)
+		model.DeviceTypeTypeChargingStation,
+		[]model.EntityTypeType{model.EntityTypeTypeEVSE},
+		port, certificate, 230, time.Second*4)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -21,21 +21,16 @@ type DeviceRemoteImpl struct {
 	sender Sender
 
 	localDevice *DeviceLocalImpl
-
-	// Heartbeat Sender
-	heartbeatSender *HeartbeatSender
 }
 
 var _ SpineDataProcessing = (*DeviceRemoteImpl)(nil)
 
-func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, writeHandler SpineDataConnection) *DeviceRemoteImpl {
-	sender := NewSender(writeHandler)
+func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, sender Sender) *DeviceRemoteImpl {
 	res := DeviceRemoteImpl{
-		DeviceImpl:      NewDeviceImpl(nil, nil, nil),
-		ski:             ski,
-		localDevice:     localDevice,
-		sender:          sender,
-		heartbeatSender: NewHeartbeatSender(sender),
+		DeviceImpl:  NewDeviceImpl(nil, nil, nil),
+		ski:         ski,
+		localDevice: localDevice,
+		sender:      sender,
 	}
 	res.addNodeManagement()
 
@@ -47,24 +42,9 @@ func (d *DeviceRemoteImpl) Ski() string {
 	return d.ski
 }
 
-// Needs to be called by the CEM implementation once a subscription for the local DeviceDiagnosis server feature is received
-func (d *DeviceRemoteImpl) StartHeartbeatSend(senderAddr, destinationAddr *model.FeatureAddressType) {
-	d.heartbeatSender.StartHeartbeatSend(senderAddr, destinationAddr)
-}
-
-func (d *DeviceRemoteImpl) IsHeartbeatMsgCounter(msgCounter model.MsgCounterType) bool {
-	return d.heartbeatSender.IsHeartbeatMsgCounter(msgCounter)
-}
-
-// Needs to be called by the CEM implementation once a subscription for the local DeviceDiagnosis server feature is removed
-func (d *DeviceRemoteImpl) Stopheartbeat() {
-	d.heartbeatSender.StopHeartbeat()
-}
-
-// this connection is closed
-func (d *DeviceRemoteImpl) CloseConnection() {
-	d.heartbeatSender.StopHeartbeat()
-}
+// // this connection is closed
+// func (d *DeviceRemoteImpl) CloseConnection() {
+// }
 
 // processing incoming SPINE message from the associated SHIP connection
 func (d *DeviceRemoteImpl) HandleIncomingSpineMesssage(message []byte) (*model.MsgCounterType, error) {
@@ -242,10 +222,10 @@ func (d *DeviceRemoteImpl) CheckEntityInformation(initialData bool, entity model
 
 func (d *DeviceRemoteImpl) addNewEntity(eType model.EntityTypeType, address []model.AddressEntityType) *EntityRemoteImpl {
 	newEntity := NewEntityRemoteImpl(d, eType, address)
-	return d.addEntity(newEntity)
+	return d.AddEntity(newEntity)
 }
 
-func (d *DeviceRemoteImpl) addEntity(entity *EntityRemoteImpl) *EntityRemoteImpl {
+func (d *DeviceRemoteImpl) AddEntity(entity *EntityRemoteImpl) *EntityRemoteImpl {
 	d.entitiesMutex.Lock()
 	defer d.entitiesMutex.Unlock()
 

@@ -1,8 +1,9 @@
-package features
+package features_test
 
 import (
 	"testing"
 
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -17,10 +18,10 @@ func TestDeviceConfigurationSuite(t *testing.T) {
 type DeviceConfigurationSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
+	localEntity  *spine.EntityLocalImpl
 	remoteEntity *spine.EntityRemoteImpl
 
-	deviceConfiguration *DeviceConfiguration
+	deviceConfiguration *features.DeviceConfiguration
 	sentMessage         []byte
 }
 
@@ -31,7 +32,7 @@ func (s *DeviceConfigurationSuite) WriteSpineMessage(message []byte) {
 }
 
 func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -46,7 +47,7 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.deviceConfiguration, err = NewDeviceConfiguration(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.deviceConfiguration, err = features.NewDeviceConfiguration(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceConfiguration)
 }

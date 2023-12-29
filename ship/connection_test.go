@@ -3,6 +3,7 @@ package ship
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/ship/model"
 	"github.com/enbility/eebus-go/spine"
@@ -33,7 +34,7 @@ func (s *ConnectionSuite) TearDownTest() {}
 func (s *ConnectionSuite) BeforeTest(suiteName, testName string) {
 	s.sentMessage = nil
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart)
+		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	ctrl := gomock.NewController(s.T())
 

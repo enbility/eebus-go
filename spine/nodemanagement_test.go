@@ -24,8 +24,8 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 
 	//localDevice := NewDeviceLocalImpl(model.AddressDeviceType("server"))
 
-	serverFeature := CreateLocalDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeServer)
-	clientFeature := spine.CreateRemoteDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeClient, senderMock)
+	serverFeature := createLocalDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeServer)
+	clientFeature := createRemoteDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeClient, senderMock)
 
 	// serverAddress := featureAddress(serverName, subscriptionEntityId, subscriptionFeatureId)
 	// clientAddress := featureAddress(clientName, subscriptionEntityId, subscriptionFeatureId)

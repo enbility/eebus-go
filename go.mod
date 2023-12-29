@@ -22,6 +22,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/holoplot/go-avahi v0.0.0-20231130181535-fd8f1d0307ed
 	github.com/rickb777/date v1.20.5
 	github.com/stretchr/testify v1.8.4
