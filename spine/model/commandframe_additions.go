@@ -99,9 +99,16 @@ func (f *FilterType) SetDataForFunction(tagType EEBusTagTypeType, fct FunctionTy
 			break
 		}
 
+		if data == nil || (reflect.ValueOf(data).Kind() == reflect.Ptr && reflect.ValueOf(data).IsNil()) {
+			typ := reflect.TypeOf(data).Elem()
+			ff.Set(reflect.New(typ))
+			return
+		}
+
 		dataV := reflect.ValueOf(data)
 		dataC := dataV.Convert(ff.Type())
 		ff.Set(dataC)
+		return
 	}
 }
 
@@ -201,9 +208,16 @@ func (cmd *CmdType) SetDataForFunction(fct FunctionType, data any) {
 			break
 		}
 
+		if data == nil || (reflect.ValueOf(data).Kind() == reflect.Ptr && reflect.ValueOf(data).IsNil()) {
+			typ := reflect.TypeOf(data).Elem()
+			ff.Set(reflect.New(typ))
+			return
+		}
+
 		dataV := reflect.ValueOf(data)
 		dataC := dataV.Convert(ff.Type())
 		ff.Set(dataC)
+		return
 	}
 }
 
