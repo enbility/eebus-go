@@ -29,7 +29,7 @@ type MdnsEntry struct {
 	Addresses  []net.IP // mandatory
 }
 
-//go:generate mockgen -destination=mock_mdns.go -package=service github.com/enbility/eebus-go/service MdnsSearch,MdnsService
+//go:generate mockgen -destination=mock_mdns_test.go -package=service github.com/enbility/eebus-go/service MdnsSearch,MdnsService
 
 // implemented by hubConnection, used by mdns
 type MdnsSearch interface {

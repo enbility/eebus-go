@@ -40,7 +40,7 @@ var connectionInitiationDelayTimeRanges = []connectionInitiationDelayTimeRange{
 	{min: 10, max: 20},
 }
 
-//go:generate mockgen -destination=mock_hub.go -package=service github.com/enbility/eebus-go/service ServiceProvider
+//go:generate mockgen -destination=mock_hub_test.go -package=service github.com/enbility/eebus-go/service ServiceProvider
 
 // interface for reporting data from connectionsHub to the EEBUSService
 type ServiceProvider interface {
