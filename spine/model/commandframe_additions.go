@@ -59,6 +59,52 @@ func (f *FilterData) SelectorMatch(item any) bool {
 	return true
 }
 
+// Get the field for a given functionType
+func (f *FilterType) SetDataForFunction(tagType EEBusTagTypeType, fct FunctionType, data any) {
+	v := reflect.ValueOf(*f)
+	dv := reflect.ValueOf(f).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		if field.Kind() != reflect.Ptr {
+			continue
+		}
+
+		sf := v.Type().Field(i)
+		// Exclude the generic fields
+		if sf.Name == "CmdControl" || sf.Name == "FilterId" {
+			continue
+		}
+
+		eebusTags := EEBusTags(sf)
+		function, exists := eebusTags[EEBusTagFunction]
+		if !exists {
+			continue
+		}
+		typ, exists := eebusTags[EEBusTagType]
+		if !exists || len(typ) == 0 {
+			continue
+		}
+		if typ != string(tagType) {
+			continue
+		}
+
+		if fct != FunctionType(function) {
+			continue
+		}
+
+		n := v.Type().Field(i).Name
+		ff := dv.FieldByName(n)
+
+		if !ff.CanSet() {
+			break
+		}
+
+		dataV := reflect.ValueOf(data)
+		dataC := dataV.Convert(ff.Type())
+		ff.Set(dataC)
+	}
+}
+
 // Get the data and some meta data for the current value
 func (f *FilterType) Data() (*FilterData, error) {
 	var elements any = nil
@@ -120,6 +166,45 @@ type CmdData struct {
 	FieldName string
 	Function  *FunctionType
 	Value     any
+}
+
+// Get the field for a given functionType
+func (cmd *CmdType) SetDataForFunction(fct FunctionType, data any) {
+	v := reflect.ValueOf(*cmd)
+	dv := reflect.ValueOf(cmd).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		f := v.Field(i)
+		if f.Kind() != reflect.Ptr {
+			continue
+		}
+
+		sf := v.Type().Field(i)
+		// Exclude the CmdOptionGroup fields
+		if sf.Name == "Function" || sf.Name == "Filter" {
+			continue
+		}
+
+		eebusTags := EEBusTags(sf)
+		function, exists := eebusTags[EEBusTagFunction]
+		if !exists {
+			continue
+		}
+
+		if fct != FunctionType(function) {
+			continue
+		}
+
+		n := v.Type().Field(i).Name
+		ff := dv.FieldByName(n)
+
+		if !ff.CanSet() {
+			break
+		}
+
+		dataV := reflect.ValueOf(data)
+		dataC := dataV.Convert(ff.Type())
+		ff.Set(dataC)
+	}
 }
 
 // Get the data and some meta data of the current value
