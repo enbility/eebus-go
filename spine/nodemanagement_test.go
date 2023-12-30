@@ -11,34 +11,93 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
+func TestNodemanagement_BindingCalls(t *testing.T) {
+	const bindingEntityId uint = 1
+	const featureType = model.FeatureTypeTypeLoadControl
 
-	// const serverName = "Server"
-	// const clientName = "Client"
+	senderMock := mocks.NewSender(t)
 
+	serverFeature := createLocalDeviceAndFeature(bindingEntityId, featureType, model.RoleTypeServer)
+	clientFeature := createRemoteDeviceAndFeature(bindingEntityId, featureType, model.RoleTypeClient, senderMock)
+
+	senderMock.On("Reply", mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		cmd := args.Get(2).(model.CmdType)
+		assert.Equal(t, 1, len(cmd.NodeManagementBindingData.BindingEntry))
+		assert.True(t, reflect.DeepEqual(cmd.NodeManagementBindingData.BindingEntry[0].ClientAddress, clientFeature.Address()))
+		assert.True(t, reflect.DeepEqual(cmd.NodeManagementBindingData.BindingEntry[0].ServerAddress, serverFeature.Address()))
+	}).Return(nil).Once()
+
+	requestMsg := spine.Message{
+		Cmd: model.CmdType{
+			NodeManagementBindingRequestCall: spine.NewNodeManagementBindingRequestCallType(
+				clientFeature.Address(), serverFeature.Address(), featureType),
+		},
+		CmdClassifier: model.CmdClassifierTypeCall,
+		FeatureRemote: clientFeature,
+	}
+
+	sut := spine.NewNodeManagementImpl(0, serverFeature.Entity())
+
+	// Act
+	err := sut.HandleMessage(&requestMsg)
+	if assert.Nil(t, err) {
+
+		dataMsg := spine.Message{
+			Cmd: model.CmdType{
+				NodeManagementBindingData: &model.NodeManagementBindingDataType{},
+			},
+			CmdClassifier: model.CmdClassifierTypeCall,
+			FeatureRemote: clientFeature,
+		}
+		err = sut.HandleMessage(&dataMsg)
+		assert.Nil(t, err)
+	}
+
+	senderMock.On("Reply", mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		cmd := args.Get(2).(model.CmdType)
+		assert.Equal(t, 0, len(cmd.NodeManagementBindingData.BindingEntry))
+	}).Return(nil).Once()
+
+	deleteMsg := spine.Message{
+		Cmd: model.CmdType{
+			NodeManagementBindingDeleteCall: spine.NewNodeManagementBindingDeleteCallType(
+				clientFeature.Address(), serverFeature.Address()),
+		},
+		CmdClassifier: model.CmdClassifierTypeCall,
+		FeatureRemote: clientFeature,
+	}
+
+	// Act
+	err = sut.HandleMessage(&deleteMsg)
+	if assert.Nil(t, err) {
+
+		dataMsg := spine.Message{
+			Cmd: model.CmdType{
+				NodeManagementBindingData: &model.NodeManagementBindingDataType{},
+			},
+			CmdClassifier: model.CmdClassifierTypeCall,
+			FeatureRemote: clientFeature,
+		}
+		err = sut.HandleMessage(&dataMsg)
+		assert.Nil(t, err)
+	}
+}
+
+func TestNodemanagement_SubscriptionCalls(t *testing.T) {
 	const subscriptionEntityId uint = 1
-	//const subscriptionFeatureId uint = 2
 	const featureType = model.FeatureTypeTypeDeviceClassification
 
 	senderMock := mocks.NewSender(t)
 
-	//localDevice := NewDeviceLocalImpl(model.AddressDeviceType("server"))
-
 	serverFeature := createLocalDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeServer)
 	clientFeature := createRemoteDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeClient, senderMock)
 
-	// serverAddress := featureAddress(serverName, subscriptionEntityId, subscriptionFeatureId)
-	// clientAddress := featureAddress(clientName, subscriptionEntityId, subscriptionFeatureId)
 	senderMock.On("Reply", mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		cmd := args.Get(2).(model.CmdType)
 		assert.Equal(t, 1, len(cmd.NodeManagementSubscriptionData.SubscriptionEntry))
 		assert.True(t, reflect.DeepEqual(cmd.NodeManagementSubscriptionData.SubscriptionEntry[0].ClientAddress, clientFeature.Address()))
 		assert.True(t, reflect.DeepEqual(cmd.NodeManagementSubscriptionData.SubscriptionEntry[0].ServerAddress, serverFeature.Address()))
-
 	}).Return(nil).Once()
-
-	// serverFeatureMock := newFeatureLocalMock(serverAddress, model.RoleTypeServer, featureType, senderMock)
-	// clientFeatureMock := newFeatureRemoteMock(clientAddress, model.RoleTypeClient, featureType)
 
 	requestMsg := spine.Message{
 		Cmd: model.CmdType{
@@ -65,44 +124,33 @@ func TestNodemanagement_SubscriptionRequestCall(t *testing.T) {
 		err = sut.HandleMessage(&dataMsg)
 		assert.Nil(t, err)
 	}
+
+	senderMock.On("Reply", mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		cmd := args.Get(2).(model.CmdType)
+		assert.Equal(t, 0, len(cmd.NodeManagementSubscriptionData.SubscriptionEntry))
+	}).Return(nil).Once()
+
+	deleteMsg := spine.Message{
+		Cmd: model.CmdType{
+			NodeManagementSubscriptionDeleteCall: spine.NewNodeManagementSubscriptionDeleteCallType(
+				clientFeature.Address(), serverFeature.Address(), featureType),
+		},
+		CmdClassifier: model.CmdClassifierTypeCall,
+		FeatureRemote: clientFeature,
+	}
+
+	// Act
+	err = sut.HandleMessage(&deleteMsg)
+	if assert.Nil(t, err) {
+
+		dataMsg := spine.Message{
+			Cmd: model.CmdType{
+				NodeManagementSubscriptionData: &model.NodeManagementSubscriptionDataType{},
+			},
+			CmdClassifier: model.CmdClassifierTypeCall,
+			FeatureRemote: clientFeature,
+		}
+		err = sut.HandleMessage(&dataMsg)
+		assert.Nil(t, err)
+	}
 }
-
-// func newFeatureLocalMock(address *model.FeatureAddressType, role model.RoleType, ftype model.FeatureTypeType, sender spine.Sender) *mocks.FeatureLocal {
-// 	deviceMock := new(mocks.DeviceLocal)
-// 	entityMock := new(mocks.EntityLocal)
-// 	featureMock := new(mocks.FeatureLocal)
-
-// 	deviceMock.On("FeatureByAddress", address).Return(featureMock)
-// 	deviceMock.On("Address").Return(address.Device)
-// 	deviceMock.On("Sender").Return(sender)
-
-// 	entityMock.On("Device").Return(deviceMock)
-// 	entityMock.On("Address").Return(address.Entity)
-
-// 	featureMock.On("Role").Return(role)
-// 	featureMock.On("Type").Return(model.FeatureTypeEnumType(ftype))
-// 	featureMock.On("Device").Return(deviceMock)
-// 	featureMock.On("Entity").Return(entityMock)
-
-// 	return featureMock
-// }
-
-// func newFeatureRemoteMock(address *model.FeatureAddressType, role model.RoleType, ftype model.FeatureTypeType) *mocks.FeatureRemote {
-// 	deviceMock := new(mocks.DeviceRemote)
-// 	entityMock := new(mocks.EntityRemote)
-// 	featureMock := new(mocks.FeatureRemote)
-
-// 	deviceMock.On("FeatureByAddress", address).Return(featureMock)
-// 	deviceMock.On("Address").Return(address.Device)
-// 	//deviceMock.On("Sender").Return(sender)
-
-// 	entityMock.On("Device").Return(deviceMock)
-// 	entityMock.On("Address").Return(address.Entity)
-
-// 	featureMock.On("Role").Return(role)
-// 	featureMock.On("Type").Return(model.FeatureTypeEnumType(ftype))
-// 	featureMock.On("Device").Return(deviceMock)
-// 	featureMock.On("Entity").Return(entityMock)
-
-// 	return featureMock
-// }

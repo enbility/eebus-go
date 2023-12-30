@@ -18,6 +18,15 @@ func NewNodeManagementBindingRequestCallType(clientAddress *model.FeatureAddress
 	}
 }
 
+func NewNodeManagementBindingDeleteCallType(clientAddress *model.FeatureAddressType, serverAddress *model.FeatureAddressType) *model.NodeManagementBindingDeleteCallType {
+	return &model.NodeManagementBindingDeleteCallType{
+		BindingDelete: &model.BindingManagementDeleteCallType{
+			ClientAddress: clientAddress,
+			ServerAddress: serverAddress,
+		},
+	}
+}
+
 // route bindings request calls to the appropriate feature implementation and add the bindings to the current list
 func (r *NodeManagementImpl) processReadBindingData(message *Message) error {
 

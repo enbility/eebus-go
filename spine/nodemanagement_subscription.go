@@ -18,6 +18,15 @@ func NewNodeManagementSubscriptionRequestCallType(clientAddress *model.FeatureAd
 	}
 }
 
+func NewNodeManagementSubscriptionDeleteCallType(clientAddress *model.FeatureAddressType, serverAddress *model.FeatureAddressType, featureType model.FeatureTypeType) *model.NodeManagementSubscriptionDeleteCallType {
+	return &model.NodeManagementSubscriptionDeleteCallType{
+		SubscriptionDelete: &model.SubscriptionManagementDeleteCallType{
+			ClientAddress: clientAddress,
+			ServerAddress: serverAddress,
+		},
+	}
+}
+
 // route subscription request calls to the appropriate feature implementation and add the subscription to the current list
 func (r *NodeManagementImpl) processReadSubscriptionData(message *Message) error {
 
