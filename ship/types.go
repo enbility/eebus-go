@@ -110,7 +110,7 @@ const (
 
 var shipInit []byte = []byte{model.MsgTypeInit, 0x00}
 
-//go:generate mockgen -destination=mock_types.go -package=ship github.com/enbility/eebus-go/ship ShipDataConnection,ShipDataProcessing,ShipServiceDataProvider
+//go:generate mockgen -destination=mock_types_test.go -package=ship github.com/enbility/eebus-go/ship ShipDataConnection,ShipDataProcessing,ShipServiceDataProvider
 
 // interface for handling the actual remote device data connection
 //
