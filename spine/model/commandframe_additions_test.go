@@ -4,8 +4,74 @@ import (
 	"testing"
 
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestFilterType_Selector_Data(t *testing.T) {
+	data := &model.ElectricalConnectionDescriptionListDataSelectorsType{
+		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
+		ScopeType:              util.Ptr(model.ScopeTypeTypeACPower),
+	}
+
+	sut := &model.FilterType{
+		ElectricalConnectionDescriptionListDataSelectors: data,
+	}
+
+	// Act
+	cmdData, err := sut.Data()
+	assert.Nil(t, err)
+	assert.NotNil(t, cmdData)
+	assert.Equal(t, model.FunctionTypeElectricalConnectionDescriptionListData, *cmdData.Function)
+	assert.Equal(t, data, cmdData.Selector)
+}
+
+func TestFilterType_Selector_SetDataForFunction(t *testing.T) {
+	cmd := model.FilterType{}
+	cmd.SetDataForFunction(model.EEBusTagTypeTypeSelector, model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionListDataSelectorsType{})
+	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListDataSelectors)
+
+	cmd = model.FilterType{}
+	cmd.SetDataForFunction(model.EEBusTagTypeTypeSelector, model.FunctionTypeElectricalConnectionDescriptionListData, nil)
+	assert.Nil(t, cmd.ElectricalConnectionDescriptionListDataSelectors)
+
+	var test *model.ElectricalConnectionDescriptionListDataSelectorsType
+	cmd = model.FilterType{}
+	cmd.SetDataForFunction(model.EEBusTagTypeTypeSelector, model.FunctionTypeElectricalConnectionDescriptionListData, test)
+	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListDataSelectors)
+}
+
+func TestFilterType_Elements_Data(t *testing.T) {
+	data := &model.ElectricalConnectionDescriptionDataElementsType{
+		ElectricalConnectionId: util.Ptr(model.ElementTagType{}),
+	}
+
+	sut := &model.FilterType{
+		ElectricalConnectionDescriptionDataElements: data,
+	}
+
+	// Act
+	cmdData, err := sut.Data()
+	assert.Nil(t, err)
+	assert.NotNil(t, cmdData)
+	assert.Equal(t, model.FunctionTypeElectricalConnectionDescriptionListData, *cmdData.Function)
+	assert.Equal(t, data, cmdData.Elements)
+}
+
+func TestFilterType_Elements_SetDataForFunction(t *testing.T) {
+	cmd := model.FilterType{}
+	cmd.SetDataForFunction(model.EEbusTagTypeTypeElements, model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionDataElementsType{})
+	assert.NotNil(t, cmd.ElectricalConnectionDescriptionDataElements)
+
+	cmd = model.FilterType{}
+	cmd.SetDataForFunction(model.EEbusTagTypeTypeElements, model.FunctionTypeElectricalConnectionDescriptionListData, nil)
+	assert.Nil(t, cmd.ElectricalConnectionDescriptionDataElements)
+
+	var test *model.ElectricalConnectionDescriptionDataElementsType
+	cmd = model.FilterType{}
+	cmd.SetDataForFunction(model.EEbusTagTypeTypeElements, model.FunctionTypeElectricalConnectionDescriptionListData, test)
+	assert.NotNil(t, cmd.ElectricalConnectionDescriptionDataElements)
+}
 
 func TestCmdType_Data(t *testing.T) {
 	data := &model.NodeManagementDetailedDiscoveryDataType{
@@ -23,6 +89,21 @@ func TestCmdType_Data(t *testing.T) {
 	assert.Equal(t, "NodeManagementDetailedDiscoveryData", cmdData.FieldName)
 	assert.Equal(t, model.FunctionTypeNodeManagementDetailedDiscoveryData, *cmdData.Function)
 	assert.Equal(t, data, cmdData.Value)
+}
+
+func TestCmdType_SetDataForFunction(t *testing.T) {
+	cmd := model.CmdType{}
+	cmd.SetDataForFunction(model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionListDataType{})
+	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListData)
+
+	cmd = model.CmdType{}
+	cmd.SetDataForFunction(model.FunctionTypeElectricalConnectionDescriptionListData, nil)
+	assert.Nil(t, cmd.ElectricalConnectionDescriptionListData)
+
+	var test *model.ElectricalConnectionDescriptionListDataType
+	cmd = model.CmdType{}
+	cmd.SetDataForFunction(model.FunctionTypeElectricalConnectionDescriptionListData, test)
+	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListData)
 }
 
 func TestCmdType_ExtractFilter_NoFilter(t *testing.T) {

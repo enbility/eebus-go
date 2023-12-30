@@ -61,6 +61,10 @@ func (f *FilterData) SelectorMatch(item any) bool {
 
 // Get the field for a given functionType
 func (f *FilterType) SetDataForFunction(tagType EEBusTagTypeType, fct FunctionType, data any) {
+	if data == nil || reflect.ValueOf(data).Kind() != reflect.Ptr {
+		return
+	}
+
 	v := reflect.ValueOf(*f)
 	dv := reflect.ValueOf(f).Elem()
 	for i := 0; i < v.NumField(); i++ {
@@ -99,7 +103,7 @@ func (f *FilterType) SetDataForFunction(tagType EEBusTagTypeType, fct FunctionTy
 			break
 		}
 
-		if data == nil || (reflect.ValueOf(data).Kind() == reflect.Ptr && reflect.ValueOf(data).IsNil()) {
+		if reflect.ValueOf(data).IsNil() {
 			typ := reflect.TypeOf(data).Elem()
 			ff.Set(reflect.New(typ))
 			return
@@ -177,6 +181,10 @@ type CmdData struct {
 
 // Get the field for a given functionType
 func (cmd *CmdType) SetDataForFunction(fct FunctionType, data any) {
+	if data == nil || reflect.ValueOf(data).Kind() != reflect.Ptr {
+		return
+	}
+
 	v := reflect.ValueOf(*cmd)
 	dv := reflect.ValueOf(cmd).Elem()
 	for i := 0; i < v.NumField(); i++ {
@@ -208,7 +216,7 @@ func (cmd *CmdType) SetDataForFunction(fct FunctionType, data any) {
 			break
 		}
 
-		if data == nil || (reflect.ValueOf(data).Kind() == reflect.Ptr && reflect.ValueOf(data).IsNil()) {
+		if reflect.ValueOf(data).IsNil() {
 			typ := reflect.TypeOf(data).Elem()
 			ff.Set(reflect.New(typ))
 			return
