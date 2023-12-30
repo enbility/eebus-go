@@ -950,6 +950,7 @@ const (
 	FunctionTypeBillListData                                       FunctionType = "billListData"
 	FunctionTypeIdentificationListData                             FunctionType = "identificationListData"
 	FunctionTypeMeasurementSeriesListData                          FunctionType = "measurementSeriesListData"
+	FunctionTypeElectricalConnectionCharacteristicData             FunctionType = "electricalConnectionCharacteristicData"
 	FunctionTypeElectricalConnectionCharacteristicListData         FunctionType = "electricalConnectionCharacteristicListData"
 	FunctionTypeStateInformationListData                           FunctionType = "stateInformationListData"
 )

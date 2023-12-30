@@ -88,6 +88,7 @@ func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
 			createFunctionData[model.ElectricalConnectionParameterDescriptionListDataType, F](model.FunctionTypeElectricalConnectionParameterDescriptionListData),
 			createFunctionData[model.ElectricalConnectionPermittedValueSetListDataType, F](model.FunctionTypeElectricalConnectionPermittedValueSetListData),
 			createFunctionData[model.ElectricalConnectionStateListDataType, F](model.FunctionTypeElectricalConnectionStateListData),
+			createFunctionData[model.ElectricalConnectionCharacteristicDataType, F](model.FunctionTypeElectricalConnectionCharacteristicListData),
 			createFunctionData[model.ElectricalConnectionCharacteristicListDataType, F](model.FunctionTypeElectricalConnectionCharacteristicListData),
 		}...)
 	}
