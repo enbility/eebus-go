@@ -145,7 +145,17 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 		return
 	}
 
-	// TODO: make sure subscriptions are removed, that way heartbeat should also be removed
+	// remove all subscriptions for this device
+	subscriptionMgr := r.SubscriptionManager()
+	subscriptionMgr.RemoveSubscriptionsForDevice(r.remoteDevices[ski])
+
+	// make sure Heartbeat Manager is up to date
+	r.HeartbeatManager().UpdateHeartbeatOnSubscriptions()
+
+	// remove all bindings for this device
+	bindingMgr := r.BindingManager()
+	bindingMgr.RemoveBindingsForDevice(r.remoteDevices[ski])
+
 	delete(r.remoteDevices, ski)
 
 	// only unsubscribe if we don't have any remote devices left

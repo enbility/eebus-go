@@ -15,6 +15,7 @@ import (
 type SubscriptionManager interface {
 	AddSubscription(remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error
 	RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
+	RemoveSubscriptionsForDevice(remoteDevice *DeviceRemoteImpl)
 	RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl)
 	Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry
 	SubscriptionsOnFeature(featureAddress model.FeatureAddressType) []*SubscriptionEntry
@@ -148,6 +149,17 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 	Events.Publish(payload)
 
 	return nil
+}
+
+// Remove all existing subscriptions for a given remote device
+func (c *SubscriptionManagerImpl) RemoveSubscriptionsForDevice(remoteDevice *DeviceRemoteImpl) {
+	if remoteDevice == nil {
+		return
+	}
+
+	for _, entity := range remoteDevice.Entities() {
+		c.RemoveSubscriptionsForEntity(entity)
+	}
 }
 
 // Remove all existing subscriptions for a given remote device entity

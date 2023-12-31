@@ -15,6 +15,8 @@ import (
 type BindingManager interface {
 	AddBinding(remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error
 	RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
+	RemoveBindingsForDevice(remoteDevice *DeviceRemoteImpl)
+	RemoveBindingsForEntity(remoteEntity *EntityRemoteImpl)
 	Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry
 	BindingsOnFeature(featureAddress model.FeatureAddressType) []*BindingEntry
 }
@@ -146,6 +148,47 @@ func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCal
 	Events.Publish(payload)
 
 	return nil
+}
+
+// Remove all existing bindings for a given remote device
+func (c *BindingManagerImpl) RemoveBindingsForDevice(remoteDevice *DeviceRemoteImpl) {
+	if remoteDevice == nil {
+		return
+	}
+
+	for _, entity := range remoteDevice.Entities() {
+		c.RemoveBindingsForEntity(entity)
+	}
+}
+
+// Remove all existing bindings for a given remote device entity
+func (c *BindingManagerImpl) RemoveBindingsForEntity(remoteEntity *EntityRemoteImpl) {
+	if remoteEntity == nil {
+		return
+	}
+
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	var newBindingEntries []*BindingEntry
+	for _, item := range c.bindingEntries {
+		if !reflect.DeepEqual(item.clientFeature.Address().Entity, remoteEntity.Address().Entity) {
+			newBindingEntries = append(newBindingEntries, item)
+			continue
+		}
+
+		clientFeature := remoteEntity.Feature(item.clientFeature.address.Feature)
+		payload := EventPayload{
+			Ski:        remoteEntity.Device().ski,
+			EventType:  EventTypeBindingChange,
+			ChangeType: ElementChangeRemove,
+			Entity:     remoteEntity,
+			Feature:    clientFeature,
+		}
+		Events.Publish(payload)
+	}
+
+	c.bindingEntries = newBindingEntries
 }
 
 func (c *BindingManagerImpl) Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry {

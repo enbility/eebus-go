@@ -60,10 +60,13 @@ func (suite *BindingManagerSuite) Test_Bindings() {
 	err := bindingMgr.AddBinding(suite.remoteDevice, bindingRequest)
 	assert.Nil(suite.T(), err)
 
+	subs := bindingMgr.Bindings(suite.remoteDevice)
+	assert.Equal(suite.T(), 1, len(subs))
+
 	err = bindingMgr.AddBinding(suite.remoteDevice, bindingRequest)
 	assert.NotNil(suite.T(), err)
 
-	subs := bindingMgr.Bindings(suite.remoteDevice)
+	subs = bindingMgr.Bindings(suite.remoteDevice)
 	assert.Equal(suite.T(), 1, len(subs))
 
 	bindingDelete := model.BindingManagementDeleteCallType{
@@ -79,4 +82,15 @@ func (suite *BindingManagerSuite) Test_Bindings() {
 
 	err = bindingMgr.RemoveBinding(bindingDelete, suite.remoteDevice)
 	assert.NotNil(suite.T(), err)
+
+	err = bindingMgr.AddBinding(suite.remoteDevice, bindingRequest)
+	assert.Nil(suite.T(), err)
+
+	subs = bindingMgr.Bindings(suite.remoteDevice)
+	assert.Equal(suite.T(), 1, len(subs))
+
+	bindingMgr.RemoveBindingsForDevice(suite.remoteDevice)
+
+	subs = bindingMgr.Bindings(suite.remoteDevice)
+	assert.Equal(suite.T(), 0, len(subs))
 }

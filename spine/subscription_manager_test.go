@@ -60,10 +60,13 @@ func (suite *SubscriptionManagerSuite) Test_Subscriptions() {
 	err := subMgr.AddSubscription(suite.remoteDevice, subscrRequest)
 	assert.Nil(suite.T(), err)
 
+	subs := subMgr.Subscriptions(suite.remoteDevice)
+	assert.Equal(suite.T(), 1, len(subs))
+
 	err = subMgr.AddSubscription(suite.remoteDevice, subscrRequest)
 	assert.NotNil(suite.T(), err)
 
-	subs := subMgr.Subscriptions(suite.remoteDevice)
+	subs = subMgr.Subscriptions(suite.remoteDevice)
 	assert.Equal(suite.T(), 1, len(subs))
 
 	subscrDelete := model.SubscriptionManagementDeleteCallType{
@@ -79,4 +82,16 @@ func (suite *SubscriptionManagerSuite) Test_Subscriptions() {
 
 	err = subMgr.RemoveSubscription(subscrDelete, suite.remoteDevice)
 	assert.NotNil(suite.T(), err)
+
+	subMgr = suite.localDevice.SubscriptionManager()
+	err = subMgr.AddSubscription(suite.remoteDevice, subscrRequest)
+	assert.Nil(suite.T(), err)
+
+	subs = subMgr.Subscriptions(suite.remoteDevice)
+	assert.Equal(suite.T(), 1, len(subs))
+
+	subMgr.RemoveSubscriptionsForDevice(suite.remoteDevice)
+
+	subs = subMgr.Subscriptions(suite.remoteDevice)
+	assert.Equal(suite.T(), 0, len(subs))
 }
