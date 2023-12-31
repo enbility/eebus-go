@@ -38,7 +38,7 @@ type EEBUSServiceHandler interface {
 	// Provides the current pairing state for the remote service
 	// This is called whenever the state changes and can be used to
 	// provide user information for the pairing/connection process
-	ServicePairingDetailUpdate(ski string, detail ConnectionStateDetail)
+	ServicePairingDetailUpdate(ski string, detail *ConnectionStateDetail)
 
 	// return if the user is still able to trust the connection
 	AllowWaitingForTrust(ski string) bool
@@ -73,7 +73,7 @@ func NewEEBUSService(configuration *Configuration, serviceHandler EEBUSServiceHa
 
 var _ ServiceProvider = (*EEBUSService)(nil)
 
-func (s *EEBUSService) VisibleMDNSRecordsUpdated(entries []MdnsEntry) {
+func (s *EEBUSService) VisibleMDNSRecordsUpdated(entries []*MdnsEntry) {
 	var remoteServices []RemoteService
 
 	for _, entry := range entries {
@@ -109,12 +109,12 @@ func (s *EEBUSService) ServiceShipIDUpdate(ski string, shipdID string) {
 // Provides the current pairing state for the remote service
 // This is called whenever the state changes and can be used to
 // provide user information for the pairing/connection process
-func (s *EEBUSService) ServicePairingDetailUpdate(ski string, detail ConnectionStateDetail) {
+func (s *EEBUSService) ServicePairingDetailUpdate(ski string, detail *ConnectionStateDetail) {
 	s.serviceHandler.ServicePairingDetailUpdate(ski, detail)
 }
 
 // Get the current pairing details for a given SKI
-func (s *EEBUSService) PairingDetailForSki(ski string) ConnectionStateDetail {
+func (s *EEBUSService) PairingDetailForSki(ski string) *ConnectionStateDetail {
 	return s.connectionsHub.PairingDetailForSki(ski)
 }
 

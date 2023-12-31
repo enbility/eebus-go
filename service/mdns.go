@@ -33,7 +33,7 @@ type MdnsEntry struct {
 
 // implemented by hubConnection, used by mdns
 type MdnsSearch interface {
-	ReportMdnsEntries(entries map[string]MdnsEntry)
+	ReportMdnsEntries(entries map[string]*MdnsEntry)
 }
 
 // implemented by mdns, used by hubConnection
@@ -56,21 +56,22 @@ type mdnsManager struct {
 	cancelChan chan bool
 
 	// the currently available mDNS entries with the SKI as the key in the map
-	entries map[string]MdnsEntry
+	entries map[string]*MdnsEntry
 
 	// the registered callback, only connectionsHub is using this
 	searchDelegate MdnsSearch
 
 	mdnsProvider mdns.MdnsProvider
 
-	mux sync.Mutex
+	mux        sync.Mutex
+	entriesMux sync.Mutex
 }
 
 func newMDNS(ski string, configuration *Configuration) *mdnsManager {
 	m := &mdnsManager{
 		ski:           ski,
 		configuration: configuration,
-		entries:       make(map[string]MdnsEntry),
+		entries:       make(map[string]*MdnsEntry),
 		cancelChan:    make(chan bool),
 	}
 
@@ -203,6 +204,49 @@ func (m *mdnsManager) setIsSearchingServices(enable bool) {
 	m.isSearchingServices = enable
 }
 
+func (m *mdnsManager) mdnsEntries() map[string]*MdnsEntry {
+	m.entriesMux.Lock()
+	defer m.entriesMux.Unlock()
+
+	return m.entries
+}
+
+func (m *mdnsManager) copyMdnsEntries() map[string]*MdnsEntry {
+	m.entriesMux.Lock()
+	defer m.entriesMux.Unlock()
+
+	mdnsEntries := make(map[string]*MdnsEntry)
+	for k, v := range m.entries {
+		newEntry := &MdnsEntry{}
+		util.DeepCopy[*MdnsEntry](v, newEntry)
+		mdnsEntries[k] = newEntry
+	}
+
+	return mdnsEntries
+}
+
+func (m *mdnsManager) mdnsEntry(ski string) (*MdnsEntry, bool) {
+	m.entriesMux.Lock()
+	defer m.entriesMux.Unlock()
+
+	entry, ok := m.entries[ski]
+	return entry, ok
+}
+
+func (m *mdnsManager) setMdnsEntry(ski string, entry *MdnsEntry) {
+	m.entriesMux.Lock()
+	defer m.entriesMux.Unlock()
+
+	m.entries[ski] = entry
+}
+
+func (m *mdnsManager) removeMdnsEntry(ski string) {
+	m.entriesMux.Lock()
+	defer m.entriesMux.Unlock()
+
+	delete(m.entries, ski)
+}
+
 // Register a callback to be invoked for found mDNS entries
 func (m *mdnsManager) RegisterMdnsSearch(cb MdnsSearch) {
 	m.mux.Lock()
@@ -218,12 +262,12 @@ func (m *mdnsManager) RegisterMdnsSearch(cb MdnsSearch) {
 	}
 
 	// do we already know some entries?
-	if len(m.entries) == 0 {
+	if len(m.mdnsEntries()) == 0 {
 		return
 	}
 
 	// maybe entries are already found
-	mdnsEntries := m.entries
+	mdnsEntries := m.copyMdnsEntries()
 
 	go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
 }
@@ -315,18 +359,17 @@ func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host st
 
 	updated := true
 
-	_, exists := m.entries[ski]
+	entry, exists := m.mdnsEntry(ski)
 
 	if remove && exists {
 		// remove
 		// there will be a remove for each address with avahi, but we'll delete it right away
-		delete(m.entries, ski)
+		m.removeMdnsEntry(ski)
 	} else if exists {
 		// update
 		updated = false
 
 		// avahi sends an item for each network address, merge them
-		entry := m.entries[ski]
 
 		// we assume only network addresses are added
 		for _, address := range addresses {
@@ -346,10 +389,10 @@ func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host st
 			}
 		}
 
-		m.entries[ski] = entry
+		m.setMdnsEntry(ski, entry)
 	} else if !exists && !remove {
 		// new
-		newEntry := MdnsEntry{
+		newEntry := &MdnsEntry{
 			Name:       name,
 			Ski:        ski,
 			Identifier: identifier,
@@ -362,7 +405,7 @@ func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host st
 			Port:       port,
 			Addresses:  addresses,
 		}
-		m.entries[ski] = newEntry
+		m.setMdnsEntry(ski, newEntry)
 
 		logging.Log.Debug("ski:", ski, "name:", name, "brand:", brand, "model:", model, "typ:", deviceType, "identifier:", identifier, "register:", register, "host:", host, "port:", port, "addresses:", addresses)
 	} else {
@@ -370,10 +413,7 @@ func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host st
 	}
 
 	if m.searchDelegate != nil && updated {
-		mdnsEntries := make(map[string]MdnsEntry)
-		for k, v := range m.entries {
-			mdnsEntries[k] = v
-		}
-		go m.searchDelegate.ReportMdnsEntries(mdnsEntries)
+		entries := m.copyMdnsEntries()
+		go m.searchDelegate.ReportMdnsEntries(entries)
 	}
 }

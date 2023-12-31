@@ -45,7 +45,7 @@ var connectionInitiationDelayTimeRanges = []connectionInitiationDelayTimeRange{
 // interface for reporting data from connectionsHub to the EEBUSService
 type ServiceProvider interface {
 	// report a newly discovered remote EEBUS service
-	VisibleMDNSRecordsUpdated(entries []MdnsEntry)
+	VisibleMDNSRecordsUpdated(entries []*MdnsEntry)
 
 	// report a connection to a SKI
 	RemoteSKIConnected(ski string)
@@ -58,7 +58,7 @@ type ServiceProvider interface {
 	ServiceShipIDUpdate(ski string, shipID string)
 
 	// provides the current handshake state for a given SKI
-	ServicePairingDetailUpdate(ski string, detail ConnectionStateDetail)
+	ServicePairingDetailUpdate(ski string, detail *ConnectionStateDetail)
 
 	// return if the user is still able to trust the connection
 	AllowWaitingForTrust(ski string) bool
@@ -87,7 +87,7 @@ type connectionsHub struct {
 	mdns MdnsService
 
 	// list of currently known/reported mDNS entries
-	knownMdnsEntries []MdnsEntry
+	knownMdnsEntries []*MdnsEntry
 
 	// the SPINE local device
 	spineLocalDevice *spine.DeviceLocalImpl
@@ -104,7 +104,7 @@ func newConnectionsHub(serviceProvider ServiceProvider, mdns MdnsService, spineL
 		connectionAttemptCounter: make(map[string]int),
 		connectionAttemptRunning: make(map[string]bool),
 		remoteServices:           make(map[string]*ServiceDetails),
-		knownMdnsEntries:         make([]MdnsEntry, 0),
+		knownMdnsEntries:         make([]*MdnsEntry, 0),
 		serviceProvider:          serviceProvider,
 		spineLocalDevice:         spineLocalDevice,
 		configuration:            configuration,
@@ -230,8 +230,6 @@ func (h *connectionsHub) AllowWaitingForTrust(ski string) bool {
 
 // Provides the current ship message exchange state for a given SKI and the corresponding error if state is error
 func (h *connectionsHub) HandleShipHandshakeStateUpdate(ski string, state ship.ShipState) {
-	service := h.serviceForSKI(ski)
-
 	// overwrite service Paired value
 	if state.State == ship.SmeHelloStateOk {
 		h.RegisterRemoteSKI(ski, true)
@@ -242,13 +240,12 @@ func (h *connectionsHub) HandleShipHandshakeStateUpdate(ski string, state ship.S
 		pairingState = ConnectionStateError
 	}
 
-	pairingDetail := ConnectionStateDetail{
-		State: pairingState,
-		Error: state.Error,
-	}
+	pairingDetail := NewConnectionStateDetail(pairingState, state.Error)
+
+	service := h.serviceForSKI(ski)
 
 	existingDetails := service.ConnectionStateDetail
-	if existingDetails.State != pairingState || existingDetails.Error != state.Error {
+	if existingDetails.State() != pairingState || existingDetails.Error() != state.Error {
 		service.ConnectionStateDetail = pairingDetail
 
 		h.serviceProvider.ServicePairingDetailUpdate(ski, pairingDetail)
@@ -261,16 +258,13 @@ func (h *connectionsHub) HandleShipHandshakeStateUpdate(ski string, state ship.S
 //
 //	ErrNotPaired if the SKI is not in the (to be) paired list
 //	ErrNoConnectionFound if no connection for the SKI was found
-func (h *connectionsHub) PairingDetailForSki(ski string) ConnectionStateDetail {
+func (h *connectionsHub) PairingDetailForSki(ski string) *ConnectionStateDetail {
 	service := h.serviceForSKI(ski)
 
 	if conn := h.connectionForSKI(ski); conn != nil {
 		shipState, shipError := conn.ShipHandshakeState()
 		state := h.mapShipMessageExchangeState(shipState, ski)
-		return ConnectionStateDetail{
-			State: state,
-			Error: shipError,
-		}
+		return NewConnectionStateDetail(state, shipError)
 	}
 
 	return service.ConnectionStateDetail
@@ -457,8 +451,8 @@ func (h *connectionsHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the remote service is paired
 	service := h.serviceForSKI(remoteService.SKI)
-	if service.ConnectionStateDetail.State == ConnectionStateQueued {
-		service.ConnectionStateDetail.State = ConnectionStateReceivedPairingRequest
+	if service.ConnectionStateDetail.State() == ConnectionStateQueued {
+		service.ConnectionStateDetail.SetState(ConnectionStateReceivedPairingRequest)
 		h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 	}
 
@@ -601,7 +595,7 @@ func (h *connectionsHub) serviceForSKI(ski string) *ServiceDetails {
 	service, ok := h.remoteServices[ski]
 	if !ok {
 		service = NewServiceDetails(ski)
-		service.ConnectionStateDetail.State = ConnectionStateNone
+		service.ConnectionStateDetail.SetState(ConnectionStateNone)
 		h.remoteServices[ski] = service
 	}
 
@@ -622,7 +616,7 @@ func (h *connectionsHub) RegisterRemoteSKI(ski string, enable bool) {
 
 	h.removeConnectionAttemptCounter(ski)
 
-	service.ConnectionStateDetail.State = ConnectionStateNone
+	service.ConnectionStateDetail.SetState(ConnectionStateNone)
 
 	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 
@@ -644,7 +638,7 @@ func (h *connectionsHub) InitiatePairingWithSKI(ski string) {
 
 	// locally initiated
 	service := h.serviceForSKI(ski)
-	service.ConnectionStateDetail.State = ConnectionStateQueued
+	service.ConnectionStateDetail.SetState(ConnectionStateQueued)
 
 	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 
@@ -663,18 +657,18 @@ func (h *connectionsHub) CancelPairingWithSKI(ski string) {
 	}
 
 	service := h.serviceForSKI(ski)
-	service.ConnectionStateDetail.State = ConnectionStateNone
+	service.ConnectionStateDetail.SetState(ConnectionStateNone)
 	service.Trusted = false
 
 	h.serviceProvider.ServicePairingDetailUpdate(ski, service.ConnectionStateDetail)
 }
 
 // Process reported mDNS services
-func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
+func (h *connectionsHub) ReportMdnsEntries(entries map[string]*MdnsEntry) {
 	h.muxMdns.Lock()
 	defer h.muxMdns.Unlock()
 
-	var mdnsEntries []MdnsEntry
+	var mdnsEntries []*MdnsEntry
 
 	for ski, entry := range entries {
 		mdnsEntries = append(mdnsEntries, entry)
@@ -686,8 +680,8 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 
 		// Check if the remote service is paired or queued for connection
 		service := h.serviceForSKI(ski)
-		pairingState := service.ConnectionStateDetail.State
-		if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != ConnectionStateQueued {
+		if !h.IsRemoteServiceForSKIPaired(ski) &&
+			service.ConnectionStateDetail.State() != ConnectionStateQueued {
 			continue
 		}
 
@@ -715,7 +709,7 @@ func (h *connectionsHub) ReportMdnsEntries(entries map[string]MdnsEntry) {
 }
 
 // coordinate connection initiation attempts to a remove service
-func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEntry) {
+func (h *connectionsHub) coordinateConnectionInitations(ski string, entry *MdnsEntry) {
 	if h.isConnectionAttemptRunning(ski) {
 		return
 	}
@@ -725,7 +719,7 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 	counter, duration := h.getConnectionInitiationDelayTime(ski)
 
 	service := h.serviceForSKI(ski)
-	if service.ConnectionStateDetail.State == ConnectionStateQueued {
+	if service.ConnectionStateDetail.State() == ConnectionStateQueued {
 		go h.prepareConnectionInitation(ski, counter, entry)
 		return
 	}
@@ -744,11 +738,8 @@ func (h *connectionsHub) coordinateConnectionInitations(ski string, entry MdnsEn
 
 // invoked by coordinateConnectionInitations either with a delay or directly
 // when initating a pairing process
-func (h *connectionsHub) prepareConnectionInitation(ski string, counter int, entry MdnsEntry) {
+func (h *connectionsHub) prepareConnectionInitation(ski string, counter int, entry *MdnsEntry) {
 	h.setConnectionAttemptRunning(ski, false)
-
-	// check if the remoteService still exists
-	service := h.serviceForSKI(ski)
 
 	// check if the current counter is still the same, otherwise this counter is irrelevant
 	currentCounter, exists := h.getCurrentConnectionAttemptCounter(ski)
@@ -758,7 +749,7 @@ func (h *connectionsHub) prepareConnectionInitation(ski string, counter int, ent
 
 	// connection attempt is not relevant if the device is no longer paired
 	// or it is not queued for pairing
-	pairingState := h.serviceForSKI(ski).ConnectionStateDetail.State
+	pairingState := h.serviceForSKI(ski).ConnectionStateDetail.State()
 	if !h.IsRemoteServiceForSKIPaired(ski) && pairingState != ConnectionStateQueued {
 		return
 	}
@@ -769,6 +760,9 @@ func (h *connectionsHub) prepareConnectionInitation(ski string, counter int, ent
 	}
 
 	// now initiate the connection
+	// check if the remoteService still exists
+	service := h.serviceForSKI(ski)
+
 	if success := h.initateConnection(service, entry); !success {
 		h.checkRestartMdnsSearch()
 	}
@@ -776,14 +770,14 @@ func (h *connectionsHub) prepareConnectionInitation(ski string, counter int, ent
 
 // attempt to establish a connection to a remote service
 // returns true if successful
-func (h *connectionsHub) initateConnection(remoteService *ServiceDetails, entry MdnsEntry) bool {
+func (h *connectionsHub) initateConnection(remoteService *ServiceDetails, entry *MdnsEntry) bool {
 	var err error
 
 	// try connecting via an IP address first
 	for _, address := range entry.Addresses {
 		// connection attempt is not relevant if the device is no longer paired
 		// or it is not queued for pairing
-		pairingState := h.serviceForSKI(remoteService.SKI).ConnectionStateDetail.State
+		pairingState := h.serviceForSKI(remoteService.SKI).ConnectionStateDetail.State()
 		if !h.IsRemoteServiceForSKIPaired(remoteService.SKI) && pairingState != ConnectionStateQueued {
 			return false
 		}

@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/enbility/eebus-go/spine/model"
@@ -30,8 +31,45 @@ const (
 
 // the connection state of a service and error if applicable
 type ConnectionStateDetail struct {
-	State ConnectionState
-	Error error
+	state ConnectionState
+	error error
+
+	mux sync.Mutex
+}
+
+func NewConnectionStateDetail(state ConnectionState, err error) *ConnectionStateDetail {
+	return &ConnectionStateDetail{
+		state: state,
+		error: err,
+	}
+}
+
+func (c *ConnectionStateDetail) State() ConnectionState {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	return c.state
+}
+
+func (c *ConnectionStateDetail) SetState(state ConnectionState) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	c.state = state
+}
+
+func (c *ConnectionStateDetail) Error() error {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	return c.error
+}
+
+func (c *ConnectionStateDetail) SetError(err error) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	c.error = err
 }
 
 // generic service details about the local or any remote service
@@ -63,13 +101,15 @@ type ServiceDetails struct {
 	Trusted bool
 
 	// the current connection state details
-	ConnectionStateDetail ConnectionStateDetail
+	ConnectionStateDetail *ConnectionStateDetail
 }
 
 // create a new ServiceDetails record with a SKI
 func NewServiceDetails(ski string) *ServiceDetails {
+	connState := NewConnectionStateDetail(ConnectionStateNone, nil)
 	service := &ServiceDetails{
-		SKI: util.NormalizeSKI(ski), // standardize the provided SKI strings
+		SKI:                   util.NormalizeSKI(ski), // standardize the provided SKI strings
+		ConnectionStateDetail: connState,
 	}
 
 	return service

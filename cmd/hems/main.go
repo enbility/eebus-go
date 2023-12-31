@@ -100,8 +100,8 @@ func (h *hems) VisibleRemoteServicesUpdated(service *service.EEBUSService, entri
 
 func (h *hems) ServiceShipIDUpdate(ski string, shipdID string) {}
 
-func (h *hems) ServicePairingDetailUpdate(ski string, detail service.ConnectionStateDetail) {
-	if ski == remoteSki && detail.State == service.ConnectionStateRemoteDeniedTrust {
+func (h *hems) ServicePairingDetailUpdate(ski string, detail *service.ConnectionStateDetail) {
+	if ski == remoteSki && detail.State() == service.ConnectionStateRemoteDeniedTrust {
 		fmt.Println("The remote service denied trust. Exiting.")
 		h.myService.RegisterRemoteSKI(ski, false)
 		h.myService.CancelPairingWithSKI(ski)

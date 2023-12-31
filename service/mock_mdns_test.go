@@ -34,7 +34,7 @@ func (m *MockMdnsSearch) EXPECT() *MockMdnsSearchMockRecorder {
 }
 
 // ReportMdnsEntries mocks base method.
-func (m *MockMdnsSearch) ReportMdnsEntries(arg0 map[string]MdnsEntry) {
+func (m *MockMdnsSearch) ReportMdnsEntries(arg0 map[string]*MdnsEntry) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ReportMdnsEntries", arg0)
 }
