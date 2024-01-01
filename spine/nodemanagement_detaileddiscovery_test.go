@@ -1,10 +1,9 @@
-package integrationtests
+package spine
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -28,11 +27,11 @@ func TestNodeManagementSuite(t *testing.T) {
 
 type NodeManagementSuite struct {
 	suite.Suite
-	sut *spine.DeviceLocalImpl
+	sut *DeviceLocalImpl
 
 	remoteSki string
 
-	readHandler  spine.SpineDataProcessing
+	readHandler  SpineDataProcessing
 	writeHandler *WriteMessageHandler
 }
 
@@ -40,7 +39,7 @@ func (s *NodeManagementSuite) SetupSuite() {
 }
 
 func (s *NodeManagementSuite) BeforeTest(suiteName, testName string) {
-	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+	s.sut = NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	s.remoteSki = "TestRemoteSki"
 
@@ -81,7 +80,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 
 	rEntities := remoteDevice.Entities()
 	assert.Equal(s.T(), 2, len(rEntities))
-	di := rEntities[spine.DeviceInformationEntityId]
+	di := rEntities[DeviceInformationEntityId]
 	assert.NotNil(s.T(), di)
 	assert.Equal(s.T(), model.EntityTypeTypeDeviceInformation, di.EntityType())
 
@@ -89,7 +88,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvReply() {
 	assert.Equal(s.T(), 2, len(diFeatures))
 
 	nm := diFeatures[0]
-	assert.Equal(s.T(), spine.NodeManagementFeatureId, uint(*nm.Address().Feature))
+	assert.Equal(s.T(), NodeManagementFeatureId, uint(*nm.Address().Feature))
 	assert.Equal(s.T(), model.FeatureTypeTypeNodeManagement, nm.Type())
 	assert.Equal(s.T(), model.RoleTypeSpecial, nm.Role())
 	assert.Equal(s.T(), 8, len(nm.Operations()))
@@ -143,7 +142,7 @@ func (s *NodeManagementSuite) TestDetailedDiscovery_RecvNotifyAdded() {
 	rEntities := remoteDevice.Entities()
 	if assert.Equal(s.T(), 3, len(rEntities)) {
 		{
-			di := rEntities[spine.DeviceInformationEntityId]
+			di := rEntities[DeviceInformationEntityId]
 			assert.NotNil(s.T(), di)
 			assert.Equal(s.T(), model.EntityTypeTypeDeviceInformation, di.EntityType())
 			assert.Equal(s.T(), 2, len(di.Features()))
@@ -185,7 +184,7 @@ func (s *NodeManagementSuite) TestSubscriptionRequestCall_BeforeDetailedDiscover
 	remoteDevice := s.sut.RemoteDeviceForSki(s.remoteSki)
 	subscriptionsForDevice := s.sut.SubscriptionManager().Subscriptions(remoteDevice)
 	assert.Equal(s.T(), 1, len(subscriptionsForDevice))
-	subscriptionsOnFeature := s.sut.SubscriptionManager().SubscriptionsOnFeature(*spine.NodeManagementAddress(s.sut.Address()))
+	subscriptionsOnFeature := s.sut.SubscriptionManager().SubscriptionsOnFeature(*NodeManagementAddress(s.sut.Address()))
 	assert.Equal(s.T(), 1, len(subscriptionsOnFeature))
 }
 
