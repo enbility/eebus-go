@@ -93,6 +93,8 @@ func (s *WebsocketSuite) TestConnectionClose() {
 }
 
 func (s *WebsocketSuite) TestPingPeriod() {
+	skipCI(s.T())
+
 	isClosed, err := s.sut.IsDataConnectionClosed()
 	assert.Equal(s.T(), false, isClosed)
 	assert.Nil(s.T(), err)

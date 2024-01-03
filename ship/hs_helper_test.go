@@ -1,9 +1,7 @@
 package ship
 
 import (
-	"os"
 	"sync"
-	"testing"
 	"time"
 
 	"github.com/enbility/eebus-go/spine"
@@ -63,10 +61,4 @@ func initTest(role shipRole) (*ShipConnection, *dataHandlerTest) {
 
 func shutdownTest(conhandler *ShipConnection) {
 	conhandler.stopHandshakeTimer()
-}
-
-func skipCI(t *testing.T) {
-	if os.Getenv("ACTION_ENVIRONMENT") == "CI" {
-		t.Skip("Skipping testing in CI environment")
-	}
 }
