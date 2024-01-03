@@ -112,38 +112,38 @@ func (c *ShipConnection) handshakeProtocol_smeProtHStateClientListenChoice(messa
 
 	msgHandshake := messageProtocolHandshake.MessageProtocolHandshake
 
+	abort := false
 	if msgHandshake.HandshakeType != model.ProtocolHandshakeTypeTypeSelect {
 		logging.Log.Debug("invalid protocol handshake response")
-		c.abortProtocolHandshake(model.MessageProtocolHandshakeErrorErrorTypeSelectionMismatch)
-		return
+		abort = true
 	}
 
 	if msgHandshake.Version.Major != 1 {
 		logging.Log.Debug("unsupported protocol major version")
-		c.abortProtocolHandshake(model.MessageProtocolHandshakeErrorErrorTypeSelectionMismatch)
-		return
+		abort = true
 	}
 
 	if msgHandshake.Version.Minor != 0 {
 		logging.Log.Debug("unsupported protocol minor version")
-		c.abortProtocolHandshake(model.MessageProtocolHandshakeErrorErrorTypeSelectionMismatch)
-		return
+		abort = true
 	}
 
 	if msgHandshake.Formats.Format == nil || len(msgHandshake.Formats.Format) == 0 {
 		logging.Log.Debug("format is missing")
-		c.abortProtocolHandshake(model.MessageProtocolHandshakeErrorErrorTypeSelectionMismatch)
-		return
+		abort = true
 	}
 
 	if len(msgHandshake.Formats.Format) != 1 {
 		logging.Log.Debug("unsupported format response")
-		c.abortProtocolHandshake(model.MessageProtocolHandshakeErrorErrorTypeSelectionMismatch)
-		return
+		abort = true
 	}
 
-	if msgHandshake.Formats.Format[0] != model.MessageProtocolFormatTypeUTF8 {
+	if msgHandshake.Formats.Format != nil && msgHandshake.Formats.Format[0] != model.MessageProtocolFormatTypeUTF8 {
 		logging.Log.Debug("unsupported format")
+		abort = true
+	}
+
+	if abort {
 		c.abortProtocolHandshake(model.MessageProtocolHandshakeErrorErrorTypeSelectionMismatch)
 		return
 	}
@@ -170,6 +170,8 @@ func (c *ShipConnection) abortProtocolHandshake(err model.MessageProtocolHandsha
 	}
 
 	_ = c.sendShipModel(model.MsgTypeControl, msg)
+
+	c.setState(SmeStateError, errors.New("handshake error"))
 
 	c.CloseConnection(false, 0, "")
 }

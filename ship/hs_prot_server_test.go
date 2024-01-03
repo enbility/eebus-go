@@ -66,6 +66,30 @@ func (s *ProServerSuite) Test_ListenProposal() {
 	shutdownTest(sut)
 }
 
+func (s *ProServerSuite) Test_ListenProposal_Failure() {
+	sut, _ := initTest(s.role)
+
+	sut.setState(SmeProtHStateServerListenProposal, nil)
+
+	protMsg := model.MessageProtocolHandshake{
+		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
+			HandshakeType: model.ProtocolHandshakeTypeTypeSelect,
+		},
+	}
+
+	msg, err := sut.shipMessage(model.MsgTypeControl, protMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+
+	assert.Equal(s.T(), SmeStateError, sut.getState())
+
+	shutdownTest(sut)
+}
+
 func (s *ProServerSuite) Test_ListenConfirm() {
 	sut, data := initTest(s.role)
 
@@ -91,6 +115,31 @@ func (s *ProServerSuite) Test_ListenConfirm() {
 
 	// state smeProtHStateServerOk directly goes to smePinStateCheckInit to smePinStateCheckListen
 	assert.Equal(s.T(), SmePinStateCheckListen, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
+}
+
+func (s *ProServerSuite) Test_ListenConfirm_Failures() {
+	sut, data := initTest(s.role)
+
+	sut.setState(SmeProtHStateServerListenConfirm, nil)
+
+	protMsg := model.MessageProtocolHandshake{
+		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
+			HandshakeType: model.ProtocolHandshakeTypeTypeAnnounceMax,
+		},
+	}
+
+	msg, err := sut.shipMessage(model.MsgTypeControl, protMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+
+	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

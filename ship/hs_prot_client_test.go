@@ -65,3 +65,63 @@ func (s *ProClientSuite) Test_ListenChoice() {
 
 	shutdownTest(sut)
 }
+
+func (s *ProClientSuite) Test_ListenChoice_Failures() {
+	sut, data := initTest(s.role)
+
+	sut.setState(SmeProtHStateClientListenChoice, nil)
+
+	protMsg := model.MessageProtocolHandshake{
+		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
+			HandshakeType: model.ProtocolHandshakeTypeTypeAnnounceMax,
+			Version:       model.Version{Major: 0, Minor: 1},
+		},
+	}
+
+	msg, err := sut.shipMessage(model.MsgTypeControl, protMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	sut.setState(SmeProtHStateClientListenChoice, nil)
+
+	protMsg = model.MessageProtocolHandshake{
+		MessageProtocolHandshake: model.MessageProtocolHandshakeType{
+			HandshakeType: model.ProtocolHandshakeTypeTypeAnnounceMax,
+			Version:       model.Version{Major: 0, Minor: 1},
+			Formats: model.MessageProtocolFormatsType{
+				Format: []model.MessageProtocolFormatType{model.MessageProtocolFormatTypeUTF16},
+			},
+		},
+	}
+
+	msg, err = sut.shipMessage(model.MsgTypeControl, protMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+
+	assert.Equal(s.T(), SmeStateError, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
+}
+
+func (s *ProClientSuite) Test_Abort() {
+	sut, data := initTest(s.role)
+
+	sut.setState(SmeProtHStateClientListenChoice, nil)
+
+	sut.abortProtocolHandshake(model.MessageProtocolHandshakeErrorErrorTypeTimeout)
+
+	assert.Equal(s.T(), SmeStateError, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	timer := sut.getHandshakeTimerRunnging()
+	assert.Equal(s.T(), false, timer)
+
+	shutdownTest(sut)
+}
