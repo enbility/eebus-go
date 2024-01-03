@@ -145,19 +145,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 		c.handshakeHello_PendingInit()
 
 	case SmeHelloStatePendingListen:
-		if timeout {
-			// The device needs to be in a state for the user to allow trusting the device
-			// e.g. either the web UI or by other means
-			if !c.serviceDataProvider.AllowWaitingForTrust(c.remoteShipID) {
-				c.handshakeHello_PendingTimeout()
-				return
-			}
-
-			c.handshakeHello_PendingProlongationRequest()
-			return
-		}
-
-		c.handshakeHello_PendingListen(message)
+		c.handshakeHello_PendingListen(timeout, message)
 
 	case SmeHelloStateOk:
 		c.handshakeProtocol_Init()

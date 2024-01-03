@@ -171,10 +171,27 @@ func (s *HelloSuite) Test_PendingListen_Timeout() {
 		time.Sleep(tHelloInit + time.Second)
 	} else {
 		// speed up the test by running the method directly
-		sut.handshakeHello_PendingTimeout()
+		sut.handshakeHello_PendingListen(true, nil)
 	}
 
 	assert.Equal(s.T(), SmeHelloStateAbortDone, sut.getState())
+	assert.NotNil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
+}
+
+func (s *HelloSuite) Test_PendingListen_Timeout_Prolongation() {
+	sut, data := initTest(s.role)
+
+	data.allowWaitingForTrust = true
+
+	sut.setState(SmeHelloStatePendingInit, nil) // inits the timer
+	sut.setState(SmeHelloStatePendingListen, nil)
+
+	// speed up the test by running the method directly, the timer is already checked
+	sut.handshakeHello_PendingListen(true, nil)
+
+	assert.Equal(s.T(), SmeHelloStatePendingListen, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)

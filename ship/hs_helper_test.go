@@ -13,6 +13,8 @@ type dataHandlerTest struct {
 
 	mux sync.Mutex
 
+	allowWaitingForTrust bool
+
 	handleConnectionClosedInvoked bool
 }
 
@@ -45,8 +47,10 @@ func (s *dataHandlerTest) IsRemoteServiceForSKIPaired(string) bool { return true
 func (s *dataHandlerTest) HandleConnectionClosed(*ShipConnection, bool) {
 	s.handleConnectionClosedInvoked = true
 }
-func (s *dataHandlerTest) ReportServiceShipID(string, string)               {}
-func (s *dataHandlerTest) AllowWaitingForTrust(string) bool                 { return false }
+func (s *dataHandlerTest) ReportServiceShipID(string, string) {}
+func (s *dataHandlerTest) AllowWaitingForTrust(string) bool {
+	return s.allowWaitingForTrust
+}
 func (s *dataHandlerTest) HandleShipHandshakeStateUpdate(string, ShipState) {}
 
 func initTest(role shipRole) (*ShipConnection, *dataHandlerTest) {

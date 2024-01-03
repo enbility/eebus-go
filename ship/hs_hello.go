@@ -110,7 +110,19 @@ func (c *ShipConnection) handshakeHello_PendingInit() {
 }
 
 // SME_HELLO_PENDING_LISTEN
-func (c *ShipConnection) handshakeHello_PendingListen(message []byte) {
+func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []byte) {
+	if timeout {
+		// The device needs to be in a state for the user to allow trusting the device
+		// e.g. either the web UI or by other means
+		if !c.serviceDataProvider.AllowWaitingForTrust(c.remoteShipID) {
+			c.handshakeHello_PendingTimeout()
+		} else {
+			c.handshakeHello_PendingProlongationRequest()
+		}
+
+		return
+	}
+
 	var helloReturnMsg model.ConnectionHello
 	if err := c.processShipJsonMessage(message, &helloReturnMsg); err != nil {
 		c.setState(SmeHelloStateAbort, nil)
