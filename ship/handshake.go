@@ -135,8 +135,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 
 	case SmeHelloStateReadyListen:
 		if timeout {
-			c.setState(SmeHelloStateAbort, nil)
-			c.handleState(false, nil)
+			c.handshakeHello_ReadyTimeout()
 			return
 		}
 

@@ -70,14 +70,18 @@ func (s *HelloSuite) Test_ReadyListen_Ok() {
 }
 
 func (s *HelloSuite) Test_ReadyListen_Timeout() {
-	skipCI(s.T())
-
 	sut, data := initTest(s.role)
 
 	sut.setState(SmeHelloStateReadyInit, nil) // inits the timer
 	sut.setState(SmeHelloStateReadyListen, nil)
 
-	time.Sleep(tHelloInit + time.Second)
+	if !isRunningOnCI() {
+		// test if the function is triggered correctly via the timer
+		time.Sleep(tHelloInit + time.Second)
+	} else {
+		// speed up the test by running the method directly
+		sut.handshakeHello_ReadyTimeout()
+	}
 
 	assert.Equal(s.T(), SmeHelloStateAbortDone, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())
@@ -157,14 +161,18 @@ func (s *HelloSuite) Test_PendingListen() {
 }
 
 func (s *HelloSuite) Test_PendingListen_Timeout() {
-	skipCI(s.T())
-
 	sut, data := initTest(s.role)
 
 	sut.setState(SmeHelloStatePendingInit, nil) // inits the timer
 	sut.setState(SmeHelloStatePendingListen, nil)
 
-	time.Sleep(tHelloInit + time.Second)
+	if !isRunningOnCI() {
+		// test if the function is triggered correctly via the timer
+		time.Sleep(tHelloInit + time.Second)
+	} else {
+		// speed up the test by running the method directly
+		sut.handshakeHello_PendingTimeout()
+	}
 
 	assert.Equal(s.T(), SmeHelloStateAbortDone, sut.getState())
 	assert.NotNil(s.T(), data.lastMessage())

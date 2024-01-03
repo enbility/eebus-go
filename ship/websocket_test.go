@@ -93,14 +93,17 @@ func (s *WebsocketSuite) TestConnectionClose() {
 }
 
 func (s *WebsocketSuite) TestPingPeriod() {
-	skipCI(s.T())
-
 	isClosed, err := s.sut.IsDataConnectionClosed()
 	assert.Equal(s.T(), false, isClosed)
 	assert.Nil(s.T(), err)
 
-	// make sure we have enough time to read and write
-	time.Sleep(time.Second * 51)
+	if !isRunningOnCI() {
+		// test if the function is triggered correctly via the timer
+		time.Sleep(time.Second * 51)
+	} else {
+		// speed up the test by running the method directly
+		s.sut.handlePing()
+	}
 
 	isClosed, err = s.sut.IsDataConnectionClosed()
 	assert.Equal(s.T(), false, isClosed)

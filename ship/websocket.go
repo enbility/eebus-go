@@ -134,20 +134,24 @@ func (w *websocketConnection) writeShipPump() {
 			logging.Log.Trace("Send:", w.remoteSki, text)
 
 		case <-ticker.C:
-			if w.isConnClosed() {
-				return
-			}
-
-			w.muxConWrite.Lock()
-			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			w.muxConWrite.Unlock()
-			if err := w.writeMessage(websocket.PingMessage, nil); err != nil {
-				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
-				w.setConnClosedError(err)
-				w.dataProcessing.ReportConnectionError(err)
-				return
-			}
+			w.handlePing()
 		}
+	}
+}
+
+func (w *websocketConnection) handlePing() {
+	if w.isConnClosed() {
+		return
+	}
+
+	w.muxConWrite.Lock()
+	_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	w.muxConWrite.Unlock()
+	if err := w.writeMessage(websocket.PingMessage, nil); err != nil {
+		logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
+		w.setConnClosedError(err)
+		w.dataProcessing.ReportConnectionError(err)
+		return
 	}
 }
 

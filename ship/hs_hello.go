@@ -76,6 +76,11 @@ func (c *ShipConnection) handshakeHello_ReadyListen(message []byte) {
 	c.handleState(false, nil)
 }
 
+func (c *ShipConnection) handshakeHello_ReadyTimeout() {
+	c.setState(SmeHelloStateAbort, nil)
+	c.handleState(false, nil)
+}
+
 // SME_HELLO_ABORT
 func (c *ShipConnection) handshakeHello_Abort() {
 	c.stopHandshakeTimer()
