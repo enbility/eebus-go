@@ -134,12 +134,7 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 		c.handshakeHello_Init()
 
 	case SmeHelloStateReadyListen:
-		if timeout {
-			c.handshakeHello_ReadyTimeout()
-			return
-		}
-
-		c.handshakeHello_ReadyListen(message)
+		c.handshakeHello_ReadyListen(timeout, message)
 
 	case SmeHelloStatePendingInit:
 		c.handshakeHello_PendingInit()

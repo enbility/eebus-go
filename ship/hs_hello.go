@@ -22,7 +22,12 @@ func (c *ShipConnection) handshakeHello_Init() {
 }
 
 // SME_HELLO_STATE_READY_LISTEN
-func (c *ShipConnection) handshakeHello_ReadyListen(message []byte) {
+func (c *ShipConnection) handshakeHello_ReadyListen(timeout bool, message []byte) {
+	if timeout {
+		c.handshakeHello_ReadyTimeout()
+		return
+	}
+
 	var helloReturnMsg model.ConnectionHello
 	if err := c.processShipJsonMessage(message, &helloReturnMsg); err != nil {
 		c.setState(SmeHelloStateAbort, nil)

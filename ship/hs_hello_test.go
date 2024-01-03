@@ -80,7 +80,7 @@ func (s *HelloSuite) Test_ReadyListen_Timeout() {
 		time.Sleep(tHelloInit + time.Second)
 	} else {
 		// speed up the test by running the method directly
-		sut.handshakeHello_ReadyTimeout()
+		sut.handshakeHello_ReadyListen(true, nil)
 	}
 
 	assert.Equal(s.T(), SmeHelloStateAbortDone, sut.getState())
@@ -98,6 +98,32 @@ func (s *HelloSuite) Test_ReadyListen_Ignore() {
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
 			Phase: model.ConnectionHelloPhaseTypePending,
+		},
+	}
+
+	msg, err := sut.shipMessage(model.MsgTypeControl, helloMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	assert.Equal(s.T(), SmeHelloStateReadyListen, sut.getState())
+
+	shutdownTest(sut)
+}
+
+func (s *HelloSuite) Test_ReadyListen_Prolongation() {
+	sut, data := initTest(s.role)
+
+	sut.setState(SmeHelloStateReadyInit, nil) // inits the timer
+	sut.setState(SmeHelloStateReadyListen, nil)
+
+	data.allowWaitingForTrust = true
+
+	helloMsg := model.ConnectionHello{
+		ConnectionHello: model.ConnectionHelloType{
+			Phase:               model.ConnectionHelloPhaseTypePending,
+			ProlongationRequest: util.Ptr(true),
 		},
 	}
 
