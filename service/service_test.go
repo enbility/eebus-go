@@ -42,6 +42,7 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 
 	s.logging = mocks.NewLogging(s.T())
 	s.logging.On("Info", mock.Anything, mock.Anything).Maybe()
+	s.logging.On("Debug", mock.Anything, mock.Anything).Maybe()
 
 	certificate := tls.Certificate{}
 	s.config, _ = NewConfiguration(

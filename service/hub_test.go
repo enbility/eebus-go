@@ -223,6 +223,9 @@ func (s *HubSuite) Test_MapShipMessageExchangeState() {
 	state = sut.mapShipMessageExchangeState(ship.SmeHelloStateAbort, ski)
 	assert.Equal(s.T(), ConnectionStateNone, state)
 
+	state = sut.mapShipMessageExchangeState(ship.SmeHelloStateRemoteAbortDone, ski)
+	assert.Equal(s.T(), ConnectionStateRemoteDeniedTrust, state)
+
 	state = sut.mapShipMessageExchangeState(ship.SmePinStateCheckInit, ski)
 	assert.Equal(s.T(), ConnectionStatePin, state)
 
@@ -265,6 +268,15 @@ func (s *HubSuite) Test_RegisterConnection() {
 	assert.Equal(s.T(), 1, len(sut.connections))
 	con = sut.connectionForSKI(ski)
 	assert.NotNil(s.T(), con)
+}
+
+func (s *HubSuite) Test_Shutdown() {
+	sut := connectionsHubImpl{
+		connections: make(map[string]*ship.ShipConnection),
+		mdns:        s.mdnsService,
+	}
+	s.mdnsService.EXPECT().ShutdownMdnsService()
+	sut.Shutdown()
 }
 
 func (s *HubSuite) Test_IncreaseConnectionAttemptCounter() {
@@ -395,4 +407,42 @@ func (s *HubSuite) Test_CancelPairingWithSKI() {
 
 	sut.CancelPairingWithSKI(ski)
 	assert.Equal(s.T(), 0, len(sut.connectionAttemptRunning))
+}
+
+func (s *HubSuite) Test_ReportMdnsEntries() {
+	localService := &ServiceDetails{
+		SKI: "localSKI",
+	}
+	sut := connectionsHubImpl{
+		connections:              make(map[string]*ship.ShipConnection),
+		connectionAttemptCounter: make(map[string]int),
+		connectionAttemptRunning: make(map[string]bool),
+		remoteServices:           make(map[string]*ServiceDetails),
+		serviceProvider:          s.serviceProvider,
+		localService:             localService,
+	}
+
+	testski1 := "test1"
+	testski2 := "test2"
+
+	entries := make(map[string]*MdnsEntry)
+
+	s.serviceProvider.EXPECT().VisibleMDNSRecordsUpdated(gomock.Any()).AnyTimes()
+	sut.ReportMdnsEntries(entries)
+
+	entries[testski1] = &MdnsEntry{
+		Ski: testski1,
+	}
+	service1 := sut.ServiceForSKI(testski1)
+	service1.Trusted = true
+	service1.IPv4 = "127.0.0.1"
+
+	entries[testski2] = &MdnsEntry{
+		Ski: testski2,
+	}
+	service2 := sut.ServiceForSKI(testski2)
+	service2.Trusted = true
+	service2.IPv4 = "127.0.0.1"
+
+	sut.ReportMdnsEntries(entries)
 }
