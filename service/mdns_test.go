@@ -159,6 +159,7 @@ func (s *MdnsSuite) Test_ProcessMdnsEntry() {
 	port := 4567
 
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 0, len(s.sut.mdnsEntries()))
 
 	elements["txtvers"] = "2"
 	elements["id"] = "id"
@@ -167,29 +168,38 @@ func (s *MdnsSuite) Test_ProcessMdnsEntry() {
 	elements["register"] = "falsee"
 
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 0, len(s.sut.mdnsEntries()))
 
 	elements["txtvers"] = "1"
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 0, len(s.sut.mdnsEntries()))
 
 	elements["ski"] = s.sut.ski
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 0, len(s.sut.mdnsEntries()))
 
 	elements["ski"] = "testski"
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 0, len(s.sut.mdnsEntries()))
 
 	elements["register"] = "false"
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 1, len(s.sut.mdnsEntries()))
 
 	elements["brand"] = "brand"
 	elements["type"] = "type"
 	elements["model"] = "model"
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 1, len(s.sut.mdnsEntries()))
 
 	ips = []net.IP{[]byte("127.0.0.1")}
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 1, len(s.sut.mdnsEntries()))
 
 	s.sut.searchDelegate = s.mdnsSearch
 	s.sut.processMdnsEntry(elements, name, host, ips, port, false)
+	assert.Equal(s.T(), 1, len(s.sut.mdnsEntries()))
 
 	s.sut.processMdnsEntry(elements, name, host, ips, port, true)
+	assert.Equal(s.T(), 0, len(s.sut.mdnsEntries()))
 }
