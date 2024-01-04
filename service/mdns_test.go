@@ -8,6 +8,7 @@ import (
 
 	mdnsmocks "github.com/enbility/eebus-go/service/mdns/mocks"
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -71,9 +72,12 @@ func (s *MdnsSuite) Test_SetupMdnsService() {
 	assert.NotEqual(s.T(), 0, len(ifaces))
 	assert.Nil(s.T(), err)
 
-	s.config.interfaces = []string{ifaces[0].Name}
-	err = s.sut.SetupMdnsService()
-	assert.Nil(s.T(), err)
+	// we don't have access to iface names on CI
+	if !util.IsRunningOnCI() {
+		s.config.interfaces = []string{ifaces[0].Name}
+		err = s.sut.SetupMdnsService()
+		assert.Nil(s.T(), err)
+	}
 
 	s.config.interfaces = []string{"noifacename"}
 	err = s.sut.SetupMdnsService()

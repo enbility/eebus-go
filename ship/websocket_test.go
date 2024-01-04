@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	util "github.com/enbility/eebus-go/util"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
@@ -111,7 +112,7 @@ func (s *WebsocketSuite) TestPingPeriod() {
 	assert.Equal(s.T(), false, isClosed)
 	assert.Nil(s.T(), err)
 
-	if !isRunningOnCI() {
+	if !util.IsRunningOnCI() {
 		// test if the function is triggered correctly via the timer
 		time.Sleep(time.Second * 51)
 	} else {

@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 )
 
@@ -18,4 +19,9 @@ func NormalizeSKI(ski string) string {
 func DeepCopy[A any](source, dest A) {
 	byt, _ := json.Marshal(source)
 	_ = json.Unmarshal(byt, dest)
+}
+
+// used in tests
+func IsRunningOnCI() bool {
+	return os.Getenv("ACTION_ENVIRONMENT") == "CI"
 }

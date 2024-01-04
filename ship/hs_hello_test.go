@@ -75,7 +75,7 @@ func (s *HelloSuite) Test_ReadyListen_Timeout() {
 	sut.setState(SmeHelloStateReadyInit, nil) // inits the timer
 	sut.setState(SmeHelloStateReadyListen, nil)
 
-	if !isRunningOnCI() {
+	if !util.IsRunningOnCI() {
 		// test if the function is triggered correctly via the timer
 		time.Sleep(tHelloInit + time.Second)
 	} else {
@@ -192,7 +192,7 @@ func (s *HelloSuite) Test_PendingListen_Timeout() {
 	sut.setState(SmeHelloStatePendingInit, nil) // inits the timer
 	sut.setState(SmeHelloStatePendingListen, nil)
 
-	if !isRunningOnCI() {
+	if !util.IsRunningOnCI() {
 		// test if the function is triggered correctly via the timer
 		time.Sleep(tHelloInit + time.Second)
 	} else {
