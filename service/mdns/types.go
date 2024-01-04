@@ -5,6 +5,8 @@ import "net"
 const shipZeroConfServiceType = "_ship._tcp"
 const shipZeroConfDomain = "local."
 
+//go:generate mockery --name=MdnsProvider
+
 type MdnsProvider interface {
 	CheckAvailability() bool
 	Shutdown()
