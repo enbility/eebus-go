@@ -1,5 +1,7 @@
 package logging
 
+//go:generate mockery --name=Logging
+
 // Logging needs to be implemented, if the internal logs should be printed
 type Logging interface {
 	Trace(args ...interface{})

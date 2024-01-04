@@ -72,11 +72,11 @@ func (s *HubSuite) Test_NewConnectionsHub() {
 	hub := newConnectionsHub(s.serviceProvider, s.mdnsService, nil, configuration, localService)
 	assert.NotNil(s.T(), hub)
 
-	hub.start()
+	hub.Start()
 }
 
 func (s *HubSuite) Test_IsRemoteSKIPaired() {
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		remoteServices:           make(map[string]*ServiceDetails),
@@ -105,7 +105,7 @@ func (s *HubSuite) Test_IsRemoteSKIPaired() {
 }
 
 func (s *HubSuite) Test_HandleConnecitonClosed() {
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		remoteServices:           make(map[string]*ServiceDetails),
@@ -130,7 +130,7 @@ func (s *HubSuite) Test_Mdns() {
 	localService := ServiceDetails{
 		DeviceType: model.DeviceTypeTypeElectricitySupplySystem,
 	}
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		remoteServices:           make(map[string]*ServiceDetails),
@@ -160,7 +160,7 @@ func (s *HubSuite) Test_Ship() {
 	localService := ServiceDetails{
 		DeviceType: model.DeviceTypeTypeElectricitySupplySystem,
 	}
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		remoteServices:           make(map[string]*ServiceDetails),
@@ -201,7 +201,7 @@ func (s *HubSuite) Test_Ship() {
 }
 
 func (s *HubSuite) Test_MapShipMessageExchangeState() {
-	sut := connectionsHub{}
+	sut := connectionsHubImpl{}
 
 	ski := "test"
 
@@ -240,7 +240,7 @@ func (s *HubSuite) Test_MapShipMessageExchangeState() {
 }
 
 func (s *HubSuite) Test_DisconnectSKI() {
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections: make(map[string]*ship.ShipConnection),
 	}
 	ski := "test"
@@ -251,7 +251,7 @@ func (s *HubSuite) Test_RegisterConnection() {
 	ski := "12af9e"
 	localService := NewServiceDetails(ski)
 
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections:  make(map[string]*ship.ShipConnection),
 		mdns:         s.mdnsService,
 		localService: localService,
@@ -270,7 +270,7 @@ func (s *HubSuite) Test_RegisterConnection() {
 func (s *HubSuite) Test_IncreaseConnectionAttemptCounter() {
 
 	// we just need a dummy for this test
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connectionAttemptCounter: make(map[string]int),
 	}
 	ski := "test"
@@ -291,7 +291,7 @@ func (s *HubSuite) Test_IncreaseConnectionAttemptCounter() {
 
 func (s *HubSuite) Test_RemoveConnectionAttemptCounter() {
 	// we just need a dummy for this test
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connectionAttemptCounter: make(map[string]int),
 	}
 	ski := "test"
@@ -307,7 +307,7 @@ func (s *HubSuite) Test_RemoveConnectionAttemptCounter() {
 
 func (s *HubSuite) Test_GetCurrentConnectionAttemptCounter() {
 	// we just need a dummy for this test
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connectionAttemptCounter: make(map[string]int),
 	}
 	ski := "test"
@@ -326,7 +326,7 @@ func (s *HubSuite) Test_GetConnectionInitiationDelayTime() {
 	// we just need a dummy for this test
 	ski := "12af9e"
 	localService := NewServiceDetails(ski)
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		localService:             localService,
 		connectionAttemptCounter: make(map[string]int),
 	}
@@ -340,7 +340,7 @@ func (s *HubSuite) Test_GetConnectionInitiationDelayTime() {
 func (s *HubSuite) Test_ConnectionAttemptRunning() {
 	// we just need a dummy for this test
 	ski := "test"
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connectionAttemptRunning: make(map[string]bool),
 	}
 
@@ -354,7 +354,7 @@ func (s *HubSuite) Test_ConnectionAttemptRunning() {
 
 func (s *HubSuite) Test_InitiatePairingWithSKI() {
 	ski := "test"
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptRunning: make(map[string]bool),
 		remoteServices:           make(map[string]*ServiceDetails),
@@ -375,7 +375,7 @@ func (s *HubSuite) Test_InitiatePairingWithSKI() {
 
 func (s *HubSuite) Test_CancelPairingWithSKI() {
 	ski := "test"
-	sut := connectionsHub{
+	sut := connectionsHubImpl{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptRunning: make(map[string]bool),
 		remoteServices:           make(map[string]*ServiceDetails),

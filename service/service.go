@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -18,6 +19,8 @@ type RemoteService struct {
 	Type       string `json:"type"`
 	Model      string `json:"model"`
 }
+
+//go:generate mockgen -destination=mock_service_test.go -package=service github.com/enbility/eebus-go/service EEBUSServiceHandler
 
 // interface for receiving data for specific events
 type EEBUSServiceHandler interface {
@@ -53,7 +56,7 @@ type EEBUSService struct {
 	LocalService *ServiceDetails
 
 	// Connection Registrations
-	connectionsHub *connectionsHub
+	connectionsHub ConnectionsHub
 
 	// The SPINE specific device definition
 	spineLocalDevice *spine.DeviceLocalImpl
@@ -113,14 +116,14 @@ func (s *EEBUSService) ServicePairingDetailUpdate(ski string, detail *Connection
 	s.serviceHandler.ServicePairingDetailUpdate(ski, detail)
 }
 
-// Get the current pairing details for a given SKI
-func (s *EEBUSService) PairingDetailForSki(ski string) *ConnectionStateDetail {
-	return s.connectionsHub.PairingDetailForSki(ski)
-}
-
 // return if the user is still able to trust the connection
 func (s *EEBUSService) AllowWaitingForTrust(ski string) bool {
 	return s.serviceHandler.AllowWaitingForTrust(ski)
+}
+
+// Get the current pairing details for a given SKI
+func (s *EEBUSService) PairingDetailForSki(ski string) *ConnectionStateDetail {
+	return s.connectionsHub.PairingDetailForSki(ski)
 }
 
 // Starts browsing for any EEBUS mDNS entry
@@ -149,6 +152,10 @@ func (s *EEBUSService) Setup() error {
 	}
 
 	sd := s.Configuration
+
+	if len(sd.certificate.Certificate) == 0 {
+		return errors.New("missing certificate")
+	}
 
 	leaf, err := x509.ParseCertificate(sd.certificate.Certificate[0])
 	if err != nil {
@@ -220,14 +227,14 @@ func (s *EEBUSService) Setup() error {
 // Starts the service
 func (s *EEBUSService) Start() {
 	s.startOnce.Do(func() {
-		s.connectionsHub.start()
+		s.connectionsHub.Start()
 	})
 }
 
 // Shutdown all services and stop the server.
 func (s *EEBUSService) Shutdown() {
 	// Shut down all running connections
-	s.connectionsHub.shutdown()
+	s.connectionsHub.Shutdown()
 }
 
 func (s *EEBUSService) LocalDevice() *spine.DeviceLocalImpl {
@@ -236,7 +243,7 @@ func (s *EEBUSService) LocalDevice() *spine.DeviceLocalImpl {
 
 // Returns the Service detail of a given remote SKI
 func (s *EEBUSService) RemoteServiceForSKI(ski string) *ServiceDetails {
-	return s.connectionsHub.serviceForSKI(ski)
+	return s.connectionsHub.ServiceForSKI(ski)
 }
 
 // Sets the SKI as being paired or not
