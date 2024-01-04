@@ -1,10 +1,12 @@
 package service
 
 import (
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/enbility/eebus-go/ship"
+	"github.com/enbility/eebus-go/spine/model"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -49,11 +51,14 @@ func (s *HubSuite) SetupSuite() {
 	s.serviceProvider.EXPECT().RemoteSKIConnected(gomock.Any()).AnyTimes()
 	s.serviceProvider.EXPECT().ServiceShipIDUpdate(gomock.Any(), gomock.Any()).AnyTimes()
 	s.serviceProvider.EXPECT().ServicePairingDetailUpdate(gomock.Any(), gomock.Any()).AnyTimes()
+	s.serviceProvider.EXPECT().RemoteSKIDisconnected(gomock.Any()).AnyTimes()
+	s.serviceProvider.EXPECT().AllowWaitingForTrust(gomock.Any()).AnyTimes()
 
 	s.mdnsService = NewMockMdnsService(ctrl)
 	s.mdnsService.EXPECT().SetupMdnsService().AnyTimes()
 	s.mdnsService.EXPECT().AnnounceMdnsEntry().AnyTimes()
 	s.mdnsService.EXPECT().UnannounceMdnsEntry().AnyTimes()
+	s.mdnsService.EXPECT().RegisterMdnsSearch(gomock.Any()).AnyTimes()
 	s.mdnsService.EXPECT().UnregisterMdnsSearch(gomock.Any()).AnyTimes()
 }
 
@@ -83,7 +88,10 @@ func (s *HubSuite) Test_IsRemoteSKIPaired() {
 	assert.Equal(s.T(), false, paired)
 
 	// mark it as connected, so mDNS is not triggered
-	sut.connections[ski] = &ship.ShipConnection{}
+	con := &ship.ShipConnection{
+		RemoteSKI: ski,
+	}
+	sut.registerConnection(con)
 	sut.RegisterRemoteSKI(ski, true)
 
 	paired = sut.IsRemoteServiceForSKIPaired(ski)
@@ -96,21 +104,139 @@ func (s *HubSuite) Test_IsRemoteSKIPaired() {
 	assert.Equal(s.T(), false, paired)
 }
 
-func (s *HubSuite) Test_CheckRestartMdnsSearch() {
+func (s *HubSuite) Test_HandleConnecitonClosed() {
 	sut := connectionsHub{
 		connections:              make(map[string]*ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
+		remoteServices:           make(map[string]*ServiceDetails),
+		serviceProvider:          s.serviceProvider,
 	}
-	sut.checkRestartMdnsSearch()
-	// Nothing to verify yet
+	ski := "test"
+
+	con := &ship.ShipConnection{
+		RemoteSKI: ski,
+	}
+
+	sut.HandleConnectionClosed(con, false)
+
+	sut.registerConnection(con)
+
+	sut.HandleConnectionClosed(con, true)
+
+	assert.Equal(s.T(), 0, len(sut.connections))
 }
 
-func (s *HubSuite) Test_ReportServiceShipID() {
-	sut := connectionsHub{
-		serviceProvider: s.serviceProvider,
+func (s *HubSuite) Test_Mdns() {
+	localService := ServiceDetails{
+		DeviceType: model.DeviceTypeTypeElectricitySupplySystem,
 	}
-	sut.ReportServiceShipID("", "")
-	// Nothing to verify yet
+	sut := connectionsHub{
+		connections:              make(map[string]*ship.ShipConnection),
+		connectionAttemptCounter: make(map[string]int),
+		remoteServices:           make(map[string]*ServiceDetails),
+		localService:             &localService,
+		mdns:                     s.mdnsService,
+		serviceProvider:          s.serviceProvider,
+	}
+	sut.checkRestartMdnsSearch()
+
+	pairedServices := sut.numberPairedServices()
+	assert.Equal(s.T(), 0, len(sut.connections))
+	assert.Equal(s.T(), 0, pairedServices)
+
+	ski := "testski"
+
+	sut.RegisterRemoteSKI(ski, true)
+	pairedServices = sut.numberPairedServices()
+	assert.Equal(s.T(), 0, len(sut.connections))
+	assert.Equal(s.T(), 1, pairedServices)
+
+	sut.StartBrowseMdnsSearch()
+
+	sut.StopBrowseMdnsSearch()
+}
+
+func (s *HubSuite) Test_Ship() {
+	localService := ServiceDetails{
+		DeviceType: model.DeviceTypeTypeElectricitySupplySystem,
+	}
+	sut := connectionsHub{
+		connections:              make(map[string]*ship.ShipConnection),
+		connectionAttemptCounter: make(map[string]int),
+		remoteServices:           make(map[string]*ServiceDetails),
+		localService:             &localService,
+		mdns:                     s.mdnsService,
+		serviceProvider:          s.serviceProvider,
+	}
+
+	ski := "testski"
+
+	sut.HandleShipHandshakeStateUpdate(ski, ship.ShipState{
+		State: ship.SmeStateError,
+		Error: errors.New("test"),
+	})
+
+	sut.HandleShipHandshakeStateUpdate(ski, ship.ShipState{
+		State: ship.SmeHelloStateOk,
+	})
+
+	sut.ReportServiceShipID(ski, "test")
+
+	trust := sut.AllowWaitingForTrust(ski)
+	assert.Equal(s.T(), true, trust)
+
+	trust = sut.AllowWaitingForTrust("test")
+	assert.Equal(s.T(), false, trust)
+
+	detail := sut.PairingDetailForSki(ski)
+	assert.NotNil(s.T(), detail)
+
+	con := &ship.ShipConnection{
+		RemoteSKI: ski,
+	}
+	sut.registerConnection(con)
+
+	detail = sut.PairingDetailForSki(ski)
+	assert.NotNil(s.T(), detail)
+}
+
+func (s *HubSuite) Test_MapShipMessageExchangeState() {
+	sut := connectionsHub{}
+
+	ski := "test"
+
+	state := sut.mapShipMessageExchangeState(ship.CmiStateInitStart, ski)
+	assert.Equal(s.T(), ConnectionStateQueued, state)
+
+	state = sut.mapShipMessageExchangeState(ship.CmiStateClientSend, ski)
+	assert.Equal(s.T(), ConnectionStateInitiated, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeHelloStateReadyInit, ski)
+	assert.Equal(s.T(), ConnectionStateInProgress, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeHelloStatePendingInit, ski)
+	assert.Equal(s.T(), ConnectionStateReceivedPairingRequest, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeHelloStateOk, ski)
+	assert.Equal(s.T(), ConnectionStateTrusted, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeHelloStateAbort, ski)
+	assert.Equal(s.T(), ConnectionStateNone, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmePinStateCheckInit, ski)
+	assert.Equal(s.T(), ConnectionStatePin, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeAccessMethodsRequest, ski)
+	assert.Equal(s.T(), ConnectionStateInProgress, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeStateComplete, ski)
+	assert.Equal(s.T(), ConnectionStateCompleted, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeStateError, ski)
+	assert.Equal(s.T(), ConnectionStateError, state)
+
+	state = sut.mapShipMessageExchangeState(ship.SmeProtHStateTimeout, ski)
+	assert.Equal(s.T(), ConnectionStateInProgress, state)
 }
 
 func (s *HubSuite) Test_DisconnectSKI() {
@@ -224,4 +350,49 @@ func (s *HubSuite) Test_ConnectionAttemptRunning() {
 	sut.setConnectionAttemptRunning(ski, false)
 	status = sut.isConnectionAttemptRunning(ski)
 	assert.Equal(s.T(), false, status)
+}
+
+func (s *HubSuite) Test_InitiatePairingWithSKI() {
+	ski := "test"
+	sut := connectionsHub{
+		connections:              make(map[string]*ship.ShipConnection),
+		connectionAttemptRunning: make(map[string]bool),
+		remoteServices:           make(map[string]*ServiceDetails),
+		serviceProvider:          s.serviceProvider,
+		mdns:                     s.mdnsService,
+	}
+
+	sut.InitiatePairingWithSKI(ski)
+	assert.Equal(s.T(), 0, len(sut.connections))
+
+	con := &ship.ShipConnection{
+		RemoteSKI: ski,
+	}
+	sut.registerConnection(con)
+	sut.InitiatePairingWithSKI(ski)
+	assert.Equal(s.T(), 1, len(sut.connections))
+}
+
+func (s *HubSuite) Test_CancelPairingWithSKI() {
+	ski := "test"
+	sut := connectionsHub{
+		connections:              make(map[string]*ship.ShipConnection),
+		connectionAttemptRunning: make(map[string]bool),
+		remoteServices:           make(map[string]*ServiceDetails),
+		serviceProvider:          s.serviceProvider,
+		mdns:                     s.mdnsService,
+	}
+
+	sut.CancelPairingWithSKI(ski)
+	assert.Equal(s.T(), 0, len(sut.connections))
+	assert.Equal(s.T(), 0, len(sut.connectionAttemptRunning))
+
+	con := &ship.ShipConnection{
+		RemoteSKI: ski,
+	}
+	sut.registerConnection(con)
+	assert.Equal(s.T(), 1, len(sut.connections))
+
+	sut.CancelPairingWithSKI(ski)
+	assert.Equal(s.T(), 0, len(sut.connectionAttemptRunning))
 }
