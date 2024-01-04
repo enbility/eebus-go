@@ -167,12 +167,10 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 		c.handshakeProtocol_smeProtHStateClientListenChoice(message)
 
 	case SmeProtHStateClientOk:
-		c.setState(SmePinStateCheckInit, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmePinStateCheckInit)
 
 	case SmeProtHStateServerOk:
-		c.setState(SmePinStateCheckInit, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmePinStateCheckInit)
 
 	// smePinState
 
@@ -190,6 +188,12 @@ func (c *ShipConnection) handleState(timeout bool, message []byte) {
 	case SmeAccessMethodsRequest:
 		c.handshakeAccessMethods_Request(message)
 	}
+}
+
+// set a state and trigger handling it
+func (c *ShipConnection) setAndHandleState(state ShipMessageExchangeState) {
+	c.setState(state, nil)
+	c.handleState(false, nil)
 }
 
 // SHIP handshake is approved, now set the new state and the SPINE read handler

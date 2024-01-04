@@ -82,8 +82,7 @@ func (c *ShipConnection) handshakeProtocol_smeProtHStateServerListenConfirm(mess
 
 	c.stopHandshakeTimer()
 
-	c.setState(SmeProtHStateServerOk, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeProtHStateServerOk)
 }
 
 func (c *ShipConnection) handshakeProtocol_smeProtHStateClientInit() {
@@ -158,8 +157,7 @@ func (c *ShipConnection) handshakeProtocol_smeProtHStateClientListenChoice(messa
 		return
 	}
 
-	c.setState(SmeProtHStateClientOk, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeProtHStateClientOk)
 }
 
 func (c *ShipConnection) abortProtocolHandshake(err model.MessageProtocolHandshakeErrorErrorType) {

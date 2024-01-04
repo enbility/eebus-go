@@ -13,8 +13,7 @@ import (
 // SME_HELLO_STATE_READY_INIT
 func (c *ShipConnection) handshakeHello_Init() {
 	if err := c.handshakeHelloSend(model.ConnectionHelloPhaseTypeReady, tHelloInit, false); err != nil {
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}
 
@@ -30,8 +29,7 @@ func (c *ShipConnection) handshakeHello_ReadyListen(timeout bool, message []byte
 
 	var helloReturnMsg model.ConnectionHello
 	if err := c.processShipJsonMessage(message, &helloReturnMsg); err != nil {
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}
 
@@ -65,16 +63,14 @@ func (c *ShipConnection) handshakeHello_ReadyListen(timeout bool, message []byte
 		// TODO: what to do if this is false?
 
 	case model.ConnectionHelloPhaseTypeAborted:
-		c.setState(SmeHelloStateRemoteAbortDone, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateRemoteAbortDone)
 
 		return
 
 	default:
 		// don't accept any other responses
 		logging.Log.Errorf("Unexpected connection hello phase: %s", hello.Phase)
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}
 
@@ -82,8 +78,7 @@ func (c *ShipConnection) handshakeHello_ReadyListen(timeout bool, message []byte
 }
 
 func (c *ShipConnection) handshakeHello_ReadyTimeout() {
-	c.setState(SmeHelloStateAbort, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeHelloStateAbort)
 }
 
 // SME_HELLO_ABORT
@@ -95,8 +90,7 @@ func (c *ShipConnection) handshakeHello_Abort() {
 		return
 	}
 
-	c.setState(SmeHelloStateAbortDone, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeHelloStateAbortDone)
 }
 
 // SME_HELLO_PENDING_INIT
@@ -109,8 +103,7 @@ func (c *ShipConnection) handshakeHello_PendingInit() {
 	c.setState(SmeHelloStatePendingListen, nil)
 
 	if !c.serviceDataProvider.AllowWaitingForTrust(c.remoteShipID) {
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 	}
 }
 
@@ -130,8 +123,7 @@ func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []by
 
 	var helloReturnMsg model.ConnectionHello
 	if err := c.processShipJsonMessage(message, &helloReturnMsg); err != nil {
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}
 
@@ -140,8 +132,7 @@ func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []by
 	switch hello.Phase {
 	case model.ConnectionHelloPhaseTypeReady:
 		if hello.Waiting == nil {
-			c.setState(SmeHelloStateAbort, nil)
-			c.handleState(false, nil)
+			c.setAndHandleState(SmeHelloStateAbort)
 			return
 		}
 
@@ -163,8 +154,7 @@ func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []by
 		if newDuration < tHelloProlongMin {
 			// I interpret 13.4.4.1.3 Page 64 Line 1550-1553 as this resulting in a timeout state
 			// TODO: verify this
-			c.setState(SmeHelloStateAbort, nil)
-			c.handleState(false, nil)
+			c.setAndHandleState(SmeHelloStateAbort)
 		}
 
 	case model.ConnectionHelloPhaseTypePending:
@@ -188,8 +178,7 @@ func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []by
 			if newDuration < tHelloProlongMin {
 				// I interpret 13.4.4.1.3 Page 64 Line 1557-1560 as this resulting in a timeout state
 				// TODO: verify this
-				c.setState(SmeHelloStateAbort, nil)
-				c.handleState(false, nil)
+				c.setAndHandleState(SmeHelloStateAbort)
 			}
 
 			return
@@ -204,19 +193,16 @@ func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []by
 			return
 		}
 
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 
 	case model.ConnectionHelloPhaseTypeAborted:
-		c.setState(SmeHelloStateRemoteAbortDone, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateRemoteAbortDone)
 		return
 
 	default:
 		// don't accept any other responses
 		logging.Log.Errorf("Unexpected connection hello phase: %s", hello.Phase)
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}
 
@@ -235,8 +221,7 @@ func (c *ShipConnection) handshakeHello_PendingProlongationRequest() {
 
 func (c *ShipConnection) handshakeHello_PendingTimeout() {
 	if c.getHandshakeTimerType() != timeoutTimerTypeSendProlongationRequest {
-		c.setState(SmeHelloStateAbort, nil)
-		c.handleState(false, nil)
+		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}
 

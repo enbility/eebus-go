@@ -109,12 +109,10 @@ func (c *ShipConnection) ApprovePendingHandshake() {
 
 	// HELLO_OK
 	c.stopHandshakeTimer()
-	c.setState(SmeHelloStateReadyInit, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeHelloStateReadyInit)
 
 	// TODO: check if we need to do some validations before moving on to the next state
-	c.setState(SmeHelloStateOk, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeHelloStateOk)
 }
 
 // invoked when pairing for a pending request is denied
@@ -129,8 +127,7 @@ func (c *ShipConnection) AbortPendingHandshake() {
 	// TODO: Move this into hs_hello.go and add tests
 
 	c.stopHandshakeTimer()
-	c.setState(SmeHelloStateAbort, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeHelloStateAbort)
 }
 
 // report removing a connection

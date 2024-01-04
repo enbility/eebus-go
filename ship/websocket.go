@@ -105,7 +105,7 @@ func (w *websocketConnection) writeShipPump() {
 			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			w.muxConWrite.Unlock()
 			if !ok {
-				logging.Log.Debug(w.remoteSki, "Ship write channel closed")
+				logging.Log.Debug(w.remoteSki, "ship write channel closed")
 				// The write channel has been closed
 				_ = w.writeMessage(websocket.CloseMessage, []byte{})
 				return
@@ -117,9 +117,7 @@ func (w *websocketConnection) writeShipPump() {
 					return
 				}
 
-				logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
-				w.setConnClosedError(err)
-				w.dataProcessing.ReportConnectionError(err)
+				w.closeWithError(err, "error writing to websocket: ")
 				return
 			}
 
@@ -148,11 +146,15 @@ func (w *websocketConnection) handlePing() {
 	_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
 	w.muxConWrite.Unlock()
 	if err := w.writeMessage(websocket.PingMessage, nil); err != nil {
-		logging.Log.Debug(w.remoteSki, "error writing to websocket: ", err)
-		w.setConnClosedError(err)
-		w.dataProcessing.ReportConnectionError(err)
+		w.closeWithError(err, "error writing to websocket: ")
 		return
 	}
+}
+
+func (w *websocketConnection) closeWithError(err error, reason string) {
+	logging.Log.Debug(w.remoteSki, reason, err)
+	w.setConnClosedError(err)
+	w.dataProcessing.ReportConnectionError(err)
 }
 
 // readShipPump checks for messages from the websocket connection

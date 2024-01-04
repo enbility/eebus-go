@@ -39,8 +39,7 @@ func (c *ShipConnection) handshakeInit_cmiStateServerWait(message []byte) {
 		return
 	}
 
-	c.setState(SmeHelloState, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeHelloState)
 }
 
 // CMI_STATE_CLIENT_WAIT
@@ -51,8 +50,7 @@ func (c *ShipConnection) handshakeInit_cmiStateClientWait(message []byte) {
 		return
 	}
 
-	c.setState(SmeHelloState, nil)
-	c.handleState(false, nil)
+	c.setAndHandleState(SmeHelloState)
 }
 
 // CMI_STATE_SERVER_EVALUATE

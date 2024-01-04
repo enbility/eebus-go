@@ -1,6 +1,7 @@
 package ship
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -84,6 +85,19 @@ func (s *WebsocketSuite) TestConnection() {
 	assert.NotNil(s.T(), err)
 }
 
+func (s *WebsocketSuite) TestConnectionInvalid() {
+	msg := []byte{100}
+	err := s.sut.WriteMessageToDataConnection(msg)
+	assert.Nil(s.T(), err)
+
+	// make sure we have enough time to read and write
+	time.Sleep(time.Millisecond * 500)
+
+	isConnClosed, err := s.sut.IsDataConnectionClosed()
+	assert.Equal(s.T(), true, isConnClosed)
+	assert.NotNil(s.T(), err)
+}
+
 func (s *WebsocketSuite) TestConnectionClose() {
 	s.sut.close()
 
@@ -108,6 +122,19 @@ func (s *WebsocketSuite) TestPingPeriod() {
 	isClosed, err = s.sut.IsDataConnectionClosed()
 	assert.Equal(s.T(), false, isClosed)
 	assert.Nil(s.T(), err)
+}
+
+func (s *WebsocketSuite) TestCloseWithError() {
+	isClosed, err := s.sut.IsDataConnectionClosed()
+	assert.Equal(s.T(), false, isClosed)
+	assert.Nil(s.T(), err)
+
+	err = errors.New("test error")
+	s.sut.closeWithError(err, "test error")
+
+	isClosed, err = s.sut.IsDataConnectionClosed()
+	assert.Equal(s.T(), true, isClosed)
+	assert.NotNil(s.T(), err)
 }
 
 var upgrader = websocket.Upgrader{}

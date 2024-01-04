@@ -51,6 +51,24 @@ func (s *AccessSuite) Test_Request() {
 	shutdownTest(sut)
 }
 
+func (s *AccessSuite) Test_Request_Invalid() {
+	sut, _ := initTest(ShipRoleClient)
+
+	sut.setState(SmeAccessMethodsRequest, nil)
+
+	accessMsg := model.MessageProtocolHandshake{}
+	msg, err := sut.shipMessage(model.MsgTypeControl, accessMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), SmeStateError, sut.getState())
+
+	shutdownTest(sut)
+}
+
 func (s *AccessSuite) Test_Methods_Ok() {
 	sut, data := initTest(ShipRoleClient)
 
@@ -74,6 +92,27 @@ func (s *AccessSuite) Test_Methods_Ok() {
 	shutdownTest(sut)
 }
 
+func (s *AccessSuite) Test_Methods_NoID() {
+	sut, data := initTest(ShipRoleClient)
+
+	sut.setState(SmeAccessMethodsRequest, nil)
+
+	accessMsg := model.AccessMethods{
+		AccessMethods: model.AccessMethodsType{},
+	}
+	msg, err := sut.shipMessage(model.MsgTypeControl, accessMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), SmeStateError, sut.getState())
+	assert.Nil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
+}
+
 func (s *AccessSuite) Test_Methods_WrongShipID() {
 	sut, data := initTest(ShipRoleClient)
 
@@ -93,6 +132,30 @@ func (s *AccessSuite) Test_Methods_WrongShipID() {
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 	assert.Equal(s.T(), SmeStateError, sut.getState())
 	assert.Nil(s.T(), data.lastMessage())
+
+	shutdownTest(sut)
+}
+
+func (s *AccessSuite) Test_Methods_NoShipID() {
+	sut, _ := initTest(ShipRoleClient)
+
+	sut.remoteShipID = ""
+
+	sut.setState(SmeAccessMethodsRequest, nil)
+
+	accessMsg := model.AccessMethods{
+		AccessMethods: model.AccessMethodsType{
+			Id: util.Ptr(""),
+		},
+	}
+	msg, err := sut.shipMessage(model.MsgTypeControl, accessMsg)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msg)
+
+	sut.handleState(false, msg)
+
+	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
+	assert.Equal(s.T(), SmeStateComplete, sut.getState())
 
 	shutdownTest(sut)
 }
