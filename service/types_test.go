@@ -1,7 +1,6 @@
 package service
 
 import (
-	"crypto/tls"
 	"errors"
 	"testing"
 	"time"
@@ -44,7 +43,7 @@ func (s *TypesSuite) Test_ServiceDetails() {
 }
 
 func (s *TypesSuite) Test_Configuration() {
-	certificate := tls.Certificate{}
+	certificate, _ := CreateCertificate("unit", "org", "DE", "CN")
 	vendor := "vendor"
 	brand := "brand"
 	model := "model"

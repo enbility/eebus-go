@@ -142,7 +142,7 @@ func (s *EEBUSService) SetLogging(logger logging.Logging) {
 	if logger == nil {
 		return
 	}
-	logging.Log = logger
+	logging.SetLogging(logger)
 }
 
 // Starts the service by initializeing mDNS and the server.

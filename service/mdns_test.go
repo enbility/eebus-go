@@ -1,7 +1,6 @@
 package service
 
 import (
-	"crypto/tls"
 	"net"
 	"testing"
 	"time"
@@ -46,7 +45,7 @@ func (s *MdnsSuite) BeforeTest(suiteName, testName string) {
 	s.mdnsProvider.On("ResolveEntries", mock.Anything, mock.Anything).Maybe().Return()
 	s.mdnsProvider.On("Shutdown").Maybe().Return()
 
-	certificate := tls.Certificate{}
+	certificate, _ := CreateCertificate("unit", "org", "DE", "CN")
 
 	s.config, _ = NewConfiguration(
 		"vendor", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,

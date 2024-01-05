@@ -10,7 +10,6 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -41,8 +40,6 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	s.conHub = NewMockConnectionsHub(ctrl)
 
 	s.logging = mocks.NewLogging(s.T())
-	s.logging.On("Info", mock.Anything, mock.Anything).Maybe()
-	s.logging.On("Debug", mock.Anything, mock.Anything).Maybe()
 
 	certificate := tls.Certificate{}
 	s.config, _ = NewConfiguration(
@@ -120,7 +117,8 @@ func (s *ServiceSuite) Test_SetLogging() {
 	s.sut.SetLogging(s.logging)
 	assert.Equal(s.T(), s.logging, logging.Log)
 
-	s.sut.SetLogging(nil)
+	s.sut.SetLogging(&logging.NoLogging{})
+	assert.Equal(s.T(), &logging.NoLogging{}, logging.Log)
 }
 
 func (s *ServiceSuite) Test_Setup() {

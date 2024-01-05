@@ -420,7 +420,13 @@ func (s *HubSuite) Test_ReportMdnsEntries() {
 		remoteServices:           make(map[string]*ServiceDetails),
 		serviceProvider:          s.serviceProvider,
 		localService:             localService,
+		mdns:                     s.mdnsService,
 	}
+
+	certificate, _ := CreateCertificate("unit", "org", "DE", "CN")
+	sut.configuration, _ = NewConfiguration("vendor", "brand", "model", "serial",
+		model.DeviceTypeTypeGeneric, []model.EntityTypeType{model.EntityTypeTypeCEM},
+		4567, certificate, 230, time.Second*4)
 
 	testski1 := "test1"
 	testski2 := "test2"
