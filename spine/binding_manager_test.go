@@ -69,6 +69,18 @@ func (suite *BindingManagerSuite) Test_Bindings() {
 	subs = bindingMgr.Bindings(suite.remoteDevice)
 	assert.Equal(suite.T(), 1, len(subs))
 
+	address := model.FeatureAddressType{
+		Device:  entity.Device().Address(),
+		Entity:  entity.Address().Entity,
+		Feature: util.Ptr(model.AddressFeatureType(10)),
+	}
+	entries := bindingMgr.BindingsOnFeature(address)
+	assert.Equal(suite.T(), 0, len(entries))
+
+	address.Feature = localFeature.Address().Feature
+	entries = bindingMgr.BindingsOnFeature(address)
+	assert.Equal(suite.T(), 1, len(entries))
+
 	bindingDelete := model.BindingManagementDeleteCallType{
 		ClientAddress: remoteFeature.Address(),
 		ServerAddress: localFeature.Address(),
