@@ -50,7 +50,7 @@ func (r *NodeManagementImpl) Device() *DeviceLocalImpl {
 	return r.entity.Device()
 }
 
-func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
+func (r *NodeManagementImpl) HandleMessage(message *Message) *model.ErrorType {
 	switch {
 	case message.Cmd.ResultData != nil:
 		if err := r.processResult(message); err != nil {
@@ -60,51 +60,51 @@ func (r *NodeManagementImpl) HandleMessage(message *Message) *ErrorType {
 
 	case message.Cmd.NodeManagementDetailedDiscoveryData != nil:
 		if err := r.handleMsgDetailedDiscoveryData(message, message.Cmd.NodeManagementDetailedDiscoveryData); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementSubscriptionRequestCall != nil:
 		if err := r.handleMsgSubscriptionRequestCall(message, message.Cmd.NodeManagementSubscriptionRequestCall); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementSubscriptionDeleteCall != nil:
 		if err := r.handleMsgSubscriptionDeleteCall(message, message.Cmd.NodeManagementSubscriptionDeleteCall); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementSubscriptionData != nil:
 		if err := r.handleMsgSubscriptionData(message); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementBindingRequestCall != nil:
 		if err := r.handleMsgBindingRequestCall(message, message.Cmd.NodeManagementBindingRequestCall); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementBindingDeleteCall != nil:
 		if err := r.handleMsgBindingDeleteCall(message, message.Cmd.NodeManagementBindingDeleteCall); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementBindingData != nil:
 		if err := r.handleMsgBindingData(message); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementUseCaseData != nil:
 		if err := r.handleMsgUseCaseData(message, message.Cmd.NodeManagementUseCaseData); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	case message.Cmd.NodeManagementDestinationListData != nil:
 		if err := r.handleMsgDestinationListData(message, message.Cmd.NodeManagementDestinationListData); err != nil {
-			return NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+			return model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 		}
 
 	default:
-		return NewErrorType(model.ErrorNumberTypeCommandNotSupported, fmt.Sprintf("nodemanagement.Handle: Cmd data not implemented: %s", message.Cmd.DataName()))
+		return model.NewErrorType(model.ErrorNumberTypeCommandNotSupported, fmt.Sprintf("nodemanagement.Handle: Cmd data not implemented: %s", message.Cmd.DataName()))
 	}
 
 	return nil

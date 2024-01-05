@@ -24,7 +24,7 @@ type Sender interface {
 	// Sends a result cmd with no error to indicate that a message was processed successfully
 	ResultSuccess(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType) error
 	// Sends a result cmd with error information to indicate that a message processing failed
-	ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *ErrorType) error
+	ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *model.ErrorType) error
 	// Sends a reply cmd to response to a read cmd
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
 	// Sends a call cmd with a subscription request
@@ -123,12 +123,12 @@ func (c *SenderImpl) ResultSuccess(requestHeader *model.HeaderType, senderAddres
 	return c.result(requestHeader, senderAddress, nil)
 }
 
-func (c *SenderImpl) ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *ErrorType) error {
+func (c *SenderImpl) ResultError(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *model.ErrorType) error {
 	return c.result(requestHeader, senderAddress, err)
 }
 
 // sends a result for a request
-func (c *SenderImpl) result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *ErrorType) error {
+func (c *SenderImpl) result(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, err *model.ErrorType) error {
 	cmdClassifier := model.CmdClassifierTypeResult
 
 	addressSource := *requestHeader.AddressDestination

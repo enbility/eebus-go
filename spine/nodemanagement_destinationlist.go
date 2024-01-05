@@ -7,8 +7,8 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 )
 
-func (r *NodeManagementImpl) RequestDestinationListData(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
-	return nil, NewErrorTypeFromString("Not implemented")
+func (r *NodeManagementImpl) RequestDestinationListData(remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *model.ErrorType) {
+	return nil, model.NewErrorTypeFromString("Not implemented")
 }
 
 func (r *NodeManagementImpl) processReadDestinationListData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {

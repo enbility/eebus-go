@@ -1,36 +1,35 @@
-package spine
+package model
 
 import (
 	"fmt"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 )
 
 type ErrorType struct {
-	ErrorNumber model.ErrorNumberType
-	Description *model.DescriptionType
+	ErrorNumber ErrorNumberType
+	Description *DescriptionType
 }
 
-func NewErrorType(errorNumber model.ErrorNumberType, description string) *ErrorType {
+func NewErrorType(errorNumber ErrorNumberType, description string) *ErrorType {
 	return &ErrorType{
 		ErrorNumber: errorNumber,
-		Description: util.Ptr(model.DescriptionType(description)),
+		Description: util.Ptr(DescriptionType(description)),
 	}
 }
 
-func NewErrorTypeFromNumber(errorNumber model.ErrorNumberType) *ErrorType {
+func NewErrorTypeFromNumber(errorNumber ErrorNumberType) *ErrorType {
 	return &ErrorType{
 		ErrorNumber: errorNumber,
 	}
 }
 
 func NewErrorTypeFromString(description string) *ErrorType {
-	return NewErrorType(model.ErrorNumberTypeGeneralError, description)
+	return NewErrorType(ErrorNumberTypeGeneralError, description)
 }
 
-func NewErrorTypeFromResult(result *model.ResultDataType) *ErrorType {
-	if *result.ErrorNumber == model.ErrorNumberTypeNoError {
+func NewErrorTypeFromResult(result *ResultDataType) *ErrorType {
+	if *result.ErrorNumber == ErrorNumberTypeNoError {
 		return nil
 	}
 

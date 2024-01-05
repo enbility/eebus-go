@@ -22,37 +22,37 @@ type FeatureLocal interface {
 		function model.FunctionType,
 		selector any,
 		elements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
+		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
 	RequestDataBySenderAddress(
 		cmd model.CmdType,
 		sender Sender,
 		destinationSki string,
 		destinationAddress *model.FeatureAddressType,
-		maxDelay time.Duration) (*model.MsgCounterType, *ErrorType)
+		maxDelay time.Duration) (*model.MsgCounterType, *model.ErrorType)
 	FetchRequestData(
 		msgCounter model.MsgCounterType,
-		destination *FeatureRemoteImpl) (any, *ErrorType)
+		destination *FeatureRemoteImpl) (any, *model.ErrorType)
 	RequestAndFetchData(
 		function model.FunctionType,
 		selector any,
 		elements any,
-		destination *FeatureRemoteImpl) (any, *ErrorType)
-	Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType)
+		destination *FeatureRemoteImpl) (any, *model.ErrorType)
+	Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
 	// SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
-	Bind(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType)
+	Bind(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
 	// BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType
 	NotifyData(
 		function model.FunctionType,
 		deleteSelector, partialSelector any,
 		partialWithoutSelector bool,
 		deleteElements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
+		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
 	WriteData(
 		function model.FunctionType,
 		deleteSelector, partialSelector any,
 		deleteElements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType)
-	HandleMessage(message *Message) *ErrorType
+		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
+	HandleMessage(message *Message) *model.ErrorType
 }
 
 type FeatureResult interface {
@@ -185,7 +185,7 @@ func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
 	selector any,
 	elements any,
-	destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
+	destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType(selector, elements)
 
@@ -197,7 +197,7 @@ func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 	sender Sender,
 	deviceSki string,
 	destinationAddress *model.FeatureAddressType,
-	maxDelay time.Duration) (*model.MsgCounterType, *ErrorType) {
+	maxDelay time.Duration) (*model.MsgCounterType, *model.ErrorType) {
 
 	msgCounter, err := sender.Request(model.CmdClassifierTypeRead, r.Address(), destinationAddress, false, []model.CmdType{cmd})
 	if err == nil {
@@ -205,14 +205,14 @@ func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 		return msgCounter, nil
 	}
 
-	return msgCounter, NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
+	return msgCounter, model.NewErrorType(model.ErrorNumberTypeGeneralError, err.Error())
 }
 
 // Wait and return the response from destination for a message with the msgCounter ID
 // this will block until the response is received
 func (r *FeatureLocalImpl) FetchRequestData(
 	msgCounter model.MsgCounterType,
-	destination *FeatureRemoteImpl) (any, *ErrorType) {
+	destination *FeatureRemoteImpl) (any, *model.ErrorType) {
 
 	return r.pendingRequests.GetData(destination.Device().ski, msgCounter)
 }
@@ -223,7 +223,7 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 	function model.FunctionType,
 	selector any,
 	elements any,
-	destination *FeatureRemoteImpl) (any, *ErrorType) {
+	destination *FeatureRemoteImpl) (any, *model.ErrorType) {
 
 	msgCounter, err := r.RequestData(function, selector, elements, destination)
 	if err != nil {
@@ -234,14 +234,14 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 }
 
 // Subscribe to a remote feature
-func (r *FeatureLocalImpl) Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType) {
+func (r *FeatureLocalImpl) Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
 	if r.Role() == model.RoleTypeServer {
-		return nil, NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
+		return nil, model.NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
 	}
 
 	msgCounter, err := remoteDevice.Sender().Subscribe(r.Address(), remoteAdress, r.ftype)
 	if err != nil {
-		return nil, NewErrorTypeFromString(err.Error())
+		return nil, model.NewErrorTypeFromString(err.Error())
 	}
 
 	return msgCounter, nil
@@ -276,14 +276,14 @@ func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remo
 */
 
 // Bind to a remote feature
-func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *ErrorType) {
+func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
 	if r.Role() == model.RoleTypeServer {
-		return nil, NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
+		return nil, model.NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
 	}
 
 	msgCounter, err := remoteDevice.Sender().Bind(r.Address(), remoteAddress, r.ftype)
 	if err != nil {
-		return nil, NewErrorTypeFromString(err.Error())
+		return nil, model.NewErrorTypeFromString(err.Error())
 	}
 
 	return msgCounter, nil
@@ -323,13 +323,13 @@ func (r *FeatureLocalImpl) NotifyData(
 	deleteSelector, partialSelector any,
 	partialWithoutSelector bool,
 	deleteElements any,
-	destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
+	destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.NotifyCmdType(deleteSelector, partialSelector, partialWithoutSelector, deleteElements)
 
 	msgCounter, err := destination.Sender().Request(model.CmdClassifierTypeRead, r.Address(), destination.Address(), false, []model.CmdType{cmd})
 	if err != nil {
-		return nil, NewErrorTypeFromString(err.Error())
+		return nil, model.NewErrorTypeFromString(err.Error())
 	}
 	return msgCounter, nil
 }
@@ -339,29 +339,29 @@ func (r *FeatureLocalImpl) WriteData(
 	function model.FunctionType,
 	deleteSelector, partialSelector any,
 	deleteElements any,
-	destination *FeatureRemoteImpl) (*model.MsgCounterType, *ErrorType) {
+	destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.WriteCmdType(deleteSelector, partialSelector, deleteElements)
 
 	msgCounter, err := destination.Sender().Write(r.Address(), destination.Address(), cmd)
 	if err != nil {
-		return nil, NewErrorTypeFromString(err.Error())
+		return nil, model.NewErrorTypeFromString(err.Error())
 	}
 
 	return msgCounter, nil
 }
 
-func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
+func (r *FeatureLocalImpl) HandleMessage(message *Message) *model.ErrorType {
 	if message.Cmd.ResultData != nil {
 		return r.processResult(message)
 	}
 
 	cmdData, err := message.Cmd.Data()
 	if err != nil {
-		return NewErrorType(model.ErrorNumberTypeCommandNotSupported, err.Error())
+		return model.NewErrorType(model.ErrorNumberTypeCommandNotSupported, err.Error())
 	}
 	if cmdData.Function == nil {
-		return NewErrorType(model.ErrorNumberTypeCommandNotSupported, "No function found for cmd data")
+		return model.NewErrorType(model.ErrorNumberTypeCommandNotSupported, "No function found for cmd data")
 	}
 
 	switch message.CmdClassifier {
@@ -378,13 +378,13 @@ func (r *FeatureLocalImpl) HandleMessage(message *Message) *ErrorType {
 			return err
 		}
 	default:
-		return NewErrorTypeFromString(fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
+		return model.NewErrorTypeFromString(fmt.Sprintf("CmdClassifier not implemented: %s", message.CmdClassifier))
 	}
 
 	return nil
 }
 
-func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
+func (r *FeatureLocalImpl) processResult(message *Message) *model.ErrorType {
 	switch message.CmdClassifier {
 	case model.CmdClassifierTypeResult:
 		if *message.Cmd.ResultData.ErrorNumber != model.ErrorNumberTypeNoError {
@@ -397,7 +397,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 		}
 
 		// we don't need to populate this error as requests don't require a pendingRequest entry
-		_ = r.pendingRequests.SetResult(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference, NewErrorTypeFromResult(message.Cmd.ResultData))
+		_ = r.pendingRequests.SetResult(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference, model.NewErrorTypeFromResult(message.Cmd.ResultData))
 
 		if message.RequestHeader.MsgCounterReference == nil {
 			return nil
@@ -423,28 +423,28 @@ func (r *FeatureLocalImpl) processResult(message *Message) *ErrorType {
 		return nil
 
 	default:
-		return NewErrorType(
+		return model.NewErrorType(
 			model.ErrorNumberTypeGeneralError,
 			fmt.Sprintf("ResultData CmdClassifierType %s not implemented", message.CmdClassifier))
 	}
 }
 
-func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
+func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *model.ErrorType {
 	// is this a read request to a local server/special feature?
 	if r.role == model.RoleTypeClient {
 		// Read requests to a client feature are not allowed
-		return NewErrorTypeFromNumber(model.ErrorNumberTypeCommandRejected)
+		return model.NewErrorTypeFromNumber(model.ErrorNumberTypeCommandRejected)
 	}
 
 	cmd := r.functionData(function).ReplyCmdType(false)
 	if err := featureRemote.Sender().Reply(requestHeader, r.Address(), cmd); err != nil {
-		return NewErrorTypeFromString(err.Error())
+		return model.NewErrorTypeFromString(err.Error())
 	}
 
 	return nil
 }
 
-func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *ErrorType {
+func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *model.ErrorType {
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 	_ = r.pendingRequests.SetData(featureRemote.Device().ski, *requestHeader.MsgCounterReference, data)
 	// an error in SetData only means that there is no pendingRequest waiting for this dataset
@@ -466,7 +466,7 @@ func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, f
 	return nil
 }
 
-func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, featureRemote *FeatureRemoteImpl) *ErrorType {
+func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, featureRemote *FeatureRemoteImpl) *model.ErrorType {
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 
 	payload := EventPayload{

@@ -51,7 +51,7 @@ func (r *FunctionDataImpl[T]) Data() *T {
 	return &copiedData
 }
 
-func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.FilterType, filterDelete *model.FilterType) *ErrorType {
+func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.FilterType, filterDelete *model.FilterType) *model.ErrorType {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
@@ -63,7 +63,7 @@ func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.Filter
 
 	supported := util.Implements[T, model.Updater]()
 	if !supported {
-		return NewErrorTypeFromString(fmt.Sprintf("partial updates are not supported for type '%s'", util.Type[T]().Name()))
+		return model.NewErrorTypeFromString(fmt.Sprintf("partial updates are not supported for type '%s'", util.Type[T]().Name()))
 	}
 
 	if r.data == nil {

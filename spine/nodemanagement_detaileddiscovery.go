@@ -8,7 +8,7 @@ import (
 )
 
 // request detailed discovery data from a remote device
-func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceSki string, remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *ErrorType) {
+func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceSki string, remoteDeviceAddress *model.AddressDeviceType, sender Sender) (*model.MsgCounterType, *model.ErrorType) {
 	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDeviceAddress, DeviceInformationAddressEntity))
 	cmd := model.CmdType{
 		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},

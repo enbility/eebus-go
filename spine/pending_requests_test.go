@@ -80,21 +80,21 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetData() {
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult() {
 	// Act
-	err := suite.sut.SetResult(suite.ski, suite.counter, NewErrorTypeFromString("unknown error"))
+	err := suite.sut.SetResult(suite.ski, suite.counter, model.NewErrorTypeFromString("unknown error"))
 	assert.Nil(suite.T(), err)
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_SetResult() {
-	_ = suite.sut.SetResult(suite.ski, suite.counter, NewErrorTypeFromString("unknown error"))
+	_ = suite.sut.SetResult(suite.ski, suite.counter, model.NewErrorTypeFromString("unknown error"))
 	// Act
-	err := suite.sut.SetResult(suite.ski, suite.counter, NewErrorTypeFromString("unknown error"))
+	err := suite.sut.SetResult(suite.ski, suite.counter, model.NewErrorTypeFromString("unknown error"))
 	assert.NotNil(suite.T(), err)
 }
 
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_SetResult() {
 	_ = suite.sut.SetData(suite.ski, suite.counter, 1)
 	// Act
-	err := suite.sut.SetResult(suite.ski, suite.counter, NewErrorTypeFromString("unknown error"))
+	err := suite.sut.SetResult(suite.ski, suite.counter, model.NewErrorTypeFromString("unknown error"))
 	assert.NotNil(suite.T(), err)
 }
 
@@ -112,7 +112,7 @@ func (suite *PendingRequestsTestSuite) TestPendingRequests_SetData_GetData() {
 func (suite *PendingRequestsTestSuite) TestPendingRequests_SetResult_GetData() {
 	errNo := model.ErrorNumberTypeTimeout
 	errDesc := "Timeout occurred"
-	_ = suite.sut.SetResult(suite.ski, suite.counter, NewErrorType(errNo, errDesc))
+	_ = suite.sut.SetResult(suite.ski, suite.counter, model.NewErrorType(errNo, errDesc))
 
 	// Act
 	result, err := suite.sut.GetData(suite.ski, suite.counter)

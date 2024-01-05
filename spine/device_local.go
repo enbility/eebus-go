@@ -217,7 +217,7 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 
 	if localFeature == nil {
 		errorMessage := "invalid feature address"
-		_ = remoteFeature.Sender().ResultError(message.RequestHeader, destAddr, NewErrorType(model.ErrorNumberTypeDestinationUnknown, errorMessage))
+		_ = remoteFeature.Sender().ResultError(message.RequestHeader, destAddr, model.NewErrorType(model.ErrorNumberTypeDestinationUnknown, errorMessage))
 
 		return errors.New(errorMessage)
 	}
