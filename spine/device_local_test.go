@@ -1,10 +1,9 @@
-package spine_test
+package spine
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
@@ -19,12 +18,12 @@ type DeviceLocalTestSuite struct {
 	suite.Suite
 }
 
-var _ spine.SpineDataConnection = (*DeviceLocalTestSuite)(nil)
+var _ SpineDataConnection = (*DeviceLocalTestSuite)(nil)
 
 func (d *DeviceLocalTestSuite) WriteSpineMessage([]byte) {}
 
 func (d *DeviceLocalTestSuite) Test_RemoveRemoteDevice() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	sut := NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	ski := "test"
 	sut.AddRemoteDevice(ski, d)
@@ -38,13 +37,13 @@ func (d *DeviceLocalTestSuite) Test_RemoveRemoteDevice() {
 }
 
 func (d *DeviceLocalTestSuite) Test_RemoteDevice() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	sut := NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	localEntity := NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, NewAddressEntityType([]uint{1}))
 	sut.AddEntity(localEntity)
 
-	f := spine.NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	f := NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
 	localEntity.AddFeature(f)
-	f = spine.NewFeatureLocalImpl(2, localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
+	f = NewFeatureLocalImpl(2, localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
 	localEntity.AddFeature(f)
 
 	ski := "test"
@@ -90,8 +89,8 @@ func (d *DeviceLocalTestSuite) Test_RemoteDevice() {
 }
 
 func (d *DeviceLocalTestSuite) Test_ProcessCmd_Errors() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	sut := NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	localEntity := NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, NewAddressEntityType([]uint{1}))
 	sut.AddEntity(localEntity)
 
 	ski := "test"
@@ -141,15 +140,15 @@ func (d *DeviceLocalTestSuite) Test_ProcessCmd_Errors() {
 }
 
 func (d *DeviceLocalTestSuite) Test_ProcessCmd() {
-	sut := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	sut := NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	localEntity := NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, NewAddressEntityType([]uint{1}))
 	sut.AddEntity(localEntity)
 
-	f := spine.NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	f := NewFeatureLocalImpl(1, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
 	localEntity.AddFeature(f)
-	f = spine.NewFeatureLocalImpl(2, localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
+	f = NewFeatureLocalImpl(2, localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
 	localEntity.AddFeature(f)
-	f = spine.NewFeatureLocalImpl(3, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	f = NewFeatureLocalImpl(3, localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
 	localEntity.AddFeature(f)
 
 	ski := "test"

@@ -1,10 +1,9 @@
-package spine_test
+package spine
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -17,8 +16,8 @@ func TestDeviceRemoteSuite(t *testing.T) {
 type DeviceRemoteSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteDevice *spine.DeviceRemoteImpl
+	localDevice  *DeviceLocalImpl
+	remoteDevice *DeviceRemoteImpl
 }
 
 func (s *DeviceRemoteSuite) WriteSpineMessage([]byte) {}
@@ -26,16 +25,16 @@ func (s *DeviceRemoteSuite) WriteSpineMessage([]byte) {}
 func (s *DeviceRemoteSuite) SetupSuite() {}
 
 func (s *DeviceRemoteSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice = spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	s.localDevice = NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	ski := "test"
-	sender := spine.NewSender(s)
-	s.remoteDevice = spine.NewDeviceRemoteImpl(s.localDevice, ski, sender)
+	sender := NewSender(s)
+	s.remoteDevice = NewDeviceRemoteImpl(s.localDevice, ski, sender)
 	s.localDevice.AddRemoteDevice(ski, s)
 
-	entity := spine.NewEntityRemoteImpl(s.remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{1})
+	entity := NewEntityRemoteImpl(s.remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{1})
 
-	feature := spine.NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
+	feature := NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 	entity.AddFeature(feature)
 
 	s.remoteDevice.AddEntity(entity)
@@ -174,7 +173,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 	entity := s.remoteDevice.Entity([]model.AddressEntityType{1})
 	assert.NotNil(s.T(), entity)
 
-	feature := spine.NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	feature := NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
 	entity.AddFeature(feature)
 
 	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
@@ -185,7 +184,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 	)
 	assert.Equal(s.T(), false, result)
 
-	feature = spine.NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	feature = NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
 	entity.AddFeature(feature)
 
 	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(

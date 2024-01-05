@@ -1,10 +1,9 @@
-package spine_test
+package spine
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
@@ -18,35 +17,35 @@ func TestSubscriptionManagerSuite(t *testing.T) {
 type SubscriptionManagerSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteDevice *spine.DeviceRemoteImpl
-	sut          spine.SubscriptionManager
+	localDevice  *DeviceLocalImpl
+	remoteDevice *DeviceRemoteImpl
+	sut          SubscriptionManager
 }
 
 func (suite *SubscriptionManagerSuite) WriteSpineMessage([]byte) {}
 
 func (suite *SubscriptionManagerSuite) SetupSuite() {
-	suite.localDevice = spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	suite.localDevice = NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	ski := "test"
-	sender := spine.NewSender(suite)
-	suite.remoteDevice = spine.NewDeviceRemoteImpl(suite.localDevice, ski, sender)
+	sender := NewSender(suite)
+	suite.remoteDevice = NewDeviceRemoteImpl(suite.localDevice, ski, sender)
 
 	suite.localDevice.AddRemoteDevice(ski, suite)
 
-	suite.sut = spine.NewSubscriptionManager(suite.localDevice)
+	suite.sut = NewSubscriptionManager(suite.localDevice)
 }
 
 func (suite *SubscriptionManagerSuite) Test_Subscriptions() {
-	entity := spine.NewEntityLocalImpl(suite.localDevice, model.EntityTypeTypeCEM, []model.AddressEntityType{1})
+	entity := NewEntityLocalImpl(suite.localDevice, model.EntityTypeTypeCEM, []model.AddressEntityType{1})
 	suite.localDevice.AddEntity(entity)
 
 	localFeature := entity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 
-	remoteEntity := spine.NewEntityRemoteImpl(suite.remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{1})
+	remoteEntity := NewEntityRemoteImpl(suite.remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{1})
 	suite.remoteDevice.AddEntity(remoteEntity)
 
-	remoteFeature := spine.NewFeatureRemoteImpl(remoteEntity.NextFeatureId(), remoteEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)
+	remoteFeature := NewFeatureRemoteImpl(remoteEntity.NextFeatureId(), remoteEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)
 	remoteFeature.Address().Device = util.Ptr(model.AddressDeviceType("remoteDevice"))
 	remoteEntity.AddFeature(remoteFeature)
 

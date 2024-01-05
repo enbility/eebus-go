@@ -1,10 +1,9 @@
-package spine_test
+package spine
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/mocks"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
@@ -27,22 +26,22 @@ func TestNodemanagement_BindingCalls(t *testing.T) {
 		assert.True(t, reflect.DeepEqual(cmd.NodeManagementBindingData.BindingEntry[0].ServerAddress, serverFeature.Address()))
 	}).Return(nil).Once()
 
-	requestMsg := spine.Message{
+	requestMsg := Message{
 		Cmd: model.CmdType{
-			NodeManagementBindingRequestCall: spine.NewNodeManagementBindingRequestCallType(
+			NodeManagementBindingRequestCall: NewNodeManagementBindingRequestCallType(
 				clientFeature.Address(), serverFeature.Address(), featureType),
 		},
 		CmdClassifier: model.CmdClassifierTypeCall,
 		FeatureRemote: clientFeature,
 	}
 
-	sut := spine.NewNodeManagementImpl(0, serverFeature.Entity())
+	sut := NewNodeManagementImpl(0, serverFeature.Entity())
 
 	// Act
 	err := sut.HandleMessage(&requestMsg)
 	if assert.Nil(t, err) {
 
-		dataMsg := spine.Message{
+		dataMsg := Message{
 			Cmd: model.CmdType{
 				NodeManagementBindingData: &model.NodeManagementBindingDataType{},
 			},
@@ -58,9 +57,9 @@ func TestNodemanagement_BindingCalls(t *testing.T) {
 		assert.Equal(t, 0, len(cmd.NodeManagementBindingData.BindingEntry))
 	}).Return(nil).Once()
 
-	deleteMsg := spine.Message{
+	deleteMsg := Message{
 		Cmd: model.CmdType{
-			NodeManagementBindingDeleteCall: spine.NewNodeManagementBindingDeleteCallType(
+			NodeManagementBindingDeleteCall: NewNodeManagementBindingDeleteCallType(
 				clientFeature.Address(), serverFeature.Address()),
 		},
 		CmdClassifier: model.CmdClassifierTypeCall,
@@ -71,7 +70,7 @@ func TestNodemanagement_BindingCalls(t *testing.T) {
 	err = sut.HandleMessage(&deleteMsg)
 	if assert.Nil(t, err) {
 
-		dataMsg := spine.Message{
+		dataMsg := Message{
 			Cmd: model.CmdType{
 				NodeManagementBindingData: &model.NodeManagementBindingDataType{},
 			},
@@ -99,22 +98,22 @@ func TestNodemanagement_SubscriptionCalls(t *testing.T) {
 		assert.True(t, reflect.DeepEqual(cmd.NodeManagementSubscriptionData.SubscriptionEntry[0].ServerAddress, serverFeature.Address()))
 	}).Return(nil).Once()
 
-	requestMsg := spine.Message{
+	requestMsg := Message{
 		Cmd: model.CmdType{
-			NodeManagementSubscriptionRequestCall: spine.NewNodeManagementSubscriptionRequestCallType(
+			NodeManagementSubscriptionRequestCall: NewNodeManagementSubscriptionRequestCallType(
 				clientFeature.Address(), serverFeature.Address(), featureType),
 		},
 		CmdClassifier: model.CmdClassifierTypeCall,
 		FeatureRemote: clientFeature,
 	}
 
-	sut := spine.NewNodeManagementImpl(0, serverFeature.Entity())
+	sut := NewNodeManagementImpl(0, serverFeature.Entity())
 
 	// Act
 	err := sut.HandleMessage(&requestMsg)
 	if assert.Nil(t, err) {
 
-		dataMsg := spine.Message{
+		dataMsg := Message{
 			Cmd: model.CmdType{
 				NodeManagementSubscriptionData: &model.NodeManagementSubscriptionDataType{},
 			},
@@ -130,9 +129,9 @@ func TestNodemanagement_SubscriptionCalls(t *testing.T) {
 		assert.Equal(t, 0, len(cmd.NodeManagementSubscriptionData.SubscriptionEntry))
 	}).Return(nil).Once()
 
-	deleteMsg := spine.Message{
+	deleteMsg := Message{
 		Cmd: model.CmdType{
-			NodeManagementSubscriptionDeleteCall: spine.NewNodeManagementSubscriptionDeleteCallType(
+			NodeManagementSubscriptionDeleteCall: NewNodeManagementSubscriptionDeleteCallType(
 				clientFeature.Address(), serverFeature.Address(), featureType),
 		},
 		CmdClassifier: model.CmdClassifierTypeCall,
@@ -143,7 +142,7 @@ func TestNodemanagement_SubscriptionCalls(t *testing.T) {
 	err = sut.HandleMessage(&deleteMsg)
 	if assert.Nil(t, err) {
 
-		dataMsg := spine.Message{
+		dataMsg := Message{
 			Cmd: model.CmdType{
 				NodeManagementSubscriptionData: &model.NodeManagementSubscriptionDataType{},
 			},

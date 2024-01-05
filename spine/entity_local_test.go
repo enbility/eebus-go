@@ -1,10 +1,9 @@
-package spine_test
+package spine
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -19,11 +18,11 @@ type EntityLocalTestSuite struct {
 }
 
 func (suite *EntityLocalTestSuite) Test_Entity() {
-	device := spine.NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	entity := spine.NewEntityLocalImpl(device, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	device := NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	entity := NewEntityLocalImpl(device, model.EntityTypeTypeCEM, NewAddressEntityType([]uint{1}))
 	device.AddEntity(entity)
 
-	f := spine.NewFeatureLocalImpl(1, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	f := NewFeatureLocalImpl(1, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
 	entity.AddFeature(f)
 	assert.Equal(suite.T(), 1, len(entity.Features()))
 

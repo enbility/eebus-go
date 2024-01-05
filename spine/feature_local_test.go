@@ -1,10 +1,9 @@
-package spine_test
+package spine
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/mocks"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -23,8 +22,8 @@ type DeviceClassificationTestSuite struct {
 	function      model.FunctionType
 	featureType   model.FeatureTypeType
 	msgCounter    model.MsgCounterType
-	remoteFeature *spine.FeatureRemoteImpl
-	sut           *spine.FeatureLocalImpl
+	remoteFeature *FeatureRemoteImpl
+	sut           *FeatureLocalImpl
 }
 
 func (suite *DeviceClassificationTestSuite) SetupSuite() {
@@ -52,7 +51,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 		SerialNumber: util.Ptr(model.DeviceClassificationStringType("serial number")),
 	}
 
-	replyMsg := spine.Message{
+	replyMsg := Message{
 		Cmd: model.CmdType{
 			DeviceClassificationManufacturerData: manufacturerData,
 		},
@@ -94,7 +93,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	msgCounter, err := suite.sut.RequestData(suite.function, nil, nil, suite.remoteFeature)
 	assert.Nil(suite.T(), err)
 
-	replyMsg := spine.Message{
+	replyMsg := Message{
 		Cmd: model.CmdType{
 			ResultData: &model.ResultDataType{
 				ErrorNumber: util.Ptr(model.ErrorNumberType(errorNumber)),
@@ -126,11 +125,11 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	assert.Equal(suite.T(), errorDescription, string(*err.Description))
 }
 
-func createLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *spine.FeatureLocalImpl {
-	localDevice := spine.NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
+func createLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
+	localDevice := NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	localEntity := NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
 	localDevice.AddEntity(localEntity)
-	localFeature := spine.NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)
+	localFeature := NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)
 	localEntity.AddFeature(localFeature)
 	return localFeature
 }
