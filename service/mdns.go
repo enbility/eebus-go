@@ -29,23 +29,6 @@ type MdnsEntry struct {
 	Addresses  []net.IP // mandatory
 }
 
-//go:generate mockgen -destination=mock_mdns_test.go -package=service github.com/enbility/eebus-go/service MdnsSearch,MdnsService
-
-// implemented by hubConnection, used by mdns
-type MdnsSearch interface {
-	ReportMdnsEntries(entries map[string]*MdnsEntry)
-}
-
-// implemented by mdns, used by hubConnection
-type MdnsService interface {
-	SetupMdnsService() error
-	ShutdownMdnsService()
-	AnnounceMdnsEntry() error
-	UnannounceMdnsEntry()
-	RegisterMdnsSearch(cb MdnsSearch)
-	UnregisterMdnsSearch(cb MdnsSearch)
-}
-
 type mdnsManager struct {
 	configuration *Configuration
 	ski           string

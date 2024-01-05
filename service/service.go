@@ -20,33 +20,6 @@ type RemoteService struct {
 	Model      string `json:"model"`
 }
 
-//go:generate mockgen -destination=mock_service_test.go -package=service github.com/enbility/eebus-go/service EEBUSServiceHandler
-
-// interface for receiving data for specific events
-type EEBUSServiceHandler interface {
-	// report all currently visible EEBUS services
-	VisibleRemoteServicesUpdated(service *EEBUSService, entries []RemoteService)
-
-	// report a connection to a SKI
-	RemoteSKIConnected(service *EEBUSService, ski string)
-
-	// report a disconnection to a SKI
-	RemoteSKIDisconnected(service *EEBUSService, ski string)
-
-	// Provides the SHIP ID the remote service reported during the handshake process
-	// This needs to be persisted and passed on for future remote service connections
-	// when using `PairRemoteService`
-	ServiceShipIDUpdate(ski string, shipdID string)
-
-	// Provides the current pairing state for the remote service
-	// This is called whenever the state changes and can be used to
-	// provide user information for the pairing/connection process
-	ServicePairingDetailUpdate(ski string, detail *ConnectionStateDetail)
-
-	// return if the user is still able to trust the connection
-	AllowWaitingForTrust(ski string) bool
-}
-
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSService struct {
