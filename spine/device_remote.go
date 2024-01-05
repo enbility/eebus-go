@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
+	"slices"
 	"sync"
 
 	"github.com/enbility/eebus-go/logging"
@@ -232,6 +233,91 @@ func (d *DeviceRemoteImpl) AddEntity(entity *EntityRemoteImpl) *EntityRemoteImpl
 	d.entities = append(d.entities, entity)
 
 	return entity
+}
+
+// Checks if the given actor, usecasename and provided server features are available
+// Note: the server features are expected to be in a single entity and entity 0 is not checked!
+func (d *DeviceRemoteImpl) VerifyUseCaseScenariosAndFeaturesSupport(
+	usecaseActor model.UseCaseActorType,
+	usecaseName model.UseCaseNameType,
+	scenarios []model.UseCaseScenarioSupportType,
+	serverFeatures []model.FeatureTypeType,
+) bool {
+	remoteUseCaseManager := d.UseCaseManager()
+
+	usecases := remoteUseCaseManager.UseCaseInformation()
+	if len(usecases) == 0 {
+		return false
+	}
+
+	usecaseAndScenariosFound := false
+	for _, usecase := range usecases {
+		if usecase.Actor == nil || *usecase.Actor != usecaseActor {
+			continue
+		}
+
+		for _, support := range usecase.UseCaseSupport {
+			if support.UseCaseName == nil || *support.UseCaseName != usecaseName {
+				continue
+			}
+
+			if support.UseCaseAvailable == nil || !*support.UseCaseAvailable {
+				continue
+			}
+
+			var foundScenarios []model.UseCaseScenarioSupportType
+			for _, scenario := range support.ScenarioSupport {
+				if slices.Contains(scenarios, scenario) {
+					foundScenarios = append(foundScenarios, scenario)
+				}
+			}
+
+			if len(foundScenarios) == len(scenarios) {
+				usecaseAndScenariosFound = true
+				break
+			}
+		}
+
+		if usecaseAndScenariosFound {
+			break
+		}
+	}
+
+	if !usecaseAndScenariosFound {
+		return false
+	}
+
+	entities := d.Entities()
+	if len(entities) < 2 {
+		return false
+	}
+
+	entityWithServerFeaturesFound := false
+
+	for index, entity := range entities {
+		// ignore NodeManagement entity
+		if index == 0 {
+			continue
+		}
+
+		var foundServerFeatures []model.FeatureTypeType
+		for _, feature := range entity.Features() {
+			if feature.Role() != model.RoleTypeServer {
+				continue
+			}
+
+			if slices.Contains(serverFeatures, feature.Type()) {
+				foundServerFeatures = append(foundServerFeatures, feature.Type())
+			}
+		}
+
+		if len(serverFeatures) == len(foundServerFeatures) {
+			entityWithServerFeaturesFound = true
+			break
+		}
+	}
+
+	return entityWithServerFeaturesFound
 }
 
 func unmarshalFeature(entity *EntityRemoteImpl,

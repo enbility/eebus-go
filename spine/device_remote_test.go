@@ -73,3 +73,136 @@ func (s *DeviceRemoteSuite) Test_FeatureByEntityTypeAndRole() {
 	feature = s.remoteDevice.FeatureByEntityTypeAndRole(entity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 	assert.Nil(s.T(), feature)
 }
+
+func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
+	result := s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{},
+		[]model.FeatureTypeType{},
+	)
+	assert.Equal(s.T(), false, result)
+
+	s.remoteDevice.UseCaseManager().Add(
+		model.UseCaseActorTypeBatterySystem,
+		model.UseCaseNameTypeControlOfBattery,
+		model.SpecificationVersionType("1.0.0"),
+		true,
+		[]model.UseCaseScenarioSupportType{1},
+	)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{},
+		[]model.FeatureTypeType{},
+	)
+	assert.Equal(s.T(), false, result)
+
+	s.remoteDevice.UseCaseManager().Add(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVCommissioningAndConfiguration,
+		model.SpecificationVersionType("1.0.0"),
+		true,
+		[]model.UseCaseScenarioSupportType{1},
+	)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{},
+		[]model.FeatureTypeType{},
+	)
+	assert.Equal(s.T(), false, result)
+
+	s.remoteDevice.UseCaseManager().Add(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		model.SpecificationVersionType("1.0.0"),
+		false,
+		[]model.UseCaseScenarioSupportType{1},
+	)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{},
+		[]model.FeatureTypeType{},
+	)
+	assert.Equal(s.T(), false, result)
+
+	s.remoteDevice.UseCaseManager().Add(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		model.SpecificationVersionType("1.0.0"),
+		true,
+		[]model.UseCaseScenarioSupportType{1},
+	)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{},
+		[]model.FeatureTypeType{},
+	)
+	assert.Equal(s.T(), true, result)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{2},
+		[]model.FeatureTypeType{},
+	)
+	assert.Equal(s.T(), false, result)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{1},
+		[]model.FeatureTypeType{},
+	)
+	assert.Equal(s.T(), true, result)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{1},
+		[]model.FeatureTypeType{model.FeatureTypeTypeElectricalConnection},
+	)
+	assert.Equal(s.T(), false, result)
+
+	entity := s.remoteDevice.Entity([]model.AddressEntityType{1})
+	assert.NotNil(s.T(), entity)
+
+	feature := spine.NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	entity.AddFeature(feature)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{1},
+		[]model.FeatureTypeType{model.FeatureTypeTypeElectricalConnection},
+	)
+	assert.Equal(s.T(), false, result)
+
+	feature = spine.NewFeatureRemoteImpl(0, entity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	entity.AddFeature(feature)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{1},
+		[]model.FeatureTypeType{model.FeatureTypeTypeElectricalConnection},
+	)
+	assert.Equal(s.T(), true, result)
+
+	s.remoteDevice.RemoveByAddress(feature.Address().Entity)
+
+	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		[]model.UseCaseScenarioSupportType{1},
+		[]model.FeatureTypeType{model.FeatureTypeTypeElectricalConnection},
+	)
+	assert.Equal(s.T(), false, result)
+}
