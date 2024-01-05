@@ -57,6 +57,16 @@ func (s *ConnectionSuite) BeforeTest(suiteName, testName string) {
 	s.sut = NewConnectionHandler(s.shipDataProvider, s.shipDataConn, localDevice, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID")
 }
 
+func (s *ConnectionSuite) Test_RemoteSKI() {
+	remoteSki := s.sut.RemoteSKI()
+	assert.Equal(s.T(), s.sut.remoteSKI, remoteSki)
+}
+
+func (s *ConnectionSuite) Test_DataHandler() {
+	handler := s.sut.DataHandler()
+	assert.NotNil(s.T(), handler)
+}
+
 func (s *ConnectionSuite) TestRun() {
 	s.sut.Run()
 	assert.Equal(s.T(), CmiStateServerWait, s.sut.smeState)
