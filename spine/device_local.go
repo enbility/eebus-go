@@ -248,8 +248,8 @@ func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *
 	return nil
 }
 
-func (r *DeviceLocalImpl) NodeManagement() NodeManagementImpl {
-	return *r.nodeManagement
+func (r *DeviceLocalImpl) NodeManagement() *NodeManagementImpl {
+	return r.nodeManagement
 }
 
 func (r *DeviceLocalImpl) SubscriptionManager() SubscriptionManager {
