@@ -88,6 +88,14 @@ func (s *ConnectionSuite) TestAbortPendingHandshake() {
 	assert.Equal(s.T(), SmeHelloStateAbortDone, s.sut.smeState)
 }
 
+func (s *ConnectionSuite) TestRemoveRemoteDeviceConnection() {
+	s.sut.removeRemoteDeviceConnection()
+
+	s.sut.deviceLocalCon = nil
+
+	s.sut.removeRemoteDeviceConnection()
+}
+
 func (s *ConnectionSuite) TestCloseConnection_StateComplete() {
 	s.sut.smeState = SmeStateComplete
 	s.sut.CloseConnection(true, 450, "User Close")
