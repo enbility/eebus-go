@@ -1,20 +1,19 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFilterType_Selector_Data(t *testing.T) {
-	data := &model.ElectricalConnectionDescriptionListDataSelectorsType{
-		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(1)),
-		ScopeType:              util.Ptr(model.ScopeTypeTypeACPower),
+	data := &ElectricalConnectionDescriptionListDataSelectorsType{
+		ElectricalConnectionId: util.Ptr(ElectricalConnectionIdType(1)),
+		ScopeType:              util.Ptr(ScopeTypeTypeACPower),
 	}
 
-	sut := &model.FilterType{
+	sut := &FilterType{
 		ElectricalConnectionDescriptionListDataSelectors: data,
 	}
 
@@ -22,31 +21,31 @@ func TestFilterType_Selector_Data(t *testing.T) {
 	cmdData, err := sut.Data()
 	assert.Nil(t, err)
 	assert.NotNil(t, cmdData)
-	assert.Equal(t, model.FunctionTypeElectricalConnectionDescriptionListData, *cmdData.Function)
+	assert.Equal(t, FunctionTypeElectricalConnectionDescriptionListData, *cmdData.Function)
 	assert.Equal(t, data, cmdData.Selector)
 }
 
 func TestFilterType_Selector_SetDataForFunction(t *testing.T) {
-	cmd := model.FilterType{}
-	cmd.SetDataForFunction(model.EEBusTagTypeTypeSelector, model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionListDataSelectorsType{})
+	cmd := FilterType{}
+	cmd.SetDataForFunction(EEBusTagTypeTypeSelector, FunctionTypeElectricalConnectionDescriptionListData, &ElectricalConnectionDescriptionListDataSelectorsType{})
 	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListDataSelectors)
 
-	cmd = model.FilterType{}
-	cmd.SetDataForFunction(model.EEBusTagTypeTypeSelector, model.FunctionTypeElectricalConnectionDescriptionListData, nil)
+	cmd = FilterType{}
+	cmd.SetDataForFunction(EEBusTagTypeTypeSelector, FunctionTypeElectricalConnectionDescriptionListData, nil)
 	assert.Nil(t, cmd.ElectricalConnectionDescriptionListDataSelectors)
 
-	var test *model.ElectricalConnectionDescriptionListDataSelectorsType
-	cmd = model.FilterType{}
-	cmd.SetDataForFunction(model.EEBusTagTypeTypeSelector, model.FunctionTypeElectricalConnectionDescriptionListData, test)
+	var test *ElectricalConnectionDescriptionListDataSelectorsType
+	cmd = FilterType{}
+	cmd.SetDataForFunction(EEBusTagTypeTypeSelector, FunctionTypeElectricalConnectionDescriptionListData, test)
 	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListDataSelectors)
 }
 
 func TestFilterType_Elements_Data(t *testing.T) {
-	data := &model.ElectricalConnectionDescriptionDataElementsType{
-		ElectricalConnectionId: util.Ptr(model.ElementTagType{}),
+	data := &ElectricalConnectionDescriptionDataElementsType{
+		ElectricalConnectionId: util.Ptr(ElementTagType{}),
 	}
 
-	sut := &model.FilterType{
+	sut := &FilterType{
 		ElectricalConnectionDescriptionDataElements: data,
 	}
 
@@ -54,31 +53,31 @@ func TestFilterType_Elements_Data(t *testing.T) {
 	cmdData, err := sut.Data()
 	assert.Nil(t, err)
 	assert.NotNil(t, cmdData)
-	assert.Equal(t, model.FunctionTypeElectricalConnectionDescriptionListData, *cmdData.Function)
+	assert.Equal(t, FunctionTypeElectricalConnectionDescriptionListData, *cmdData.Function)
 	assert.Equal(t, data, cmdData.Elements)
 }
 
 func TestFilterType_Elements_SetDataForFunction(t *testing.T) {
-	cmd := model.FilterType{}
-	cmd.SetDataForFunction(model.EEbusTagTypeTypeElements, model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionDataElementsType{})
+	cmd := FilterType{}
+	cmd.SetDataForFunction(EEbusTagTypeTypeElements, FunctionTypeElectricalConnectionDescriptionListData, &ElectricalConnectionDescriptionDataElementsType{})
 	assert.NotNil(t, cmd.ElectricalConnectionDescriptionDataElements)
 
-	cmd = model.FilterType{}
-	cmd.SetDataForFunction(model.EEbusTagTypeTypeElements, model.FunctionTypeElectricalConnectionDescriptionListData, nil)
+	cmd = FilterType{}
+	cmd.SetDataForFunction(EEbusTagTypeTypeElements, FunctionTypeElectricalConnectionDescriptionListData, nil)
 	assert.Nil(t, cmd.ElectricalConnectionDescriptionDataElements)
 
-	var test *model.ElectricalConnectionDescriptionDataElementsType
-	cmd = model.FilterType{}
-	cmd.SetDataForFunction(model.EEbusTagTypeTypeElements, model.FunctionTypeElectricalConnectionDescriptionListData, test)
+	var test *ElectricalConnectionDescriptionDataElementsType
+	cmd = FilterType{}
+	cmd.SetDataForFunction(EEbusTagTypeTypeElements, FunctionTypeElectricalConnectionDescriptionListData, test)
 	assert.NotNil(t, cmd.ElectricalConnectionDescriptionDataElements)
 }
 
 func TestCmdType_Data(t *testing.T) {
-	data := &model.NodeManagementDetailedDiscoveryDataType{
-		SpecificationVersionList: &model.NodeManagementSpecificationVersionListType{[]model.SpecificationVersionDataType{model.SpecificationVersionDataType("dummy")}},
+	data := &NodeManagementDetailedDiscoveryDataType{
+		SpecificationVersionList: &NodeManagementSpecificationVersionListType{[]SpecificationVersionDataType{SpecificationVersionDataType("dummy")}},
 	}
 
-	sut := &model.CmdType{
+	sut := &CmdType{
 		NodeManagementDetailedDiscoveryData: data,
 	}
 
@@ -87,28 +86,28 @@ func TestCmdType_Data(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, cmdData)
 	assert.Equal(t, "NodeManagementDetailedDiscoveryData", cmdData.FieldName)
-	assert.Equal(t, model.FunctionTypeNodeManagementDetailedDiscoveryData, *cmdData.Function)
+	assert.Equal(t, FunctionTypeNodeManagementDetailedDiscoveryData, *cmdData.Function)
 	assert.Equal(t, data, cmdData.Value)
 }
 
 func TestCmdType_SetDataForFunction(t *testing.T) {
-	cmd := model.CmdType{}
-	cmd.SetDataForFunction(model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionListDataType{})
+	cmd := CmdType{}
+	cmd.SetDataForFunction(FunctionTypeElectricalConnectionDescriptionListData, &ElectricalConnectionDescriptionListDataType{})
 	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListData)
 
-	cmd = model.CmdType{}
-	cmd.SetDataForFunction(model.FunctionTypeElectricalConnectionDescriptionListData, nil)
+	cmd = CmdType{}
+	cmd.SetDataForFunction(FunctionTypeElectricalConnectionDescriptionListData, nil)
 	assert.Nil(t, cmd.ElectricalConnectionDescriptionListData)
 
-	var test *model.ElectricalConnectionDescriptionListDataType
-	cmd = model.CmdType{}
-	cmd.SetDataForFunction(model.FunctionTypeElectricalConnectionDescriptionListData, test)
+	var test *ElectricalConnectionDescriptionListDataType
+	cmd = CmdType{}
+	cmd.SetDataForFunction(FunctionTypeElectricalConnectionDescriptionListData, test)
 	assert.NotNil(t, cmd.ElectricalConnectionDescriptionListData)
 }
 
 func TestCmdType_ExtractFilter_NoFilter(t *testing.T) {
-	sut := &model.CmdType{
-		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},
+	sut := &CmdType{
+		NodeManagementDetailedDiscoveryData: &NodeManagementDetailedDiscoveryDataType{},
 	}
 
 	// Act
@@ -119,18 +118,18 @@ func TestCmdType_ExtractFilter_NoFilter(t *testing.T) {
 
 func TestCmdType_ExtractFilter_FilterPartialDelete(t *testing.T) {
 
-	filterP := model.FilterType{
-		CmdControl: &model.CmdControlType{Partial: &model.ElementTagType{}},
-		NodeManagementDetailedDiscoveryDataSelectors: &model.NodeManagementDetailedDiscoveryDataSelectorsType{},
+	filterP := FilterType{
+		CmdControl: &CmdControlType{Partial: &ElementTagType{}},
+		NodeManagementDetailedDiscoveryDataSelectors: &NodeManagementDetailedDiscoveryDataSelectorsType{},
 	}
-	filterD := model.FilterType{
-		CmdControl: &model.CmdControlType{Delete: &model.ElementTagType{}},
-		NodeManagementDetailedDiscoveryDataSelectors: &model.NodeManagementDetailedDiscoveryDataSelectorsType{},
+	filterD := FilterType{
+		CmdControl: &CmdControlType{Delete: &ElementTagType{}},
+		NodeManagementDetailedDiscoveryDataSelectors: &NodeManagementDetailedDiscoveryDataSelectorsType{},
 	}
 
-	sut := &model.CmdType{
-		Filter:                              []model.FilterType{filterD, filterP},
-		NodeManagementDetailedDiscoveryData: &model.NodeManagementDetailedDiscoveryDataType{},
+	sut := &CmdType{
+		Filter:                              []FilterType{filterD, filterP},
+		NodeManagementDetailedDiscoveryData: &NodeManagementDetailedDiscoveryDataType{},
 	}
 
 	// Act

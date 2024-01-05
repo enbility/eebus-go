@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSetpointListDataType_Update(t *testing.T) {
-	sut := model.SetpointListDataType{
-		SetpointData: []model.SetpointDataType{
+	sut := SetpointListDataType{
+		SetpointData: []SetpointDataType{
 			{
-				SetpointId: util.Ptr(model.SetpointIdType(0)),
-				Value:      model.NewScaledNumberType(1),
+				SetpointId: util.Ptr(SetpointIdType(0)),
+				Value:      NewScaledNumberType(1),
 			},
 			{
-				SetpointId: util.Ptr(model.SetpointIdType(1)),
-				Value:      model.NewScaledNumberType(1),
+				SetpointId: util.Ptr(SetpointIdType(1)),
+				Value:      NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.SetpointListDataType{
-		SetpointData: []model.SetpointDataType{
+	newData := SetpointListDataType{
+		SetpointData: []SetpointDataType{
 			{
-				SetpointId: util.Ptr(model.SetpointIdType(1)),
-				Value:      model.NewScaledNumberType(10),
+				SetpointId: util.Ptr(SetpointIdType(1)),
+				Value:      NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.SetpointData
 	// check the non changing items
@@ -47,30 +46,30 @@ func TestSetpointListDataType_Update(t *testing.T) {
 }
 
 func TestSetpointDescriptionListDataType_Update(t *testing.T) {
-	sut := model.SetpointDescriptionListDataType{
-		SetpointDescriptionData: []model.SetpointDescriptionDataType{
+	sut := SetpointDescriptionListDataType{
+		SetpointDescriptionData: []SetpointDescriptionDataType{
 			{
-				SetpointId:  util.Ptr(model.SetpointIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				SetpointId:  util.Ptr(SetpointIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				SetpointId:  util.Ptr(model.SetpointIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				SetpointId:  util.Ptr(SetpointIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.SetpointDescriptionListDataType{
-		SetpointDescriptionData: []model.SetpointDescriptionDataType{
+	newData := SetpointDescriptionListDataType{
+		SetpointDescriptionData: []SetpointDescriptionDataType{
 			{
-				SetpointId:  util.Ptr(model.SetpointIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				SetpointId:  util.Ptr(SetpointIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.SetpointDescriptionData
 	// check the non changing items

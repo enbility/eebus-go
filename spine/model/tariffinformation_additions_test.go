@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTariffListDataType_Update(t *testing.T) {
-	sut := model.TariffListDataType{
-		TariffData: []model.TariffDataType{
+	sut := TariffListDataType{
+		TariffData: []TariffDataType{
 			{
-				TariffId:     util.Ptr(model.TariffIdType(0)),
-				ActiveTierId: []model.TierIdType{0},
+				TariffId:     util.Ptr(TariffIdType(0)),
+				ActiveTierId: []TierIdType{0},
 			},
 			{
-				TariffId:     util.Ptr(model.TariffIdType(1)),
-				ActiveTierId: []model.TierIdType{0},
+				TariffId:     util.Ptr(TariffIdType(1)),
+				ActiveTierId: []TierIdType{0},
 			},
 		},
 	}
 
-	newData := model.TariffListDataType{
-		TariffData: []model.TariffDataType{
+	newData := TariffListDataType{
+		TariffData: []TariffDataType{
 			{
-				TariffId:     util.Ptr(model.TariffIdType(1)),
-				ActiveTierId: []model.TierIdType{1},
+				TariffId:     util.Ptr(TariffIdType(1)),
+				ActiveTierId: []TierIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TariffData
 	// check the non changing items
@@ -47,30 +46,30 @@ func TestTariffListDataType_Update(t *testing.T) {
 }
 
 func TestTariffTierRelationListDataType_Update(t *testing.T) {
-	sut := model.TariffTierRelationListDataType{
-		TariffTierRelationData: []model.TariffTierRelationDataType{
+	sut := TariffTierRelationListDataType{
+		TariffTierRelationData: []TariffTierRelationDataType{
 			{
-				TariffId: util.Ptr(model.TariffIdType(0)),
-				TierId:   []model.TierIdType{0},
+				TariffId: util.Ptr(TariffIdType(0)),
+				TierId:   []TierIdType{0},
 			},
 			{
-				TariffId: util.Ptr(model.TariffIdType(1)),
-				TierId:   []model.TierIdType{0},
+				TariffId: util.Ptr(TariffIdType(1)),
+				TierId:   []TierIdType{0},
 			},
 		},
 	}
 
-	newData := model.TariffTierRelationListDataType{
-		TariffTierRelationData: []model.TariffTierRelationDataType{
+	newData := TariffTierRelationListDataType{
+		TariffTierRelationData: []TariffTierRelationDataType{
 			{
-				TariffId: util.Ptr(model.TariffIdType(1)),
-				TierId:   []model.TierIdType{1},
+				TariffId: util.Ptr(TariffIdType(1)),
+				TierId:   []TierIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TariffTierRelationData
 	// check the non changing items
@@ -85,30 +84,30 @@ func TestTariffTierRelationListDataType_Update(t *testing.T) {
 }
 
 func TestTariffBoundaryRelationListDataType_Update(t *testing.T) {
-	sut := model.TariffBoundaryRelationListDataType{
-		TariffBoundaryRelationData: []model.TariffBoundaryRelationDataType{
+	sut := TariffBoundaryRelationListDataType{
+		TariffBoundaryRelationData: []TariffBoundaryRelationDataType{
 			{
-				TariffId:   util.Ptr(model.TariffIdType(0)),
-				BoundaryId: []model.TierBoundaryIdType{0},
+				TariffId:   util.Ptr(TariffIdType(0)),
+				BoundaryId: []TierBoundaryIdType{0},
 			},
 			{
-				TariffId:   util.Ptr(model.TariffIdType(1)),
-				BoundaryId: []model.TierBoundaryIdType{0},
+				TariffId:   util.Ptr(TariffIdType(1)),
+				BoundaryId: []TierBoundaryIdType{0},
 			},
 		},
 	}
 
-	newData := model.TariffBoundaryRelationListDataType{
-		TariffBoundaryRelationData: []model.TariffBoundaryRelationDataType{
+	newData := TariffBoundaryRelationListDataType{
+		TariffBoundaryRelationData: []TariffBoundaryRelationDataType{
 			{
-				TariffId:   util.Ptr(model.TariffIdType(1)),
-				BoundaryId: []model.TierBoundaryIdType{1},
+				TariffId:   util.Ptr(TariffIdType(1)),
+				BoundaryId: []TierBoundaryIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TariffBoundaryRelationData
 	// check the non changing items
@@ -123,30 +122,30 @@ func TestTariffBoundaryRelationListDataType_Update(t *testing.T) {
 }
 
 func TestTariffDescriptionListDataType_Update(t *testing.T) {
-	sut := model.TariffDescriptionListDataType{
-		TariffDescriptionData: []model.TariffDescriptionDataType{
+	sut := TariffDescriptionListDataType{
+		TariffDescriptionData: []TariffDescriptionDataType{
 			{
-				TariffId:    util.Ptr(model.TariffIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				TariffId:    util.Ptr(TariffIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				TariffId:    util.Ptr(model.TariffIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				TariffId:    util.Ptr(TariffIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.TariffDescriptionListDataType{
-		TariffDescriptionData: []model.TariffDescriptionDataType{
+	newData := TariffDescriptionListDataType{
+		TariffDescriptionData: []TariffDescriptionDataType{
 			{
-				TariffId:    util.Ptr(model.TariffIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				TariffId:    util.Ptr(TariffIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TariffDescriptionData
 	// check the non changing items
@@ -161,30 +160,30 @@ func TestTariffDescriptionListDataType_Update(t *testing.T) {
 }
 
 func TestTierBoundaryListDataType_Update(t *testing.T) {
-	sut := model.TierBoundaryListDataType{
-		TierBoundaryData: []model.TierBoundaryDataType{
+	sut := TierBoundaryListDataType{
+		TierBoundaryData: []TierBoundaryDataType{
 			{
-				BoundaryId:         util.Ptr(model.TierBoundaryIdType(0)),
-				LowerBoundaryValue: model.NewScaledNumberType(1),
+				BoundaryId:         util.Ptr(TierBoundaryIdType(0)),
+				LowerBoundaryValue: NewScaledNumberType(1),
 			},
 			{
-				BoundaryId:         util.Ptr(model.TierBoundaryIdType(1)),
-				LowerBoundaryValue: model.NewScaledNumberType(1),
+				BoundaryId:         util.Ptr(TierBoundaryIdType(1)),
+				LowerBoundaryValue: NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.TierBoundaryListDataType{
-		TierBoundaryData: []model.TierBoundaryDataType{
+	newData := TierBoundaryListDataType{
+		TierBoundaryData: []TierBoundaryDataType{
 			{
-				BoundaryId:         util.Ptr(model.TierBoundaryIdType(1)),
-				LowerBoundaryValue: model.NewScaledNumberType(10),
+				BoundaryId:         util.Ptr(TierBoundaryIdType(1)),
+				LowerBoundaryValue: NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TierBoundaryData
 	// check the non changing items
@@ -199,30 +198,30 @@ func TestTierBoundaryListDataType_Update(t *testing.T) {
 }
 
 func TestTierBoundaryDescriptionListDataType_Update(t *testing.T) {
-	sut := model.TierBoundaryDescriptionListDataType{
-		TierBoundaryDescriptionData: []model.TierBoundaryDescriptionDataType{
+	sut := TierBoundaryDescriptionListDataType{
+		TierBoundaryDescriptionData: []TierBoundaryDescriptionDataType{
 			{
-				BoundaryId:  util.Ptr(model.TierBoundaryIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				BoundaryId:  util.Ptr(TierBoundaryIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				BoundaryId:  util.Ptr(model.TierBoundaryIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				BoundaryId:  util.Ptr(TierBoundaryIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.TierBoundaryDescriptionListDataType{
-		TierBoundaryDescriptionData: []model.TierBoundaryDescriptionDataType{
+	newData := TierBoundaryDescriptionListDataType{
+		TierBoundaryDescriptionData: []TierBoundaryDescriptionDataType{
 			{
-				BoundaryId:  util.Ptr(model.TierBoundaryIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				BoundaryId:  util.Ptr(TierBoundaryIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TierBoundaryDescriptionData
 	// check the non changing items
@@ -237,30 +236,30 @@ func TestTierBoundaryDescriptionListDataType_Update(t *testing.T) {
 }
 
 func TestCommodityListDataType_Update(t *testing.T) {
-	sut := model.CommodityListDataType{
-		CommodityData: []model.CommodityDataType{
+	sut := CommodityListDataType{
+		CommodityData: []CommodityDataType{
 			{
-				CommodityId: util.Ptr(model.CommodityIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				CommodityId: util.Ptr(CommodityIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				CommodityId: util.Ptr(model.CommodityIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				CommodityId: util.Ptr(CommodityIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.CommodityListDataType{
-		CommodityData: []model.CommodityDataType{
+	newData := CommodityListDataType{
+		CommodityData: []CommodityDataType{
 			{
-				CommodityId: util.Ptr(model.CommodityIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				CommodityId: util.Ptr(CommodityIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.CommodityData
 	// check the non changing items
@@ -275,30 +274,30 @@ func TestCommodityListDataType_Update(t *testing.T) {
 }
 
 func TestTierListDataType_Update(t *testing.T) {
-	sut := model.TierListDataType{
-		TierData: []model.TierDataType{
+	sut := TierListDataType{
+		TierData: []TierDataType{
 			{
-				TierId:            util.Ptr(model.TierIdType(0)),
-				ActiveIncentiveId: []model.IncentiveIdType{0},
+				TierId:            util.Ptr(TierIdType(0)),
+				ActiveIncentiveId: []IncentiveIdType{0},
 			},
 			{
-				TierId:            util.Ptr(model.TierIdType(1)),
-				ActiveIncentiveId: []model.IncentiveIdType{0},
+				TierId:            util.Ptr(TierIdType(1)),
+				ActiveIncentiveId: []IncentiveIdType{0},
 			},
 		},
 	}
 
-	newData := model.TierListDataType{
-		TierData: []model.TierDataType{
+	newData := TierListDataType{
+		TierData: []TierDataType{
 			{
-				TierId:            util.Ptr(model.TierIdType(1)),
-				ActiveIncentiveId: []model.IncentiveIdType{1},
+				TierId:            util.Ptr(TierIdType(1)),
+				ActiveIncentiveId: []IncentiveIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TierData
 	// check the non changing items
@@ -313,30 +312,30 @@ func TestTierListDataType_Update(t *testing.T) {
 }
 
 func TestTierIncentiveRelationListDataType_Update(t *testing.T) {
-	sut := model.TierIncentiveRelationListDataType{
-		TierIncentiveRelationData: []model.TierIncentiveRelationDataType{
+	sut := TierIncentiveRelationListDataType{
+		TierIncentiveRelationData: []TierIncentiveRelationDataType{
 			{
-				TierId:      util.Ptr(model.TierIdType(0)),
-				IncentiveId: []model.IncentiveIdType{0},
+				TierId:      util.Ptr(TierIdType(0)),
+				IncentiveId: []IncentiveIdType{0},
 			},
 			{
-				TierId:      util.Ptr(model.TierIdType(1)),
-				IncentiveId: []model.IncentiveIdType{0},
+				TierId:      util.Ptr(TierIdType(1)),
+				IncentiveId: []IncentiveIdType{0},
 			},
 		},
 	}
 
-	newData := model.TierIncentiveRelationListDataType{
-		TierIncentiveRelationData: []model.TierIncentiveRelationDataType{
+	newData := TierIncentiveRelationListDataType{
+		TierIncentiveRelationData: []TierIncentiveRelationDataType{
 			{
-				TierId:      util.Ptr(model.TierIdType(1)),
-				IncentiveId: []model.IncentiveIdType{1},
+				TierId:      util.Ptr(TierIdType(1)),
+				IncentiveId: []IncentiveIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TierIncentiveRelationData
 	// check the non changing items
@@ -351,30 +350,30 @@ func TestTierIncentiveRelationListDataType_Update(t *testing.T) {
 }
 
 func TestTierDescriptionListDataType_Update(t *testing.T) {
-	sut := model.TierDescriptionListDataType{
-		TierDescriptionData: []model.TierDescriptionDataType{
+	sut := TierDescriptionListDataType{
+		TierDescriptionData: []TierDescriptionDataType{
 			{
-				TierId:      util.Ptr(model.TierIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				TierId:      util.Ptr(TierIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				TierId:      util.Ptr(model.TierIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				TierId:      util.Ptr(TierIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.TierDescriptionListDataType{
-		TierDescriptionData: []model.TierDescriptionDataType{
+	newData := TierDescriptionListDataType{
+		TierDescriptionData: []TierDescriptionDataType{
 			{
-				TierId:      util.Ptr(model.TierIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				TierId:      util.Ptr(TierIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TierDescriptionData
 	// check the non changing items
@@ -389,30 +388,30 @@ func TestTierDescriptionListDataType_Update(t *testing.T) {
 }
 
 func TestIncentiveListDataType_Update(t *testing.T) {
-	sut := model.IncentiveListDataType{
-		IncentiveData: []model.IncentiveDataType{
+	sut := IncentiveListDataType{
+		IncentiveData: []IncentiveDataType{
 			{
-				IncentiveId: util.Ptr(model.IncentiveIdType(0)),
-				Value:       model.NewScaledNumberType(1),
+				IncentiveId: util.Ptr(IncentiveIdType(0)),
+				Value:       NewScaledNumberType(1),
 			},
 			{
-				IncentiveId: util.Ptr(model.IncentiveIdType(1)),
-				Value:       model.NewScaledNumberType(1),
+				IncentiveId: util.Ptr(IncentiveIdType(1)),
+				Value:       NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.IncentiveListDataType{
-		IncentiveData: []model.IncentiveDataType{
+	newData := IncentiveListDataType{
+		IncentiveData: []IncentiveDataType{
 			{
-				IncentiveId: util.Ptr(model.IncentiveIdType(1)),
-				Value:       model.NewScaledNumberType(10),
+				IncentiveId: util.Ptr(IncentiveIdType(1)),
+				Value:       NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.IncentiveData
 	// check the non changing items
@@ -427,30 +426,30 @@ func TestIncentiveListDataType_Update(t *testing.T) {
 }
 
 func TestIncentiveDescriptionListDataType_Update(t *testing.T) {
-	sut := model.IncentiveDescriptionListDataType{
-		IncentiveDescriptionData: []model.IncentiveDescriptionDataType{
+	sut := IncentiveDescriptionListDataType{
+		IncentiveDescriptionData: []IncentiveDescriptionDataType{
 			{
-				IncentiveId: util.Ptr(model.IncentiveIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				IncentiveId: util.Ptr(IncentiveIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				IncentiveId: util.Ptr(model.IncentiveIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				IncentiveId: util.Ptr(IncentiveIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.IncentiveDescriptionListDataType{
-		IncentiveDescriptionData: []model.IncentiveDescriptionDataType{
+	newData := IncentiveDescriptionListDataType{
+		IncentiveDescriptionData: []IncentiveDescriptionDataType{
 			{
-				IncentiveId: util.Ptr(model.IncentiveIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				IncentiveId: util.Ptr(IncentiveIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.IncentiveDescriptionData
 	// check the non changing items

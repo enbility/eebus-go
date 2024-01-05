@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHvacSystemFunctionListDataType_Update(t *testing.T) {
-	sut := model.HvacSystemFunctionListDataType{
-		HvacSystemFunctionData: []model.HvacSystemFunctionDataType{
+	sut := HvacSystemFunctionListDataType{
+		HvacSystemFunctionData: []HvacSystemFunctionDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(0)),
 				IsOverrunActive:  util.Ptr(false),
 			},
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
 				IsOverrunActive:  util.Ptr(false),
 			},
 		},
 	}
 
-	newData := model.HvacSystemFunctionListDataType{
-		HvacSystemFunctionData: []model.HvacSystemFunctionDataType{
+	newData := HvacSystemFunctionListDataType{
+		HvacSystemFunctionData: []HvacSystemFunctionDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
 				IsOverrunActive:  util.Ptr(true),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacSystemFunctionData
 	// check the non changing items
@@ -47,30 +46,30 @@ func TestHvacSystemFunctionListDataType_Update(t *testing.T) {
 }
 
 func TestHvacSystemFunctionOperationModeRelationListDataType_Update(t *testing.T) {
-	sut := model.HvacSystemFunctionOperationModeRelationListDataType{
-		HvacSystemFunctionOperationModeRelationData: []model.HvacSystemFunctionOperationModeRelationDataType{
+	sut := HvacSystemFunctionOperationModeRelationListDataType{
+		HvacSystemFunctionOperationModeRelationData: []HvacSystemFunctionOperationModeRelationDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
-				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(0)),
+				OperationModeId:  util.Ptr(HvacOperationModeIdType(0)),
 			},
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(HvacOperationModeIdType(0)),
 			},
 		},
 	}
 
-	newData := model.HvacSystemFunctionOperationModeRelationListDataType{
-		HvacSystemFunctionOperationModeRelationData: []model.HvacSystemFunctionOperationModeRelationDataType{
+	newData := HvacSystemFunctionOperationModeRelationListDataType{
+		HvacSystemFunctionOperationModeRelationData: []HvacSystemFunctionOperationModeRelationDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(1)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(HvacOperationModeIdType(1)),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacSystemFunctionOperationModeRelationData
 	// check the non changing items
@@ -85,30 +84,30 @@ func TestHvacSystemFunctionOperationModeRelationListDataType_Update(t *testing.T
 }
 
 func TestHvacSystemFunctionSetpointRelationListDataType_Update(t *testing.T) {
-	sut := model.HvacSystemFunctionSetpointRelationListDataType{
-		HvacSystemFunctionSetpointRelationData: []model.HvacSystemFunctionSetpointRelationDataType{
+	sut := HvacSystemFunctionSetpointRelationListDataType{
+		HvacSystemFunctionSetpointRelationData: []HvacSystemFunctionSetpointRelationDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
-				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(0)),
+				OperationModeId:  util.Ptr(HvacOperationModeIdType(0)),
 			},
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(0)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(HvacOperationModeIdType(0)),
 			},
 		},
 	}
 
-	newData := model.HvacSystemFunctionSetpointRelationListDataType{
-		HvacSystemFunctionSetpointRelationData: []model.HvacSystemFunctionSetpointRelationDataType{
+	newData := HvacSystemFunctionSetpointRelationListDataType{
+		HvacSystemFunctionSetpointRelationData: []HvacSystemFunctionSetpointRelationDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				OperationModeId:  util.Ptr(model.HvacOperationModeIdType(1)),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				OperationModeId:  util.Ptr(HvacOperationModeIdType(1)),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacSystemFunctionSetpointRelationData
 	// check the non changing items
@@ -123,30 +122,30 @@ func TestHvacSystemFunctionSetpointRelationListDataType_Update(t *testing.T) {
 }
 
 func TestHvacSystemFunctionPowerSequenceRelationListDataType_Update(t *testing.T) {
-	sut := model.HvacSystemFunctionPowerSequenceRelationListDataType{
-		HvacSystemFunctionPowerSequenceRelationData: []model.HvacSystemFunctionPowerSequenceRelationDataType{
+	sut := HvacSystemFunctionPowerSequenceRelationListDataType{
+		HvacSystemFunctionPowerSequenceRelationData: []HvacSystemFunctionPowerSequenceRelationDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
-				SequenceId:       []model.PowerSequenceIdType{0},
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(0)),
+				SequenceId:       []PowerSequenceIdType{0},
 			},
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				SequenceId:       []model.PowerSequenceIdType{0},
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				SequenceId:       []PowerSequenceIdType{0},
 			},
 		},
 	}
 
-	newData := model.HvacSystemFunctionPowerSequenceRelationListDataType{
-		HvacSystemFunctionPowerSequenceRelationData: []model.HvacSystemFunctionPowerSequenceRelationDataType{
+	newData := HvacSystemFunctionPowerSequenceRelationListDataType{
+		HvacSystemFunctionPowerSequenceRelationData: []HvacSystemFunctionPowerSequenceRelationDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				SequenceId:       []model.PowerSequenceIdType{1},
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				SequenceId:       []PowerSequenceIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacSystemFunctionPowerSequenceRelationData
 	// check the non changing items
@@ -161,30 +160,30 @@ func TestHvacSystemFunctionPowerSequenceRelationListDataType_Update(t *testing.T
 }
 
 func TestHvacSystemFunctionDescriptionListDataType_Update(t *testing.T) {
-	sut := model.HvacSystemFunctionDescriptionListDataType{
-		HvacSystemFunctionDescriptionData: []model.HvacSystemFunctionDescriptionDataType{
+	sut := HvacSystemFunctionDescriptionListDataType{
+		HvacSystemFunctionDescriptionData: []HvacSystemFunctionDescriptionDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(0)),
-				Description:      util.Ptr(model.DescriptionType("old")),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(0)),
+				Description:      util.Ptr(DescriptionType("old")),
 			},
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				Description:      util.Ptr(model.DescriptionType("old")),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				Description:      util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.HvacSystemFunctionDescriptionListDataType{
-		HvacSystemFunctionDescriptionData: []model.HvacSystemFunctionDescriptionDataType{
+	newData := HvacSystemFunctionDescriptionListDataType{
+		HvacSystemFunctionDescriptionData: []HvacSystemFunctionDescriptionDataType{
 			{
-				SystemFunctionId: util.Ptr(model.HvacSystemFunctionIdType(1)),
-				Description:      util.Ptr(model.DescriptionType("new")),
+				SystemFunctionId: util.Ptr(HvacSystemFunctionIdType(1)),
+				Description:      util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacSystemFunctionDescriptionData
 	// check the non changing items
@@ -199,30 +198,30 @@ func TestHvacSystemFunctionDescriptionListDataType_Update(t *testing.T) {
 }
 
 func TestHvacOperationModeDescriptionListDataType_Update(t *testing.T) {
-	sut := model.HvacOperationModeDescriptionListDataType{
-		HvacOperationModeDescriptionData: []model.HvacOperationModeDescriptionDataType{
+	sut := HvacOperationModeDescriptionListDataType{
+		HvacOperationModeDescriptionData: []HvacOperationModeDescriptionDataType{
 			{
-				OperationModeId: util.Ptr(model.HvacOperationModeIdType(0)),
-				Description:     util.Ptr(model.DescriptionType("old")),
+				OperationModeId: util.Ptr(HvacOperationModeIdType(0)),
+				Description:     util.Ptr(DescriptionType("old")),
 			},
 			{
-				OperationModeId: util.Ptr(model.HvacOperationModeIdType(1)),
-				Description:     util.Ptr(model.DescriptionType("old")),
+				OperationModeId: util.Ptr(HvacOperationModeIdType(1)),
+				Description:     util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.HvacOperationModeDescriptionListDataType{
-		HvacOperationModeDescriptionData: []model.HvacOperationModeDescriptionDataType{
+	newData := HvacOperationModeDescriptionListDataType{
+		HvacOperationModeDescriptionData: []HvacOperationModeDescriptionDataType{
 			{
-				OperationModeId: util.Ptr(model.HvacOperationModeIdType(1)),
-				Description:     util.Ptr(model.DescriptionType("new")),
+				OperationModeId: util.Ptr(HvacOperationModeIdType(1)),
+				Description:     util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacOperationModeDescriptionData
 	// check the non changing items
@@ -237,30 +236,30 @@ func TestHvacOperationModeDescriptionListDataType_Update(t *testing.T) {
 }
 
 func TestHvacOverrunListDataType_Update(t *testing.T) {
-	sut := model.HvacOverrunListDataType{
-		HvacOverrunData: []model.HvacOverrunDataType{
+	sut := HvacOverrunListDataType{
+		HvacOverrunData: []HvacOverrunDataType{
 			{
-				OverrunId:                 util.Ptr(model.HvacOverrunIdType(0)),
+				OverrunId:                 util.Ptr(HvacOverrunIdType(0)),
 				IsOverrunStatusChangeable: util.Ptr(false),
 			},
 			{
-				OverrunId:                 util.Ptr(model.HvacOverrunIdType(1)),
+				OverrunId:                 util.Ptr(HvacOverrunIdType(1)),
 				IsOverrunStatusChangeable: util.Ptr(false),
 			},
 		},
 	}
 
-	newData := model.HvacOverrunListDataType{
-		HvacOverrunData: []model.HvacOverrunDataType{
+	newData := HvacOverrunListDataType{
+		HvacOverrunData: []HvacOverrunDataType{
 			{
-				OverrunId:                 util.Ptr(model.HvacOverrunIdType(1)),
+				OverrunId:                 util.Ptr(HvacOverrunIdType(1)),
 				IsOverrunStatusChangeable: util.Ptr(true),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacOverrunData
 	// check the non changing items
@@ -275,30 +274,30 @@ func TestHvacOverrunListDataType_Update(t *testing.T) {
 }
 
 func TestHvacOverrunDescriptionListDataType_Update(t *testing.T) {
-	sut := model.HvacOverrunDescriptionListDataType{
-		HvacOverrunDescriptionData: []model.HvacOverrunDescriptionDataType{
+	sut := HvacOverrunDescriptionListDataType{
+		HvacOverrunDescriptionData: []HvacOverrunDescriptionDataType{
 			{
-				OverrunId:   util.Ptr(model.HvacOverrunIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				OverrunId:   util.Ptr(HvacOverrunIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				OverrunId:   util.Ptr(model.HvacOverrunIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				OverrunId:   util.Ptr(HvacOverrunIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.HvacOverrunDescriptionListDataType{
-		HvacOverrunDescriptionData: []model.HvacOverrunDescriptionDataType{
+	newData := HvacOverrunDescriptionListDataType{
+		HvacOverrunDescriptionData: []HvacOverrunDescriptionDataType{
 			{
-				OverrunId:   util.Ptr(model.HvacOverrunIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				OverrunId:   util.Ptr(HvacOverrunIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.HvacOverrunDescriptionData
 	// check the non changing items

@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestThresholdListDataType_Update(t *testing.T) {
-	sut := model.ThresholdListDataType{
-		ThresholdData: []model.ThresholdDataType{
+	sut := ThresholdListDataType{
+		ThresholdData: []ThresholdDataType{
 			{
-				ThresholdId:    util.Ptr(model.ThresholdIdType(0)),
-				ThresholdValue: model.NewScaledNumberType(1),
+				ThresholdId:    util.Ptr(ThresholdIdType(0)),
+				ThresholdValue: NewScaledNumberType(1),
 			},
 			{
-				ThresholdId:    util.Ptr(model.ThresholdIdType(1)),
-				ThresholdValue: model.NewScaledNumberType(1),
+				ThresholdId:    util.Ptr(ThresholdIdType(1)),
+				ThresholdValue: NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.ThresholdListDataType{
-		ThresholdData: []model.ThresholdDataType{
+	newData := ThresholdListDataType{
+		ThresholdData: []ThresholdDataType{
 			{
-				ThresholdId:    util.Ptr(model.ThresholdIdType(1)),
-				ThresholdValue: model.NewScaledNumberType(10),
+				ThresholdId:    util.Ptr(ThresholdIdType(1)),
+				ThresholdValue: NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.ThresholdData
 	// check the non changing items
@@ -47,30 +46,30 @@ func TestThresholdListDataType_Update(t *testing.T) {
 }
 
 func TestThresholdConstraintsListDataType_Update(t *testing.T) {
-	sut := model.ThresholdConstraintsListDataType{
-		ThresholdConstraintsData: []model.ThresholdConstraintsDataType{
+	sut := ThresholdConstraintsListDataType{
+		ThresholdConstraintsData: []ThresholdConstraintsDataType{
 			{
-				ThresholdId:       util.Ptr(model.ThresholdIdType(0)),
-				ThresholdRangeMin: model.NewScaledNumberType(1),
+				ThresholdId:       util.Ptr(ThresholdIdType(0)),
+				ThresholdRangeMin: NewScaledNumberType(1),
 			},
 			{
-				ThresholdId:       util.Ptr(model.ThresholdIdType(1)),
-				ThresholdRangeMin: model.NewScaledNumberType(1),
+				ThresholdId:       util.Ptr(ThresholdIdType(1)),
+				ThresholdRangeMin: NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.ThresholdConstraintsListDataType{
-		ThresholdConstraintsData: []model.ThresholdConstraintsDataType{
+	newData := ThresholdConstraintsListDataType{
+		ThresholdConstraintsData: []ThresholdConstraintsDataType{
 			{
-				ThresholdId:       util.Ptr(model.ThresholdIdType(1)),
-				ThresholdRangeMin: model.NewScaledNumberType(10),
+				ThresholdId:       util.Ptr(ThresholdIdType(1)),
+				ThresholdRangeMin: NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.ThresholdConstraintsData
 	// check the non changing items
@@ -85,30 +84,30 @@ func TestThresholdConstraintsListDataType_Update(t *testing.T) {
 }
 
 func TestThresholdDescriptionListDataType_Update(t *testing.T) {
-	sut := model.ThresholdDescriptionListDataType{
-		ThresholdDescriptionData: []model.ThresholdDescriptionDataType{
+	sut := ThresholdDescriptionListDataType{
+		ThresholdDescriptionData: []ThresholdDescriptionDataType{
 			{
-				ThresholdId: util.Ptr(model.ThresholdIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				ThresholdId: util.Ptr(ThresholdIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				ThresholdId: util.Ptr(model.ThresholdIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				ThresholdId: util.Ptr(ThresholdIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.ThresholdDescriptionListDataType{
-		ThresholdDescriptionData: []model.ThresholdDescriptionDataType{
+	newData := ThresholdDescriptionListDataType{
+		ThresholdDescriptionData: []ThresholdDescriptionDataType{
 			{
-				ThresholdId: util.Ptr(model.ThresholdIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				ThresholdId: util.Ptr(ThresholdIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.ThresholdDescriptionData
 	// check the non changing items

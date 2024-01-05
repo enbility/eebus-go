@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBindingManagementEntryListDataType_Update(t *testing.T) {
-	sut := model.BindingManagementEntryListDataType{
-		BindingManagementEntryData: []model.BindingManagementEntryDataType{
+	sut := BindingManagementEntryListDataType{
+		BindingManagementEntryData: []BindingManagementEntryDataType{
 			{
-				BindingId:   util.Ptr(model.BindingIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				BindingId:   util.Ptr(BindingIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				BindingId:   util.Ptr(model.BindingIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				BindingId:   util.Ptr(BindingIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.BindingManagementEntryListDataType{
-		BindingManagementEntryData: []model.BindingManagementEntryDataType{
+	newData := BindingManagementEntryListDataType{
+		BindingManagementEntryData: []BindingManagementEntryDataType{
 			{
-				BindingId:   util.Ptr(model.BindingIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				BindingId:   util.Ptr(BindingIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.BindingManagementEntryData
 	// check the non changing items

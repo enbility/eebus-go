@@ -1,114 +1,113 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestLoadControlEventListDataType_Update(t *testing.T) {
-	sut := model.LoadControlEventListDataType{
-		LoadControlEventData: []model.LoadControlEventDataType{
+	sut := LoadControlEventListDataType{
+		LoadControlEventData: []LoadControlEventDataType{
 			{
-				EventId:            util.Ptr(model.LoadControlEventIdType(0)),
-				EventActionConsume: util.Ptr(model.LoadControlEventActionTypeNormal),
+				EventId:            util.Ptr(LoadControlEventIdType(0)),
+				EventActionConsume: util.Ptr(LoadControlEventActionTypeNormal),
 			},
 			{
-				EventId:            util.Ptr(model.LoadControlEventIdType(1)),
-				EventActionConsume: util.Ptr(model.LoadControlEventActionTypeNormal),
+				EventId:            util.Ptr(LoadControlEventIdType(1)),
+				EventActionConsume: util.Ptr(LoadControlEventActionTypeNormal),
 			},
 		},
 	}
 
-	newData := model.LoadControlEventListDataType{
-		LoadControlEventData: []model.LoadControlEventDataType{
+	newData := LoadControlEventListDataType{
+		LoadControlEventData: []LoadControlEventDataType{
 			{
-				EventId:            util.Ptr(model.LoadControlEventIdType(1)),
-				EventActionConsume: util.Ptr(model.LoadControlEventActionTypeIncrease),
+				EventId:            util.Ptr(LoadControlEventIdType(1)),
+				EventActionConsume: util.Ptr(LoadControlEventActionTypeIncrease),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.LoadControlEventData
 	// check the non changing items
 	assert.Equal(t, 2, len(data))
 	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.EventId))
-	assert.Equal(t, model.LoadControlEventActionTypeNormal, *item1.EventActionConsume)
+	assert.Equal(t, LoadControlEventActionTypeNormal, *item1.EventActionConsume)
 	// check properties of updated item
 	item2 := data[1]
 	assert.Equal(t, 1, int(*item2.EventId))
-	assert.Equal(t, model.LoadControlEventActionTypeIncrease, *item2.EventActionConsume)
+	assert.Equal(t, LoadControlEventActionTypeIncrease, *item2.EventActionConsume)
 }
 
 func TestLoadControlStateListDataType_Update(t *testing.T) {
-	sut := model.LoadControlStateListDataType{
-		LoadControlStateData: []model.LoadControlStateDataType{
+	sut := LoadControlStateListDataType{
+		LoadControlStateData: []LoadControlStateDataType{
 			{
-				EventId:           util.Ptr(model.LoadControlEventIdType(0)),
-				EventStateConsume: util.Ptr(model.LoadControlEventStateTypeEventAccepted),
+				EventId:           util.Ptr(LoadControlEventIdType(0)),
+				EventStateConsume: util.Ptr(LoadControlEventStateTypeEventAccepted),
 			},
 			{
-				EventId:           util.Ptr(model.LoadControlEventIdType(1)),
-				EventStateConsume: util.Ptr(model.LoadControlEventStateTypeEventAccepted),
+				EventId:           util.Ptr(LoadControlEventIdType(1)),
+				EventStateConsume: util.Ptr(LoadControlEventStateTypeEventAccepted),
 			},
 		},
 	}
 
-	newData := model.LoadControlStateListDataType{
-		LoadControlStateData: []model.LoadControlStateDataType{
+	newData := LoadControlStateListDataType{
+		LoadControlStateData: []LoadControlStateDataType{
 			{
-				EventId:           util.Ptr(model.LoadControlEventIdType(1)),
-				EventStateConsume: util.Ptr(model.LoadControlEventStateTypeEventStopped),
+				EventId:           util.Ptr(LoadControlEventIdType(1)),
+				EventStateConsume: util.Ptr(LoadControlEventStateTypeEventStopped),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.LoadControlStateData
 	// check the non changing items
 	assert.Equal(t, 2, len(data))
 	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.EventId))
-	assert.Equal(t, model.LoadControlEventStateTypeEventAccepted, *item1.EventStateConsume)
+	assert.Equal(t, LoadControlEventStateTypeEventAccepted, *item1.EventStateConsume)
 	// check properties of updated item
 	item2 := data[1]
 	assert.Equal(t, 1, int(*item2.EventId))
-	assert.Equal(t, model.LoadControlEventStateTypeEventStopped, *item2.EventStateConsume)
+	assert.Equal(t, LoadControlEventStateTypeEventStopped, *item2.EventStateConsume)
 }
 
 func TestLoadControlLimitListDataType_Update(t *testing.T) {
-	sut := model.LoadControlLimitListDataType{
-		LoadControlLimitData: []model.LoadControlLimitDataType{
+	sut := LoadControlLimitListDataType{
+		LoadControlLimitData: []LoadControlLimitDataType{
 			{
-				LimitId:           util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitId:           util.Ptr(LoadControlLimitIdType(0)),
 				IsLimitChangeable: util.Ptr(false),
 			},
 			{
-				LimitId:           util.Ptr(model.LoadControlLimitIdType(1)),
+				LimitId:           util.Ptr(LoadControlLimitIdType(1)),
 				IsLimitChangeable: util.Ptr(false),
 			},
 		},
 	}
 
-	newData := model.LoadControlLimitListDataType{
-		LoadControlLimitData: []model.LoadControlLimitDataType{
+	newData := LoadControlLimitListDataType{
+		LoadControlLimitData: []LoadControlLimitDataType{
 			{
-				LimitId:           util.Ptr(model.LoadControlLimitIdType(1)),
+				LimitId:           util.Ptr(LoadControlLimitIdType(1)),
 				IsLimitChangeable: util.Ptr(true),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.LoadControlLimitData
 	// check the non changing items
@@ -123,30 +122,30 @@ func TestLoadControlLimitListDataType_Update(t *testing.T) {
 }
 
 func TestLoadControlLimitConstraintsListDataType_Update(t *testing.T) {
-	sut := model.LoadControlLimitConstraintsListDataType{
-		LoadControlLimitConstraintsData: []model.LoadControlLimitConstraintsDataType{
+	sut := LoadControlLimitConstraintsListDataType{
+		LoadControlLimitConstraintsData: []LoadControlLimitConstraintsDataType{
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
-				ValueStepSize: model.NewScaledNumberType(1),
+				LimitId:       util.Ptr(LoadControlLimitIdType(0)),
+				ValueStepSize: NewScaledNumberType(1),
 			},
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
-				ValueStepSize: model.NewScaledNumberType(1),
+				LimitId:       util.Ptr(LoadControlLimitIdType(1)),
+				ValueStepSize: NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.LoadControlLimitConstraintsListDataType{
-		LoadControlLimitConstraintsData: []model.LoadControlLimitConstraintsDataType{
+	newData := LoadControlLimitConstraintsListDataType{
+		LoadControlLimitConstraintsData: []LoadControlLimitConstraintsDataType{
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
-				ValueStepSize: model.NewScaledNumberType(10),
+				LimitId:       util.Ptr(LoadControlLimitIdType(1)),
+				ValueStepSize: NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.LoadControlLimitConstraintsData
 	// check the non changing items
@@ -161,39 +160,39 @@ func TestLoadControlLimitConstraintsListDataType_Update(t *testing.T) {
 }
 
 func TestLoadControlLimitDescriptionListDataType_Update(t *testing.T) {
-	sut := model.LoadControlLimitDescriptionListDataType{
-		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+	sut := LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []LoadControlLimitDescriptionDataType{
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
-				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitId:       util.Ptr(LoadControlLimitIdType(0)),
+				LimitCategory: util.Ptr(LoadControlCategoryTypeObligation),
 			},
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
-				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitId:       util.Ptr(LoadControlLimitIdType(1)),
+				LimitCategory: util.Ptr(LoadControlCategoryTypeObligation),
 			},
 		},
 	}
 
-	newData := model.LoadControlLimitDescriptionListDataType{
-		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+	newData := LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []LoadControlLimitDescriptionDataType{
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
-				LimitCategory: util.Ptr(model.LoadControlCategoryTypeOptimization),
+				LimitId:       util.Ptr(LoadControlLimitIdType(1)),
+				LimitCategory: util.Ptr(LoadControlCategoryTypeOptimization),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.LoadControlLimitDescriptionData
 	// check the non changing items
 	assert.Equal(t, 2, len(data))
 	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.LimitId))
-	assert.Equal(t, model.LoadControlCategoryTypeObligation, *item1.LimitCategory)
+	assert.Equal(t, LoadControlCategoryTypeObligation, *item1.LimitCategory)
 	// check properties of updated item
 	item2 := data[1]
 	assert.Equal(t, 1, int(*item2.LimitId))
-	assert.Equal(t, model.LoadControlCategoryTypeOptimization, *item2.LimitCategory)
+	assert.Equal(t, LoadControlCategoryTypeOptimization, *item2.LimitCategory)
 }

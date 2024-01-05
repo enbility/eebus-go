@@ -1,26 +1,25 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 )
 
 func TestPrintMessageOverview_Read_Send(t *testing.T) {
-	datagram := &model.DatagramType{
-		Header: model.HeaderType{
-			AddressSource: &model.FeatureAddressType{
-				Device: util.Ptr(model.AddressDeviceType("localdevice")),
+	datagram := &DatagramType{
+		Header: HeaderType{
+			AddressSource: &FeatureAddressType{
+				Device: util.Ptr(AddressDeviceType("localdevice")),
 			},
-			AddressDestination: &model.FeatureAddressType{
-				Device: util.Ptr(model.AddressDeviceType("localdevice")),
+			AddressDestination: &FeatureAddressType{
+				Device: util.Ptr(AddressDeviceType("localdevice")),
 			},
-			MsgCounter:    util.Ptr(model.MsgCounterType(1)),
-			CmdClassifier: util.Ptr(model.CmdClassifierTypeRead),
+			MsgCounter:    util.Ptr(MsgCounterType(1)),
+			CmdClassifier: util.Ptr(CmdClassifierTypeRead),
 		},
-		Payload: model.PayloadType{
-			Cmd: []model.CmdType{
+		Payload: PayloadType{
+			Cmd: []CmdType{
 				{},
 			},
 		},
@@ -30,17 +29,17 @@ func TestPrintMessageOverview_Read_Send(t *testing.T) {
 }
 
 func TestPrintMessageOverview_Read_Recv(t *testing.T) {
-	datagram := &model.DatagramType{
-		Header: model.HeaderType{
-			AddressSource: &model.FeatureAddressType{},
-			AddressDestination: &model.FeatureAddressType{
-				Device: util.Ptr(model.AddressDeviceType("localdevice")),
+	datagram := &DatagramType{
+		Header: HeaderType{
+			AddressSource: &FeatureAddressType{},
+			AddressDestination: &FeatureAddressType{
+				Device: util.Ptr(AddressDeviceType("localdevice")),
 			},
-			MsgCounter:    util.Ptr(model.MsgCounterType(1)),
-			CmdClassifier: util.Ptr(model.CmdClassifierTypeRead),
+			MsgCounter:    util.Ptr(MsgCounterType(1)),
+			CmdClassifier: util.Ptr(CmdClassifierTypeRead),
 		},
-		Payload: model.PayloadType{
-			Cmd: []model.CmdType{
+		Payload: PayloadType{
+			Cmd: []CmdType{
 				{},
 			},
 		},
@@ -50,18 +49,18 @@ func TestPrintMessageOverview_Read_Recv(t *testing.T) {
 }
 
 func TestPrintMessageOverview_Reply_Recv(t *testing.T) {
-	datagram := &model.DatagramType{
-		Header: model.HeaderType{
-			AddressSource: &model.FeatureAddressType{},
-			AddressDestination: &model.FeatureAddressType{
-				Device: util.Ptr(model.AddressDeviceType("localdevice")),
+	datagram := &DatagramType{
+		Header: HeaderType{
+			AddressSource: &FeatureAddressType{},
+			AddressDestination: &FeatureAddressType{
+				Device: util.Ptr(AddressDeviceType("localdevice")),
 			},
-			MsgCounter:          util.Ptr(model.MsgCounterType(1)),
-			MsgCounterReference: util.Ptr(model.MsgCounterType(1)),
-			CmdClassifier:       util.Ptr(model.CmdClassifierTypeReply),
+			MsgCounter:          util.Ptr(MsgCounterType(1)),
+			MsgCounterReference: util.Ptr(MsgCounterType(1)),
+			CmdClassifier:       util.Ptr(CmdClassifierTypeReply),
 		},
-		Payload: model.PayloadType{
-			Cmd: []model.CmdType{
+		Payload: PayloadType{
+			Cmd: []CmdType{
 				{},
 			},
 		},
@@ -71,21 +70,21 @@ func TestPrintMessageOverview_Reply_Recv(t *testing.T) {
 }
 
 func TestPrintMessageOverview_Result_Recv(t *testing.T) {
-	datagram := &model.DatagramType{
-		Header: model.HeaderType{
-			AddressSource: &model.FeatureAddressType{},
-			AddressDestination: &model.FeatureAddressType{
-				Device: util.Ptr(model.AddressDeviceType("localdevice")),
+	datagram := &DatagramType{
+		Header: HeaderType{
+			AddressSource: &FeatureAddressType{},
+			AddressDestination: &FeatureAddressType{
+				Device: util.Ptr(AddressDeviceType("localdevice")),
 			},
-			MsgCounter:          util.Ptr(model.MsgCounterType(1)),
-			MsgCounterReference: util.Ptr(model.MsgCounterType(1)),
-			CmdClassifier:       util.Ptr(model.CmdClassifierTypeResult),
+			MsgCounter:          util.Ptr(MsgCounterType(1)),
+			MsgCounterReference: util.Ptr(MsgCounterType(1)),
+			CmdClassifier:       util.Ptr(CmdClassifierTypeResult),
 		},
-		Payload: model.PayloadType{
-			Cmd: []model.CmdType{
+		Payload: PayloadType{
+			Cmd: []CmdType{
 				{
-					ResultData: &model.ResultDataType{
-						ErrorNumber: util.Ptr(model.ErrorNumberType(1)),
+					ResultData: &ResultDataType{
+						ErrorNumber: util.Ptr(ErrorNumberType(1)),
 					},
 				},
 			},
@@ -96,18 +95,18 @@ func TestPrintMessageOverview_Result_Recv(t *testing.T) {
 }
 
 func TestPrintMessageOverview_Write_Recv(t *testing.T) {
-	datagram := &model.DatagramType{
-		Header: model.HeaderType{
-			AddressSource: &model.FeatureAddressType{},
-			AddressDestination: &model.FeatureAddressType{
-				Device: util.Ptr(model.AddressDeviceType("localdevice")),
+	datagram := &DatagramType{
+		Header: HeaderType{
+			AddressSource: &FeatureAddressType{},
+			AddressDestination: &FeatureAddressType{
+				Device: util.Ptr(AddressDeviceType("localdevice")),
 			},
-			MsgCounter:          util.Ptr(model.MsgCounterType(1)),
-			MsgCounterReference: util.Ptr(model.MsgCounterType(1)),
-			CmdClassifier:       util.Ptr(model.CmdClassifierTypeWrite),
+			MsgCounter:          util.Ptr(MsgCounterType(1)),
+			MsgCounterReference: util.Ptr(MsgCounterType(1)),
+			CmdClassifier:       util.Ptr(CmdClassifierTypeWrite),
 		},
-		Payload: model.PayloadType{
-			Cmd: []model.CmdType{
+		Payload: PayloadType{
+			Cmd: []CmdType{
 				{},
 			},
 		},

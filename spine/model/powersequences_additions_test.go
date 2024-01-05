@@ -1,39 +1,38 @@
-package model_test
+package model
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPowerTimeSlotScheduleListDataType_Update(t *testing.T) {
-	sut := model.PowerTimeSlotScheduleListDataType{
-		PowerTimeSlotScheduleData: []model.PowerTimeSlotScheduleDataType{
+	sut := PowerTimeSlotScheduleListDataType{
+		PowerTimeSlotScheduleData: []PowerTimeSlotScheduleDataType{
 			{
-				SequenceId:    util.Ptr(model.PowerSequenceIdType(0)),
+				SequenceId:    util.Ptr(PowerSequenceIdType(0)),
 				SlotActivated: util.Ptr(false),
 			},
 			{
-				SequenceId:    util.Ptr(model.PowerSequenceIdType(1)),
+				SequenceId:    util.Ptr(PowerSequenceIdType(1)),
 				SlotActivated: util.Ptr(false),
 			},
 		},
 	}
 
-	newData := model.PowerTimeSlotScheduleListDataType{
-		PowerTimeSlotScheduleData: []model.PowerTimeSlotScheduleDataType{
+	newData := PowerTimeSlotScheduleListDataType{
+		PowerTimeSlotScheduleData: []PowerTimeSlotScheduleDataType{
 			{
-				SequenceId:    util.Ptr(model.PowerSequenceIdType(1)),
+				SequenceId:    util.Ptr(PowerSequenceIdType(1)),
 				SlotActivated: util.Ptr(true),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerTimeSlotScheduleData
 	// check the non changing items
@@ -48,30 +47,30 @@ func TestPowerTimeSlotScheduleListDataType_Update(t *testing.T) {
 }
 
 func TestPowerTimeSlotValueListDataType_Update(t *testing.T) {
-	sut := model.PowerTimeSlotValueListDataType{
-		PowerTimeSlotValueData: []model.PowerTimeSlotValueDataType{
+	sut := PowerTimeSlotValueListDataType{
+		PowerTimeSlotValueData: []PowerTimeSlotValueDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
-				Value:      model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
+				Value:      NewScaledNumberType(1),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				Value:      model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				Value:      NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.PowerTimeSlotValueListDataType{
-		PowerTimeSlotValueData: []model.PowerTimeSlotValueDataType{
+	newData := PowerTimeSlotValueListDataType{
+		PowerTimeSlotValueData: []PowerTimeSlotValueDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				Value:      model.NewScaledNumberType(10),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				Value:      NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerTimeSlotValueData
 	// check the non changing items
@@ -86,30 +85,30 @@ func TestPowerTimeSlotValueListDataType_Update(t *testing.T) {
 }
 
 func TestPowerTimeSlotScheduleConstraintsListDataType_Update(t *testing.T) {
-	sut := model.PowerTimeSlotScheduleConstraintsListDataType{
-		PowerTimeSlotScheduleConstraintsData: []model.PowerTimeSlotScheduleConstraintsDataType{
+	sut := PowerTimeSlotScheduleConstraintsListDataType{
+		PowerTimeSlotScheduleConstraintsData: []PowerTimeSlotScheduleConstraintsDataType{
 			{
-				SequenceId:  util.Ptr(model.PowerSequenceIdType(0)),
-				MinDuration: model.NewDurationType(1 * time.Second),
+				SequenceId:  util.Ptr(PowerSequenceIdType(0)),
+				MinDuration: NewDurationType(1 * time.Second),
 			},
 			{
-				SequenceId:  util.Ptr(model.PowerSequenceIdType(1)),
-				MinDuration: model.NewDurationType(1 * time.Second),
+				SequenceId:  util.Ptr(PowerSequenceIdType(1)),
+				MinDuration: NewDurationType(1 * time.Second),
 			},
 		},
 	}
 
-	newData := model.PowerTimeSlotScheduleConstraintsListDataType{
-		PowerTimeSlotScheduleConstraintsData: []model.PowerTimeSlotScheduleConstraintsDataType{
+	newData := PowerTimeSlotScheduleConstraintsListDataType{
+		PowerTimeSlotScheduleConstraintsData: []PowerTimeSlotScheduleConstraintsDataType{
 			{
-				SequenceId:  util.Ptr(model.PowerSequenceIdType(1)),
-				MinDuration: model.NewDurationType(10 * time.Second),
+				SequenceId:  util.Ptr(PowerSequenceIdType(1)),
+				MinDuration: NewDurationType(10 * time.Second),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerTimeSlotScheduleConstraintsData
 	// check the non changing items
@@ -126,30 +125,30 @@ func TestPowerTimeSlotScheduleConstraintsListDataType_Update(t *testing.T) {
 }
 
 func TestPowerSequenceAlternativesRelationListDataType_Update(t *testing.T) {
-	sut := model.PowerSequenceAlternativesRelationListDataType{
-		PowerSequenceAlternativesRelationData: []model.PowerSequenceAlternativesRelationDataType{
+	sut := PowerSequenceAlternativesRelationListDataType{
+		PowerSequenceAlternativesRelationData: []PowerSequenceAlternativesRelationDataType{
 			{
-				AlternativeId: util.Ptr(model.AlternativesIdType(0)),
-				SequenceId:    []model.PowerSequenceIdType{0},
+				AlternativeId: util.Ptr(AlternativesIdType(0)),
+				SequenceId:    []PowerSequenceIdType{0},
 			},
 			{
-				AlternativeId: util.Ptr(model.AlternativesIdType(1)),
-				SequenceId:    []model.PowerSequenceIdType{0},
+				AlternativeId: util.Ptr(AlternativesIdType(1)),
+				SequenceId:    []PowerSequenceIdType{0},
 			},
 		},
 	}
 
-	newData := model.PowerSequenceAlternativesRelationListDataType{
-		PowerSequenceAlternativesRelationData: []model.PowerSequenceAlternativesRelationDataType{
+	newData := PowerSequenceAlternativesRelationListDataType{
+		PowerSequenceAlternativesRelationData: []PowerSequenceAlternativesRelationDataType{
 			{
-				AlternativeId: util.Ptr(model.AlternativesIdType(1)),
-				SequenceId:    []model.PowerSequenceIdType{1},
+				AlternativeId: util.Ptr(AlternativesIdType(1)),
+				SequenceId:    []PowerSequenceIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerSequenceAlternativesRelationData
 	// check the non changing items
@@ -164,106 +163,106 @@ func TestPowerSequenceAlternativesRelationListDataType_Update(t *testing.T) {
 }
 
 func TestPowerSequenceDescriptionListDataType_Update(t *testing.T) {
-	sut := model.PowerSequenceDescriptionListDataType{
-		PowerSequenceDescriptionData: []model.PowerSequenceDescriptionDataType{
+	sut := PowerSequenceDescriptionListDataType{
+		PowerSequenceDescriptionData: []PowerSequenceDescriptionDataType{
 			{
-				SequenceId:              util.Ptr(model.PowerSequenceIdType(0)),
-				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+				SequenceId:              util.Ptr(PowerSequenceIdType(0)),
+				PositiveEnergyDirection: util.Ptr(EnergyDirectionTypeConsume),
 			},
 			{
-				SequenceId:              util.Ptr(model.PowerSequenceIdType(1)),
-				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+				SequenceId:              util.Ptr(PowerSequenceIdType(1)),
+				PositiveEnergyDirection: util.Ptr(EnergyDirectionTypeConsume),
 			},
 		},
 	}
 
-	newData := model.PowerSequenceDescriptionListDataType{
-		PowerSequenceDescriptionData: []model.PowerSequenceDescriptionDataType{
+	newData := PowerSequenceDescriptionListDataType{
+		PowerSequenceDescriptionData: []PowerSequenceDescriptionDataType{
 			{
-				SequenceId:              util.Ptr(model.PowerSequenceIdType(1)),
-				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeProduce),
+				SequenceId:              util.Ptr(PowerSequenceIdType(1)),
+				PositiveEnergyDirection: util.Ptr(EnergyDirectionTypeProduce),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerSequenceDescriptionData
 	// check the non changing items
 	assert.Equal(t, 2, len(data))
 	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.SequenceId))
-	assert.Equal(t, model.EnergyDirectionTypeConsume, *item1.PositiveEnergyDirection)
+	assert.Equal(t, EnergyDirectionTypeConsume, *item1.PositiveEnergyDirection)
 	// check properties of updated item
 	item2 := data[1]
 	assert.Equal(t, 1, int(*item2.SequenceId))
-	assert.Equal(t, model.EnergyDirectionTypeProduce, *item2.PositiveEnergyDirection)
+	assert.Equal(t, EnergyDirectionTypeProduce, *item2.PositiveEnergyDirection)
 }
 
 func TestPowerSequenceStateListDataType_Update(t *testing.T) {
-	sut := model.PowerSequenceStateListDataType{
-		PowerSequenceStateData: []model.PowerSequenceStateDataType{
+	sut := PowerSequenceStateListDataType{
+		PowerSequenceStateData: []PowerSequenceStateDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
-				State:      util.Ptr(model.PowerSequenceStateTypeRunning),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
+				State:      util.Ptr(PowerSequenceStateTypeRunning),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				State:      util.Ptr(model.PowerSequenceStateTypeRunning),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				State:      util.Ptr(PowerSequenceStateTypeRunning),
 			},
 		},
 	}
 
-	newData := model.PowerSequenceStateListDataType{
-		PowerSequenceStateData: []model.PowerSequenceStateDataType{
+	newData := PowerSequenceStateListDataType{
+		PowerSequenceStateData: []PowerSequenceStateDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				State:      util.Ptr(model.PowerSequenceStateTypeCompleted),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				State:      util.Ptr(PowerSequenceStateTypeCompleted),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerSequenceStateData
 	// check the non changing items
 	assert.Equal(t, 2, len(data))
 	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.SequenceId))
-	assert.Equal(t, model.PowerSequenceStateTypeRunning, *item1.State)
+	assert.Equal(t, PowerSequenceStateTypeRunning, *item1.State)
 	// check properties of updated item
 	item2 := data[1]
 	assert.Equal(t, 1, int(*item2.SequenceId))
-	assert.Equal(t, model.PowerSequenceStateTypeCompleted, *item2.State)
+	assert.Equal(t, PowerSequenceStateTypeCompleted, *item2.State)
 }
 
 func TestPowerSequenceScheduleListDataType_Update(t *testing.T) {
-	sut := model.PowerSequenceScheduleListDataType{
-		PowerSequenceScheduleData: []model.PowerSequenceScheduleDataType{
+	sut := PowerSequenceScheduleListDataType{
+		PowerSequenceScheduleData: []PowerSequenceScheduleDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
-				EndTime:    model.NewAbsoluteOrRelativeTimeType("PT2H"),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
+				EndTime:    NewAbsoluteOrRelativeTimeType("PT2H"),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				EndTime:    model.NewAbsoluteOrRelativeTimeType("PT2H"),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				EndTime:    NewAbsoluteOrRelativeTimeType("PT2H"),
 			},
 		},
 	}
 
-	newData := model.PowerSequenceScheduleListDataType{
-		PowerSequenceScheduleData: []model.PowerSequenceScheduleDataType{
+	newData := PowerSequenceScheduleListDataType{
+		PowerSequenceScheduleData: []PowerSequenceScheduleDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				EndTime:    model.NewAbsoluteOrRelativeTimeType("PT4H"),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				EndTime:    NewAbsoluteOrRelativeTimeType("PT4H"),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerSequenceScheduleData
 	// check the non changing items
@@ -278,30 +277,30 @@ func TestPowerSequenceScheduleListDataType_Update(t *testing.T) {
 }
 
 func TestPowerSequenceScheduleConstraintsListDataType_Update(t *testing.T) {
-	sut := model.PowerSequenceScheduleConstraintsListDataType{
-		PowerSequenceScheduleConstraintsData: []model.PowerSequenceScheduleConstraintsDataType{
+	sut := PowerSequenceScheduleConstraintsListDataType{
+		PowerSequenceScheduleConstraintsData: []PowerSequenceScheduleConstraintsDataType{
 			{
-				SequenceId:      util.Ptr(model.PowerSequenceIdType(0)),
-				EarliestEndTime: model.NewAbsoluteOrRelativeTimeType("PT2H"),
+				SequenceId:      util.Ptr(PowerSequenceIdType(0)),
+				EarliestEndTime: NewAbsoluteOrRelativeTimeType("PT2H"),
 			},
 			{
-				SequenceId:      util.Ptr(model.PowerSequenceIdType(1)),
-				EarliestEndTime: model.NewAbsoluteOrRelativeTimeType("PT2H"),
+				SequenceId:      util.Ptr(PowerSequenceIdType(1)),
+				EarliestEndTime: NewAbsoluteOrRelativeTimeType("PT2H"),
 			},
 		},
 	}
 
-	newData := model.PowerSequenceScheduleConstraintsListDataType{
-		PowerSequenceScheduleConstraintsData: []model.PowerSequenceScheduleConstraintsDataType{
+	newData := PowerSequenceScheduleConstraintsListDataType{
+		PowerSequenceScheduleConstraintsData: []PowerSequenceScheduleConstraintsDataType{
 			{
-				SequenceId:      util.Ptr(model.PowerSequenceIdType(1)),
-				EarliestEndTime: model.NewAbsoluteOrRelativeTimeType("PT4H"),
+				SequenceId:      util.Ptr(PowerSequenceIdType(1)),
+				EarliestEndTime: NewAbsoluteOrRelativeTimeType("PT4H"),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerSequenceScheduleConstraintsData
 	// check the non changing items
@@ -316,30 +315,30 @@ func TestPowerSequenceScheduleConstraintsListDataType_Update(t *testing.T) {
 }
 
 func TestPowerSequencePriceListDataType_Update(t *testing.T) {
-	sut := model.PowerSequencePriceListDataType{
-		PowerSequencePriceData: []model.PowerSequencePriceDataType{
+	sut := PowerSequencePriceListDataType{
+		PowerSequencePriceData: []PowerSequencePriceDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
-				Price:      model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
+				Price:      NewScaledNumberType(1),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				Price:      model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				Price:      NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.PowerSequencePriceListDataType{
-		PowerSequencePriceData: []model.PowerSequencePriceDataType{
+	newData := PowerSequencePriceListDataType{
+		PowerSequencePriceData: []PowerSequencePriceDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				Price:      model.NewScaledNumberType(10),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				Price:      NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerSequencePriceData
 	// check the non changing items
@@ -354,30 +353,30 @@ func TestPowerSequencePriceListDataType_Update(t *testing.T) {
 }
 
 func TestPowerSequenceSchedulePreferenceListDataType_Update(t *testing.T) {
-	sut := model.PowerSequenceSchedulePreferenceListDataType{
-		PowerSequenceSchedulePreferenceData: []model.PowerSequenceSchedulePreferenceDataType{
+	sut := PowerSequenceSchedulePreferenceListDataType{
+		PowerSequenceSchedulePreferenceData: []PowerSequenceSchedulePreferenceDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
 				Cheapest:   util.Ptr(false),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
 				Cheapest:   util.Ptr(false),
 			},
 		},
 	}
 
-	newData := model.PowerSequenceSchedulePreferenceListDataType{
-		PowerSequenceSchedulePreferenceData: []model.PowerSequenceSchedulePreferenceDataType{
+	newData := PowerSequenceSchedulePreferenceListDataType{
+		PowerSequenceSchedulePreferenceData: []PowerSequenceSchedulePreferenceDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
 				Cheapest:   util.Ptr(true),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.PowerSequenceSchedulePreferenceData
 	// check the non changing items

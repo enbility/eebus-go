@@ -1,10 +1,9 @@
-package model_test
+package model
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,7 +27,7 @@ func TestUnion_NewData(t *testing.T) {
 	}
 
 	// Act
-	result := model.Merge(existingData, newData)
+	result := Merge(existingData, newData)
 
 	if assert.Equal(t, 2, len(result)) {
 		assert.Equal(t, 1, int(*result[0].id))
@@ -50,7 +49,7 @@ func TestUnion_NewAndUpdateData(t *testing.T) {
 	}
 
 	// Act
-	result := model.Merge(existingData, newData)
+	result := Merge(existingData, newData)
 
 	if assert.Equal(t, 3, len(result)) {
 		assert.Equal(t, 1, int(*result[0].id))

@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAlarmListDataType_Update(t *testing.T) {
-	sut := model.AlarmListDataType{
-		AlarmListData: []model.AlarmDataType{
+	sut := AlarmListDataType{
+		AlarmListData: []AlarmDataType{
 			{
-				AlarmId:     util.Ptr(model.AlarmIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				AlarmId:     util.Ptr(AlarmIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				AlarmId:     util.Ptr(model.AlarmIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				AlarmId:     util.Ptr(AlarmIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.AlarmListDataType{
-		AlarmListData: []model.AlarmDataType{
+	newData := AlarmListDataType{
+		AlarmListData: []AlarmDataType{
 			{
-				AlarmId:     util.Ptr(model.AlarmIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				AlarmId:     util.Ptr(AlarmIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.AlarmListData
 	// check the non changing items

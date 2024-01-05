@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMessagingListDataType_Update(t *testing.T) {
-	sut := model.MessagingListDataType{
-		MessagingData: []model.MessagingDataType{
+	sut := MessagingListDataType{
+		MessagingData: []MessagingDataType{
 			{
-				MessagingNumber: util.Ptr(model.MessagingNumberType(0)),
-				Text:            util.Ptr(model.MessagingDataTextType("old")),
+				MessagingNumber: util.Ptr(MessagingNumberType(0)),
+				Text:            util.Ptr(MessagingDataTextType("old")),
 			},
 			{
-				MessagingNumber: util.Ptr(model.MessagingNumberType(1)),
-				Text:            util.Ptr(model.MessagingDataTextType("old")),
+				MessagingNumber: util.Ptr(MessagingNumberType(1)),
+				Text:            util.Ptr(MessagingDataTextType("old")),
 			},
 		},
 	}
 
-	newData := model.MessagingListDataType{
-		MessagingData: []model.MessagingDataType{
+	newData := MessagingListDataType{
+		MessagingData: []MessagingDataType{
 			{
-				MessagingNumber: util.Ptr(model.MessagingNumberType(1)),
-				Text:            util.Ptr(model.MessagingDataTextType("new")),
+				MessagingNumber: util.Ptr(MessagingNumberType(1)),
+				Text:            util.Ptr(MessagingDataTextType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.MessagingData
 	// check the non changing items

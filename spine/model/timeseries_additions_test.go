@@ -1,42 +1,41 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTimeSeriesListDataType_Update(t *testing.T) {
-	sut := model.TimeSeriesListDataType{
-		TimeSeriesData: []model.TimeSeriesDataType{
+	sut := TimeSeriesListDataType{
+		TimeSeriesData: []TimeSeriesDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(0)),
-				TimeSeriesSlot: []model.TimeSeriesSlotType{
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(0)),
+				TimeSeriesSlot: []TimeSeriesSlotType{
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(0)),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(0)),
 					},
 				},
 			},
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
-				TimeSeriesSlot: []model.TimeSeriesSlotType{
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(1)),
+				TimeSeriesSlot: []TimeSeriesSlotType{
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(0)),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(0)),
 					},
 				},
 			},
 		},
 	}
 
-	newData := model.TimeSeriesListDataType{
-		TimeSeriesData: []model.TimeSeriesDataType{
+	newData := TimeSeriesListDataType{
+		TimeSeriesData: []TimeSeriesDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
-				TimeSeriesSlot: []model.TimeSeriesSlotType{
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(1)),
+				TimeSeriesSlot: []TimeSeriesSlotType{
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(1)),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(1)),
 					},
 				},
 			},
@@ -44,7 +43,7 @@ func TestTimeSeriesListDataType_Update(t *testing.T) {
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TimeSeriesData
 	// check the non changing items
@@ -59,88 +58,88 @@ func TestTimeSeriesListDataType_Update(t *testing.T) {
 }
 
 func TestTimeSeriesListDataType_Update_02(t *testing.T) {
-	sut := model.TimeSeriesListDataType{
-		TimeSeriesData: []model.TimeSeriesDataType{
+	sut := TimeSeriesListDataType{
+		TimeSeriesData: []TimeSeriesDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
-				TimePeriod: &model.TimePeriodType{
-					StartTime: util.Ptr(model.AbsoluteOrRelativeTimeType("PT0S")),
-					EndTime:   util.Ptr(model.AbsoluteOrRelativeTimeType("P6D")),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(1)),
+				TimePeriod: &TimePeriodType{
+					StartTime: util.Ptr(AbsoluteOrRelativeTimeType("PT0S")),
+					EndTime:   util.Ptr(AbsoluteOrRelativeTimeType("P6D")),
 				},
-				TimeSeriesSlot: []model.TimeSeriesSlotType{
+				TimeSeriesSlot: []TimeSeriesSlotType{
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(0)),
-						TimePeriod: &model.TimePeriodType{
-							StartTime: util.Ptr(model.AbsoluteOrRelativeTimeType("PT0S")),
-							EndTime:   util.Ptr(model.AbsoluteOrRelativeTimeType("P6D")),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(0)),
+						TimePeriod: &TimePeriodType{
+							StartTime: util.Ptr(AbsoluteOrRelativeTimeType("PT0S")),
+							EndTime:   util.Ptr(AbsoluteOrRelativeTimeType("P6D")),
 						},
-						MaxValue: model.NewScaledNumberType(10000),
+						MaxValue: NewScaledNumberType(10000),
 					},
 				},
 			},
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(2)),
-				TimePeriod: &model.TimePeriodType{
-					StartTime: util.Ptr(model.AbsoluteOrRelativeTimeType("PT0S")),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(2)),
+				TimePeriod: &TimePeriodType{
+					StartTime: util.Ptr(AbsoluteOrRelativeTimeType("PT0S")),
 				},
-				TimeSeriesSlot: []model.TimeSeriesSlotType{
+				TimeSeriesSlot: []TimeSeriesSlotType{
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(0)),
-						Duration:         util.Ptr(model.DurationType("P1DT6H46M33S")),
-						MaxValue:         model.NewScaledNumberType(0),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(0)),
+						Duration:         util.Ptr(DurationType("P1DT6H46M33S")),
+						MaxValue:         NewScaledNumberType(0),
 					},
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(1)),
-						Duration:         util.Ptr(model.DurationType("PT7H37M53S")),
-						MaxValue:         model.NewScaledNumberType(4410),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(1)),
+						Duration:         util.Ptr(DurationType("PT7H37M53S")),
+						MaxValue:         NewScaledNumberType(4410),
 					},
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(2)),
-						Duration:         util.Ptr(model.DurationType("PT38M")),
-						MaxValue:         model.NewScaledNumberType(0),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(2)),
+						Duration:         util.Ptr(DurationType("PT38M")),
+						MaxValue:         NewScaledNumberType(0),
 					},
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(3)),
-						Duration:         util.Ptr(model.DurationType("PT32M")),
-						MaxValue:         model.NewScaledNumberType(4410),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(3)),
+						Duration:         util.Ptr(DurationType("PT32M")),
+						MaxValue:         NewScaledNumberType(4410),
 					},
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(4)),
-						Duration:         util.Ptr(model.DurationType("P1D")),
-						MaxValue:         model.NewScaledNumberType(0),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(4)),
+						Duration:         util.Ptr(DurationType("P1D")),
+						MaxValue:         NewScaledNumberType(0),
 					},
 				},
 			},
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(3)),
-				TimePeriod: &model.TimePeriodType{
-					StartTime: util.Ptr(model.AbsoluteOrRelativeTimeType("PT0S")),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(3)),
+				TimePeriod: &TimePeriodType{
+					StartTime: util.Ptr(AbsoluteOrRelativeTimeType("PT0S")),
 				},
-				TimeSeriesSlot: []model.TimeSeriesSlotType{
+				TimeSeriesSlot: []TimeSeriesSlotType{
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(1)),
-						Duration:         util.Ptr(model.DurationType("P1DT15H24M57S")),
-						Value:            model.NewScaledNumberType(44229),
-						MaxValue:         model.NewScaledNumberType(49629),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(1)),
+						Duration:         util.Ptr(DurationType("P1DT15H24M57S")),
+						Value:            NewScaledNumberType(44229),
+						MaxValue:         NewScaledNumberType(49629),
 					},
 				},
 			},
 		},
 	}
 
-	newData := model.TimeSeriesListDataType{
-		TimeSeriesData: []model.TimeSeriesDataType{
+	newData := TimeSeriesListDataType{
+		TimeSeriesData: []TimeSeriesDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(3)),
-				TimePeriod: &model.TimePeriodType{
-					StartTime: util.Ptr(model.AbsoluteOrRelativeTimeType("PT0S")),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(3)),
+				TimePeriod: &TimePeriodType{
+					StartTime: util.Ptr(AbsoluteOrRelativeTimeType("PT0S")),
 				},
-				TimeSeriesSlot: []model.TimeSeriesSlotType{
+				TimeSeriesSlot: []TimeSeriesSlotType{
 					{
-						TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(1)),
-						Duration:         util.Ptr(model.DurationType("P1DT15H16M50S")),
-						Value:            model.NewScaledNumberType(11539),
-						MaxValue:         model.NewScaledNumberType(49629),
+						TimeSeriesSlotId: util.Ptr(TimeSeriesSlotIdType(1)),
+						Duration:         util.Ptr(DurationType("P1DT15H16M50S")),
+						Value:            NewScaledNumberType(11539),
+						MaxValue:         NewScaledNumberType(49629),
 					},
 				},
 			},
@@ -148,7 +147,7 @@ func TestTimeSeriesListDataType_Update_02(t *testing.T) {
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TimeSeriesData
 	// check the non changing items
@@ -164,30 +163,30 @@ func TestTimeSeriesListDataType_Update_02(t *testing.T) {
 }
 
 func TestTimeSeriesDescriptionListDataType_Update(t *testing.T) {
-	sut := model.TimeSeriesDescriptionListDataType{
-		TimeSeriesDescriptionData: []model.TimeSeriesDescriptionDataType{
+	sut := TimeSeriesDescriptionListDataType{
+		TimeSeriesDescriptionData: []TimeSeriesDescriptionDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(0)),
-				Description:  util.Ptr(model.DescriptionType("old")),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(0)),
+				Description:  util.Ptr(DescriptionType("old")),
 			},
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
-				Description:  util.Ptr(model.DescriptionType("old")),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(1)),
+				Description:  util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.TimeSeriesDescriptionListDataType{
-		TimeSeriesDescriptionData: []model.TimeSeriesDescriptionDataType{
+	newData := TimeSeriesDescriptionListDataType{
+		TimeSeriesDescriptionData: []TimeSeriesDescriptionDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
-				Description:  util.Ptr(model.DescriptionType("new")),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(1)),
+				Description:  util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TimeSeriesDescriptionData
 	// check the non changing items
@@ -202,30 +201,30 @@ func TestTimeSeriesDescriptionListDataType_Update(t *testing.T) {
 }
 
 func TestTimeSeriesConstraintsListDataType_Update(t *testing.T) {
-	sut := model.TimeSeriesConstraintsListDataType{
-		TimeSeriesConstraintsData: []model.TimeSeriesConstraintsDataType{
+	sut := TimeSeriesConstraintsListDataType{
+		TimeSeriesConstraintsData: []TimeSeriesConstraintsDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(0)),
-				SlotValueMin: model.NewScaledNumberType(1),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(0)),
+				SlotValueMin: NewScaledNumberType(1),
 			},
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
-				SlotValueMin: model.NewScaledNumberType(1),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(1)),
+				SlotValueMin: NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.TimeSeriesConstraintsListDataType{
-		TimeSeriesConstraintsData: []model.TimeSeriesConstraintsDataType{
+	newData := TimeSeriesConstraintsListDataType{
+		TimeSeriesConstraintsData: []TimeSeriesConstraintsDataType{
 			{
-				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(1)),
-				SlotValueMin: model.NewScaledNumberType(10),
+				TimeSeriesId: util.Ptr(TimeSeriesIdType(1)),
+				SlotValueMin: NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TimeSeriesConstraintsData
 	// check the non changing items

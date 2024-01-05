@@ -1,36 +1,35 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTimeTableListDataType_Update(t *testing.T) {
-	sut := model.TimeTableListDataType{
-		TimeTableData: []model.TimeTableDataType{
+	sut := TimeTableListDataType{
+		TimeTableData: []TimeTableDataType{
 			{
-				TimeTableId: util.Ptr(model.TimeTableIdType(0)),
-				RecurrenceInformation: &model.RecurrenceInformationType{
+				TimeTableId: util.Ptr(TimeTableIdType(0)),
+				RecurrenceInformation: &RecurrenceInformationType{
 					ExecutionCount: util.Ptr(uint(1)),
 				},
 			},
 			{
-				TimeTableId: util.Ptr(model.TimeTableIdType(1)),
-				RecurrenceInformation: &model.RecurrenceInformationType{
+				TimeTableId: util.Ptr(TimeTableIdType(1)),
+				RecurrenceInformation: &RecurrenceInformationType{
 					ExecutionCount: util.Ptr(uint(1)),
 				},
 			},
 		},
 	}
 
-	newData := model.TimeTableListDataType{
-		TimeTableData: []model.TimeTableDataType{
+	newData := TimeTableListDataType{
+		TimeTableData: []TimeTableDataType{
 			{
-				TimeTableId: util.Ptr(model.TimeTableIdType(1)),
-				RecurrenceInformation: &model.RecurrenceInformationType{
+				TimeTableId: util.Ptr(TimeTableIdType(1)),
+				RecurrenceInformation: &RecurrenceInformationType{
 					ExecutionCount: util.Ptr(uint(10)),
 				},
 			},
@@ -38,7 +37,7 @@ func TestTimeTableListDataType_Update(t *testing.T) {
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TimeTableData
 	// check the non changing items
@@ -53,30 +52,30 @@ func TestTimeTableListDataType_Update(t *testing.T) {
 }
 
 func TestTimeTableConstraintsListDataType_Update(t *testing.T) {
-	sut := model.TimeTableConstraintsListDataType{
-		TimeTableConstraintsData: []model.TimeTableConstraintsDataType{
+	sut := TimeTableConstraintsListDataType{
+		TimeTableConstraintsData: []TimeTableConstraintsDataType{
 			{
-				TimeTableId:  util.Ptr(model.TimeTableIdType(0)),
-				SlotCountMin: util.Ptr(model.TimeSlotCountType(1)),
+				TimeTableId:  util.Ptr(TimeTableIdType(0)),
+				SlotCountMin: util.Ptr(TimeSlotCountType(1)),
 			},
 			{
-				TimeTableId:  util.Ptr(model.TimeTableIdType(1)),
-				SlotCountMin: util.Ptr(model.TimeSlotCountType(1)),
+				TimeTableId:  util.Ptr(TimeTableIdType(1)),
+				SlotCountMin: util.Ptr(TimeSlotCountType(1)),
 			},
 		},
 	}
 
-	newData := model.TimeTableConstraintsListDataType{
-		TimeTableConstraintsData: []model.TimeTableConstraintsDataType{
+	newData := TimeTableConstraintsListDataType{
+		TimeTableConstraintsData: []TimeTableConstraintsDataType{
 			{
-				TimeTableId:  util.Ptr(model.TimeTableIdType(1)),
-				SlotCountMin: util.Ptr(model.TimeSlotCountType(10)),
+				TimeTableId:  util.Ptr(TimeTableIdType(1)),
+				SlotCountMin: util.Ptr(TimeSlotCountType(10)),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TimeTableConstraintsData
 	// check the non changing items
@@ -91,30 +90,30 @@ func TestTimeTableConstraintsListDataType_Update(t *testing.T) {
 }
 
 func TestTimeTableDescriptionListDataType_Update(t *testing.T) {
-	sut := model.TimeTableDescriptionListDataType{
-		TimeTableDescriptionData: []model.TimeTableDescriptionDataType{
+	sut := TimeTableDescriptionListDataType{
+		TimeTableDescriptionData: []TimeTableDescriptionDataType{
 			{
-				TimeTableId: util.Ptr(model.TimeTableIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				TimeTableId: util.Ptr(TimeTableIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				TimeTableId: util.Ptr(model.TimeTableIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				TimeTableId: util.Ptr(TimeTableIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.TimeTableDescriptionListDataType{
-		TimeTableDescriptionData: []model.TimeTableDescriptionDataType{
+	newData := TimeTableDescriptionListDataType{
+		TimeTableDescriptionData: []TimeTableDescriptionDataType{
 			{
-				TimeTableId: util.Ptr(model.TimeTableIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				TimeTableId: util.Ptr(TimeTableIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.TimeTableDescriptionData
 	// check the non changing items

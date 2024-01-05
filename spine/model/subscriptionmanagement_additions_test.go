@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSubscriptionManagementEntryListDataType_Update(t *testing.T) {
-	sut := model.SubscriptionManagementEntryListDataType{
-		SubscriptionManagementEntryData: []model.SubscriptionManagementEntryDataType{
+	sut := SubscriptionManagementEntryListDataType{
+		SubscriptionManagementEntryData: []SubscriptionManagementEntryDataType{
 			{
-				SubscriptionId: util.Ptr(model.SubscriptionIdType(0)),
-				Description:    util.Ptr(model.DescriptionType("old")),
+				SubscriptionId: util.Ptr(SubscriptionIdType(0)),
+				Description:    util.Ptr(DescriptionType("old")),
 			},
 			{
-				SubscriptionId: util.Ptr(model.SubscriptionIdType(1)),
-				Description:    util.Ptr(model.DescriptionType("old")),
+				SubscriptionId: util.Ptr(SubscriptionIdType(1)),
+				Description:    util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.SubscriptionManagementEntryListDataType{
-		SubscriptionManagementEntryData: []model.SubscriptionManagementEntryDataType{
+	newData := SubscriptionManagementEntryListDataType{
+		SubscriptionManagementEntryData: []SubscriptionManagementEntryDataType{
 			{
-				SubscriptionId: util.Ptr(model.SubscriptionIdType(1)),
-				Description:    util.Ptr(model.DescriptionType("new")),
+				SubscriptionId: util.Ptr(SubscriptionIdType(1)),
+				Description:    util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.SubscriptionManagementEntryData
 	// check the non changing items

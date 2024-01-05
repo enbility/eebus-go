@@ -1,39 +1,38 @@
-package model_test
+package model
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestOperatingConstraintsInterruptListDataType_Update(t *testing.T) {
-	sut := model.OperatingConstraintsInterruptListDataType{
-		OperatingConstraintsInterruptData: []model.OperatingConstraintsInterruptDataType{
+	sut := OperatingConstraintsInterruptListDataType{
+		OperatingConstraintsInterruptData: []OperatingConstraintsInterruptDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
 				IsPausable: util.Ptr(false),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
 				IsPausable: util.Ptr(false),
 			},
 		},
 	}
 
-	newData := model.OperatingConstraintsInterruptListDataType{
-		OperatingConstraintsInterruptData: []model.OperatingConstraintsInterruptDataType{
+	newData := OperatingConstraintsInterruptListDataType{
+		OperatingConstraintsInterruptData: []OperatingConstraintsInterruptDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
 				IsPausable: util.Ptr(true),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.OperatingConstraintsInterruptData
 	// check the non changing items
@@ -48,30 +47,30 @@ func TestOperatingConstraintsInterruptListDataType_Update(t *testing.T) {
 }
 
 func TestOperatingConstraintsDurationListDataType_Update(t *testing.T) {
-	sut := model.OperatingConstraintsDurationListDataType{
-		OperatingConstraintsDurationData: []model.OperatingConstraintsDurationDataType{
+	sut := OperatingConstraintsDurationListDataType{
+		OperatingConstraintsDurationData: []OperatingConstraintsDurationDataType{
 			{
-				SequenceId:        util.Ptr(model.PowerSequenceIdType(0)),
-				ActiveDurationMin: model.NewDurationType(1 * time.Second),
+				SequenceId:        util.Ptr(PowerSequenceIdType(0)),
+				ActiveDurationMin: NewDurationType(1 * time.Second),
 			},
 			{
-				SequenceId:        util.Ptr(model.PowerSequenceIdType(1)),
-				ActiveDurationMin: model.NewDurationType(1 * time.Second),
+				SequenceId:        util.Ptr(PowerSequenceIdType(1)),
+				ActiveDurationMin: NewDurationType(1 * time.Second),
 			},
 		},
 	}
 
-	newData := model.OperatingConstraintsDurationListDataType{
-		OperatingConstraintsDurationData: []model.OperatingConstraintsDurationDataType{
+	newData := OperatingConstraintsDurationListDataType{
+		OperatingConstraintsDurationData: []OperatingConstraintsDurationDataType{
 			{
-				SequenceId:        util.Ptr(model.PowerSequenceIdType(1)),
-				ActiveDurationMin: model.NewDurationType(10 * time.Second),
+				SequenceId:        util.Ptr(PowerSequenceIdType(1)),
+				ActiveDurationMin: NewDurationType(10 * time.Second),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.OperatingConstraintsDurationData
 	// check the non changing items
@@ -88,68 +87,68 @@ func TestOperatingConstraintsDurationListDataType_Update(t *testing.T) {
 }
 
 func TestOperatingConstraintsPowerDescriptionListDataType_Update(t *testing.T) {
-	sut := model.OperatingConstraintsPowerDescriptionListDataType{
-		OperatingConstraintsPowerDescriptionData: []model.OperatingConstraintsPowerDescriptionDataType{
+	sut := OperatingConstraintsPowerDescriptionListDataType{
+		OperatingConstraintsPowerDescriptionData: []OperatingConstraintsPowerDescriptionDataType{
 			{
-				SequenceId:              util.Ptr(model.PowerSequenceIdType(0)),
-				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+				SequenceId:              util.Ptr(PowerSequenceIdType(0)),
+				PositiveEnergyDirection: util.Ptr(EnergyDirectionTypeConsume),
 			},
 			{
-				SequenceId:              util.Ptr(model.PowerSequenceIdType(1)),
-				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+				SequenceId:              util.Ptr(PowerSequenceIdType(1)),
+				PositiveEnergyDirection: util.Ptr(EnergyDirectionTypeConsume),
 			},
 		},
 	}
 
-	newData := model.OperatingConstraintsPowerDescriptionListDataType{
-		OperatingConstraintsPowerDescriptionData: []model.OperatingConstraintsPowerDescriptionDataType{
+	newData := OperatingConstraintsPowerDescriptionListDataType{
+		OperatingConstraintsPowerDescriptionData: []OperatingConstraintsPowerDescriptionDataType{
 			{
-				SequenceId:              util.Ptr(model.PowerSequenceIdType(1)),
-				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeProduce),
+				SequenceId:              util.Ptr(PowerSequenceIdType(1)),
+				PositiveEnergyDirection: util.Ptr(EnergyDirectionTypeProduce),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.OperatingConstraintsPowerDescriptionData
 	// check the non changing items
 	assert.Equal(t, 2, len(data))
 	item1 := data[0]
 	assert.Equal(t, 0, int(*item1.SequenceId))
-	assert.Equal(t, model.EnergyDirectionTypeConsume, *item1.PositiveEnergyDirection)
+	assert.Equal(t, EnergyDirectionTypeConsume, *item1.PositiveEnergyDirection)
 	// check properties of updated item
 	item2 := data[1]
 	assert.Equal(t, 1, int(*item2.SequenceId))
-	assert.Equal(t, model.EnergyDirectionTypeProduce, *item2.PositiveEnergyDirection)
+	assert.Equal(t, EnergyDirectionTypeProduce, *item2.PositiveEnergyDirection)
 }
 
 func TestOperatingConstraintsPowerRangeListDataType_Update(t *testing.T) {
-	sut := model.OperatingConstraintsPowerRangeListDataType{
-		OperatingConstraintsPowerRangeData: []model.OperatingConstraintsPowerRangeDataType{
+	sut := OperatingConstraintsPowerRangeListDataType{
+		OperatingConstraintsPowerRangeData: []OperatingConstraintsPowerRangeDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
-				PowerMin:   model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
+				PowerMin:   NewScaledNumberType(1),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				PowerMin:   model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				PowerMin:   NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.OperatingConstraintsPowerRangeListDataType{
-		OperatingConstraintsPowerRangeData: []model.OperatingConstraintsPowerRangeDataType{
+	newData := OperatingConstraintsPowerRangeListDataType{
+		OperatingConstraintsPowerRangeData: []OperatingConstraintsPowerRangeDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				PowerMin:   model.NewScaledNumberType(10),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				PowerMin:   NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.OperatingConstraintsPowerRangeData
 	// check the non changing items
@@ -164,30 +163,30 @@ func TestOperatingConstraintsPowerRangeListDataType_Update(t *testing.T) {
 }
 
 func TestOperatingConstraintsPowerLevelListDataType_Update(t *testing.T) {
-	sut := model.OperatingConstraintsPowerLevelListDataType{
-		OperatingConstraintsPowerLevelData: []model.OperatingConstraintsPowerLevelDataType{
+	sut := OperatingConstraintsPowerLevelListDataType{
+		OperatingConstraintsPowerLevelData: []OperatingConstraintsPowerLevelDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(0)),
-				Power:      model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(0)),
+				Power:      NewScaledNumberType(1),
 			},
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				Power:      model.NewScaledNumberType(1),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				Power:      NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.OperatingConstraintsPowerLevelListDataType{
-		OperatingConstraintsPowerLevelData: []model.OperatingConstraintsPowerLevelDataType{
+	newData := OperatingConstraintsPowerLevelListDataType{
+		OperatingConstraintsPowerLevelData: []OperatingConstraintsPowerLevelDataType{
 			{
-				SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
-				Power:      model.NewScaledNumberType(10),
+				SequenceId: util.Ptr(PowerSequenceIdType(1)),
+				Power:      NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.OperatingConstraintsPowerLevelData
 	// check the non changing items
@@ -202,30 +201,30 @@ func TestOperatingConstraintsPowerLevelListDataType_Update(t *testing.T) {
 }
 
 func TestOperatingConstraintsResumeImplicationListDataType_Update(t *testing.T) {
-	sut := model.OperatingConstraintsResumeImplicationListDataType{
-		OperatingConstraintsResumeImplicationData: []model.OperatingConstraintsResumeImplicationDataType{
+	sut := OperatingConstraintsResumeImplicationListDataType{
+		OperatingConstraintsResumeImplicationData: []OperatingConstraintsResumeImplicationDataType{
 			{
-				SequenceId:            util.Ptr(model.PowerSequenceIdType(0)),
-				ResumeEnergyEstimated: model.NewScaledNumberType(1),
+				SequenceId:            util.Ptr(PowerSequenceIdType(0)),
+				ResumeEnergyEstimated: NewScaledNumberType(1),
 			},
 			{
-				SequenceId:            util.Ptr(model.PowerSequenceIdType(1)),
-				ResumeEnergyEstimated: model.NewScaledNumberType(1),
+				SequenceId:            util.Ptr(PowerSequenceIdType(1)),
+				ResumeEnergyEstimated: NewScaledNumberType(1),
 			},
 		},
 	}
 
-	newData := model.OperatingConstraintsResumeImplicationListDataType{
-		OperatingConstraintsResumeImplicationData: []model.OperatingConstraintsResumeImplicationDataType{
+	newData := OperatingConstraintsResumeImplicationListDataType{
+		OperatingConstraintsResumeImplicationData: []OperatingConstraintsResumeImplicationDataType{
 			{
-				SequenceId:            util.Ptr(model.PowerSequenceIdType(1)),
-				ResumeEnergyEstimated: model.NewScaledNumberType(10),
+				SequenceId:            util.Ptr(PowerSequenceIdType(1)),
+				ResumeEnergyEstimated: NewScaledNumberType(10),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.OperatingConstraintsResumeImplicationData
 	// check the non changing items

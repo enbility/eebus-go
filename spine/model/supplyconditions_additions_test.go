@@ -1,38 +1,37 @@
-package model_test
+package model
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSupplyConditionListDataType_Update(t *testing.T) {
-	sut := model.SupplyConditionListDataType{
-		SupplyConditionData: []model.SupplyConditionDataType{
+	sut := SupplyConditionListDataType{
+		SupplyConditionData: []SupplyConditionDataType{
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				ConditionId: util.Ptr(ConditionIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				ConditionId: util.Ptr(ConditionIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.SupplyConditionListDataType{
-		SupplyConditionData: []model.SupplyConditionDataType{
+	newData := SupplyConditionListDataType{
+		SupplyConditionData: []SupplyConditionDataType{
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				ConditionId: util.Ptr(ConditionIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.SupplyConditionData
 	// check the non changing items
@@ -47,30 +46,30 @@ func TestSupplyConditionListDataType_Update(t *testing.T) {
 }
 
 func TestSupplyConditionDescriptionListDataType_Update(t *testing.T) {
-	sut := model.SupplyConditionDescriptionListDataType{
-		SupplyConditionDescriptionData: []model.SupplyConditionDescriptionDataType{
+	sut := SupplyConditionDescriptionListDataType{
+		SupplyConditionDescriptionData: []SupplyConditionDescriptionDataType{
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(0)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				ConditionId: util.Ptr(ConditionIdType(0)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				Description: util.Ptr(model.DescriptionType("old")),
+				ConditionId: util.Ptr(ConditionIdType(1)),
+				Description: util.Ptr(DescriptionType("old")),
 			},
 		},
 	}
 
-	newData := model.SupplyConditionDescriptionListDataType{
-		SupplyConditionDescriptionData: []model.SupplyConditionDescriptionDataType{
+	newData := SupplyConditionDescriptionListDataType{
+		SupplyConditionDescriptionData: []SupplyConditionDescriptionDataType{
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				Description: util.Ptr(model.DescriptionType("new")),
+				ConditionId: util.Ptr(ConditionIdType(1)),
+				Description: util.Ptr(DescriptionType("new")),
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.SupplyConditionDescriptionData
 	// check the non changing items
@@ -85,30 +84,30 @@ func TestSupplyConditionDescriptionListDataType_Update(t *testing.T) {
 }
 
 func TestSupplyConditionThresholdRelationListDataType_Update(t *testing.T) {
-	sut := model.SupplyConditionThresholdRelationListDataType{
-		SupplyConditionThresholdRelationData: []model.SupplyConditionThresholdRelationDataType{
+	sut := SupplyConditionThresholdRelationListDataType{
+		SupplyConditionThresholdRelationData: []SupplyConditionThresholdRelationDataType{
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(0)),
-				ThresholdId: []model.ThresholdIdType{0},
+				ConditionId: util.Ptr(ConditionIdType(0)),
+				ThresholdId: []ThresholdIdType{0},
 			},
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				ThresholdId: []model.ThresholdIdType{0},
+				ConditionId: util.Ptr(ConditionIdType(1)),
+				ThresholdId: []ThresholdIdType{0},
 			},
 		},
 	}
 
-	newData := model.SupplyConditionThresholdRelationListDataType{
-		SupplyConditionThresholdRelationData: []model.SupplyConditionThresholdRelationDataType{
+	newData := SupplyConditionThresholdRelationListDataType{
+		SupplyConditionThresholdRelationData: []SupplyConditionThresholdRelationDataType{
 			{
-				ConditionId: util.Ptr(model.ConditionIdType(1)),
-				ThresholdId: []model.ThresholdIdType{1},
+				ConditionId: util.Ptr(ConditionIdType(1)),
+				ThresholdId: []ThresholdIdType{1},
 			},
 		},
 	}
 
 	// Act
-	sut.UpdateList(&newData, model.NewFilterTypePartial(), nil)
+	sut.UpdateList(&newData, NewFilterTypePartial(), nil)
 
 	data := sut.SupplyConditionThresholdRelationData
 	// check the non changing items
