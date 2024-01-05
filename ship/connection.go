@@ -197,7 +197,7 @@ var _ spine.SpineDataConnection = (*ShipConnectionImpl)(nil)
 // SpineDataConnection interface implementation
 func (c *ShipConnectionImpl) WriteSpineMessage(message []byte) {
 	if err := c.sendSpineData(message); err != nil {
-		logging.Log.Debug(c.RemoteSKI, "Error sending spine message: ", err)
+		logging.Log().Debug(c.RemoteSKI, "Error sending spine message: ", err)
 		return
 	}
 }
@@ -210,13 +210,13 @@ func (c *ShipConnectionImpl) shipModelFromMessage(message []byte) (*model.ShipDa
 	// Get the datagram from the message
 	data := model.ShipData{}
 	if err := json.Unmarshal(jsonData, &data); err != nil {
-		logging.Log.Debug(c.RemoteSKI, "error unmarshalling message: ", err)
+		logging.Log().Debug(c.RemoteSKI, "error unmarshalling message: ", err)
 		return nil, err
 	}
 
 	if data.Data.Payload == nil {
 		errorMsg := "received no valid payload"
-		logging.Log.Debug(c.RemoteSKI, errorMsg)
+		logging.Log().Debug(c.RemoteSKI, errorMsg)
 		return nil, errors.New(errorMsg)
 	}
 
@@ -342,7 +342,7 @@ func (c *ShipConnectionImpl) sendSpineData(data []byte) error {
 
 	err = c.dataHandler.WriteMessageToDataConnection(shipMsg)
 	if err != nil {
-		logging.Log.Debug("error sending message: ", err)
+		logging.Log().Debug("error sending message: ", err)
 		return err
 	}
 

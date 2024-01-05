@@ -105,7 +105,7 @@ func (w *websocketConnection) writeShipPump() {
 			_ = w.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			w.muxConWrite.Unlock()
 			if !ok {
-				logging.Log.Debug(w.remoteSki, "ship write channel closed")
+				logging.Log().Debug(w.remoteSki, "ship write channel closed")
 				// The write channel has been closed
 				_ = w.writeMessage(websocket.CloseMessage, []byte{})
 				return
@@ -129,7 +129,7 @@ func (w *websocketConnection) writeShipPump() {
 			} else {
 				text = "unknown single byte"
 			}
-			logging.Log.Trace("Send:", w.remoteSki, text)
+			logging.Log().Trace("Send:", w.remoteSki, text)
 
 		case <-ticker.C:
 			w.handlePing()
@@ -152,7 +152,7 @@ func (w *websocketConnection) handlePing() {
 }
 
 func (w *websocketConnection) closeWithError(err error, reason string) {
-	logging.Log.Debug(w.remoteSki, reason, err)
+	logging.Log().Debug(w.remoteSki, reason, err)
 	w.setConnClosedError(err)
 	w.dataProcessing.ReportConnectionError(err)
 }
@@ -174,7 +174,7 @@ func (w *websocketConnection) readShipPump() {
 		}
 
 		if err != nil {
-			logging.Log.Debug(w.remoteSki, "websocket read error: ", err)
+			logging.Log().Debug(w.remoteSki, "websocket read error: ", err)
 			w.close()
 			w.setConnClosedError(err)
 			w.dataProcessing.ReportConnectionError(err)
@@ -189,7 +189,7 @@ func (w *websocketConnection) readShipPump() {
 		} else {
 			text = "unknown single byte"
 		}
-		logging.Log.Trace("Recv:", w.remoteSki, text)
+		logging.Log().Trace("Recv:", w.remoteSki, text)
 
 		w.dataProcessing.HandleIncomingShipMessage(message)
 	}

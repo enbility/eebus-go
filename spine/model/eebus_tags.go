@@ -38,7 +38,7 @@ func EEBusTags(field reflect.StructField) map[EEBusTag]string {
 		} else if len(pair) == 2 {
 			result[EEBusTag(pair[0])] = pair[1]
 		} else {
-			logging.Log.Errorf("error: malformatted eebus tag: '%s'", tags)
+			logging.Log().Errorf("error: malformatted eebus tag: '%s'", tags)
 		}
 	}
 

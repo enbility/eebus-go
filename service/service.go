@@ -180,7 +180,7 @@ func (s *EEBUSService) Setup() error {
 	s.LocalService.DeviceType = sd.deviceType
 	s.LocalService.RegisterAutoAccept = sd.registerAutoAccept
 
-	logging.Log.Info("Local SKI: ", ski)
+	logging.Log().Info("Local SKI: ", ski)
 
 	vendor := sd.vendorCode
 	if vendor == "" {

@@ -162,12 +162,12 @@ func (m *mdnsManager) AnnounceMdnsEntry() error {
 		"register=" + fmt.Sprintf("%v", m.configuration.registerAutoAccept),
 	}
 
-	logging.Log.Debug("mdns: announce")
+	logging.Log().Debug("mdns: announce")
 
 	serviceName := m.configuration.MdnsServiceName()
 
 	if err := m.mdnsProvider.Announce(serviceName, m.configuration.port, txt); err != nil {
-		logging.Log.Debug("mdns: failure announcing service", err)
+		logging.Log().Debug("mdns: failure announcing service", err)
 		return err
 	}
 
@@ -183,7 +183,7 @@ func (m *mdnsManager) UnannounceMdnsEntry() {
 	}
 
 	m.mdnsProvider.Unannounce()
-	logging.Log.Debug("mdns: stop announcement")
+	logging.Log().Debug("mdns: stop announcement")
 
 	m.isAnnounced = false
 }
@@ -289,7 +289,7 @@ func (m *mdnsManager) resolveEntries() {
 		return
 	}
 	go func() {
-		logging.Log.Debug("mdns: start search")
+		logging.Log().Debug("mdns: start search")
 		m.mdnsProvider.ResolveEntries(m.cancelChan, m.processMdnsEntry)
 
 		m.setIsSearchingServices(false)
@@ -306,7 +306,7 @@ func (m *mdnsManager) stopResolvingEntries() {
 		return
 	}
 
-	logging.Log.Debug("mdns: stop search")
+	logging.Log().Debug("mdns: stop search")
 
 	m.cancelChan <- true
 }
@@ -407,7 +407,7 @@ func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host st
 		}
 		m.setMdnsEntry(ski, newEntry)
 
-		logging.Log.Debug("ski:", ski, "name:", name, "brand:", brand, "model:", model, "typ:", deviceType, "identifier:", identifier, "register:", register, "host:", host, "port:", port, "addresses:", addresses)
+		logging.Log().Debug("ski:", ski, "name:", name, "brand:", brand, "model:", model, "typ:", deviceType, "identifier:", identifier, "register:", register, "host:", host, "port:", port, "addresses:", addresses)
 	} else {
 		return
 	}

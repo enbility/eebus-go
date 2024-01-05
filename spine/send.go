@@ -87,7 +87,7 @@ func (c *SenderImpl) sendSpineMessage(datagram model.DatagramType) error {
 		return errors.New("message is nil")
 	}
 
-	logging.Log.Debug(datagram.PrintMessageOverview(true, "", ""))
+	logging.Log().Debug(datagram.PrintMessageOverview(true, "", ""))
 
 	// write to channel
 	c.writeHandler.WriteSpineMessage(msg)

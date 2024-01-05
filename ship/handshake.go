@@ -92,7 +92,7 @@ func (c *ShipConnectionImpl) getState() ShipMessageExchangeState {
 func (c *ShipConnectionImpl) handleState(timeout bool, message []byte) {
 	switch c.getState() {
 	case SmeStateError:
-		logging.Log.Debug(c.RemoteSKI, "connection is in error state")
+		logging.Log().Debug(c.RemoteSKI, "connection is in error state")
 		return
 
 	// cmiStateInit
@@ -210,7 +210,7 @@ func (c *ShipConnectionImpl) endHandshakeWithError(err error) {
 
 	c.setState(SmeStateError, err)
 
-	logging.Log.Debug(c.RemoteSKI, "SHIP handshake error:", err)
+	logging.Log().Debug(c.RemoteSKI, "SHIP handshake error:", err)
 
 	c.CloseConnection(true, 0, err.Error())
 

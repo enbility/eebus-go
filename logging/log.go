@@ -1,5 +1,7 @@
 package logging
 
+import "sync"
+
 //go:generate mockery --name=Logging
 
 // Logging needs to be implemented, if the internal logs should be printed
@@ -26,7 +28,8 @@ func (l *NoLogging) Infof(format string, args ...interface{})  {}
 func (l *NoLogging) Error(args ...interface{})                 {}
 func (l *NoLogging) Errorf(format string, args ...interface{}) {}
 
-var Log Logging = &NoLogging{}
+var log Logging = &NoLogging{}
+var mux sync.Mutex
 
 // Sets a custom logging implementation
 // By default NoLogging is used, so no logs are printed
@@ -35,5 +38,15 @@ func SetLogging(logger Logging) {
 	if logger == nil {
 		return
 	}
-	Log = logger
+	mux.Lock()
+	defer mux.Unlock()
+
+	log = logger
+}
+
+func Log() Logging {
+	mux.Lock()
+	defer mux.Unlock()
+
+	return log
 }

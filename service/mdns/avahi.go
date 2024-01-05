@@ -62,7 +62,7 @@ func (a *AvahiProvider) Shutdown() {
 }
 
 func (a *AvahiProvider) Announce(serviceName string, port int, txt []string) error {
-	logging.Log.Debug("mdns: using avahi")
+	logging.Log().Debug("mdns: using avahi")
 
 	entryGroup, err := a.avServer.EntryGroupNew()
 	if err != nil {
@@ -108,12 +108,12 @@ func (a *AvahiProvider) ResolveEntries(cancelChan chan bool, callback func(eleme
 
 	// instead of limiting search on specific allowed interfaces, we allow all and filter the results
 	if avBrowser, err = a.avServer.ServiceBrowserNew(avahi.InterfaceUnspec, avahi.ProtoUnspec, shipZeroConfServiceType, shipZeroConfDomain, 0); err != nil {
-		logging.Log.Debug("mdns: error setting up avahi browser:", err)
+		logging.Log().Debug("mdns: error setting up avahi browser:", err)
 		return
 	}
 
 	if avBrowser == nil {
-		logging.Log.Debug("mdns: avahi browser is not available")
+		logging.Log().Debug("mdns: avahi browser is not available")
 		return
 	}
 
@@ -149,13 +149,13 @@ func (a *AvahiProvider) processService(service avahi.Service, remove bool, callb
 	}
 
 	if !allow {
-		logging.Log.Debug("avahi - ignoring service as its interface is not in the allowed list:", service.Name)
+		logging.Log().Debug("avahi - ignoring service as its interface is not in the allowed list:", service.Name)
 		return
 	}
 
 	resolved, err := a.avServer.ResolveService(service.Interface, service.Protocol, service.Name, service.Type, service.Domain, avahi.ProtoUnspec, 0)
 	if err != nil {
-		logging.Log.Debug("avahi - error resolving service:", service, "error:", err)
+		logging.Log().Debug("avahi - error resolving service:", service, "error:", err)
 		return
 	}
 
@@ -170,7 +170,7 @@ func (a *AvahiProvider) processService(service avahi.Service, remove bool, callb
 	address := net.ParseIP(resolved.Address)
 	// if the address can not be used, ignore the entry
 	if address == nil || address.IsUnspecified() {
-		logging.Log.Debug("avahi - service provides unusable address:", service.Name)
+		logging.Log().Debug("avahi - service provides unusable address:", service.Name)
 		return
 	}
 

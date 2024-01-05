@@ -132,13 +132,13 @@ func newConnectionsHub(serviceProvider ServiceProvider, mdns MdnsService, spineL
 func (h *connectionsHubImpl) Start() {
 	// start the websocket server
 	if err := h.startWebsocketServer(); err != nil {
-		logging.Log.Debug("error during websocket server starting:", err)
+		logging.Log().Debug("error during websocket server starting:", err)
 	}
 
 	// start mDNS
 	err := h.mdns.SetupMdnsService()
 	if err != nil {
-		logging.Log.Debug("error during mdns setup:", err)
+		logging.Log().Debug("error during mdns setup:", err)
 	}
 
 	h.checkRestartMdnsSearch()
@@ -398,7 +398,7 @@ func (h *connectionsHubImpl) verifyPeerCertificate(rawCerts [][]byte, verifiedCh
 // start the ship websocket server
 func (h *connectionsHubImpl) startWebsocketServer() error {
 	addr := fmt.Sprintf(":%d", h.configuration.port)
-	logging.Log.Debug("starting websocket server on", addr)
+	logging.Log().Debug("starting websocket server on", addr)
 
 	h.httpServer = &http.Server{
 		Addr:    addr,
@@ -413,7 +413,7 @@ func (h *connectionsHubImpl) startWebsocketServer() error {
 
 	go func() {
 		if err := h.httpServer.ListenAndServeTLS("", ""); err != nil {
-			logging.Log.Debug("websocket server error:", err)
+			logging.Log().Debug("websocket server error:", err)
 			// TODO: decide how to handle this case
 		}
 	}()
@@ -434,34 +434,34 @@ func (h *connectionsHubImpl) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		logging.Log.Debug("error during connection upgrading:", err)
+		logging.Log().Debug("error during connection upgrading:", err)
 		return
 	}
 
 	// check if the client supports the ship sub protocol
 	if conn.Subprotocol() != shipWebsocketSubProtocol {
-		logging.Log.Debug("client does not support the ship sub protocol")
+		logging.Log().Debug("client does not support the ship sub protocol")
 		_ = conn.Close()
 		return
 	}
 
 	// check if the clients certificate provides a SKI
 	if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 {
-		logging.Log.Debug("client does not provide a certificate")
+		logging.Log().Debug("client does not provide a certificate")
 		_ = conn.Close()
 		return
 	}
 
 	ski, err := skiFromCertificate(r.TLS.PeerCertificates[0])
 	if err != nil {
-		logging.Log.Debug(err)
+		logging.Log().Debug(err)
 		_ = conn.Close()
 		return
 	}
 
 	// normalize the incoming SKI
 	remoteService := NewServiceDetails(ski)
-	logging.Log.Debug("incoming connection request from", remoteService.SKI)
+	logging.Log().Debug("incoming connection request from", remoteService.SKI)
 
 	// Check if the remote service is paired
 	service := h.ServiceForSKI(remoteService.SKI)
@@ -495,7 +495,7 @@ func (h *connectionsHubImpl) connectFoundService(remoteService *ServiceDetails, 
 		return nil
 	}
 
-	logging.Log.Debugf("initiating connection to %s at %s:%s", remoteService.SKI, host, port)
+	logging.Log().Debugf("initiating connection to %s at %s:%s", remoteService.SKI, host, port)
 
 	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
@@ -584,14 +584,14 @@ func (h *connectionsHubImpl) keepThisConnection(conn *websocket.Conn, incomingRe
 	if keep {
 		// we have an existing connection
 		// so keep the new (most recent) and close the old one
-		logging.Log.Debug("closing existing double connection")
+		logging.Log().Debug("closing existing double connection")
 		go existingC.CloseConnection(false, 0, "")
 	} else {
 		connType := "incoming"
 		if !incomingRequest {
 			connType = "outgoing"
 		}
-		logging.Log.Debugf("closing %s double connection, as the existing connection will be used", connType)
+		logging.Log().Debugf("closing %s double connection, as the existing connection will be used", connType)
 		if conn != nil {
 			go func() {
 				_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "double connection"))
@@ -741,7 +741,7 @@ func (h *connectionsHubImpl) coordinateConnectionInitations(ski string, entry *M
 		return
 	}
 
-	logging.Log.Debugf("delaying connection to %s by %s to minimize double connection probability", ski, duration)
+	logging.Log().Debugf("delaying connection to %s by %s to minimize double connection probability", ski, duration)
 
 	// we do not stop this thread and just let the timer run out
 	// otherwise we would need a stop channel for each ski
@@ -799,9 +799,9 @@ func (h *connectionsHubImpl) initateConnection(remoteService *ServiceDetails, en
 			return false
 		}
 
-		logging.Log.Debug("trying to connect to", remoteService.SKI, "at", address)
+		logging.Log().Debug("trying to connect to", remoteService.SKI, "at", address)
 		if err = h.connectFoundService(remoteService, address.String(), strconv.Itoa(entry.Port)); err != nil {
-			logging.Log.Debug("connection to", remoteService.SKI, "failed: ", err)
+			logging.Log().Debug("connection to", remoteService.SKI, "failed: ", err)
 		} else {
 			return true
 		}
@@ -809,9 +809,9 @@ func (h *connectionsHubImpl) initateConnection(remoteService *ServiceDetails, en
 
 	// connectdion via IP address failed, try hostname
 	if len(entry.Host) > 0 {
-		logging.Log.Debug("trying to connect to", remoteService.SKI, "at", entry.Host)
+		logging.Log().Debug("trying to connect to", remoteService.SKI, "at", entry.Host)
 		if err = h.connectFoundService(remoteService, entry.Host, strconv.Itoa(entry.Port)); err != nil {
-			logging.Log.Debugf("connection to %s failed: %s", remoteService.SKI, err)
+			logging.Log().Debugf("connection to %s failed: %s", remoteService.SKI, err)
 		} else {
 			return true
 		}

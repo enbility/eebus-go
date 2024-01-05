@@ -112,13 +112,13 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 
 func (s *ServiceSuite) Test_SetLogging() {
 	s.sut.SetLogging(nil)
-	assert.Equal(s.T(), &logging.NoLogging{}, logging.Log)
+	assert.Equal(s.T(), &logging.NoLogging{}, logging.Log())
 
 	s.sut.SetLogging(s.logging)
-	assert.Equal(s.T(), s.logging, logging.Log)
+	assert.Equal(s.T(), s.logging, logging.Log())
 
 	s.sut.SetLogging(&logging.NoLogging{})
-	assert.Equal(s.T(), &logging.NoLogging{}, logging.Log)
+	assert.Equal(s.T(), &logging.NoLogging{}, logging.Log())
 }
 
 func (s *ServiceSuite) Test_Setup() {

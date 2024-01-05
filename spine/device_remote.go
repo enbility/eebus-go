@@ -55,7 +55,7 @@ func (d *DeviceRemoteImpl) HandleIncomingSpineMesssage(message []byte) (*model.M
 	}
 	err := d.localDevice.ProcessCmd(datagram.Datagram, d)
 	if err != nil {
-		logging.Log.Trace(err)
+		logging.Log().Trace(err)
 	}
 
 	return datagram.Datagram.Header.MsgCounter, nil

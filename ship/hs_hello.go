@@ -69,7 +69,7 @@ func (c *ShipConnectionImpl) handshakeHello_ReadyListen(timeout bool, message []
 
 	default:
 		// don't accept any other responses
-		logging.Log.Errorf("Unexpected connection hello phase: %s", hello.Phase)
+		logging.Log().Errorf("Unexpected connection hello phase: %s", hello.Phase)
 		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}
@@ -201,7 +201,7 @@ func (c *ShipConnectionImpl) handshakeHello_PendingListen(timeout bool, message 
 
 	default:
 		// don't accept any other responses
-		logging.Log.Errorf("Unexpected connection hello phase: %s", hello.Phase)
+		logging.Log().Errorf("Unexpected connection hello phase: %s", hello.Phase)
 		c.setAndHandleState(SmeHelloStateAbort)
 		return
 	}

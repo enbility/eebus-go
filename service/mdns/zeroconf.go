@@ -29,7 +29,7 @@ func (z *ZeroconfProvider) CheckAvailability() bool {
 func (z *ZeroconfProvider) Shutdown() {}
 
 func (z *ZeroconfProvider) Announce(serviceName string, port int, txt []string) error {
-	logging.Log.Debug("mdns: using zeroconf")
+	logging.Log().Debug("mdns: using zeroconf")
 
 	// use Zeroconf library if avahi is not available
 	// Set TTL to 2 minutes as defined in SHIP chapter 7
