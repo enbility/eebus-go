@@ -1,7 +1,5 @@
 package service
 
-import "net"
-
 /* EEBUSService */
 
 //go:generate mockgen -destination=mock_service_test.go -package=service github.com/enbility/eebus-go/service EEBUSServiceHandler
@@ -87,14 +85,4 @@ type MdnsService interface {
 	UnannounceMdnsEntry()
 	RegisterMdnsSearch(cb MdnsSearch)
 	UnregisterMdnsSearch(cb MdnsSearch)
-}
-
-//go:generate mockery --name=MdnsProvider
-
-type MdnsProvider interface {
-	CheckAvailability() bool
-	Shutdown()
-	Announce(serviceName string, port int, txt []string) error
-	Unannounce()
-	ResolveEntries(cancelChan chan bool, callback func(elements map[string]string, name, host string, addresses []net.IP, port int, remove bool))
 }
