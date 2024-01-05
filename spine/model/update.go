@@ -52,6 +52,10 @@ func keyFieldNames(item any) []string {
 	v := reflect.ValueOf(item)
 	t := reflect.TypeOf(item)
 
+	if v.Kind() != reflect.Struct {
+		return result
+	}
+
 	for i := 0; i < v.NumField(); i++ {
 		f := v.Field(i)
 		if f.Kind() != reflect.Ptr {
