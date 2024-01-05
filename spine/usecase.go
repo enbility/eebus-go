@@ -79,20 +79,35 @@ type UseCaseImpl struct {
 }
 
 // returns a UseCaseImpl with a default mapping of entity to actor using data
-func NewUseCase(entity *EntityLocalImpl, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
+func NewUseCase(
+	entity *EntityLocalImpl,
+	ucEnumType model.UseCaseNameType,
+	useCaseVersion model.SpecificationVersionType,
+	useCaseDocumemtSubRevision string,
+	useCaseAvailable bool,
+	scenarioSupport []model.UseCaseScenarioSupportType,
+) *UseCaseImpl {
 	checkEntityArguments(*entity.EntityImpl)
 
 	actor := entityTypeActorMap[entity.EntityType()]
 
-	return NewUseCaseWithActor(entity, actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
+	return NewUseCaseWithActor(entity, actor, ucEnumType, useCaseVersion, useCaseDocumemtSubRevision, useCaseAvailable, scenarioSupport)
 }
 
 // returns a UseCaseImpl with specific entity and actor
-func NewUseCaseWithActor(entity *EntityLocalImpl, actor model.UseCaseActorType, ucEnumType model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarioSupport []model.UseCaseScenarioSupportType) *UseCaseImpl {
+func NewUseCaseWithActor(
+	entity *EntityLocalImpl,
+	actor model.UseCaseActorType,
+	ucEnumType model.UseCaseNameType,
+	useCaseVersion model.SpecificationVersionType,
+	useCaseDocumemtSubRevision string,
+	useCaseAvailable bool,
+	scenarioSupport []model.UseCaseScenarioSupportType,
+) *UseCaseImpl {
 	checkUCArguments(actor, ucEnumType)
 
 	ucManager := entity.Device().UseCaseManager()
-	ucManager.Add(actor, ucEnumType, useCaseVersion, useCaseAvailable, scenarioSupport)
+	ucManager.Add(actor, ucEnumType, useCaseVersion, useCaseDocumemtSubRevision, useCaseAvailable, scenarioSupport)
 
 	return &UseCaseImpl{
 		Entity:           entity,

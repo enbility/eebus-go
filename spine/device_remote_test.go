@@ -86,6 +86,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 		model.UseCaseActorTypeBatterySystem,
 		model.UseCaseNameTypeControlOfBattery,
 		model.SpecificationVersionType("1.0.0"),
+		"",
 		true,
 		[]model.UseCaseScenarioSupportType{1},
 	)
@@ -102,6 +103,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 		model.UseCaseActorTypeEVSE,
 		model.UseCaseNameTypeEVCommissioningAndConfiguration,
 		model.SpecificationVersionType("1.0.0"),
+		"",
 		true,
 		[]model.UseCaseScenarioSupportType{1},
 	)
@@ -118,6 +120,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 		model.UseCaseActorTypeEVSE,
 		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
 		model.SpecificationVersionType("1.0.0"),
+		"",
 		false,
 		[]model.UseCaseScenarioSupportType{1},
 	)
@@ -134,6 +137,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 		model.UseCaseActorTypeEVSE,
 		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
 		model.SpecificationVersionType("1.0.0"),
+		"",
 		true,
 		[]model.UseCaseScenarioSupportType{1},
 	)

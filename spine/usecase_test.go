@@ -32,6 +32,7 @@ func (s *UsecaseSuite) Test_UseCase() {
 		s.entity,
 		model.UseCaseNameTypeControlOfBattery,
 		model.SpecificationVersionType("1.0.0"),
+		"",
 		true,
 		[]model.UseCaseScenarioSupportType{1},
 	)

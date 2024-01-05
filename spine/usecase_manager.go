@@ -21,12 +21,23 @@ func NewUseCaseManager(localDevice *DeviceImpl) *UseCaseManager {
 }
 
 // add a usecase
-func (r *UseCaseManager) Add(actor model.UseCaseActorType, useCaseName model.UseCaseNameType, useCaseVersion model.SpecificationVersionType, useCaseAvailable bool, scenarios []model.UseCaseScenarioSupportType) {
+func (r *UseCaseManager) Add(
+	actor model.UseCaseActorType,
+	useCaseName model.UseCaseNameType,
+	useCaseVersion model.SpecificationVersionType,
+	useCaseDocumemtSubRevision string,
+	useCaseAvailable bool,
+	scenarios []model.UseCaseScenarioSupportType,
+) {
 	useCaseSupport := model.UseCaseSupportType{
 		UseCaseVersion:   &useCaseVersion,
 		UseCaseName:      &useCaseName,
 		UseCaseAvailable: &useCaseAvailable,
 		ScenarioSupport:  scenarios,
+	}
+
+	if len(useCaseDocumemtSubRevision) > 0 {
+		useCaseSupport.UseCaseDocumentSubRevision = &useCaseDocumemtSubRevision
 	}
 
 	useCaseInfo, exists := r.useCaseInformationMap[actor]

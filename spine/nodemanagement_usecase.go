@@ -84,6 +84,11 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 				useCaseVersion = model.SpecificationVersionType(*useCaseSupport.UseCaseVersion)
 			}
 
+			var useCaseDocumemtSubRevision string
+			if useCaseSupport.UseCaseDocumentSubRevision != nil {
+				useCaseDocumemtSubRevision = *useCaseSupport.UseCaseDocumentSubRevision
+			}
+
 			if useCaseSupport.ScenarioSupport == nil {
 				logging.Log().Errorf("scenarioSupport is missing in useCaseSupport %s", useCaseName)
 				continue
@@ -93,6 +98,7 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data mode
 				actor,
 				useCaseName,
 				useCaseVersion,
+				useCaseDocumemtSubRevision,
 				useCaseAvailable,
 				useCaseSupport.ScenarioSupport)
 		}
