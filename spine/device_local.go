@@ -12,12 +12,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-// implemented by spine.DeviceLocalImpl and used by shipConnection
-type DeviceLocalConnection interface {
-	RemoveRemoteDeviceConnection(ski string)
-	AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing
-}
-
 type DeviceLocalImpl struct {
 	*DeviceImpl
 	entities            []*EntityLocalImpl

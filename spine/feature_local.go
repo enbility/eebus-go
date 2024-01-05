@@ -10,55 +10,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-type FeatureLocal interface {
-	Feature
-	Data(function model.FunctionType) any
-	SetData(function model.FunctionType, data any)
-	AddResultHandler(handler FeatureResult)
-	AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg ResultMessage))
-	Information() *model.NodeManagementDetailedDiscoveryFeatureInformationType
-	AddFunctionType(function model.FunctionType, read, write bool)
-	RequestData(
-		function model.FunctionType,
-		selector any,
-		elements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
-	RequestDataBySenderAddress(
-		cmd model.CmdType,
-		sender Sender,
-		destinationSki string,
-		destinationAddress *model.FeatureAddressType,
-		maxDelay time.Duration) (*model.MsgCounterType, *model.ErrorType)
-	FetchRequestData(
-		msgCounter model.MsgCounterType,
-		destination *FeatureRemoteImpl) (any, *model.ErrorType)
-	RequestAndFetchData(
-		function model.FunctionType,
-		selector any,
-		elements any,
-		destination *FeatureRemoteImpl) (any, *model.ErrorType)
-	Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
-	// SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
-	Bind(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
-	// BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType
-	NotifyData(
-		function model.FunctionType,
-		deleteSelector, partialSelector any,
-		partialWithoutSelector bool,
-		deleteElements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
-	WriteData(
-		function model.FunctionType,
-		deleteSelector, partialSelector any,
-		deleteElements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
-	HandleMessage(message *Message) *model.ErrorType
-}
-
-type FeatureResult interface {
-	HandleResult(ResultMessage)
-}
-
 var _ FeatureLocal = (*FeatureLocalImpl)(nil)
 
 type FeatureLocalImpl struct {

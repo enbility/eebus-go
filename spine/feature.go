@@ -7,12 +7,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-type Feature interface {
-	Address() *model.FeatureAddressType
-	Type() model.FeatureTypeType
-	Role() model.RoleType
-}
-
 type FeatureImpl struct {
 	address     *model.FeatureAddressType
 	ftype       model.FeatureTypeType

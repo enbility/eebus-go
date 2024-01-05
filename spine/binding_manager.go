@@ -12,15 +12,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-type BindingManager interface {
-	AddBinding(remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error
-	RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
-	RemoveBindingsForDevice(remoteDevice *DeviceRemoteImpl)
-	RemoveBindingsForEntity(remoteEntity *EntityRemoteImpl)
-	Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry
-	BindingsOnFeature(featureAddress model.FeatureAddressType) []*BindingEntry
-}
-
 type BindingEntry struct {
 	id            uint64
 	serverFeature FeatureLocal

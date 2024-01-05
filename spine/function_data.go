@@ -9,12 +9,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-type FunctionData interface {
-	Function() model.FunctionType
-	DataAny() any
-	UpdateDataAny(data any, filterPartial *model.FilterType, filterDelete *model.FilterType)
-}
-
 var _ FunctionData = (*FunctionDataImpl[int])(nil)
 
 type FunctionDataImpl[T any] struct {

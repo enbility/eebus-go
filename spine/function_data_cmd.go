@@ -5,14 +5,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-type FunctionDataCmd interface {
-	FunctionData
-	ReadCmdType(partialSelector any, elements any) model.CmdType
-	ReplyCmdType(partial bool) model.CmdType
-	NotifyCmdType(deleteSelector, partialSelector any, partialWithoutSelector bool, deleteElements any) model.CmdType
-	WriteCmdType(deleteSelector, partialSelector any, deleteElements any) model.CmdType
-}
-
 var _ FunctionDataCmd = (*FunctionDataCmdImpl[int])(nil)
 
 type FunctionDataCmdImpl[T any] struct {

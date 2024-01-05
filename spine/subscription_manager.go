@@ -12,15 +12,6 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
-type SubscriptionManager interface {
-	AddSubscription(remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error
-	RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
-	RemoveSubscriptionsForDevice(remoteDevice *DeviceRemoteImpl)
-	RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl)
-	Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry
-	SubscriptionsOnFeature(featureAddress model.FeatureAddressType) []*SubscriptionEntry
-}
-
 type SubscriptionEntry struct {
 	id            uint64
 	serverFeature FeatureLocal

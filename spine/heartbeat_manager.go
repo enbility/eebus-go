@@ -9,13 +9,6 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 )
 
-type HeartbeatManager interface {
-	IsHeartbeatRunning() bool
-	UpdateHeartbeatOnSubscriptions()
-	StartHeartbeat() error
-	StopHeartbeat()
-}
-
 type HeartbeatManagerImpl struct {
 	localDevice  *DeviceLocalImpl
 	localEntity  *EntityLocalImpl

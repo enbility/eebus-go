@@ -44,10 +44,6 @@ type EventPayload struct {
 	Data          any
 }
 
-type EventHandler interface {
-	HandleEvent(EventPayload)
-}
-
 type eventHandlerItem struct {
 	Level   EventHandlerLevel
 	Handler EventHandler
