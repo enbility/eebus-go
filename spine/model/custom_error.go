@@ -29,7 +29,7 @@ func NewErrorTypeFromString(description string) *ErrorType {
 }
 
 func NewErrorTypeFromResult(result *ResultDataType) *ErrorType {
-	if *result.ErrorNumber == ErrorNumberTypeNoError {
+	if result.ErrorNumber == nil || *result.ErrorNumber == ErrorNumberTypeNoError {
 		return nil
 	}
 
