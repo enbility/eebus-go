@@ -101,7 +101,9 @@ type ServiceDetails struct {
 	Trusted bool
 
 	// the current connection state details
-	ConnectionStateDetail *ConnectionStateDetail
+	connectionStateDetail *ConnectionStateDetail
+
+	mux sync.Mutex
 }
 
 // create a new ServiceDetails record with a SKI
@@ -109,10 +111,24 @@ func NewServiceDetails(ski string) *ServiceDetails {
 	connState := NewConnectionStateDetail(ConnectionStateNone, nil)
 	service := &ServiceDetails{
 		SKI:                   util.NormalizeSKI(ski), // standardize the provided SKI strings
-		ConnectionStateDetail: connState,
+		connectionStateDetail: connState,
 	}
 
 	return service
+}
+
+func (s *ServiceDetails) ConnectionStateDetail() *ConnectionStateDetail {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.connectionStateDetail
+}
+
+func (s *ServiceDetails) SetConnectionStateDetail(detail *ConnectionStateDetail) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	s.connectionStateDetail = detail
 }
 
 // defines requires meta information about this service

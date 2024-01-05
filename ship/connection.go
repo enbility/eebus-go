@@ -132,6 +132,9 @@ func (c *ShipConnection) AbortPendingHandshake() {
 
 // report removing a connection
 func (c *ShipConnection) removeRemoteDeviceConnection() {
+	if c.deviceLocalCon == nil {
+		return
+	}
 	c.deviceLocalCon.RemoveRemoteDeviceConnection(c.RemoteSKI)
 }
 

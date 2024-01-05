@@ -40,6 +40,12 @@ func (s *TypesSuite) Test_ServiceDetails() {
 
 	details := NewServiceDetails(testSki)
 	assert.NotNil(s.T(), details)
+
+	conState := NewConnectionStateDetail(ConnectionStateNone, nil)
+	details.SetConnectionStateDetail(conState)
+
+	state := details.ConnectionStateDetail()
+	assert.Equal(s.T(), ConnectionStateNone, state.State())
 }
 
 func (s *TypesSuite) Test_Configuration() {
