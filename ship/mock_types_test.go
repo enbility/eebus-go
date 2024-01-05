@@ -171,7 +171,7 @@ func (mr *MockShipServiceDataProviderMockRecorder) AllowWaitingForTrust(arg0 int
 }
 
 // HandleConnectionClosed mocks base method.
-func (m *MockShipServiceDataProvider) HandleConnectionClosed(arg0 *ShipConnection, arg1 bool) {
+func (m *MockShipServiceDataProvider) HandleConnectionClosed(arg0 ShipConnection, arg1 bool) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "HandleConnectionClosed", arg0, arg1)
 }

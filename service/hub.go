@@ -79,7 +79,7 @@ type ConnectionsHub interface {
 
 // handling all connections to remote services
 type connectionsHubImpl struct {
-	connections map[string]*ship.ShipConnection
+	connections map[string]ship.ShipConnection
 
 	// which attempt is it to initate an connection to the remote SKI
 	connectionAttemptCounter map[string]int
@@ -113,7 +113,7 @@ type connectionsHubImpl struct {
 
 func newConnectionsHub(serviceProvider ServiceProvider, mdns MdnsService, spineLocalDevice spine.DeviceLocalConnection, configuration *Configuration, localService *ServiceDetails) ConnectionsHub {
 	hub := &connectionsHubImpl{
-		connections:              make(map[string]*ship.ShipConnection),
+		connections:              make(map[string]ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		connectionAttemptRunning: make(map[string]bool),
 		remoteServices:           make(map[string]*ServiceDetails),
@@ -154,26 +154,26 @@ func (h *connectionsHubImpl) IsRemoteServiceForSKIPaired(ski string) bool {
 }
 
 // The connection was closed, we need to clean up
-func (h *connectionsHubImpl) HandleConnectionClosed(connection *ship.ShipConnection, handshakeCompleted bool) {
+func (h *connectionsHubImpl) HandleConnectionClosed(connection ship.ShipConnection, handshakeCompleted bool) {
 	// only remove this connection if it is the registered one for the ski!
 	// as we can have double connections but only one can be registered
-	if existingC := h.connectionForSKI(connection.RemoteSKI); existingC != nil {
-		if existingC.DataHandler == connection.DataHandler {
+	if existingC := h.connectionForSKI(connection.RemoteSKI()); existingC != nil {
+		if existingC.DataHandler() == connection.DataHandler() {
 			h.muxCon.Lock()
-			delete(h.connections, connection.RemoteSKI)
+			delete(h.connections, connection.RemoteSKI())
 			h.muxCon.Unlock()
 		}
 
 		// connection close was after a completed handshake, so we can reset the attetmpt counter
 		if handshakeCompleted {
-			h.removeConnectionAttemptCounter(connection.RemoteSKI)
+			h.removeConnectionAttemptCounter(connection.RemoteSKI())
 		}
 	}
 
-	h.serviceProvider.RemoteSKIDisconnected(connection.RemoteSKI)
+	h.serviceProvider.RemoteSKIDisconnected(connection.RemoteSKI())
 
 	// Do not automatically reconnect if handshake failed and not already paired
-	remoteService := h.ServiceForSKI(connection.RemoteSKI)
+	remoteService := h.ServiceForSKI(connection.RemoteSKI())
 	if !handshakeCompleted && !remoteService.Trusted {
 		return
 	}
@@ -338,14 +338,14 @@ func (h *connectionsHubImpl) DisconnectSKI(ski string, reason string) {
 }
 
 // register a new ship Connection
-func (h *connectionsHubImpl) registerConnection(connection *ship.ShipConnection) {
+func (h *connectionsHubImpl) registerConnection(connection ship.ShipConnection) {
 	h.muxCon.Lock()
-	h.connections[connection.RemoteSKI] = connection
+	h.connections[connection.RemoteSKI()] = connection
 	h.muxCon.Unlock()
 }
 
 // return the connection for a specific SKI
-func (h *connectionsHubImpl) connectionForSKI(ski string) *ship.ShipConnection {
+func (h *connectionsHubImpl) connectionForSKI(ski string) ship.ShipConnection {
 	h.muxCon.Lock()
 	defer h.muxCon.Unlock()
 
@@ -592,11 +592,13 @@ func (h *connectionsHubImpl) keepThisConnection(conn *websocket.Conn, incomingRe
 			connType = "outgoing"
 		}
 		logging.Log.Debugf("closing %s double connection, as the existing connection will be used", connType)
-		go func() {
-			_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "double connection"))
-			time.Sleep(time.Millisecond * 100)
-			conn.Close()
-		}()
+		if conn != nil {
+			go func() {
+				_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "double connection"))
+				time.Sleep(time.Millisecond * 100)
+				conn.Close()
+			}()
+		}
 	}
 
 	return keep

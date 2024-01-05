@@ -22,7 +22,7 @@ func TestConnectionSuite(t *testing.T) {
 type ConnectionSuite struct {
 	suite.Suite
 
-	sut *ShipConnection
+	sut *ShipConnectionImpl
 
 	shipDataProvider *MockShipServiceDataProvider
 	shipDataConn     *MockShipDataConnection

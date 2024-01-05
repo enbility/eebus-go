@@ -9,7 +9,7 @@ import (
 
 // Handshake Pin covers the states smePin...
 
-func (c *ShipConnection) handshakePin_Init() {
+func (c *ShipConnectionImpl) handshakePin_Init() {
 	c.setState(SmePinStateCheckInit, nil)
 
 	pinState := model.ConnectionPinState{
@@ -26,7 +26,7 @@ func (c *ShipConnection) handshakePin_Init() {
 	c.setState(SmePinStateCheckListen, nil)
 }
 
-func (c *ShipConnection) handshakePin_smePinStateCheckListen(message []byte) {
+func (c *ShipConnectionImpl) handshakePin_smePinStateCheckListen(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	var connectionPinState model.ConnectionPinState

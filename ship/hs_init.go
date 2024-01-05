@@ -9,12 +9,12 @@ import (
 // Handshake initialization covers the states cmiState...
 
 // CMI_STATE_INIT_START
-func (c *ShipConnection) handshakeInit_cmiStateInitStart() {
+func (c *ShipConnectionImpl) handshakeInit_cmiStateInitStart() {
 	switch c.role {
 	case ShipRoleClient:
 		// CMI_STATE_CLIENT_SEND
 		c.setState(CmiStateClientSend, nil)
-		if err := c.DataHandler.WriteMessageToDataConnection(shipInit); err != nil {
+		if err := c.dataHandler.WriteMessageToDataConnection(shipInit); err != nil {
 			c.endHandshakeWithError(err)
 			return
 		}
@@ -27,14 +27,14 @@ func (c *ShipConnection) handshakeInit_cmiStateInitStart() {
 }
 
 // CMI_STATE_SERVER_WAIT
-func (c *ShipConnection) handshakeInit_cmiStateServerWait(message []byte) {
+func (c *ShipConnectionImpl) handshakeInit_cmiStateServerWait(message []byte) {
 	c.setState(CmiStateServerEvaluate, nil)
 
 	if !c.handshakeInit_cmiStateEvaluate(message) {
 		return
 	}
 
-	if err := c.DataHandler.WriteMessageToDataConnection(shipInit); err != nil {
+	if err := c.dataHandler.WriteMessageToDataConnection(shipInit); err != nil {
 		c.endHandshakeWithError(err)
 		return
 	}
@@ -43,7 +43,7 @@ func (c *ShipConnection) handshakeInit_cmiStateServerWait(message []byte) {
 }
 
 // CMI_STATE_CLIENT_WAIT
-func (c *ShipConnection) handshakeInit_cmiStateClientWait(message []byte) {
+func (c *ShipConnectionImpl) handshakeInit_cmiStateClientWait(message []byte) {
 	c.setState(CmiStateClientEvaluate, nil)
 
 	if !c.handshakeInit_cmiStateEvaluate(message) {
@@ -56,7 +56,7 @@ func (c *ShipConnection) handshakeInit_cmiStateClientWait(message []byte) {
 // CMI_STATE_SERVER_EVALUATE
 // CMI_STATE_CLIENT_EVALUATE
 // returns false in case of an error
-func (c *ShipConnection) handshakeInit_cmiStateEvaluate(message []byte) bool {
+func (c *ShipConnectionImpl) handshakeInit_cmiStateEvaluate(message []byte) bool {
 	msgType, data := c.parseMessage(message, false)
 
 	if msgType != model.MsgTypeInit {

@@ -11,7 +11,7 @@ import (
 // Handshake Hello covers the states smeHello...
 
 // SME_HELLO_STATE_READY_INIT
-func (c *ShipConnection) handshakeHello_Init() {
+func (c *ShipConnectionImpl) handshakeHello_Init() {
 	if err := c.handshakeHelloSend(model.ConnectionHelloPhaseTypeReady, tHelloInit, false); err != nil {
 		c.setAndHandleState(SmeHelloStateAbort)
 		return
@@ -21,7 +21,7 @@ func (c *ShipConnection) handshakeHello_Init() {
 }
 
 // SME_HELLO_STATE_READY_LISTEN
-func (c *ShipConnection) handshakeHello_ReadyListen(timeout bool, message []byte) {
+func (c *ShipConnectionImpl) handshakeHello_ReadyListen(timeout bool, message []byte) {
 	if timeout {
 		c.handshakeHello_ReadyTimeout()
 		return
@@ -77,12 +77,12 @@ func (c *ShipConnection) handshakeHello_ReadyListen(timeout bool, message []byte
 	c.handleState(false, nil)
 }
 
-func (c *ShipConnection) handshakeHello_ReadyTimeout() {
+func (c *ShipConnectionImpl) handshakeHello_ReadyTimeout() {
 	c.setAndHandleState(SmeHelloStateAbort)
 }
 
 // SME_HELLO_ABORT
-func (c *ShipConnection) handshakeHello_Abort() {
+func (c *ShipConnectionImpl) handshakeHello_Abort() {
 	c.stopHandshakeTimer()
 
 	if err := c.handshakeHelloSend(model.ConnectionHelloPhaseTypeAborted, 0, false); err != nil {
@@ -94,7 +94,7 @@ func (c *ShipConnection) handshakeHello_Abort() {
 }
 
 // SME_HELLO_PENDING_INIT
-func (c *ShipConnection) handshakeHello_PendingInit() {
+func (c *ShipConnectionImpl) handshakeHello_PendingInit() {
 	if err := c.handshakeHelloSend(model.ConnectionHelloPhaseTypePending, tHelloInit, false); err != nil {
 		c.endHandshakeWithError(err)
 		return
@@ -108,7 +108,7 @@ func (c *ShipConnection) handshakeHello_PendingInit() {
 }
 
 // SME_HELLO_PENDING_LISTEN
-func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []byte) {
+func (c *ShipConnectionImpl) handshakeHello_PendingListen(timeout bool, message []byte) {
 	if timeout {
 		// The device needs to be in a state for the user to allow trusting the device
 		// e.g. either the web UI or by other means
@@ -209,7 +209,7 @@ func (c *ShipConnection) handshakeHello_PendingListen(timeout bool, message []by
 	c.handleState(false, nil)
 }
 
-func (c *ShipConnection) handshakeHello_PendingProlongationRequest() {
+func (c *ShipConnectionImpl) handshakeHello_PendingProlongationRequest() {
 	if err := c.handshakeHelloSend(model.ConnectionHelloPhaseTypePending, 0, true); err != nil {
 		c.endHandshakeWithError(err)
 		return
@@ -219,7 +219,7 @@ func (c *ShipConnection) handshakeHello_PendingProlongationRequest() {
 	c.setHandshakeTimer(timeoutTimerTypeProlongRequestReply, tHelloInit)
 }
 
-func (c *ShipConnection) handshakeHello_PendingTimeout() {
+func (c *ShipConnectionImpl) handshakeHello_PendingTimeout() {
 	if c.getHandshakeTimerType() != timeoutTimerTypeSendProlongationRequest {
 		c.setAndHandleState(SmeHelloStateAbort)
 		return
@@ -237,7 +237,7 @@ func (c *ShipConnection) handshakeHello_PendingTimeout() {
 	c.setHandshakeTimer(timeoutTimerTypeProlongRequestReply, c.lastReceivedWaitingValue)
 }
 
-func (c *ShipConnection) handshakeHelloSend(phase model.ConnectionHelloPhaseType, waitingDuration time.Duration, prolongation bool) error {
+func (c *ShipConnectionImpl) handshakeHelloSend(phase model.ConnectionHelloPhaseType, waitingDuration time.Duration, prolongation bool) error {
 	helloMsg := model.ConnectionHello{
 		ConnectionHello: model.ConnectionHelloType{
 			Phase: phase,

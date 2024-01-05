@@ -11,7 +11,7 @@ import (
 
 // Handshake Access covers the states smeAccess...
 
-func (c *ShipConnection) handshakeAccessMethods_Init() {
+func (c *ShipConnectionImpl) handshakeAccessMethods_Init() {
 	// Access Methods
 	accessMethodsRequest := model.AccessMethodsRequest{
 		AccessMethodsRequest: model.AccessMethodsRequestType{},
@@ -26,7 +26,7 @@ func (c *ShipConnection) handshakeAccessMethods_Init() {
 	c.setState(SmeAccessMethodsRequest, nil)
 }
 
-func (c *ShipConnection) handshakeAccessMethods_Request(message []byte) {
+func (c *ShipConnectionImpl) handshakeAccessMethods_Request(message []byte) {
 	_, data := c.parseMessage(message, true)
 
 	dataString := string(data)
@@ -68,7 +68,7 @@ func (c *ShipConnection) handshakeAccessMethods_Request(message []byte) {
 		if len(c.remoteShipID) == 0 {
 			c.remoteShipID = *accessMethods.AccessMethods.Id
 
-			c.serviceDataProvider.ReportServiceShipID(c.RemoteSKI, c.remoteShipID)
+			c.serviceDataProvider.ReportServiceShipID(c.remoteSKI, c.remoteShipID)
 		}
 
 	} else {

@@ -111,6 +111,17 @@ const (
 var shipInit []byte = []byte{model.MsgTypeInit, 0x00}
 
 //go:generate mockgen -destination=mock_types_test.go -package=ship github.com/enbility/eebus-go/ship ShipDataConnection,ShipDataProcessing,ShipServiceDataProvider
+//go:generate mockery --name=ShipDataConnection
+//go:generate mockery --name=ShipConnection
+
+type ShipConnection interface {
+	DataHandler() ShipDataConnection
+	CloseConnection(safe bool, code int, reason string)
+	RemoteSKI() string
+	ApprovePendingHandshake()
+	AbortPendingHandshake()
+	ShipHandshakeState() (ShipMessageExchangeState, error)
+}
 
 // interface for handling the actual remote device data connection
 //
@@ -149,7 +160,7 @@ type ShipServiceDataProvider interface {
 	IsRemoteServiceForSKIPaired(string) bool
 
 	// report closing of a connection and if handshake did complete
-	HandleConnectionClosed(*ShipConnection, bool)
+	HandleConnectionClosed(ShipConnection, bool)
 
 	// report the ship ID provided during the handshake
 	ReportServiceShipID(string, string)
