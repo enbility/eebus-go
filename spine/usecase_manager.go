@@ -1,17 +1,22 @@
 package spine
 
-import "github.com/enbility/eebus-go/spine/model"
+import (
+	"github.com/enbility/eebus-go/spine/model"
+)
 
 // manages the supported usecases for a device
 // each device has its own UseCaseManager
 type UseCaseManager struct {
 	useCaseInformationMap map[model.UseCaseActorType][]model.UseCaseSupportType
+
+	localDevice *DeviceImpl
 }
 
 // return a new UseCaseManager
-func NewUseCaseManager() *UseCaseManager {
+func NewUseCaseManager(localDevice *DeviceImpl) *UseCaseManager {
 	return &UseCaseManager{
 		useCaseInformationMap: make(map[model.UseCaseActorType][]model.UseCaseSupportType),
+		localDevice:           localDevice,
 	}
 }
 
@@ -44,8 +49,14 @@ func (r *UseCaseManager) UseCaseInformation() []model.UseCaseInformationDataType
 
 	for actor, useCaseSupport := range r.useCaseInformationMap {
 		thisActor := actor
+		// according to ProtocolSpecification Version 1.3.0 chapter 7.5.2
+		// the address is mandatory. At least the device address should be shown,
+		// preferably the entity and features as well
+		deviceAddress := &model.FeatureAddressType{
+			Device: r.localDevice.Address(),
+		}
 		useCaseInfo := model.UseCaseInformationDataType{
-			//Address:        r.address, // TODO: which address ???
+			Address:        deviceAddress,
 			Actor:          &thisActor,
 			UseCaseSupport: useCaseSupport,
 		}

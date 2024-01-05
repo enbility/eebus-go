@@ -13,9 +13,9 @@ type DeviceImpl struct {
 // Both values are required for a local device but provided as empty strings for a remote device
 // as the address is only provided via detailed discovery response
 func NewDeviceImpl(address *model.AddressDeviceType, dType *model.DeviceTypeType, featureSet *model.NetworkManagementFeatureSetType) *DeviceImpl {
-	deviceImpl := &DeviceImpl{
-		useCaseManager: NewUseCaseManager(),
-	}
+	deviceImpl := &DeviceImpl{}
+
+	deviceImpl.useCaseManager = NewUseCaseManager(deviceImpl)
 
 	if dType != nil {
 		deviceImpl.dType = dType
