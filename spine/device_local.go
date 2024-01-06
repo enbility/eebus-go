@@ -281,16 +281,20 @@ func (r *DeviceLocalImpl) AddEntity(entity *EntityLocalImpl) {
 }
 
 func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
+	entity.RemoveAllSubscriptions()
+	entity.RemoveAllBindings()
+
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	for i, e := range r.entities {
-		if e == entity {
-			r.entities = append(r.entities[:i], r.entities[i+1:]...)
-			// TODO: delete subscriptions of removed entity (incl. delete call)
-			break
+	var entities []*EntityLocalImpl
+	for _, e := range r.entities {
+		if e != entity {
+			entities = append(entities, e)
 		}
 	}
+
+	r.entities = entities
 }
 
 func (r *DeviceLocalImpl) Entities() []*EntityLocalImpl {
