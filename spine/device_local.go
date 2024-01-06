@@ -259,12 +259,18 @@ func (r *DeviceLocalImpl) HeartbeatManager() HeartbeatManager {
 }
 
 func (r *DeviceLocalImpl) AddEntity(entity *EntityLocalImpl) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	r.entities = append(r.entities, entity)
 
 	r.notifySubscribersOfEntity(entity, model.NetworkManagementStateChangeTypeAdded)
 }
 
 func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	for i, e := range r.entities {
 		if e == entity {
 			r.entities = append(r.entities[:i], r.entities[i+1:]...)
@@ -275,10 +281,16 @@ func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
 }
 
 func (r *DeviceLocalImpl) Entities() []*EntityLocalImpl {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	return r.entities
 }
 
 func (r *DeviceLocalImpl) Entity(id []model.AddressEntityType) *EntityLocalImpl {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	for _, e := range r.entities {
 		if reflect.DeepEqual(id, e.Address().Entity) {
 			return e
@@ -288,6 +300,9 @@ func (r *DeviceLocalImpl) Entity(id []model.AddressEntityType) *EntityLocalImpl 
 }
 
 func (r *DeviceLocalImpl) EntityForType(entityType model.EntityTypeType) *EntityLocalImpl {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	for _, e := range r.entities {
 		if e.eType == entityType {
 			return e
@@ -319,6 +334,9 @@ func (r *DeviceLocalImpl) Information() *model.NodeManagementDetailedDiscoveryDe
 
 // send a notify message to all remote devices
 func (r *DeviceLocalImpl) NotifyUseCaseData() {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
 	for _, remoteDevice := range r.remoteDevices {
 		// TODO: add error management
 		_, _ = r.nodeManagement.NotifyUseCaseData(remoteDevice)
