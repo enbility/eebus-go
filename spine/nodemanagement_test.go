@@ -132,7 +132,7 @@ func TestNodemanagement_SubscriptionCalls(t *testing.T) {
 	deleteMsg := Message{
 		Cmd: model.CmdType{
 			NodeManagementSubscriptionDeleteCall: NewNodeManagementSubscriptionDeleteCallType(
-				clientFeature.Address(), serverFeature.Address(), featureType),
+				clientFeature.Address(), serverFeature.Address()),
 		},
 		CmdClassifier: model.CmdClassifierTypeCall,
 		FeatureRemote: clientFeature,

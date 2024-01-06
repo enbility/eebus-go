@@ -225,10 +225,37 @@ func (c *SenderImpl) Subscribe(senderAddress, destinationAddress *model.FeatureA
 	return c.Request(model.CmdClassifierTypeCall, localAddress, remoteAddress, true, []model.CmdType{cmd})
 }
 
+// Send a subscription deletion request to a remote server feature
+func (c *SenderImpl) Unsubscribe(senderAddress, destinationAddress *model.FeatureAddressType) (*model.MsgCounterType, error) {
+
+	cmd := model.CmdType{
+		NodeManagementSubscriptionDeleteCall: NewNodeManagementSubscriptionDeleteCallType(senderAddress, destinationAddress),
+	}
+
+	// we always send it to the remote NodeManagment feature, which always is at entity:[0],feature:0
+	localAddress := NodeManagementAddress(senderAddress.Device)
+	remoteAddress := NodeManagementAddress(destinationAddress.Device)
+
+	return c.Request(model.CmdClassifierTypeCall, localAddress, remoteAddress, true, []model.CmdType{cmd})
+}
+
 // Send a binding request to a remote server feature
 func (c *SenderImpl) Bind(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error) {
 	cmd := model.CmdType{
 		NodeManagementBindingRequestCall: NewNodeManagementBindingRequestCallType(senderAddress, destinationAddress, serverFeatureType),
+	}
+
+	// we always send it to the remote NodeManagment feature, which always is at entity:[0],feature:0
+	localAddress := NodeManagementAddress(senderAddress.Device)
+	remoteAddress := NodeManagementAddress(destinationAddress.Device)
+
+	return c.Request(model.CmdClassifierTypeCall, localAddress, remoteAddress, true, []model.CmdType{cmd})
+}
+
+// Send a binding request to a remote server feature
+func (c *SenderImpl) Unbind(senderAddress, destinationAddress *model.FeatureAddressType) (*model.MsgCounterType, error) {
+	cmd := model.CmdType{
+		NodeManagementBindingDeleteCall: NewNodeManagementBindingDeleteCallType(senderAddress, destinationAddress),
 	}
 
 	// we always send it to the remote NodeManagment feature, which always is at entity:[0],feature:0

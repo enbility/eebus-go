@@ -214,6 +214,66 @@ func (_m *Sender) Subscribe(senderAddress *model.FeatureAddressType, destination
 	return r0, r1
 }
 
+// Unbind provides a mock function with given fields: senderAddress, destinationAddress
+func (_m *Sender) Unbind(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType) (*model.MsgCounterType, error) {
+	ret := _m.Called(senderAddress, destinationAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Unbind")
+	}
+
+	var r0 *model.MsgCounterType
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType) (*model.MsgCounterType, error)); ok {
+		return rf(senderAddress, destinationAddress)
+	}
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType) *model.MsgCounterType); ok {
+		r0 = rf(senderAddress, destinationAddress)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*model.FeatureAddressType, *model.FeatureAddressType) error); ok {
+		r1 = rf(senderAddress, destinationAddress)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Unsubscribe provides a mock function with given fields: senderAddress, destinationAddress
+func (_m *Sender) Unsubscribe(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType) (*model.MsgCounterType, error) {
+	ret := _m.Called(senderAddress, destinationAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Unsubscribe")
+	}
+
+	var r0 *model.MsgCounterType
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType) (*model.MsgCounterType, error)); ok {
+		return rf(senderAddress, destinationAddress)
+	}
+	if rf, ok := ret.Get(0).(func(*model.FeatureAddressType, *model.FeatureAddressType) *model.MsgCounterType); ok {
+		r0 = rf(senderAddress, destinationAddress)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*model.FeatureAddressType, *model.FeatureAddressType) error); ok {
+		r1 = rf(senderAddress, destinationAddress)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Write provides a mock function with given fields: senderAddress, destinationAddress, cmd
 func (_m *Sender) Write(senderAddress *model.FeatureAddressType, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error) {
 	ret := _m.Called(senderAddress, destinationAddress, cmd)

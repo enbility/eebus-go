@@ -124,7 +124,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 
 	switch payload.Data.(type) {
 	case *model.NodeManagementDetailedDiscoveryDataType:
-		_, _ = r.nodeManagement.Subscribe(payload.Feature.Device(), payload.Feature.Address())
+		_, _ = r.nodeManagement.Subscribe(payload.Feature.Address())
 
 		// Request Use Case Data
 		_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.ski, payload.Device.Address(), payload.Device.Sender())
@@ -168,6 +168,19 @@ func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {
 	}
 
 	return res
+}
+
+func (r *DeviceLocalImpl) RemoteDeviceForAddress(address model.AddressDeviceType) *DeviceRemoteImpl {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
+	for _, item := range r.remoteDevices {
+		if *item.address == address {
+			return item
+		}
+	}
+
+	return nil
 }
 
 func (r *DeviceLocalImpl) RemoteDeviceForSki(ski string) *DeviceRemoteImpl {

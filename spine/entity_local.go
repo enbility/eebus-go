@@ -86,4 +86,16 @@ func (r *EntityLocalImpl) Information() *model.NodeManagementDetailedDiscoveryEn
 	}
 
 	return &res
+// Remove all subscriptions
+func (r *EntityLocalImpl) RemoveAllSubscriptions() {
+	for _, item := range r.features {
+		item.RemoveAllSubscriptions()
+	}
+}
+
+// Remove all bindings
+func (r *EntityLocalImpl) RemoveAllBindings() {
+	for _, item := range r.features {
+		item.RemoveAllBindings()
+	}
 }

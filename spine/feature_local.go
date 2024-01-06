@@ -2,6 +2,7 @@ package spine
 
 import (
 	"fmt"
+	"reflect"
 	"sync"
 	"time"
 
@@ -21,6 +22,9 @@ type FeatureLocalImpl struct {
 	pendingRequests PendingRequests
 	resultHandler   []FeatureResult
 	resultCallback  map[model.MsgCounterType]func(result ResultMessage)
+
+	bindings      []*model.FeatureAddressType
+	subscriptions []*model.FeatureAddressType
 
 	mux sync.Mutex
 }
@@ -185,17 +189,60 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 }
 
 // Subscribe to a remote feature
-func (r *FeatureLocalImpl) Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
+func (r *FeatureLocalImpl) Subscribe(remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
+	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	if remoteDevice == nil {
+		return nil, model.NewErrorTypeFromString("device not found")
+	}
+
 	if r.Role() == model.RoleTypeServer {
 		return nil, model.NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
 	}
 
-	msgCounter, err := remoteDevice.Sender().Subscribe(r.Address(), remoteAdress, r.ftype)
+	msgCounter, err := remoteDevice.Sender().Subscribe(r.Address(), remoteAddress, r.ftype)
 	if err != nil {
 		return nil, model.NewErrorTypeFromString(err.Error())
 	}
 
+	r.mux.Lock()
+	r.subscriptions = append(r.subscriptions, remoteAddress)
+	r.mux.Unlock()
+
 	return msgCounter, nil
+}
+
+// Remove a subscriptions to a remote feature
+func (r *FeatureLocalImpl) RemoveSubscription(remoteAddress *model.FeatureAddressType) {
+	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	if remoteDevice == nil {
+		return
+	}
+
+	if _, err := remoteDevice.Sender().Unsubscribe(r.Address(), remoteAddress); err != nil {
+		return
+	}
+
+	var subscriptions []*model.FeatureAddressType
+
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
+	for _, item := range r.subscriptions {
+		if reflect.DeepEqual(item, remoteAddress) {
+			continue
+		}
+
+		subscriptions = append(subscriptions, item)
+	}
+
+	r.subscriptions = subscriptions
+}
+
+// Remove all subscriptions to remote features
+func (r *FeatureLocalImpl) RemoveAllSubscriptions() {
+	for _, item := range r.subscriptions {
+		r.RemoveSubscription(item)
+	}
 }
 
 /*
@@ -227,9 +274,14 @@ func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remo
 */
 
 // Bind to a remote feature
-func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
+func (r *FeatureLocalImpl) Bind(remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
+	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	if remoteDevice == nil {
+		return nil, model.NewErrorTypeFromString("device not found")
+	}
+
 	if r.Role() == model.RoleTypeServer {
-		return nil, model.NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
+		return nil, model.NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a binding", r))
 	}
 
 	msgCounter, err := remoteDevice.Sender().Bind(r.Address(), remoteAddress, r.ftype)
@@ -237,7 +289,45 @@ func (r *FeatureLocalImpl) Bind(remoteDevice *DeviceRemoteImpl, remoteAddress *m
 		return nil, model.NewErrorTypeFromString(err.Error())
 	}
 
+	r.mux.Lock()
+	r.bindings = append(r.bindings, remoteAddress)
+	r.mux.Unlock()
+
 	return msgCounter, nil
+}
+
+// Remove a binding to a remote feature
+func (r *FeatureLocalImpl) RemoveBinding(remoteAddress *model.FeatureAddressType) {
+	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	if remoteDevice == nil {
+		return
+	}
+
+	if _, err := remoteDevice.Sender().Unbind(r.Address(), remoteAddress); err != nil {
+		return
+	}
+
+	var bindings []*model.FeatureAddressType
+
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
+	for _, item := range r.bindings {
+		if reflect.DeepEqual(item, remoteAddress) {
+			continue
+		}
+
+		bindings = append(bindings, item)
+	}
+
+	r.bindings = bindings
+}
+
+// Remove all subscriptions to remote features
+func (r *FeatureLocalImpl) RemoveAllBindings() {
+	for _, item := range r.bindings {
+		r.RemoveBinding(item)
+	}
 }
 
 /*

@@ -49,7 +49,7 @@ func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole mod
 
 // subscribe to the feature for a the entity
 func (f *FeatureImpl) SubscribeForEntity() error {
-	if _, fErr := f.featureLocal.Subscribe(f.featureRemote.Device(), f.featureRemote.Address()); fErr != nil {
+	if _, fErr := f.featureLocal.Subscribe(f.featureRemote.Address()); fErr != nil {
 		return errors.New(fErr.String())
 	}
 
@@ -62,7 +62,7 @@ func (f *FeatureImpl) AddResultCallback(msgCounterReference model.MsgCounterType
 
 // bind to the feature of a the entity
 func (f *FeatureImpl) Bind() error {
-	if _, fErr := f.featureLocal.Bind(f.featureRemote.Device(), f.featureRemote.Address()); fErr != nil {
+	if _, fErr := f.featureLocal.Bind(f.featureRemote.Address()); fErr != nil {
 		return errors.New(fErr.String())
 	}
 

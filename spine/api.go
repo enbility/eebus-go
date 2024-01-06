@@ -53,10 +53,14 @@ type FeatureLocal interface {
 		selector any,
 		elements any,
 		destination *FeatureRemoteImpl) (any, *model.ErrorType)
-	Subscribe(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
+	Subscribe(remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
 	// SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
-	Bind(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
+	RemoveSubscription(remoteAddress *model.FeatureAddressType)
+	RemoveAllSubscriptions()
+	Bind(remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
 	// BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType
+	RemoveBinding(remoteAddress *model.FeatureAddressType)
+	RemoveAllBindings()
 	NotifyData(
 		function model.FunctionType,
 		deleteSelector, partialSelector any,
@@ -111,8 +115,12 @@ type Sender interface {
 	Reply(requestHeader *model.HeaderType, senderAddress *model.FeatureAddressType, cmd model.CmdType) error
 	// Sends a call cmd with a subscription request
 	Subscribe(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
+	// Sends a call cmd with a subscription delete request
+	Unsubscribe(senderAddress, destinationAddress *model.FeatureAddressType) (*model.MsgCounterType, error)
 	// Sends a call cmd with a binding request
 	Bind(senderAddress, destinationAddress *model.FeatureAddressType, serverFeatureType model.FeatureTypeType) (*model.MsgCounterType, error)
+	// Sends a call cmd with a binding delte request
+	Unbind(senderAddress, destinationAddress *model.FeatureAddressType) (*model.MsgCounterType, error)
 	// Sends a notify cmd to indicate that a subscribed feature changed
 	Notify(senderAddress, destinationAddress *model.FeatureAddressType, cmd model.CmdType) (*model.MsgCounterType, error)
 	// Sends a write cmd, setting properties of remote features

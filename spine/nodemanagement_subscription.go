@@ -18,7 +18,7 @@ func NewNodeManagementSubscriptionRequestCallType(clientAddress *model.FeatureAd
 	}
 }
 
-func NewNodeManagementSubscriptionDeleteCallType(clientAddress *model.FeatureAddressType, serverAddress *model.FeatureAddressType, featureType model.FeatureTypeType) *model.NodeManagementSubscriptionDeleteCallType {
+func NewNodeManagementSubscriptionDeleteCallType(clientAddress *model.FeatureAddressType, serverAddress *model.FeatureAddressType) *model.NodeManagementSubscriptionDeleteCallType {
 	return &model.NodeManagementSubscriptionDeleteCallType{
 		SubscriptionDelete: &model.SubscriptionManagementDeleteCallType{
 			ClientAddress: clientAddress,
