@@ -57,6 +57,7 @@ type DeviceRemote interface {
 	UpdateDevice(description *model.NetworkManagementDeviceDescriptionDataType)
 	AddEntityAndFeatures(initialData bool, data *model.NodeManagementDetailedDiscoveryDataType) ([]EntityRemote, error)
 	AddEntity(entity EntityRemote) EntityRemote
+	UseCases() []model.UseCaseInformationDataType
 	VerifyUseCaseScenariosAndFeaturesSupport(
 		usecaseActor model.UseCaseActorType,
 		usecaseName model.UseCaseNameType,

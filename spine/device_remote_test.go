@@ -80,6 +80,13 @@ func (s *DeviceRemoteSuite) Test_FeatureByEntityTypeAndRole() {
 	assert.Nil(s.T(), feature)
 }
 
+func (s *DeviceRemoteSuite) Test_Usecases() {
+	_, _ = s.remoteDevice.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_usecaseinformationlistdata_recv_reply_file_path))
+
+	uc := s.remoteDevice.UseCases()
+	assert.NotNil(s.T(), uc)
+}
+
 func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport_ElliJSON() {
 	_, _ = s.remoteDevice.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_usecaseinformationlistdata_recv_reply_file_path))
 

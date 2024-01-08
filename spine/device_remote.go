@@ -241,6 +241,16 @@ func (d *DeviceRemoteImpl) AddEntity(entity EntityRemote) EntityRemote {
 	return entity
 }
 
+func (d *DeviceRemoteImpl) UseCases() []model.UseCaseInformationDataType {
+	entity := d.Entity(DeviceInformationAddressEntity)
+
+	nodemgmt := d.FeatureByEntityTypeAndRole(entity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
+
+	data := nodemgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+
+	return data.UseCaseInformation
+}
+
 // Checks if the given actor, usecasename and provided server features are available
 // Note: the server features are expected to be in a single entity and entity 0 is not checked!
 func (d *DeviceRemoteImpl) VerifyUseCaseScenariosAndFeaturesSupport(
