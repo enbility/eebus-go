@@ -167,6 +167,7 @@ type SubscriptionManager interface {
 type HeartbeatManager interface {
 	IsHeartbeatRunning() bool
 	UpdateHeartbeatOnSubscriptions()
+	SetLocalFeature(entity *EntityLocalImpl, feature FeatureLocal)
 	StartHeartbeat() error
 	StopHeartbeat()
 }

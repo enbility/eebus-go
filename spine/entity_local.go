@@ -49,6 +49,12 @@ func (r *EntityLocalImpl) GetOrAddFeature(featureType model.FeatureTypeType, rol
 	}
 	f.SetDescriptionString(description)
 	r.features = append(r.features, f)
+
+	if role == model.RoleTypeServer && featureType == model.FeatureTypeTypeDeviceDiagnosis {
+		// Update HeartbeatManagerImpl
+		r.device.HeartbeatManager().SetLocalFeature(r, f)
+	}
+
 	return f
 }
 

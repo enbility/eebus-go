@@ -47,7 +47,7 @@ func (c *HeartbeatManagerImpl) IsHeartbeatRunning() bool {
 // check if there are any heartbeat subscriptions left, otherwise stop creating new ones
 // or start creating heartbeats again if needed
 func (c *HeartbeatManagerImpl) UpdateHeartbeatOnSubscriptions() {
-	if err := c.updateLocal(); err != nil {
+	if c.localEntity == nil {
 		return
 	}
 
@@ -66,24 +66,9 @@ func (c *HeartbeatManagerImpl) UpdateHeartbeatOnSubscriptions() {
 	}
 }
 
-func (c *HeartbeatManagerImpl) updateLocal() error {
-	if c.localFeature == nil {
-		// search through all entities on the device
-		entities := c.localDevice.Entities()
-		for _, entity := range entities {
-			localFeature := entity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-			if localFeature != nil {
-				c.localFeature = localFeature
-				c.localEntity = entity
-			}
-		}
-
-		if c.localFeature == nil {
-			return errors.New("Local feature for heartbeat sender address could not be found")
-		}
-	}
-
-	return nil
+func (c *HeartbeatManagerImpl) SetLocalFeature(entity *EntityLocalImpl, feature FeatureLocal) {
+	c.localEntity = entity
+	c.localFeature = feature
 }
 
 // Start setting heartbeat data
@@ -91,8 +76,8 @@ func (c *HeartbeatManagerImpl) updateLocal() error {
 // otherwise this will end with an error
 // Note: Remote features need to have a subscription to get notifications
 func (c *HeartbeatManagerImpl) StartHeartbeat() error {
-	if err := c.updateLocal(); err != nil {
-		return err
+	if c.localEntity == nil {
+		return errors.New("unknown entity")
 	}
 
 	timeout, err := c.heartBeatTimeout.GetTimeDuration()
