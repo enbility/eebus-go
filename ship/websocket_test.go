@@ -10,10 +10,10 @@ import (
 	"time"
 
 	util "github.com/enbility/eebus-go/util"
-	"github.com/golang/mock/gomock"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
 )
 
 func TestWebsocketSuite(t *testing.T) {

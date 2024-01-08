@@ -8,9 +8,9 @@ import (
 	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/logging/mocks"
 	"github.com/enbility/eebus-go/spine/model"
-	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func TestServiceSuite(t *testing.T) {

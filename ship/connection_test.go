@@ -9,10 +9,10 @@ import (
 	"github.com/enbility/eebus-go/spine"
 	spineMocks "github.com/enbility/eebus-go/spine/mocks"
 	spineModel "github.com/enbility/eebus-go/spine/model"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
 )
 
 func TestConnectionSuite(t *testing.T) {

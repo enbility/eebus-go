@@ -14,11 +14,11 @@ import (
 	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/ship/mocks"
 	"github.com/enbility/eebus-go/spine/model"
-	gomock "github.com/golang/mock/gomock"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
 )
 
 func TestHubSuite(t *testing.T) {

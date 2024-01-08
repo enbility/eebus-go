@@ -8,10 +8,10 @@ import (
 	mdnsmocks "github.com/enbility/eebus-go/service/mdns/mocks"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
-	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func TestMdnsSuite(t *testing.T) {

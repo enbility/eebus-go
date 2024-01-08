@@ -20,13 +20,13 @@ require (
 	github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20231028092313-1ae0ab54a2df
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/godbus/dbus/v5 v5.1.0
-	github.com/golang/mock v1.6.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/holoplot/go-avahi v0.0.0-20231130181535-fd8f1d0307ed
 	github.com/rickb777/date v1.20.5
 	github.com/stretchr/testify v1.8.4
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
+	go.uber.org/mock v0.4.0
 )
 
 retract (
