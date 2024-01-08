@@ -44,10 +44,9 @@ func (u *UseCaseInformationDataType) Remove(useCaseName UseCaseNameType) {
 
 	for _, item := range u.UseCaseSupport {
 		if item.UseCaseName != nil && *item.UseCaseName != useCaseName {
-			continue
+			usecases = append(usecases, item)
 		}
 
-		usecases = append(usecases, item)
 	}
 
 	u.UseCaseSupport = usecases
