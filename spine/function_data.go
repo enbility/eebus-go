@@ -28,7 +28,7 @@ func (r *FunctionDataImpl[T]) Function() model.FunctionType {
 	return r.functionType
 }
 
-func (r *FunctionDataImpl[T]) Data() *T {
+func (r *FunctionDataImpl[T]) DataCopy() *T {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
@@ -70,8 +70,8 @@ func (r *FunctionDataImpl[T]) UpdateData(newData *T, filterPartial *model.Filter
 	return nil
 }
 
-func (r *FunctionDataImpl[T]) DataAny() any {
-	return r.Data()
+func (r *FunctionDataImpl[T]) DataCopyAny() any {
+	return r.DataCopy()
 }
 
 func (r *FunctionDataImpl[T]) UpdateDataAny(newData any, filterPartial *model.FilterType, filterDelete *model.FilterType) {

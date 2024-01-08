@@ -89,7 +89,7 @@ func (suite *HeartBeatManagerSuite) Test_HeartbeatSuccess() {
 	err := suite.localDevice.ProcessCmd(datagram, suite.remoteDevice)
 	assert.Nil(suite.T(), err)
 
-	data := localFeature.Data(model.FunctionTypeDeviceDiagnosisHeartbeatData)
+	data := localFeature.DataCopy(model.FunctionTypeDeviceDiagnosisHeartbeatData)
 	assert.Nil(suite.T(), data)
 
 	running := suite.sut.IsHeartbeatRunning()
@@ -103,7 +103,7 @@ func (suite *HeartBeatManagerSuite) Test_HeartbeatSuccess() {
 	running = suite.sut.IsHeartbeatRunning()
 	assert.Equal(suite.T(), true, running)
 
-	data = localFeature.Data(model.FunctionTypeDeviceDiagnosisHeartbeatData)
+	data = localFeature.DataCopy(model.FunctionTypeDeviceDiagnosisHeartbeatData)
 	assert.NotNil(suite.T(), data)
 
 	fctData := data.(*model.DeviceDiagnosisHeartbeatDataType)

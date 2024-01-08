@@ -28,7 +28,7 @@ type Feature interface {
 
 type FeatureLocal interface {
 	Feature
-	Data(function model.FunctionType) any
+	DataCopy(function model.FunctionType) any
 	SetData(function model.FunctionType, data any)
 	AddResultHandler(handler FeatureResult)
 	AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg ResultMessage))
@@ -91,7 +91,7 @@ type FunctionDataCmd interface {
 
 type FunctionData interface {
 	Function() model.FunctionType
-	DataAny() any
+	DataCopyAny() any
 	UpdateDataAny(data any, filterPartial *model.FilterType, filterDelete *model.FilterType)
 }
 

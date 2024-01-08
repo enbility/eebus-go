@@ -68,11 +68,11 @@ func (r *FeatureLocalImpl) AddFunctionType(function model.FunctionType, read, wr
 	r.operations[function] = NewOperations(read, write)
 }
 
-func (r *FeatureLocalImpl) Data(function model.FunctionType) any {
+func (r *FeatureLocalImpl) DataCopy(function model.FunctionType) any {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	return r.functionData(function).DataAny()
+	return r.functionData(function).DataCopyAny()
 }
 
 func (r *FeatureLocalImpl) SetData(function model.FunctionType, data any) {

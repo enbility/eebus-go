@@ -44,7 +44,16 @@ func (r *FeatureRemoteImpl) Data(function model.FunctionType) any {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	return r.functionData(function).DataAny()
+	return r.functionData(function).DataCopyAny()
+}
+
+func (r *FeatureRemoteImpl) SetData(function model.FunctionType, data any) {
+	r.mux.Lock()
+
+	fd := r.functionData(function)
+	fd.UpdateDataAny(data, nil, nil)
+
+	r.mux.Unlock()
 }
 
 func (r *FeatureRemoteImpl) UpdateData(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType) {

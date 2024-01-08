@@ -15,7 +15,7 @@ func TestFunctionData_UpdateData(t *testing.T) {
 	functionType := model.FunctionTypeDeviceClassificationManufacturerData
 	sut := NewFunctionData[model.DeviceClassificationManufacturerDataType](functionType)
 	sut.UpdateData(newData, nil, nil)
-	getData := sut.Data()
+	getData := sut.DataCopy()
 
 	assert.Equal(t, newData.DeviceName, getData.DeviceName)
 	assert.Equal(t, functionType, sut.Function())
@@ -25,7 +25,7 @@ func TestFunctionData_UpdateData(t *testing.T) {
 		DeviceName: util.Ptr(model.DeviceClassificationStringType("new device name")),
 	}
 	sut.UpdateData(newData, nil, nil)
-	getNewData := sut.Data()
+	getNewData := sut.DataCopy()
 
 	assert.Equal(t, newData.DeviceName, getNewData.DeviceName)
 	assert.NotEqual(t, getData.DeviceName, getNewData.DeviceName)
@@ -58,7 +58,7 @@ func TestFunctionData_UpdateDataPartial(t *testing.T) {
 
 	err := sut.UpdateData(newData, &model.FilterType{CmdControl: &model.CmdControlType{Partial: &model.ElementTagType{}}}, nil)
 	if assert.Nil(t, err) {
-		getData := sut.Data()
+		getData := sut.DataCopy()
 		assert.Equal(t, 1, len(getData.ElectricalConnectionPermittedValueSetData))
 	}
 }
