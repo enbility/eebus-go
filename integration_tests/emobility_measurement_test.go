@@ -20,7 +20,7 @@ type EmobilityMeasurementSuite struct {
 	spine.SpineDataConnection
 
 	sut         *spine.DeviceLocalImpl
-	localEntity *spine.EntityLocalImpl
+	localEntity spine.EntityLocal
 
 	measurement          *features.Measurement
 	electricalconnection *features.ElectricalConnection

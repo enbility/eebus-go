@@ -9,7 +9,7 @@ type IncentiveTable struct {
 	*FeatureImpl
 }
 
-func NewIncentiveTable(localRole, remoteRole model.RoleType, localEntity *spine.EntityLocalImpl, remoteEntity *spine.EntityRemoteImpl) (*IncentiveTable, error) {
+func NewIncentiveTable(localRole, remoteRole model.RoleType, localEntity spine.EntityLocal, remoteEntity spine.EntityRemote) (*IncentiveTable, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

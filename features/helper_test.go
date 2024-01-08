@@ -14,7 +14,7 @@ type featureFunctions struct {
 	functions   []model.FunctionType
 }
 
-func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, featureFunctions []featureFunctions) (*spine.EntityLocalImpl, *spine.EntityRemoteImpl) {
+func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, featureFunctions []featureFunctions) (spine.EntityLocal, spine.EntityRemote) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))

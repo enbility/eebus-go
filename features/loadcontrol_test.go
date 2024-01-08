@@ -18,8 +18,8 @@ func TestLoadControlSuite(t *testing.T) {
 type LoadControlSuite struct {
 	suite.Suite
 
-	localEntity  *spine.EntityLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spine.EntityLocal
+	remoteEntity spine.EntityRemote
 
 	loadControl *features.LoadControl
 	sentMessage []byte

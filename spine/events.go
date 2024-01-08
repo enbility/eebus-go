@@ -38,7 +38,7 @@ type EventPayload struct {
 	EventType     EventType         // required
 	ChangeType    ElementChangeType // required
 	Device        *DeviceRemoteImpl // required for DetailedDiscovery Call
-	Entity        *EntityRemoteImpl // required for DetailedDiscovery Call and Notify
+	Entity        EntityRemote      // required for DetailedDiscovery Call and Notify
 	Feature       FeatureRemote
 	CmdClassifier *model.CmdClassifierType // optional, used together with EventType EventTypeDataChange
 	Data          any

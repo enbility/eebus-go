@@ -18,14 +18,14 @@ var _ FeatureRemote = (*FeatureRemoteImpl)(nil)
 type FeatureRemoteImpl struct {
 	*FeatureImpl
 
-	entity           *EntityRemoteImpl
+	entity           EntityRemote
 	functionDataMap  map[model.FunctionType]FunctionData
 	maxResponseDelay *time.Duration
 
 	mux sync.Mutex
 }
 
-func NewFeatureRemoteImpl(id uint, entity *EntityRemoteImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
+func NewFeatureRemoteImpl(id uint, entity EntityRemote, ftype model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
 	res := &FeatureRemoteImpl{
 		FeatureImpl: NewFeatureImpl(
 			featureAddressType(id, entity.Address()),
@@ -75,7 +75,7 @@ func (r *FeatureRemoteImpl) Device() *DeviceRemoteImpl {
 	return r.entity.Device()
 }
 
-func (r *FeatureRemoteImpl) Entity() *EntityRemoteImpl {
+func (r *FeatureRemoteImpl) Entity() EntityRemote {
 	return r.entity
 }
 

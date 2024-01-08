@@ -18,8 +18,8 @@ func TestIncentiveTableSuite(t *testing.T) {
 type IncentiveTableSuite struct {
 	suite.Suite
 
-	localEntity  *spine.EntityLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spine.EntityLocal
+	remoteEntity spine.EntityRemote
 
 	incentiveTable *features.IncentiveTable
 	sentMessage    []byte

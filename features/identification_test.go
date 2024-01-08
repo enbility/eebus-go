@@ -18,8 +18,8 @@ func TestIdentificationSuite(t *testing.T) {
 type IdentificationSuite struct {
 	suite.Suite
 
-	localEntity  *spine.EntityLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spine.EntityLocal
+	remoteEntity spine.EntityRemote
 
 	identification *features.Identification
 	sentMessage    []byte

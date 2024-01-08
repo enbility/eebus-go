@@ -19,10 +19,10 @@ func NodeManagementAddress(deviceAdress *model.AddressDeviceType) *model.Feature
 
 type NodeManagementImpl struct {
 	*FeatureLocalImpl
-	entity *EntityLocalImpl
+	entity EntityLocal
 }
 
-func NewNodeManagementImpl(id uint, entity *EntityLocalImpl) *NodeManagementImpl {
+func NewNodeManagementImpl(id uint, entity EntityLocal) *NodeManagementImpl {
 	f := &NodeManagementImpl{
 		FeatureLocalImpl: NewFeatureLocalImpl(
 			id, entity,

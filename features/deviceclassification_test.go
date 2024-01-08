@@ -18,8 +18,8 @@ func TestDeviceClassificationSuite(t *testing.T) {
 type DeviceClassificationSuite struct {
 	suite.Suite
 
-	localEntity  *spine.EntityLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spine.EntityLocal
+	remoteEntity spine.EntityRemote
 
 	deviceClassification *features.DeviceClassification
 	sentMessage          []byte

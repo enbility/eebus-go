@@ -16,7 +16,7 @@ type DeviceRemoteImpl struct {
 
 	ski string
 
-	entities      []*EntityRemoteImpl
+	entities      []EntityRemote
 	entitiesMutex sync.Mutex
 
 	sender Sender
@@ -72,7 +72,7 @@ func (d *DeviceRemoteImpl) Sender() Sender {
 }
 
 // Return an entity with a given address
-func (d *DeviceRemoteImpl) Entity(id []model.AddressEntityType) *EntityRemoteImpl {
+func (d *DeviceRemoteImpl) Entity(id []model.AddressEntityType) EntityRemote {
 	d.entitiesMutex.Lock()
 	defer d.entitiesMutex.Unlock()
 
@@ -85,7 +85,7 @@ func (d *DeviceRemoteImpl) Entity(id []model.AddressEntityType) *EntityRemoteImp
 }
 
 // Return all entities of this device
-func (d *DeviceRemoteImpl) Entities() []*EntityRemoteImpl {
+func (d *DeviceRemoteImpl) Entities() []EntityRemote {
 	return d.entities
 }
 
@@ -99,7 +99,7 @@ func (d *DeviceRemoteImpl) FeatureByAddress(address *model.FeatureAddressType) F
 }
 
 // Remove an entity with a given address from this device
-func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *EntityRemoteImpl {
+func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) EntityRemote {
 	entityForRemoval := d.Entity(addr)
 	if entityForRemoval == nil {
 		return nil
@@ -108,7 +108,7 @@ func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *Enti
 	d.entitiesMutex.Lock()
 	defer d.entitiesMutex.Unlock()
 
-	var newEntities []*EntityRemoteImpl
+	var newEntities []EntityRemote
 	for _, item := range d.entities {
 		if !reflect.DeepEqual(item, entityForRemoval) {
 			newEntities = append(newEntities, item)
@@ -120,7 +120,7 @@ func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *Enti
 }
 
 // Get the feature for a given entity, feature type and feature role
-func (r *DeviceRemoteImpl) FeatureByEntityTypeAndRole(entity *EntityRemoteImpl, featureType model.FeatureTypeType, role model.RoleType) FeatureRemote {
+func (r *DeviceRemoteImpl) FeatureByEntityTypeAndRole(entity EntityRemote, featureType model.FeatureTypeType, role model.RoleType) FeatureRemote {
 	if len(r.entities) < 1 {
 		return nil
 	}
@@ -156,8 +156,8 @@ func (d *DeviceRemoteImpl) UpdateDevice(description *model.NetworkManagementDevi
 	}
 }
 
-func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.NodeManagementDetailedDiscoveryDataType) ([]*EntityRemoteImpl, error) {
-	rEntites := make([]*EntityRemoteImpl, 0)
+func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.NodeManagementDetailedDiscoveryDataType) ([]EntityRemote, error) {
+	rEntites := make([]EntityRemote, 0)
 
 	for _, ei := range data.EntityInformation {
 		if err := d.CheckEntityInformation(initialData, ei); err != nil {
@@ -221,12 +221,12 @@ func (d *DeviceRemoteImpl) CheckEntityInformation(initialData bool, entity model
 	return nil
 }
 
-func (d *DeviceRemoteImpl) addNewEntity(eType model.EntityTypeType, address []model.AddressEntityType) *EntityRemoteImpl {
+func (d *DeviceRemoteImpl) addNewEntity(eType model.EntityTypeType, address []model.AddressEntityType) EntityRemote {
 	newEntity := NewEntityRemoteImpl(d, eType, address)
 	return d.AddEntity(newEntity)
 }
 
-func (d *DeviceRemoteImpl) AddEntity(entity *EntityRemoteImpl) *EntityRemoteImpl {
+func (d *DeviceRemoteImpl) AddEntity(entity EntityRemote) EntityRemote {
 	d.entitiesMutex.Lock()
 	defer d.entitiesMutex.Unlock()
 
@@ -319,7 +319,7 @@ func (d *DeviceRemoteImpl) VerifyUseCaseScenariosAndFeaturesSupport(
 	return entityWithServerFeaturesFound
 }
 
-func unmarshalFeature(entity *EntityRemoteImpl,
+func unmarshalFeature(entity EntityRemote,
 	featureData model.NodeManagementDetailedDiscoveryFeatureInformationType,
 ) (FeatureRemote, bool) {
 	var result *FeatureRemoteImpl

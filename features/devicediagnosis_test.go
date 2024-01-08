@@ -18,8 +18,8 @@ func TestDeviceDiagnosisSuite(t *testing.T) {
 type DeviceDiagnosisSuite struct {
 	suite.Suite
 
-	localEntity  *spine.EntityLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spine.EntityLocal
+	remoteEntity spine.EntityRemote
 
 	deviceDiagnosis *features.DeviceDiagnosis
 	sentMessage     []byte

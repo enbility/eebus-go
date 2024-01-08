@@ -17,7 +17,7 @@ type FeatureLocalImpl struct {
 	*FeatureImpl
 
 	muxResultCB     sync.Mutex
-	entity          *EntityLocalImpl
+	entity          EntityLocal
 	functionDataMap map[model.FunctionType]FunctionDataCmd
 	pendingRequests PendingRequests
 	resultHandler   []FeatureResult
@@ -29,7 +29,7 @@ type FeatureLocalImpl struct {
 	mux sync.Mutex
 }
 
-func NewFeatureLocalImpl(id uint, entity *EntityLocalImpl, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
+func NewFeatureLocalImpl(id uint, entity EntityLocal, ftype model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
 	res := &FeatureLocalImpl{
 		FeatureImpl: NewFeatureImpl(
 			featureAddressType(id, entity.Address()),
@@ -53,7 +53,7 @@ func (r *FeatureLocalImpl) Device() *DeviceLocalImpl {
 	return r.entity.Device()
 }
 
-func (r *FeatureLocalImpl) Entity() *EntityLocalImpl {
+func (r *FeatureLocalImpl) Entity() EntityLocal {
 	return r.entity
 }
 
@@ -193,7 +193,7 @@ func (r *FeatureLocalImpl) Subscribe(remoteAddress *model.FeatureAddressType) (*
 	if remoteAddress.Device == nil {
 		return nil, model.NewErrorTypeFromString("device not found")
 	}
-	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	remoteDevice := r.entity.Device().RemoteDeviceForAddress(*remoteAddress.Device)
 	if remoteDevice == nil {
 		return nil, model.NewErrorTypeFromString("device not found")
 	}
@@ -216,7 +216,7 @@ func (r *FeatureLocalImpl) Subscribe(remoteAddress *model.FeatureAddressType) (*
 
 // Remove a subscriptions to a remote feature
 func (r *FeatureLocalImpl) RemoveSubscription(remoteAddress *model.FeatureAddressType) {
-	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	remoteDevice := r.entity.Device().RemoteDeviceForAddress(*remoteAddress.Device)
 	if remoteDevice == nil {
 		return
 	}
@@ -278,7 +278,7 @@ func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remo
 
 // Bind to a remote feature
 func (r *FeatureLocalImpl) Bind(remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
-	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	remoteDevice := r.entity.Device().RemoteDeviceForAddress(*remoteAddress.Device)
 	if remoteDevice == nil {
 		return nil, model.NewErrorTypeFromString("device not found")
 	}
@@ -301,7 +301,7 @@ func (r *FeatureLocalImpl) Bind(remoteAddress *model.FeatureAddressType) (*model
 
 // Remove a binding to a remote feature
 func (r *FeatureLocalImpl) RemoveBinding(remoteAddress *model.FeatureAddressType) {
-	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
+	remoteDevice := r.entity.Device().RemoteDeviceForAddress(*remoteAddress.Device)
 	if remoteDevice == nil {
 		return
 	}

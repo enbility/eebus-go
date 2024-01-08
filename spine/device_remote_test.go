@@ -23,7 +23,7 @@ type DeviceRemoteSuite struct {
 
 	localDevice  *DeviceLocalImpl
 	remoteDevice *DeviceRemoteImpl
-	remoteEntity *EntityRemoteImpl
+	remoteEntity EntityRemote
 }
 
 func (s *DeviceRemoteSuite) WriteSpineMessage([]byte) {}
@@ -121,8 +121,8 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 
 	address := model.FeatureAddressType{
-		Device: s.remoteDevice.address,
-		Entity: s.remoteEntity.address.Entity,
+		Device: s.remoteDevice.Address(),
+		Entity: s.remoteEntity.Address().Entity,
 	}
 
 	data.AddUseCaseSupport(

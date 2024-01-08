@@ -154,7 +154,7 @@ func (c *SubscriptionManagerImpl) RemoveSubscriptionsForDevice(remoteDevice *Dev
 }
 
 // Remove all existing subscriptions for a given remote device entity
-func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl) {
+func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity EntityRemote) {
 	if remoteEntity == nil {
 		return
 	}

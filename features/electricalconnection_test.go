@@ -18,8 +18,8 @@ func TestElectricalConnectionSuite(t *testing.T) {
 type ElectricalConnectionSuite struct {
 	suite.Suite
 
-	localEntity  *spine.EntityLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spine.EntityLocal
+	remoteEntity spine.EntityRemote
 
 	electricalConnection *features.ElectricalConnection
 	sentMessage          []byte

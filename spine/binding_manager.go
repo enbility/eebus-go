@@ -153,7 +153,7 @@ func (c *BindingManagerImpl) RemoveBindingsForDevice(remoteDevice *DeviceRemoteI
 }
 
 // Remove all existing bindings for a given remote device entity
-func (c *BindingManagerImpl) RemoveBindingsForEntity(remoteEntity *EntityRemoteImpl) {
+func (c *BindingManagerImpl) RemoveBindingsForEntity(remoteEntity EntityRemote) {
 	if remoteEntity == nil {
 		return
 	}

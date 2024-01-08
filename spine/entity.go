@@ -17,6 +17,8 @@ type EntityImpl struct {
 	fIdGenerator func() uint
 }
 
+var _ Entity = (*EntityImpl)(nil)
+
 func NewEntity(eType model.EntityTypeType, deviceAdress *model.AddressDeviceType, entityAddress []model.AddressEntityType) *EntityImpl {
 	entity := &EntityImpl{
 		eType: eType,

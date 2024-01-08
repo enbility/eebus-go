@@ -9,7 +9,7 @@ type DeviceClassification struct {
 	*FeatureImpl
 }
 
-func NewDeviceClassification(localRole, remoteRole model.RoleType, localEntity *spine.EntityLocalImpl, remoteEntity *spine.EntityRemoteImpl) (*DeviceClassification, error) {
+func NewDeviceClassification(localRole, remoteRole model.RoleType, localEntity spine.EntityLocal, remoteEntity spine.EntityRemote) (*DeviceClassification, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceClassification, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

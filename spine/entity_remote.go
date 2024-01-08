@@ -4,6 +4,8 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 )
 
+var _ EntityRemote = (*EntityRemoteImpl)(nil)
+
 type EntityRemoteImpl struct {
 	*EntityImpl
 	device   *DeviceRemoteImpl

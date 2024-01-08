@@ -18,6 +18,51 @@ type DeviceLocalConnection interface {
 	AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing
 }
 
+/* Entity */
+
+type Entity interface {
+	EntityType() model.EntityTypeType
+	Address() *model.EntityAddressType
+	Description() *model.DescriptionType
+	SetDescription(d *model.DescriptionType)
+	NextFeatureId() uint
+}
+
+type EntityLocal interface {
+	Entity
+	Device() *DeviceLocalImpl
+	AddFeature(f FeatureLocal)
+	GetOrAddFeature(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal
+	FeatureOfTypeAndRole(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal
+	Features() []FeatureLocal
+	Feature(addressFeature *model.AddressFeatureType) FeatureLocal
+	Information() *model.NodeManagementDetailedDiscoveryEntityInformationType
+	AddUseCaseSupport(
+		actor model.UseCaseActorType,
+		useCaseName model.UseCaseNameType,
+		useCaseVersion model.SpecificationVersionType,
+		useCaseDocumemtSubRevision string,
+		useCaseAvailable bool,
+		scenarios []model.UseCaseScenarioSupportType,
+	)
+	RemoveUseCaseSupport(
+		actor model.UseCaseActorType,
+		useCaseName model.UseCaseNameType,
+	)
+	RemoveAllUseCaseSupports()
+	RemoveAllSubscriptions()
+	RemoveAllBindings()
+}
+
+type EntityRemote interface {
+	Entity
+	Device() *DeviceRemoteImpl
+	AddFeature(f FeatureRemote)
+	Features() []FeatureRemote
+	Feature(addressFeature *model.AddressFeatureType) FeatureRemote
+	RemoveAllFeatures()
+}
+
 /* Feature */
 
 type Feature interface {
@@ -34,7 +79,7 @@ type FeatureRemote interface {
 	UpdateData(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType)
 	Sender() Sender
 	Device() *DeviceRemoteImpl
-	Entity() *EntityRemoteImpl
+	Entity() EntityRemote
 	SetOperations(functions []model.FunctionPropertyType)
 	SetMaxResponseDelay(delay *model.MaxResponseDelayType)
 	MaxResponseDelayDuration() time.Duration
@@ -160,7 +205,7 @@ type BindingManager interface {
 	AddBinding(remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error
 	RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
 	RemoveBindingsForDevice(remoteDevice *DeviceRemoteImpl)
-	RemoveBindingsForEntity(remoteEntity *EntityRemoteImpl)
+	RemoveBindingsForEntity(remoteEntity EntityRemote)
 	Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry
 	BindingsOnFeature(featureAddress model.FeatureAddressType) []*BindingEntry
 }
@@ -171,7 +216,7 @@ type SubscriptionManager interface {
 	AddSubscription(remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error
 	RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
 	RemoveSubscriptionsForDevice(remoteDevice *DeviceRemoteImpl)
-	RemoveSubscriptionsForEntity(remoteEntity *EntityRemoteImpl)
+	RemoveSubscriptionsForEntity(remoteEntity EntityRemote)
 	Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry
 	SubscriptionsOnFeature(featureAddress model.FeatureAddressType) []*SubscriptionEntry
 }

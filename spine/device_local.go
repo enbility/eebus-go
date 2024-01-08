@@ -14,7 +14,7 @@ import (
 
 type DeviceLocalImpl struct {
 	*DeviceImpl
-	entities            []*EntityLocalImpl
+	entities            []EntityLocal
 	subscriptionManager SubscriptionManager
 	bindingManager      BindingManager
 	heartbeatManager    HeartbeatManager
@@ -271,7 +271,7 @@ func (r *DeviceLocalImpl) HeartbeatManager() HeartbeatManager {
 	return r.heartbeatManager
 }
 
-func (r *DeviceLocalImpl) AddEntity(entity *EntityLocalImpl) {
+func (r *DeviceLocalImpl) AddEntity(entity EntityLocal) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
@@ -280,7 +280,7 @@ func (r *DeviceLocalImpl) AddEntity(entity *EntityLocalImpl) {
 	r.notifySubscribersOfEntity(entity, model.NetworkManagementStateChangeTypeAdded)
 }
 
-func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
+func (r *DeviceLocalImpl) RemoveEntity(entity EntityLocal) {
 	entity.RemoveAllUseCaseSupports()
 	entity.RemoveAllSubscriptions()
 	entity.RemoveAllBindings()
@@ -288,7 +288,7 @@ func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	var entities []*EntityLocalImpl
+	var entities []EntityLocal
 	for _, e := range r.entities {
 		if e != entity {
 			entities = append(entities, e)
@@ -298,14 +298,14 @@ func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
 	r.entities = entities
 }
 
-func (r *DeviceLocalImpl) Entities() []*EntityLocalImpl {
+func (r *DeviceLocalImpl) Entities() []EntityLocal {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
 	return r.entities
 }
 
-func (r *DeviceLocalImpl) Entity(id []model.AddressEntityType) *EntityLocalImpl {
+func (r *DeviceLocalImpl) Entity(id []model.AddressEntityType) EntityLocal {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
@@ -317,12 +317,12 @@ func (r *DeviceLocalImpl) Entity(id []model.AddressEntityType) *EntityLocalImpl 
 	return nil
 }
 
-func (r *DeviceLocalImpl) EntityForType(entityType model.EntityTypeType) *EntityLocalImpl {
+func (r *DeviceLocalImpl) EntityForType(entityType model.EntityTypeType) EntityLocal {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
 	for _, e := range r.entities {
-		if e.eType == entityType {
+		if e.EntityType() == entityType {
 			return e
 		}
 	}
@@ -369,7 +369,7 @@ func (r *DeviceLocalImpl) NotifySubscribers(featureAddress *model.FeatureAddress
 	}
 }
 
-func (r *DeviceLocalImpl) notifySubscribersOfEntity(entity *EntityLocalImpl, state model.NetworkManagementStateChangeType) {
+func (r *DeviceLocalImpl) notifySubscribersOfEntity(entity EntityLocal, state model.NetworkManagementStateChangeType) {
 	deviceInformation := r.Information()
 	entityInformation := *entity.Information()
 	entityInformation.Description.LastStateChange = &state

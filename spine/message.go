@@ -9,15 +9,15 @@ type Message struct {
 	FilterPartial *model.FilterType
 	FilterDelete  *model.FilterType
 	FeatureRemote FeatureRemote
-	EntityRemote  *EntityRemoteImpl
+	EntityRemote  EntityRemote
 	DeviceRemote  *DeviceRemoteImpl
 }
 
 type ResultMessage struct {
 	MsgCounterReference model.MsgCounterType  // required
 	Result              *model.ResultDataType // required, may not be nil
-	FeatureLocal        *FeatureLocalImpl     // required, may not be nil
+	FeatureLocal        FeatureLocal          // required, may not be nil
 	FeatureRemote       FeatureRemote         // required, may not be nil
-	EntityRemote        *EntityRemoteImpl     // required, may not be nil
+	EntityRemote        EntityRemote          // required, may not be nil
 	DeviceRemote        *DeviceRemoteImpl     // required, may not be nil
 }

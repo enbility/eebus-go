@@ -19,18 +19,18 @@ type FeatureImpl struct {
 	remoteRole model.RoleType
 
 	spineLocalDevice *spine.DeviceLocalImpl
-	localEntity      *spine.EntityLocalImpl
+	localEntity      spine.EntityLocal
 
 	featureLocal  spine.FeatureLocal
 	featureRemote spine.FeatureRemote
 
 	remoteDevice *spine.DeviceRemoteImpl
-	remoteEntity *spine.EntityRemoteImpl
+	remoteEntity spine.EntityRemote
 }
 
 var _ Feature = (*FeatureImpl)(nil)
 
-func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity *spine.EntityLocalImpl, remoteEntity *spine.EntityRemoteImpl) (*FeatureImpl, error) {
+func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity spine.EntityLocal, remoteEntity spine.EntityRemote) (*FeatureImpl, error) {
 	f := &FeatureImpl{
 		featureType:      featureType,
 		localRole:        localRole,

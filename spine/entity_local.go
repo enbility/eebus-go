@@ -4,6 +4,8 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 )
 
+var _ EntityLocal = (*EntityLocalImpl)(nil)
+
 type EntityLocalImpl struct {
 	*EntityImpl
 	device   *DeviceLocalImpl

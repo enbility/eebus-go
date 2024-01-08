@@ -18,8 +18,8 @@ func TestDeviceConfigurationSuite(t *testing.T) {
 type DeviceConfigurationSuite struct {
 	suite.Suite
 
-	localEntity  *spine.EntityLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spine.EntityLocal
+	remoteEntity spine.EntityRemote
 
 	deviceConfiguration *features.DeviceConfiguration
 	sentMessage         []byte
