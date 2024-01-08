@@ -29,7 +29,7 @@ func (i *Identification) RequestValues() (*model.MsgCounterType, error) {
 
 // return current values for Identification
 func (i *Identification) GetValues() ([]model.IdentificationDataType, error) {
-	rData := i.featureRemote.Data(model.FunctionTypeIdentificationListData)
+	rData := i.featureRemote.DataCopy(model.FunctionTypeIdentificationListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}

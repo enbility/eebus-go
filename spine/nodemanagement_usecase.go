@@ -28,7 +28,7 @@ func (r *NodeManagementImpl) NotifyUseCaseData(remoteDevice *DeviceRemoteImpl) (
 	return featureRemote.Sender().Notify(r.Address(), rfAdress, cmd)
 }
 
-func (r *NodeManagementImpl) processReadUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
+func (r *NodeManagementImpl) processReadUseCaseData(featureRemote FeatureRemote, requestHeader *model.HeaderType) error {
 	cmd := r.functionData(model.FunctionTypeNodeManagementUseCaseData).ReplyCmdType(false)
 
 	return featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)

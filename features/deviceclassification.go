@@ -29,7 +29,7 @@ func (d *DeviceClassification) RequestManufacturerDetails() (*model.MsgCounterTy
 
 // get the current manufacturer details for a remote device entity
 func (d *DeviceClassification) GetManufacturerDetails() (*model.DeviceClassificationManufacturerDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceClassificationManufacturerData)
+	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceClassificationManufacturerData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}

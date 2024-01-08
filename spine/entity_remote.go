@@ -7,7 +7,7 @@ import (
 type EntityRemoteImpl struct {
 	*EntityImpl
 	device   *DeviceRemoteImpl
-	features []*FeatureRemoteImpl
+	features []FeatureRemote
 }
 
 func NewEntityRemoteImpl(device *DeviceRemoteImpl, eType model.EntityTypeType, entityAddress []model.AddressEntityType) *EntityRemoteImpl {
@@ -21,15 +21,15 @@ func (r *EntityRemoteImpl) Device() *DeviceRemoteImpl {
 	return r.device
 }
 
-func (r *EntityRemoteImpl) AddFeature(f *FeatureRemoteImpl) {
+func (r *EntityRemoteImpl) AddFeature(f FeatureRemote) {
 	r.features = append(r.features, f)
 }
 
-func (r *EntityRemoteImpl) Features() []*FeatureRemoteImpl {
+func (r *EntityRemoteImpl) Features() []FeatureRemote {
 	return r.features
 }
 
-func (r *EntityRemoteImpl) Feature(addressFeature *model.AddressFeatureType) *FeatureRemoteImpl {
+func (r *EntityRemoteImpl) Feature(addressFeature *model.AddressFeatureType) FeatureRemote {
 	for _, f := range r.features {
 		if *f.Address().Feature == *addressFeature {
 			return f

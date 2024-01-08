@@ -24,6 +24,20 @@ type Feature interface {
 	Address() *model.FeatureAddressType
 	Type() model.FeatureTypeType
 	Role() model.RoleType
+	Operations() map[model.FunctionType]*Operations
+}
+
+type FeatureRemote interface {
+	Feature
+	DataCopy(function model.FunctionType) any
+	SetData(function model.FunctionType, data any)
+	UpdateData(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType)
+	Sender() Sender
+	Device() *DeviceRemoteImpl
+	Entity() *EntityRemoteImpl
+	SetOperations(functions []model.FunctionPropertyType)
+	SetMaxResponseDelay(delay *model.MaxResponseDelayType)
+	MaxResponseDelayDuration() time.Duration
 }
 
 type FeatureLocal interface {
@@ -38,7 +52,7 @@ type FeatureLocal interface {
 		function model.FunctionType,
 		selector any,
 		elements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
+		destination FeatureRemote) (*model.MsgCounterType, *model.ErrorType)
 	RequestDataBySenderAddress(
 		cmd model.CmdType,
 		sender Sender,
@@ -47,12 +61,12 @@ type FeatureLocal interface {
 		maxDelay time.Duration) (*model.MsgCounterType, *model.ErrorType)
 	FetchRequestData(
 		msgCounter model.MsgCounterType,
-		destination *FeatureRemoteImpl) (any, *model.ErrorType)
+		destination FeatureRemote) (any, *model.ErrorType)
 	RequestAndFetchData(
 		function model.FunctionType,
 		selector any,
 		elements any,
-		destination *FeatureRemoteImpl) (any, *model.ErrorType)
+		destination FeatureRemote) (any, *model.ErrorType)
 	Subscribe(remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
 	// SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
 	RemoveSubscription(remoteAddress *model.FeatureAddressType)
@@ -66,12 +80,12 @@ type FeatureLocal interface {
 		deleteSelector, partialSelector any,
 		partialWithoutSelector bool,
 		deleteElements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
+		destination FeatureRemote) (*model.MsgCounterType, *model.ErrorType)
 	WriteData(
 		function model.FunctionType,
 		deleteSelector, partialSelector any,
 		deleteElements any,
-		destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType)
+		destination FeatureRemote) (*model.MsgCounterType, *model.ErrorType)
 	HandleMessage(message *Message) *model.ErrorType
 }
 

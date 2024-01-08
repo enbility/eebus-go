@@ -140,7 +140,7 @@ func (r *FeatureLocalImpl) RequestData(
 	function model.FunctionType,
 	selector any,
 	elements any,
-	destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType) {
+	destination FeatureRemote) (*model.MsgCounterType, *model.ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType(selector, elements)
 
@@ -167,7 +167,7 @@ func (r *FeatureLocalImpl) RequestDataBySenderAddress(
 // this will block until the response is received
 func (r *FeatureLocalImpl) FetchRequestData(
 	msgCounter model.MsgCounterType,
-	destination *FeatureRemoteImpl) (any, *model.ErrorType) {
+	destination FeatureRemote) (any, *model.ErrorType) {
 
 	return r.pendingRequests.GetData(destination.Device().ski, msgCounter)
 }
@@ -178,7 +178,7 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 	function model.FunctionType,
 	selector any,
 	elements any,
-	destination *FeatureRemoteImpl) (any, *model.ErrorType) {
+	destination FeatureRemote) (any, *model.ErrorType) {
 
 	msgCounter, err := r.RequestData(function, selector, elements, destination)
 	if err != nil {
@@ -367,7 +367,7 @@ func (r *FeatureLocalImpl) NotifyData(
 	deleteSelector, partialSelector any,
 	partialWithoutSelector bool,
 	deleteElements any,
-	destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType) {
+	destination FeatureRemote) (*model.MsgCounterType, *model.ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.NotifyCmdType(deleteSelector, partialSelector, partialWithoutSelector, deleteElements)
 
@@ -383,7 +383,7 @@ func (r *FeatureLocalImpl) WriteData(
 	function model.FunctionType,
 	deleteSelector, partialSelector any,
 	deleteElements any,
-	destination *FeatureRemoteImpl) (*model.MsgCounterType, *model.ErrorType) {
+	destination FeatureRemote) (*model.MsgCounterType, *model.ErrorType) {
 	fd := r.functionData(function)
 	cmd := fd.WriteCmdType(deleteSelector, partialSelector, deleteElements)
 
@@ -473,7 +473,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *model.ErrorType {
 	}
 }
 
-func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *model.ErrorType {
+func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeader *model.HeaderType, featureRemote FeatureRemote) *model.ErrorType {
 	// is this a read request to a local server/special feature?
 	if r.role == model.RoleTypeClient {
 		// Read requests to a client feature are not allowed
@@ -488,7 +488,7 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 	return nil
 }
 
-func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, requestHeader *model.HeaderType, featureRemote *FeatureRemoteImpl) *model.ErrorType {
+func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, requestHeader *model.HeaderType, featureRemote FeatureRemote) *model.ErrorType {
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 	_ = r.pendingRequests.SetData(featureRemote.Device().ski, *requestHeader.MsgCounterReference, data)
 	// an error in SetData only means that there is no pendingRequest waiting for this dataset
@@ -510,7 +510,7 @@ func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, f
 	return nil
 }
 
-func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, featureRemote *FeatureRemoteImpl) *model.ErrorType {
+func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, featureRemote FeatureRemote) *model.ErrorType {
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 
 	payload := EventPayload{

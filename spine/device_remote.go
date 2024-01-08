@@ -90,7 +90,7 @@ func (d *DeviceRemoteImpl) Entities() []*EntityRemoteImpl {
 }
 
 // Return the feature for a given address
-func (d *DeviceRemoteImpl) FeatureByAddress(address *model.FeatureAddressType) *FeatureRemoteImpl {
+func (d *DeviceRemoteImpl) FeatureByAddress(address *model.FeatureAddressType) FeatureRemote {
 	entity := d.Entity(address.Entity)
 	if entity != nil {
 		return entity.Feature(address.Feature)
@@ -120,7 +120,7 @@ func (d *DeviceRemoteImpl) RemoveByAddress(addr []model.AddressEntityType) *Enti
 }
 
 // Get the feature for a given entity, feature type and feature role
-func (r *DeviceRemoteImpl) FeatureByEntityTypeAndRole(entity *EntityRemoteImpl, featureType model.FeatureTypeType, role model.RoleType) *FeatureRemoteImpl {
+func (r *DeviceRemoteImpl) FeatureByEntityTypeAndRole(entity *EntityRemoteImpl, featureType model.FeatureTypeType, role model.RoleType) FeatureRemote {
 	if len(r.entities) < 1 {
 		return nil
 	}
@@ -177,7 +177,7 @@ func (d *DeviceRemoteImpl) AddEntityAndFeatures(initialData bool, data *model.No
 
 		for _, fi := range data.FeatureInformation {
 			if reflect.DeepEqual(fi.Description.FeatureAddress.Entity, entityAddress) {
-				if f := unmarshalFeature(entity, fi); f != nil {
+				if f, ok := unmarshalFeature(entity, fi); ok {
 					entity.AddFeature(f)
 				}
 			}
@@ -247,7 +247,7 @@ func (d *DeviceRemoteImpl) VerifyUseCaseScenariosAndFeaturesSupport(
 
 	nodemgmt := d.FeatureByEntityTypeAndRole(entity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
 
-	usecases := nodemgmt.Data(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+	usecases := nodemgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 
 	if usecases == nil || len(usecases.UseCaseInformation) == 0 {
 		return false
@@ -321,17 +321,20 @@ func (d *DeviceRemoteImpl) VerifyUseCaseScenariosAndFeaturesSupport(
 
 func unmarshalFeature(entity *EntityRemoteImpl,
 	featureData model.NodeManagementDetailedDiscoveryFeatureInformationType,
-) *FeatureRemoteImpl {
+) (FeatureRemote, bool) {
 	var result *FeatureRemoteImpl
 
-	if fid := featureData.Description; fid != nil {
+	fid := featureData.Description
 
-		result = NewFeatureRemoteImpl(uint(*fid.FeatureAddress.Feature), entity, *fid.FeatureType, *fid.Role)
-
-		result.SetDescription(fid.Description)
-		result.SetMaxResponseDelay(fid.MaxResponseDelay)
-		result.SetOperations(fid.SupportedFunction)
+	if fid == nil {
+		return nil, false
 	}
 
-	return result
+	result = NewFeatureRemoteImpl(uint(*fid.FeatureAddress.Feature), entity, *fid.FeatureType, *fid.Role)
+
+	result.SetDescription(fid.Description)
+	result.SetMaxResponseDelay(fid.MaxResponseDelay)
+	result.SetOperations(fid.SupportedFunction)
+
+	return result, true
 }

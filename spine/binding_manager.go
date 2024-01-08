@@ -15,7 +15,7 @@ import (
 type BindingEntry struct {
 	id            uint64
 	serverFeature FeatureLocal
-	clientFeature *FeatureRemoteImpl
+	clientFeature FeatureRemote
 }
 
 type BindingManagerImpl struct {
@@ -168,7 +168,7 @@ func (c *BindingManagerImpl) RemoveBindingsForEntity(remoteEntity *EntityRemoteI
 			continue
 		}
 
-		clientFeature := remoteEntity.Feature(item.clientFeature.address.Feature)
+		clientFeature := remoteEntity.Feature(item.clientFeature.Address().Feature)
 		payload := EventPayload{
 			Ski:        remoteEntity.Device().ski,
 			EventType:  EventTypeBindingChange,

@@ -35,7 +35,7 @@ func (d *DeviceConfiguration) RequestKeyValues() (*model.MsgCounterType, error) 
 
 // return current descriptions for Device Configuration
 func (d *DeviceConfiguration) GetDescriptions() ([]model.DeviceConfigurationKeyValueDescriptionDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
+	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
@@ -86,7 +86,7 @@ func (d *DeviceConfiguration) GetDescriptionForKeyName(keyName model.DeviceConfi
 
 // return current values for Device Configuration
 func (d *DeviceConfiguration) GetKeyValues() ([]model.DeviceConfigurationKeyValueDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueListData)
+	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceConfigurationKeyValueListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}

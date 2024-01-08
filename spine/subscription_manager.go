@@ -15,7 +15,7 @@ import (
 type SubscriptionEntry struct {
 	id            uint64
 	serverFeature FeatureLocal
-	clientFeature *FeatureRemoteImpl
+	clientFeature FeatureRemote
 }
 
 type SubscriptionManagerImpl struct {
@@ -169,7 +169,7 @@ func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity *Ent
 			continue
 		}
 
-		clientFeature := remoteEntity.Feature(item.clientFeature.address.Feature)
+		clientFeature := remoteEntity.Feature(item.clientFeature.Address().Feature)
 		payload := EventPayload{
 			Ski:        remoteEntity.Device().ski,
 			EventType:  EventTypeSubscriptionChange,

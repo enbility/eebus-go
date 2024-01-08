@@ -57,7 +57,7 @@ func (t *TimeSeries) WriteValues(data []model.TimeSeriesDataType) (*model.MsgCou
 
 // return current values for Time Series
 func (t *TimeSeries) GetValues() ([]model.TimeSeriesDataType, error) {
-	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesListData)
+	rData := t.featureRemote.DataCopy(model.FunctionTypeTimeSeriesListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
@@ -100,7 +100,7 @@ func (t *TimeSeries) GetValueForType(timeSeriesType model.TimeSeriesTypeType) (*
 
 // return list of descriptions
 func (t *TimeSeries) GetDescriptions() ([]model.TimeSeriesDescriptionDataType, error) {
-	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesDescriptionListData)
+	rData := t.featureRemote.DataCopy(model.FunctionTypeTimeSeriesDescriptionListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
@@ -145,7 +145,7 @@ func (t *TimeSeries) GetDescriptionForType(timeSeriesType model.TimeSeriesTypeTy
 
 // return current constraints for Time Series
 func (t *TimeSeries) GetConstraints() ([]model.TimeSeriesConstraintsDataType, error) {
-	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesConstraintsListData)
+	rData := t.featureRemote.DataCopy(model.FunctionTypeTimeSeriesConstraintsListData)
 	switch constraintsData := rData.(type) {
 	case *model.TimeSeriesConstraintsListDataType:
 		if constraintsData == nil {

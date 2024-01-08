@@ -65,7 +65,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 	// set response
 	msgErr := suite.sut.HandleMessage(&replyMsg)
 	if assert.Nil(suite.T(), msgErr) {
-		remoteData := suite.remoteFeature.Data(suite.function)
+		remoteData := suite.remoteFeature.DataCopy(suite.function)
 		assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, remoteData, "Data has wrong type")
 	}
 
@@ -113,7 +113,7 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	// set response
 	msgErr := suite.sut.HandleMessage(&replyMsg)
 	if assert.Nil(suite.T(), msgErr) {
-		remoteData := suite.remoteFeature.Data(suite.function)
+		remoteData := suite.remoteFeature.DataCopy(suite.function)
 		assert.Nil(suite.T(), remoteData)
 	}
 

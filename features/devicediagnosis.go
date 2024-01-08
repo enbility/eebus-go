@@ -29,7 +29,7 @@ func (d *DeviceDiagnosis) RequestState() (*model.MsgCounterType, error) {
 
 // get the current diagnosis state for an device entity
 func (d *DeviceDiagnosis) GetState() (*model.DeviceDiagnosisStateDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceDiagnosisStateData)
+	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceDiagnosisStateData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}

@@ -11,7 +11,7 @@ func (r *NodeManagementImpl) RequestDestinationListData(remoteDeviceAddress *mod
 	return nil, model.NewErrorTypeFromString("Not implemented")
 }
 
-func (r *NodeManagementImpl) processReadDestinationListData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
+func (r *NodeManagementImpl) processReadDestinationListData(featureRemote FeatureRemote, requestHeader *model.HeaderType) error {
 	data := []model.NodeManagementDestinationDataType{
 		r.Device().DestinationData(),
 	}

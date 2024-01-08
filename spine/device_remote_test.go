@@ -118,7 +118,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 	}
 	nodeMgmt.UpdateData(model.FunctionTypeNodeManagementUseCaseData, newData, nil, nil)
 
-	data := nodeMgmt.Data(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 
 	address := model.FeatureAddressType{
 		Device: s.remoteDevice.address,
@@ -135,7 +135,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 		[]model.UseCaseScenarioSupportType{1},
 	)
 	nodeMgmt.SetData(model.FunctionTypeNodeManagementUseCaseData, data)
-	data = nodeMgmt.Data(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+	data = nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 
 	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
 		model.UseCaseActorTypeEVSE,
@@ -155,7 +155,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 		[]model.UseCaseScenarioSupportType{1},
 	)
 	nodeMgmt.SetData(model.FunctionTypeNodeManagementUseCaseData, data)
-	data = nodeMgmt.Data(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+	data = nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 
 	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
 		model.UseCaseActorTypeEVSE,
@@ -175,7 +175,7 @@ func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport() {
 		[]model.UseCaseScenarioSupportType{1},
 	)
 	nodeMgmt.SetData(model.FunctionTypeNodeManagementUseCaseData, data)
-	data = nodeMgmt.Data(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+	data = nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 
 	result = s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
 		model.UseCaseActorTypeEVSE,

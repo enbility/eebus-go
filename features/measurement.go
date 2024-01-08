@@ -42,7 +42,7 @@ func (m *Measurement) RequestValues() (*model.MsgCounterType, error) {
 
 // return list of descriptions
 func (m *Measurement) GetDescriptions() ([]model.MeasurementDescriptionDataType, error) {
-	rData := m.featureRemote.Data(model.FunctionTypeMeasurementDescriptionListData)
+	rData := m.featureRemote.DataCopy(model.FunctionTypeMeasurementDescriptionListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}
@@ -96,7 +96,7 @@ func (m *Measurement) GetDescriptionForMeasurementId(measurementId model.Measure
 
 // return current values for measurements
 func (m *Measurement) GetValues() ([]model.MeasurementDataType, error) {
-	rData := m.featureRemote.Data(model.FunctionTypeMeasurementListData)
+	rData := m.featureRemote.DataCopy(model.FunctionTypeMeasurementListData)
 	if rData == nil {
 		return nil, ErrDataNotAvailable
 	}
@@ -144,7 +144,7 @@ func (m *Measurement) GetValuesForTypeCommodityScope(measurement model.Measureme
 
 // return measurement constraints
 func (m *Measurement) GetConstraints() ([]model.MeasurementConstraintsDataType, error) {
-	rData := m.featureRemote.Data(model.FunctionTypeMeasurementConstraintsListData)
+	rData := m.featureRemote.DataCopy(model.FunctionTypeMeasurementConstraintsListData)
 	if rData == nil {
 		return nil, ErrMetadataNotAvailable
 	}

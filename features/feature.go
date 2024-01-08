@@ -22,7 +22,7 @@ type FeatureImpl struct {
 	localEntity      *spine.EntityLocalImpl
 
 	featureLocal  spine.FeatureLocal
-	featureRemote *spine.FeatureRemoteImpl
+	featureRemote spine.FeatureRemote
 
 	remoteDevice *spine.DeviceRemoteImpl
 	remoteEntity *spine.EntityRemoteImpl
@@ -96,7 +96,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 }
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (spine.FeatureLocal, *spine.FeatureRemoteImpl, error) {
+func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (spine.FeatureLocal, spine.FeatureRemote, error) {
 	if f.remoteEntity == nil {
 		return nil, nil, errors.New("invalid remote entity provided")
 	}

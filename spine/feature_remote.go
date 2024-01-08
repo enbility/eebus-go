@@ -13,8 +13,11 @@ import (
 
 const defaultMaxResponseDelay = time.Duration(time.Second * 10)
 
+var _ FeatureRemote = (*FeatureRemoteImpl)(nil)
+
 type FeatureRemoteImpl struct {
 	*FeatureImpl
+
 	entity           *EntityRemoteImpl
 	functionDataMap  map[model.FunctionType]FunctionData
 	maxResponseDelay *time.Duration
@@ -40,7 +43,7 @@ func NewFeatureRemoteImpl(id uint, entity *EntityRemoteImpl, ftype model.Feature
 	return res
 }
 
-func (r *FeatureRemoteImpl) Data(function model.FunctionType) any {
+func (r *FeatureRemoteImpl) DataCopy(function model.FunctionType) any {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 

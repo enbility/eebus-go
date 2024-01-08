@@ -56,7 +56,7 @@ func (s *MeasurementSuite) TestDescriptionList_Recv() {
 		model.RoleTypeServer)
 	assert.NotNil(s.T(), mFeature)
 
-	fdata := mFeature.Data(model.FunctionTypeMeasurementDescriptionListData)
+	fdata := mFeature.DataCopy(model.FunctionTypeMeasurementDescriptionListData)
 	if !assert.NotNil(s.T(), fdata) {
 		return
 	}
@@ -89,7 +89,7 @@ func (s *MeasurementSuite) TestMeasurementList_Recv() {
 		model.RoleTypeServer)
 	assert.NotNil(s.T(), mFeature)
 
-	fdata := mFeature.Data(model.FunctionTypeMeasurementListData)
+	fdata := mFeature.DataCopy(model.FunctionTypeMeasurementListData)
 	if !assert.NotNil(s.T(), fdata) {
 		return
 	}
@@ -130,7 +130,7 @@ func (s *MeasurementSuite) TestMeasurementByScope_Recv() {
 		model.RoleTypeServer)
 	assert.NotNil(s.T(), mFeature)
 
-	fdata := mFeature.Data(model.FunctionTypeMeasurementDescriptionListData)
+	fdata := mFeature.DataCopy(model.FunctionTypeMeasurementDescriptionListData)
 	if !assert.NotNil(s.T(), fdata) {
 		return
 	}
@@ -140,7 +140,7 @@ func (s *MeasurementSuite) TestMeasurementByScope_Recv() {
 		return
 	}
 
-	fdata = mFeature.Data(model.FunctionTypeMeasurementListData)
+	fdata = mFeature.DataCopy(model.FunctionTypeMeasurementListData)
 	if !assert.NotNil(s.T(), fdata) {
 		return
 	}

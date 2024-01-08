@@ -56,7 +56,7 @@ func (s *ElectricalConnectionSuite) TestDescriptionListData_RecvReply() {
 		model.RoleTypeServer)
 	assert.NotNil(s.T(), ecFeature)
 
-	fdata := ecFeature.Data(model.FunctionTypeElectricalConnectionDescriptionListData)
+	fdata := ecFeature.DataCopy(model.FunctionTypeElectricalConnectionDescriptionListData)
 	if !assert.NotNil(s.T(), fdata) {
 		return
 	}
@@ -88,7 +88,7 @@ func (s *ElectricalConnectionSuite) TestParameterDescriptionListData_RecvReply()
 		model.RoleTypeServer)
 	assert.NotNil(s.T(), ecFeature)
 
-	fdata := ecFeature.Data(model.FunctionTypeElectricalConnectionParameterDescriptionListData)
+	fdata := ecFeature.DataCopy(model.FunctionTypeElectricalConnectionParameterDescriptionListData)
 	if !assert.NotNil(s.T(), fdata) {
 		return
 	}
@@ -124,7 +124,7 @@ func (s *ElectricalConnectionSuite) TestPermittedValueSetListData_RecvNotifyPart
 		model.RoleTypeServer)
 	assert.NotNil(s.T(), ecFeature)
 
-	fdata := ecFeature.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
+	fdata := ecFeature.DataCopy(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
 	if !assert.NotNil(s.T(), fdata) {
 		return
 	}
