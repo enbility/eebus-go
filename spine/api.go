@@ -125,6 +125,10 @@ type Feature interface {
 	Type() model.FeatureTypeType
 	Role() model.RoleType
 	Operations() map[model.FunctionType]*Operations
+	Description() *model.DescriptionType
+	SetDescription(desc *model.DescriptionType)
+	SetDescriptionString(s string)
+	String() string
 }
 
 type FeatureRemote interface {
@@ -132,7 +136,6 @@ type FeatureRemote interface {
 	DataCopy(function model.FunctionType) any
 	SetData(function model.FunctionType, data any)
 	UpdateData(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType)
-	SetDescription(desc *model.DescriptionType)
 	Sender() Sender
 	Device() DeviceRemote
 	Entity() EntityRemote
