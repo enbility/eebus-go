@@ -106,6 +106,9 @@ func (r *EntityLocalImpl) AddUseCaseSupport(
 	nodeMgmt := r.device.nodeManagement
 
 	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+	if data == nil {
+		data = &model.NodeManagementUseCaseDataType{}
+	}
 
 	address := model.FeatureAddressType{
 		Device: r.address.Device,
@@ -125,7 +128,6 @@ func (r *EntityLocalImpl) RemoveUseCaseSupport(
 	nodeMgmt := r.device.nodeManagement
 
 	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
-
 	if data == nil {
 		return
 	}

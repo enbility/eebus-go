@@ -53,4 +53,28 @@ func (suite *EntityLocalTestSuite) Test_Entity() {
 	assert.NotNil(suite.T(), f4)
 
 	assert.Equal(suite.T(), 3, len(entity.Features()))
+
+	entity.RemoveAllUseCaseSupports()
+
+	entity.AddUseCaseSupport(
+		model.UseCaseActorTypeCEM,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		model.SpecificationVersionType("1.0.0"),
+		"",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2},
+	)
+
+	entity.AddUseCaseSupport(
+		model.UseCaseActorTypeCEM,
+		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
+		model.SpecificationVersionType("1.0.0"),
+		"",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2},
+	)
+
+	entity.RemoveAllUseCaseSupports()
+	entity.RemoveAllBindings()
+	entity.RemoveAllSubscriptions()
 }
