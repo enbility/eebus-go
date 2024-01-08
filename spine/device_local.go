@@ -281,6 +281,7 @@ func (r *DeviceLocalImpl) AddEntity(entity *EntityLocalImpl) {
 }
 
 func (r *DeviceLocalImpl) RemoveEntity(entity *EntityLocalImpl) {
+	entity.RemoveAllUseCaseSupports()
 	entity.RemoveAllSubscriptions()
 	entity.RemoveAllBindings()
 

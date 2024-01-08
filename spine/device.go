@@ -3,10 +3,9 @@ package spine
 import "github.com/enbility/eebus-go/spine/model"
 
 type DeviceImpl struct {
-	address        *model.AddressDeviceType
-	dType          *model.DeviceTypeType
-	featureSet     *model.NetworkManagementFeatureSetType
-	useCaseManager *UseCaseManager
+	address    *model.AddressDeviceType
+	dType      *model.DeviceTypeType
+	featureSet *model.NetworkManagementFeatureSetType
 }
 
 // Initialize a new device
@@ -14,8 +13,6 @@ type DeviceImpl struct {
 // as the address is only provided via detailed discovery response
 func NewDeviceImpl(address *model.AddressDeviceType, dType *model.DeviceTypeType, featureSet *model.NetworkManagementFeatureSetType) *DeviceImpl {
 	deviceImpl := &DeviceImpl{}
-
-	deviceImpl.useCaseManager = NewUseCaseManager(deviceImpl)
 
 	if dType != nil {
 		deviceImpl.dType = dType
@@ -34,10 +31,6 @@ func NewDeviceImpl(address *model.AddressDeviceType, dType *model.DeviceTypeType
 
 func (r *DeviceImpl) Address() *model.AddressDeviceType {
 	return r.address
-}
-
-func (r *DeviceImpl) UseCaseManager() *UseCaseManager {
-	return r.useCaseManager
 }
 
 func (r *DeviceImpl) DeviceType() *model.DeviceTypeType {

@@ -7,16 +7,22 @@ import (
 )
 
 func CreateFunctionData[F any](featureType model.FeatureTypeType) []F {
-	if featureType == model.FeatureTypeTypeNodeManagement {
-		return []F{} // NodeManagement implementation is not using function data
-	}
-
 	// Some devices use generic for everything (e.g. Vaillant Arotherm heatpump)
 	// or for some things like the SMA HM 2.0 or Elli Wallbox, which uses Generic feature
 	// for Heartbeats, even though that should go into FeatureTypeTypeDeviceDiagnosis
 	// Hence we add everything to the Generic feature, as we don't know what might be needed
 
 	var result []F
+
+	if featureType == model.FeatureTypeTypeNodeManagement {
+		result = []F{
+			createFunctionData[model.NodeManagementDestinationListDataType, F](model.FunctionTypeNodeManagementDestinationListData),
+			createFunctionData[model.NodeManagementDetailedDiscoveryDataType, F](model.FunctionTypeNodeManagementDetailedDiscoveryData),
+			createFunctionData[model.NodeManagementUseCaseDataType, F](model.FunctionTypeNodeManagementUseCaseData),
+		}
+
+		return result
+	}
 
 	if featureType == model.FeatureTypeTypeActuatorLevel || featureType == model.FeatureTypeTypeGeneric {
 		result = append(result, []F{

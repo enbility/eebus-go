@@ -190,6 +190,9 @@ func (r *FeatureLocalImpl) RequestAndFetchData(
 
 // Subscribe to a remote feature
 func (r *FeatureLocalImpl) Subscribe(remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
+	if remoteAddress.Device == nil {
+		return nil, model.NewErrorTypeFromString("device not found")
+	}
 	remoteDevice := r.entity.device.RemoteDeviceForAddress(*remoteAddress.Device)
 	if remoteDevice == nil {
 		return nil, model.NewErrorTypeFromString("device not found")

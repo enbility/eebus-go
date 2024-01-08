@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 )
@@ -23,86 +22,20 @@ func (r *NodeManagementImpl) NotifyUseCaseData(remoteDevice *DeviceRemoteImpl) (
 
 	featureRemote := remoteDevice.FeatureByEntityTypeAndRole(rEntity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
 
-	cmd := model.CmdType{
-		NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{
-			UseCaseInformation: r.entity.Device().UseCaseManager().UseCaseInformation(),
-		},
-	}
+	fd := r.functionData(model.FunctionTypeNodeManagementUseCaseData)
+	cmd := fd.NotifyCmdType(nil, nil, false, nil)
 
 	return featureRemote.Sender().Notify(r.Address(), rfAdress, cmd)
 }
 
 func (r *NodeManagementImpl) processReadUseCaseData(featureRemote *FeatureRemoteImpl, requestHeader *model.HeaderType) error {
-
-	cmd := model.CmdType{
-		NodeManagementUseCaseData: &model.NodeManagementUseCaseDataType{
-			UseCaseInformation: r.entity.Device().UseCaseManager().UseCaseInformation(),
-		},
-	}
+	cmd := r.functionData(model.FunctionTypeNodeManagementUseCaseData).ReplyCmdType(false)
 
 	return featureRemote.Sender().Reply(requestHeader, r.Address(), cmd)
 }
 
-func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data model.NodeManagementUseCaseDataType) error {
-	useCaseInformation := data.UseCaseInformation
-	if useCaseInformation == nil {
-		return errors.New("nodemanagement.replyUseCaseData: invalid UseCaseInformation")
-	}
-
-	remoteUseCaseManager := message.FeatureRemote.Device().UseCaseManager()
-	remoteUseCaseManager.RemoveAll()
-
-	for _, useCaseInfo := range useCaseInformation {
-		// this is mandatory
-		var actor model.UseCaseActorType
-		if useCaseInfo.Actor != nil {
-			actor = model.UseCaseActorType(*useCaseInfo.Actor)
-		} else {
-			logging.Log().Debug("actor is missing in useCaseInformation")
-			break
-		}
-
-		for _, useCaseSupport := range useCaseInfo.UseCaseSupport {
-
-			// this is mandatory
-			var useCaseName model.UseCaseNameType
-			if useCaseSupport.UseCaseName != nil {
-				useCaseName = model.UseCaseNameType(*useCaseSupport.UseCaseName)
-			} else {
-				logging.Log().Debug("useCaseName is missing in useCaseSupport")
-				continue
-			}
-
-			// this is optional
-			useCaseAvailable := true
-			if useCaseSupport.UseCaseAvailable != nil {
-				useCaseAvailable = *useCaseSupport.UseCaseAvailable
-			}
-
-			var useCaseVersion model.SpecificationVersionType
-			if useCaseSupport.UseCaseVersion != nil {
-				useCaseVersion = model.SpecificationVersionType(*useCaseSupport.UseCaseVersion)
-			}
-
-			var useCaseDocumemtSubRevision string
-			if useCaseSupport.UseCaseDocumentSubRevision != nil {
-				useCaseDocumemtSubRevision = *useCaseSupport.UseCaseDocumentSubRevision
-			}
-
-			if useCaseSupport.ScenarioSupport == nil {
-				logging.Log().Errorf("scenarioSupport is missing in useCaseSupport %s", useCaseName)
-				continue
-			}
-
-			remoteUseCaseManager.Add(
-				actor,
-				useCaseName,
-				useCaseVersion,
-				useCaseDocumemtSubRevision,
-				useCaseAvailable,
-				useCaseSupport.ScenarioSupport)
-		}
-	}
+func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data *model.NodeManagementUseCaseDataType) error {
+	message.FeatureRemote.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	// the data was updated, so send an event, other event handlers may watch out for this as well
 	payload := EventPayload{
@@ -129,10 +62,10 @@ func (r *NodeManagementImpl) handleMsgUseCaseData(message *Message, data *model.
 		if err := r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
-		return r.processReplyUseCaseData(message, *data)
+		return r.processReplyUseCaseData(message, data)
 
 	case model.CmdClassifierTypeNotify:
-		return r.processReplyUseCaseData(message, *data)
+		return r.processReplyUseCaseData(message, data)
 
 	default:
 		return fmt.Errorf("nodemanagement.handleUseCaseData: NodeManagementUseCaseData CmdClassifierType not implemented: %s", message.CmdClassifier)

@@ -243,25 +243,24 @@ func (d *DeviceRemoteImpl) VerifyUseCaseScenariosAndFeaturesSupport(
 	scenarios []model.UseCaseScenarioSupportType,
 	serverFeatures []model.FeatureTypeType,
 ) bool {
-	remoteUseCaseManager := d.UseCaseManager()
+	entity := d.Entity(DeviceInformationAddressEntity)
 
-	usecases := remoteUseCaseManager.UseCaseInformation()
-	if len(usecases) == 0 {
+	nodemgmt := d.FeatureByEntityTypeAndRole(entity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
+
+	usecases := nodemgmt.Data(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+
+	if usecases == nil || len(usecases.UseCaseInformation) == 0 {
 		return false
 	}
 
 	usecaseAndScenariosFound := false
-	for _, usecase := range usecases {
+	for _, usecase := range usecases.UseCaseInformation {
 		if usecase.Actor == nil || *usecase.Actor != usecaseActor {
 			continue
 		}
 
 		for _, support := range usecase.UseCaseSupport {
 			if support.UseCaseName == nil || *support.UseCaseName != usecaseName {
-				continue
-			}
-
-			if support.UseCaseAvailable == nil || !*support.UseCaseAvailable {
 				continue
 			}
 

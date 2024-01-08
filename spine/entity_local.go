@@ -84,14 +84,67 @@ func (r *EntityLocalImpl) Feature(addressFeature *model.AddressFeatureType) Feat
 }
 
 func (r *EntityLocalImpl) Information() *model.NodeManagementDetailedDiscoveryEntityInformationType {
-	res := model.NodeManagementDetailedDiscoveryEntityInformationType{
+	res := &model.NodeManagementDetailedDiscoveryEntityInformationType{
 		Description: &model.NetworkManagementEntityDescriptionDataType{
 			EntityAddress: r.Address(),
 			EntityType:    &r.eType,
 		},
 	}
 
-	return &res
+	return res
+}
+
+// add a new usecase
+func (r *EntityLocalImpl) AddUseCaseSupport(
+	actor model.UseCaseActorType,
+	useCaseName model.UseCaseNameType,
+	useCaseVersion model.SpecificationVersionType,
+	useCaseDocumemtSubRevision string,
+	useCaseAvailable bool,
+	scenarios []model.UseCaseScenarioSupportType,
+) {
+	nodeMgmt := r.device.nodeManagement
+
+	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+
+	address := model.FeatureAddressType{
+		Device: r.address.Device,
+		Entity: r.address.Entity,
+	}
+
+	data.AddUseCaseSupport(address, actor, useCaseName, useCaseVersion, useCaseDocumemtSubRevision, useCaseAvailable, scenarios)
+
+	nodeMgmt.SetData(model.FunctionTypeNodeManagementUseCaseData, data)
+}
+
+// Remove a usecase with a given actor ans usecase name
+func (r *EntityLocalImpl) RemoveUseCaseSupport(
+	actor model.UseCaseActorType,
+	useCaseName model.UseCaseNameType,
+) {
+	nodeMgmt := r.device.nodeManagement
+
+	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+
+	if data == nil {
+		return
+	}
+
+	address := model.FeatureAddressType{
+		Device: r.address.Device,
+		Entity: r.address.Entity,
+	}
+
+	data.RemoveUseCaseSupport(address, actor, useCaseName)
+
+	nodeMgmt.SetData(model.FunctionTypeNodeManagementUseCaseData, data)
+}
+
+// Remove all usecases
+func (r *EntityLocalImpl) RemoveAllUseCaseSupports() {
+	r.RemoveUseCaseSupport("", "")
+}
+
 // Remove all subscriptions
 func (r *EntityLocalImpl) RemoveAllSubscriptions() {
 	for _, item := range r.features {
