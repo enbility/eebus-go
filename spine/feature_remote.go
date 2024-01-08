@@ -71,7 +71,7 @@ func (r *FeatureRemoteImpl) Sender() Sender {
 	return r.Device().Sender()
 }
 
-func (r *FeatureRemoteImpl) Device() *DeviceRemoteImpl {
+func (r *FeatureRemoteImpl) Device() DeviceRemote {
 	return r.entity.Device()
 }
 

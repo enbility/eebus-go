@@ -8,18 +8,18 @@ var _ EntityRemote = (*EntityRemoteImpl)(nil)
 
 type EntityRemoteImpl struct {
 	*EntityImpl
-	device   *DeviceRemoteImpl
+	device   DeviceRemote
 	features []FeatureRemote
 }
 
-func NewEntityRemoteImpl(device *DeviceRemoteImpl, eType model.EntityTypeType, entityAddress []model.AddressEntityType) *EntityRemoteImpl {
+func NewEntityRemoteImpl(device DeviceRemote, eType model.EntityTypeType, entityAddress []model.AddressEntityType) *EntityRemoteImpl {
 	return &EntityRemoteImpl{
 		EntityImpl: NewEntity(eType, device.Address(), entityAddress),
 		device:     device,
 	}
 }
 
-func (r *EntityRemoteImpl) Device() *DeviceRemoteImpl {
+func (r *EntityRemoteImpl) Device() DeviceRemote {
 	return r.device
 }
 

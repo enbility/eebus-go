@@ -17,8 +17,8 @@ func TestSubscriptionManagerSuite(t *testing.T) {
 type SubscriptionManagerSuite struct {
 	suite.Suite
 
-	localDevice  *DeviceLocalImpl
-	remoteDevice *DeviceRemoteImpl
+	localDevice  DeviceLocal
+	remoteDevice DeviceRemote
 	sut          SubscriptionManager
 }
 

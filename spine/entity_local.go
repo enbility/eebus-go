@@ -8,18 +8,18 @@ var _ EntityLocal = (*EntityLocalImpl)(nil)
 
 type EntityLocalImpl struct {
 	*EntityImpl
-	device   *DeviceLocalImpl
+	device   DeviceLocal
 	features []FeatureLocal
 }
 
-func NewEntityLocalImpl(device *DeviceLocalImpl, eType model.EntityTypeType, entityAddress []model.AddressEntityType) *EntityLocalImpl {
+func NewEntityLocalImpl(device DeviceLocal, eType model.EntityTypeType, entityAddress []model.AddressEntityType) *EntityLocalImpl {
 	return &EntityLocalImpl{
 		EntityImpl: NewEntity(eType, device.Address(), entityAddress),
 		device:     device,
 	}
 }
 
-func (r *EntityLocalImpl) Device() *DeviceLocalImpl {
+func (r *EntityLocalImpl) Device() DeviceLocal {
 	return r.device
 }
 
@@ -105,7 +105,7 @@ func (r *EntityLocalImpl) AddUseCaseSupport(
 	useCaseAvailable bool,
 	scenarios []model.UseCaseScenarioSupportType,
 ) {
-	nodeMgmt := r.device.nodeManagement
+	nodeMgmt := r.device.NodeManagement()
 
 	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 	if data == nil {
@@ -127,7 +127,7 @@ func (r *EntityLocalImpl) RemoveUseCaseSupport(
 	actor model.UseCaseActorType,
 	useCaseName model.UseCaseNameType,
 ) {
-	nodeMgmt := r.device.nodeManagement
+	nodeMgmt := r.device.NodeManagement()
 
 	data := nodeMgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
 	if data == nil {

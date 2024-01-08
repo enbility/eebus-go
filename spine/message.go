@@ -10,7 +10,7 @@ type Message struct {
 	FilterDelete  *model.FilterType
 	FeatureRemote FeatureRemote
 	EntityRemote  EntityRemote
-	DeviceRemote  *DeviceRemoteImpl
+	DeviceRemote  DeviceRemote
 }
 
 type ResultMessage struct {
@@ -19,5 +19,5 @@ type ResultMessage struct {
 	FeatureLocal        FeatureLocal          // required, may not be nil
 	FeatureRemote       FeatureRemote         // required, may not be nil
 	EntityRemote        EntityRemote          // required, may not be nil
-	DeviceRemote        *DeviceRemoteImpl     // required, may not be nil
+	DeviceRemote        DeviceRemote          // required, may not be nil
 }

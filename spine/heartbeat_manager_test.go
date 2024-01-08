@@ -17,8 +17,8 @@ func TestHeartbeatManagerSuite(t *testing.T) {
 type HeartBeatManagerSuite struct {
 	suite.Suite
 
-	localDevice  *DeviceLocalImpl
-	remoteDevice *DeviceRemoteImpl
+	localDevice  DeviceLocal
+	remoteDevice DeviceRemote
 	sut          HeartbeatManager
 }
 

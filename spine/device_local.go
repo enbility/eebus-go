@@ -12,6 +12,8 @@ import (
 	"github.com/enbility/eebus-go/util"
 )
 
+var _ DeviceLocal = (*DeviceLocalImpl)(nil)
+
 type DeviceLocalImpl struct {
 	*DeviceImpl
 	entities            []EntityLocal
@@ -20,7 +22,7 @@ type DeviceLocalImpl struct {
 	heartbeatManager    HeartbeatManager
 	nodeManagement      *NodeManagementImpl
 
-	remoteDevices map[string]*DeviceRemoteImpl
+	remoteDevices map[string]DeviceRemote
 
 	brandName    string
 	deviceModel  string
@@ -45,7 +47,7 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 
 	res := &DeviceLocalImpl{
 		DeviceImpl:    NewDeviceImpl(&address, &deviceType, fSet),
-		remoteDevices: make(map[string]*DeviceRemoteImpl),
+		remoteDevices: make(map[string]DeviceRemote),
 		brandName:     brandName,
 		deviceModel:   deviceModel,
 		serialNumber:  serialNumber,
@@ -78,7 +80,7 @@ func (r *DeviceLocalImpl) RemoveRemoteDeviceConnection(ski string) {
 }
 
 // Helper method used by tests and AddRemoteDevice
-func (r *DeviceLocalImpl) AddRemoteDeviceForSki(ski string, rDevice *DeviceRemoteImpl) {
+func (r *DeviceLocalImpl) AddRemoteDeviceForSki(ski string, rDevice DeviceRemote) {
 	r.mux.Lock()
 	r.remoteDevices[ski] = rDevice
 	r.mux.Unlock()
@@ -127,7 +129,7 @@ func (r *DeviceLocalImpl) HandleEvent(payload EventPayload) {
 		_, _ = r.nodeManagement.Subscribe(payload.Feature.Address())
 
 		// Request Use Case Data
-		_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.ski, payload.Device.Address(), payload.Device.Sender())
+		_, _ = r.nodeManagement.RequestUseCaseData(payload.Device.Ski(), payload.Device.Address(), payload.Device.Sender())
 	}
 }
 
@@ -158,11 +160,11 @@ func (r *DeviceLocalImpl) RemoveRemoteDevice(ski string) {
 	}
 }
 
-func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {
+func (r *DeviceLocalImpl) RemoteDevices() []DeviceRemote {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	res := make([]*DeviceRemoteImpl, 0)
+	res := make([]DeviceRemote, 0)
 	for _, rDevice := range r.remoteDevices {
 		res = append(res, rDevice)
 	}
@@ -170,12 +172,12 @@ func (r *DeviceLocalImpl) RemoteDevices() []*DeviceRemoteImpl {
 	return res
 }
 
-func (r *DeviceLocalImpl) RemoteDeviceForAddress(address model.AddressDeviceType) *DeviceRemoteImpl {
+func (r *DeviceLocalImpl) RemoteDeviceForAddress(address model.AddressDeviceType) DeviceRemote {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
 	for _, item := range r.remoteDevices {
-		if *item.address == address {
+		if *item.Address() == address {
 			return item
 		}
 	}
@@ -183,14 +185,14 @@ func (r *DeviceLocalImpl) RemoteDeviceForAddress(address model.AddressDeviceType
 	return nil
 }
 
-func (r *DeviceLocalImpl) RemoteDeviceForSki(ski string) *DeviceRemoteImpl {
+func (r *DeviceLocalImpl) RemoteDeviceForSki(ski string) DeviceRemote {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
 	return r.remoteDevices[ski]
 }
 
-func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice *DeviceRemoteImpl) error {
+func (r *DeviceLocalImpl) ProcessCmd(datagram model.DatagramType, remoteDevice DeviceRemote) error {
 	destAddr := datagram.Header.AddressDestination
 	localFeature := r.FeatureByAddress(destAddr)
 

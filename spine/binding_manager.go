@@ -19,7 +19,7 @@ type BindingEntry struct {
 }
 
 type BindingManagerImpl struct {
-	localDevice *DeviceLocalImpl
+	localDevice DeviceLocal
 
 	bindingNum     uint64
 	bindingEntries []*BindingEntry
@@ -28,7 +28,7 @@ type BindingManagerImpl struct {
 	// TODO: add persistence
 }
 
-func NewBindingManager(localDevice *DeviceLocalImpl) BindingManager {
+func NewBindingManager(localDevice DeviceLocal) *BindingManagerImpl {
 	c := &BindingManagerImpl{
 		bindingNum:  0,
 		localDevice: localDevice,
@@ -38,7 +38,7 @@ func NewBindingManager(localDevice *DeviceLocalImpl) BindingManager {
 }
 
 // is sent from the client (remote device) to the server (local device)
-func (c *BindingManagerImpl) AddBinding(remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error {
+func (c *BindingManagerImpl) AddBinding(remoteDevice DeviceRemote, data model.BindingManagementRequestCallType) error {
 
 	serverFeature := c.localDevice.FeatureByAddress(data.ServerAddress)
 	if serverFeature == nil {
@@ -74,7 +74,7 @@ func (c *BindingManagerImpl) AddBinding(remoteDevice *DeviceRemoteImpl, data mod
 	c.bindingEntries = append(c.bindingEntries, bindingEntry)
 
 	payload := EventPayload{
-		Ski:        remoteDevice.ski,
+		Ski:        remoteDevice.Ski(),
 		EventType:  EventTypeBindingChange,
 		ChangeType: ElementChangeAdd,
 		Data:       data,
@@ -85,7 +85,7 @@ func (c *BindingManagerImpl) AddBinding(remoteDevice *DeviceRemoteImpl, data mod
 	return nil
 }
 
-func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error {
+func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice DeviceRemote) error {
 	var newBindingEntries []*BindingEntry
 
 	// according to the spec 7.4.4
@@ -129,7 +129,7 @@ func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCal
 	c.bindingEntries = newBindingEntries
 
 	payload := EventPayload{
-		Ski:        remoteDevice.ski,
+		Ski:        remoteDevice.Ski(),
 		EventType:  EventTypeBindingChange,
 		ChangeType: ElementChangeRemove,
 		Data:       data,
@@ -142,7 +142,7 @@ func (c *BindingManagerImpl) RemoveBinding(data model.BindingManagementDeleteCal
 }
 
 // Remove all existing bindings for a given remote device
-func (c *BindingManagerImpl) RemoveBindingsForDevice(remoteDevice *DeviceRemoteImpl) {
+func (c *BindingManagerImpl) RemoveBindingsForDevice(remoteDevice DeviceRemote) {
 	if remoteDevice == nil {
 		return
 	}
@@ -170,7 +170,7 @@ func (c *BindingManagerImpl) RemoveBindingsForEntity(remoteEntity EntityRemote) 
 
 		clientFeature := remoteEntity.Feature(item.clientFeature.Address().Feature)
 		payload := EventPayload{
-			Ski:        remoteEntity.Device().ski,
+			Ski:        remoteEntity.Device().Ski(),
 			EventType:  EventTypeBindingChange,
 			ChangeType: ElementChangeRemove,
 			Entity:     remoteEntity,
@@ -182,7 +182,7 @@ func (c *BindingManagerImpl) RemoveBindingsForEntity(remoteEntity EntityRemote) 
 	c.bindingEntries = newBindingEntries
 }
 
-func (c *BindingManagerImpl) Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry {
+func (c *BindingManagerImpl) Bindings(remoteDevice DeviceRemote) []*BindingEntry {
 	var result []*BindingEntry
 
 	c.mux.Lock()

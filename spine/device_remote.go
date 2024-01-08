@@ -11,6 +11,8 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 )
 
+var _ DeviceRemote = (*DeviceRemoteImpl)(nil)
+
 type DeviceRemoteImpl struct {
 	*DeviceImpl
 
@@ -21,12 +23,12 @@ type DeviceRemoteImpl struct {
 
 	sender Sender
 
-	localDevice *DeviceLocalImpl
+	localDevice DeviceLocal
 }
 
 var _ SpineDataProcessing = (*DeviceRemoteImpl)(nil)
 
-func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, sender Sender) *DeviceRemoteImpl {
+func NewDeviceRemoteImpl(localDevice DeviceLocal, ski string, sender Sender) *DeviceRemoteImpl {
 	res := DeviceRemoteImpl{
 		DeviceImpl:  NewDeviceImpl(nil, nil, nil),
 		ski:         ski,
@@ -41,6 +43,10 @@ func NewDeviceRemoteImpl(localDevice *DeviceLocalImpl, ski string, sender Sender
 // return the device SKI
 func (d *DeviceRemoteImpl) Ski() string {
 	return d.ski
+}
+
+func (d *DeviceRemoteImpl) SetAddress(address *model.AddressDeviceType) {
+	d.address = address
 }
 
 // // this connection is closed
@@ -322,7 +328,7 @@ func (d *DeviceRemoteImpl) VerifyUseCaseScenariosAndFeaturesSupport(
 func unmarshalFeature(entity EntityRemote,
 	featureData model.NodeManagementDetailedDiscoveryFeatureInformationType,
 ) (FeatureRemote, bool) {
-	var result *FeatureRemoteImpl
+	var result FeatureRemote
 
 	fid := featureData.Description
 

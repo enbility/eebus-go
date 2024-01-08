@@ -12,6 +12,60 @@ type EventHandler interface {
 
 /* Device */
 
+type Device interface {
+	Address() *model.AddressDeviceType
+	DeviceType() *model.DeviceTypeType
+	FeatureSet() *model.NetworkManagementFeatureSetType
+	DestinationData() model.NodeManagementDestinationDataType
+}
+
+type DeviceLocal interface {
+	Device
+	RemoveRemoteDeviceConnection(ski string)
+	AddRemoteDeviceForSki(ski string, rDevice DeviceRemote)
+	AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing
+	RemoveRemoteDevice(ski string)
+	RemoteDevices() []DeviceRemote
+	RemoteDeviceForAddress(address model.AddressDeviceType) DeviceRemote
+	RemoteDeviceForSki(ski string) DeviceRemote
+	ProcessCmd(datagram model.DatagramType, remoteDevice DeviceRemote) error
+	NodeManagement() *NodeManagementImpl
+	SubscriptionManager() SubscriptionManager
+	BindingManager() BindingManager
+	HeartbeatManager() HeartbeatManager
+	AddEntity(entity EntityLocal)
+	RemoveEntity(entity EntityLocal)
+	Entities() []EntityLocal
+	Entity(id []model.AddressEntityType) EntityLocal
+	EntityForType(entityType model.EntityTypeType) EntityLocal
+	FeatureByAddress(address *model.FeatureAddressType) FeatureLocal
+	NotifySubscribers(featureAddress *model.FeatureAddressType, cmd model.CmdType)
+	Information() *model.NodeManagementDetailedDiscoveryDeviceInformationType
+}
+
+type DeviceRemote interface {
+	Device
+	Ski() string
+	SetAddress(address *model.AddressDeviceType)
+	HandleIncomingSpineMesssage(message []byte) (*model.MsgCounterType, error)
+	Sender() Sender
+	Entity(id []model.AddressEntityType) EntityRemote
+	Entities() []EntityRemote
+	FeatureByAddress(address *model.FeatureAddressType) FeatureRemote
+	RemoveByAddress(addr []model.AddressEntityType) EntityRemote
+	FeatureByEntityTypeAndRole(entity EntityRemote, featureType model.FeatureTypeType, role model.RoleType) FeatureRemote
+	UpdateDevice(description *model.NetworkManagementDeviceDescriptionDataType)
+	AddEntityAndFeatures(initialData bool, data *model.NodeManagementDetailedDiscoveryDataType) ([]EntityRemote, error)
+	AddEntity(entity EntityRemote) EntityRemote
+	VerifyUseCaseScenariosAndFeaturesSupport(
+		usecaseActor model.UseCaseActorType,
+		usecaseName model.UseCaseNameType,
+		scenarios []model.UseCaseScenarioSupportType,
+		serverFeatures []model.FeatureTypeType,
+	) bool
+	CheckEntityInformation(initialData bool, entity model.NodeManagementDetailedDiscoveryEntityInformationType) error
+}
+
 // implemented by spine.DeviceLocalImpl and used by shipConnection
 type DeviceLocalConnection interface {
 	RemoveRemoteDeviceConnection(ski string)
@@ -30,7 +84,7 @@ type Entity interface {
 
 type EntityLocal interface {
 	Entity
-	Device() *DeviceLocalImpl
+	Device() DeviceLocal
 	AddFeature(f FeatureLocal)
 	GetOrAddFeature(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal
 	FeatureOfTypeAndRole(featureType model.FeatureTypeType, role model.RoleType) FeatureLocal
@@ -56,7 +110,7 @@ type EntityLocal interface {
 
 type EntityRemote interface {
 	Entity
-	Device() *DeviceRemoteImpl
+	Device() DeviceRemote
 	AddFeature(f FeatureRemote)
 	Features() []FeatureRemote
 	Feature(addressFeature *model.AddressFeatureType) FeatureRemote
@@ -77,8 +131,9 @@ type FeatureRemote interface {
 	DataCopy(function model.FunctionType) any
 	SetData(function model.FunctionType, data any)
 	UpdateData(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType)
+	SetDescription(desc *model.DescriptionType)
 	Sender() Sender
-	Device() *DeviceRemoteImpl
+	Device() DeviceRemote
 	Entity() EntityRemote
 	SetOperations(functions []model.FunctionPropertyType)
 	SetMaxResponseDelay(delay *model.MaxResponseDelayType)
@@ -113,11 +168,11 @@ type FeatureLocal interface {
 		elements any,
 		destination FeatureRemote) (any, *model.ErrorType)
 	Subscribe(remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
-	// SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
+	// SubscribeAndWait(remoteDevice DeviceRemote, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
 	RemoveSubscription(remoteAddress *model.FeatureAddressType)
 	RemoveAllSubscriptions()
 	Bind(remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
-	// BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType
+	// BindAndWait(remoteDevice DeviceRemote, remoteAddress *model.FeatureAddressType) *ErrorType
 	RemoveBinding(remoteAddress *model.FeatureAddressType)
 	RemoveAllBindings()
 	NotifyData(
@@ -202,22 +257,22 @@ type PendingRequests interface {
 
 // implemented by spine.BindingManagerImpl
 type BindingManager interface {
-	AddBinding(remoteDevice *DeviceRemoteImpl, data model.BindingManagementRequestCallType) error
-	RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
-	RemoveBindingsForDevice(remoteDevice *DeviceRemoteImpl)
+	AddBinding(remoteDevice DeviceRemote, data model.BindingManagementRequestCallType) error
+	RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice DeviceRemote) error
+	RemoveBindingsForDevice(remoteDevice DeviceRemote)
 	RemoveBindingsForEntity(remoteEntity EntityRemote)
-	Bindings(remoteDevice *DeviceRemoteImpl) []*BindingEntry
+	Bindings(remoteDevice DeviceRemote) []*BindingEntry
 	BindingsOnFeature(featureAddress model.FeatureAddressType) []*BindingEntry
 }
 
 /* Subscription Manager */
 
 type SubscriptionManager interface {
-	AddSubscription(remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error
-	RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error
-	RemoveSubscriptionsForDevice(remoteDevice *DeviceRemoteImpl)
+	AddSubscription(remoteDevice DeviceRemote, data model.SubscriptionManagementRequestCallType) error
+	RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice DeviceRemote) error
+	RemoveSubscriptionsForDevice(remoteDevice DeviceRemote)
 	RemoveSubscriptionsForEntity(remoteEntity EntityRemote)
-	Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry
+	Subscriptions(remoteDevice DeviceRemote) []*SubscriptionEntry
 	SubscriptionsOnFeature(featureAddress model.FeatureAddressType) []*SubscriptionEntry
 }
 

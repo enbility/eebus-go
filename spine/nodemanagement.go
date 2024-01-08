@@ -46,7 +46,7 @@ func NewNodeManagementImpl(id uint, entity EntityLocal) *NodeManagementImpl {
 	return f
 }
 
-func (r *NodeManagementImpl) Device() *DeviceLocalImpl {
+func (r *NodeManagementImpl) Device() DeviceLocal {
 	return r.entity.Device()
 }
 
@@ -54,7 +54,7 @@ func (r *NodeManagementImpl) HandleMessage(message *Message) *model.ErrorType {
 	switch {
 	case message.Cmd.ResultData != nil:
 		if err := r.processResult(message); err != nil {
-			_ = r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference)
+			_ = r.pendingRequests.Remove(message.DeviceRemote.Ski(), *message.RequestHeader.MsgCounterReference)
 			return err
 		}
 

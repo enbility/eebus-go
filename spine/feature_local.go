@@ -49,7 +49,7 @@ func NewFeatureLocalImpl(id uint, entity EntityLocal, ftype model.FeatureTypeTyp
 	return res
 }
 
-func (r *FeatureLocalImpl) Device() *DeviceLocalImpl {
+func (r *FeatureLocalImpl) Device() DeviceLocal {
 	return r.entity.Device()
 }
 
@@ -144,7 +144,7 @@ func (r *FeatureLocalImpl) RequestData(
 	fd := r.functionData(function)
 	cmd := fd.ReadCmdType(selector, elements)
 
-	return r.RequestDataBySenderAddress(cmd, destination.Sender(), destination.Device().ski, destination.Address(), destination.MaxResponseDelayDuration())
+	return r.RequestDataBySenderAddress(cmd, destination.Sender(), destination.Device().Ski(), destination.Address(), destination.MaxResponseDelayDuration())
 }
 
 func (r *FeatureLocalImpl) RequestDataBySenderAddress(
@@ -169,7 +169,7 @@ func (r *FeatureLocalImpl) FetchRequestData(
 	msgCounter model.MsgCounterType,
 	destination FeatureRemote) (any, *model.ErrorType) {
 
-	return r.pendingRequests.GetData(destination.Device().ski, msgCounter)
+	return r.pendingRequests.GetData(destination.Device().Ski(), msgCounter)
 }
 
 // Send a data request for function to destination and return the response
@@ -251,7 +251,7 @@ func (r *FeatureLocalImpl) RemoveAllSubscriptions() {
 /*
 TODO: check if this function is needed and can be fixed, see https://github.com/enbility/eebus-go/issues/31
 // Subscribe to a remote feature and wait for the result
-func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice *DeviceRemoteImpl, remoteAdress *model.FeatureAddressType) *ErrorType {
+func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice DeviceRemote, remoteAdress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {
 		return NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
 	}
@@ -336,7 +336,7 @@ func (r *FeatureLocalImpl) RemoveAllBindings() {
 /*
 TODO: check if this function is needed and can be fixed, see https://github.com/enbility/eebus-go/issues/31
 // Bind to a remote feature and wait for the result
-func (r *FeatureLocalImpl) BindAndWait(remoteDevice *DeviceRemoteImpl, remoteAddress *model.FeatureAddressType) *ErrorType {
+func (r *FeatureLocalImpl) BindAndWait(remoteDevice DeviceRemote, remoteAddress *model.FeatureAddressType) *ErrorType {
 	if r.Role() == model.RoleTypeServer {
 		return NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
 	}
@@ -441,7 +441,7 @@ func (r *FeatureLocalImpl) processResult(message *Message) *model.ErrorType {
 		}
 
 		// we don't need to populate this error as requests don't require a pendingRequest entry
-		_ = r.pendingRequests.SetResult(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference, model.NewErrorTypeFromResult(message.Cmd.ResultData))
+		_ = r.pendingRequests.SetResult(message.DeviceRemote.Ski(), *message.RequestHeader.MsgCounterReference, model.NewErrorTypeFromResult(message.Cmd.ResultData))
 
 		if message.RequestHeader.MsgCounterReference == nil {
 			return nil
@@ -490,13 +490,13 @@ func (r *FeatureLocalImpl) processRead(function model.FunctionType, requestHeade
 
 func (r *FeatureLocalImpl) processReply(function model.FunctionType, data any, filterPartial *model.FilterType, filterDelete *model.FilterType, requestHeader *model.HeaderType, featureRemote FeatureRemote) *model.ErrorType {
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
-	_ = r.pendingRequests.SetData(featureRemote.Device().ski, *requestHeader.MsgCounterReference, data)
+	_ = r.pendingRequests.SetData(featureRemote.Device().Ski(), *requestHeader.MsgCounterReference, data)
 	// an error in SetData only means that there is no pendingRequest waiting for this dataset
 	// so this is nothing to consider as an error to return
 
 	// the data was updated, so send an event, other event handlers may watch out for this as well
 	payload := EventPayload{
-		Ski:           featureRemote.Device().ski,
+		Ski:           featureRemote.Device().Ski(),
 		EventType:     EventTypeDataChange,
 		ChangeType:    ElementChangeUpdate,
 		Feature:       featureRemote,
@@ -514,7 +514,7 @@ func (r *FeatureLocalImpl) processNotify(function model.FunctionType, data any, 
 	featureRemote.UpdateData(function, data, filterPartial, filterDelete)
 
 	payload := EventPayload{
-		Ski:           featureRemote.Device().ski,
+		Ski:           featureRemote.Device().Ski(),
 		EventType:     EventTypeDataChange,
 		ChangeType:    ElementChangeUpdate,
 		Feature:       featureRemote,

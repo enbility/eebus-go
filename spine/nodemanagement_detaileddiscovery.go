@@ -17,7 +17,7 @@ func (r *NodeManagementImpl) RequestDetailedDiscovery(remoteDeviceSki string, re
 }
 
 // handle incoming detailed discovery read call
-func (r *NodeManagementImpl) processReadDetailedDiscoveryData(deviceRemote *DeviceRemoteImpl, requestHeader *model.HeaderType) error {
+func (r *NodeManagementImpl) processReadDetailedDiscoveryData(deviceRemote DeviceRemote, requestHeader *model.HeaderType) error {
 	if deviceRemote == nil {
 		return errors.New("nodemanagement.readDetailedDiscoveryData: invalid deviceRemote")
 	}
@@ -64,7 +64,7 @@ func (r *NodeManagementImpl) processReplyDetailedDiscoveryData(message *Message,
 
 	// publish event for remote device added
 	payload := EventPayload{
-		Ski:        remoteDevice.ski,
+		Ski:        remoteDevice.Ski(),
 		EventType:  EventTypeDeviceChange,
 		ChangeType: ElementChangeAdd,
 		Device:     remoteDevice,
@@ -76,7 +76,7 @@ func (r *NodeManagementImpl) processReplyDetailedDiscoveryData(message *Message,
 	// publish event for each added remote entity
 	for _, entity := range entities {
 		payload := EventPayload{
-			Ski:        remoteDevice.ski,
+			Ski:        remoteDevice.Ski(),
 			EventType:  EventTypeEntityChange,
 			ChangeType: ElementChangeAdd,
 			Device:     remoteDevice,
@@ -142,7 +142,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 		// publish event for each added remote entity
 		for _, entity := range entities {
 			payload := EventPayload{
-				Ski:        remoteDevice.ski,
+				Ski:        remoteDevice.Ski(),
 				EventType:  EventTypeEntityChange,
 				ChangeType: ElementChangeAdd,
 				Device:     remoteDevice,
@@ -184,7 +184,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 			}
 
 			payload := EventPayload{
-				Ski:        remoteDevice.ski,
+				Ski:        remoteDevice.Ski(),
 				EventType:  EventTypeEntityChange,
 				ChangeType: ElementChangeRemove,
 				Device:     remoteDevice,
@@ -251,7 +251,7 @@ func (r *NodeManagementImpl) handleMsgDetailedDiscoveryData(message *Message, da
 		return r.processReadDetailedDiscoveryData(message.DeviceRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
-		if err := r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference); err != nil {
+		if err := r.pendingRequests.Remove(message.DeviceRemote.Ski(), *message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
 		return r.processReplyDetailedDiscoveryData(message, data)

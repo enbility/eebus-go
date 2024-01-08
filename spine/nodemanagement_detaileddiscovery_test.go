@@ -27,7 +27,7 @@ func TestNodeManagementSuite(t *testing.T) {
 
 type NodeManagementSuite struct {
 	suite.Suite
-	sut *DeviceLocalImpl
+	sut DeviceLocal
 
 	remoteSki string
 

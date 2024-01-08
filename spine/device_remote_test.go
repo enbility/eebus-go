@@ -21,8 +21,8 @@ func TestDeviceRemoteSuite(t *testing.T) {
 type DeviceRemoteSuite struct {
 	suite.Suite
 
-	localDevice  *DeviceLocalImpl
-	remoteDevice *DeviceRemoteImpl
+	localDevice  DeviceLocal
+	remoteDevice DeviceRemote
 	remoteEntity EntityRemote
 }
 
@@ -36,7 +36,7 @@ func (s *DeviceRemoteSuite) BeforeTest(suiteName, testName string) {
 	ski := "test"
 	sender := NewSender(s)
 	s.remoteDevice = NewDeviceRemoteImpl(s.localDevice, ski, sender)
-	s.remoteDevice.address = util.Ptr(model.AddressDeviceType("test"))
+	s.remoteDevice.SetAddress(util.Ptr(model.AddressDeviceType("test")))
 	s.localDevice.AddRemoteDevice(ski, s)
 
 	s.remoteEntity = NewEntityRemoteImpl(s.remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{1})

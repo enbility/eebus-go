@@ -19,7 +19,7 @@ type SubscriptionEntry struct {
 }
 
 type SubscriptionManagerImpl struct {
-	localDevice *DeviceLocalImpl
+	localDevice DeviceLocal
 
 	subscriptionNum     uint64
 	subscriptionEntries []*SubscriptionEntry
@@ -28,7 +28,7 @@ type SubscriptionManagerImpl struct {
 	// TODO: add persistence
 }
 
-func NewSubscriptionManager(localDevice *DeviceLocalImpl) SubscriptionManager {
+func NewSubscriptionManager(localDevice DeviceLocal) *SubscriptionManagerImpl {
 	c := &SubscriptionManagerImpl{
 		subscriptionNum: 0,
 		localDevice:     localDevice,
@@ -38,7 +38,7 @@ func NewSubscriptionManager(localDevice *DeviceLocalImpl) SubscriptionManager {
 }
 
 // is sent from the client (remote device) to the server (local device)
-func (c *SubscriptionManagerImpl) AddSubscription(remoteDevice *DeviceRemoteImpl, data model.SubscriptionManagementRequestCallType) error {
+func (c *SubscriptionManagerImpl) AddSubscription(remoteDevice DeviceRemote, data model.SubscriptionManagementRequestCallType) error {
 
 	serverFeature := c.localDevice.FeatureByAddress(data.ServerAddress)
 	if serverFeature == nil {
@@ -74,7 +74,7 @@ func (c *SubscriptionManagerImpl) AddSubscription(remoteDevice *DeviceRemoteImpl
 	c.subscriptionEntries = append(c.subscriptionEntries, subscriptionEntry)
 
 	payload := EventPayload{
-		Ski:        remoteDevice.ski,
+		Ski:        remoteDevice.Ski(),
 		EventType:  EventTypeSubscriptionChange,
 		ChangeType: ElementChangeAdd,
 		Data:       data,
@@ -86,7 +86,7 @@ func (c *SubscriptionManagerImpl) AddSubscription(remoteDevice *DeviceRemoteImpl
 }
 
 // Remove a specific subscription that is provided by a delete message from a remote device
-func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice *DeviceRemoteImpl) error {
+func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionManagementDeleteCallType, remoteDevice DeviceRemote) error {
 	var newSubscriptionEntries []*SubscriptionEntry
 
 	// according to the spec 7.4.4
@@ -130,7 +130,7 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 	c.subscriptionEntries = newSubscriptionEntries
 
 	payload := EventPayload{
-		Ski:        remoteDevice.ski,
+		Ski:        remoteDevice.Ski(),
 		EventType:  EventTypeSubscriptionChange,
 		ChangeType: ElementChangeRemove,
 		Data:       data,
@@ -143,7 +143,7 @@ func (c *SubscriptionManagerImpl) RemoveSubscription(data model.SubscriptionMana
 }
 
 // Remove all existing subscriptions for a given remote device
-func (c *SubscriptionManagerImpl) RemoveSubscriptionsForDevice(remoteDevice *DeviceRemoteImpl) {
+func (c *SubscriptionManagerImpl) RemoveSubscriptionsForDevice(remoteDevice DeviceRemote) {
 	if remoteDevice == nil {
 		return
 	}
@@ -171,7 +171,7 @@ func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity Enti
 
 		clientFeature := remoteEntity.Feature(item.clientFeature.Address().Feature)
 		payload := EventPayload{
-			Ski:        remoteEntity.Device().ski,
+			Ski:        remoteEntity.Device().Ski(),
 			EventType:  EventTypeSubscriptionChange,
 			ChangeType: ElementChangeRemove,
 			Entity:     remoteEntity,
@@ -183,7 +183,7 @@ func (c *SubscriptionManagerImpl) RemoveSubscriptionsForEntity(remoteEntity Enti
 	c.subscriptionEntries = newSubscriptionEntries
 }
 
-func (c *SubscriptionManagerImpl) Subscriptions(remoteDevice *DeviceRemoteImpl) []*SubscriptionEntry {
+func (c *SubscriptionManagerImpl) Subscriptions(remoteDevice DeviceRemote) []*SubscriptionEntry {
 	var result []*SubscriptionEntry
 
 	c.mux.Lock()

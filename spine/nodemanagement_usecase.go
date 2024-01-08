@@ -16,8 +16,8 @@ func (r *NodeManagementImpl) RequestUseCaseData(remoteDeviceSki string, remoteDe
 	return r.RequestDataBySenderAddress(cmd, sender, remoteDeviceSki, rfAdress, defaultMaxResponseDelay)
 }
 
-func (r *NodeManagementImpl) NotifyUseCaseData(remoteDevice *DeviceRemoteImpl) (*model.MsgCounterType, error) {
-	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDevice.address, DeviceInformationAddressEntity))
+func (r *NodeManagementImpl) NotifyUseCaseData(remoteDevice DeviceRemote) (*model.MsgCounterType, error) {
+	rfAdress := featureAddressType(NodeManagementFeatureId, EntityAddressType(remoteDevice.Address(), DeviceInformationAddressEntity))
 	rEntity := remoteDevice.Entity([]model.AddressEntityType{model.AddressEntityType(DeviceInformationEntityId)})
 
 	featureRemote := remoteDevice.FeatureByEntityTypeAndRole(rEntity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
@@ -39,7 +39,7 @@ func (r *NodeManagementImpl) processReplyUseCaseData(message *Message, data *mod
 
 	// the data was updated, so send an event, other event handlers may watch out for this as well
 	payload := EventPayload{
-		Ski:           message.FeatureRemote.Device().ski,
+		Ski:           message.FeatureRemote.Device().Ski(),
 		EventType:     EventTypeDataChange,
 		ChangeType:    ElementChangeUpdate,
 		Feature:       message.FeatureRemote,
@@ -59,7 +59,7 @@ func (r *NodeManagementImpl) handleMsgUseCaseData(message *Message, data *model.
 		return r.processReadUseCaseData(message.FeatureRemote, message.RequestHeader)
 
 	case model.CmdClassifierTypeReply:
-		if err := r.pendingRequests.Remove(message.DeviceRemote.ski, *message.RequestHeader.MsgCounterReference); err != nil {
+		if err := r.pendingRequests.Remove(message.DeviceRemote.Ski(), *message.RequestHeader.MsgCounterReference); err != nil {
 			return errors.New(err.String())
 		}
 		return r.processReplyUseCaseData(message, data)

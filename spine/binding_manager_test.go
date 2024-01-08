@@ -17,8 +17,8 @@ func TestBindingManagerSuite(t *testing.T) {
 type BindingManagerSuite struct {
 	suite.Suite
 
-	localDevice  *DeviceLocalImpl
-	remoteDevice *DeviceRemoteImpl
+	localDevice  DeviceLocal
+	remoteDevice DeviceRemote
 	sut          BindingManager
 }
 

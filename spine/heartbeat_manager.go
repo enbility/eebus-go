@@ -10,7 +10,7 @@ import (
 )
 
 type HeartbeatManagerImpl struct {
-	localDevice  *DeviceLocalImpl
+	localDevice  DeviceLocal
 	localEntity  *EntityLocalImpl
 	localFeature FeatureLocal
 
@@ -23,7 +23,7 @@ type HeartbeatManagerImpl struct {
 }
 
 // Create a new Heartbeat Manager which handles sending of heartbeats
-func NewHeartbeatManager(localDevice *DeviceLocalImpl, subscriptionManager SubscriptionManager, timeout time.Duration) HeartbeatManager {
+func NewHeartbeatManager(localDevice DeviceLocal, subscriptionManager SubscriptionManager, timeout time.Duration) HeartbeatManager {
 	h := &HeartbeatManagerImpl{
 		localDevice:         localDevice,
 		subscriptionManager: subscriptionManager,

@@ -18,13 +18,13 @@ type FeatureImpl struct {
 	localRole  model.RoleType
 	remoteRole model.RoleType
 
-	spineLocalDevice *spine.DeviceLocalImpl
+	spineLocalDevice spine.DeviceLocal
 	localEntity      spine.EntityLocal
 
 	featureLocal  spine.FeatureLocal
 	featureRemote spine.FeatureRemote
 
-	remoteDevice *spine.DeviceRemoteImpl
+	remoteDevice spine.DeviceRemote
 	remoteEntity spine.EntityRemote
 }
 
