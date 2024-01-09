@@ -81,9 +81,12 @@ func (s *DeviceRemoteSuite) Test_FeatureByEntityTypeAndRole() {
 }
 
 func (s *DeviceRemoteSuite) Test_Usecases() {
+	uc := s.remoteDevice.UseCases()
+	assert.Nil(s.T(), uc)
+
 	_, _ = s.remoteDevice.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_usecaseinformationlistdata_recv_reply_file_path))
 
-	uc := s.remoteDevice.UseCases()
+	uc = s.remoteDevice.UseCases()
 	assert.NotNil(s.T(), uc)
 }
 

@@ -247,8 +247,11 @@ func (d *DeviceRemoteImpl) UseCases() []model.UseCaseInformationDataType {
 	nodemgmt := d.FeatureByEntityTypeAndRole(entity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
 
 	data := nodemgmt.DataCopy(model.FunctionTypeNodeManagementUseCaseData).(*model.NodeManagementUseCaseDataType)
+	if data != nil {
+		return data.UseCaseInformation
+	}
 
-	return data.UseCaseInformation
+	return nil
 }
 
 // Checks if the given actor, usecasename and provided server features are available
