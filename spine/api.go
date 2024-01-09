@@ -166,11 +166,6 @@ type FeatureLocal interface {
 	FetchRequestData(
 		msgCounter model.MsgCounterType,
 		destination FeatureRemote) (any, *model.ErrorType)
-	RequestAndFetchData(
-		function model.FunctionType,
-		selector any,
-		elements any,
-		destination FeatureRemote) (any, *model.ErrorType)
 	Subscribe(remoteAdress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType)
 	// SubscribeAndWait(remoteDevice DeviceRemote, remoteAdress *model.FeatureAddressType) *ErrorType // Subscribes the local feature to the given destination feature; the go routine will block until the response is processed
 	RemoveSubscription(remoteAddress *model.FeatureAddressType)

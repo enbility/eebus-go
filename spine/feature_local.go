@@ -172,22 +172,6 @@ func (r *FeatureLocalImpl) FetchRequestData(
 	return r.pendingRequests.GetData(destination.Device().Ski(), msgCounter)
 }
 
-// Send a data request for function to destination and return the response
-// this will block until the response is received
-func (r *FeatureLocalImpl) RequestAndFetchData(
-	function model.FunctionType,
-	selector any,
-	elements any,
-	destination FeatureRemote) (any, *model.ErrorType) {
-
-	msgCounter, err := r.RequestData(function, selector, elements, destination)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.FetchRequestData(*msgCounter, destination)
-}
-
 // Subscribe to a remote feature
 func (r *FeatureLocalImpl) Subscribe(remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
 	if remoteAddress.Device == nil {
@@ -248,34 +232,6 @@ func (r *FeatureLocalImpl) RemoveAllSubscriptions() {
 	}
 }
 
-/*
-TODO: check if this function is needed and can be fixed, see https://github.com/enbility/eebus-go/issues/31
-// Subscribe to a remote feature and wait for the result
-func (r *FeatureLocalImpl) SubscribeAndWait(remoteDevice DeviceRemote, remoteAdress *model.FeatureAddressType) *ErrorType {
-	if r.Role() == model.RoleTypeServer {
-		return NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
-	}
-
-	msgCounter, err := remoteDevice.Sender().Subscribe(r.Address(), remoteAdress, r.ftype)
-	if err != nil {
-		return NewErrorTypeFromString(err.Error())
-	}
-
-	maxDelay := defaultMaxResponseDelay
-	rf := remoteDevice.FeatureByAddress(NodeManagementAddress(remoteDevice.Address()))
-	if rf != nil {
-		maxDelay = rf.MaxResponseDelayDuration()
-	}
-
-	r.pendingRequests.Add(*msgCounter, maxDelay)
-	// this will block the go routine until the response is procedded
-	_, result := r.pendingRequests.GetData(*msgCounter)
-	// TODO: activate polling when subscription failed
-
-	return result
-}
-*/
-
 // Bind to a remote feature
 func (r *FeatureLocalImpl) Bind(remoteAddress *model.FeatureAddressType) (*model.MsgCounterType, *model.ErrorType) {
 	remoteDevice := r.entity.Device().RemoteDeviceForAddress(*remoteAddress.Device)
@@ -332,34 +288,6 @@ func (r *FeatureLocalImpl) RemoveAllBindings() {
 		r.RemoveBinding(item)
 	}
 }
-
-/*
-TODO: check if this function is needed and can be fixed, see https://github.com/enbility/eebus-go/issues/31
-// Bind to a remote feature and wait for the result
-func (r *FeatureLocalImpl) BindAndWait(remoteDevice DeviceRemote, remoteAddress *model.FeatureAddressType) *ErrorType {
-	if r.Role() == model.RoleTypeServer {
-		return NewErrorTypeFromString(fmt.Sprintf("the server feature '%s' cannot request a subscription", r))
-	}
-
-	msgCounter, err := remoteDevice.Sender().Bind(r.Address(), remoteAddress, r.ftype)
-	if err != nil {
-		return NewErrorTypeFromString(err.Error())
-	}
-
-	maxDelay := defaultMaxResponseDelay
-	rf := remoteDevice.FeatureByAddress(remoteAddress)
-	if rf != nil {
-		maxDelay = rf.MaxResponseDelayDuration()
-	}
-
-	r.pendingRequests.Add(*msgCounter, maxDelay)
-	// this will block the go routine until the response is procedded
-	_, result := r.pendingRequests.GetData(*msgCounter)
-	// TODO: activate polling when binding failed
-
-	return result
-}
-*/
 
 // Send a notification message with the current data of function to the destination
 func (r *FeatureLocalImpl) NotifyData(
