@@ -9,7 +9,7 @@ func (d *DatagramType) PrintMessageOverview(send bool, localFeature, remoteFeatu
 
 	transmission := "Send"
 	device := ""
-	if d.Header.AddressDestination.Device != nil {
+	if d.Header.AddressDestination != nil && d.Header.AddressDestination.Device != nil {
 		device = string(*d.Header.AddressDestination.Device)
 	}
 	if !send {
