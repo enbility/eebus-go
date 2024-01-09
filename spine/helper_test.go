@@ -6,8 +6,10 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/util"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"
@@ -162,4 +164,32 @@ func waitForAck(t *testing.T, msgCounterReference *model.MsgCounterType, writeHa
 			t.Fatal(fmt.Errorf("error '%d' result data received", uint(*cmd.ResultData.ErrorNumber)))
 		}
 	}
+}
+
+func createLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType) (FeatureLocal, FeatureLocal) {
+	localDevice := NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	localDevice.address = util.Ptr(model.AddressDeviceType("Address"))
+	localEntity := NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
+	localDevice.AddEntity(localEntity)
+	localFeature := NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, model.RoleTypeClient)
+	localEntity.AddFeature(localFeature)
+	localServerFeature := NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, model.RoleTypeServer)
+	localEntity.AddFeature(localServerFeature)
+
+	return localFeature, localServerFeature
+}
+
+func createRemoteDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, sender Sender) (FeatureRemote, FeatureRemote) {
+	localDevice := NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+
+	remoteDevice := NewDeviceRemoteImpl(localDevice, "ski", sender)
+	remoteDevice.address = util.Ptr(model.AddressDeviceType("Address"))
+	remoteEntity := NewEntityRemoteImpl(remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
+	remoteDevice.AddEntity(remoteEntity)
+	remoteFeature := NewFeatureRemoteImpl(remoteEntity.NextFeatureId(), remoteEntity, featureType, model.RoleTypeClient)
+	remoteEntity.AddFeature(remoteFeature)
+	remoteServerFeature := NewFeatureRemoteImpl(remoteEntity.NextFeatureId(), remoteEntity, featureType, model.RoleTypeServer)
+	remoteEntity.AddFeature(remoteServerFeature)
+
+	return remoteFeature, remoteServerFeature
 }

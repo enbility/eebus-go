@@ -16,8 +16,8 @@ func TestNodemanagement_BindingCalls(t *testing.T) {
 
 	senderMock := mocks.NewSender(t)
 
-	serverFeature := createLocalDeviceAndFeature(bindingEntityId, featureType, model.RoleTypeServer)
-	clientFeature := createRemoteDeviceAndFeature(bindingEntityId, featureType, model.RoleTypeClient, senderMock)
+	_, serverFeature := createLocalDeviceAndFeature(bindingEntityId, featureType)
+	clientFeature, _ := createRemoteDeviceAndFeature(bindingEntityId, featureType, senderMock)
 
 	senderMock.On("Reply", mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		cmd := args.Get(2).(model.CmdType)
@@ -88,8 +88,8 @@ func TestNodemanagement_SubscriptionCalls(t *testing.T) {
 
 	senderMock := mocks.NewSender(t)
 
-	serverFeature := createLocalDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeServer)
-	clientFeature := createRemoteDeviceAndFeature(subscriptionEntityId, featureType, model.RoleTypeClient, senderMock)
+	_, serverFeature := createLocalDeviceAndFeature(subscriptionEntityId, featureType)
+	clientFeature, _ := createRemoteDeviceAndFeature(subscriptionEntityId, featureType, senderMock)
 
 	senderMock.On("Reply", mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		cmd := args.Get(2).(model.CmdType)

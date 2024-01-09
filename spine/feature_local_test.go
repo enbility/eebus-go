@@ -2,7 +2,6 @@ package spine
 
 import (
 	"testing"
-	"time"
 
 	"github.com/enbility/eebus-go/spine/mocks"
 	"github.com/enbility/eebus-go/spine/model"
@@ -18,29 +17,32 @@ func TestDeviceClassificationSuite(t *testing.T) {
 
 type DeviceClassificationTestSuite struct {
 	suite.Suite
-	senderMock    *mocks.Sender
-	function      model.FunctionType
-	featureType   model.FeatureTypeType
-	msgCounter    model.MsgCounterType
-	remoteFeature *FeatureRemoteImpl
-	sut           *FeatureLocalImpl
+	senderMock                      *mocks.Sender
+	function                        model.FunctionType
+	featureType, subFeatureType     model.FeatureTypeType
+	msgCounter                      model.MsgCounterType
+	remoteFeature, remoteSubFeature FeatureRemote
+	localFeature                    FeatureLocal
+	localServerFeature              FeatureLocal
 }
 
-func (suite *DeviceClassificationTestSuite) SetupSuite() {
+func (suite *DeviceClassificationTestSuite) BeforeTest(suiteName, testName string) {
 	suite.senderMock = mocks.NewSender(suite.T())
 	suite.function = model.FunctionTypeDeviceClassificationManufacturerData
 	suite.featureType = model.FeatureTypeTypeDeviceClassification
+	suite.subFeatureType = model.FeatureTypeTypeMeasurement
 	suite.msgCounter = model.MsgCounterType(1)
 
-	suite.remoteFeature = createRemoteDeviceAndFeature(1, suite.featureType, model.RoleTypeServer, suite.senderMock)
-	suite.sut = createLocalDeviceAndFeature(1, suite.featureType, model.RoleTypeClient)
+	_, suite.remoteFeature = createRemoteDeviceAndFeature(1, suite.featureType, suite.senderMock)
+	_, suite.remoteSubFeature = createRemoteDeviceAndFeature(2, suite.subFeatureType, suite.senderMock)
+	suite.localFeature, suite.localServerFeature = createLocalDeviceAndFeature(1, suite.featureType)
 }
 
 func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Reply() {
-	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
+	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.localFeature.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
 
 	// send data request
-	msgCounter, err := suite.sut.RequestData(suite.function, nil, nil, suite.remoteFeature)
+	msgCounter, err := suite.localFeature.RequestData(suite.function, nil, nil, suite.remoteFeature)
 	assert.Nil(suite.T(), err)
 
 	manufacturerData := &model.DeviceClassificationManufacturerDataType{
@@ -63,14 +65,14 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 		FeatureRemote: suite.remoteFeature,
 	}
 	// set response
-	msgErr := suite.sut.HandleMessage(&replyMsg)
+	msgErr := suite.localFeature.HandleMessage(&replyMsg)
 	if assert.Nil(suite.T(), msgErr) {
 		remoteData := suite.remoteFeature.DataCopy(suite.function)
 		assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, remoteData, "Data has wrong type")
 	}
 
 	// Act
-	result, err := suite.sut.FetchRequestData(*msgCounter, suite.remoteFeature)
+	result, err := suite.localFeature.FetchRequestData(*msgCounter, suite.remoteFeature)
 	assert.Nil(suite.T(), err)
 	assert.NotNil(suite.T(), result)
 	assert.IsType(suite.T(), &model.DeviceClassificationManufacturerDataType{}, result, "Data has wrong type")
@@ -84,13 +86,13 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Rep
 }
 
 func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Error() {
-	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.sut.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
+	suite.senderMock.On("Request", model.CmdClassifierTypeRead, suite.localFeature.Address(), suite.remoteFeature.Address(), false, mock.AnythingOfType("[]model.CmdType")).Return(&suite.msgCounter, nil)
 
 	const errorNumber = model.ErrorNumberTypeGeneralError
 	const errorDescription = "error occurred"
 
 	// send data request
-	msgCounter, err := suite.sut.RequestData(suite.function, nil, nil, suite.remoteFeature)
+	msgCounter, err := suite.localFeature.RequestData(suite.function, nil, nil, suite.remoteFeature)
 	assert.Nil(suite.T(), err)
 
 	replyMsg := Message{
@@ -111,25 +113,78 @@ func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Request_Err
 	}
 
 	// set response
-	msgErr := suite.sut.HandleMessage(&replyMsg)
+	msgErr := suite.localFeature.HandleMessage(&replyMsg)
 	if assert.Nil(suite.T(), msgErr) {
 		remoteData := suite.remoteFeature.DataCopy(suite.function)
 		assert.Nil(suite.T(), remoteData)
 	}
 
 	// Act
-	result, err := suite.sut.FetchRequestData(*msgCounter, suite.remoteFeature)
+	result, err := suite.localFeature.FetchRequestData(*msgCounter, suite.remoteFeature)
 	assert.Nil(suite.T(), result)
 	assert.NotNil(suite.T(), err)
 	assert.Equal(suite.T(), errorNumber, err.ErrorNumber)
 	assert.Equal(suite.T(), errorDescription, string(*err.Description))
 }
 
-func createLocalDeviceAndFeature(entityId uint, featureType model.FeatureTypeType, role model.RoleType) *FeatureLocalImpl {
-	localDevice := NewDeviceLocalImpl("Vendor", "DeviceName", "SerialNumber", "DeviceCode", "Address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := NewEntityLocalImpl(localDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{model.AddressEntityType(entityId)})
-	localDevice.AddEntity(localEntity)
-	localFeature := NewFeatureLocalImpl(localEntity.NextFeatureId(), localEntity, featureType, role)
-	localEntity.AddFeature(localFeature)
-	return localFeature
+func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Subscribiptions() {
+	suite.senderMock.On("Subscribe", mock.Anything, mock.Anything, mock.Anything).Return(&suite.msgCounter, nil)
+	suite.senderMock.On("Unsubscribe", mock.Anything, mock.Anything, mock.Anything).Return(&suite.msgCounter, nil)
+
+	msgCounter, err := suite.localFeature.Subscribe(suite.remoteFeature.Address())
+	assert.NotNil(suite.T(), err)
+	assert.Nil(suite.T(), msgCounter)
+
+	suite.localFeature.RemoveSubscription(suite.remoteFeature.Address())
+
+	suite.localFeature.Device().AddRemoteDeviceForSki(suite.remoteFeature.Device().Ski(), suite.remoteFeature.Device())
+
+	msgCounter, err = suite.localServerFeature.Subscribe(suite.remoteFeature.Address())
+	assert.NotNil(suite.T(), err)
+	assert.Nil(suite.T(), msgCounter)
+
+	suite.localFeature.RemoveSubscription(suite.remoteFeature.Address())
+
+	msgCounter, err = suite.localFeature.Subscribe(suite.remoteFeature.Address())
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), msgCounter)
+
+	msgCounter, err = suite.localFeature.Subscribe(suite.remoteSubFeature.Address())
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), msgCounter)
+
+	suite.localFeature.RemoveSubscription(suite.remoteFeature.Address())
+
+	suite.localFeature.RemoveAllSubscriptions()
+}
+
+func (suite *DeviceClassificationTestSuite) TestDeviceClassification_Bindings() {
+	suite.senderMock.On("Bind", mock.Anything, mock.Anything, mock.Anything).Return(&suite.msgCounter, nil)
+	suite.senderMock.On("Unbind", mock.Anything, mock.Anything, mock.Anything).Return(&suite.msgCounter, nil)
+
+	msgCounter, err := suite.localFeature.Bind(suite.remoteFeature.Address())
+	assert.NotNil(suite.T(), err)
+	assert.Nil(suite.T(), msgCounter)
+
+	suite.localFeature.RemoveBinding(suite.remoteFeature.Address())
+
+	suite.localFeature.Device().AddRemoteDeviceForSki(suite.remoteFeature.Device().Ski(), suite.remoteFeature.Device())
+
+	msgCounter, err = suite.localServerFeature.Bind(suite.remoteFeature.Address())
+	assert.NotNil(suite.T(), err)
+	assert.Nil(suite.T(), msgCounter)
+
+	suite.localFeature.RemoveBinding(suite.remoteFeature.Address())
+
+	msgCounter, err = suite.localFeature.Bind(suite.remoteFeature.Address())
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), msgCounter)
+
+	msgCounter, err = suite.localFeature.Bind(suite.remoteSubFeature.Address())
+	assert.Nil(suite.T(), err)
+	assert.NotNil(suite.T(), msgCounter)
+
+	suite.localFeature.RemoveBinding(suite.remoteFeature.Address())
+
+	suite.localFeature.RemoveAllBindings()
 }

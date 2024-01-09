@@ -146,6 +146,8 @@ type FeatureRemote interface {
 
 type FeatureLocal interface {
 	Feature
+	Device() DeviceLocal
+	Entity() EntityLocal
 	DataCopy(function model.FunctionType) any
 	SetData(function model.FunctionType, data any)
 	AddResultHandler(handler FeatureResult)
