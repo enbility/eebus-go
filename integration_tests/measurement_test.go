@@ -22,11 +22,11 @@ func TestMeasurementSuite(t *testing.T) {
 
 type MeasurementSuite struct {
 	suite.Suite
-	sut *spine.DeviceLocalImpl
+	sut spine.DeviceLocal
 
 	remoteSki string
 
-	readHandler  spine.SpineDataProcessing
+	remoteDevice spine.DeviceRemote
 	writeHandler *WriteMessageHandler
 }
 
@@ -34,8 +34,8 @@ func (s *MeasurementSuite) SetupSuite() {
 }
 
 func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
-	s.sut, s.remoteSki, s.readHandler, s.writeHandler = beforeTest(suiteName, testName, 2, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
-	initialCommunication(s.T(), s.readHandler, s.writeHandler)
+	s.sut, s.remoteSki, s.remoteDevice, s.writeHandler = beforeTest(suiteName, testName, 2, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
+	initialCommunication(s.T(), s.remoteDevice, s.writeHandler)
 }
 
 func (s *MeasurementSuite) AfterTest(suiteName, testName string) {
@@ -43,7 +43,7 @@ func (s *MeasurementSuite) AfterTest(suiteName, testName string) {
 
 func (s *MeasurementSuite) TestDescriptionList_Recv() {
 	// Act
-	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	msgCounter, _ := s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -76,7 +76,7 @@ func (s *MeasurementSuite) TestDescriptionList_Recv() {
 
 func (s *MeasurementSuite) TestMeasurementList_Recv() {
 	// Act
-	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	msgCounter, _ := s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -113,11 +113,11 @@ func (s *MeasurementSuite) TestMeasurementList_Recv() {
 
 func (s *MeasurementSuite) TestMeasurementByScope_Recv() {
 	// Act
-	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	msgCounter, _ := s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Act
-	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	msgCounter, _ = s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert

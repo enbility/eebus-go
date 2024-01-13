@@ -3,14 +3,9 @@ package ship
 import (
 	"encoding/json"
 	"testing"
-	"time"
 
 	"github.com/enbility/eebus-go/ship/model"
-	"github.com/enbility/eebus-go/spine"
-	spineMocks "github.com/enbility/eebus-go/spine/mocks"
-	spineModel "github.com/enbility/eebus-go/spine/model"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 )
@@ -25,41 +20,39 @@ type ConnectionSuite struct {
 	sut *ShipConnectionImpl
 
 	shipDataProvider *MockShipServiceDataProvider
-	shipDataConn     *MockShipDataConnection
+	shipDataConn     *MockWebsocketDataConnection
 
-	spineDataProcessing *spineMocks.SpineDataProcessing
+	spineDataProcessing *MockSpineDataProcessing
 
 	sentMessage []byte
 }
 
-func (s *ConnectionSuite) SetupSuite()   {}
-func (s *ConnectionSuite) TearDownTest() {}
-
 func (s *ConnectionSuite) BeforeTest(suiteName, testName string) {
 	s.sentMessage = nil
-	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	ctrl := gomock.NewController(s.T())
 
 	s.shipDataProvider = NewMockShipServiceDataProvider(ctrl)
 	s.shipDataProvider.EXPECT().HandleShipHandshakeStateUpdate(gomock.Any(), gomock.Any()).AnyTimes()
 	s.shipDataProvider.EXPECT().HandleConnectionClosed(gomock.Any(), gomock.Any()).AnyTimes()
+	s.shipDataProvider.EXPECT().IsRemoteServiceForSKIPaired(gomock.Any()).AnyTimes()
+	s.shipDataProvider.EXPECT().AllowWaitingForTrust(gomock.Any()).AnyTimes()
 
-	s.shipDataConn = NewMockShipDataConnection(ctrl)
+	s.shipDataConn = NewMockWebsocketDataConnection(ctrl)
 	s.shipDataConn.EXPECT().InitDataProcessing(gomock.Any()).AnyTimes()
 	s.shipDataConn.EXPECT().WriteMessageToDataConnection(gomock.Any()).DoAndReturn(func(message []byte) error { s.sentMessage = message; return nil }).AnyTimes()
 	s.shipDataConn.EXPECT().IsDataConnectionClosed().DoAndReturn(func() (bool, error) { return false, nil }).AnyTimes()
 	s.shipDataConn.EXPECT().CloseDataConnection(gomock.Any(), gomock.Any()).AnyTimes()
 
-	s.spineDataProcessing = spineMocks.NewSpineDataProcessing(s.T())
+	s.spineDataProcessing = NewMockSpineDataProcessing(ctrl)
+	s.spineDataProcessing.EXPECT().HandleIncomingSpineMesssage(gomock.Any()).AnyTimes()
 
-	s.sut = NewConnectionHandler(s.shipDataProvider, s.shipDataConn, localDevice, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID")
+	s.sut = NewConnectionHandler(s.shipDataProvider, s.shipDataConn, ShipRoleServer, "LocalShipID", "RemoveDevice", "RemoteShipID")
 }
 
 func (s *ConnectionSuite) Test_RemoteSKI() {
 	remoteSki := s.sut.RemoteSKI()
-	assert.Equal(s.T(), s.sut.remoteSKI, remoteSki)
+	assert.NotEqual(s.T(), "", remoteSki)
 }
 
 func (s *ConnectionSuite) Test_DataHandler() {
@@ -69,7 +62,9 @@ func (s *ConnectionSuite) Test_DataHandler() {
 
 func (s *ConnectionSuite) TestRun() {
 	s.sut.Run()
-	assert.Equal(s.T(), CmiStateServerWait, s.sut.smeState)
+	state, err := s.sut.ShipHandshakeState()
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), CmiStateServerWait, state)
 }
 
 func (s *ConnectionSuite) TestShipHandshakeState() {
@@ -96,14 +91,6 @@ func (s *ConnectionSuite) TestAbortPendingHandshake() {
 	s.sut.smeState = SmeHelloStatePendingListen
 	s.sut.AbortPendingHandshake()
 	assert.Equal(s.T(), SmeHelloStateAbortDone, s.sut.smeState)
-}
-
-func (s *ConnectionSuite) TestRemoveRemoteDeviceConnection() {
-	s.sut.removeRemoteDeviceConnection()
-
-	s.sut.deviceLocalCon = nil
-
-	s.sut.removeRemoteDeviceConnection()
 }
 
 func (s *ConnectionSuite) TestCloseConnection_StateComplete() {
@@ -157,15 +144,12 @@ func (s *ConnectionSuite) TestHandleIncomingShipMessage() {
 
 	s.sut.HandleIncomingShipMessage(msg)
 
-	spineData := spineModel.Datagram{}
-	jsonData, err = json.Marshal(spineData)
-	assert.Nil(s.T(), err)
+	spineData := `{"datagram":{}}`
+	jsonData = []byte(spineData)
 
-	rawBytes := []byte{}
-	rawBytes = append(rawBytes, jsonData...)
 	modelData = model.ShipData{
 		Data: model.DataType{
-			Payload: rawBytes,
+			Payload: jsonData,
 		},
 	}
 	jsonData, err = json.Marshal(modelData)
@@ -176,7 +160,6 @@ func (s *ConnectionSuite) TestHandleIncomingShipMessage() {
 
 	s.sut.HandleIncomingShipMessage(msg)
 
-	s.spineDataProcessing.On("HandleIncomingSpineMesssage", mock.Anything).Return(nil, nil)
 	s.sut.spineDataProcessing = s.spineDataProcessing
 
 	s.sut.HandleIncomingShipMessage(msg)
@@ -232,18 +215,8 @@ func (s *ConnectionSuite) TestProcessShipJsonMessage() {
 }
 
 func (s *ConnectionSuite) TestSendSpineMessage() {
-	data := spineModel.Datagram{
-		Datagram: spineModel.DatagramType{
-			Header: spineModel.HeaderType{},
-			Payload: spineModel.PayloadType{
-				Cmd: []spineModel.CmdType{},
-			},
-		},
-	}
+	data := `{"datagram":{"header":{},"payload":{"cmd":[]}}}`
 
-	msg, err := json.Marshal(data)
-	assert.Nil(s.T(), err)
-
-	err = s.sut.sendSpineData(msg)
+	err := s.sut.sendSpineData([]byte(data))
 	assert.Nil(s.T(), err)
 }

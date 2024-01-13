@@ -37,7 +37,7 @@ func (s *DeviceRemoteSuite) BeforeTest(suiteName, testName string) {
 	sender := NewSender(s)
 	s.remoteDevice = NewDeviceRemoteImpl(s.localDevice, ski, sender)
 	s.remoteDevice.SetAddress(util.Ptr(model.AddressDeviceType("test")))
-	s.localDevice.AddRemoteDevice(ski, s)
+	_ = s.localDevice.SetupRemoteDevice(ski, s)
 
 	s.remoteEntity = NewEntityRemoteImpl(s.remoteDevice, model.EntityTypeTypeEVSE, []model.AddressEntityType{1})
 
@@ -84,14 +84,14 @@ func (s *DeviceRemoteSuite) Test_Usecases() {
 	uc := s.remoteDevice.UseCases()
 	assert.Nil(s.T(), uc)
 
-	_, _ = s.remoteDevice.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_usecaseinformationlistdata_recv_reply_file_path))
+	_, _ = s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), nm_usecaseinformationlistdata_recv_reply_file_path))
 
 	uc = s.remoteDevice.UseCases()
 	assert.NotNil(s.T(), uc)
 }
 
 func (s *DeviceRemoteSuite) Test_VerifyUseCaseScenariosAndFeaturesSupport_ElliJSON() {
-	_, _ = s.remoteDevice.HandleIncomingSpineMesssage(loadFileData(s.T(), nm_usecaseinformationlistdata_recv_reply_file_path))
+	_, _ = s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), nm_usecaseinformationlistdata_recv_reply_file_path))
 
 	result := s.remoteDevice.VerifyUseCaseScenariosAndFeaturesSupport(
 		model.UseCaseActorTypeBatterySystem,

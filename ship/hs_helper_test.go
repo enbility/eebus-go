@@ -2,10 +2,6 @@ package ship
 
 import (
 	"sync"
-	"time"
-
-	"github.com/enbility/eebus-go/spine"
-	spineModel "github.com/enbility/eebus-go/spine/model"
 )
 
 type dataHandlerTest struct {
@@ -25,9 +21,9 @@ func (s *dataHandlerTest) lastMessage() []byte {
 	return s.sentMessage
 }
 
-var _ ShipDataConnection = (*dataHandlerTest)(nil)
+var _ WebsocketDataConnection = (*dataHandlerTest)(nil)
 
-func (s *dataHandlerTest) InitDataProcessing(dataProcessing ShipDataProcessing) {}
+func (s *dataHandlerTest) InitDataProcessing(dataProcessing WebsocketDataProcessing) {}
 
 func (s *dataHandlerTest) WriteMessageToDataConnection(message []byte) error {
 	s.mux.Lock()
@@ -40,6 +36,9 @@ func (s *dataHandlerTest) WriteMessageToDataConnection(message []byte) error {
 
 func (s *dataHandlerTest) CloseDataConnection(int, string)       {}
 func (w *dataHandlerTest) IsDataConnectionClosed() (bool, error) { return false, nil }
+func (w *dataHandlerTest) SetupRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
+	return nil
+}
 
 var _ ShipServiceDataProvider = (*dataHandlerTest)(nil)
 
@@ -54,11 +53,8 @@ func (s *dataHandlerTest) AllowWaitingForTrust(string) bool {
 func (s *dataHandlerTest) HandleShipHandshakeStateUpdate(string, ShipState) {}
 
 func initTest(role shipRole) (*ShipConnectionImpl, *dataHandlerTest) {
-	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", spineModel.DeviceTypeTypeEnergyManagementSystem, spineModel.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-
 	dataHandler := &dataHandlerTest{}
-	conhandler := NewConnectionHandler(dataHandler, dataHandler, localDevice, role, "LocalShipID", "RemoveDevice", "RemoteShipID")
+	conhandler := NewConnectionHandler(dataHandler, dataHandler, role, "LocalShipID", "RemoveDevice", "RemoteShipID")
 
 	return conhandler, dataHandler
 }

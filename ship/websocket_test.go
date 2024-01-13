@@ -28,7 +28,7 @@ type WebsocketSuite struct {
 	testServer *httptest.Server
 	testWsConn *websocket.Conn
 
-	shipDataProcessing *MockShipDataProcessing
+	shipDataProcessing *MockWebsocketDataProcessing
 }
 
 func (s *WebsocketSuite) SetupSuite()   {}
@@ -37,7 +37,7 @@ func (s *WebsocketSuite) TearDownTest() {}
 func (s *WebsocketSuite) BeforeTest(suiteName, testName string) {
 	ctrl := gomock.NewController(s.T())
 
-	s.shipDataProcessing = NewMockShipDataProcessing(ctrl)
+	s.shipDataProcessing = NewMockWebsocketDataProcessing(ctrl)
 	s.shipDataProcessing.EXPECT().ReportConnectionError(gomock.Any()).AnyTimes()
 	s.shipDataProcessing.EXPECT().HandleIncomingShipMessage(gomock.Any()).AnyTimes()
 

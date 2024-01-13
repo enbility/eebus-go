@@ -3,6 +3,7 @@ package spine
 import (
 	"time"
 
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine/model"
 )
 
@@ -23,7 +24,7 @@ type DeviceLocal interface {
 	Device
 	RemoveRemoteDeviceConnection(ski string)
 	AddRemoteDeviceForSki(ski string, rDevice DeviceRemote)
-	AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing
+	SetupRemoteDevice(ski string, writeI ship.SpineDataConnection) ship.SpineDataProcessing
 	RemoveRemoteDevice(ski string)
 	RemoteDevices() []DeviceRemote
 	RemoteDeviceForAddress(address model.AddressDeviceType) DeviceRemote
@@ -47,7 +48,7 @@ type DeviceRemote interface {
 	Device
 	Ski() string
 	SetAddress(address *model.AddressDeviceType)
-	HandleIncomingSpineMesssage(message []byte) (*model.MsgCounterType, error)
+	HandleSpineMesssage(message []byte) (*model.MsgCounterType, error)
 	Sender() Sender
 	Entity(id []model.AddressEntityType) EntityRemote
 	Entities() []EntityRemote
@@ -65,12 +66,6 @@ type DeviceRemote interface {
 		serverFeatures []model.FeatureTypeType,
 	) bool
 	CheckEntityInformation(initialData bool, entity model.NodeManagementDetailedDiscoveryEntityInformationType) error
-}
-
-// implemented by spine.DeviceLocalImpl and used by shipConnection
-type DeviceLocalConnection interface {
-	RemoveRemoteDeviceConnection(ski string)
-	AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing
 }
 
 /* Entity */
@@ -256,7 +251,7 @@ type PendingRequests interface {
 
 /* Bindings */
 
-// implemented by spine.BindingManagerImpl
+// implemented by BindingManagerImpl
 type BindingManager interface {
 	AddBinding(remoteDevice DeviceRemote, data model.BindingManagementRequestCallType) error
 	RemoveBinding(data model.BindingManagementDeleteCallType, remoteDevice DeviceRemote) error
@@ -285,24 +280,4 @@ type HeartbeatManager interface {
 	SetLocalFeature(entity *EntityLocalImpl, feature FeatureLocal)
 	StartHeartbeat() error
 	StopHeartbeat()
-}
-
-/* Processing */
-
-//go:generate mockery --name=SpineDataProcessing
-
-// Used to pass an incoming SPINE message from a SHIP connection to the proper DeviceRemoteImpl
-//
-// Implemented by DeviceRemoteImpl, used by ShipConnection
-type SpineDataProcessing interface {
-	HandleIncomingSpineMesssage(message []byte) (*model.MsgCounterType, error)
-}
-
-//go:generate mockery --name=SpineDataConnection
-
-// Used to pass an outgoing SPINE message from a DeviceLocalImpl to the SHIP connection
-//
-// Implemented by ShipConnection, used by DeviceLocalImpl
-type SpineDataConnection interface {
-	WriteSpineMessage(message []byte)
 }

@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 )
@@ -23,7 +24,7 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ spine.SpineDataConnection = (*WriteMessageHandler)(nil)
+var _ ship.SpineDataConnection = (*WriteMessageHandler)(nil)
 
 func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
 	t.mux.Lock()
@@ -95,7 +96,9 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	return nil
 }
 
-func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeType, frole model.RoleType) (*spine.DeviceLocalImpl, string, spine.SpineDataProcessing, *WriteMessageHandler) {
+func beforeTest(
+	suiteName, testName string, fId uint, ftype model.FeatureTypeType,
+	frole model.RoleType) (spine.DeviceLocal, string, spine.DeviceRemote, *WriteMessageHandler) {
 	sut := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
@@ -106,18 +109,19 @@ func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeTyp
 	remoteSki := "TestRemoteSki"
 
 	writeHandler := &WriteMessageHandler{}
-	remoteDevice := sut.AddRemoteDevice(remoteSki, writeHandler)
+	_ = sut.SetupRemoteDevice(remoteSki, writeHandler)
+	remoteDevice := sut.RemoteDeviceForSki(remoteSki)
 
 	return sut, remoteSki, remoteDevice, writeHandler
 }
 
-func initialCommunication(t *testing.T, readHandler spine.SpineDataProcessing, writeHandler *WriteMessageHandler) {
+func initialCommunication(t *testing.T, remoteDevice spine.DeviceRemote, writeHandler *WriteMessageHandler) {
 	// Initial generic communication
 
-	_, _ = readHandler.HandleIncomingSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))
+	_, _ = remoteDevice.HandleSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Act
-	msgCounter, _ := readHandler.HandleIncomingSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path))
+	msgCounter, _ := remoteDevice.HandleSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path))
 	waitForAck(t, msgCounter, writeHandler)
 }
 

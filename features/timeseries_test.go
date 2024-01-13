@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/features"
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -26,7 +27,7 @@ type TimeSeriesSuite struct {
 	sentMessage []byte
 }
 
-var _ spine.SpineDataConnection = (*TimeSeriesSuite)(nil)
+var _ ship.SpineDataConnection = (*TimeSeriesSuite)(nil)
 
 func (s *TimeSeriesSuite) WriteSpineMessage(message []byte) {
 	s.sentMessage = message

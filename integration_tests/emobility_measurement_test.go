@@ -17,9 +17,8 @@ func TestEmobilityMeasurementSuite(t *testing.T) {
 
 type EmobilityMeasurementSuite struct {
 	suite.Suite
-	spine.SpineDataConnection
 
-	sut         *spine.DeviceLocalImpl
+	sut         spine.DeviceLocal
 	localEntity spine.EntityLocal
 
 	measurement          *features.Measurement
@@ -27,7 +26,7 @@ type EmobilityMeasurementSuite struct {
 
 	remoteSki string
 
-	readHandler  spine.SpineDataProcessing
+	remoteDevice spine.DeviceRemote
 	writeHandler *WriteMessageHandler
 }
 
@@ -35,6 +34,7 @@ func (s *EmobilityMeasurementSuite) SetupSuite() {
 }
 
 func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
+
 	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	s.localEntity = spine.NewEntityLocalImpl(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
@@ -48,9 +48,10 @@ func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
 	s.remoteSki = "TestRemoteSki"
 
 	s.writeHandler = &WriteMessageHandler{}
-	s.readHandler = s.sut.AddRemoteDevice(s.remoteSki, s.writeHandler)
+	_ = s.sut.SetupRemoteDevice(s.remoteSki, s.writeHandler)
+	s.remoteDevice = s.sut.RemoteDeviceForSki(s.remoteSki)
 
-	initialCommunication(s.T(), s.readHandler, s.writeHandler)
+	initialCommunication(s.T(), s.remoteDevice, s.writeHandler)
 }
 
 func (s *EmobilityMeasurementSuite) AfterTest(suiteName, testName string) {
@@ -68,13 +69,13 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	assert.Nil(s.T(), err)
 
 	// Act
-	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
+	msgCounter, _ := s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
+	msgCounter, _ = s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), m_descriptionListData_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
-	msgCounter, _ = s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
+	msgCounter, _ = s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), m_measurementListData_recv_notify_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	measurement := model.MeasurementTypeTypeCurrent

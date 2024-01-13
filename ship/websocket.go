@@ -18,7 +18,7 @@ type websocketConnection struct {
 	conn *websocket.Conn
 
 	// The implementation handling message processing
-	dataProcessing ShipDataProcessing
+	dataProcessing WebsocketDataProcessing
 
 	// The connection was closed
 	closeChannel chan struct{}
@@ -246,9 +246,9 @@ func (w *websocketConnection) close() {
 	})
 }
 
-var _ ShipDataConnection = (*websocketConnection)(nil)
+var _ WebsocketDataConnection = (*websocketConnection)(nil)
 
-func (w *websocketConnection) InitDataProcessing(dataProcessing ShipDataProcessing) {
+func (w *websocketConnection) InitDataProcessing(dataProcessing WebsocketDataProcessing) {
 	w.dataProcessing = dataProcessing
 
 	w.run()

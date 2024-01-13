@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 )
@@ -37,7 +38,11 @@ type DeviceLocalImpl struct {
 // SerialNumber is the serial number
 // DeviceCode is the SHIP id (accessMethods.id)
 // DeviceAddress is the SPINE device address
-func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, deviceAddress string, deviceType model.DeviceTypeType, featureSet model.NetworkManagementFeatureSetType, heartbeatTimeout time.Duration) *DeviceLocalImpl {
+func NewDeviceLocalImpl(
+	brandName, deviceModel, serialNumber, deviceCode, deviceAddress string,
+	deviceType model.DeviceTypeType,
+	featureSet model.NetworkManagementFeatureSetType,
+	heartbeatTimeout time.Duration) *DeviceLocalImpl {
 	address := model.AddressDeviceType(deviceAddress)
 
 	var fSet *model.NetworkManagementFeatureSetType
@@ -62,8 +67,6 @@ func NewDeviceLocalImpl(brandName, deviceModel, serialNumber, deviceCode, device
 	return res
 }
 
-var _ DeviceLocalConnection = (*DeviceLocalImpl)(nil)
-
 func (r *DeviceLocalImpl) RemoveRemoteDeviceConnection(ski string) {
 	remoteDevice := r.RemoteDeviceForSki(ski)
 
@@ -86,8 +89,8 @@ func (r *DeviceLocalImpl) AddRemoteDeviceForSki(ski string, rDevice DeviceRemote
 	r.mux.Unlock()
 }
 
-// Adds a new remote device with a given SKI and triggers SPINE requesting device details
-func (r *DeviceLocalImpl) AddRemoteDevice(ski string, writeI SpineDataConnection) SpineDataProcessing {
+// Setup a new remote device with a given SKI and triggers SPINE requesting device details
+func (r *DeviceLocalImpl) SetupRemoteDevice(ski string, writeI ship.SpineDataConnection) ship.SpineDataProcessing {
 	sender := NewSender(writeI)
 	rDevice := NewDeviceRemoteImpl(r, ski, sender)
 

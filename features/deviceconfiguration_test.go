@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/enbility/eebus-go/features"
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
@@ -25,7 +26,7 @@ type DeviceConfigurationSuite struct {
 	sentMessage         []byte
 }
 
-var _ spine.SpineDataConnection = (*DeviceConfigurationSuite)(nil)
+var _ ship.SpineDataConnection = (*DeviceConfigurationSuite)(nil)
 
 func (s *DeviceConfigurationSuite) WriteSpineMessage(message []byte) {
 	s.sentMessage = message

@@ -31,7 +31,7 @@ func (suite *SubscriptionManagerSuite) SetupSuite() {
 	sender := NewSender(suite)
 	suite.remoteDevice = NewDeviceRemoteImpl(suite.localDevice, ski, sender)
 
-	suite.localDevice.AddRemoteDevice(ski, suite)
+	_ = suite.localDevice.SetupRemoteDevice(ski, suite)
 
 	suite.sut = NewSubscriptionManager(suite.localDevice)
 }

@@ -65,8 +65,7 @@ type connectionsHubImpl struct {
 	// list of currently known/reported mDNS entries
 	knownMdnsEntries []*MdnsEntry
 
-	// the SPINE local device
-	spineLocalDevice spine.DeviceLocalConnection
+	spineLocalDevice spine.DeviceLocal
 
 	muxCon        sync.Mutex
 	muxConAttempt sync.Mutex
@@ -74,7 +73,7 @@ type connectionsHubImpl struct {
 	muxMdns       sync.Mutex
 }
 
-func newConnectionsHub(serviceProvider ServiceProvider, mdns MdnsService, spineLocalDevice spine.DeviceLocalConnection, configuration *Configuration, localService *ServiceDetails) ConnectionsHub {
+func newConnectionsHub(serviceProvider ServiceProvider, mdns MdnsService, spineLocalDevice spine.DeviceLocal, configuration *Configuration, localService *ServiceDetails) ConnectionsHub {
 	hub := &connectionsHubImpl{
 		connections:              make(map[string]ship.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
@@ -118,9 +117,14 @@ func (h *connectionsHubImpl) IsRemoteServiceForSKIPaired(ski string) bool {
 
 // The connection was closed, we need to clean up
 func (h *connectionsHubImpl) HandleConnectionClosed(connection ship.ShipConnection, handshakeCompleted bool) {
+	remoteSki := connection.RemoteSKI()
+	if h.spineLocalDevice != nil {
+		h.spineLocalDevice.RemoveRemoteDeviceConnection(remoteSki)
+	}
+
 	// only remove this connection if it is the registered one for the ski!
 	// as we can have double connections but only one can be registered
-	if existingC := h.connectionForSKI(connection.RemoteSKI()); existingC != nil {
+	if existingC := h.connectionForSKI(remoteSki); existingC != nil {
 		if existingC.DataHandler() == connection.DataHandler() {
 			h.muxCon.Lock()
 			delete(h.connections, connection.RemoteSKI())
@@ -142,6 +146,10 @@ func (h *connectionsHubImpl) HandleConnectionClosed(connection ship.ShipConnecti
 	}
 
 	h.checkRestartMdnsSearch()
+}
+
+func (h *connectionsHubImpl) SetupRemoteDevice(ski string, writeI ship.SpineDataConnection) ship.SpineDataProcessing {
+	return h.spineLocalDevice.SetupRemoteDevice(ski, writeI)
 }
 
 // return the number of paired services
@@ -443,7 +451,7 @@ func (h *connectionsHubImpl) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
-	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleServer,
+	shipConnection := ship.NewConnectionHandler(h, dataHandler, ship.ShipRoleServer,
 		h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
 	shipConnection.Run()
 
@@ -508,7 +516,7 @@ func (h *connectionsHubImpl) connectFoundService(remoteService *ServiceDetails, 
 	}
 
 	dataHandler := ship.NewWebsocketConnection(conn, remoteService.SKI)
-	shipConnection := ship.NewConnectionHandler(h, dataHandler, h.spineLocalDevice, ship.ShipRoleClient,
+	shipConnection := ship.NewConnectionHandler(h, dataHandler, ship.ShipRoleClient,
 		h.localService.ShipID, remoteService.SKI, remoteService.ShipID)
 	shipConnection.Run()
 

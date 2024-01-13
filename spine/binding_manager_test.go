@@ -18,22 +18,23 @@ type BindingManagerSuite struct {
 	suite.Suite
 
 	localDevice  DeviceLocal
+	writeHandler *WriteMessageHandler
 	remoteDevice DeviceRemote
-	sut          BindingManager
+
+	sut BindingManager
 }
 
-func (suite *BindingManagerSuite) WriteSpineMessage([]byte) {}
+func (s *BindingManagerSuite) BeforeTest(suiteName, testName string) {
+	s.localDevice = NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	remoteSki := "TestRemoteSki"
 
-func (suite *BindingManagerSuite) SetupSuite() {
-	suite.localDevice = NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	s.writeHandler = &WriteMessageHandler{}
 
-	ski := "test"
-	sender := NewSender(suite)
-	suite.remoteDevice = NewDeviceRemoteImpl(suite.localDevice, ski, sender)
+	sender := NewSender(s.writeHandler)
+	s.remoteDevice = NewDeviceRemoteImpl(s.localDevice, remoteSki, sender)
 
-	suite.localDevice.AddRemoteDevice(ski, suite)
-
-	suite.sut = NewBindingManager(suite.localDevice)
+	s.sut = NewBindingManager(s.localDevice)
 }
 
 func (suite *BindingManagerSuite) Test_Bindings() {

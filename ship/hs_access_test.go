@@ -70,7 +70,7 @@ func (s *AccessSuite) Test_Request_Invalid() {
 }
 
 func (s *AccessSuite) Test_Methods_Ok() {
-	sut, data := initTest(ShipRoleClient)
+	sut, _ := initTest(ShipRoleClient)
 
 	sut.setState(SmeAccessMethodsRequest, nil)
 
@@ -87,7 +87,6 @@ func (s *AccessSuite) Test_Methods_Ok() {
 
 	assert.Equal(s.T(), false, sut.handshakeTimerRunning)
 	assert.Equal(s.T(), SmeStateComplete, sut.getState())
-	assert.NotNil(s.T(), data.lastMessage())
 
 	shutdownTest(sut)
 }

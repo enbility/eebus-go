@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 
 	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	lru "github.com/hashicorp/golang-lru/v2"
@@ -17,12 +18,12 @@ type SenderImpl struct {
 	// we cache the last 100 notify messages, so we can find the matching item for result errors being returned
 	datagramNotifyCache *lru.Cache[model.MsgCounterType, model.DatagramType]
 
-	writeHandler SpineDataConnection
+	writeHandler ship.SpineDataConnection
 }
 
 var _ Sender = (*SenderImpl)(nil)
 
-func NewSender(writeI SpineDataConnection) Sender {
+func NewSender(writeI ship.SpineDataConnection) Sender {
 	cache, _ := lru.New[model.MsgCounterType, model.DatagramType](100)
 	return &SenderImpl{
 		datagramNotifyCache: cache,

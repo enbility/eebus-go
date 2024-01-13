@@ -22,11 +22,11 @@ func TestElectricalConnectionSuite(t *testing.T) {
 
 type ElectricalConnectionSuite struct {
 	suite.Suite
-	sut *spine.DeviceLocalImpl
+	sut spine.DeviceLocal
 
 	remoteSki string
 
-	readHandler  spine.SpineDataProcessing
+	remoteDevice spine.DeviceRemote
 	writeHandler *WriteMessageHandler
 }
 
@@ -34,8 +34,8 @@ func (s *ElectricalConnectionSuite) SetupSuite() {
 }
 
 func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
-	s.sut, s.remoteSki, s.readHandler, s.writeHandler = beforeTest(suiteName, testName, 1, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
-	initialCommunication(s.T(), s.readHandler, s.writeHandler)
+	s.sut, s.remoteSki, s.remoteDevice, s.writeHandler = beforeTest(suiteName, testName, 1, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	initialCommunication(s.T(), s.remoteDevice, s.writeHandler)
 }
 
 func (s *ElectricalConnectionSuite) AfterTest(suiteName, testName string) {
@@ -43,7 +43,7 @@ func (s *ElectricalConnectionSuite) AfterTest(suiteName, testName string) {
 
 func (s *ElectricalConnectionSuite) TestDescriptionListData_RecvReply() {
 	// Act
-	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_descriptionlistdata_recv_reply_file_path))
+	msgCounter, _ := s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), ec_descriptionlistdata_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -75,7 +75,7 @@ func (s *ElectricalConnectionSuite) TestDescriptionListData_RecvReply() {
 
 func (s *ElectricalConnectionSuite) TestParameterDescriptionListData_RecvReply() {
 	// Act
-	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
+	msgCounter, _ := s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), ec_parameterdescriptionlistdata_recv_reply_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert
@@ -111,7 +111,7 @@ func (s *ElectricalConnectionSuite) TestParameterDescriptionListData_RecvReply()
 
 func (s *ElectricalConnectionSuite) TestPermittedValueSetListData_RecvNotifyPartial() {
 	// Act
-	msgCounter, _ := s.readHandler.HandleIncomingSpineMesssage(loadFileData(s.T(), ec_permittedvaluesetlistdata_recv_notify_partial_file_path))
+	msgCounter, _ := s.remoteDevice.HandleSpineMesssage(loadFileData(s.T(), ec_permittedvaluesetlistdata_recv_notify_partial_file_path))
 	waitForAck(s.T(), msgCounter, s.writeHandler)
 
 	// Assert

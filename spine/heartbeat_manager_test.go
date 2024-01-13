@@ -31,7 +31,7 @@ func (suite *HeartBeatManagerSuite) SetupSuite() {
 	sender := NewSender(suite)
 	suite.remoteDevice = NewDeviceRemoteImpl(suite.localDevice, ski, sender)
 
-	suite.localDevice.AddRemoteDevice(ski, suite)
+	_ = suite.localDevice.SetupRemoteDevice(ski, suite)
 
 	suite.sut = suite.localDevice.HeartbeatManager()
 }

@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/enbility/eebus-go/logging"
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine/model"
 )
 
@@ -26,7 +27,7 @@ type DeviceRemoteImpl struct {
 	localDevice DeviceLocal
 }
 
-var _ SpineDataProcessing = (*DeviceRemoteImpl)(nil)
+var _ ship.SpineDataProcessing = (*DeviceRemoteImpl)(nil)
 
 func NewDeviceRemoteImpl(localDevice DeviceLocal, ski string, sender Sender) *DeviceRemoteImpl {
 	res := DeviceRemoteImpl{
@@ -49,12 +50,7 @@ func (d *DeviceRemoteImpl) SetAddress(address *model.AddressDeviceType) {
 	d.address = address
 }
 
-// // this connection is closed
-// func (d *DeviceRemoteImpl) CloseConnection() {
-// }
-
-// processing incoming SPINE message from the associated SHIP connection
-func (d *DeviceRemoteImpl) HandleIncomingSpineMesssage(message []byte) (*model.MsgCounterType, error) {
+func (d *DeviceRemoteImpl) HandleSpineMesssage(message []byte) (*model.MsgCounterType, error) {
 	datagram := model.Datagram{}
 	if err := json.Unmarshal([]byte(message), &datagram); err != nil {
 		return nil, err
@@ -65,6 +61,11 @@ func (d *DeviceRemoteImpl) HandleIncomingSpineMesssage(message []byte) (*model.M
 	}
 
 	return datagram.Datagram.Header.MsgCounter, nil
+}
+
+// processing incoming SPINE message from the associated SHIP connection
+func (d *DeviceRemoteImpl) HandleIncomingSpineMesssage(message []byte) {
+	_, _ = d.HandleSpineMesssage(message)
 }
 
 func (d *DeviceRemoteImpl) addNodeManagement() {

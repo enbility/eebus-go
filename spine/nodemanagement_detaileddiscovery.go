@@ -209,7 +209,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 	return nil
 }
 
-// func (f *NodeManagement) announceFeatureDiscovery(e spine.Entity) error {
+// func (f *NodeManagement) announceFeatureDiscovery(e Entity) error {
 // 	entity := f.Entity()
 // 	if entity == nil {
 // 		return errors.New("announceFeatureDiscovery: entity not found")
@@ -232,7 +232,7 @@ func (r *NodeManagementImpl) processNotifyDetailedDiscoveryData(message *Message
 // 				rr := rf.Role()
 // 				rolesValid := (lr == model.RoleTypeSpecial && rr == model.RoleTypeSpecial) || (lr == model.RoleTypeClient && rr == model.RoleTypeServer)
 // 				if lf.Type() == rf.Type() && rolesValid {
-// 					if cf, ok := lf.(spine.ClientFeature); ok {
+// 					if cf, ok := lf.(ClientFeature); ok {
 // 						if err := cf.ServerFound(rf); err != nil {
 // 							return err
 // 						}

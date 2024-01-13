@@ -28,19 +28,19 @@ func (_m *ShipConnection) CloseConnection(safe bool, code int, reason string) {
 }
 
 // DataHandler provides a mock function with given fields:
-func (_m *ShipConnection) DataHandler() ship.ShipDataConnection {
+func (_m *ShipConnection) DataHandler() ship.WebsocketDataConnection {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for DataHandler")
 	}
 
-	var r0 ship.ShipDataConnection
-	if rf, ok := ret.Get(0).(func() ship.ShipDataConnection); ok {
+	var r0 ship.WebsocketDataConnection
+	if rf, ok := ret.Get(0).(func() ship.WebsocketDataConnection); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(ship.ShipDataConnection)
+			r0 = ret.Get(0).(ship.WebsocketDataConnection)
 		}
 	}
 

@@ -11,7 +11,6 @@ import (
 	"github.com/enbility/eebus-go/logging"
 	"github.com/enbility/eebus-go/ship/model"
 	shipUtil "github.com/enbility/eebus-go/ship/util"
-	"github.com/enbility/eebus-go/spine"
 	"github.com/enbility/eebus-go/util"
 )
 
@@ -33,10 +32,10 @@ type ShipConnectionImpl struct {
 	serviceDataProvider ShipServiceDataProvider
 
 	// Where to pass incoming SPINE messages to
-	spineDataProcessing spine.SpineDataProcessing
+	spineDataProcessing SpineDataProcessing
 
-	// the handler for sending messages on the data connection
-	dataHandler ShipDataConnection
+	// the (web socket) handler for sending messages
+	dataHandler WebsocketDataConnection
 
 	// The current SHIP state
 	smeState ShipMessageExchangeState
@@ -58,9 +57,6 @@ type ShipConnectionImpl struct {
 
 	lastReceivedWaitingValue time.Duration // required for Prolong-Request-Reply-Timer
 
-	// the SPINE local device
-	deviceLocalCon spine.DeviceLocalConnection
-
 	shutdownOnce sync.Once
 
 	mux sync.Mutex
@@ -68,15 +64,20 @@ type ShipConnectionImpl struct {
 
 var _ ShipConnection = (*ShipConnectionImpl)(nil)
 
-func NewConnectionHandler(dataProvider ShipServiceDataProvider, dataHandler ShipDataConnection, deviceLocalCon spine.DeviceLocalConnection, role shipRole, localShipID, remoteSki, remoteShipId string) *ShipConnectionImpl {
+func NewConnectionHandler(
+	dataProvider ShipServiceDataProvider,
+	dataHandler WebsocketDataConnection,
+	role shipRole,
+	localShipID,
+	remoteSki,
+	remoteShipId string) *ShipConnectionImpl {
 	ship := &ShipConnectionImpl{
 		serviceDataProvider: dataProvider,
-		deviceLocalCon:      deviceLocalCon,
+		dataHandler:         dataHandler,
 		role:                role,
 		localShipID:         localShipID,
 		remoteSKI:           remoteSki,
 		remoteShipID:        remoteShipId,
-		dataHandler:         dataHandler,
 		smeState:            CmiStateInitStart,
 		smeError:            nil,
 	}
@@ -94,7 +95,7 @@ func (c *ShipConnectionImpl) RemoteSKI() string {
 	return c.remoteSKI
 }
 
-func (c *ShipConnectionImpl) DataHandler() ShipDataConnection {
+func (c *ShipConnectionImpl) DataHandler() WebsocketDataConnection {
 	return c.dataHandler
 }
 
@@ -142,20 +143,10 @@ func (c *ShipConnectionImpl) AbortPendingHandshake() {
 	c.setAndHandleState(SmeHelloStateAbort)
 }
 
-// report removing a connection
-func (c *ShipConnectionImpl) removeRemoteDeviceConnection() {
-	if c.deviceLocalCon == nil {
-		return
-	}
-	c.deviceLocalCon.RemoveRemoteDeviceConnection(c.remoteSKI)
-}
-
 // close this ship connection
 func (c *ShipConnectionImpl) CloseConnection(safe bool, code int, reason string) {
 	c.shutdownOnce.Do(func() {
 		c.stopHandshakeTimer()
-
-		c.removeRemoteDeviceConnection()
 
 		// handshake is completed if approved or aborted
 		state := c.getState()
@@ -192,7 +183,7 @@ func (c *ShipConnectionImpl) CloseConnection(safe bool, code int, reason string)
 	})
 }
 
-var _ spine.SpineDataConnection = (*ShipConnectionImpl)(nil)
+var _ SpineDataConnection = (*ShipConnectionImpl)(nil)
 
 // SpineDataConnection interface implementation
 func (c *ShipConnectionImpl) WriteSpineMessage(message []byte) {
@@ -202,7 +193,7 @@ func (c *ShipConnectionImpl) WriteSpineMessage(message []byte) {
 	}
 }
 
-var _ ShipDataProcessing = (*ShipConnectionImpl)(nil)
+var _ WebsocketDataProcessing = (*ShipConnectionImpl)(nil)
 
 func (c *ShipConnectionImpl) shipModelFromMessage(message []byte) (*model.ShipData, error) {
 	_, jsonData := c.parseMessage(message, true)
@@ -241,7 +232,7 @@ func (c *ShipConnectionImpl) HandleIncomingShipMessage(message []byte) {
 	}
 
 	// pass the payload to the SPINE read handler
-	_, _ = c.spineDataProcessing.HandleIncomingSpineMesssage([]byte(data.Data.Payload))
+	c.spineDataProcessing.HandleIncomingSpineMesssage([]byte(data.Data.Payload))
 }
 
 // checks wether the provided messages is a SHIP message

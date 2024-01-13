@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/google/go-cmp/cmp"
@@ -26,7 +27,7 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ SpineDataConnection = (*WriteMessageHandler)(nil)
+var _ ship.SpineDataConnection = (*WriteMessageHandler)(nil)
 
 func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
 	t.mux.Lock()

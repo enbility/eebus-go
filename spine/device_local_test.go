@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/enbility/eebus-go/ship"
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ type DeviceLocalTestSuite struct {
 	suite.Suite
 }
 
-var _ SpineDataConnection = (*DeviceLocalTestSuite)(nil)
+var _ ship.SpineDataConnection = (*DeviceLocalTestSuite)(nil)
 
 func (d *DeviceLocalTestSuite) WriteSpineMessage([]byte) {}
 
@@ -26,7 +27,7 @@ func (d *DeviceLocalTestSuite) Test_RemoveRemoteDevice() {
 	sut := NewDeviceLocalImpl("brand", "model", "serial", "code", "address", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 
 	ski := "test"
-	sut.AddRemoteDevice(ski, d)
+	_ = sut.SetupRemoteDevice(ski, d)
 	rDevice := sut.RemoteDeviceForSki(ski)
 	assert.NotNil(d.T(), rDevice)
 
@@ -53,7 +54,7 @@ func (d *DeviceLocalTestSuite) Test_RemoteDevice() {
 	devices := sut.RemoteDevices()
 	assert.Equal(d.T(), 0, len(devices))
 
-	sut.AddRemoteDevice(ski, d)
+	_ = sut.SetupRemoteDevice(ski, d)
 	remote = sut.RemoteDeviceForSki(ski)
 	assert.NotNil(d.T(), remote)
 
@@ -94,7 +95,7 @@ func (d *DeviceLocalTestSuite) Test_ProcessCmd_Errors() {
 	sut.AddEntity(localEntity)
 
 	ski := "test"
-	sut.AddRemoteDevice(ski, d)
+	_ = sut.SetupRemoteDevice(ski, d)
 	remote := sut.RemoteDeviceForSki(ski)
 	assert.NotNil(d.T(), remote)
 
@@ -153,7 +154,7 @@ func (d *DeviceLocalTestSuite) Test_ProcessCmd() {
 
 	ski := "test"
 	remoteDeviceName := "remote"
-	sut.AddRemoteDevice(ski, d)
+	_ = sut.SetupRemoteDevice(ski, d)
 	remote := sut.RemoteDeviceForSki(ski)
 	assert.NotNil(d.T(), remote)
 

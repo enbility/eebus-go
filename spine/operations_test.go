@@ -1,14 +1,13 @@
-package spine_test
+package spine
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestOperations(t *testing.T) {
-	operations := spine.NewOperations(true, false)
+	operations := NewOperations(true, false)
 	assert.NotNil(t, operations)
 
 	text := operations.String()
@@ -17,7 +16,7 @@ func TestOperations(t *testing.T) {
 	data := operations.Information()
 	assert.NotNil(t, data)
 
-	operations2 := spine.NewOperations(true, true)
+	operations2 := NewOperations(true, true)
 	assert.NotNil(t, operations2)
 
 	text = operations2.String()
@@ -26,7 +25,7 @@ func TestOperations(t *testing.T) {
 	data = operations2.Information()
 	assert.NotNil(t, data)
 
-	operations3 := spine.NewOperations(false, false)
+	operations3 := NewOperations(false, false)
 	assert.NotNil(t, operations3)
 
 	text = operations3.String()

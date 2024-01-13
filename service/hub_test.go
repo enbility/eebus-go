@@ -36,7 +36,7 @@ type HubSuite struct {
 	serviceProvider    *MockServiceProvider
 	mdnsService        *MockMdnsService
 	shipConnection     *mocks.ShipConnection
-	shipDataConnection *mocks.ShipDataConnection
+	shipDataConnection *mocks.WebsocketDataConnection
 
 	remoteSki string
 
@@ -78,7 +78,7 @@ func (s *HubSuite) SetupSuite() {
 	s.mdnsService.EXPECT().RegisterMdnsSearch(gomock.Any()).AnyTimes()
 	s.mdnsService.EXPECT().UnregisterMdnsSearch(gomock.Any()).AnyTimes()
 
-	s.shipDataConnection = mocks.NewShipDataConnection(s.T())
+	s.shipDataConnection = mocks.NewWebsocketDataConnection(s.T())
 
 	s.shipConnection = mocks.NewShipConnection(s.T())
 	s.shipConnection.On("CloseConnection", mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
