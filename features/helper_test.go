@@ -2,10 +2,7 @@ package features_test
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
 	"sync"
-	"testing"
 	"time"
 
 	"github.com/enbility/eebus-go/ship"
@@ -13,16 +10,6 @@ import (
 	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
 	"github.com/stretchr/testify/assert"
-)
-
-const (
-	ec_permittedvaluesetlistdata_recv_notify_partial_file_path = "../spine/testdata/ec_permittedvaluesetlistdata_recv_notify_partial.json"
-	ec_descriptionlistdata_recv_reply_file_path                = "../spine/testdata/ec_descriptionListData_recv_reply.json"
-	ec_parameterdescriptionlistdata_recv_reply_file_path       = "../spine/testdata/ec_parameterDescriptionListData_recv_reply.json"
-	ec_subscriptionRequestCall_recv_result_file_path           = "../spine/testdata/ec_subscriptionRequestCall_recv_result.json"
-	m_subscriptionRequestCall_recv_result_file_path            = "../spine/testdata/m_subscriptionRequestCall_recv_result.json"
-	m_descriptionListData_recv_reply_file_path                 = "../spine/testdata/m_descriptionListData_recv_reply.json"
-	m_measurementListData_recv_notify_file_path                = "../spine/testdata/m_measurementListData_recv_notify.json"
 )
 
 type featureFunctions struct {
@@ -106,35 +93,6 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	}
 
 	return nil
-}
-
-func loadFileData(t *testing.T, fileName string) []byte {
-	fileData, err := os.ReadFile(fileName)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return fileData
-}
-
-func waitForAck(t *testing.T, msgCounterReference *model.MsgCounterType, writeHandler *WriteMessageHandler) {
-	var datagram model.Datagram
-
-	msg := writeHandler.ResultWithReference(msgCounterReference)
-	if msg == nil {
-		t.Fatal("acknowledge message was not sent!!")
-	}
-
-	if err := json.Unmarshal(msg, &datagram); err != nil {
-		t.Fatal(err)
-	}
-
-	cmd := datagram.Datagram.Payload.Cmd[0]
-	if cmd.ResultData != nil {
-		if cmd.ResultData.ErrorNumber != nil && uint(*cmd.ResultData.ErrorNumber) != uint(model.ErrorNumberTypeNoError) {
-			t.Fatal(fmt.Errorf("error '%d' result data received", uint(*cmd.ResultData.ErrorNumber)))
-		}
-	}
 }
 
 func setupFeatures(t assert.TestingT, dataCon ship.SpineDataConnection, featureFunctions []featureFunctions) (spine.EntityLocal, spine.EntityRemote) {
