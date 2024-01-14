@@ -1,15 +1,15 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 type DeviceConfiguration struct {
 	*FeatureImpl
 }
 
-func NewDeviceConfiguration(localRole, remoteRole model.RoleType, localEntity spine.EntityLocal, remoteEntity spine.EntityRemote) (*DeviceConfiguration, error) {
+func NewDeviceConfiguration(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*DeviceConfiguration, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

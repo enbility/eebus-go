@@ -9,28 +9,15 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/enbility/eebus-go/logging"
-	"github.com/enbility/eebus-go/service/mdns"
+	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/mdns"
 	"github.com/enbility/eebus-go/util"
+	"github.com/enbility/ship-go/logging"
 	"github.com/holoplot/go-avahi"
 )
 
-type MdnsEntry struct {
-	Name       string
-	Ski        string
-	Identifier string   // mandatory
-	Path       string   // mandatory
-	Register   bool     // mandatory
-	Brand      string   // optional
-	Type       string   // optional
-	Model      string   // optional
-	Host       string   // mandatory
-	Port       int      // mandatory
-	Addresses  []net.IP // mandatory
-}
-
 type mdnsManager struct {
-	configuration *Configuration
+	configuration *api.Configuration
 	ski           string
 
 	isAnnounced         bool
@@ -39,10 +26,10 @@ type mdnsManager struct {
 	cancelChan chan bool
 
 	// the currently available mDNS entries with the SKI as the key in the map
-	entries map[string]*MdnsEntry
+	entries map[string]*api.MdnsEntry
 
 	// the registered callback, only connectionsHub is using this
-	searchDelegate MdnsSearch
+	searchDelegate api.MdnsSearch
 
 	mdnsProvider mdns.MdnsProvider
 
@@ -50,11 +37,11 @@ type mdnsManager struct {
 	entriesMux sync.Mutex
 }
 
-func newMDNS(ski string, configuration *Configuration) *mdnsManager {
+func newMDNS(ski string, configuration *api.Configuration) *mdnsManager {
 	m := &mdnsManager{
 		ski:           ski,
 		configuration: configuration,
-		entries:       make(map[string]*MdnsEntry),
+		entries:       make(map[string]*api.MdnsEntry),
 		cancelChan:    make(chan bool),
 	}
 
@@ -66,10 +53,10 @@ func (m *mdnsManager) interfaces() ([]net.Interface, []int32, error) {
 	var ifaces []net.Interface
 	var ifaceIndexes []int32
 
-	if len(m.configuration.interfaces) > 0 {
-		ifaces = make([]net.Interface, len(m.configuration.interfaces))
-		ifaceIndexes = make([]int32, len(m.configuration.interfaces))
-		for i, ifaceName := range m.configuration.interfaces {
+	if len(m.configuration.Interfaces()) > 0 {
+		ifaces = make([]net.Interface, len(m.configuration.Interfaces()))
+		ifaceIndexes = make([]int32, len(m.configuration.Interfaces()))
+		for i, ifaceName := range m.configuration.Interfaces() {
 			iface, err := net.InterfaceByName(ifaceName)
 			if err != nil {
 				return nil, nil, err
@@ -87,7 +74,7 @@ func (m *mdnsManager) interfaces() ([]net.Interface, []int32, error) {
 	return ifaces, ifaceIndexes, nil
 }
 
-var _ MdnsService = (*mdnsManager)(nil)
+var _ api.MdnsService = (*mdnsManager)(nil)
 
 func (m *mdnsManager) SetupMdnsService() error {
 	ifaces, ifaceIndexes, err := m.interfaces()
@@ -139,17 +126,17 @@ func (m *mdnsManager) AnnounceMdnsEntry() error {
 		"path=" + shipWebsocketPath,
 		"id=" + serviceIdentifier,
 		"ski=" + m.ski,
-		"brand=" + m.configuration.deviceBrand,
-		"model=" + m.configuration.deviceModel,
-		"type=" + string(m.configuration.deviceType),
-		"register=" + fmt.Sprintf("%v", m.configuration.registerAutoAccept),
+		"brand=" + m.configuration.DeviceBrand(),
+		"model=" + m.configuration.DeviceModel(),
+		"type=" + string(m.configuration.DeviceType()),
+		"register=" + fmt.Sprintf("%v", m.configuration.RegisterAutoAccept()),
 	}
 
 	logging.Log().Debug("mdns: announce")
 
 	serviceName := m.configuration.MdnsServiceName()
 
-	if err := m.mdnsProvider.Announce(serviceName, m.configuration.port, txt); err != nil {
+	if err := m.mdnsProvider.Announce(serviceName, m.configuration.Port(), txt); err != nil {
 		logging.Log().Debug("mdns: failure announcing service", err)
 		return err
 	}
@@ -187,28 +174,28 @@ func (m *mdnsManager) setIsSearchingServices(enable bool) {
 	m.isSearchingServices = enable
 }
 
-func (m *mdnsManager) mdnsEntries() map[string]*MdnsEntry {
+func (m *mdnsManager) mdnsEntries() map[string]*api.MdnsEntry {
 	m.entriesMux.Lock()
 	defer m.entriesMux.Unlock()
 
 	return m.entries
 }
 
-func (m *mdnsManager) copyMdnsEntries() map[string]*MdnsEntry {
+func (m *mdnsManager) copyMdnsEntries() map[string]*api.MdnsEntry {
 	m.entriesMux.Lock()
 	defer m.entriesMux.Unlock()
 
-	mdnsEntries := make(map[string]*MdnsEntry)
+	mdnsEntries := make(map[string]*api.MdnsEntry)
 	for k, v := range m.entries {
-		newEntry := &MdnsEntry{}
-		util.DeepCopy[*MdnsEntry](v, newEntry)
+		newEntry := &api.MdnsEntry{}
+		util.DeepCopy[*api.MdnsEntry](v, newEntry)
 		mdnsEntries[k] = newEntry
 	}
 
 	return mdnsEntries
 }
 
-func (m *mdnsManager) mdnsEntry(ski string) (*MdnsEntry, bool) {
+func (m *mdnsManager) mdnsEntry(ski string) (*api.MdnsEntry, bool) {
 	m.entriesMux.Lock()
 	defer m.entriesMux.Unlock()
 
@@ -216,7 +203,7 @@ func (m *mdnsManager) mdnsEntry(ski string) (*MdnsEntry, bool) {
 	return entry, ok
 }
 
-func (m *mdnsManager) setMdnsEntry(ski string, entry *MdnsEntry) {
+func (m *mdnsManager) setMdnsEntry(ski string, entry *api.MdnsEntry) {
 	m.entriesMux.Lock()
 	defer m.entriesMux.Unlock()
 
@@ -231,7 +218,7 @@ func (m *mdnsManager) removeMdnsEntry(ski string) {
 }
 
 // Register a callback to be invoked for found mDNS entries
-func (m *mdnsManager) RegisterMdnsSearch(cb MdnsSearch) {
+func (m *mdnsManager) RegisterMdnsSearch(cb api.MdnsSearch) {
 	m.mux.Lock()
 	if m.searchDelegate != cb {
 		m.searchDelegate = cb
@@ -256,7 +243,7 @@ func (m *mdnsManager) RegisterMdnsSearch(cb MdnsSearch) {
 }
 
 // Remove a callback for found mDNS entries and stop searching if no callbacks are left
-func (m *mdnsManager) UnregisterMdnsSearch(cb MdnsSearch) {
+func (m *mdnsManager) UnregisterMdnsSearch(cb api.MdnsSearch) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
@@ -375,7 +362,7 @@ func (m *mdnsManager) processMdnsEntry(elements map[string]string, name, host st
 		m.setMdnsEntry(ski, entry)
 	} else if !exists && !remove {
 		// new
-		newEntry := &MdnsEntry{
+		newEntry := &api.MdnsEntry{
 			Name:       name,
 			Ski:        ski,
 			Identifier: identifier,

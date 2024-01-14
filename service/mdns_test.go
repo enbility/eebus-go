@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
-	mdnsmocks "github.com/enbility/eebus-go/service/mdns/mocks"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/cert"
+	"github.com/enbility/eebus-go/mocks"
 	"github.com/enbility/eebus-go/util"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	gomock "go.uber.org/mock/gomock"
 )
 
 func TestMdnsSuite(t *testing.T) {
@@ -23,31 +24,29 @@ type MdnsSuite struct {
 
 	sut *mdnsManager
 
-	config *Configuration
+	config *api.Configuration
 
-	mdnsService  *MockMdnsService
-	mdnsSearch   *MockMdnsSearch
-	mdnsProvider *mdnsmocks.MdnsProvider
+	mdnsService  *mocks.MdnsService
+	mdnsSearch   *mocks.MdnsSearch
+	mdnsProvider *mocks.MdnsProvider
 }
 
 func (s *MdnsSuite) SetupSuite()   {}
 func (s *MdnsSuite) TearDownTest() {}
 
 func (s *MdnsSuite) BeforeTest(suiteName, testName string) {
-	ctrl := gomock.NewController(s.T())
+	s.mdnsService = mocks.NewMdnsService(s.T())
 
-	s.mdnsService = NewMockMdnsService(ctrl)
+	s.mdnsSearch = mocks.NewMdnsSearch(s.T())
+	s.mdnsSearch.EXPECT().ReportMdnsEntries(mock.Anything).Maybe()
 
-	s.mdnsSearch = NewMockMdnsSearch(ctrl)
-	s.mdnsSearch.EXPECT().ReportMdnsEntries(gomock.Any()).AnyTimes()
-
-	s.mdnsProvider = mdnsmocks.NewMdnsProvider(s.T())
+	s.mdnsProvider = mocks.NewMdnsProvider(s.T())
 	s.mdnsProvider.On("ResolveEntries", mock.Anything, mock.Anything).Maybe().Return()
 	s.mdnsProvider.On("Shutdown").Maybe().Return()
 
-	certificate, _ := CreateCertificate("unit", "org", "DE", "CN")
+	certificate, _ := cert.CreateCertificate("unit", "org", "DE", "CN")
 
-	s.config, _ = NewConfiguration(
+	s.config, _ = api.NewConfiguration(
 		"vendor", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
 
@@ -73,12 +72,12 @@ func (s *MdnsSuite) Test_SetupMdnsService() {
 
 	// we don't have access to iface names on CI
 	if !util.IsRunningOnCI() {
-		s.config.interfaces = []string{ifaces[0].Name}
+		s.config.SetInterfaces([]string{ifaces[0].Name})
 		err = s.sut.SetupMdnsService()
 		assert.Nil(s.T(), err)
 	}
 
-	s.config.interfaces = []string{"noifacename"}
+	s.config.SetInterfaces([]string{"noifacename"})
 	err = s.sut.SetupMdnsService()
 	assert.NotNil(s.T(), err)
 
@@ -99,7 +98,7 @@ func (s *MdnsSuite) Test_MdnsEntry() {
 	entries := s.sut.mdnsEntries()
 	assert.Equal(s.T(), 0, len(entries))
 
-	entry := &MdnsEntry{
+	entry := &api.MdnsEntry{
 		Ski: testSki,
 	}
 
@@ -132,7 +131,7 @@ func (s *MdnsSuite) Test_MdnsSearch() {
 
 	testSki := "test"
 
-	entry := &MdnsEntry{
+	entry := &api.MdnsEntry{
 		Ski: testSki,
 	}
 	s.sut.setMdnsEntry(testSki, entry)

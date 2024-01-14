@@ -1,15 +1,15 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 type IncentiveTable struct {
 	*FeatureImpl
 }
 
-func NewIncentiveTable(localRole, remoteRole model.RoleType, localEntity spine.EntityLocal, remoteEntity spine.EntityRemote) (*IncentiveTable, error) {
+func NewIncentiveTable(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*IncentiveTable, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

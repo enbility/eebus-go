@@ -5,23 +5,20 @@
 [![Coverage Status](https://coveralls.io/repos/github/enbility/eebus-go/badge.svg?branch=dev)](https://coveralls.io/github/enbility/eebus-go?branch=dev)
 [![Go report](https://goreportcard.com/badge/github.com/enbility/eebus-go)](https://goreportcard.com/report/github.com/enbility/eebus-go)
 
-This library provides a complete foundation for implementing [EEBUS](https://eebus.org) use cases. The use cases define various functional scenarios for different device categories, e.g. energy management systems, charging stations, heat pumps, and more.
+This library provides a foundation for implementing [EEBUS](https://eebus.org) use cases in [go](https://golang.org). It uses the SHIP implementation [ship-go](https://github.com/enbility/ship-go) and the SPINE implementation [spine-go](https://github.com/enbility/spine-go). Both repositories started as part of this repository, before they were moved into their own separate repositories and go packages.
+
+Basic understanding of the EEBUS concepts SHIP and SPINE to use this library is required. Please check the corresponding specifications on the [EEBUS downloads website](https://www.eebus.org/media-downloads/).
 
 ## Introduction
 
 The supported functionality contains:
 
-- Support for SHIP 1.0.1
-- Support for big parts of SPINE 1.1.1
-- (De-)serialization for EEBUS specific JSON format requirements
+- Support for SHIP 1.0.1 via [ship-go](https://github.com/enbility/ship-go)
+- Support for SPINE 1.3.0 via [spine-go](https://github.com/enbility/spine-go)
 - Certificate handling
 - mDNS Support, incl. avahi support (recommended)
 - Connection (websocket) handling, including reconnection and double connections
 - Support for handling pairing of devices
-
-Basic understanding of the EEBUS concepts SHIP and SPINE to use this library is required. Please check the corresponding specifications on the [EEBUS downloads website](https://www.eebus.org/media-downloads/).
-
-An open source SDK written in go providing the foundation to use EEBUS in your projects. Contains support for SHIP and SPINE communication.
 
 ## Usage
 
@@ -95,151 +92,12 @@ This approach has been tested with:
 - Porsche Mobile Charger Connect
 - SMA Home Energy Manager 2.0
 
-## Roadmap - Spine specification implementation
-
-### General request processing
-
-- [X] Request and process full data
-- [ ] Request partial data
-  - [ ] Delete Selectors
-  - [ ] Update Selectors
-  - [ ] Elements
-- [ ] Send
-  - [X] Full data
-  - [ ] Partial data
-- [X] Process partial data
-  - [X] Delete Selectors
-  - [X] Update Selectors
-  - [X] Elements
-- [ ] Request types
-  - [X] Read
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-      - [ ] Partial Delete
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-      - [X] Partial Delete
-  - [X] Reply
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-      - [ ] Partial Delete
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-      - [X] Partial Delete
-  - [X] Notify
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-      - [ ] Partial Delete
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-      - [X] Partial Delete
-  - [X] Write
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-      - [ ] Partial Delete
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-      - [X] Partial Delete
-- [X] Result message handling
-  - [X] Handle incoming error results
-  - [X] Handle incoming success results
-  - [X] Respond with error result when processing failed
-- [X] Acknowledgement support
-  - [X] Request
-  - [X] Respond
-- [x] Use maximum response delay to timeout requests
-
-### Node Management
-
-- [ ] Detailed Discovery
-  - [ ] Read Messages
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-  - [ ] Reply Messages
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-  - [ ] Notify Messages
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-- [ ] Destination List
-  - [ ] Request and process full data
-  - [X] Response full data
-  - [ ] Request and process partial data
-  - [ ] Response partial data
-  - [ ] Notify subscribers
-- [ ] Binding
-  - [ ] Send Requests
-    - [X] Add Binding
-    - [ ] Delete Binding
-  - [X] Receive Requests
-    - [X] Add Binding
-    - [X] Delete Binding
-- [ ] Subscription
-  - [ ] Send Requests
-    - [X] Add Subscription
-    - [ ] Delete Subscription
-  - [X] Receive Requests
-    - [X] Add Subscription
-    - [X] Delete Subscription
-  - [X] Notify subscribers
-- [ ] Use Case Discovery
-  - [ ] Read Messages
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-  - [ ] Reply Messages
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-  - [ ] Notify Messages
-    - [ ] Send
-      - [X] Full Request
-      - [ ] Partial Request
-    - [X] Receive
-      - [X] Full Request
-      - [X] Partial Request
-
-### General feature implementation
-
-- [ ] Hearbeat Support
-  - [X] Send hearbeats
-  - [ ] Receive hearbeats
-
-### Partial, selector, elements support
-
-All list types do support processing of incoming partial messages, including selectors and elements. Sending partial messages is possible but there is no special support implemented right now.
 
 ## Interfaces
 
 ### Verbose logging
 
-Use `SetLogger` on `Service` to set the logger which needs to conform to the `logging.Logging` interface.
+Use `SetLogger` on `Service` to set the logger which needs to conform to the `logging.Logging` interface of [ship-go](https://github.com/enbility/ship-go).
 
 Example:
 

@@ -3,8 +3,8 @@ package features
 import (
 	"errors"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 type FeatureImpl struct {
@@ -13,19 +13,19 @@ type FeatureImpl struct {
 	localRole  model.RoleType
 	remoteRole model.RoleType
 
-	spineLocalDevice spine.DeviceLocal
-	localEntity      spine.EntityLocal
+	spineLocalDevice api.DeviceLocal
+	localEntity      api.EntityLocal
 
-	featureLocal  spine.FeatureLocal
-	featureRemote spine.FeatureRemote
+	featureLocal  api.FeatureLocal
+	featureRemote api.FeatureRemote
 
-	remoteDevice spine.DeviceRemote
-	remoteEntity spine.EntityRemote
+	remoteDevice api.DeviceRemote
+	remoteEntity api.EntityRemote
 }
 
 var _ Feature = (*FeatureImpl)(nil)
 
-func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity spine.EntityLocal, remoteEntity spine.EntityRemote) (*FeatureImpl, error) {
+func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*FeatureImpl, error) {
 	f := &FeatureImpl{
 		featureType:      featureType,
 		localRole:        localRole,
@@ -51,7 +51,7 @@ func (f *FeatureImpl) SubscribeForEntity() error {
 	return nil
 }
 
-func (f *FeatureImpl) AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg spine.ResultMessage)) {
+func (f *FeatureImpl) AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResultMessage)) {
 	f.featureLocal.AddResultCallback(msgCounterReference, function)
 }
 
@@ -78,7 +78,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 		return nil, ErrFunctionNotSupported
 	}
 
-	if !fTypes[function].Read {
+	if !fTypes[function].Read() {
 		return nil, ErrOperationOnFunctionNotSupported
 	}
 
@@ -91,7 +91,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 }
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (spine.FeatureLocal, spine.FeatureRemote, error) {
+func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (api.FeatureLocal, api.FeatureRemote, error) {
 	if f.remoteEntity == nil {
 		return nil, nil, errors.New("invalid remote entity provided")
 	}

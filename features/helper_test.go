@@ -5,10 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/enbility/eebus-go/ship"
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,7 +24,7 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ ship.SpineDataConnection = (*WriteMessageHandler)(nil)
+var _ shipapi.SpineDataConnection = (*WriteMessageHandler)(nil)
 
 func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
 	t.mux.Lock()
@@ -95,7 +96,7 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	return nil
 }
 
-func setupFeatures(t assert.TestingT, dataCon ship.SpineDataConnection, featureFunctions []featureFunctions) (spine.EntityLocal, spine.EntityRemote) {
+func setupFeatures(t assert.TestingT, dataCon shipapi.SpineDataConnection, featureFunctions []featureFunctions) (spineapi.EntityLocal, spineapi.EntityRemote) {
 	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))

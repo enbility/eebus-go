@@ -6,16 +6,15 @@ import (
 	"os"
 	"sync"
 	"testing"
-	"time"
 
-	"github.com/enbility/eebus-go/ship"
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 const (
-	wallbox_detaileddiscoverydata_recv_reply_file_path  = "../spine/testdata/wallbox_detaileddiscoverydata_recv_reply.json"
-	wallbox_detaileddiscoverydata_recv_notify_file_path = "../spine/testdata/wallbox_detaileddiscoverydata_recv_notify.json"
+	wallbox_detaileddiscoverydata_recv_reply_file_path  = ".//testdata/wallbox_detaileddiscoverydata_recv_reply.json"
+	wallbox_detaileddiscoverydata_recv_notify_file_path = ".//testdata/wallbox_detaileddiscoverydata_recv_notify.json"
 )
 
 type WriteMessageHandler struct {
@@ -24,7 +23,7 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ ship.SpineDataConnection = (*WriteMessageHandler)(nil)
+var _ shipapi.SpineDataConnection = (*WriteMessageHandler)(nil)
 
 func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
 	t.mux.Lock()
@@ -96,26 +95,7 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	return nil
 }
 
-func beforeTest(
-	suiteName, testName string, fId uint, ftype model.FeatureTypeType,
-	frole model.RoleType) (spine.DeviceLocal, string, spine.DeviceRemote, *WriteMessageHandler) {
-	sut := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
-	sut.AddEntity(localEntity)
-	f := spine.NewFeatureLocalImpl(fId, localEntity, ftype, frole)
-	localEntity.AddFeature(f)
-
-	remoteSki := "TestRemoteSki"
-
-	writeHandler := &WriteMessageHandler{}
-	_ = sut.SetupRemoteDevice(remoteSki, writeHandler)
-	remoteDevice := sut.RemoteDeviceForSki(remoteSki)
-
-	return sut, remoteSki, remoteDevice, writeHandler
-}
-
-func initialCommunication(t *testing.T, remoteDevice spine.DeviceRemote, writeHandler *WriteMessageHandler) {
+func initialCommunication(t *testing.T, remoteDevice spineapi.DeviceRemote, writeHandler *WriteMessageHandler) {
 	// Initial generic communication
 
 	_, _ = remoteDevice.HandleSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))

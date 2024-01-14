@@ -5,10 +5,17 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/features"
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+)
+
+const (
+	m_descriptionListData_recv_reply_file_path           = "./testdata/m_descriptionListData_recv_reply.json"
+	m_measurementListData_recv_notify_file_path          = "./testdata/m_measurementListData_recv_notify.json"
+	ec_parameterdescriptionlistdata_recv_reply_file_path = "./testdata/ec_parameterDescriptionListData_recv_reply.json"
 )
 
 func TestEmobilityMeasurementSuite(t *testing.T) {
@@ -18,23 +25,19 @@ func TestEmobilityMeasurementSuite(t *testing.T) {
 type EmobilityMeasurementSuite struct {
 	suite.Suite
 
-	sut         spine.DeviceLocal
-	localEntity spine.EntityLocal
+	sut         api.DeviceLocal
+	localEntity api.EntityLocal
 
 	measurement          *features.Measurement
 	electricalconnection *features.ElectricalConnection
 
 	remoteSki string
 
-	remoteDevice spine.DeviceRemote
+	remoteDevice api.DeviceRemote
 	writeHandler *WriteMessageHandler
 }
 
-func (s *EmobilityMeasurementSuite) SetupSuite() {
-}
-
 func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
-
 	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	s.localEntity = spine.NewEntityLocalImpl(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
@@ -52,9 +55,6 @@ func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
 	s.remoteDevice = s.sut.RemoteDeviceForSki(s.remoteSki)
 
 	initialCommunication(s.T(), s.remoteDevice, s.writeHandler)
-}
-
-func (s *EmobilityMeasurementSuite) AfterTest(suiteName, testName string) {
 }
 
 func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {

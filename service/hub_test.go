@@ -1,8 +1,15 @@
 package service
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/sha1"
 	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"errors"
+	"math/big"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -11,9 +18,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/ship"
-	"github.com/enbility/eebus-go/ship/mocks"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/cert"
+	"github.com/enbility/eebus-go/mocks"
+	shipapi "github.com/enbility/ship-go/api"
+	shipmocks "github.com/enbility/ship-go/mocks"
+	shipmodel "github.com/enbility/ship-go/model"
+	"github.com/enbility/spine-go/model"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -33,10 +44,13 @@ type testStruct struct {
 type HubSuite struct {
 	suite.Suite
 
-	serviceProvider    *MockServiceProvider
-	mdnsService        *MockMdnsService
-	shipConnection     *mocks.ShipConnection
-	shipDataConnection *mocks.WebsocketDataConnection
+	serviceProvider *mocks.MockServiceProvider
+	mdnsService     *mocks.MockMdnsService
+
+	// serviceProvider  *mocks.ServiceProvider
+	// mdnsService      *mocks.MdnsService
+	shipConnection   *shipmocks.ShipConnection
+	wsDataConnection *shipmocks.WebsocketDataConnection
 
 	remoteSki string
 
@@ -45,7 +59,7 @@ type HubSuite struct {
 	sut *connectionsHubImpl
 }
 
-func (s *HubSuite) SetupSuite() {
+func (s *HubSuite) BeforeTest(suiteName, testName string) {
 	s.remoteSki = "remotetestski"
 
 	s.tests = []testStruct{
@@ -63,59 +77,60 @@ func (s *HubSuite) SetupSuite() {
 	}
 
 	ctrl := gomock.NewController(s.T())
+	// use gomock mocks instead of mockery, as those will panic with a data race error in these tests
 
-	s.serviceProvider = NewMockServiceProvider(ctrl)
-	s.serviceProvider.EXPECT().RemoteSKIConnected(gomock.Any()).AnyTimes()
-	s.serviceProvider.EXPECT().ServiceShipIDUpdate(gomock.Any(), gomock.Any()).AnyTimes()
-	s.serviceProvider.EXPECT().ServicePairingDetailUpdate(gomock.Any(), gomock.Any()).AnyTimes()
-	s.serviceProvider.EXPECT().RemoteSKIDisconnected(gomock.Any()).AnyTimes()
-	s.serviceProvider.EXPECT().AllowWaitingForTrust(gomock.Any()).AnyTimes()
+	s.serviceProvider = mocks.NewMockServiceProvider(ctrl)
+	// s.serviceProvider = mocks.NewServiceProvider(s.T())
+	s.serviceProvider.EXPECT().RemoteSKIConnected(gomock.Any()).Return().AnyTimes()
+	s.serviceProvider.EXPECT().ServiceShipIDUpdate(gomock.Any(), gomock.Any()).Return().AnyTimes()
+	s.serviceProvider.EXPECT().ServicePairingDetailUpdate(gomock.Any(), gomock.Any()).Return().AnyTimes()
+	s.serviceProvider.EXPECT().RemoteSKIDisconnected(gomock.Any()).Return().AnyTimes()
+	s.serviceProvider.EXPECT().AllowWaitingForTrust(gomock.Any()).Return(false).AnyTimes()
 
-	s.mdnsService = NewMockMdnsService(ctrl)
-	s.mdnsService.EXPECT().SetupMdnsService().AnyTimes()
-	s.mdnsService.EXPECT().AnnounceMdnsEntry().AnyTimes()
-	s.mdnsService.EXPECT().UnannounceMdnsEntry().AnyTimes()
-	s.mdnsService.EXPECT().RegisterMdnsSearch(gomock.Any()).AnyTimes()
-	s.mdnsService.EXPECT().UnregisterMdnsSearch(gomock.Any()).AnyTimes()
+	s.mdnsService = mocks.NewMockMdnsService(ctrl)
+	// s.mdnsService = mocks.NewMdnsService(s.T())
+	s.mdnsService.EXPECT().SetupMdnsService().Return(nil).AnyTimes()
+	s.mdnsService.EXPECT().AnnounceMdnsEntry().Return(nil).AnyTimes()
+	s.mdnsService.EXPECT().UnannounceMdnsEntry().Return().AnyTimes()
+	s.mdnsService.EXPECT().RegisterMdnsSearch(gomock.Any()).Return().AnyTimes()
+	s.mdnsService.EXPECT().UnregisterMdnsSearch(gomock.Any()).Return().AnyTimes()
 
-	s.shipDataConnection = mocks.NewWebsocketDataConnection(s.T())
+	s.wsDataConnection = shipmocks.NewWebsocketDataConnection(s.T())
 
-	s.shipConnection = mocks.NewShipConnection(s.T())
-	s.shipConnection.On("CloseConnection", mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
-	s.shipConnection.On("RemoteSKI").Return(s.remoteSki).Maybe()
-	s.shipConnection.On("ApprovePendingHandshake").Return().Maybe()
-	s.shipConnection.On("AbortPendingHandshake").Return().Maybe()
-	s.shipConnection.On("DataHandler").Return(s.shipDataConnection).Maybe()
-	s.shipConnection.On("ShipHandshakeState").Return(ship.SmeStateComplete, nil).Maybe()
-}
+	s.shipConnection = shipmocks.NewShipConnection(s.T())
+	s.shipConnection.EXPECT().CloseConnection(mock.Anything, mock.Anything, mock.Anything).Return().Maybe()
+	s.shipConnection.EXPECT().RemoteSKI().Return(s.remoteSki).Maybe()
+	s.shipConnection.EXPECT().ApprovePendingHandshake().Return().Maybe()
+	s.shipConnection.EXPECT().AbortPendingHandshake().Return().Maybe()
+	s.shipConnection.EXPECT().DataHandler().Return(s.wsDataConnection).Maybe()
+	s.shipConnection.EXPECT().ShipHandshakeState().Return(shipmodel.SmeStateComplete, nil).Maybe()
 
-func (s *HubSuite) BeforeTest(suiteName, testName string) {
-	localService := &ServiceDetails{
+	localService := &api.ServiceDetails{
 		SKI: "localSKI",
 	}
 
 	s.sut = &connectionsHubImpl{
-		connections:              make(map[string]ship.ShipConnection),
+		connections:              make(map[string]shipapi.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		connectionAttemptRunning: make(map[string]bool),
-		remoteServices:           make(map[string]*ServiceDetails),
+		remoteServices:           make(map[string]*api.ServiceDetails),
 		serviceProvider:          s.serviceProvider,
 		localService:             localService,
 		mdns:                     s.mdnsService,
 	}
 
-	certificate, _ := CreateCertificate("unit", "org", "DE", "CN")
-	s.sut.configuration, _ = NewConfiguration("vendor", "brand", "model", "serial",
+	certificate, _ := cert.CreateCertificate("unit", "org", "DE", "CN")
+	s.sut.configuration, _ = api.NewConfiguration("vendor", "brand", "model", "serial",
 		model.DeviceTypeTypeGeneric, []model.EntityTypeType{model.EntityTypeTypeCEM},
 		4567, certificate, 230, time.Second*4)
 }
 
 func (s *HubSuite) Test_NewConnectionsHub() {
 	ski := "12af9e"
-	localService := NewServiceDetails(ski)
-	configuration := &Configuration{
-		interfaces: []string{"en0"},
-	}
+	localService := api.NewServiceDetails(ski)
+
+	configuration := &api.Configuration{}
+	configuration.SetInterfaces([]string{"en0"})
 
 	hub := newConnectionsHub(s.serviceProvider, s.mdnsService, nil, configuration, localService)
 	assert.NotNil(s.T(), hub)
@@ -168,13 +183,13 @@ func (s *HubSuite) Test_Mdns() {
 }
 
 func (s *HubSuite) Test_Ship() {
-	s.sut.HandleShipHandshakeStateUpdate(s.remoteSki, ship.ShipState{
-		State: ship.SmeStateError,
+	s.sut.HandleShipHandshakeStateUpdate(s.remoteSki, shipmodel.ShipState{
+		State: shipmodel.SmeStateError,
 		Error: errors.New("test"),
 	})
 
-	s.sut.HandleShipHandshakeStateUpdate(s.remoteSki, ship.ShipState{
-		State: ship.SmeHelloStateOk,
+	s.sut.HandleShipHandshakeStateUpdate(s.remoteSki, shipmodel.ShipState{
+		State: shipmodel.SmeHelloStateOk,
 	})
 
 	s.sut.ReportServiceShipID(s.remoteSki, "test")
@@ -195,41 +210,41 @@ func (s *HubSuite) Test_Ship() {
 }
 
 func (s *HubSuite) Test_MapShipMessageExchangeState() {
-	state := s.sut.mapShipMessageExchangeState(ship.CmiStateInitStart, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateQueued, state)
+	state := s.sut.mapShipMessageExchangeState(shipmodel.CmiStateInitStart, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateQueued, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.CmiStateClientSend, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateInitiated, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.CmiStateClientSend, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateInitiated, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeHelloStateReadyInit, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateInProgress, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeHelloStateReadyInit, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateInProgress, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeHelloStatePendingInit, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateReceivedPairingRequest, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeHelloStatePendingInit, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateReceivedPairingRequest, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeHelloStateOk, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateTrusted, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeHelloStateOk, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateTrusted, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeHelloStateAbort, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateNone, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeHelloStateAbort, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateNone, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeHelloStateRemoteAbortDone, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateRemoteDeniedTrust, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeHelloStateRemoteAbortDone, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateRemoteDeniedTrust, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmePinStateCheckInit, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStatePin, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmePinStateCheckInit, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStatePin, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeAccessMethodsRequest, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateInProgress, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeAccessMethodsRequest, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateInProgress, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeStateComplete, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateCompleted, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeStateComplete, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateCompleted, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeStateError, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateError, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeStateError, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateError, state)
 
-	state = s.sut.mapShipMessageExchangeState(ship.SmeProtHStateTimeout, s.remoteSki)
-	assert.Equal(s.T(), ConnectionStateInProgress, state)
+	state = s.sut.mapShipMessageExchangeState(shipmodel.SmeProtHStateTimeout, s.remoteSki)
+	assert.Equal(s.T(), api.ConnectionStateInProgress, state)
 }
 
 func (s *HubSuite) Test_DisconnectSKI() {
@@ -249,7 +264,7 @@ func (s *HubSuite) Test_Shutdown() {
 }
 
 func (s *HubSuite) Test_VerifyPeerCertificate() {
-	testCert, _ := CreateCertificate("unit", "org", "DE", "CN")
+	testCert, _ := cert.CreateCertificate("unit", "org", "DE", "CN")
 	var rawCerts [][]byte
 	rawCerts = append(rawCerts, testCert.Certificate...)
 	err := s.sut.verifyPeerCertificate(rawCerts, nil)
@@ -261,14 +276,14 @@ func (s *HubSuite) Test_VerifyPeerCertificate() {
 	assert.NotNil(s.T(), err)
 
 	rawCerts = nil
-	invalidCert, _ := CreateInvalidCertificate("unit", "org", "DE", "CN")
+	invalidCert, _ := createInvalidCertificate("unit", "org", "DE", "CN")
 	rawCerts = append(rawCerts, invalidCert.Certificate...)
 
 	err = s.sut.verifyPeerCertificate(rawCerts, nil)
 	assert.NotNil(s.T(), err)
 }
 
-func (s *HubSuite) Test_ServeHTTP() {
+func (s *HubSuite) Test_ServeHTTP_01() {
 	req := httptest.NewRequest("GET", "http://example.com/foo", nil)
 	w := httptest.NewRecorder()
 	s.sut.ServeHTTP(w, req)
@@ -286,43 +301,49 @@ func (s *HubSuite) Test_ServeHTTP() {
 	}
 	con, _, err = dialer.Dial(wsURL, nil)
 	assert.Nil(s.T(), err)
+
 	con.Close()
+	server.CloseClientConnections()
 	server.Close()
 
-	server = httptest.NewUnstartedServer(s.sut)
+	time.Sleep(time.Second)
+}
+
+func (s *HubSuite) Test_ServeHTTP_02() {
+	server := httptest.NewUnstartedServer(s.sut)
 	server.TLS = &tls.Config{
-		Certificates:       []tls.Certificate{s.sut.configuration.certificate},
+		Certificates:       []tls.Certificate{s.sut.configuration.Certificate()},
 		ClientAuth:         tls.RequireAnyClientCert,
-		CipherSuites:       ciperSuites,
+		CipherSuites:       cert.CiperSuites,
 		InsecureSkipVerify: true,
 	}
 	server.StartTLS()
-	wsURL = strings.Replace(server.URL, "https://", "wss://", -1)
+	wsURL := strings.Replace(server.URL, "https://", "wss://", -1)
 
-	invalidCert, _ := CreateInvalidCertificate("unit", "org", "DE", "CN")
-	dialer = &websocket.Dialer{
+	invalidCert, _ := createInvalidCertificate("unit", "org", "DE", "CN")
+	dialer := &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 5 * time.Second,
 		TLSClientConfig: &tls.Config{
 			Certificates:       []tls.Certificate{invalidCert},
 			InsecureSkipVerify: true,
-			CipherSuites:       ciperSuites,
+			CipherSuites:       cert.CiperSuites,
 		},
 		Subprotocols: []string{shipWebsocketSubProtocol},
 	}
-	con, _, err = dialer.Dial(wsURL, nil)
+	con, _, err := dialer.Dial(wsURL, nil)
 	assert.Nil(s.T(), err)
 
 	con.Close()
 
-	validCert, _ := CreateCertificate("unit", "org", "DE", "CN")
+	validCert, _ := cert.CreateCertificate("unit", "org", "DE", "CN")
 	dialer = &websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 5 * time.Second,
 		TLSClientConfig: &tls.Config{
 			Certificates:       []tls.Certificate{validCert},
 			InsecureSkipVerify: true,
-			CipherSuites:       ciperSuites,
+			CipherSuites:       cert.CiperSuites,
 		},
 		Subprotocols: []string{shipWebsocketSubProtocol},
 	}
@@ -330,10 +351,13 @@ func (s *HubSuite) Test_ServeHTTP() {
 	assert.Nil(s.T(), err)
 
 	con.Close()
+	server.CloseClientConnections()
 	server.Close()
+
+	time.Sleep(time.Second)
 }
 
-func (s *HubSuite) Test_ConnectFoundService() {
+func (s *HubSuite) Test_ConnectFoundService_01() {
 	service := s.sut.ServiceForSKI(s.remoteSki)
 
 	err := s.sut.connectFoundService(service, "localhost", "80")
@@ -346,41 +370,58 @@ func (s *HubSuite) Test_ConnectFoundService() {
 	err = s.sut.connectFoundService(service, url.Hostname(), url.Port())
 	assert.NotNil(s.T(), err)
 
+	server.CloseClientConnections()
 	server.Close()
 
-	server = httptest.NewUnstartedServer(s.sut)
-	invalidCert, _ := CreateInvalidCertificate("unit", "org", "DE", "CN")
+	time.Sleep(time.Second)
+}
+
+func (s *HubSuite) Test_ConnectFoundService_02() {
+	service := s.sut.ServiceForSKI(s.remoteSki)
+
+	server := httptest.NewUnstartedServer(s.sut)
+	invalidCert, _ := createInvalidCertificate("unit", "org", "DE", "CN")
 	server.TLS = &tls.Config{
 		Certificates:       []tls.Certificate{invalidCert},
 		ClientAuth:         tls.RequireAnyClientCert,
-		CipherSuites:       ciperSuites,
+		CipherSuites:       cert.CiperSuites,
 		InsecureSkipVerify: true,
 	}
 	server.StartTLS()
 
-	url, err = url.Parse(server.URL)
+	url, err := url.Parse(server.URL)
 	assert.Nil(s.T(), err)
 
 	err = s.sut.connectFoundService(service, url.Hostname(), url.Port())
 	assert.NotNil(s.T(), err)
 
+	server.CloseClientConnections()
 	server.Close()
 
-	server = httptest.NewUnstartedServer(s.sut)
+	time.Sleep(time.Second)
+}
+
+func (s *HubSuite) Test_ConnectFoundService_03() {
+	service := s.sut.ServiceForSKI(s.remoteSki)
+
+	server := httptest.NewUnstartedServer(s.sut)
 	server.TLS = &tls.Config{
-		Certificates:       []tls.Certificate{s.sut.configuration.certificate},
+		Certificates:       []tls.Certificate{s.sut.configuration.Certificate()},
 		ClientAuth:         tls.RequireAnyClientCert,
-		CipherSuites:       ciperSuites,
+		CipherSuites:       cert.CiperSuites,
 		InsecureSkipVerify: true,
 	}
 	server.StartTLS()
 
-	url, err = url.Parse(server.URL)
+	url, err := url.Parse(server.URL)
 	assert.Nil(s.T(), err)
 
 	err = s.sut.connectFoundService(service, url.Hostname(), url.Port())
 	assert.NotNil(s.T(), err)
 
+	time.Sleep(time.Second)
+
+	server.CloseClientConnections()
 	server.Close()
 }
 
@@ -400,7 +441,7 @@ func (s *HubSuite) Test_KeepThisConnection() {
 }
 
 func (s *HubSuite) Test_prepareConnectionInitiation() {
-	entry := &MdnsEntry{
+	entry := &api.MdnsEntry{
 		Ski:  s.remoteSki,
 		Host: "somehost",
 	}
@@ -415,7 +456,7 @@ func (s *HubSuite) Test_prepareConnectionInitiation() {
 	s.sut.prepareConnectionInitation(s.remoteSki, 0, entry)
 
 	s.sut.RegisterRemoteSKI(s.remoteSki, false)
-	service.ConnectionStateDetail().SetState(ConnectionStateQueued)
+	service.ConnectionStateDetail().SetState(api.ConnectionStateQueued)
 
 	counter = s.sut.increaseConnectionAttemptCounter(s.remoteSki)
 	assert.Equal(s.T(), 0, counter)
@@ -424,7 +465,7 @@ func (s *HubSuite) Test_prepareConnectionInitiation() {
 }
 
 func (s *HubSuite) Test_InitiateConnection() {
-	entry := &MdnsEntry{
+	entry := &api.MdnsEntry{
 		Ski:  s.remoteSki,
 		Host: "somehost",
 	}
@@ -439,7 +480,7 @@ func (s *HubSuite) Test_InitiateConnection() {
 	assert.Equal(s.T(), false, result)
 
 	s.sut.RegisterRemoteSKI(s.remoteSki, true)
-	service.ConnectionStateDetail().SetState(ConnectionStateQueued)
+	service.ConnectionStateDetail().SetState(api.ConnectionStateQueued)
 
 	result = s.sut.initateConnection(service, entry)
 	assert.Equal(s.T(), false, result)
@@ -522,19 +563,19 @@ func (s *HubSuite) Test_ReportMdnsEntries() {
 	testski1 := "test1"
 	testski2 := "test2"
 
-	entries := make(map[string]*MdnsEntry)
+	entries := make(map[string]*api.MdnsEntry)
 
 	s.serviceProvider.EXPECT().VisibleMDNSRecordsUpdated(gomock.Any()).AnyTimes()
 	s.sut.ReportMdnsEntries(entries)
 
-	entries[testski1] = &MdnsEntry{
+	entries[testski1] = &api.MdnsEntry{
 		Ski: testski1,
 	}
 	service1 := s.sut.ServiceForSKI(testski1)
 	service1.Trusted = true
 	service1.IPv4 = "127.0.0.1"
 
-	entries[testski2] = &MdnsEntry{
+	entries[testski2] = &api.MdnsEntry{
 		Ski: testski2,
 	}
 	service2 := s.sut.ServiceForSKI(testski2)
@@ -542,4 +583,59 @@ func (s *HubSuite) Test_ReportMdnsEntries() {
 	service2.IPv4 = "127.0.0.1"
 
 	s.sut.ReportMdnsEntries(entries)
+}
+
+func createInvalidCertificate(organizationalUnit, organization, country, commonName string) (tls.Certificate, error) {
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	// Create the EEBUS service SKI using the private key
+	asn1, err := x509.MarshalECPrivateKey(privateKey)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+	// SHIP 12.2: Required to be created according to RFC 3280 4.2.1.2
+	ski := sha1.Sum(asn1)
+
+	subject := pkix.Name{
+		OrganizationalUnit: []string{organizationalUnit},
+		Organization:       []string{organization},
+		Country:            []string{country},
+		CommonName:         commonName,
+	}
+
+	// Create a random serial big int value
+	maxValue := new(big.Int)
+	maxValue.Exp(big.NewInt(2), big.NewInt(130), nil).Sub(maxValue, big.NewInt(1))
+	serialNumber, err := rand.Int(rand.Reader, maxValue)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	template := x509.Certificate{
+		SignatureAlgorithm:    x509.ECDSAWithSHA256,
+		SerialNumber:          serialNumber,
+		Subject:               subject,
+		NotBefore:             time.Now(),                                // Valid starting now
+		NotAfter:              time.Now().Add(time.Hour * 24 * 365 * 10), // Valid for 10 years
+		KeyUsage:              x509.KeyUsageDigitalSignature,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		SubjectKeyId:          ski[:19],
+	}
+
+	certBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	tlsCertificate := tls.Certificate{
+		Certificate:                  [][]byte{certBytes},
+		PrivateKey:                   privateKey,
+		SupportedSignatureAlgorithms: []tls.SignatureScheme{tls.ECDSAWithP256AndSHA256},
+	}
+
+	return tlsCertificate, nil
 }

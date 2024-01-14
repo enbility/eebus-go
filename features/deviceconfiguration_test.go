@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/enbility/eebus-go/features"
-	"github.com/enbility/eebus-go/ship"
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -19,14 +19,14 @@ func TestDeviceConfigurationSuite(t *testing.T) {
 type DeviceConfigurationSuite struct {
 	suite.Suite
 
-	localEntity  spine.EntityLocal
-	remoteEntity spine.EntityRemote
+	localEntity  spineapi.EntityLocal
+	remoteEntity spineapi.EntityRemote
 
 	deviceConfiguration *features.DeviceConfiguration
 	sentMessage         []byte
 }
 
-var _ ship.SpineDataConnection = (*DeviceConfigurationSuite)(nil)
+var _ shipapi.SpineDataConnection = (*DeviceConfigurationSuite)(nil)
 
 func (s *DeviceConfigurationSuite) WriteSpineMessage(message []byte) {
 	s.sentMessage = message

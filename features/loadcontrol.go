@@ -1,15 +1,15 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 type LoadControl struct {
 	*FeatureImpl
 }
 
-func NewLoadControl(localRole, remoteRole model.RoleType, localEntity spine.EntityLocal, remoteEntity spine.EntityRemote) (*LoadControl, error) {
+func NewLoadControl(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*LoadControl, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeLoadControl, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

@@ -5,12 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/logging"
-	"github.com/enbility/eebus-go/logging/mocks"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/cert"
+	"github.com/enbility/eebus-go/mocks"
+	"github.com/enbility/ship-go/logging"
+	shipmocks "github.com/enbility/ship-go/mocks"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	gomock "go.uber.org/mock/gomock"
 )
 
 func TestServiceSuite(t *testing.T) {
@@ -20,29 +23,24 @@ func TestServiceSuite(t *testing.T) {
 type ServiceSuite struct {
 	suite.Suite
 
-	config *Configuration
+	config *api.Configuration
 
-	sut *EEBUSService
+	sut *EEBUSServiceImpl
 
-	serviceHandler *MockEEBUSServiceHandler
-	conHub         *MockConnectionsHub
-	logging        *mocks.Logging
+	serviceHandler *mocks.EEBUSServiceHandler
+	conHub         *mocks.ConnectionsHub
+	logging        *shipmocks.Logging
 }
 
-func (s *ServiceSuite) SetupSuite()   {}
-func (s *ServiceSuite) TearDownTest() {}
-
 func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
-	ctrl := gomock.NewController(s.T())
+	s.serviceHandler = mocks.NewEEBUSServiceHandler(s.T())
 
-	s.serviceHandler = NewMockEEBUSServiceHandler(ctrl)
+	s.conHub = mocks.NewConnectionsHub(s.T())
 
-	s.conHub = NewMockConnectionsHub(ctrl)
-
-	s.logging = mocks.NewLogging(s.T())
+	s.logging = shipmocks.NewLogging(s.T())
 
 	certificate := tls.Certificate{}
-	s.config, _ = NewConfiguration(
+	s.config, _ = api.NewConfiguration(
 		"vendor", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
 
@@ -52,28 +50,28 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 func (s *ServiceSuite) Test_EEBUSHandler() {
 	testSki := "test"
 
-	entry := &MdnsEntry{
+	entry := &api.MdnsEntry{
 		Ski: testSki,
 	}
 
-	entries := []*MdnsEntry{entry}
-	s.serviceHandler.EXPECT().VisibleRemoteServicesUpdated(gomock.Any(), gomock.Any())
+	entries := []*api.MdnsEntry{entry}
+	s.serviceHandler.EXPECT().VisibleRemoteServicesUpdated(mock.Anything, mock.Anything).Return()
 	s.sut.VisibleMDNSRecordsUpdated(entries)
 
-	s.serviceHandler.EXPECT().RemoteSKIConnected(gomock.Any(), gomock.Any())
+	s.serviceHandler.EXPECT().RemoteSKIConnected(mock.Anything, mock.Anything).Return()
 	s.sut.RemoteSKIConnected(testSki)
 
-	s.serviceHandler.EXPECT().RemoteSKIDisconnected(gomock.Any(), gomock.Any())
+	s.serviceHandler.EXPECT().RemoteSKIDisconnected(mock.Anything, mock.Anything).Return()
 	s.sut.RemoteSKIDisconnected(testSki)
 
-	s.serviceHandler.EXPECT().ServiceShipIDUpdate(gomock.Any(), gomock.Any())
+	s.serviceHandler.EXPECT().ServiceShipIDUpdate(mock.Anything, mock.Anything).Return()
 	s.sut.ServiceShipIDUpdate(testSki, "shipid")
 
-	s.serviceHandler.EXPECT().ServicePairingDetailUpdate(gomock.Any(), gomock.Any())
-	detail := &ConnectionStateDetail{}
+	s.serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return()
+	detail := &api.ConnectionStateDetail{}
 	s.sut.ServicePairingDetailUpdate(testSki, detail)
 
-	s.serviceHandler.EXPECT().AllowWaitingForTrust(gomock.Any()).Return(true)
+	s.serviceHandler.EXPECT().AllowWaitingForTrust(mock.Anything).Return(true)
 	result := s.sut.AllowWaitingForTrust(testSki)
 	assert.Equal(s.T(), true, result)
 
@@ -84,29 +82,29 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 
 	s.sut.connectionsHub = s.conHub
 
-	s.conHub.EXPECT().PairingDetailForSki(gomock.Any())
+	s.conHub.EXPECT().PairingDetailForSki(mock.Anything).Return(nil)
 	s.sut.PairingDetailForSki(testSki)
 
-	s.conHub.EXPECT().StartBrowseMdnsSearch()
+	s.conHub.EXPECT().StartBrowseMdnsSearch().Return()
 	s.sut.StartBrowseMdnsEntries()
 
-	s.conHub.EXPECT().StopBrowseMdnsSearch()
+	s.conHub.EXPECT().StopBrowseMdnsSearch().Return()
 	s.sut.StopBrowseMdnsEntries()
 
-	s.conHub.EXPECT().ServiceForSKI(gomock.Any())
+	s.conHub.EXPECT().ServiceForSKI(mock.Anything).Return(nil)
 	details := s.sut.RemoteServiceForSKI(testSki)
 	assert.Nil(s.T(), details)
 
-	s.conHub.EXPECT().RegisterRemoteSKI(gomock.Any(), gomock.Any())
+	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything, mock.Anything).Return()
 	s.sut.RegisterRemoteSKI(testSki, true)
 
-	s.conHub.EXPECT().InitiatePairingWithSKI(gomock.Any())
+	s.conHub.EXPECT().InitiatePairingWithSKI(mock.Anything).Return()
 	s.sut.InitiatePairingWithSKI(testSki)
 
-	s.conHub.EXPECT().CancelPairingWithSKI(gomock.Any())
+	s.conHub.EXPECT().CancelPairingWithSKI(mock.Anything).Return()
 	s.sut.CancelPairingWithSKI(testSki)
 
-	s.conHub.EXPECT().DisconnectSKI(gomock.Any(), gomock.Any())
+	s.conHub.EXPECT().DisconnectSKI(mock.Anything, mock.Anything).Return()
 	s.sut.DisconnectSKI(testSki, "reason")
 }
 
@@ -126,8 +124,9 @@ func (s *ServiceSuite) Test_Setup() {
 	err := s.sut.Setup()
 	assert.NotNil(s.T(), err)
 
-	s.config.certificate, err = CreateCertificate("unit", "org", "de", "cn")
+	certificate, err := cert.CreateCertificate("unit", "org", "de", "cn")
 	assert.Nil(s.T(), err)
+	s.config.SetCertificate(certificate)
 
 	err = s.sut.Setup()
 	assert.Nil(s.T(), err)

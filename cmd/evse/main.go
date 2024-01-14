@@ -13,14 +13,16 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/cert"
 	"github.com/enbility/eebus-go/service"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/spine-go/model"
 )
 
 var remoteSki string
 
 type evse struct {
-	myService *service.EEBUSService
+	myService *service.EEBUSServiceImpl
 }
 
 func (h *evse) run() {
@@ -36,7 +38,7 @@ func (h *evse) run() {
 			log.Fatal(err)
 		}
 	} else {
-		certificate, err = service.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-02")
+		certificate, err = cert.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-02")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -61,7 +63,7 @@ func (h *evse) run() {
 		log.Fatal(err)
 	}
 
-	configuration, err := service.NewConfiguration(
+	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "EVSE", "234567890",
 		model.DeviceTypeTypeChargingStation,
 		[]model.EntityTypeType{model.EntityTypeTypeEVSE},
@@ -91,17 +93,17 @@ func (h *evse) run() {
 
 // EEBUSServiceHandler
 
-func (h *evse) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
+func (h *evse) RemoteSKIConnected(service api.EEBUSService, ski string) {}
 
-func (h *evse) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
+func (h *evse) RemoteSKIDisconnected(service api.EEBUSService, ski string) {}
 
-func (h *evse) VisibleRemoteServicesUpdated(service *service.EEBUSService, entries []service.RemoteService) {
+func (h *evse) VisibleRemoteServicesUpdated(service api.EEBUSService, entries []api.RemoteService) {
 }
 
 func (h *evse) ServiceShipIDUpdate(ski string, shipdID string) {}
 
-func (h *evse) ServicePairingDetailUpdate(ski string, detail *service.ConnectionStateDetail) {
-	if ski == remoteSki && detail.State() == service.ConnectionStateRemoteDeniedTrust {
+func (h *evse) ServicePairingDetailUpdate(ski string, detail *api.ConnectionStateDetail) {
+	if ski == remoteSki && detail.State() == api.ConnectionStateRemoteDeniedTrust {
 		fmt.Println("The remote service denied trust. Exiting.")
 		h.myService.RegisterRemoteSKI(ski, false)
 		h.myService.CancelPairingWithSKI(ski)
