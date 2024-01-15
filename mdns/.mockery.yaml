@@ -1,9 +1,0 @@
-with-expecter: True
-inpackage: false
-dir: ../mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }} 
-mockname: "{{.InterfaceName}}"
-outpkg: "mocks"
-filename: "{{.InterfaceName}}.go"
-all: True
-packages:
-  github.com/enbility/eebus-go/mdns:

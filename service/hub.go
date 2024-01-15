@@ -27,7 +27,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const shipWebsocketSubProtocol = "ship" // SHIP 10.2: sub protocol is required for websocket connections
 const shipWebsocketPath = "/ship/"
 
 // used for randomizing the connection initiation delay
@@ -406,7 +405,7 @@ func (h *connectionsHubImpl) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ReadBufferSize:  shipws.MaxMessageSize,
 		WriteBufferSize: shipws.MaxMessageSize,
 		CheckOrigin:     func(r *http.Request) bool { return true },
-		Subprotocols:    []string{shipWebsocketSubProtocol}, // SHIP 10.2: Sub protocol "ship" is required
+		Subprotocols:    []string{shipapi.ShipWebsocketSubProtocol}, // SHIP 10.2: Sub protocol "ship" is required
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -416,7 +415,7 @@ func (h *connectionsHubImpl) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if the client supports the ship sub protocol
-	if conn.Subprotocol() != shipWebsocketSubProtocol {
+	if conn.Subprotocol() != shipapi.ShipWebsocketSubProtocol {
 		logging.Log().Debug("client does not support the ship sub protocol")
 		_ = conn.Close()
 		return
@@ -482,7 +481,7 @@ func (h *connectionsHubImpl) connectFoundService(remoteService *api.ServiceDetai
 			InsecureSkipVerify: true,
 			CipherSuites:       cert.CiperSuites,
 		},
-		Subprotocols: []string{shipWebsocketSubProtocol},
+		Subprotocols: []string{shipapi.ShipWebsocketSubProtocol},
 	}
 
 	address := fmt.Sprintf("wss://%s:%s", host, port)

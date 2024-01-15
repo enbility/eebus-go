@@ -3,10 +3,8 @@ module github.com/enbility/eebus-go
 go 1.18
 
 require (
-	github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20231028092313-1ae0ab54a2df
-	github.com/enbility/ship-go v0.0.0-20240114193748-be8afeda7c96
+	github.com/enbility/ship-go v0.0.0-20240115080029-8cabdf4011c6
 	github.com/enbility/spine-go v0.0.0-20240114194628-333ba9f8762c
-	github.com/godbus/dbus/v5 v5.1.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/holoplot/go-avahi v0.0.0-20231130181535-fd8f1d0307ed
 	github.com/stretchr/testify v1.8.4
@@ -14,8 +12,10 @@ require (
 )
 
 require (
+	github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20231028092313-1ae0ab54a2df // indirect
 	github.com/ahmetb/go-linq/v3 v3.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/miekg/dns v1.1.57 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

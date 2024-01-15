@@ -10,9 +10,10 @@ import (
 	"syscall"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/mdns"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/logging"
+	"github.com/enbility/ship-go/mdns"
 	"github.com/holoplot/go-avahi"
 )
 
@@ -31,7 +32,7 @@ type mdnsManager struct {
 	// the registered callback, only connectionsHub is using this
 	searchDelegate api.MdnsSearch
 
-	mdnsProvider mdns.MdnsProvider
+	mdnsProvider shipapi.MdnsProvider
 
 	mux        sync.Mutex
 	entriesMux sync.Mutex

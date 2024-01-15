@@ -297,7 +297,7 @@ func (s *HubSuite) Test_ServeHTTP_01() {
 	con.Close()
 
 	dialer := &websocket.Dialer{
-		Subprotocols: []string{shipWebsocketSubProtocol},
+		Subprotocols: []string{shipapi.ShipWebsocketSubProtocol},
 	}
 	con, _, err = dialer.Dial(wsURL, nil)
 	assert.Nil(s.T(), err)
@@ -329,7 +329,7 @@ func (s *HubSuite) Test_ServeHTTP_02() {
 			InsecureSkipVerify: true,
 			CipherSuites:       cert.CiperSuites,
 		},
-		Subprotocols: []string{shipWebsocketSubProtocol},
+		Subprotocols: []string{shipapi.ShipWebsocketSubProtocol},
 	}
 	con, _, err := dialer.Dial(wsURL, nil)
 	assert.Nil(s.T(), err)
@@ -345,7 +345,7 @@ func (s *HubSuite) Test_ServeHTTP_02() {
 			InsecureSkipVerify: true,
 			CipherSuites:       cert.CiperSuites,
 		},
-		Subprotocols: []string{shipWebsocketSubProtocol},
+		Subprotocols: []string{shipapi.ShipWebsocketSubProtocol},
 	}
 	con, _, err = dialer.Dial(wsURL, nil)
 	assert.Nil(s.T(), err)
