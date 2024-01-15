@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/cert"
 	shipapi "github.com/enbility/ship-go/api"
+	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/ship-go/logging"
 	shipmodel "github.com/enbility/ship-go/model"
 	"github.com/enbility/ship-go/ship"
@@ -26,8 +26,6 @@ import (
 	"github.com/enbility/spine-go/model"
 	"github.com/gorilla/websocket"
 )
-
-const shipWebsocketPath = "/ship/"
 
 // used for randomizing the connection initiation delay
 // this limits the possibility of concurrent connection attempts from both sides
@@ -64,10 +62,10 @@ type connectionsHubImpl struct {
 	httpServer *http.Server
 
 	// Handling mDNS related tasks
-	mdns api.MdnsService
+	mdns shipapi.MdnsService
 
 	// list of currently known/reported mDNS entries
-	knownMdnsEntries []*api.MdnsEntry
+	knownMdnsEntries []*shipapi.MdnsEntry
 
 	spineLocalDevice spineapi.DeviceLocal
 
@@ -77,13 +75,13 @@ type connectionsHubImpl struct {
 	muxMdns       sync.Mutex
 }
 
-func newConnectionsHub(serviceProvider api.ServiceProvider, mdns api.MdnsService, spineLocalDevice spineapi.DeviceLocal, configuration *api.Configuration, localService *api.ServiceDetails) api.ConnectionsHub {
+func newConnectionsHub(serviceProvider api.ServiceProvider, mdns shipapi.MdnsService, spineLocalDevice spineapi.DeviceLocal, configuration *api.Configuration, localService *api.ServiceDetails) api.ConnectionsHub {
 	hub := &connectionsHubImpl{
 		connections:              make(map[string]shipapi.ShipConnection),
 		connectionAttemptCounter: make(map[string]int),
 		connectionAttemptRunning: make(map[string]bool),
 		remoteServices:           make(map[string]*api.ServiceDetails),
-		knownMdnsEntries:         make([]*api.MdnsEntry, 0),
+		knownMdnsEntries:         make([]*shipapi.MdnsEntry, 0),
 		serviceProvider:          serviceProvider,
 		spineLocalDevice:         spineLocalDevice,
 		configuration:            configuration,
@@ -657,11 +655,11 @@ func (h *connectionsHubImpl) CancelPairingWithSKI(ski string) {
 }
 
 // Process reported mDNS services
-func (h *connectionsHubImpl) ReportMdnsEntries(entries map[string]*api.MdnsEntry) {
+func (h *connectionsHubImpl) ReportMdnsEntries(entries map[string]*shipapi.MdnsEntry) {
 	h.muxMdns.Lock()
 	defer h.muxMdns.Unlock()
 
-	var mdnsEntries []*api.MdnsEntry
+	var mdnsEntries []*shipapi.MdnsEntry
 
 	for ski, entry := range entries {
 		mdnsEntries = append(mdnsEntries, entry)
@@ -702,7 +700,7 @@ func (h *connectionsHubImpl) ReportMdnsEntries(entries map[string]*api.MdnsEntry
 }
 
 // coordinate connection initiation attempts to a remove service
-func (h *connectionsHubImpl) coordinateConnectionInitations(ski string, entry *api.MdnsEntry) {
+func (h *connectionsHubImpl) coordinateConnectionInitations(ski string, entry *shipapi.MdnsEntry) {
 	if h.isConnectionAttemptRunning(ski) {
 		return
 	}
@@ -731,7 +729,7 @@ func (h *connectionsHubImpl) coordinateConnectionInitations(ski string, entry *a
 
 // invoked by coordinateConnectionInitations either with a delay or directly
 // when initating a pairing process
-func (h *connectionsHubImpl) prepareConnectionInitation(ski string, counter int, entry *api.MdnsEntry) {
+func (h *connectionsHubImpl) prepareConnectionInitation(ski string, counter int, entry *shipapi.MdnsEntry) {
 	h.setConnectionAttemptRunning(ski, false)
 
 	// check if the current counter is still the same, otherwise this counter is irrelevant
@@ -763,7 +761,7 @@ func (h *connectionsHubImpl) prepareConnectionInitation(ski string, counter int,
 
 // attempt to establish a connection to a remote service
 // returns true if successful
-func (h *connectionsHubImpl) initateConnection(remoteService *api.ServiceDetails, entry *api.MdnsEntry) bool {
+func (h *connectionsHubImpl) initateConnection(remoteService *api.ServiceDetails, entry *shipapi.MdnsEntry) bool {
 	var err error
 
 	// try connecting via an IP address first

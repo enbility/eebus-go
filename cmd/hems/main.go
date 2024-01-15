@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/cert"
 	"github.com/enbility/eebus-go/service"
+	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/spine-go/model"
 )
 

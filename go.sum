@@ -5,8 +5,8 @@ github.com/ahmetb/go-linq/v3 v3.2.0/go.mod h1:haQ3JfOeWK8HpVxMtHHEMPVgBKiYyQ+f1/
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/enbility/ship-go v0.0.0-20240115080029-8cabdf4011c6 h1:QyiMPmuUTL5TCe2Ax4anLtzEn7gvsP/hPjEwfpMqmWM=
-github.com/enbility/ship-go v0.0.0-20240115080029-8cabdf4011c6/go.mod h1:ZlzDQ8pDzhxT9r+6XMmU50fzgyuFnj9RyWWugJRB8s0=
+github.com/enbility/ship-go v0.0.0-20240115124432-379b22cd4d1c h1:o9u0pYg0iyVW+iLtJZ5Xpico3bfv71zNowPARy3CZDY=
+github.com/enbility/ship-go v0.0.0-20240115124432-379b22cd4d1c/go.mod h1:JdBm7s7ICvg+vTwqytgsJzYDckavZP8QKKxPOV4DElU=
 github.com/enbility/spine-go v0.0.0-20240114194628-333ba9f8762c h1:54J6I5Ln5ZVP5n6Dnm0mva/1cggZjfdmUp1SJaG/WTs=
 github.com/enbility/spine-go v0.0.0-20240114194628-333ba9f8762c/go.mod h1:qGA9ZP25YyRGssbK1h3TZ6IdRhaR1RHbTe2GVsTc7p0=
 github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=

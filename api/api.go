@@ -3,11 +3,12 @@ package api
 import (
 	"github.com/enbility/ship-go/logging"
 
+	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 )
 
 //go:generate mockery
-//go:generate mockgen -destination=../mocks/mockgen_api.go -package=mocks github.com/enbility/eebus-go/api ServiceProvider,MdnsService
+//go:generate mockgen -destination=../mocks/mockgen_api.go -package=mocks github.com/enbility/eebus-go/api ServiceProvider
 
 /* EEBUSService */
 
@@ -62,7 +63,7 @@ type EEBUSService interface {
 // interface for reporting data from connectionsHub to the Service
 type ServiceProvider interface {
 	// report a newly discovered remote EEBUS service
-	VisibleMDNSRecordsUpdated(entries []*MdnsEntry)
+	VisibleMDNSRecordsUpdated(entries []*shipapi.MdnsEntry)
 
 	// report a connection to a SKI
 	RemoteSKIConnected(ski string)
@@ -92,21 +93,4 @@ type ConnectionsHub interface {
 	InitiatePairingWithSKI(ski string)
 	CancelPairingWithSKI(ski string)
 	DisconnectSKI(ski string, reason string)
-}
-
-/* Mdns */
-
-// implemented by hubConnection, used by mdns
-type MdnsSearch interface {
-	ReportMdnsEntries(entries map[string]*MdnsEntry)
-}
-
-// implemented by mdns, used by hubConnection
-type MdnsService interface {
-	SetupMdnsService() error
-	ShutdownMdnsService()
-	AnnounceMdnsEntry() error
-	UnannounceMdnsEntry()
-	RegisterMdnsSearch(cb MdnsSearch)
-	UnregisterMdnsSearch(cb MdnsSearch)
 }

@@ -7,8 +7,10 @@ import (
 	"sync"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/cert"
+	shipapi "github.com/enbility/ship-go/api"
+	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/ship-go/logging"
+	"github.com/enbility/ship-go/mdns"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
@@ -43,7 +45,7 @@ func NewEEBUSService(configuration *api.Configuration, serviceHandler api.EEBUSS
 
 var _ api.ServiceProvider = (*EEBUSServiceImpl)(nil)
 
-func (s *EEBUSServiceImpl) VisibleMDNSRecordsUpdated(entries []*api.MdnsEntry) {
+func (s *EEBUSServiceImpl) VisibleMDNSRecordsUpdated(entries []*shipapi.MdnsEntry) {
 	var remoteServices []api.RemoteService
 
 	for _, entry := range entries {
@@ -181,7 +183,9 @@ func (s *EEBUSServiceImpl) Setup() error {
 	}
 
 	// setup mDNS
-	mdns := newMDNS(s.localService.SKI, s.configuration)
+	mdns := mdns.NewMDNS(
+		s.localService.SKI, sd.DeviceBrand(), sd.DeviceModel(), string(sd.DeviceType()),
+		sd.Identifier(), sd.MdnsServiceName(), sd.Port(), sd.Interfaces())
 
 	// Setup connections hub with mDNS and websocket connection handling
 	s.connectionsHub = newConnectionsHub(s, mdns, s.spineLocalDevice, s.configuration, s.localService)

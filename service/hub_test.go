@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/cert"
 	"github.com/enbility/eebus-go/mocks"
 	shipapi "github.com/enbility/ship-go/api"
+	"github.com/enbility/ship-go/cert"
 	shipmocks "github.com/enbility/ship-go/mocks"
 	shipmodel "github.com/enbility/ship-go/model"
 	"github.com/enbility/spine-go/model"
@@ -45,7 +45,7 @@ type HubSuite struct {
 	suite.Suite
 
 	serviceProvider *mocks.MockServiceProvider
-	mdnsService     *mocks.MockMdnsService
+	mdnsService     *shipmocks.MockMdnsService
 
 	// serviceProvider  *mocks.ServiceProvider
 	// mdnsService      *mocks.MdnsService
@@ -87,7 +87,7 @@ func (s *HubSuite) BeforeTest(suiteName, testName string) {
 	s.serviceProvider.EXPECT().RemoteSKIDisconnected(gomock.Any()).Return().AnyTimes()
 	s.serviceProvider.EXPECT().AllowWaitingForTrust(gomock.Any()).Return(false).AnyTimes()
 
-	s.mdnsService = mocks.NewMockMdnsService(ctrl)
+	s.mdnsService = shipmocks.NewMockMdnsService(ctrl)
 	// s.mdnsService = mocks.NewMdnsService(s.T())
 	s.mdnsService.EXPECT().SetupMdnsService().Return(nil).AnyTimes()
 	s.mdnsService.EXPECT().AnnounceMdnsEntry().Return(nil).AnyTimes()
@@ -441,7 +441,7 @@ func (s *HubSuite) Test_KeepThisConnection() {
 }
 
 func (s *HubSuite) Test_prepareConnectionInitiation() {
-	entry := &api.MdnsEntry{
+	entry := &shipapi.MdnsEntry{
 		Ski:  s.remoteSki,
 		Host: "somehost",
 	}
@@ -465,7 +465,7 @@ func (s *HubSuite) Test_prepareConnectionInitiation() {
 }
 
 func (s *HubSuite) Test_InitiateConnection() {
-	entry := &api.MdnsEntry{
+	entry := &shipapi.MdnsEntry{
 		Ski:  s.remoteSki,
 		Host: "somehost",
 	}
@@ -563,19 +563,19 @@ func (s *HubSuite) Test_ReportMdnsEntries() {
 	testski1 := "test1"
 	testski2 := "test2"
 
-	entries := make(map[string]*api.MdnsEntry)
+	entries := make(map[string]*shipapi.MdnsEntry)
 
 	s.serviceProvider.EXPECT().VisibleMDNSRecordsUpdated(gomock.Any()).AnyTimes()
 	s.sut.ReportMdnsEntries(entries)
 
-	entries[testski1] = &api.MdnsEntry{
+	entries[testski1] = &shipapi.MdnsEntry{
 		Ski: testski1,
 	}
 	service1 := s.sut.ServiceForSKI(testski1)
 	service1.Trusted = true
 	service1.IPv4 = "127.0.0.1"
 
-	entries[testski2] = &api.MdnsEntry{
+	entries[testski2] = &shipapi.MdnsEntry{
 		Ski: testski2,
 	}
 	service2 := s.sut.ServiceForSKI(testski2)

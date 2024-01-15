@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/cert"
+	"github.com/enbility/ship-go/cert"
 	spinemodel "github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"

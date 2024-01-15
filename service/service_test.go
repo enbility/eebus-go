@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/cert"
 	"github.com/enbility/eebus-go/mocks"
+	shipapi "github.com/enbility/ship-go/api"
+	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/ship-go/logging"
 	shipmocks "github.com/enbility/ship-go/mocks"
 	"github.com/enbility/spine-go/model"
@@ -50,11 +51,11 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 func (s *ServiceSuite) Test_EEBUSHandler() {
 	testSki := "test"
 
-	entry := &api.MdnsEntry{
+	entry := &shipapi.MdnsEntry{
 		Ski: testSki,
 	}
 
-	entries := []*api.MdnsEntry{entry}
+	entries := []*shipapi.MdnsEntry{entry}
 	s.serviceHandler.EXPECT().VisibleRemoteServicesUpdated(mock.Anything, mock.Anything).Return()
 	s.sut.VisibleMDNSRecordsUpdated(entries)
 

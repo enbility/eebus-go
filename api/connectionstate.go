@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"net"
 	"sync"
 )
 
@@ -78,18 +77,4 @@ type RemoteService struct {
 	Brand      string `json:"brand"`
 	Type       string `json:"type"`
 	Model      string `json:"model"`
-}
-
-type MdnsEntry struct {
-	Name       string
-	Ski        string
-	Identifier string   // mandatory
-	Path       string   // mandatory
-	Register   bool     // mandatory
-	Brand      string   // optional
-	Type       string   // optional
-	Model      string   // optional
-	Host       string   // mandatory
-	Port       int      // mandatory
-	Addresses  []net.IP // mandatory
 }
