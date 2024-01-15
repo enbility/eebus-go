@@ -57,6 +57,53 @@ func (_c *EEBUSService_CancelPairingWithSKI_Call) RunAndReturn(run func(string))
 	return _c
 }
 
+// Configuration provides a mock function with given fields:
+func (_m *EEBUSService) Configuration() *api.Configuration {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Configuration")
+	}
+
+	var r0 *api.Configuration
+	if rf, ok := ret.Get(0).(func() *api.Configuration); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*api.Configuration)
+		}
+	}
+
+	return r0
+}
+
+// EEBUSService_Configuration_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Configuration'
+type EEBUSService_Configuration_Call struct {
+	*mock.Call
+}
+
+// Configuration is a helper method to define mock.On call
+func (_e *EEBUSService_Expecter) Configuration() *EEBUSService_Configuration_Call {
+	return &EEBUSService_Configuration_Call{Call: _e.mock.On("Configuration")}
+}
+
+func (_c *EEBUSService_Configuration_Call) Run(run func()) *EEBUSService_Configuration_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *EEBUSService_Configuration_Call) Return(_a0 *api.Configuration) *EEBUSService_Configuration_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *EEBUSService_Configuration_Call) RunAndReturn(run func() *api.Configuration) *EEBUSService_Configuration_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DisconnectSKI provides a mock function with given fields: ski, reason
 func (_m *EEBUSService) DisconnectSKI(ski string, reason string) {
 	_m.Called(ski, reason)
@@ -167,6 +214,53 @@ func (_c *EEBUSService_LocalDevice_Call) Return(_a0 spine_goapi.DeviceLocal) *EE
 }
 
 func (_c *EEBUSService_LocalDevice_Call) RunAndReturn(run func() spine_goapi.DeviceLocal) *EEBUSService_LocalDevice_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LocalService provides a mock function with given fields:
+func (_m *EEBUSService) LocalService() *api.ServiceDetails {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for LocalService")
+	}
+
+	var r0 *api.ServiceDetails
+	if rf, ok := ret.Get(0).(func() *api.ServiceDetails); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*api.ServiceDetails)
+		}
+	}
+
+	return r0
+}
+
+// EEBUSService_LocalService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LocalService'
+type EEBUSService_LocalService_Call struct {
+	*mock.Call
+}
+
+// LocalService is a helper method to define mock.On call
+func (_e *EEBUSService_Expecter) LocalService() *EEBUSService_LocalService_Call {
+	return &EEBUSService_LocalService_Call{Call: _e.mock.On("LocalService")}
+}
+
+func (_c *EEBUSService_LocalService_Call) Run(run func()) *EEBUSService_LocalService_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *EEBUSService_LocalService_Call) Return(_a0 *api.ServiceDetails) *EEBUSService_LocalService_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *EEBUSService_LocalService_Call) RunAndReturn(run func() *api.ServiceDetails) *EEBUSService_LocalService_Call {
 	_c.Call.Return(run)
 	return _c
 }

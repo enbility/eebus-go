@@ -42,6 +42,8 @@ type EEBUSService interface {
 	Shutdown()
 	SetLogging(logger logging.Logging)
 
+	Configuration() *Configuration
+	LocalService() *ServiceDetails
 	LocalDevice() spineapi.DeviceLocal
 	RemoteServiceForSKI(ski string) *ServiceDetails
 	RegisterRemoteSKI(ski string, enable bool)

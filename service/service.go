@@ -17,10 +17,10 @@ import (
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
 type EEBUSServiceImpl struct {
-	Configuration *api.Configuration
+	configuration *api.Configuration
 
 	// The local service details
-	LocalService *api.ServiceDetails
+	localService *api.ServiceDetails
 
 	// Connection Registrations
 	connectionsHub api.ConnectionsHub
@@ -36,7 +36,7 @@ type EEBUSServiceImpl struct {
 // creates a new EEBUS service
 func NewEEBUSService(configuration *api.Configuration, serviceHandler api.EEBUSServiceHandler) *EEBUSServiceImpl {
 	return &EEBUSServiceImpl{
-		Configuration:  configuration,
+		configuration:  configuration,
 		serviceHandler: serviceHandler,
 	}
 }
@@ -116,7 +116,7 @@ func (s *EEBUSServiceImpl) SetLogging(logger logging.Logging) {
 
 // Starts the service by initializeing mDNS and the server.
 func (s *EEBUSServiceImpl) Setup() error {
-	sd := s.Configuration
+	sd := s.configuration
 
 	if len(sd.Certificate().Certificate) == 0 {
 		return errors.New("missing certificate")
@@ -140,10 +140,10 @@ func (s *EEBUSServiceImpl) Setup() error {
 	//   The originator's unique ID
 	// I assume those two to mean the same.
 	// TODO: clarify
-	s.LocalService = api.NewServiceDetails(ski)
-	s.LocalService.ShipID = sd.Identifier()
-	s.LocalService.DeviceType = sd.DeviceType()
-	s.LocalService.RegisterAutoAccept = sd.RegisterAutoAccept()
+	s.localService = api.NewServiceDetails(ski)
+	s.localService.ShipID = sd.Identifier()
+	s.localService.DeviceType = sd.DeviceType()
+	s.localService.RegisterAutoAccept = sd.RegisterAutoAccept()
 
 	logging.Log().Info("Local SKI: ", ski)
 
@@ -181,10 +181,10 @@ func (s *EEBUSServiceImpl) Setup() error {
 	}
 
 	// setup mDNS
-	mdns := newMDNS(s.LocalService.SKI, s.Configuration)
+	mdns := newMDNS(s.localService.SKI, s.configuration)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	s.connectionsHub = newConnectionsHub(s, mdns, s.spineLocalDevice, s.Configuration, s.LocalService)
+	s.connectionsHub = newConnectionsHub(s, mdns, s.spineLocalDevice, s.configuration, s.localService)
 
 	return nil
 }
@@ -200,6 +200,14 @@ func (s *EEBUSServiceImpl) Start() {
 func (s *EEBUSServiceImpl) Shutdown() {
 	// Shut down all running connections
 	s.connectionsHub.Shutdown()
+}
+
+func (s *EEBUSServiceImpl) Configuration() *api.Configuration {
+	return s.configuration
+}
+
+func (s *EEBUSServiceImpl) LocalService() *api.ServiceDetails {
+	return s.localService
 }
 
 func (s *EEBUSServiceImpl) LocalDevice() spineapi.DeviceLocal {
