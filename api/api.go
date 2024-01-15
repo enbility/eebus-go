@@ -6,7 +6,7 @@ import (
 	spineapi "github.com/enbility/spine-go/api"
 )
 
-// //go:generate mockery
+//go:generate mockery
 //go:generate mockgen -destination=../mocks/mockgen_api.go -package=mocks github.com/enbility/eebus-go/api ServiceProvider,MdnsService
 
 /* EEBUSService */
