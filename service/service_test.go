@@ -29,14 +29,14 @@ type ServiceSuite struct {
 	sut *EEBUSServiceImpl
 
 	serviceHandler *mocks.EEBUSServiceHandler
-	conHub         *mocks.ConnectionsHub
+	conHub         *shipmocks.Hub
 	logging        *shipmocks.Logging
 }
 
 func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	s.serviceHandler = mocks.NewEEBUSServiceHandler(s.T())
 
-	s.conHub = mocks.NewConnectionsHub(s.T())
+	s.conHub = shipmocks.NewHub(s.T())
 
 	s.logging = shipmocks.NewLogging(s.T())
 
@@ -69,7 +69,7 @@ func (s *ServiceSuite) Test_EEBUSHandler() {
 	s.sut.ServiceShipIDUpdate(testSki, "shipid")
 
 	s.serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return()
-	detail := &api.ConnectionStateDetail{}
+	detail := &shipapi.ConnectionStateDetail{}
 	s.sut.ServicePairingDetailUpdate(testSki, detail)
 
 	s.serviceHandler.EXPECT().AllowWaitingForTrust(mock.Anything).Return(true)

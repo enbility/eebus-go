@@ -8,14 +8,13 @@ import (
 )
 
 //go:generate mockery
-//go:generate mockgen -destination=../mocks/mockgen_api.go -package=mocks github.com/enbility/eebus-go/api ServiceProvider
 
 /* EEBUSService */
 
 // interface for receiving data for specific events from EEBUSService
 type EEBUSServiceHandler interface {
 	// report all currently visible EEBUS services
-	VisibleRemoteServicesUpdated(service EEBUSService, entries []RemoteService)
+	VisibleRemoteServicesUpdated(service EEBUSService, entries []shipapi.RemoteService)
 
 	// report a connection to a SKI
 	RemoteSKIConnected(service EEBUSService, ski string)
@@ -31,7 +30,7 @@ type EEBUSServiceHandler interface {
 	// Provides the current pairing state for the remote service
 	// This is called whenever the state changes and can be used to
 	// provide user information for the pairing/connection process
-	ServicePairingDetailUpdate(ski string, detail *ConnectionStateDetail)
+	ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail)
 
 	// return if the user is still able to trust the connection
 	AllowWaitingForTrust(ski string) bool
@@ -44,53 +43,16 @@ type EEBUSService interface {
 	SetLogging(logger logging.Logging)
 
 	Configuration() *Configuration
-	LocalService() *ServiceDetails
+	LocalService() *shipapi.ServiceDetails
 	LocalDevice() spineapi.DeviceLocal
-	RemoteServiceForSKI(ski string) *ServiceDetails
+	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
 	RegisterRemoteSKI(ski string, enable bool)
 	InitiatePairingWithSKI(ski string)
 	CancelPairingWithSKI(ski string)
 	DisconnectSKI(ski string, reason string)
 
 	// Passthough functions to ConnectionsHub
-	PairingDetailForSki(ski string) *ConnectionStateDetail
+	PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
 	StartBrowseMdnsEntries()
 	StopBrowseMdnsEntries()
-}
-
-/* Hub */
-
-// interface for reporting data from connectionsHub to the Service
-type ServiceProvider interface {
-	// report a newly discovered remote EEBUS service
-	VisibleMDNSRecordsUpdated(entries []*shipapi.MdnsEntry)
-
-	// report a connection to a SKI
-	RemoteSKIConnected(ski string)
-
-	// report a disconnection to a SKI
-	RemoteSKIDisconnected(ski string)
-
-	// provide the SHIP ID received during SHIP handshake process
-	// the ID needs to be stored and then provided for remote services so it can be compared and verified
-	ServiceShipIDUpdate(ski string, shipID string)
-
-	// provides the current handshake state for a given SKI
-	ServicePairingDetailUpdate(ski string, detail *ConnectionStateDetail)
-
-	// return if the user is still able to trust the connection
-	AllowWaitingForTrust(ski string) bool
-}
-
-type ConnectionsHub interface {
-	PairingDetailForSki(ski string) *ConnectionStateDetail
-	StartBrowseMdnsSearch()
-	StopBrowseMdnsSearch()
-	Start()
-	Shutdown()
-	ServiceForSKI(ski string) *ServiceDetails
-	RegisterRemoteSKI(ski string, enable bool)
-	InitiatePairingWithSKI(ski string)
-	CancelPairingWithSKI(ski string)
-	DisconnectSKI(ski string, reason string)
 }

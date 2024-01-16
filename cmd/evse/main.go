@@ -15,6 +15,7 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/service"
+	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/spine-go/model"
 )
@@ -97,13 +98,13 @@ func (h *evse) RemoteSKIConnected(service api.EEBUSService, ski string) {}
 
 func (h *evse) RemoteSKIDisconnected(service api.EEBUSService, ski string) {}
 
-func (h *evse) VisibleRemoteServicesUpdated(service api.EEBUSService, entries []api.RemoteService) {
+func (h *evse) VisibleRemoteServicesUpdated(service api.EEBUSService, entries []shipapi.RemoteService) {
 }
 
 func (h *evse) ServiceShipIDUpdate(ski string, shipdID string) {}
 
-func (h *evse) ServicePairingDetailUpdate(ski string, detail *api.ConnectionStateDetail) {
-	if ski == remoteSki && detail.State() == api.ConnectionStateRemoteDeniedTrust {
+func (h *evse) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
+	if ski == remoteSki && detail.State() == shipapi.ConnectionStateRemoteDeniedTrust {
 		fmt.Println("The remote service denied trust. Exiting.")
 		h.myService.RegisterRemoteSKI(ski, false)
 		h.myService.CancelPairingWithSKI(ski)

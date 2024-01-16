@@ -8,6 +8,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	ship_goapi "github.com/enbility/ship-go/api"
+
 	spine_goapi "github.com/enbility/spine-go/api"
 )
 
@@ -219,19 +221,19 @@ func (_c *EEBUSService_LocalDevice_Call) RunAndReturn(run func() spine_goapi.Dev
 }
 
 // LocalService provides a mock function with given fields:
-func (_m *EEBUSService) LocalService() *api.ServiceDetails {
+func (_m *EEBUSService) LocalService() *ship_goapi.ServiceDetails {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for LocalService")
 	}
 
-	var r0 *api.ServiceDetails
-	if rf, ok := ret.Get(0).(func() *api.ServiceDetails); ok {
+	var r0 *ship_goapi.ServiceDetails
+	if rf, ok := ret.Get(0).(func() *ship_goapi.ServiceDetails); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*api.ServiceDetails)
+			r0 = ret.Get(0).(*ship_goapi.ServiceDetails)
 		}
 	}
 
@@ -255,30 +257,30 @@ func (_c *EEBUSService_LocalService_Call) Run(run func()) *EEBUSService_LocalSer
 	return _c
 }
 
-func (_c *EEBUSService_LocalService_Call) Return(_a0 *api.ServiceDetails) *EEBUSService_LocalService_Call {
+func (_c *EEBUSService_LocalService_Call) Return(_a0 *ship_goapi.ServiceDetails) *EEBUSService_LocalService_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *EEBUSService_LocalService_Call) RunAndReturn(run func() *api.ServiceDetails) *EEBUSService_LocalService_Call {
+func (_c *EEBUSService_LocalService_Call) RunAndReturn(run func() *ship_goapi.ServiceDetails) *EEBUSService_LocalService_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PairingDetailForSki provides a mock function with given fields: ski
-func (_m *EEBUSService) PairingDetailForSki(ski string) *api.ConnectionStateDetail {
+func (_m *EEBUSService) PairingDetailForSki(ski string) *ship_goapi.ConnectionStateDetail {
 	ret := _m.Called(ski)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PairingDetailForSki")
 	}
 
-	var r0 *api.ConnectionStateDetail
-	if rf, ok := ret.Get(0).(func(string) *api.ConnectionStateDetail); ok {
+	var r0 *ship_goapi.ConnectionStateDetail
+	if rf, ok := ret.Get(0).(func(string) *ship_goapi.ConnectionStateDetail); ok {
 		r0 = rf(ski)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*api.ConnectionStateDetail)
+			r0 = ret.Get(0).(*ship_goapi.ConnectionStateDetail)
 		}
 	}
 
@@ -303,12 +305,12 @@ func (_c *EEBUSService_PairingDetailForSki_Call) Run(run func(ski string)) *EEBU
 	return _c
 }
 
-func (_c *EEBUSService_PairingDetailForSki_Call) Return(_a0 *api.ConnectionStateDetail) *EEBUSService_PairingDetailForSki_Call {
+func (_c *EEBUSService_PairingDetailForSki_Call) Return(_a0 *ship_goapi.ConnectionStateDetail) *EEBUSService_PairingDetailForSki_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *EEBUSService_PairingDetailForSki_Call) RunAndReturn(run func(string) *api.ConnectionStateDetail) *EEBUSService_PairingDetailForSki_Call {
+func (_c *EEBUSService_PairingDetailForSki_Call) RunAndReturn(run func(string) *ship_goapi.ConnectionStateDetail) *EEBUSService_PairingDetailForSki_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -348,19 +350,19 @@ func (_c *EEBUSService_RegisterRemoteSKI_Call) RunAndReturn(run func(string, boo
 }
 
 // RemoteServiceForSKI provides a mock function with given fields: ski
-func (_m *EEBUSService) RemoteServiceForSKI(ski string) *api.ServiceDetails {
+func (_m *EEBUSService) RemoteServiceForSKI(ski string) *ship_goapi.ServiceDetails {
 	ret := _m.Called(ski)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RemoteServiceForSKI")
 	}
 
-	var r0 *api.ServiceDetails
-	if rf, ok := ret.Get(0).(func(string) *api.ServiceDetails); ok {
+	var r0 *ship_goapi.ServiceDetails
+	if rf, ok := ret.Get(0).(func(string) *ship_goapi.ServiceDetails); ok {
 		r0 = rf(ski)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*api.ServiceDetails)
+			r0 = ret.Get(0).(*ship_goapi.ServiceDetails)
 		}
 	}
 
@@ -385,12 +387,12 @@ func (_c *EEBUSService_RemoteServiceForSKI_Call) Run(run func(ski string)) *EEBU
 	return _c
 }
 
-func (_c *EEBUSService_RemoteServiceForSKI_Call) Return(_a0 *api.ServiceDetails) *EEBUSService_RemoteServiceForSKI_Call {
+func (_c *EEBUSService_RemoteServiceForSKI_Call) Return(_a0 *ship_goapi.ServiceDetails) *EEBUSService_RemoteServiceForSKI_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *EEBUSService_RemoteServiceForSKI_Call) RunAndReturn(run func(string) *api.ServiceDetails) *EEBUSService_RemoteServiceForSKI_Call {
+func (_c *EEBUSService_RemoteServiceForSKI_Call) RunAndReturn(run func(string) *ship_goapi.ServiceDetails) *EEBUSService_RemoteServiceForSKI_Call {
 	_c.Call.Return(run)
 	return _c
 }
