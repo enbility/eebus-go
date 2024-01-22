@@ -4,6 +4,7 @@
 [![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4)](https://godoc.org/github.com/enbility/eebus-go)
 [![Coverage Status](https://coveralls.io/repos/github/enbility/eebus-go/badge.svg?branch=dev)](https://coveralls.io/github/enbility/eebus-go?branch=dev)
 [![Go report](https://goreportcard.com/badge/github.com/enbility/eebus-go)](https://goreportcard.com/report/github.com/enbility/eebus-go)
+[![CodeFactor](https://www.codefactor.io/repository/github/enbility/eebus-go/badge)](https://www.codefactor.io/repository/github/enbility/eebus-go)
 
 This library provides a foundation for implementing [EEBUS](https://eebus.org) use cases in [go](https://golang.org). It uses the SHIP implementation [ship-go](https://github.com/enbility/ship-go) and the SPINE implementation [spine-go](https://github.com/enbility/spine-go). Both repositories started as part of this repository, before they were moved into their own separate repositories and go packages.
 

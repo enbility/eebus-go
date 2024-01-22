@@ -146,6 +146,9 @@ func (t *TimeSeries) GetDescriptionForType(timeSeriesType model.TimeSeriesTypeTy
 // return current constraints for Time Series
 func (t *TimeSeries) GetConstraints() ([]model.TimeSeriesConstraintsDataType, error) {
 	rData := t.featureRemote.DataCopy(model.FunctionTypeTimeSeriesConstraintsListData)
+
+	// the codefactor warning is invalid, as .(type) check can not be replaced with if then
+	//revive:disable-next-line
 	switch constraintsData := rData.(type) {
 	case *model.TimeSeriesConstraintsListDataType:
 		if constraintsData == nil {

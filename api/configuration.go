@@ -109,34 +109,34 @@ func NewConfiguration(
 
 	if len(vendorCode) == 0 {
 		return nil, fmt.Errorf("vendorCode %s", isRequired)
-	} else {
-		configuration.vendorCode = vendorCode
 	}
+	configuration.vendorCode = vendorCode
+
 	if len(deviceBrand) == 0 {
 		return nil, fmt.Errorf("brand %s", isRequired)
-	} else {
-		configuration.deviceBrand = deviceBrand
 	}
+	configuration.deviceBrand = deviceBrand
+
 	if len(deviceModel) == 0 {
 		return nil, fmt.Errorf("model %s", isRequired)
-	} else {
-		configuration.deviceModel = deviceModel
 	}
+	configuration.deviceModel = deviceModel
+
 	if len(serialNumber) == 0 {
 		return nil, fmt.Errorf("serialNumber %s", isRequired)
-	} else {
-		configuration.deviceSerialNumber = serialNumber
 	}
+	configuration.deviceSerialNumber = serialNumber
+
 	if len(deviceType) == 0 {
 		return nil, fmt.Errorf("deviceType %s", isRequired)
-	} else {
-		configuration.deviceType = deviceType
 	}
+	configuration.deviceType = deviceType
+
 	if len(entityTypes) == 0 {
 		return nil, fmt.Errorf("entityTypes %s", isRequired)
-	} else {
-		configuration.entityTypes = entityTypes
 	}
+	configuration.entityTypes = entityTypes
+
 	// set default
 	configuration.featureSet = model.NetworkManagementFeatureSetTypeSmart
 
