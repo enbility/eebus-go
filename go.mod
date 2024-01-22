@@ -1,10 +1,10 @@
 module github.com/enbility/eebus-go
 
-go 1.18
+go 1.21.1
 
 require (
-	github.com/enbility/ship-go v0.0.0-20240122130150-644592f032c6
-	github.com/enbility/spine-go v0.0.0-20240122131148-ab10d10d42fd
+	github.com/enbility/ship-go v0.0.0-20240122143804-dfb477370ba6
+	github.com/enbility/spine-go v0.0.0-20240122144854-baad1d55e366
 	github.com/stretchr/testify v1.8.4
 )
 
