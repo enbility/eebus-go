@@ -106,7 +106,7 @@ func initialCommunication(t *testing.T, remoteDevice spineapi.DeviceRemote, writ
 }
 
 func loadFileData(t *testing.T, fileName string) []byte {
-	fileData, err := os.ReadFile(fileName)
+	fileData, err := os.ReadFile(fileName) // #nosec G304
 	if err != nil {
 		t.Fatal(err)
 	}
