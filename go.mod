@@ -3,8 +3,8 @@ module github.com/enbility/eebus-go
 go 1.21.1
 
 require (
-	github.com/enbility/ship-go v0.0.0-20240122162711-a00c33a16e7a
-	github.com/enbility/spine-go v0.0.0-20240122163315-8326589e7fdd
+	github.com/enbility/ship-go v0.0.0-20240122172808-3c326eca22ec
+	github.com/enbility/spine-go v0.0.0-20240122174730-b2b9c6f10f41
 	github.com/stretchr/testify v1.8.4
 )
 
