@@ -152,9 +152,9 @@ func (s *EEBUSServiceImpl) Setup() error {
 	// I assume those two to mean the same.
 	// TODO: clarify
 	s.localService = shipapi.NewServiceDetails(ski)
-	s.localService.ShipID = sd.Identifier()
-	s.localService.DeviceType = string(sd.DeviceType())
-	s.localService.RegisterAutoAccept = sd.RegisterAutoAccept()
+	s.localService.SetShipID(sd.Identifier())
+	s.localService.SetDeviceType(string(sd.DeviceType()))
+	s.localService.SetRegisterAutoAccept(sd.RegisterAutoAccept())
 
 	logging.Log().Info("Local SKI: ", ski)
 
@@ -193,7 +193,7 @@ func (s *EEBUSServiceImpl) Setup() error {
 
 	// setup mDNS
 	mdns := mdns.NewMDNS(
-		s.localService.SKI, sd.DeviceBrand(), sd.DeviceModel(), string(sd.DeviceType()),
+		s.localService.SKI(), sd.DeviceBrand(), sd.DeviceModel(), string(sd.DeviceType()),
 		sd.Identifier(), sd.MdnsServiceName(), sd.Port(), sd.Interfaces())
 
 	// Setup connections hub with mDNS and websocket connection handling
