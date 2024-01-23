@@ -19,16 +19,16 @@ func TestLoadControlSuite(t *testing.T) {
 type LoadControlSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	loadControl *features.LoadControl
 	sentMessage []byte
 }
 
-var _ shipapi.SpineDataConnection = (*LoadControlSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*LoadControlSuite)(nil)
 
-func (s *LoadControlSuite) WriteSpineMessage(message []byte) {
+func (s *LoadControlSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 

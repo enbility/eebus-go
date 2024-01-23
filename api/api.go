@@ -9,18 +9,39 @@ import (
 
 //go:generate mockery
 
-/* EEBUSService */
+/* Service */
 
-// interface for receiving data for specific events from EEBUSService
-type EEBUSServiceHandler interface {
+type ServiceInterface interface {
+	Setup() error
+	Start()
+	Shutdown()
+	SetLogging(logger logging.LoggingInterface)
+
+	Configuration() *Configuration
+	LocalService() *shipapi.ServiceDetails
+	LocalDevice() spineapi.DeviceLocalInterface
+	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
+	RegisterRemoteSKI(ski string, enable bool)
+	InitiatePairingWithSKI(ski string)
+	CancelPairingWithSKI(ski string)
+	DisconnectSKI(ski string, reason string)
+
+	// Passthough functions to ConnectionsHub
+	PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
+	StartBrowseMdnsEntries()
+	StopBrowseMdnsEntries()
+}
+
+// interface for receiving data for specific events from Service
+type ServiceReaderInterface interface {
 	// report all currently visible EEBUS services
-	VisibleRemoteServicesUpdated(service EEBUSService, entries []shipapi.RemoteService)
+	VisibleRemoteServicesUpdated(service ServiceInterface, entries []shipapi.RemoteService)
 
 	// report a connection to a SKI
-	RemoteSKIConnected(service EEBUSService, ski string)
+	RemoteSKIConnected(service ServiceInterface, ski string)
 
 	// report a disconnection to a SKI
-	RemoteSKIDisconnected(service EEBUSService, ski string)
+	RemoteSKIDisconnected(service ServiceInterface, ski string)
 
 	// Provides the SHIP ID the remote service reported during the handshake process
 	// This needs to be persisted and passed on for future remote service connections
@@ -34,25 +55,4 @@ type EEBUSServiceHandler interface {
 
 	// return if the user is still able to trust the connection
 	AllowWaitingForTrust(ski string) bool
-}
-
-type EEBUSService interface {
-	Setup() error
-	Start()
-	Shutdown()
-	SetLogging(logger logging.Logging)
-
-	Configuration() *Configuration
-	LocalService() *shipapi.ServiceDetails
-	LocalDevice() spineapi.DeviceLocal
-	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
-	RegisterRemoteSKI(ski string, enable bool)
-	InitiatePairingWithSKI(ski string)
-	CancelPairingWithSKI(ski string)
-	DisconnectSKI(ski string, reason string)
-
-	// Passthough functions to ConnectionsHub
-	PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
-	StartBrowseMdnsEntries()
-	StopBrowseMdnsEntries()
 }

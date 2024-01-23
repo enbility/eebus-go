@@ -9,7 +9,10 @@ type Measurement struct {
 	*FeatureImpl
 }
 
-func NewMeasurement(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*Measurement, error) {
+func NewMeasurement(
+	localRole, remoteRole model.RoleType,
+	localEntity api.EntityLocalInterface,
+	remoteEntity api.EntityRemoteInterface) (*Measurement, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeMeasurement, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

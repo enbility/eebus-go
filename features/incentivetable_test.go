@@ -19,16 +19,16 @@ func TestIncentiveTableSuite(t *testing.T) {
 type IncentiveTableSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	incentiveTable *features.IncentiveTable
 	sentMessage    []byte
 }
 
-var _ shipapi.SpineDataConnection = (*IncentiveTableSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*IncentiveTableSuite)(nil)
 
-func (s *IncentiveTableSuite) WriteSpineMessage(message []byte) {
+func (s *IncentiveTableSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 

@@ -26,26 +26,26 @@ type ServiceSuite struct {
 
 	config *api.Configuration
 
-	sut *EEBUSServiceImpl
+	sut *Service
 
-	serviceHandler *mocks.EEBUSServiceHandler
-	conHub         *shipmocks.Hub
-	logging        *shipmocks.Logging
+	serviceReader *mocks.ServiceReaderInterface
+	conHub        *shipmocks.HubInterface
+	logging       *shipmocks.LoggingInterface
 }
 
 func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
-	s.serviceHandler = mocks.NewEEBUSServiceHandler(s.T())
+	s.serviceReader = mocks.NewServiceReaderInterface(s.T())
 
-	s.conHub = shipmocks.NewHub(s.T())
+	s.conHub = shipmocks.NewHubInterface(s.T())
 
-	s.logging = shipmocks.NewLogging(s.T())
+	s.logging = shipmocks.NewLoggingInterface(s.T())
 
 	certificate := tls.Certificate{}
 	s.config, _ = api.NewConfiguration(
 		"vendor", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
 
-	s.sut = NewEEBUSService(s.config, s.serviceHandler)
+	s.sut = NewService(s.config, s.serviceReader)
 }
 
 func (s *ServiceSuite) Test_EEBUSHandler() {
@@ -56,23 +56,23 @@ func (s *ServiceSuite) Test_EEBUSHandler() {
 	}
 
 	entries := []*shipapi.MdnsEntry{entry}
-	s.serviceHandler.EXPECT().VisibleRemoteServicesUpdated(mock.Anything, mock.Anything).Return()
+	s.serviceReader.EXPECT().VisibleRemoteServicesUpdated(mock.Anything, mock.Anything).Return()
 	s.sut.VisibleMDNSRecordsUpdated(entries)
 
-	s.serviceHandler.EXPECT().RemoteSKIConnected(mock.Anything, mock.Anything).Return()
+	s.serviceReader.EXPECT().RemoteSKIConnected(mock.Anything, mock.Anything).Return()
 	s.sut.RemoteSKIConnected(testSki)
 
-	s.serviceHandler.EXPECT().RemoteSKIDisconnected(mock.Anything, mock.Anything).Return()
+	s.serviceReader.EXPECT().RemoteSKIDisconnected(mock.Anything, mock.Anything).Return()
 	s.sut.RemoteSKIDisconnected(testSki)
 
-	s.serviceHandler.EXPECT().ServiceShipIDUpdate(mock.Anything, mock.Anything).Return()
+	s.serviceReader.EXPECT().ServiceShipIDUpdate(mock.Anything, mock.Anything).Return()
 	s.sut.ServiceShipIDUpdate(testSki, "shipid")
 
-	s.serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return()
+	s.serviceReader.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return()
 	detail := &shipapi.ConnectionStateDetail{}
 	s.sut.ServicePairingDetailUpdate(testSki, detail)
 
-	s.serviceHandler.EXPECT().AllowWaitingForTrust(mock.Anything).Return(true)
+	s.serviceReader.EXPECT().AllowWaitingForTrust(mock.Anything).Return(true)
 	result := s.sut.AllowWaitingForTrust(testSki)
 	assert.Equal(s.T(), true, result)
 

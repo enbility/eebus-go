@@ -9,7 +9,10 @@ type LoadControl struct {
 	*FeatureImpl
 }
 
-func NewLoadControl(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*LoadControl, error) {
+func NewLoadControl(
+	localRole, remoteRole model.RoleType,
+	localEntity api.EntityLocalInterface,
+	remoteEntity api.EntityRemoteInterface) (*LoadControl, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeLoadControl, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

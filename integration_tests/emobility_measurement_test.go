@@ -25,27 +25,27 @@ func TestEmobilityMeasurementSuite(t *testing.T) {
 type EmobilityMeasurementSuite struct {
 	suite.Suite
 
-	sut         api.DeviceLocal
-	localEntity api.EntityLocal
+	sut         api.DeviceLocalInterface
+	localEntity api.EntityLocalInterface
 
 	measurement          *features.Measurement
 	electricalconnection *features.ElectricalConnection
 
 	remoteSki string
 
-	remoteDevice api.DeviceRemote
+	remoteDevice api.DeviceRemoteInterface
 	writeHandler *WriteMessageHandler
 }
 
 func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
-	s.sut = spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+	s.sut = spine.NewDeviceLocal("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	s.localEntity = spine.NewEntityLocalImpl(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	s.localEntity = spine.NewEntityLocal(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 	s.sut.AddEntity(s.localEntity)
 
-	f := spine.NewFeatureLocalImpl(1, s.localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
+	f := spine.NewFeatureLocal(1, s.localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
 	s.localEntity.AddFeature(f)
-	f = spine.NewFeatureLocalImpl(2, s.localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
+	f = spine.NewFeatureLocal(2, s.localEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeClient)
 	s.localEntity.AddFeature(f)
 
 	s.remoteSki = "TestRemoteSki"

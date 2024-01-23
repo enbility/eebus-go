@@ -19,16 +19,16 @@ func TestElectricalConnectionSuite(t *testing.T) {
 type ElectricalConnectionSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	electricalConnection *features.ElectricalConnection
 	sentMessage          []byte
 }
 
-var _ shipapi.SpineDataConnection = (*ElectricalConnectionSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*ElectricalConnectionSuite)(nil)
 
-func (s *ElectricalConnectionSuite) WriteSpineMessage(message []byte) {
+func (s *ElectricalConnectionSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 

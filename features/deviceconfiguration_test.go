@@ -19,16 +19,16 @@ func TestDeviceConfigurationSuite(t *testing.T) {
 type DeviceConfigurationSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	deviceConfiguration *features.DeviceConfiguration
 	sentMessage         []byte
 }
 
-var _ shipapi.SpineDataConnection = (*DeviceConfigurationSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*DeviceConfigurationSuite)(nil)
 
-func (s *DeviceConfigurationSuite) WriteSpineMessage(message []byte) {
+func (s *DeviceConfigurationSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 

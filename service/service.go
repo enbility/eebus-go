@@ -19,34 +19,34 @@ import (
 
 // A service is the central element of an EEBUS service
 // including its websocket server and a zeroconf service.
-type EEBUSServiceImpl struct {
+type Service struct {
 	configuration *api.Configuration
 
 	// The local service details
 	localService *shipapi.ServiceDetails
 
 	// Connection Registrations
-	connectionsHub shipapi.Hub
+	connectionsHub shipapi.HubInterface
 
 	// The SPINE specific device definition
-	spineLocalDevice spineapi.DeviceLocal
+	spineLocalDevice spineapi.DeviceLocalInterface
 
-	serviceHandler api.EEBUSServiceHandler
+	serviceHandler api.ServiceReaderInterface
 
 	startOnce sync.Once
 }
 
 // creates a new EEBUS service
-func NewEEBUSService(configuration *api.Configuration, serviceHandler api.EEBUSServiceHandler) *EEBUSServiceImpl {
-	return &EEBUSServiceImpl{
+func NewService(configuration *api.Configuration, serviceHandler api.ServiceReaderInterface) *Service {
+	return &Service{
 		configuration:  configuration,
 		serviceHandler: serviceHandler,
 	}
 }
 
-var _ shipapi.HubConnection = (*EEBUSServiceImpl)(nil)
+var _ shipapi.HubReaderInterface = (*Service)(nil)
 
-func (s *EEBUSServiceImpl) VisibleMDNSRecordsUpdated(entries []*shipapi.MdnsEntry) {
+func (s *Service) VisibleMDNSRecordsUpdated(entries []*shipapi.MdnsEntry) {
 	var remoteServices []shipapi.RemoteService
 
 	for _, entry := range entries {
@@ -65,12 +65,12 @@ func (s *EEBUSServiceImpl) VisibleMDNSRecordsUpdated(entries []*shipapi.MdnsEntr
 }
 
 // report a connection to a SKI
-func (s *EEBUSServiceImpl) RemoteSKIConnected(ski string) {
+func (s *Service) RemoteSKIConnected(ski string) {
 	s.serviceHandler.RemoteSKIConnected(s, ski)
 }
 
 // report a disconnection to a SKI
-func (s *EEBUSServiceImpl) RemoteSKIDisconnected(ski string) {
+func (s *Service) RemoteSKIDisconnected(ski string) {
 	if s.spineLocalDevice != nil {
 		s.spineLocalDevice.RemoveRemoteDeviceConnection(ski)
 	}
@@ -79,46 +79,46 @@ func (s *EEBUSServiceImpl) RemoteSKIDisconnected(ski string) {
 }
 
 // Provides the SHIP ID the remote service reported during the handshake process
-func (s *EEBUSServiceImpl) ServiceShipIDUpdate(ski string, shipdID string) {
+func (s *Service) ServiceShipIDUpdate(ski string, shipdID string) {
 	s.serviceHandler.ServiceShipIDUpdate(ski, shipdID)
 }
 
 // Provides the current pairing state for the remote service
 // This is called whenever the state changes and can be used to
 // provide user information for the pairing/connection process
-func (s *EEBUSServiceImpl) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
+func (s *Service) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
 	s.serviceHandler.ServicePairingDetailUpdate(ski, detail)
 }
 
-func (s *EEBUSServiceImpl) SetupRemoteDevice(ski string, writeI shipapi.SpineDataConnection) shipapi.SpineDataProcessing {
+func (s *Service) SetupRemoteDevice(ski string, writeI shipapi.ShipConnectionDataWriterInterface) shipapi.ShipConnectionDataReaderInterface {
 	return s.LocalDevice().SetupRemoteDevice(ski, writeI)
 }
 
 // return if the user is still able to trust the connection
-func (s *EEBUSServiceImpl) AllowWaitingForTrust(ski string) bool {
+func (s *Service) AllowWaitingForTrust(ski string) bool {
 	return s.serviceHandler.AllowWaitingForTrust(ski)
 }
 
-var _ api.EEBUSService = (*EEBUSServiceImpl)(nil)
+var _ api.ServiceInterface = (*Service)(nil)
 
 // Get the current pairing details for a given SKI
-func (s *EEBUSServiceImpl) PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail {
+func (s *Service) PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail {
 	return s.connectionsHub.PairingDetailForSki(ski)
 }
 
 // Starts browsing for any EEBUS mDNS entry
-func (s *EEBUSServiceImpl) StartBrowseMdnsEntries() {
+func (s *Service) StartBrowseMdnsEntries() {
 	s.connectionsHub.StartBrowseMdnsSearch()
 }
 
 // Stop brwosing for any EEBUS mDNS entry
-func (s *EEBUSServiceImpl) StopBrowseMdnsEntries() {
+func (s *Service) StopBrowseMdnsEntries() {
 	s.connectionsHub.StopBrowseMdnsSearch()
 }
 
 // Sets a custom logging implementation
 // By default NoLogging is used, so no logs are printed
-func (s *EEBUSServiceImpl) SetLogging(logger logging.Logging) {
+func (s *Service) SetLogging(logger logging.LoggingInterface) {
 	if logger == nil {
 		return
 	}
@@ -126,7 +126,7 @@ func (s *EEBUSServiceImpl) SetLogging(logger logging.Logging) {
 }
 
 // Starts the service by initializeing mDNS and the server.
-func (s *EEBUSServiceImpl) Setup() error {
+func (s *Service) Setup() error {
 	sd := s.configuration
 
 	if len(sd.Certificate().Certificate) == 0 {
@@ -172,7 +172,7 @@ func (s *EEBUSServiceImpl) Setup() error {
 	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s", vendor, sd.DeviceModel(), serial)
 
 	// Create the local SPINE device
-	s.spineLocalDevice = spine.NewDeviceLocalImpl(
+	s.spineLocalDevice = spine.NewDeviceLocal(
 		sd.DeviceBrand(),
 		sd.DeviceModel(),
 		sd.DeviceSerialNumber(),
@@ -187,7 +187,7 @@ func (s *EEBUSServiceImpl) Setup() error {
 	for _, entityType := range sd.EntityTypes() {
 		entityAddressId := model.AddressEntityType(len(s.spineLocalDevice.Entities()))
 		entityAddress := []model.AddressEntityType{entityAddressId}
-		entity := spine.NewEntityLocalImpl(s.spineLocalDevice, entityType, entityAddress)
+		entity := spine.NewEntityLocal(s.spineLocalDevice, entityType, entityAddress)
 		s.spineLocalDevice.AddEntity(entity)
 	}
 
@@ -203,52 +203,52 @@ func (s *EEBUSServiceImpl) Setup() error {
 }
 
 // Starts the service
-func (s *EEBUSServiceImpl) Start() {
+func (s *Service) Start() {
 	s.startOnce.Do(func() {
 		s.connectionsHub.Start()
 	})
 }
 
 // Shutdown all services and stop the server.
-func (s *EEBUSServiceImpl) Shutdown() {
+func (s *Service) Shutdown() {
 	// Shut down all running connections
 	s.connectionsHub.Shutdown()
 }
 
-func (s *EEBUSServiceImpl) Configuration() *api.Configuration {
+func (s *Service) Configuration() *api.Configuration {
 	return s.configuration
 }
 
-func (s *EEBUSServiceImpl) LocalService() *shipapi.ServiceDetails {
+func (s *Service) LocalService() *shipapi.ServiceDetails {
 	return s.localService
 }
 
-func (s *EEBUSServiceImpl) LocalDevice() spineapi.DeviceLocal {
+func (s *Service) LocalDevice() spineapi.DeviceLocalInterface {
 	return s.spineLocalDevice
 }
 
 // Returns the Service detail of a given remote SKI
-func (s *EEBUSServiceImpl) RemoteServiceForSKI(ski string) *shipapi.ServiceDetails {
+func (s *Service) RemoteServiceForSKI(ski string) *shipapi.ServiceDetails {
 	return s.connectionsHub.ServiceForSKI(ski)
 }
 
 // Sets the SKI as being paired or not
 // and connect it if paired and not currently being connected
-func (s *EEBUSServiceImpl) RegisterRemoteSKI(ski string, enable bool) {
+func (s *Service) RegisterRemoteSKI(ski string, enable bool) {
 	s.connectionsHub.RegisterRemoteSKI(ski, enable)
 }
 
 // Triggers the pairing process for a SKI
-func (s *EEBUSServiceImpl) InitiatePairingWithSKI(ski string) {
+func (s *Service) InitiatePairingWithSKI(ski string) {
 	s.connectionsHub.InitiatePairingWithSKI(ski)
 }
 
 // Cancels the pairing process for a SKI
-func (s *EEBUSServiceImpl) CancelPairingWithSKI(ski string) {
+func (s *Service) CancelPairingWithSKI(ski string) {
 	s.connectionsHub.CancelPairingWithSKI(ski)
 }
 
 // Close a connection to a remote SKI
-func (s *EEBUSServiceImpl) DisconnectSKI(ski string, reason string) {
+func (s *Service) DisconnectSKI(ski string, reason string) {
 	s.connectionsHub.DisconnectSKI(ski, reason)
 }

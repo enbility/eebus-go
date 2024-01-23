@@ -20,16 +20,16 @@ func TestTimeSeriesSuite(t *testing.T) {
 type TimeSeriesSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	timeSeries  *features.TimeSeries
 	sentMessage []byte
 }
 
-var _ shipapi.SpineDataConnection = (*TimeSeriesSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*TimeSeriesSuite)(nil)
 
-func (s *TimeSeriesSuite) WriteSpineMessage(message []byte) {
+func (s *TimeSeriesSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 

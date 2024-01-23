@@ -9,7 +9,10 @@ type DeviceConfiguration struct {
 	*FeatureImpl
 }
 
-func NewDeviceConfiguration(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*DeviceConfiguration, error) {
+func NewDeviceConfiguration(
+	localRole, remoteRole model.RoleType,
+	localEntity api.EntityLocalInterface,
+	remoteEntity api.EntityRemoteInterface) (*DeviceConfiguration, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

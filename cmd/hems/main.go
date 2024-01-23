@@ -23,7 +23,7 @@ import (
 var remoteSki string
 
 type hems struct {
-	myService *service.EEBUSServiceImpl
+	myService *service.Service
 }
 
 func (h *hems) run() {
@@ -74,7 +74,7 @@ func (h *hems) run() {
 	}
 	configuration.SetAlternateIdentifier("Demo-HEMS-123456789")
 
-	h.myService = service.NewEEBUSService(configuration, h)
+	h.myService = service.NewService(configuration, h)
 	h.myService.SetLogging(h)
 
 	if err = h.myService.Setup(); err != nil {
@@ -94,11 +94,11 @@ func (h *hems) run() {
 
 // EEBUSServiceHandler
 
-func (h *hems) RemoteSKIConnected(service api.EEBUSService, ski string) {}
+func (h *hems) RemoteSKIConnected(service api.ServiceInterface, ski string) {}
 
-func (h *hems) RemoteSKIDisconnected(service api.EEBUSService, ski string) {}
+func (h *hems) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {}
 
-func (h *hems) VisibleRemoteServicesUpdated(service api.EEBUSService, entries []shipapi.RemoteService) {
+func (h *hems) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
 }
 
 func (h *hems) ServiceShipIDUpdate(ski string, shipdID string) {}

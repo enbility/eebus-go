@@ -13,19 +13,19 @@ type FeatureImpl struct {
 	localRole  model.RoleType
 	remoteRole model.RoleType
 
-	spineLocalDevice api.DeviceLocal
-	localEntity      api.EntityLocal
+	spineLocalDevice api.DeviceLocalInterface
+	localEntity      api.EntityLocalInterface
 
-	featureLocal  api.FeatureLocal
-	featureRemote api.FeatureRemote
+	featureLocal  api.FeatureLocalInterface
+	featureRemote api.FeatureRemoteInterface
 
-	remoteDevice api.DeviceRemote
-	remoteEntity api.EntityRemote
+	remoteDevice api.DeviceRemoteInterface
+	remoteEntity api.EntityRemoteInterface
 }
 
 var _ Feature = (*FeatureImpl)(nil)
 
-func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*FeatureImpl, error) {
+func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity api.EntityLocalInterface, remoteEntity api.EntityRemoteInterface) (*FeatureImpl, error) {
 	f := &FeatureImpl{
 		featureType:      featureType,
 		localRole:        localRole,
@@ -97,7 +97,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 }
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (api.FeatureLocal, api.FeatureRemote, error) {
+func (f *FeatureImpl) getLocalClientAndRemoteServerFeatures() (api.FeatureLocalInterface, api.FeatureRemoteInterface, error) {
 	if f.remoteEntity == nil {
 		return nil, nil, errors.New("invalid remote entity provided")
 	}

@@ -20,16 +20,16 @@ func TestMeasurementSuite(t *testing.T) {
 type MeasurementSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	measurement *features.Measurement
 	sentMessage []byte
 }
 
-var _ shipapi.SpineDataConnection = (*MeasurementSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*MeasurementSuite)(nil)
 
-func (s *MeasurementSuite) WriteSpineMessage(message []byte) {
+func (s *MeasurementSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 

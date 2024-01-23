@@ -23,7 +23,7 @@ import (
 var remoteSki string
 
 type evse struct {
-	myService *service.EEBUSServiceImpl
+	myService *service.Service
 }
 
 func (h *evse) run() {
@@ -74,7 +74,7 @@ func (h *evse) run() {
 	}
 	configuration.SetAlternateIdentifier("Demo-EVSE-234567890")
 
-	h.myService = service.NewEEBUSService(configuration, h)
+	h.myService = service.NewService(configuration, h)
 	h.myService.SetLogging(h)
 
 	if err = h.myService.Setup(); err != nil {
@@ -94,11 +94,11 @@ func (h *evse) run() {
 
 // EEBUSServiceHandler
 
-func (h *evse) RemoteSKIConnected(service api.EEBUSService, ski string) {}
+func (h *evse) RemoteSKIConnected(service api.ServiceInterface, ski string) {}
 
-func (h *evse) RemoteSKIDisconnected(service api.EEBUSService, ski string) {}
+func (h *evse) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {}
 
-func (h *evse) VisibleRemoteServicesUpdated(service api.EEBUSService, entries []shipapi.RemoteService) {
+func (h *evse) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
 }
 
 func (h *evse) ServiceShipIDUpdate(ski string, shipdID string) {}

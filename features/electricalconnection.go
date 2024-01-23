@@ -9,7 +9,10 @@ type ElectricalConnection struct {
 	*FeatureImpl
 }
 
-func NewElectricalConnection(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*ElectricalConnection, error) {
+func NewElectricalConnection(
+	localRole, remoteRole model.RoleType,
+	localEntity api.EntityLocalInterface,
+	remoteEntity api.EntityRemoteInterface) (*ElectricalConnection, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeElectricalConnection, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

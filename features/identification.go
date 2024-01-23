@@ -9,7 +9,10 @@ type Identification struct {
 	*FeatureImpl
 }
 
-func NewIdentification(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*Identification, error) {
+func NewIdentification(
+	localRole, remoteRole model.RoleType,
+	localEntity api.EntityLocalInterface,
+	remoteEntity api.EntityRemoteInterface) (*Identification, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeIdentification, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

@@ -23,9 +23,9 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ shipapi.SpineDataConnection = (*WriteMessageHandler)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*WriteMessageHandler)(nil)
 
-func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
+func (t *WriteMessageHandler) WriteShipMessageWithPayload(message []byte) {
 	t.mux.Lock()
 	defer t.mux.Unlock()
 
@@ -95,7 +95,7 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	return nil
 }
 
-func initialCommunication(t *testing.T, remoteDevice spineapi.DeviceRemote, writeHandler *WriteMessageHandler) {
+func initialCommunication(t *testing.T, remoteDevice spineapi.DeviceRemoteInterface, writeHandler *WriteMessageHandler) {
 	// Initial generic communication
 
 	_, _ = remoteDevice.HandleSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))

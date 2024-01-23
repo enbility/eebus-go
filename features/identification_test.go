@@ -19,16 +19,16 @@ func TestIdentificationSuite(t *testing.T) {
 type IdentificationSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	identification *features.Identification
 	sentMessage    []byte
 }
 
-var _ shipapi.SpineDataConnection = (*IdentificationSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*IdentificationSuite)(nil)
 
-func (s *IdentificationSuite) WriteSpineMessage(message []byte) {
+func (s *IdentificationSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 

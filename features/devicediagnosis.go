@@ -9,7 +9,10 @@ type DeviceDiagnosis struct {
 	*FeatureImpl
 }
 
-func NewDeviceDiagnosis(localRole, remoteRole model.RoleType, localEntity api.EntityLocal, remoteEntity api.EntityRemote) (*DeviceDiagnosis, error) {
+func NewDeviceDiagnosis(
+	localRole, remoteRole model.RoleType,
+	localEntity api.EntityLocalInterface,
+	remoteEntity api.EntityRemoteInterface) (*DeviceDiagnosis, error) {
 	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceDiagnosis, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err

@@ -24,9 +24,9 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ shipapi.SpineDataConnection = (*WriteMessageHandler)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*WriteMessageHandler)(nil)
 
-func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
+func (t *WriteMessageHandler) WriteShipMessageWithPayload(message []byte) {
 	t.mux.Lock()
 	defer t.mux.Unlock()
 
@@ -96,20 +96,23 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	return nil
 }
 
-func setupFeatures(t assert.TestingT, dataCon shipapi.SpineDataConnection, featureFunctions []featureFunctions) (spineapi.EntityLocal, spineapi.EntityRemote) {
-	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+func setupFeatures(
+	t assert.TestingT,
+	dataCon shipapi.ShipConnectionDataWriterInterface,
+	featureFunctions []featureFunctions) (spineapi.EntityLocalInterface, spineapi.EntityRemoteInterface) {
+	localDevice := spine.NewDeviceLocal("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+	localEntity := spine.NewEntityLocal(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 	localDevice.AddEntity(localEntity)
 
 	for i, item := range featureFunctions {
-		f := spine.NewFeatureLocalImpl(uint(i+1), localEntity, item.featureType, model.RoleTypeServer)
+		f := spine.NewFeatureLocal(uint(i+1), localEntity, item.featureType, model.RoleTypeServer)
 		localEntity.AddFeature(f)
 	}
 
 	remoteDeviceName := "remoteDevice"
 	sender := spine.NewSender(dataCon)
-	remoteDevice := spine.NewDeviceRemoteImpl(localDevice, "test", sender)
+	remoteDevice := spine.NewDeviceRemote(localDevice, "test", sender)
 	data := &model.NodeManagementDetailedDiscoveryDataType{
 		DeviceInformation: &model.NodeManagementDetailedDiscoveryDeviceInformationType{
 			Description: &model.NetworkManagementDeviceDescriptionDataType{

@@ -19,16 +19,16 @@ func TestDeviceDiagnosisSuite(t *testing.T) {
 type DeviceDiagnosisSuite struct {
 	suite.Suite
 
-	localEntity  spineapi.EntityLocal
-	remoteEntity spineapi.EntityRemote
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
 	deviceDiagnosis *features.DeviceDiagnosis
 	sentMessage     []byte
 }
 
-var _ shipapi.SpineDataConnection = (*DeviceDiagnosisSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*DeviceDiagnosisSuite)(nil)
 
-func (s *DeviceDiagnosisSuite) WriteSpineMessage(message []byte) {
+func (s *DeviceDiagnosisSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 
