@@ -45,8 +45,6 @@ func (d *DeviceDiagnosis) GetState() (*model.DeviceDiagnosisStateDataType, error
 	return data, nil
 }
 
-func (d *DeviceDiagnosis) SendState(operatingState *model.DeviceDiagnosisStateDataType) {
+func (d *DeviceDiagnosis) SetLocalState(operatingState *model.DeviceDiagnosisStateDataType) {
 	d.featureLocal.SetData(model.FunctionTypeDeviceDiagnosisStateData, operatingState)
-
-	_, _ = d.featureLocal.NotifyData(model.FunctionTypeDeviceDiagnosisStateData, nil, nil, false, nil, d.featureRemote)
 }

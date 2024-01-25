@@ -75,11 +75,11 @@ func (s *DeviceDiagnosisSuite) Test_GetState() {
 	assert.NotNil(s.T(), result)
 }
 
-func (s *DeviceDiagnosisSuite) Test_SendState() {
+func (s *DeviceDiagnosisSuite) Test_SetState() {
 	data := &model.DeviceDiagnosisStateDataType{
 		OperatingState:       util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
 		PowerSupplyCondition: util.Ptr(model.PowerSupplyConditionTypeGood),
 	}
-	s.deviceDiagnosis.SendState(data)
+	s.deviceDiagnosis.SetLocalState(data)
 	assert.NotNil(s.T(), s.sentMessage)
 }
