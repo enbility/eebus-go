@@ -7,8 +7,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/enbility/ship-go v0.0.0-20240123184928-6739ac1a68c4 h1:I54U0+MHwtsHUS7OLEt0z5fGNZOpV7G3EgQxRvFXeKI=
 github.com/enbility/ship-go v0.0.0-20240123184928-6739ac1a68c4/go.mod h1:6xPvus7uzBqq3p2mQRWmbjP8n1/gpMil3jikRNBDUCg=
-github.com/enbility/spine-go v0.0.0-20240123190024-7065975ef07f h1:BmUN9NM/mWblJIvvctkPgHN65/+ZmwyN1IF3a6Jzdy0=
-github.com/enbility/spine-go v0.0.0-20240123190024-7065975ef07f/go.mod h1:VkPWyFUVlf385o7NeesvAiYoDDDnYyLuIYYdhzfJ0pY=
+github.com/enbility/spine-go v0.0.0-20240125155659-6851be30eecb h1:H9mjA/l2lxZChvrruZLSew2Dafs6Yp6GAhHq/3lYfPc=
+github.com/enbility/spine-go v0.0.0-20240125155659-6851be30eecb/go.mod h1:VkPWyFUVlf385o7NeesvAiYoDDDnYyLuIYYdhzfJ0pY=
 github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=
 github.com/godbus/dbus/v5 v5.1.0/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=

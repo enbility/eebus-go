@@ -88,7 +88,7 @@ func (f *FeatureImpl) requestData(function model.FunctionType, selectors any, el
 		return nil, ErrOperationOnFunctionNotSupported
 	}
 
-	msgCounter, fErr := f.featureLocal.RequestData(function, selectors, elements, f.featureRemote)
+	msgCounter, fErr := f.featureLocal.RequestRemoteData(function, selectors, elements, f.featureRemote)
 	if fErr != nil {
 		return nil, errors.New(fErr.String())
 	}
