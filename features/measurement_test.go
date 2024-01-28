@@ -58,7 +58,7 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.measurement, err = features.NewMeasurement(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
+	s.measurement, err = features.NewMeasurement(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.measurement)
 }

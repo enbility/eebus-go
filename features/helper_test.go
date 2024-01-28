@@ -103,12 +103,13 @@ func setupFeatures(
 	localDevice := spine.NewDeviceLocal("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
 		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
 	localEntity := spine.NewEntityLocal(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
-	localDevice.AddEntity(localEntity)
 
 	for i, item := range featureFunctions {
-		f := spine.NewFeatureLocal(uint(i+1), localEntity, item.featureType, model.RoleTypeServer)
+		f := spine.NewFeatureLocal(uint(i+1), localEntity, item.featureType, model.RoleTypeClient)
 		localEntity.AddFeature(f)
 	}
+
+	localDevice.AddEntity(localEntity)
 
 	remoteDeviceName := "remoteDevice"
 	sender := spine.NewSender(dataCon)
@@ -144,7 +145,7 @@ func setupFeatures(
 					Feature: util.Ptr(model.AddressFeatureType(i + 1)),
 				},
 				FeatureType: util.Ptr(item.featureType),
-				Role:        util.Ptr(model.RoleTypeClient),
+				Role:        util.Ptr(model.RoleTypeServer),
 			},
 		}
 		var supportedFcts []model.FunctionPropertyType
@@ -168,6 +169,9 @@ func setupFeatures(
 	assert.Nil(t, err)
 	assert.NotNil(t, remoteEntities)
 	assert.NotEqual(t, 0, len(remoteEntities))
+	remoteDevice.UpdateDevice(data.DeviceInformation.Description)
+
+	localDevice.AddRemoteDeviceForSki("test", remoteDevice)
 
 	return localEntity, remoteEntities[0]
 }

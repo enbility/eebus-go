@@ -6,6 +6,7 @@ import (
 )
 
 type Feature interface {
-	SubscribeForEntity() error
+	Subscribe() error
+	Bind() error
 	AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResultMessage))
 }

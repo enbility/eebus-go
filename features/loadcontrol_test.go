@@ -49,9 +49,19 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.loadControl, err = features.NewLoadControl(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
+	s.loadControl, err = features.NewLoadControl(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.loadControl)
+}
+
+func (s *LoadControlSuite) Test_Bind() {
+	err := s.loadControl.Bind()
+	assert.Nil(s.T(), err)
+}
+
+func (s *LoadControlSuite) Test_Subscribe() {
+	err := s.loadControl.Subscribe()
+	assert.Nil(s.T(), err)
 }
 
 func (s *LoadControlSuite) Test_RequestLimitDescription() {

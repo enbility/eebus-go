@@ -42,8 +42,8 @@ func NewFeatureImpl(featureType model.FeatureTypeType, localRole, remoteRole mod
 	return f, err
 }
 
-// subscribe to the feature for a the entity
-func (f *FeatureImpl) SubscribeForEntity() error {
+// subscribe to the feature of the entity
+func (f *FeatureImpl) Subscribe() error {
 	if f.featureRemote == nil {
 		return errors.New("remote feature not available")
 	}
@@ -54,11 +54,7 @@ func (f *FeatureImpl) SubscribeForEntity() error {
 	return nil
 }
 
-func (f *FeatureImpl) AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResultMessage)) {
-	f.featureLocal.AddResultCallback(msgCounterReference, function)
-}
-
-// bind to the feature of a the entity
+// bind to the feature of the entity
 func (f *FeatureImpl) Bind() error {
 	if f.featureRemote == nil {
 		return errors.New("remote feature not available")
@@ -68,6 +64,10 @@ func (f *FeatureImpl) Bind() error {
 	}
 
 	return nil
+}
+
+func (f *FeatureImpl) AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResultMessage)) {
+	f.featureLocal.AddResultCallback(msgCounterReference, function)
 }
 
 // helper method which adds checking if the feature is available and the operation is allowed

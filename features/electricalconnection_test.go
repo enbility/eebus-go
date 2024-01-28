@@ -49,7 +49,7 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.electricalConnection, err = features.NewElectricalConnection(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
+	s.electricalConnection, err = features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.electricalConnection)
 }

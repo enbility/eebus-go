@@ -46,7 +46,7 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.deviceConfiguration, err = features.NewDeviceConfiguration(model.RoleTypeServer, model.RoleTypeClient, s.localEntity, s.remoteEntity)
+	s.deviceConfiguration, err = features.NewDeviceConfiguration(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceConfiguration)
 }
