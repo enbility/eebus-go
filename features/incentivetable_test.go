@@ -218,7 +218,7 @@ func (s *IncentiveTableSuite) Test_GetConstraints() {
 // helpers
 
 func (s *IncentiveTableSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 
 	fData := &model.IncentiveTableDataType{
 		IncentiveTable: []model.IncentiveTableType{
@@ -238,7 +238,7 @@ func (s *IncentiveTableSuite) addData() {
 }
 
 func (s *IncentiveTableSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.IncentiveTableDescriptionDataType{
 		IncentiveTableDescription: []model.IncentiveTableDescriptionType{
 			{
@@ -277,7 +277,7 @@ func (s *IncentiveTableSuite) addDescription() {
 }
 
 func (s *IncentiveTableSuite) addConstraints() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.IncentiveTableConstraintsDataType{
 		IncentiveTableConstraints: []model.IncentiveTableConstraintsType{
 			{

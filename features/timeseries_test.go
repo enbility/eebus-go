@@ -182,7 +182,7 @@ func (s *TimeSeriesSuite) Test_GetConstraints() {
 // helpers
 
 func (s *TimeSeriesSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 
 	fData := &model.TimeSeriesListDataType{
 		TimeSeriesData: []model.TimeSeriesDataType{
@@ -212,7 +212,7 @@ func (s *TimeSeriesSuite) addData() {
 }
 
 func (s *TimeSeriesSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.TimeSeriesDescriptionListDataType{
 		TimeSeriesDescriptionData: []model.TimeSeriesDescriptionDataType{
 			{
@@ -229,7 +229,7 @@ func (s *TimeSeriesSuite) addDescription() {
 }
 
 func (s *TimeSeriesSuite) addConstraints() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.TimeSeriesConstraintsListDataType{
 		TimeSeriesConstraintsData: []model.TimeSeriesConstraintsDataType{
 			{

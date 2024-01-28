@@ -117,7 +117,7 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 		},
 	}
 
-	return l.featureRemote.Sender().Write(l.featureLocal.Address(), l.featureRemote.Address(), cmd)
+	return l.remoteDevice.Sender().Write(l.featureLocal.Address(), l.featureRemote.Address(), cmd)
 }
 
 // return limit data

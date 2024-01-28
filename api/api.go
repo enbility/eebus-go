@@ -28,8 +28,6 @@ type ServiceInterface interface {
 
 	// Passthough functions to ConnectionsHub
 	PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
-	StartBrowseMdnsEntries()
-	StopBrowseMdnsEntries()
 }
 
 // interface for receiving data for specific events from Service

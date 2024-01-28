@@ -71,7 +71,7 @@ func (s *IdentificationSuite) Test_GetValues() {
 }
 
 func (s *IdentificationSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.IdentificationListDataType{
 		IdentificationData: []model.IdentificationDataType{
 			{

@@ -106,16 +106,6 @@ func (s *Service) PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
 	return s.connectionsHub.PairingDetailForSki(ski)
 }
 
-// Starts browsing for any EEBUS mDNS entry
-func (s *Service) StartBrowseMdnsEntries() {
-	s.connectionsHub.StartBrowseMdnsSearch()
-}
-
-// Stop brwosing for any EEBUS mDNS entry
-func (s *Service) StopBrowseMdnsEntries() {
-	s.connectionsHub.StopBrowseMdnsSearch()
-}
-
 // Sets a custom logging implementation
 // By default NoLogging is used, so no logs are printed
 func (s *Service) SetLogging(logger logging.LoggingInterface) {

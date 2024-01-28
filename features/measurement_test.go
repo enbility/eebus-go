@@ -153,7 +153,7 @@ func (s *MeasurementSuite) Test_GetValues() {
 // helper
 
 func (s *MeasurementSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
 			{
@@ -175,7 +175,7 @@ func (s *MeasurementSuite) addDescription() {
 }
 
 func (s *MeasurementSuite) addConstraints() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.MeasurementConstraintsListDataType{
 		MeasurementConstraintsData: []model.MeasurementConstraintsDataType{
 			{
@@ -196,7 +196,7 @@ func (s *MeasurementSuite) addConstraints() {
 }
 
 func (s *MeasurementSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 
 	t := time.Now()
 	fData := &model.MeasurementListDataType{

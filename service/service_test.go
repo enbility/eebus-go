@@ -86,12 +86,6 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 	s.conHub.EXPECT().PairingDetailForSki(mock.Anything).Return(nil)
 	s.sut.PairingDetailForSki(testSki)
 
-	s.conHub.EXPECT().StartBrowseMdnsSearch().Return()
-	s.sut.StartBrowseMdnsEntries()
-
-	s.conHub.EXPECT().StopBrowseMdnsSearch().Return()
-	s.sut.StopBrowseMdnsEntries()
-
 	s.conHub.EXPECT().ServiceForSKI(mock.Anything).Return(nil)
 	details := s.sut.RemoteServiceForSKI(testSki)
 	assert.Nil(s.T(), details)

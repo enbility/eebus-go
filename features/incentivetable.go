@@ -55,7 +55,7 @@ func (i *IncentiveTable) WriteValues(data []model.IncentiveTableType) (*model.Ms
 		},
 	}
 
-	return i.featureRemote.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
+	return i.remoteDevice.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
 }
 
 // return current values for Time Series
@@ -86,7 +86,7 @@ func (i *IncentiveTable) WriteDescriptions(data []model.IncentiveTableDescriptio
 		},
 	}
 
-	return i.featureRemote.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
+	return i.remoteDevice.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
 }
 
 // return list of descriptions

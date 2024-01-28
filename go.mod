@@ -34,3 +34,6 @@ retract (
 	v0.2.2 // Contains retractions only.
 	v0.2.1 // Published accidentally.
 )
+
+// replace github.com/enbility/ship-go => ../ship-go
+// replace github.com/enbility/spine-go => ../spine-go

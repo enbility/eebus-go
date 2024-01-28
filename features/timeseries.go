@@ -55,7 +55,7 @@ func (t *TimeSeries) WriteValues(data []model.TimeSeriesDataType) (*model.MsgCou
 		},
 	}
 
-	return t.featureRemote.Sender().Write(t.featureLocal.Address(), t.featureRemote.Address(), cmd)
+	return t.remoteDevice.Sender().Write(t.featureLocal.Address(), t.featureRemote.Address(), cmd)
 }
 
 // return current values for Time Series

@@ -63,7 +63,7 @@ func (s *DeviceDiagnosisSuite) Test_GetState() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.DeviceDiagnosisStateDataType{
 		OperatingState:       util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
 		PowerSupplyCondition: util.Ptr(model.PowerSupplyConditionTypeGood),

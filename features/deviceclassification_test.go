@@ -63,7 +63,7 @@ func (s *DeviceClassificationSuite) Test_GetManufacturerDetails() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.DeviceClassificationManufacturerDataType{
 		DeviceName:                     util.Ptr(model.DeviceClassificationStringType("brand")),
 		DeviceCode:                     util.Ptr(model.DeviceClassificationStringType("brand")),

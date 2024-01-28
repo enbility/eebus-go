@@ -292,7 +292,7 @@ func (s *ElectricalConnectionSuite) Test_AdjustValueToBeWithinPermittedValuesFor
 // helper
 
 func (s *ElectricalConnectionSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionDescriptionListDataType{
 		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
 			{
@@ -307,7 +307,7 @@ func (s *ElectricalConnectionSuite) addDescription() {
 }
 
 func (s *ElectricalConnectionSuite) addParamDescriptionCurrents() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
 			{
@@ -386,7 +386,7 @@ func (s *ElectricalConnectionSuite) addParamDescriptionCurrents() {
 }
 
 func (s *ElectricalConnectionSuite) addParamDescriptionPower() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
 			{
@@ -401,7 +401,7 @@ func (s *ElectricalConnectionSuite) addParamDescriptionPower() {
 }
 
 func (s *ElectricalConnectionSuite) addPermittedValueSet() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionPermittedValueSetListDataType{
 		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{
@@ -478,7 +478,7 @@ func (s *ElectricalConnectionSuite) addPermittedValueSet() {
 }
 
 func (s *ElectricalConnectionSuite) addPermittedValueSetEmptyElli() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionPermittedValueSetListDataType{
 		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{

@@ -47,7 +47,7 @@ func (f *FeatureImpl) SubscribeForEntity() error {
 	if f.featureRemote == nil {
 		return errors.New("remote feature not available")
 	}
-	if _, fErr := f.featureLocal.Subscribe(f.featureRemote.Address()); fErr != nil {
+	if _, fErr := f.featureLocal.SubscribeToRemote(f.featureRemote.Address()); fErr != nil {
 		return errors.New(fErr.String())
 	}
 
@@ -63,7 +63,7 @@ func (f *FeatureImpl) Bind() error {
 	if f.featureRemote == nil {
 		return errors.New("remote feature not available")
 	}
-	if _, fErr := f.featureLocal.Bind(f.featureRemote.Address()); fErr != nil {
+	if _, fErr := f.featureLocal.BindToRemote(f.featureRemote.Address()); fErr != nil {
 		return errors.New(fErr.String())
 	}
 
