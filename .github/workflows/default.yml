@@ -29,7 +29,7 @@ jobs:
         run: go build -v ./...
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@master
         with:
           version: latest
           skip-pkg-cache: true
@@ -40,9 +40,9 @@ jobs:
         run: go test -race -v -coverprofile=coverage.out  -covermode=atomic ./...
 
       - name: Send coverage
-        uses: shogo82148/actions-goveralls@v1
+        uses: coverallsapp/github-action@v2
         with:
-          path-to-profile: coverage.out
+          file: coverage.out
 
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
