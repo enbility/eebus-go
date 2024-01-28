@@ -76,10 +76,9 @@ func (d *DeviceConfiguration) GetDescriptionForKeyName(keyName model.DeviceConfi
 	}
 
 	for _, item := range descriptions {
-		if item.KeyId == nil || item.KeyName == nil {
-			continue
-		}
-		if *item.KeyName == keyName {
+		if item.KeyId != nil &&
+			item.KeyName != nil &&
+			*item.KeyName == keyName {
 			return &item, nil
 		}
 	}
@@ -119,11 +118,7 @@ func (d *DeviceConfiguration) GetKeyValueForKeyName(keyname model.DeviceConfigur
 			continue
 		}
 
-		if desc.KeyName == nil {
-			continue
-		}
-
-		if *desc.KeyName == keyname {
+		if desc.KeyName != nil && *desc.KeyName == keyname {
 			switch valueType {
 			case model.DeviceConfigurationKeyValueTypeTypeBoolean:
 				return item.Value.Boolean, nil
