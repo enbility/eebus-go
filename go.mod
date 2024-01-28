@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/enbility/ship-go v0.0.0-20240128143740-0e207dd3699e
-	github.com/enbility/spine-go v0.0.0-20240128154609-2ff85b4d3fea
+	github.com/enbility/spine-go v0.0.0-20240128162444-92f4e9dcd5f1
 	github.com/stretchr/testify v1.8.4
 )
 
@@ -34,6 +34,3 @@ retract (
 	v0.2.2 // Contains retractions only.
 	v0.2.1 // Published accidentally.
 )
-
-// replace github.com/enbility/ship-go => ../ship-go
-// replace github.com/enbility/spine-go => ../spine-go
