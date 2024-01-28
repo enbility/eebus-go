@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/tls"
 	"testing"
 	"time"
 
@@ -26,45 +27,53 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	serial := "serial"
 	port := 4567
 	volt := 230.0
+	heartbeatTimeout := time.Second * 4
+	entityTypes := []spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}
 
 	config, err := NewConfiguration("", brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}, port, certificate, volt, time.Second*4)
+		entityTypes, 0, certificate, volt, heartbeatTimeout)
+
+	assert.Nil(s.T(), config)
+	assert.NotNil(s.T(), err)
+
+	config, err = NewConfiguration("", brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+		entityTypes, port, certificate, volt, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, "", model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}, port, certificate, 230, time.Second*4)
+		entityTypes, port, certificate, 230, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, "", serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}, port, certificate, 230, time.Second*4)
+		entityTypes, port, certificate, 230, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, "", spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}, port, certificate, 230, time.Second*4)
+		entityTypes, port, certificate, 230, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, serial, "",
-		[]spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}, port, certificate, 230, time.Second*4)
+		entityTypes, port, certificate, 230, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{}, port, certificate, 230, time.Second*4)
+		[]spinemodel.EntityTypeType{}, port, certificate, 230, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}, port, certificate, 230, time.Second*4)
+		entityTypes, port, certificate, 230, heartbeatTimeout)
 
 	assert.NotNil(s.T(), config)
 	assert.Nil(s.T(), err)
@@ -73,8 +82,13 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config.SetInterfaces(ifaces)
 	assert.Equal(s.T(), 2, len(config.interfaces))
 
+	ifacesValue := config.Interfaces()
+	assert.Equal(s.T(), ifaces, ifacesValue)
+
 	config.SetRegisterAutoAccept(true)
 	assert.Equal(s.T(), true, config.registerAutoAccept)
+	registerValue := config.RegisterAutoAccept()
+	assert.Equal(s.T(), true, registerValue)
 
 	id := config.generateIdentifier()
 	assert.NotEqual(s.T(), "", id)
@@ -97,4 +111,35 @@ func (s *ConfigurationSuite) Test_Configuration() {
 
 	voltage := config.Voltage()
 	assert.Equal(s.T(), volt, voltage)
+
+	portValue := config.Port()
+	assert.Equal(s.T(), port, portValue)
+
+	heartbeatValue := config.HeartbeatTimeout()
+	assert.Equal(s.T(), heartbeatTimeout, heartbeatValue)
+
+	vendorValue := config.VendorCode()
+	assert.Equal(s.T(), vendor, vendorValue)
+
+	deviceValue := config.DeviceBrand()
+	assert.Equal(s.T(), brand, deviceValue)
+
+	modelValue := config.DeviceModel()
+	assert.Equal(s.T(), model, modelValue)
+
+	serialValue := config.DeviceSerialNumber()
+	assert.Equal(s.T(), serial, serialValue)
+
+	deviceTypeValue := config.DeviceType()
+	assert.Equal(s.T(), spinemodel.DeviceTypeTypeEnergyManagementSystem, deviceTypeValue)
+
+	entityValues := config.EntityTypes()
+	assert.Equal(s.T(), entityTypes, entityValues)
+	featuresetValue := config.FeatureSet()
+	assert.Equal(s.T(), spinemodel.NetworkManagementFeatureSetTypeSmart, featuresetValue)
+
+	testCert := tls.Certificate{}
+	config.SetCertificate(testCert)
+	certValue := config.Certificate()
+	assert.Equal(s.T(), testCert, certValue)
 }
