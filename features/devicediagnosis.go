@@ -48,3 +48,8 @@ func (d *DeviceDiagnosis) GetState() (*model.DeviceDiagnosisStateDataType, error
 func (d *DeviceDiagnosis) SetLocalState(operatingState *model.DeviceDiagnosisStateDataType) {
 	d.featureLocal.SetData(model.FunctionTypeDeviceDiagnosisStateData, operatingState)
 }
+
+// request FunctionTypeDeviceDiagnosisHeartbeatData from a remote device
+func (d *DeviceDiagnosis) RequestHeartbeat() (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceDiagnosisHeartbeatData, nil, nil)
+}

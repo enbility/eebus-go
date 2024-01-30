@@ -52,6 +52,12 @@ func (s *DeviceDiagnosisSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.deviceDiagnosis)
 }
 
+func (s *DeviceDiagnosisSuite) Test_RequestHeartbeat() {
+	counter, err := s.deviceDiagnosis.RequestHeartbeat()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
 func (s *DeviceDiagnosisSuite) Test_RequestState() {
 	counter, err := s.deviceDiagnosis.RequestState()
 	assert.Nil(s.T(), err)
