@@ -41,6 +41,7 @@ func (s *DeviceDiagnosisSuite) BeforeTest(suiteName, testName string) {
 				featureType: model.FeatureTypeTypeDeviceDiagnosis,
 				functions: []model.FunctionType{
 					model.FunctionTypeDeviceDiagnosisStateData,
+					model.FunctionTypeDeviceDiagnosisHeartbeatData,
 				},
 			},
 		},
