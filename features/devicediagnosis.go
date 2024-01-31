@@ -1,6 +1,8 @@
 package features
 
 import (
+	"time"
+
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 )
@@ -52,4 +54,27 @@ func (d *DeviceDiagnosis) SetLocalState(operatingState *model.DeviceDiagnosisSta
 // request FunctionTypeDeviceDiagnosisHeartbeatData from a remote device
 func (d *DeviceDiagnosis) RequestHeartbeat() (*model.MsgCounterType, error) {
 	return d.requestData(model.FunctionTypeDeviceDiagnosisHeartbeatData, nil, nil)
+}
+
+// check if the currently available heartbeat data is within a time duration
+func (d *DeviceDiagnosis) IsHeartbeatWithinDuration(duration time.Duration) bool {
+	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceDiagnosisHeartbeatData)
+	if rData == nil {
+		return false
+	}
+
+	data := rData.(*model.DeviceDiagnosisHeartbeatDataType)
+	if data == nil || data.Timestamp == nil {
+		return false
+	}
+
+	timeValue, err := data.Timestamp.GetTime()
+	if err != nil {
+		return false
+	}
+
+	now := time.Now()
+	diff := now.Sub(timeValue)
+
+	return diff < duration
 }

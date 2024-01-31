@@ -2,6 +2,7 @@ package features_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
@@ -89,4 +90,34 @@ func (s *DeviceDiagnosisSuite) Test_SetState() {
 	}
 	s.deviceDiagnosis.SetLocalState(data)
 	assert.NotNil(s.T(), s.sentMessage)
+}
+
+func (s *DeviceDiagnosisSuite) Test_IsHeartbeatWithinDuration() {
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
+
+	result := s.deviceDiagnosis.IsHeartbeatWithinDuration(time.Second * 10)
+	assert.Equal(s.T(), false, result)
+
+	now := time.Now()
+
+	data := &model.DeviceDiagnosisHeartbeatDataType{
+		HeartbeatCounter: util.Ptr(uint64(1)),
+		HeartbeatTimeout: model.NewDurationType(time.Second * 4),
+	}
+
+	rF.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+
+	result = s.deviceDiagnosis.IsHeartbeatWithinDuration(time.Second * 10)
+	assert.Equal(s.T(), false, result)
+
+	data.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(now)
+	rF.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+
+	result = s.deviceDiagnosis.IsHeartbeatWithinDuration(time.Second * 10)
+	assert.Equal(s.T(), true, result)
+
+	time.Sleep(time.Second * 2)
+
+	result = s.deviceDiagnosis.IsHeartbeatWithinDuration(time.Second * 1)
+	assert.Equal(s.T(), false, result)
 }
