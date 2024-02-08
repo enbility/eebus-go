@@ -1,3 +1,5 @@
+github.com/DerAndereAndi/go-avahi v0.0.0-20240123155759-b4b6b2b50b4d h1:CAPfJuSmxb0RamS3TZu1eOaz9KfD8IT0nPBLzYKvdFg=
+github.com/DerAndereAndi/go-avahi v0.0.0-20240123155759-b4b6b2b50b4d/go.mod h1:WRfsMEGa+MvsfqqKmS7Ye1jrnfRW6kfF/CTP9UMZj0Q=
 github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20231028092313-1ae0ab54a2df h1:qYVips8l0s1ldVoLSup0m+hYh5cMMA4ndcvocxhZuMc=
 github.com/DerAndereAndi/zeroconf/v2 v2.0.0-20231028092313-1ae0ab54a2df/go.mod h1:OO5/UahoVBLyauLdDF4httPlSISqbrWDbHi9k99zUsc=
 github.com/ahmetb/go-linq/v3 v3.2.0 h1:BEuMfp+b59io8g5wYzNoFe9pWPalRklhlhbiU3hYZDE=
@@ -5,8 +7,8 @@ github.com/ahmetb/go-linq/v3 v3.2.0/go.mod h1:haQ3JfOeWK8HpVxMtHHEMPVgBKiYyQ+f1/
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/enbility/ship-go v0.0.0-20240129091849-749ac33e69f9 h1:7E/2jFIY/koOFj5JDf4nmLgho8nJB9njE2sg9SbEDCw=
-github.com/enbility/ship-go v0.0.0-20240129091849-749ac33e69f9/go.mod h1:6xPvus7uzBqq3p2mQRWmbjP8n1/gpMil3jikRNBDUCg=
+github.com/enbility/ship-go v0.0.0-20240208203308-81a899a2fdcd h1:UExumZ9bYpqWNkyIZxkFI/mhRcbAZaupc30Z7cbAw+U=
+github.com/enbility/ship-go v0.0.0-20240208203308-81a899a2fdcd/go.mod h1:icguYD3/26zyAECxff8WaJ/wlW8o6mBJW6+B2uU8/2s=
 github.com/enbility/spine-go v0.0.0-20240131184223-dc84aefee7a3 h1:e+E/tSRxBY2bVfNe/joPM0JrUdifCh+CvBfPIS82bN4=
 github.com/enbility/spine-go v0.0.0-20240131184223-dc84aefee7a3/go.mod h1:QkF2SPaU8djEJ8qd5FeraOUI+x2gwONnS4QrUxl8I3s=
 github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=
@@ -17,8 +19,6 @@ github.com/gorilla/websocket v1.5.1 h1:gmztn0JnHVt9JZquRuzLw3g4wouNVzKL15iLr/zn/
 github.com/gorilla/websocket v1.5.1/go.mod h1:x3kM2JMyaluk02fnUJpQuwD2dCS5NDG2ZHL0uE0tcaY=
 github.com/hashicorp/golang-lru/v2 v2.0.7 h1:a+bsQ5rvGLjzHuww6tVxozPZFVghXaHOwFs4luLUK2k=
 github.com/hashicorp/golang-lru/v2 v2.0.7/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
-github.com/holoplot/go-avahi v0.0.0-20231130181535-fd8f1d0307ed h1:AMm8KKtfeEhUlj45DYJBSMW2VcLO1Tss3jaMUqb+VvE=
-github.com/holoplot/go-avahi v0.0.0-20231130181535-fd8f1d0307ed/go.mod h1:WRfsMEGa+MvsfqqKmS7Ye1jrnfRW6kfF/CTP9UMZj0Q=
 github.com/miekg/dns v1.1.56/go.mod h1:cRm6Oo2C8TY9ZS/TqsSrseAcncm74lfK5G+ikN2SWWY=
 github.com/miekg/dns v1.1.57 h1:Jzi7ApEIzwEPLHWRcafCN9LZSBbqQpxjt/wpgvg7wcM=
 github.com/miekg/dns v1.1.57/go.mod h1:uqRjCRUuEAA6qsOiJvDd+CFo/vW+y5WR6SNmHE55hZk=

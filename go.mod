@@ -3,7 +3,7 @@ module github.com/enbility/eebus-go
 go 1.21.1
 
 require (
-	github.com/enbility/ship-go v0.0.0-20240129091849-749ac33e69f9
+	github.com/enbility/ship-go v0.0.0-20240208203308-81a899a2fdcd
 	github.com/enbility/spine-go v0.0.0-20240131184223-dc84aefee7a3
 	github.com/stretchr/testify v1.8.4
 )
@@ -34,3 +34,5 @@ retract (
 	v0.2.2 // Contains retractions only.
 	v0.2.1 // Published accidentally.
 )
+
+replace github.com/holoplot/go-avahi => github.com/DerAndereAndi/go-avahi v0.0.0-20240123155759-b4b6b2b50b4d
