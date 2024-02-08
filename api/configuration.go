@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/enbility/ship-go/mdns"
 	"github.com/enbility/spine-go/model"
 )
 
@@ -79,6 +80,9 @@ type Configuration struct {
 
 	// The timeout to be used for sending heartbeats
 	heartbeatTimeout time.Duration
+
+	// Optional set which mDNS providers should be used
+	mdnsProviderSelection mdns.MdnsProviderSelection
 }
 
 // Setup a Configuration with the required parameters
@@ -95,10 +99,11 @@ func NewConfiguration(
 	heartbeatTimeout time.Duration,
 ) (*Configuration, error) {
 	configuration := &Configuration{
-		certificate:      certificate,
-		port:             port,
-		voltage:          voltage,
-		heartbeatTimeout: heartbeatTimeout,
+		certificate:           certificate,
+		port:                  port,
+		voltage:               voltage,
+		heartbeatTimeout:      heartbeatTimeout,
+		mdnsProviderSelection: mdns.MdnsProviderSelectionAll,
 	}
 
 	if port == 0 {
@@ -170,6 +175,14 @@ func (s *Configuration) SetAlternateIdentifier(identifier string) {
 // this is normally not needed or used
 func (s *Configuration) SetAlternateMdnsServiceName(name string) {
 	s.alternateMdnsServiceName = name
+}
+
+func (s *Configuration) SetMdnsProviderSelection(providerSelection mdns.MdnsProviderSelection) {
+	s.mdnsProviderSelection = providerSelection
+}
+
+func (s *Configuration) MdnsProviderSelection() mdns.MdnsProviderSelection {
+	return s.mdnsProviderSelection
 }
 
 func (s *Configuration) DeviceType() model.DeviceTypeType {

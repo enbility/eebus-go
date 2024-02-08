@@ -183,8 +183,16 @@ func (s *Service) Setup() error {
 
 	// setup mDNS
 	mdns := mdns.NewMDNS(
-		s.localService.SKI(), sd.DeviceBrand(), sd.DeviceModel(), string(sd.DeviceType()),
-		sd.Identifier(), sd.MdnsServiceName(), sd.Port(), sd.Interfaces())
+		s.localService.SKI(),
+		sd.DeviceBrand(),
+		sd.DeviceModel(),
+		string(sd.DeviceType()),
+		sd.Identifier(),
+		sd.MdnsServiceName(),
+		sd.Port(),
+		sd.Interfaces(),
+		sd.MdnsProviderSelection(),
+	)
 
 	// Setup connections hub with mDNS and websocket connection handling
 	s.connectionsHub = hub.NewHub(s, mdns, s.configuration.Port(), s.configuration.Certificate(), s.localService)

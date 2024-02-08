@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/enbility/ship-go/cert"
+	"github.com/enbility/ship-go/mdns"
 	spinemodel "github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -77,6 +78,11 @@ func (s *ConfigurationSuite) Test_Configuration() {
 
 	assert.NotNil(s.T(), config)
 	assert.Nil(s.T(), err)
+
+	assert.Equal(s.T(), mdns.MdnsProviderSelectionAll, config.MdnsProviderSelection())
+
+	config.SetMdnsProviderSelection(mdns.MdnsProviderSelectionAvahiOnly)
+	assert.Equal(s.T(), mdns.MdnsProviderSelectionAvahiOnly, config.MdnsProviderSelection())
 
 	ifaces := []string{"lo", "eth0"}
 	config.SetInterfaces(ifaces)
