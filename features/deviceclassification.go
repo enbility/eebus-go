@@ -3,6 +3,7 @@ package features
 import (
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type DeviceClassification struct {
@@ -32,13 +33,8 @@ func (d *DeviceClassification) RequestManufacturerDetails() (*model.MsgCounterTy
 
 // get the current manufacturer details for a remote device entity
 func (d *DeviceClassification) GetManufacturerDetails() (*model.DeviceClassificationManufacturerDataType, error) {
-	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceClassificationManufacturerData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceClassificationManufacturerDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceClassificationManufacturerDataType](d.featureRemote, model.FunctionTypeDeviceClassificationManufacturerData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 

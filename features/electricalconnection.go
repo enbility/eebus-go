@@ -3,6 +3,7 @@ package features
 import (
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type ElectricalConnection struct {
@@ -46,12 +47,8 @@ func (e *ElectricalConnection) RequestPermittedValueSets() (*model.MsgCounterTyp
 
 // return list of description for Electrical Connection
 func (e *ElectricalConnection) GetDescriptions() ([]model.ElectricalConnectionDescriptionDataType, error) {
-	rData := e.featureRemote.DataCopy(model.FunctionTypeElectricalConnectionDescriptionListData)
-	if rData == nil {
-		return nil, ErrMetadataNotAvailable
-	}
-	data := rData.(*model.ElectricalConnectionDescriptionListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionDescriptionListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionDescriptionListData)
+	if err != nil {
 		return nil, ErrMetadataNotAvailable
 	}
 
@@ -85,12 +82,8 @@ func (e *ElectricalConnection) GetDescriptionForMeasurementId(measurementId mode
 
 // return parameter descriptions for all Electrical Connections
 func (e *ElectricalConnection) GetParameterDescriptions() ([]model.ElectricalConnectionParameterDescriptionDataType, error) {
-	rData := e.featureRemote.DataCopy(model.FunctionTypeElectricalConnectionParameterDescriptionListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-	data := rData.(*model.ElectricalConnectionParameterDescriptionListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionParameterDescriptionListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionParameterDescriptionListData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 
@@ -171,13 +164,8 @@ func (e *ElectricalConnection) GetParameterDescriptionForMeasuredPhase(phase mod
 
 // return permitted values for all Electrical Connections
 func (e *ElectricalConnection) GetPermittedValueSets() ([]model.ElectricalConnectionPermittedValueSetDataType, error) {
-	rData := e.featureRemote.DataCopy(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.ElectricalConnectionPermittedValueSetListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionPermittedValueSetListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionPermittedValueSetListData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type DeviceDiagnosis struct {
@@ -34,13 +35,8 @@ func (d *DeviceDiagnosis) RequestState() (*model.MsgCounterType, error) {
 
 // get the current diagnosis state for an device entity
 func (d *DeviceDiagnosis) GetState() (*model.DeviceDiagnosisStateDataType, error) {
-	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceDiagnosisStateData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceDiagnosisStateDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceDiagnosisStateDataType](d.featureRemote, model.FunctionTypeDeviceDiagnosisStateData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 
@@ -58,13 +54,8 @@ func (d *DeviceDiagnosis) RequestHeartbeat() (*model.MsgCounterType, error) {
 
 // check if the currently available heartbeat data is within a time duration
 func (d *DeviceDiagnosis) IsHeartbeatWithinDuration(duration time.Duration) bool {
-	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceDiagnosisHeartbeatData)
-	if rData == nil {
-		return false
-	}
-
-	data := rData.(*model.DeviceDiagnosisHeartbeatDataType)
-	if data == nil || data.Timestamp == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceDiagnosisHeartbeatDataType](d.featureRemote, model.FunctionTypeDeviceDiagnosisHeartbeatData)
+	if err != nil || data == nil || data.Timestamp == nil {
 		return false
 	}
 

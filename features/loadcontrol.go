@@ -3,6 +3,7 @@ package features
 import (
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type LoadControl struct {
@@ -45,14 +46,9 @@ func (l *LoadControl) RequestLimitValues() (*model.MsgCounterType, error) {
 // returns the load control limit descriptions
 // returns an error if no description data is available yet
 func (l *LoadControl) GetLimitDescriptions() ([]model.LoadControlLimitDescriptionDataType, error) {
-	rData := l.featureRemote.DataCopy(model.FunctionTypeLoadControlLimitDescriptionListData)
-	if rData == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.LoadControlLimitDescriptionListDataType](l.featureRemote, model.FunctionTypeLoadControlLimitDescriptionListData)
+	if err != nil {
 		return nil, ErrMetadataNotAvailable
-	}
-
-	data := rData.(*model.LoadControlLimitDescriptionListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
 	}
 
 	return data.LoadControlLimitDescriptionData, nil
@@ -122,13 +118,8 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 
 // return limit data
 func (l *LoadControl) GetLimitValues() ([]model.LoadControlLimitDataType, error) {
-	rData := l.featureRemote.DataCopy(model.FunctionTypeLoadControlLimitListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.LoadControlLimitListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.LoadControlLimitListDataType](l.featureRemote, model.FunctionTypeLoadControlLimitListData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 

@@ -3,6 +3,7 @@ package features
 import (
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type Identification struct {
@@ -32,13 +33,8 @@ func (i *Identification) RequestValues() (*model.MsgCounterType, error) {
 
 // return current values for Identification
 func (i *Identification) GetValues() ([]model.IdentificationDataType, error) {
-	rData := i.featureRemote.DataCopy(model.FunctionTypeIdentificationListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IdentificationListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IdentificationListDataType](i.featureRemote, model.FunctionTypeIdentificationListData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 

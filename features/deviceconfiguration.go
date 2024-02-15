@@ -3,6 +3,7 @@ package features
 import (
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type DeviceConfiguration struct {
@@ -38,13 +39,8 @@ func (d *DeviceConfiguration) RequestKeyValues() (*model.MsgCounterType, error) 
 
 // return current descriptions for Device Configuration
 func (d *DeviceConfiguration) GetDescriptions() ([]model.DeviceConfigurationKeyValueDescriptionDataType, error) {
-	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceConfigurationKeyValueDescriptionListDataType](d.featureRemote, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 
@@ -88,13 +84,8 @@ func (d *DeviceConfiguration) GetDescriptionForKeyName(keyName model.DeviceConfi
 
 // return current values for Device Configuration
 func (d *DeviceConfiguration) GetKeyValues() ([]model.DeviceConfigurationKeyValueDataType, error) {
-	rData := d.featureRemote.DataCopy(model.FunctionTypeDeviceConfigurationKeyValueListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceConfigurationKeyValueListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceConfigurationKeyValueListDataType](d.featureRemote, model.FunctionTypeDeviceConfigurationKeyValueListData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 

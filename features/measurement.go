@@ -3,6 +3,7 @@ package features
 import (
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type Measurement struct {
@@ -45,12 +46,8 @@ func (m *Measurement) RequestValues() (*model.MsgCounterType, error) {
 
 // return list of descriptions
 func (m *Measurement) GetDescriptions() ([]model.MeasurementDescriptionDataType, error) {
-	rData := m.featureRemote.DataCopy(model.FunctionTypeMeasurementDescriptionListData)
-	if rData == nil {
-		return nil, ErrMetadataNotAvailable
-	}
-	data := rData.(*model.MeasurementDescriptionListDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.MeasurementDescriptionListDataType](m.featureRemote, model.FunctionTypeMeasurementDescriptionListData)
+	if err != nil {
 		return nil, ErrMetadataNotAvailable
 	}
 
@@ -99,14 +96,9 @@ func (m *Measurement) GetDescriptionForMeasurementId(measurementId model.Measure
 
 // return current values for measurements
 func (m *Measurement) GetValues() ([]model.MeasurementDataType, error) {
-	rData := m.featureRemote.DataCopy(model.FunctionTypeMeasurementListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.MeasurementListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.MeasurementListDataType](m.featureRemote, model.FunctionTypeMeasurementListData)
+	if err != nil {
+		return nil, ErrMetadataNotAvailable
 	}
 
 	return data.MeasurementData, nil
@@ -147,14 +139,9 @@ func (m *Measurement) GetValuesForTypeCommodityScope(measurement model.Measureme
 
 // return measurement constraints
 func (m *Measurement) GetConstraints() ([]model.MeasurementConstraintsDataType, error) {
-	rData := m.featureRemote.DataCopy(model.FunctionTypeMeasurementConstraintsListData)
-	if rData == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.MeasurementConstraintsListDataType](m.featureRemote, model.FunctionTypeMeasurementConstraintsListData)
+	if err != nil {
 		return nil, ErrMetadataNotAvailable
-	}
-
-	data := rData.(*model.MeasurementConstraintsListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
 	}
 
 	return data.MeasurementConstraintsData, nil

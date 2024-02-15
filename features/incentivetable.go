@@ -3,6 +3,7 @@ package features
 import (
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type IncentiveTable struct {
@@ -60,13 +61,8 @@ func (i *IncentiveTable) WriteValues(data []model.IncentiveTableType) (*model.Ms
 
 // return current values for Time Series
 func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
-	rData := i.featureRemote.DataCopy(model.FunctionTypeIncentiveTableData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IncentiveTableDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableDataType](i.featureRemote, model.FunctionTypeIncentiveTableData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 
@@ -91,13 +87,8 @@ func (i *IncentiveTable) WriteDescriptions(data []model.IncentiveTableDescriptio
 
 // return list of descriptions
 func (i *IncentiveTable) GetDescriptions() ([]model.IncentiveTableDescriptionType, error) {
-	rData := i.featureRemote.DataCopy(model.FunctionTypeIncentiveTableDescriptionData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IncentiveTableDescriptionDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableDescriptionDataType](i.featureRemote, model.FunctionTypeIncentiveTableDescriptionData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 
@@ -127,13 +118,8 @@ func (i *IncentiveTable) GetDescriptionsForScope(scope model.ScopeTypeType) ([]m
 
 // return list of constraints
 func (i *IncentiveTable) GetConstraints() ([]model.IncentiveTableConstraintsType, error) {
-	rData := i.featureRemote.DataCopy(model.FunctionTypeIncentiveTableConstraintsData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IncentiveTableConstraintsDataType)
-	if data == nil {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableConstraintsDataType](i.featureRemote, model.FunctionTypeIncentiveTableConstraintsData)
+	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
 
