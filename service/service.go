@@ -44,76 +44,7 @@ func NewService(configuration *api.Configuration, serviceHandler api.ServiceRead
 	}
 }
 
-var _ shipapi.HubReaderInterface = (*Service)(nil)
-
-func (s *Service) VisibleMDNSRecordsUpdated(entries []*shipapi.MdnsEntry) {
-	var remoteServices []shipapi.RemoteService
-
-	for _, entry := range entries {
-		remoteService := shipapi.RemoteService{
-			Name:       entry.Name,
-			Ski:        entry.Ski,
-			Identifier: entry.Identifier,
-			Brand:      entry.Brand,
-			Type:       entry.Type,
-			Model:      entry.Model,
-		}
-
-		remoteServices = append(remoteServices, remoteService)
-	}
-	s.serviceHandler.VisibleRemoteServicesUpdated(s, remoteServices)
-}
-
-// report a connection to a SKI
-func (s *Service) RemoteSKIConnected(ski string) {
-	s.serviceHandler.RemoteSKIConnected(s, ski)
-}
-
-// report a disconnection to a SKI
-func (s *Service) RemoteSKIDisconnected(ski string) {
-	if s.spineLocalDevice != nil {
-		s.spineLocalDevice.RemoveRemoteDeviceConnection(ski)
-	}
-
-	s.serviceHandler.RemoteSKIDisconnected(s, ski)
-}
-
-// Provides the SHIP ID the remote service reported during the handshake process
-func (s *Service) ServiceShipIDUpdate(ski string, shipdID string) {
-	s.serviceHandler.ServiceShipIDUpdate(ski, shipdID)
-}
-
-// Provides the current pairing state for the remote service
-// This is called whenever the state changes and can be used to
-// provide user information for the pairing/connection process
-func (s *Service) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
-	s.serviceHandler.ServicePairingDetailUpdate(ski, detail)
-}
-
-func (s *Service) SetupRemoteDevice(ski string, writeI shipapi.ShipConnectionDataWriterInterface) shipapi.ShipConnectionDataReaderInterface {
-	return s.LocalDevice().SetupRemoteDevice(ski, writeI)
-}
-
-// return if the user is still able to trust the connection
-func (s *Service) AllowWaitingForTrust(ski string) bool {
-	return s.serviceHandler.AllowWaitingForTrust(ski)
-}
-
 var _ api.ServiceInterface = (*Service)(nil)
-
-// Get the current pairing details for a given SKI
-func (s *Service) PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail {
-	return s.connectionsHub.PairingDetailForSki(ski)
-}
-
-// Sets a custom logging implementation
-// By default NoLogging is used, so no logs are printed
-func (s *Service) SetLogging(logger logging.LoggingInterface) {
-	if logger == nil {
-		return
-	}
-	logging.SetLogging(logger)
-}
 
 // Starts the service by initializeing mDNS and the server.
 func (s *Service) Setup() error {
@@ -225,6 +156,20 @@ func (s *Service) LocalDevice() spineapi.DeviceLocalInterface {
 	return s.spineLocalDevice
 }
 
+// Sets a custom logging implementation
+// By default NoLogging is used, so no logs are printed
+func (s *Service) SetLogging(logger logging.LoggingInterface) {
+	if logger == nil {
+		return
+	}
+	logging.SetLogging(logger)
+}
+
+// Get the current pairing details for a given SKI
+func (s *Service) PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail {
+	return s.connectionsHub.PairingDetailForSki(ski)
+}
+
 // Returns the Service detail of a given remote SKI
 func (s *Service) RemoteServiceForSKI(ski string) *shipapi.ServiceDetails {
 	return s.connectionsHub.ServiceForSKI(ski)
@@ -236,17 +181,17 @@ func (s *Service) RegisterRemoteSKI(ski string, enable bool) {
 	s.connectionsHub.RegisterRemoteSKI(ski, enable)
 }
 
+// Close a connection to a remote SKI
+func (s *Service) DisconnectSKI(ski string, reason string) {
+	s.connectionsHub.DisconnectSKI(ski, reason)
+}
+
 // Triggers the pairing process for a SKI
-func (s *Service) InitiatePairingWithSKI(ski string) {
-	s.connectionsHub.InitiatePairingWithSKI(ski)
+func (s *Service) InitiateOrApprovePairingWithSKI(ski string) {
+	s.connectionsHub.InitiateOrApprovePairingWithSKI(ski)
 }
 
 // Cancels the pairing process for a SKI
 func (s *Service) CancelPairingWithSKI(ski string) {
 	s.connectionsHub.CancelPairingWithSKI(ski)
-}
-
-// Close a connection to a remote SKI
-func (s *Service) DisconnectSKI(ski string, reason string) {
-	s.connectionsHub.DisconnectSKI(ski, reason)
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/ship-go/logging"
 	shipmocks "github.com/enbility/ship-go/mocks"
+	spinemocks "github.com/enbility/spine-go/mocks"
 	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +32,10 @@ type ServiceSuite struct {
 	serviceReader *mocks.ServiceReaderInterface
 	conHub        *shipmocks.HubInterface
 	logging       *shipmocks.LoggingInterface
+	localDevice   *spinemocks.DeviceLocalInterface
 }
+
+func (s *ServiceSuite) WriteShipMessageWithPayload(message []byte) {}
 
 func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	s.serviceReader = mocks.NewServiceReaderInterface(s.T())
@@ -39,6 +43,8 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	s.conHub = shipmocks.NewHubInterface(s.T())
 
 	s.logging = shipmocks.NewLoggingInterface(s.T())
+
+	s.localDevice = spinemocks.NewDeviceLocalInterface(s.T())
 
 	certificate := tls.Certificate{}
 	s.config, _ = api.NewConfiguration(
@@ -51,18 +57,21 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 func (s *ServiceSuite) Test_EEBUSHandler() {
 	testSki := "test"
 
-	entry := &shipapi.MdnsEntry{
+	s.sut.spineLocalDevice = s.localDevice
+
+	entry := shipapi.RemoteService{
 		Ski: testSki,
 	}
 
-	entries := []*shipapi.MdnsEntry{entry}
+	entries := []shipapi.RemoteService{entry}
 	s.serviceReader.EXPECT().VisibleRemoteServicesUpdated(mock.Anything, mock.Anything).Return()
-	s.sut.VisibleMDNSRecordsUpdated(entries)
+	s.sut.VisibleRemoteServicesUpdated(entries)
 
 	s.serviceReader.EXPECT().RemoteSKIConnected(mock.Anything, mock.Anything).Return()
 	s.sut.RemoteSKIConnected(testSki)
 
 	s.serviceReader.EXPECT().RemoteSKIDisconnected(mock.Anything, mock.Anything).Return()
+	s.localDevice.EXPECT().RemoveRemoteDeviceConnection(testSki).Return()
 	s.sut.RemoteSKIDisconnected(testSki)
 
 	s.serviceReader.EXPECT().ServiceShipIDUpdate(mock.Anything, mock.Anything).Return()
@@ -82,6 +91,7 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 	testSki := "test"
 
 	s.sut.connectionsHub = s.conHub
+	s.sut.spineLocalDevice = s.localDevice
 
 	s.conHub.EXPECT().PairingDetailForSki(mock.Anything).Return(nil)
 	s.sut.PairingDetailForSki(testSki)
@@ -90,11 +100,14 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 	details := s.sut.RemoteServiceForSKI(testSki)
 	assert.Nil(s.T(), details)
 
+	s.localDevice.EXPECT().SetupRemoteDevice(mock.Anything, s).Return(nil)
+	s.sut.SetupRemoteDevice(testSki, s)
+
 	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything, mock.Anything).Return()
 	s.sut.RegisterRemoteSKI(testSki, true)
 
-	s.conHub.EXPECT().InitiatePairingWithSKI(mock.Anything).Return()
-	s.sut.InitiatePairingWithSKI(testSki)
+	s.conHub.EXPECT().InitiateOrApprovePairingWithSKI(mock.Anything).Return()
+	s.sut.InitiateOrApprovePairingWithSKI(testSki)
 
 	s.conHub.EXPECT().CancelPairingWithSKI(mock.Anything).Return()
 	s.sut.CancelPairingWithSKI(testSki)
