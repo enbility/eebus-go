@@ -7,35 +7,33 @@ import (
 )
 
 type LoadControl struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewLoadControl(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*LoadControl, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeLoadControl, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeLoadControl, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	lc := &LoadControl{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return lc, nil
 }
 
 // request FunctionTypeLoadControlLimitDescriptionListData from a remote device
-func (l *LoadControl) RequestLimitDescriptions() error {
-	_, err := l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData, nil, nil)
-	return err
+func (l *LoadControl) RequestLimitDescriptions() (*model.MsgCounterType, error) {
+	return l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeLoadControlLimitConstraintsListData from a remote device
-func (l *LoadControl) RequestLimitConstraints() error {
-	_, err := l.requestData(model.FunctionTypeLoadControlLimitConstraintsListData, nil, nil)
-	return err
+func (l *LoadControl) RequestLimitConstraints() (*model.MsgCounterType, error) {
+	return l.requestData(model.FunctionTypeLoadControlLimitConstraintsListData, nil, nil)
 }
 
 // request FunctionTypeLoadControlLimitListData from a remote device

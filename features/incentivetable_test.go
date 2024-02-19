@@ -55,13 +55,15 @@ func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *IncentiveTableSuite) Test_RequestDescriptions() {
-	err := s.incentiveTable.RequestDescriptions()
+	counter, err := s.incentiveTable.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *IncentiveTableSuite) Test_RequestConstraints() {
-	err := s.incentiveTable.RequestConstraints()
+	counter, err := s.incentiveTable.RequestConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *IncentiveTableSuite) Test_RequestValues() {

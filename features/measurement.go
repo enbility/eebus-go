@@ -7,20 +7,20 @@ import (
 )
 
 type Measurement struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewMeasurement(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*Measurement, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeMeasurement, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeMeasurement, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	m := &Measurement{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return m, nil

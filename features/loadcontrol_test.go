@@ -54,24 +54,16 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.loadControl)
 }
 
-func (s *LoadControlSuite) Test_Bind() {
-	err := s.loadControl.Bind()
-	assert.Nil(s.T(), err)
-}
-
-func (s *LoadControlSuite) Test_Subscribe() {
-	err := s.loadControl.Subscribe()
-	assert.Nil(s.T(), err)
-}
-
 func (s *LoadControlSuite) Test_RequestLimitDescription() {
-	err := s.loadControl.RequestLimitDescriptions()
+	counter, err := s.loadControl.RequestLimitDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *LoadControlSuite) Test_RequestLimitConstraints() {
-	err := s.loadControl.RequestLimitConstraints()
+	counter, err := s.loadControl.RequestLimitConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *LoadControlSuite) Test_RequestLimits() {

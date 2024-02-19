@@ -55,13 +55,15 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestDescriptions() {
-	err := s.electricalConnection.RequestDescriptions()
+	counter, err := s.electricalConnection.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestParameterDescriptions() {
-	err := s.electricalConnection.RequestParameterDescriptions()
+	counter, err := s.electricalConnection.RequestParameterDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestPermittedValueSets() {

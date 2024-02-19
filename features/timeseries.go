@@ -7,20 +7,20 @@ import (
 )
 
 type TimeSeries struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewTimeSeries(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*TimeSeries, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeTimeSeries, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeTimeSeries, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	t := &TimeSeries{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return t, nil

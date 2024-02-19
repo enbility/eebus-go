@@ -9,20 +9,20 @@ import (
 )
 
 type DeviceDiagnosis struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewDeviceDiagnosis(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*DeviceDiagnosis, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceDiagnosis, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceDiagnosis, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	dd := &DeviceDiagnosis{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return dd, nil

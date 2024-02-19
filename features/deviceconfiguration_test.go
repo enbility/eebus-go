@@ -52,8 +52,9 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *DeviceConfigurationSuite) Test_RequestDescriptions() {
-	err := s.deviceConfiguration.RequestDescriptions()
+	counter, err := s.deviceConfiguration.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *DeviceConfigurationSuite) Test_RequestKeyValueList() {

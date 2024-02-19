@@ -7,20 +7,20 @@ import (
 )
 
 type DeviceClassification struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewDeviceClassification(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*DeviceClassification, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceClassification, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceClassification, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	dc := &DeviceClassification{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return dc, nil

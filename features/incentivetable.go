@@ -7,35 +7,33 @@ import (
 )
 
 type IncentiveTable struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewIncentiveTable(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*IncentiveTable, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeIncentiveTable, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	i := &IncentiveTable{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return i, nil
 }
 
 // request FunctionTypeIncentiveTableDescriptionData from a remote entity
-func (i *IncentiveTable) RequestDescriptions() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableDescriptionData, nil, nil)
-	return err
+func (i *IncentiveTable) RequestDescriptions() (*model.MsgCounterType, error) {
+	return i.requestData(model.FunctionTypeIncentiveTableDescriptionData, nil, nil)
 }
 
 // request FunctionTypeIncentiveTableConstraintsData from a remote entity
-func (i *IncentiveTable) RequestConstraints() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableConstraintsData, nil, nil)
-	return err
+func (i *IncentiveTable) RequestConstraints() (*model.MsgCounterType, error) {
+	return i.requestData(model.FunctionTypeIncentiveTableConstraintsData, nil, nil)
 }
 
 // request FunctionTypeIncentiveTableData from a remote entity

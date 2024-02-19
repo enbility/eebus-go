@@ -7,37 +7,33 @@ import (
 )
 
 type ElectricalConnection struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewElectricalConnection(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*ElectricalConnection, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeElectricalConnection, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeElectricalConnection, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	e := &ElectricalConnection{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return e, nil
 }
 
 // request ElectricalConnectionDescriptionListDataType from a remote entity
-func (e *ElectricalConnection) RequestDescriptions() error {
-	_, err := e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, nil, nil)
-
-	return err
+func (e *ElectricalConnection) RequestDescriptions() (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeElectricalConnectionParameterDescriptionListData from a remote entity
-func (e *ElectricalConnection) RequestParameterDescriptions() error {
-	_, err := e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, nil, nil)
-
-	return err
+func (e *ElectricalConnection) RequestParameterDescriptions() (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeElectricalConnectionPermittedValueSetListData from a remote entity

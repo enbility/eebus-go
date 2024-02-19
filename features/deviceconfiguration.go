@@ -7,29 +7,28 @@ import (
 )
 
 type DeviceConfiguration struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewDeviceConfiguration(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*DeviceConfiguration, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceConfiguration, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	dc := &DeviceConfiguration{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return dc, nil
 }
 
 // request DeviceConfiguration data from a remote entity
-func (d *DeviceConfiguration) RequestDescriptions() error {
-	_, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil)
-	return err
+func (d *DeviceConfiguration) RequestDescriptions() (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil)
 }
 
 // request DeviceConfigurationKeyValueListDataType from a remote entity

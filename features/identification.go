@@ -7,20 +7,20 @@ import (
 )
 
 type Identification struct {
-	*FeatureImpl
+	*Feature
 }
 
 func NewIdentification(
 	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*Identification, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeIdentification, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeIdentification, localRole, remoteRole, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	i := &Identification{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return i, nil
