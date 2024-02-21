@@ -117,10 +117,16 @@ func (f *Feature) requestData(function model.FunctionType, selectors any, elemen
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
 func (f *Feature) getLocalClientAndRemoteServerFeatures() (api.FeatureLocalInterface, api.FeatureRemoteInterface, error) {
 	featureLocal := f.localEntity.FeatureOfTypeAndRole(f.featureType, f.localRole)
-	featureRemote := f.remoteEntity.Device().FeatureByEntityTypeAndRole(f.remoteEntity, f.featureType, f.remoteRole)
-
+	if featureLocal == nil && f.localRole == model.RoleTypeClient {
+		featureLocal = f.localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeGeneric, f.localRole)
+	}
 	if featureLocal == nil {
 		return nil, nil, errors.New("local feature not found")
+	}
+
+	featureRemote := f.remoteEntity.Device().FeatureByEntityTypeAndRole(f.remoteEntity, f.featureType, f.remoteRole)
+	if featureRemote == nil && f.localRole == model.RoleTypeClient {
+		featureRemote = f.remoteEntity.Device().FeatureByEntityTypeAndRole(f.remoteEntity, model.FeatureTypeTypeGeneric, f.localRole)
 	}
 
 	if featureRemote == nil {
