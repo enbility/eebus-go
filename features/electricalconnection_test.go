@@ -43,6 +43,7 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 					model.FunctionTypeElectricalConnectionDescriptionListData,
 					model.FunctionTypeElectricalConnectionParameterDescriptionListData,
 					model.FunctionTypeElectricalConnectionPermittedValueSetListData,
+					model.FunctionTypeElectricalConnectionCharacteristicListData,
 				},
 			},
 		},
@@ -119,6 +120,28 @@ func (s *ElectricalConnectionSuite) Test_GetParameterDescriptions() {
 	data, err = s.electricalConnection.GetParameterDescriptions()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
+}
+
+func (s *ElectricalConnectionSuite) Test_GetParameterDescriptionForScope() {
+	data, err := s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACPowerTotal)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACPowerTotal)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addParamDescriptionPower()
+
+	data, err = s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACPowerTotal)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+
+	data, err = s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACCurrent)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 }
 
 func (s *ElectricalConnectionSuite) Test_GetParameterDescriptionForParameterId() {

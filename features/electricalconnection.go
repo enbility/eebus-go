@@ -286,7 +286,7 @@ func (e *ElectricalConnection) AdjustValueToBeWithinPermittedValuesForParameter(
 
 // return parameter descriptions for all Electrical Connections
 func (e *ElectricalConnection) GetCharacteristics() ([]model.ElectricalConnectionCharacteristicDataType, error) {
-	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionCharacteristicListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionParameterDescriptionListData)
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionCharacteristicListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionCharacteristicListData)
 	if err != nil {
 		return nil, ErrDataNotAvailable
 	}
