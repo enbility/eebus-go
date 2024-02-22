@@ -41,6 +41,11 @@ func (e *ElectricalConnection) RequestPermittedValueSets() (*model.MsgCounterTyp
 	return e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, nil, nil)
 }
 
+// request FunctionTypeElectricalConnectionCharacteristicListData from a remote entity
+func (e *ElectricalConnection) RequestCharacteristics() (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionCharacteristicListData, nil, nil)
+}
+
 // return list of description for Electrical Connection
 func (e *ElectricalConnection) GetDescriptions() ([]model.ElectricalConnectionDescriptionDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionDescriptionListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionDescriptionListData)
@@ -277,4 +282,14 @@ func (e *ElectricalConnection) AdjustValueToBeWithinPermittedValuesForParameter(
 	}
 
 	return value
+}
+
+// return parameter descriptions for all Electrical Connections
+func (e *ElectricalConnection) GetCharacteristics() ([]model.ElectricalConnectionCharacteristicDataType, error) {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionCharacteristicListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionParameterDescriptionListData)
+	if err != nil {
+		return nil, ErrDataNotAvailable
+	}
+
+	return data.ElectricalConnectionCharacteristicListData, nil
 }

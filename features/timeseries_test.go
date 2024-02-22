@@ -56,13 +56,15 @@ func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *TimeSeriesSuite) Test_RequestDescription() {
-	err := s.timeSeries.RequestDescriptions()
+	msgCounter, err := s.timeSeries.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *TimeSeriesSuite) Test_RequestConstraints() {
-	err := s.timeSeries.RequestConstraints()
+	msgCounter, err := s.timeSeries.RequestConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *TimeSeriesSuite) Test_RequestValues() {

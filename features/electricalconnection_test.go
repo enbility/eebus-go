@@ -72,6 +72,12 @@ func (s *ElectricalConnectionSuite) Test_RequestPermittedValueSets() {
 	assert.NotNil(s.T(), counter)
 }
 
+func (s *ElectricalConnectionSuite) Test_RequestCharacteristics() {
+	counter, err := s.electricalConnection.RequestCharacteristics()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
 func (s *ElectricalConnectionSuite) Test_GetDescriptions() {
 	data, err := s.electricalConnection.GetDescriptions()
 	assert.NotNil(s.T(), err)
@@ -291,6 +297,18 @@ func (s *ElectricalConnectionSuite) Test_AdjustValueToBeWithinPermittedValuesFor
 	assert.Equal(s.T(), value, 0.1)
 }
 
+func (s *ElectricalConnectionSuite) Test_GetCharacteristics() {
+	data, err := s.electricalConnection.GetCharacteristics()
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addCharacteristics()
+
+	data, err = s.electricalConnection.GetCharacteristics()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
 // helper
 
 func (s *ElectricalConnectionSuite) addDescription() {
@@ -306,6 +324,24 @@ func (s *ElectricalConnectionSuite) addDescription() {
 		},
 	}
 	rF.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, fData, nil, nil)
+}
+
+func (s *ElectricalConnectionSuite) addCharacteristics() {
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
+	fData := &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicListData: []model.ElectricalConnectionCharacteristicDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharaceteristicIdType(0)),
+				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax),
+				Value:                  model.NewScaledNumberType(98),
+				Unit:                   util.Ptr(model.UnitOfMeasurementTypeWh),
+			},
+		},
+	}
+	rF.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, fData, nil, nil)
 }
 
 func (s *ElectricalConnectionSuite) addParamDescriptionCurrents() {

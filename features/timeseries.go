@@ -27,15 +27,13 @@ func NewTimeSeries(
 }
 
 // request FunctionTypeTimeSeriesDescriptionListData from a remote entity
-func (t *TimeSeries) RequestDescriptions() error {
-	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
-	return err
+func (t *TimeSeries) RequestDescriptions() (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeTimeSeriesConstraintsListData from a remote entity
-func (t *TimeSeries) RequestConstraints() error {
-	_, err := t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
-	return err
+func (t *TimeSeries) RequestConstraints() (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
 }
 
 // request FunctionTypeTimeSeriesListData from a remote device

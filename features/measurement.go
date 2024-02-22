@@ -27,16 +27,13 @@ func NewMeasurement(
 }
 
 // request FunctionTypeMeasurementDescriptionListData from a remote device
-func (m *Measurement) RequestDescriptions() error {
-	_, err := m.requestData(model.FunctionTypeMeasurementDescriptionListData, nil, nil)
-
-	return err
+func (m *Measurement) RequestDescriptions() (*model.MsgCounterType, error) {
+	return m.requestData(model.FunctionTypeMeasurementDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeMeasurementConstraintsListData from a remote entity
-func (m *Measurement) RequestConstraints() error {
-	_, err := m.requestData(model.FunctionTypeMeasurementConstraintsListData, nil, nil)
-	return err
+func (m *Measurement) RequestConstraints() (*model.MsgCounterType, error) {
+	return m.requestData(model.FunctionTypeMeasurementConstraintsListData, nil, nil)
 }
 
 // request FunctionTypeMeasurementListData from a remote entity
@@ -102,6 +99,28 @@ func (m *Measurement) GetValues() ([]model.MeasurementDataType, error) {
 	}
 
 	return data.MeasurementData, nil
+}
+
+// return current values of a measurementId
+//
+// if nothing is found, it will return an error
+func (m *Measurement) GetValueForMeasurementId(id model.MeasurementIdType) (float64, error) {
+	values, err := m.GetValues()
+	if err != nil {
+		return 0, err
+	}
+
+	for _, item := range values {
+		if item.MeasurementId == nil || item.Value == nil {
+			continue
+		}
+
+		if *item.MeasurementId == id {
+			return item.Value.GetValue(), nil
+		}
+	}
+
+	return 0, ErrDataNotAvailable
 }
 
 // return current values of a defined measurementType, commodityType and scopeType

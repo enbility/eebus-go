@@ -64,19 +64,39 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *MeasurementSuite) Test_RequestDescriptions() {
-	err := s.measurement.RequestDescriptions()
+	msgCounter, err := s.measurement.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *MeasurementSuite) Test_RequestConstraints() {
-	err := s.measurement.RequestConstraints()
+	msgCounter, err := s.measurement.RequestConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *MeasurementSuite) Test_RequestValues() {
 	counter, err := s.measurement.RequestValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
+}
+
+func (s *MeasurementSuite) Test_GetValueForMeasurementId() {
+	measurement := model.MeasurementIdType(0)
+
+	value, err := s.measurement.GetValueForMeasurementId(measurement)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, value)
+
+	s.addData()
+
+	value, err = s.measurement.GetValueForMeasurementId(measurement)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 9.0, value)
+
+	value, err = s.measurement.GetValueForMeasurementId(model.MeasurementIdType(100))
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, value)
 }
 
 func (s *MeasurementSuite) Test_GetValuesForTypeCommodityScope() {
