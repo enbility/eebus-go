@@ -284,7 +284,7 @@ func (e *ElectricalConnection) AdjustValueToBeWithinPermittedValuesForParameter(
 	return value
 }
 
-// return parameter descriptions for all Electrical Connections
+// return characteristics for a Electrical Connections
 func (e *ElectricalConnection) GetCharacteristics() ([]model.ElectricalConnectionCharacteristicDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionCharacteristicListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionCharacteristicListData)
 	if err != nil {
@@ -292,4 +292,27 @@ func (e *ElectricalConnection) GetCharacteristics() ([]model.ElectricalConnectio
 	}
 
 	return data.ElectricalConnectionCharacteristicListData, nil
+}
+
+// return characteristics for a Electrical Connections
+func (e *ElectricalConnection) GetCharacteristicForContextType(
+	context model.ElectricalConnectionCharacteristicContextType,
+	cType model.ElectricalConnectionCharacteristicTypeType,
+) (*model.ElectricalConnectionCharacteristicDataType, error) {
+	data, err := e.GetCharacteristics()
+	if err != nil || data == nil || len(data) == 0 {
+		return nil, ErrDataNotAvailable
+	}
+
+	for _, item := range data {
+		if item.CharacteristicId != nil &&
+			item.CharacteristicContext != nil &&
+			*item.CharacteristicContext == context &&
+			item.CharacteristicType != nil &&
+			*item.CharacteristicType == cType {
+			return &item, nil
+		}
+	}
+
+	return nil, ErrDataNotAvailable
 }

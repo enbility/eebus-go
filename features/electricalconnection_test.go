@@ -332,6 +332,28 @@ func (s *ElectricalConnectionSuite) Test_GetCharacteristics() {
 	assert.NotNil(s.T(), data)
 }
 
+func (s *ElectricalConnectionSuite) Test_GetCharacteristicForContextType() {
+	data, err := s.electricalConnection.GetCharacteristicForContextType(
+		model.ElectricalConnectionCharacteristicContextTypeEntity,
+		model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addCharacteristics()
+
+	data, err = s.electricalConnection.GetCharacteristicForContextType(
+		model.ElectricalConnectionCharacteristicContextTypeEntity,
+		model.ElectricalConnectionCharacteristicTypeTypeApparentPowerConsumptionNominalMax)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = s.electricalConnection.GetCharacteristicForContextType(
+		model.ElectricalConnectionCharacteristicContextTypeEntity,
+		model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
 // helper
 
 func (s *ElectricalConnectionSuite) addDescription() {

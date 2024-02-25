@@ -75,6 +75,42 @@ func (l *LoadControl) GetLimitDescriptionsForCategory(category model.LoadControl
 	return result, nil
 }
 
+// returns the load control limit descriptions of a provided type, direction and scope
+// returns an error if no description data for the category is available
+func (l *LoadControl) GetLimitDescriptionsForCategoryTypeDirectionScope(
+	limitType model.LoadControlLimitTypeType,
+	limitCategory model.LoadControlCategoryType,
+	limitDirection model.EnergyDirectionType,
+	scope model.ScopeTypeType,
+) ([]model.LoadControlLimitDescriptionDataType, error) {
+	data, err := l.GetLimitDescriptions()
+	if err != nil || len(data) == 0 {
+		return nil, err
+	}
+
+	var result []model.LoadControlLimitDescriptionDataType
+
+	for _, item := range data {
+		if item.LimitId != nil &&
+			item.LimitType != nil &&
+			*item.LimitType == limitType &&
+			item.LimitCategory != nil &&
+			*item.LimitCategory == limitCategory &&
+			item.LimitDirection != nil &&
+			*item.LimitDirection == limitDirection &&
+			item.ScopeType != nil &&
+			*item.ScopeType == scope {
+			result = append(result, item)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, ErrDataNotAvailable
+	}
+
+	return result, nil
+}
+
 // returns the load control limit descriptions for a provided measurementId
 // returns an error if no description data for the measurementId is available
 func (l *LoadControl) GetLimitDescriptionsForMeasurementId(measurementId model.MeasurementIdType) ([]model.LoadControlLimitDescriptionDataType, error) {

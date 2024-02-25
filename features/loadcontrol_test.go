@@ -100,6 +100,34 @@ func (s *LoadControlSuite) Test_GetLimitDescriptionsForCategory() {
 	assert.NotNil(s.T(), data)
 }
 
+func (s *LoadControlSuite) Test_GetLimitDescriptionsForTypeDirectionScope() {
+	data, err := s.loadControl.GetLimitDescriptionsForCategoryTypeDirectionScope(
+		model.LoadControlLimitTypeTypeSignDependentAbsValueLimit,
+		model.LoadControlCategoryTypeObligation,
+		model.EnergyDirectionTypeConsume,
+		model.ScopeTypeTypeActivePowerLimit)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.loadControl.GetLimitDescriptionsForCategoryTypeDirectionScope(
+		model.LoadControlLimitTypeTypeMaxValueLimit,
+		model.LoadControlCategoryTypeObligation,
+		model.EnergyDirectionTypeConsume,
+		model.ScopeTypeTypeActivePowerLimit)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = s.loadControl.GetLimitDescriptionsForCategoryTypeDirectionScope(
+		model.LoadControlLimitTypeTypeSignDependentAbsValueLimit,
+		model.LoadControlCategoryTypeObligation,
+		model.EnergyDirectionTypeConsume,
+		model.ScopeTypeTypeActivePowerLimit)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
 func (s *LoadControlSuite) Test_GetLimitDescriptionsForMeasurementId() {
 	measurementId := model.MeasurementIdType(0)
 	data, err := s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
@@ -109,8 +137,8 @@ func (s *LoadControlSuite) Test_GetLimitDescriptionsForMeasurementId() {
 	s.addDescription()
 
 	data, err = s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), data)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 
 	measurementId = model.MeasurementIdType(10)
 	data, err = s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
@@ -188,9 +216,12 @@ func (s *LoadControlSuite) addDescription() {
 	fData := &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitId:        util.Ptr(model.LoadControlLimitIdType(0)),
+				MeasurementId:  util.Ptr(model.MeasurementIdType(0)),
+				LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+				LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+				ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 			},
 		},
 	}
