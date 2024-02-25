@@ -137,8 +137,8 @@ func (s *LoadControlSuite) Test_GetLimitDescriptionsForMeasurementId() {
 	s.addDescription()
 
 	data, err = s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
-	assert.NotNil(s.T(), err)
-	assert.Nil(s.T(), data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
 
 	measurementId = model.MeasurementIdType(10)
 	data, err = s.loadControl.GetLimitDescriptionsForMeasurementId(measurementId)
