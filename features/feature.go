@@ -3,7 +3,8 @@ package features
 import (
 	"errors"
 
-	"github.com/enbility/spine-go/api"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 )
 
@@ -13,19 +14,22 @@ type Feature struct {
 	localRole  model.RoleType
 	remoteRole model.RoleType
 
-	spineLocalDevice api.DeviceLocalInterface
-	localEntity      api.EntityLocalInterface
+	spineLocalDevice spineapi.DeviceLocalInterface
+	localEntity      spineapi.EntityLocalInterface
 
-	featureLocal  api.FeatureLocalInterface
-	featureRemote api.FeatureRemoteInterface
+	featureLocal  spineapi.FeatureLocalInterface
+	featureRemote spineapi.FeatureRemoteInterface
 
-	remoteDevice api.DeviceRemoteInterface
-	remoteEntity api.EntityRemoteInterface
+	remoteDevice spineapi.DeviceRemoteInterface
+	remoteEntity spineapi.EntityRemoteInterface
 }
 
 var _ FeatureInterface = (*Feature)(nil)
 
-func NewFeature(featureType model.FeatureTypeType, localEntity api.EntityLocalInterface, remoteEntity api.EntityRemoteInterface) (*Feature, error) {
+func NewFeature(
+	featureType model.FeatureTypeType,
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*Feature, error) {
 	if localEntity == nil {
 		return nil, errors.New("local entity is nil")
 	}
@@ -106,7 +110,9 @@ func (f *Feature) Unbind() (*model.MsgCounterType, error) {
 }
 
 // add a callback function to be invoked once a result to a msgCounter came in
-func (f *Feature) AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResultMessage)) {
+func (f *Feature) AddResultCallback(
+	msgCounterReference model.MsgCounterType,
+	function func(msg spineapi.ResultMessage)) {
 	f.featureLocal.AddResultCallback(msgCounterReference, function)
 }
 
@@ -116,16 +122,16 @@ func (f *Feature) AddResultCallback(msgCounterReference model.MsgCounterType, fu
 // both should use the proper data types for the used function
 func (f *Feature) requestData(function model.FunctionType, selectors any, elements any) (*model.MsgCounterType, error) {
 	if f.featureRemote == nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	fTypes := f.featureRemote.Operations()
 	if _, exists := fTypes[function]; !exists {
-		return nil, ErrFunctionNotSupported
+		return nil, api.ErrFunctionNotSupported
 	}
 
 	if !fTypes[function].Read() {
-		return nil, ErrOperationOnFunctionNotSupported
+		return nil, api.ErrOperationOnFunctionNotSupported
 	}
 
 	msgCounter, fErr := f.featureLocal.RequestRemoteData(function, selectors, elements, f.featureRemote)
@@ -137,7 +143,10 @@ func (f *Feature) requestData(function model.FunctionType, selectors any, elemen
 }
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (f *Feature) getLocalAndRemoteFeatures() (api.FeatureLocalInterface, api.FeatureRemoteInterface, error) {
+func (f *Feature) getLocalAndRemoteFeatures() (
+	spineapi.FeatureLocalInterface,
+	spineapi.FeatureRemoteInterface,
+	error) {
 	featureLocal := f.localEntity.FeatureOfTypeAndRole(f.featureType, f.localRole)
 	if featureLocal == nil {
 		featureLocal = f.localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeGeneric, f.localRole)

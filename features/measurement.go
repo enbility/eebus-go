@@ -1,7 +1,8 @@
 package features
 
 import (
-	"github.com/enbility/spine-go/api"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 )
@@ -15,8 +16,8 @@ type Measurement struct {
 // - The feature on the local entity has to be of role client
 // - The feature on the remote entity has to be of role server
 func NewMeasurement(
-	localEntity api.EntityLocalInterface,
-	remoteEntity api.EntityRemoteInterface) (*Measurement, error) {
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*Measurement, error) {
 	feature, err := NewFeature(model.FeatureTypeTypeMeasurement, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
@@ -48,7 +49,7 @@ func (m *Measurement) RequestValues() (*model.MsgCounterType, error) {
 func (m *Measurement) GetDescriptions() ([]model.MeasurementDescriptionDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.MeasurementDescriptionListDataType](m.featureRemote, model.FunctionTypeMeasurementDescriptionListData)
 	if err != nil {
-		return nil, ErrMetadataNotAvailable
+		return nil, api.ErrMetadataNotAvailable
 	}
 
 	return data.MeasurementDescriptionData, nil
@@ -69,7 +70,7 @@ func (m *Measurement) GetDescriptionsForScope(scope model.ScopeTypeType) ([]mode
 	}
 
 	if len(result) == 0 {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil
@@ -91,14 +92,14 @@ func (m *Measurement) GetDescriptionForMeasurementId(measurementId model.Measure
 		return &item, nil
 	}
 
-	return nil, ErrMetadataNotAvailable
+	return nil, api.ErrMetadataNotAvailable
 }
 
 // return current values for measurements
 func (m *Measurement) GetValues() ([]model.MeasurementDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.MeasurementListDataType](m.featureRemote, model.FunctionTypeMeasurementListData)
 	if err != nil {
-		return nil, ErrMetadataNotAvailable
+		return nil, api.ErrMetadataNotAvailable
 	}
 
 	return data.MeasurementData, nil
@@ -123,7 +124,7 @@ func (m *Measurement) GetValueForMeasurementId(id model.MeasurementIdType) (floa
 		}
 	}
 
-	return 0, ErrDataNotAvailable
+	return 0, api.ErrDataNotAvailable
 }
 
 // return current values of a defined measurementType, commodityType and scopeType
@@ -153,7 +154,7 @@ func (m *Measurement) GetValuesForTypeCommodityScope(measurement model.Measureme
 	}
 
 	if len(resultSet) == 0 {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return resultSet, nil
@@ -163,7 +164,7 @@ func (m *Measurement) GetValuesForTypeCommodityScope(measurement model.Measureme
 func (m *Measurement) GetConstraints() ([]model.MeasurementConstraintsDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.MeasurementConstraintsListDataType](m.featureRemote, model.FunctionTypeMeasurementConstraintsListData)
 	if err != nil {
-		return nil, ErrMetadataNotAvailable
+		return nil, api.ErrMetadataNotAvailable
 	}
 
 	return data.MeasurementConstraintsData, nil

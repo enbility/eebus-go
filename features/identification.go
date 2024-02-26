@@ -1,7 +1,8 @@
 package features
 
 import (
-	"github.com/enbility/spine-go/api"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 )
@@ -15,8 +16,8 @@ type Identification struct {
 // - The feature on the local entity has to be of role client
 // - The feature on the remote entity has to be of role server
 func NewIdentification(
-	localEntity api.EntityLocalInterface,
-	remoteEntity api.EntityRemoteInterface) (*Identification, error) {
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*Identification, error) {
 	feature, err := NewFeature(model.FeatureTypeTypeIdentification, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func (i *Identification) RequestValues() (*model.MsgCounterType, error) {
 func (i *Identification) GetValues() ([]model.IdentificationDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.IdentificationListDataType](i.featureRemote, model.FunctionTypeIdentificationListData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IdentificationData, nil

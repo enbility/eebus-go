@@ -3,7 +3,8 @@ package features
 import (
 	"time"
 
-	"github.com/enbility/spine-go/api"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 )
@@ -17,8 +18,8 @@ type DeviceDiagnosis struct {
 // - The feature on the local entity has to be of role client
 // - The feature on the remote entity has to be of role server
 func NewDeviceDiagnosis(
-	localEntity api.EntityLocalInterface,
-	remoteEntity api.EntityRemoteInterface) (*DeviceDiagnosis, error) {
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*DeviceDiagnosis, error) {
 	feature, err := NewFeature(model.FeatureTypeTypeDeviceDiagnosis, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
@@ -40,7 +41,7 @@ func (d *DeviceDiagnosis) RequestState() (*model.MsgCounterType, error) {
 func (d *DeviceDiagnosis) GetState() (*model.DeviceDiagnosisStateDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceDiagnosisStateDataType](d.featureRemote, model.FunctionTypeDeviceDiagnosisStateData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data, nil

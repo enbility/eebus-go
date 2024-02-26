@@ -1,7 +1,8 @@
 package features
 
 import (
-	"github.com/enbility/spine-go/api"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 )
@@ -15,8 +16,8 @@ type IncentiveTable struct {
 // - The feature on the local entity has to be of role client
 // - The feature on the remote entity has to be of role server
 func NewIncentiveTable(
-	localEntity api.EntityLocalInterface,
-	remoteEntity api.EntityRemoteInterface) (*IncentiveTable, error) {
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*IncentiveTable, error) {
 	feature, err := NewFeature(model.FeatureTypeTypeIncentiveTable, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
@@ -48,7 +49,7 @@ func (i *IncentiveTable) RequestValues() (*model.MsgCounterType, error) {
 // returns an error if this failed
 func (i *IncentiveTable) WriteValues(data []model.IncentiveTableType) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
-		return nil, ErrMissingData
+		return nil, api.ErrMissingData
 	}
 
 	cmd := model.CmdType{
@@ -64,7 +65,7 @@ func (i *IncentiveTable) WriteValues(data []model.IncentiveTableType) (*model.Ms
 func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableDataType](i.featureRemote, model.FunctionTypeIncentiveTableData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IncentiveTable, nil
@@ -74,7 +75,7 @@ func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
 // returns an error if this failed
 func (i *IncentiveTable) WriteDescriptions(data []model.IncentiveTableDescriptionType) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
-		return nil, ErrMissingData
+		return nil, api.ErrMissingData
 	}
 
 	cmd := model.CmdType{
@@ -90,7 +91,7 @@ func (i *IncentiveTable) WriteDescriptions(data []model.IncentiveTableDescriptio
 func (i *IncentiveTable) GetDescriptions() ([]model.IncentiveTableDescriptionType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableDescriptionDataType](i.featureRemote, model.FunctionTypeIncentiveTableDescriptionData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IncentiveTableDescription, nil
@@ -111,7 +112,7 @@ func (i *IncentiveTable) GetDescriptionsForScope(scope model.ScopeTypeType) ([]m
 	}
 
 	if len(result) == 0 {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil
@@ -121,7 +122,7 @@ func (i *IncentiveTable) GetDescriptionsForScope(scope model.ScopeTypeType) ([]m
 func (i *IncentiveTable) GetConstraints() ([]model.IncentiveTableConstraintsType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableConstraintsDataType](i.featureRemote, model.FunctionTypeIncentiveTableConstraintsData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IncentiveTableConstraints, nil

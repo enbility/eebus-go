@@ -1,7 +1,8 @@
 package features
 
 import (
-	"github.com/enbility/spine-go/api"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 )
@@ -15,8 +16,8 @@ type DeviceConfiguration struct {
 // - The feature on the local entity has to be of role client
 // - The feature on the remote entity has to be of role server
 func NewDeviceConfiguration(
-	localEntity api.EntityLocalInterface,
-	remoteEntity api.EntityRemoteInterface) (*DeviceConfiguration, error) {
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*DeviceConfiguration, error) {
 	feature, err := NewFeature(model.FeatureTypeTypeDeviceConfiguration, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
@@ -43,7 +44,7 @@ func (d *DeviceConfiguration) RequestKeyValues() (*model.MsgCounterType, error) 
 func (d *DeviceConfiguration) GetDescriptions() ([]model.DeviceConfigurationKeyValueDescriptionDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceConfigurationKeyValueDescriptionListDataType](d.featureRemote, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.DeviceConfigurationKeyValueDescriptionData, nil
@@ -62,7 +63,7 @@ func (d *DeviceConfiguration) GetDescriptionForKeyId(keyId model.DeviceConfigura
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // returns the description of a provided key name
@@ -81,14 +82,14 @@ func (d *DeviceConfiguration) GetDescriptionForKeyName(keyName model.DeviceConfi
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return current values for Device Configuration
 func (d *DeviceConfiguration) GetKeyValues() ([]model.DeviceConfigurationKeyValueDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceConfigurationKeyValueListDataType](d.featureRemote, model.FunctionTypeDeviceConfigurationKeyValueListData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.DeviceConfigurationKeyValueData, nil
@@ -128,10 +129,10 @@ func (d *DeviceConfiguration) GetKeyValueForKeyName(keyname model.DeviceConfigur
 			case model.DeviceConfigurationKeyValueTypeTypeScaledNumber:
 				return item.Value.ScaledNumber, nil
 			default:
-				return nil, ErrDataNotAvailable
+				return nil, api.ErrDataNotAvailable
 			}
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }

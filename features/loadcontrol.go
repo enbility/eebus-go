@@ -1,7 +1,8 @@
 package features
 
 import (
-	"github.com/enbility/spine-go/api"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 )
@@ -15,8 +16,8 @@ type LoadControl struct {
 // - The feature on the local entity has to be of role client
 // - The feature on the remote entity has to be of role server
 func NewLoadControl(
-	localEntity api.EntityLocalInterface,
-	remoteEntity api.EntityRemoteInterface) (*LoadControl, error) {
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*LoadControl, error) {
 	feature, err := NewFeature(model.FeatureTypeTypeLoadControl, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (l *LoadControl) RequestLimitValues() (*model.MsgCounterType, error) {
 func (l *LoadControl) GetLimitDescriptions() ([]model.LoadControlLimitDescriptionDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.LoadControlLimitDescriptionListDataType](l.featureRemote, model.FunctionTypeLoadControlLimitDescriptionListData)
 	if err != nil {
-		return nil, ErrMetadataNotAvailable
+		return nil, api.ErrMetadataNotAvailable
 	}
 
 	return data.LoadControlLimitDescriptionData, nil
@@ -72,7 +73,7 @@ func (l *LoadControl) GetLimitDescriptionsForCategory(category model.LoadControl
 	}
 
 	if len(result) == 0 {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil
@@ -108,7 +109,7 @@ func (l *LoadControl) GetLimitDescriptionsForCategoryTypeDirectionScope(
 	}
 
 	if len(result) == 0 {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil
@@ -131,7 +132,7 @@ func (l *LoadControl) GetLimitDescriptionsForMeasurementId(measurementId model.M
 	}
 
 	if len(result) == 0 {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil
@@ -141,7 +142,7 @@ func (l *LoadControl) GetLimitDescriptionsForMeasurementId(measurementId model.M
 // returns an error if this failed
 func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
-		return nil, ErrMissingData
+		return nil, api.ErrMissingData
 	}
 
 	cmd := model.CmdType{
@@ -157,7 +158,7 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 func (l *LoadControl) GetLimitValues() ([]model.LoadControlLimitDataType, error) {
 	data, err := spine.RemoteFeatureDataCopyOfType[*model.LoadControlLimitListDataType](l.featureRemote, model.FunctionTypeLoadControlLimitListData)
 	if err != nil {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.LoadControlLimitData, nil
@@ -176,5 +177,5 @@ func (l *LoadControl) GetLimitValueForLimitId(limitId model.LoadControlLimitIdTy
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
