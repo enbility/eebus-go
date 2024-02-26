@@ -87,6 +87,13 @@ func (s *FeatureSuite) Test_Subscription() {
 	counter, err = s.testFeature.Subscribe()
 	assert.NotNil(s.T(), counter)
 	assert.Nil(s.T(), err)
+
+	counter, err = s.testFeature.Unsubscribe()
+	assert.NotNil(s.T(), counter)
+	assert.Nil(s.T(), err)
+
+	subscription = s.testFeature.HasSubscription()
+	assert.Equal(s.T(), false, subscription)
 }
 
 func (s *FeatureSuite) Test_Binding() {
@@ -103,6 +110,13 @@ func (s *FeatureSuite) Test_Binding() {
 	counter, err = s.testFeature.Bind()
 	assert.NotNil(s.T(), counter)
 	assert.Nil(s.T(), err)
+
+	counter, err = s.testFeature.Unbind()
+	assert.NotNil(s.T(), counter)
+	assert.Nil(s.T(), err)
+
+	binding = s.testFeature.HasBinding()
+	assert.Equal(s.T(), false, binding)
 }
 
 func (s *FeatureSuite) Test_ResultCallback() {

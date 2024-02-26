@@ -67,6 +67,17 @@ func (f *Feature) Subscribe() (*model.MsgCounterType, error) {
 	return msgCounter, nil
 }
 
+// unssubscribe to the feature of the entity
+func (f *Feature) Unsubscribe() (*model.MsgCounterType, error) {
+	msgCounter, fErr := f.featureLocal.RemoveRemoteSubscription(f.featureRemote.Address())
+
+	if fErr != nil {
+		return nil, errors.New(fErr.String())
+	}
+
+	return msgCounter, nil
+}
+
 // check if there is a binding to the remote feature
 func (f *Feature) HasBinding() bool {
 	binding := f.featureLocal.HasBindingToRemote(f.featureRemote.Address())
@@ -76,6 +87,17 @@ func (f *Feature) HasBinding() bool {
 // bind to the feature of the entity
 func (f *Feature) Bind() (*model.MsgCounterType, error) {
 	msgCounter, fErr := f.featureLocal.BindToRemote(f.featureRemote.Address())
+	if fErr != nil {
+		return nil, errors.New(fErr.String())
+	}
+
+	return msgCounter, nil
+}
+
+// remove a binding to the feature of the entity
+func (f *Feature) Unbind() (*model.MsgCounterType, error) {
+	msgCounter, fErr := f.featureLocal.RemoveRemoteBinding(f.featureRemote.Address())
+
 	if fErr != nil {
 		return nil, errors.New(fErr.String())
 	}
