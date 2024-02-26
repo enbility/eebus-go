@@ -17,9 +17,16 @@ The supported functionality contains:
 - Support for SHIP 1.0.1 via [ship-go](https://github.com/enbility/ship-go)
 - Support for SPINE 1.3.0 via [spine-go](https://github.com/enbility/spine-go)
 - Certificate handling
-- mDNS Support, incl. avahi support (recommended)
+- mDNS Support, incl. avahi support
 - Connection (websocket) handling, including reconnection and double connections
 - Support for handling pairing of devices
+
+## Packages
+
+- `api`: global API interface definitions and eebus service configuration
+- `features`: provides feature helpers with the local SPINE feature having the client role and the remote SPINE feature being the server for easy access to commonly used functions
+- `service`: central package which provides access to SHIP and SPINE. Use this to create the EEBUS service, its configuration and connect to remote EEBUS services
+- `util`: package with various useful helper functions
 
 ## Usage
 
@@ -92,7 +99,6 @@ This approach has been tested with:
 - Elli Charger Connect
 - Porsche Mobile Charger Connect
 - SMA Home Energy Manager 2.0
-
 
 ## Interfaces
 
