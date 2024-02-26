@@ -25,7 +25,7 @@ type Feature struct {
 
 var _ FeatureInterface = (*Feature)(nil)
 
-func NewFeature(featureType model.FeatureTypeType, localRole, remoteRole model.RoleType, localEntity api.EntityLocalInterface, remoteEntity api.EntityRemoteInterface) (*Feature, error) {
+func NewFeature(featureType model.FeatureTypeType, localEntity api.EntityLocalInterface, remoteEntity api.EntityRemoteInterface) (*Feature, error) {
 	if localEntity == nil {
 		return nil, errors.New("local entity is nil")
 	}
@@ -36,8 +36,8 @@ func NewFeature(featureType model.FeatureTypeType, localRole, remoteRole model.R
 
 	f := &Feature{
 		featureType:      featureType,
-		localRole:        localRole,
-		remoteRole:       remoteRole,
+		localRole:        model.RoleTypeClient,
+		remoteRole:       model.RoleTypeServer,
 		spineLocalDevice: localEntity.Device(),
 		localEntity:      localEntity,
 		remoteDevice:     remoteEntity.Device(),
@@ -45,7 +45,7 @@ func NewFeature(featureType model.FeatureTypeType, localRole, remoteRole model.R
 	}
 
 	var err error
-	f.featureLocal, f.featureRemote, err = f.getLocalClientAndRemoteServerFeatures()
+	f.featureLocal, f.featureRemote, err = f.getLocalAndRemoteFeatures()
 
 	return f, err
 }
@@ -137,9 +137,9 @@ func (f *Feature) requestData(function model.FunctionType, selectors any, elemen
 }
 
 // internal helper method for getting local and remote feature for a given featureType and a given remoteDevice
-func (f *Feature) getLocalClientAndRemoteServerFeatures() (api.FeatureLocalInterface, api.FeatureRemoteInterface, error) {
+func (f *Feature) getLocalAndRemoteFeatures() (api.FeatureLocalInterface, api.FeatureRemoteInterface, error) {
 	featureLocal := f.localEntity.FeatureOfTypeAndRole(f.featureType, f.localRole)
-	if featureLocal == nil && f.localRole == model.RoleTypeClient {
+	if featureLocal == nil {
 		featureLocal = f.localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeGeneric, f.localRole)
 	}
 	if featureLocal == nil {
@@ -147,10 +147,6 @@ func (f *Feature) getLocalClientAndRemoteServerFeatures() (api.FeatureLocalInter
 	}
 
 	featureRemote := f.remoteEntity.Device().FeatureByEntityTypeAndRole(f.remoteEntity, f.featureType, f.remoteRole)
-	if featureRemote == nil && f.localRole == model.RoleTypeClient {
-		featureRemote = f.remoteEntity.Device().FeatureByEntityTypeAndRole(f.remoteEntity, model.FeatureTypeTypeGeneric, f.localRole)
-	}
-
 	if featureRemote == nil {
 		return nil, nil, errors.New("remote feature not found")
 	}

@@ -10,11 +10,14 @@ type Measurement struct {
 	*Feature
 }
 
+// Get a new Measurement features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
 func NewMeasurement(
-	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*Measurement, error) {
-	feature, err := NewFeature(model.FeatureTypeTypeMeasurement, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeMeasurement, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

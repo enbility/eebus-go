@@ -62,10 +62,10 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	assert.NotNil(s.T(), remoteEntity)
 
 	var err error
-	s.measurement, err = features.NewMeasurement(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, remoteEntity)
+	s.measurement, err = features.NewMeasurement(s.localEntity, remoteEntity)
 	assert.Nil(s.T(), err)
 
-	s.electricalconnection, err = features.NewElectricalConnection(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, remoteEntity)
+	s.electricalconnection, err = features.NewElectricalConnection(s.localEntity, remoteEntity)
 	assert.Nil(s.T(), err)
 
 	// Act

@@ -49,7 +49,7 @@ func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.incentiveTable, err = features.NewIncentiveTable(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	s.incentiveTable, err = features.NewIncentiveTable(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.incentiveTable)
 }

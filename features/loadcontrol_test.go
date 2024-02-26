@@ -49,7 +49,7 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.loadControl, err = features.NewLoadControl(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	s.loadControl, err = features.NewLoadControl(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.loadControl)
 }

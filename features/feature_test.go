@@ -47,28 +47,28 @@ func (s *FeatureSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeAlarm, model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeAlarm, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.testFeature)
 }
 
 func (s *FeatureSuite) Test_NewFeature() {
-	newFeature, err := features.NewFeature(model.FeatureTypeTypeBill, model.RoleTypeClient, model.RoleTypeServer, nil, s.remoteEntity)
+	newFeature, err := features.NewFeature(model.FeatureTypeTypeBill, nil, s.remoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), newFeature)
 
-	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, model.RoleTypeClient, model.RoleTypeServer, s.localEntity, nil)
+	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), newFeature)
 
-	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, s.localEntity, s.remoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.NotNil(s.T(), newFeature)
 
 	f := spine.NewFeatureLocal(1, s.localEntity, model.FeatureTypeTypeBill, model.RoleTypeClient)
 	s.localEntity.AddFeature(f)
 
-	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, s.localEntity, s.remoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.NotNil(s.T(), newFeature)
 }

@@ -10,11 +10,14 @@ type Identification struct {
 	*Feature
 }
 
+// Get a new Identification features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
 func NewIdentification(
-	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*Identification, error) {
-	feature, err := NewFeature(model.FeatureTypeTypeIdentification, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeIdentification, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

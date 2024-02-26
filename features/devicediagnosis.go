@@ -12,11 +12,14 @@ type DeviceDiagnosis struct {
 	*Feature
 }
 
+// Get a new DeviceDiagnosis features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
 func NewDeviceDiagnosis(
-	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*DeviceDiagnosis, error) {
-	feature, err := NewFeature(model.FeatureTypeTypeDeviceDiagnosis, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceDiagnosis, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

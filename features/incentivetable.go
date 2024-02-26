@@ -10,11 +10,14 @@ type IncentiveTable struct {
 	*Feature
 }
 
+// Get a new IncentiveTable features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
 func NewIncentiveTable(
-	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*IncentiveTable, error) {
-	feature, err := NewFeature(model.FeatureTypeTypeIncentiveTable, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeIncentiveTable, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

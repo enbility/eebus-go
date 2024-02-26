@@ -10,11 +10,14 @@ type ElectricalConnection struct {
 	*Feature
 }
 
+// Get a new ElectricalConnection features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
 func NewElectricalConnection(
-	localRole, remoteRole model.RoleType,
 	localEntity api.EntityLocalInterface,
 	remoteEntity api.EntityRemoteInterface) (*ElectricalConnection, error) {
-	feature, err := NewFeature(model.FeatureTypeTypeElectricalConnection, localRole, remoteRole, localEntity, remoteEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeElectricalConnection, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}

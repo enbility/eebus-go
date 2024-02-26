@@ -49,7 +49,7 @@ func (s *DeviceDiagnosisSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.deviceDiagnosis, err = features.NewDeviceDiagnosis(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	s.deviceDiagnosis, err = features.NewDeviceDiagnosis(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceDiagnosis)
 }

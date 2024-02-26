@@ -50,7 +50,7 @@ func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.timeSeries, err = features.NewTimeSeries(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	s.timeSeries, err = features.NewTimeSeries(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.timeSeries)
 }

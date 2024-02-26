@@ -5,6 +5,7 @@ import (
 	"github.com/enbility/spine-go/model"
 )
 
+// Feature interface were the local feature role is client and the remote feature role is server
 type FeatureInterface interface {
 	// check if there is a subscription to the remote feature
 	HasSubscription() bool

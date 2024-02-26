@@ -47,7 +47,7 @@ func (s *IdentificationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.identification, err = features.NewIdentification(model.RoleTypeClient, model.RoleTypeServer, s.localEntity, s.remoteEntity)
+	s.identification, err = features.NewIdentification(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.identification)
 }
