@@ -41,20 +41,39 @@ type ServiceInterface interface {
 	// Provide the current pairing state for a SKI
 	PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
 
-	// Returns the Service detail of a given remote SKI
+	// Returns the Service detail of a remote SKI
 	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
 
 	// Sets the SKI as being paired or not
+	//
+	// This should be called before `Start` for any SKI that has been
+	// paired in a previous session
 	RegisterRemoteSKI(ski string, enable bool)
 
-	// Disconnect a connection to an SKI
+	// Disconnect from a connected remote SKI
 	DisconnectSKI(ski string, reason string)
 
 	// Triggers the pairing process for a SKI
+	//
+	// This should be called while the service is running and the end
+	// user selected to initiate the pairing process with a device
+	// or wants to approve an incoming pairing request
 	InitiateOrApprovePairingWithSKI(ski string)
 
 	// Cancels the pairing process for a SKI
+	//
+	// This should be called while the service is running and the end
+	// user wants to cancel/disallow an incoming pairing request
 	CancelPairingWithSKI(ski string)
+
+	// Define wether the user is able to react to an incoming pairing request
+	//
+	// Call this with `true` e.g. if the user is currently using a web interface
+	// where an incoming request can be accepted or denied
+	//
+	// Default is set to false, meaning every incoming pairing request will be
+	// automatically denied
+	UserIsAbleToApproveOrCancelPairingRequests(allow bool)
 }
 
 // interface for receiving data for specific events from Service
@@ -82,7 +101,4 @@ type ServiceReaderInterface interface {
 	// This is called whenever the state changes and can be used to
 	// provide user information for the pairing/connection process
 	ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail)
-
-	// return if the user is still able to trust the connection
-	AllowWaitingForTrust(ski string) bool
 }

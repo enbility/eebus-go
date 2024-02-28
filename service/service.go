@@ -33,7 +33,12 @@ type Service struct {
 
 	serviceHandler api.ServiceReaderInterface
 
+	// defines wether a user interaction to accept pairing is possible
+	isPairingPossible bool
+
 	startOnce sync.Once
+
+	mux sync.Mutex
 }
 
 // creates a new EEBUS service
@@ -194,4 +199,18 @@ func (s *Service) InitiateOrApprovePairingWithSKI(ski string) {
 // Cancels the pairing process for a SKI
 func (s *Service) CancelPairingWithSKI(ski string) {
 	s.connectionsHub.CancelPairingWithSKI(ski)
+}
+
+// Define wether the user is able to react to an incoming pairing request
+//
+// Call this with `true` e.g. if the user is currently using a web interface
+// where an incoming request can be accepted or denied
+//
+// Default is set to false, meaning every incoming pairing request will be
+// automatically denied
+func (s *Service) UserIsAbleToApproveOrCancelPairingRequests(allow bool) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	s.isPairingPossible = allow
 }

@@ -47,9 +47,11 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	s.localDevice = spinemocks.NewDeviceLocalInterface(s.T())
 
 	certificate := tls.Certificate{}
-	s.config, _ = api.NewConfiguration(
+	var err error
+	s.config, err = api.NewConfiguration(
 		"vendor", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
+	assert.Nil(s.T(), nil, err)
 
 	s.sut = NewService(s.config, s.serviceReader)
 }
@@ -81,10 +83,15 @@ func (s *ServiceSuite) Test_EEBUSHandler() {
 	detail := &shipapi.ConnectionStateDetail{}
 	s.sut.ServicePairingDetailUpdate(testSki, detail)
 
-	s.serviceReader.EXPECT().AllowWaitingForTrust(mock.Anything).Return(true)
+	s.sut.UserIsAbleToApproveOrCancelPairingRequests(true)
 	result := s.sut.AllowWaitingForTrust(testSki)
 	assert.Equal(s.T(), true, result)
 
+	conf := s.sut.Configuration()
+	assert.Equal(s.T(), s.sut.configuration, conf)
+
+	lService := s.sut.LocalService()
+	assert.Equal(s.T(), s.sut.localService, lService)
 }
 
 func (s *ServiceSuite) Test_ConnectionsHub() {
@@ -114,6 +121,7 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 
 	s.conHub.EXPECT().DisconnectSKI(mock.Anything, mock.Anything).Return()
 	s.sut.DisconnectSKI(testSki, "reason")
+
 }
 
 func (s *ServiceSuite) Test_SetLogging() {

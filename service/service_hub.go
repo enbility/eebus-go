@@ -46,5 +46,8 @@ func (s *Service) ServicePairingDetailUpdate(ski string, detail *shipapi.Connect
 
 // return if the user is still able to trust the connection
 func (s *Service) AllowWaitingForTrust(ski string) bool {
-	return s.serviceHandler.AllowWaitingForTrust(ski)
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	return s.isPairingPossible
 }
