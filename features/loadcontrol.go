@@ -81,7 +81,7 @@ func (l *LoadControl) GetLimitDescriptionsForCategory(category model.LoadControl
 
 // returns the load control limit descriptions of a provided type, direction and scope
 // returns an error if no description data for the category is available
-func (l *LoadControl) GetLimitDescriptionsForCategoryTypeDirectionScope(
+func (l *LoadControl) GetLimitDescriptionsForTypeCategoryDirectionScope(
 	limitType model.LoadControlLimitTypeType,
 	limitCategory model.LoadControlCategoryType,
 	limitDirection model.EnergyDirectionType,

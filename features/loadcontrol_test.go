@@ -101,7 +101,7 @@ func (s *LoadControlSuite) Test_GetLimitDescriptionsForCategory() {
 }
 
 func (s *LoadControlSuite) Test_GetLimitDescriptionsForTypeDirectionScope() {
-	data, err := s.loadControl.GetLimitDescriptionsForCategoryTypeDirectionScope(
+	data, err := s.loadControl.GetLimitDescriptionsForTypeCategoryDirectionScope(
 		model.LoadControlLimitTypeTypeSignDependentAbsValueLimit,
 		model.LoadControlCategoryTypeObligation,
 		model.EnergyDirectionTypeConsume,
@@ -111,7 +111,7 @@ func (s *LoadControlSuite) Test_GetLimitDescriptionsForTypeDirectionScope() {
 
 	s.addDescription()
 
-	data, err = s.loadControl.GetLimitDescriptionsForCategoryTypeDirectionScope(
+	data, err = s.loadControl.GetLimitDescriptionsForTypeCategoryDirectionScope(
 		model.LoadControlLimitTypeTypeMaxValueLimit,
 		model.LoadControlCategoryTypeObligation,
 		model.EnergyDirectionTypeConsume,
@@ -119,7 +119,7 @@ func (s *LoadControlSuite) Test_GetLimitDescriptionsForTypeDirectionScope() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
-	data, err = s.loadControl.GetLimitDescriptionsForCategoryTypeDirectionScope(
+	data, err = s.loadControl.GetLimitDescriptionsForTypeCategoryDirectionScope(
 		model.LoadControlLimitTypeTypeSignDependentAbsValueLimit,
 		model.LoadControlCategoryTypeObligation,
 		model.EnergyDirectionTypeConsume,
