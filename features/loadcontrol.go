@@ -2,6 +2,7 @@ package features
 
 import (
 	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/util"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
@@ -146,6 +147,8 @@ func (l *LoadControl) WriteLimitValues(data []model.LoadControlLimitDataType) (*
 	}
 
 	cmd := model.CmdType{
+		Function: util.Ptr(model.FunctionTypeLoadControlLimitListData),
+		Filter:   []model.FilterType{*model.NewFilterTypePartial()},
 		LoadControlLimitListData: &model.LoadControlLimitListDataType{
 			LoadControlLimitData: data,
 		},

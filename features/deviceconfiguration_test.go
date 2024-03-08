@@ -159,6 +159,29 @@ func (s *DeviceConfigurationSuite) Test_GetValues() {
 	assert.NotNil(s.T(), data)
 }
 
+func (s *DeviceConfigurationSuite) Test_WriteValues() {
+	counter, err := s.deviceConfiguration.WriteKeyValues(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data := []model.DeviceConfigurationKeyValueDataType{}
+	counter, err = s.deviceConfiguration.WriteKeyValues(data)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data = []model.DeviceConfigurationKeyValueDataType{
+		{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				ScaledNumber: model.NewScaledNumberType(10),
+			},
+		},
+	}
+	counter, err = s.deviceConfiguration.WriteKeyValues(data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
 // helper
 
 func (s *DeviceConfigurationSuite) addDescription() {

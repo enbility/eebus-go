@@ -2,6 +2,7 @@ package features
 
 import (
 	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/util"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
@@ -93,6 +94,24 @@ func (d *DeviceConfiguration) GetKeyValues() ([]model.DeviceConfigurationKeyValu
 	}
 
 	return data.DeviceConfigurationKeyValueData, nil
+}
+
+// write key values
+// returns an error if this failed
+func (d *DeviceConfiguration) WriteKeyValues(data []model.DeviceConfigurationKeyValueDataType) (*model.MsgCounterType, error) {
+	if len(data) == 0 {
+		return nil, api.ErrMissingData
+	}
+
+	cmd := model.CmdType{
+		Function: util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueListData),
+		Filter:   []model.FilterType{*model.NewFilterTypePartial()},
+		DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{
+			DeviceConfigurationKeyValueData: data,
+		},
+	}
+
+	return d.remoteDevice.Sender().Write(d.featureLocal.Address(), d.featureRemote.Address(), cmd)
 }
 
 // return a pointer value for a given key and value type
