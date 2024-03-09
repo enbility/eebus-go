@@ -378,7 +378,7 @@ func (s *ElectricalConnectionSuite) addCharacteristics() {
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
-				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharaceteristicIdType(0)),
+				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
 				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
 				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax),
 				Value:                  model.NewScaledNumberType(98),
