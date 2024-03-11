@@ -19,6 +19,6 @@ type FeatureInterface interface {
 	// bind to the feature of the entity
 	Bind() (*model.MsgCounterType, error)
 
-	// add a callback function to be invoked once a result to a msgCounter came in
-	AddResultCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResultMessage))
+	// add a callback function to be invoked once a result or reply message for a msgCounter came in
+	AddResponseCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResponseMessage)) error
 }

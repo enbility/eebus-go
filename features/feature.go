@@ -110,10 +110,10 @@ func (f *Feature) Unbind() (*model.MsgCounterType, error) {
 }
 
 // add a callback function to be invoked once a result to a msgCounter came in
-func (f *Feature) AddResultCallback(
+func (f *Feature) AddResponseCallback(
 	msgCounterReference model.MsgCounterType,
-	function func(msg spineapi.ResultMessage)) {
-	f.featureLocal.AddResultCallback(msgCounterReference, function)
+	function func(msg spineapi.ResponseMessage)) error {
+	return f.featureLocal.AddResponseCallback(msgCounterReference, function)
 }
 
 // helper method which adds checking if the feature is available and the operation is allowed

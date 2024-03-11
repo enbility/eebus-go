@@ -120,5 +120,6 @@ func (s *FeatureSuite) Test_Binding() {
 }
 
 func (s *FeatureSuite) Test_ResultCallback() {
-	s.testFeature.AddResultCallback(10, func(msg spineapi.ResultMessage) {})
+	err := s.testFeature.AddResponseCallback(10, func(msg spineapi.ResponseMessage) {})
+	assert.Nil(s.T(), err)
 }
