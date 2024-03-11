@@ -1,9 +1,10 @@
 with-expecter: True
 inpackage: false
-dir: ../mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }} 
+dir: "{{ .InterfaceDir }}/../mocks"
 mockname: "{{.InterfaceName}}"
 outpkg: "mocks"
 filename: "{{.InterfaceName}}.go"
 all: True
 packages:
   github.com/enbility/eebus-go/api:
+  github.com/enbility/eebus-go/features:
