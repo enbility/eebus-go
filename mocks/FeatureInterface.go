@@ -70,6 +70,39 @@ func (_c *FeatureInterface_AddResponseCallback_Call) RunAndReturn(run func(model
 	return _c
 }
 
+// AddResultCallback provides a mock function with given fields: function
+func (_m *FeatureInterface) AddResultCallback(function func(api.ResponseMessage)) {
+	_m.Called(function)
+}
+
+// FeatureInterface_AddResultCallback_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddResultCallback'
+type FeatureInterface_AddResultCallback_Call struct {
+	*mock.Call
+}
+
+// AddResultCallback is a helper method to define mock.On call
+//   - function func(api.ResponseMessage)
+func (_e *FeatureInterface_Expecter) AddResultCallback(function interface{}) *FeatureInterface_AddResultCallback_Call {
+	return &FeatureInterface_AddResultCallback_Call{Call: _e.mock.On("AddResultCallback", function)}
+}
+
+func (_c *FeatureInterface_AddResultCallback_Call) Run(run func(function func(api.ResponseMessage))) *FeatureInterface_AddResultCallback_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(func(api.ResponseMessage)))
+	})
+	return _c
+}
+
+func (_c *FeatureInterface_AddResultCallback_Call) Return() *FeatureInterface_AddResultCallback_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *FeatureInterface_AddResultCallback_Call) RunAndReturn(run func(func(api.ResponseMessage))) *FeatureInterface_AddResultCallback_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Bind provides a mock function with given fields:
 func (_m *FeatureInterface) Bind() (*model.MsgCounterType, error) {
 	ret := _m.Called()

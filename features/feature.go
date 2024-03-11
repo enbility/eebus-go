@@ -116,6 +116,11 @@ func (f *Feature) AddResponseCallback(
 	return f.featureLocal.AddResponseCallback(msgCounterReference, function)
 }
 
+// add a callback function to be invoked once a result came in
+func (f *Feature) AddResultCallback(function func(msg spineapi.ResponseMessage)) {
+	f.featureLocal.AddResultCallback(function)
+}
+
 // helper method which adds checking if the feature is available and the operation is allowed
 // selectors and elements are used if specific data should be requested by using
 // model.FilterType DataSelectors (selectors) and/or DataElements (elements)

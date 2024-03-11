@@ -21,4 +21,7 @@ type FeatureInterface interface {
 
 	// add a callback function to be invoked once a result or reply message for a msgCounter came in
 	AddResponseCallback(msgCounterReference model.MsgCounterType, function func(msg api.ResponseMessage)) error
+
+	// add a callback function to be invoked once a result came in
+	AddResultCallback(function func(msg api.ResponseMessage))
 }
