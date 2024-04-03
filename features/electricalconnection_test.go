@@ -374,7 +374,7 @@ func (s *ElectricalConnectionSuite) addDescription() {
 func (s *ElectricalConnectionSuite) addCharacteristics() {
 	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionCharacteristicListDataType{
-		ElectricalConnectionCharacteristicListData: []model.ElectricalConnectionCharacteristicDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),

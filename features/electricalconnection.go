@@ -295,7 +295,7 @@ func (e *ElectricalConnection) GetCharacteristics() ([]model.ElectricalConnectio
 		return nil, api.ErrDataNotAvailable
 	}
 
-	return data.ElectricalConnectionCharacteristicListData, nil
+	return data.ElectricalConnectionCharacteristicData, nil
 }
 
 // return characteristics for a Electrical Connections
