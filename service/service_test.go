@@ -121,7 +121,6 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 
 	s.conHub.EXPECT().DisconnectSKI(mock.Anything, mock.Anything).Return()
 	s.sut.DisconnectSKI(testSki, "reason")
-
 }
 
 func (s *ServiceSuite) Test_SetLogging() {
@@ -136,7 +135,6 @@ func (s *ServiceSuite) Test_SetLogging() {
 }
 
 func (s *ServiceSuite) Test_Setup() {
-
 	err := s.sut.Setup()
 	assert.NotNil(s.T(), err)
 

@@ -244,7 +244,6 @@ func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetsEmptyElli() {
 	data, err = s.electricalConnection.GetPermittedValueSets()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
-
 }
 
 func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetForParameterId() {
