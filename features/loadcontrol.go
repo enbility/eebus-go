@@ -82,6 +82,8 @@ func (l *LoadControl) GetLimitDescriptionsForCategory(category model.LoadControl
 
 // returns the load control limit descriptions of a provided type, direction and scope
 // returns an error if no description data for the category is available
+//
+// providing an empty string for any of the params, will ignore the value in the request
 func (l *LoadControl) GetLimitDescriptionsForTypeCategoryDirectionScope(
 	limitType model.LoadControlLimitTypeType,
 	limitCategory model.LoadControlCategoryType,
@@ -97,14 +99,10 @@ func (l *LoadControl) GetLimitDescriptionsForTypeCategoryDirectionScope(
 
 	for _, item := range data {
 		if item.LimitId != nil &&
-			item.LimitType != nil &&
-			*item.LimitType == limitType &&
-			item.LimitCategory != nil &&
-			*item.LimitCategory == limitCategory &&
-			item.LimitDirection != nil &&
-			*item.LimitDirection == limitDirection &&
-			item.ScopeType != nil &&
-			*item.ScopeType == scope {
+			(limitType == "" || (item.LimitType != nil && *item.LimitType == limitType)) &&
+			(limitCategory == "" || (item.LimitCategory != nil && *item.LimitCategory == limitCategory)) &&
+			(limitDirection == "" || (item.LimitDirection != nil && *item.LimitDirection == limitDirection)) &&
+			(scope == "" || (item.ScopeType != nil && *item.ScopeType == scope)) {
 			result = append(result, item)
 		}
 	}
