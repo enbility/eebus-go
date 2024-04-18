@@ -98,7 +98,7 @@ func (s *DeviceDiagnosisSuite) Test_IsHeartbeatWithinDuration() {
 	result := s.deviceDiagnosis.IsHeartbeatWithinDuration(time.Second * 10)
 	assert.Equal(s.T(), false, result)
 
-	now := time.Now()
+	now := time.Now().UTC()
 
 	data := &model.DeviceDiagnosisHeartbeatDataType{
 		HeartbeatCounter: util.Ptr(uint64(1)),

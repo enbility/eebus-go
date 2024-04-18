@@ -218,7 +218,7 @@ func (s *MeasurementSuite) addConstraints() {
 func (s *MeasurementSuite) addData() {
 	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 
-	t := time.Now()
+	t := time.Now().UTC()
 	fData := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
