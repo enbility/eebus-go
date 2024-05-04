@@ -110,11 +110,11 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 	s.localDevice.EXPECT().SetupRemoteDevice(mock.Anything, s).Return(nil)
 	s.sut.SetupRemoteDevice(testSki, s)
 
-	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything, mock.Anything).Return()
-	s.sut.RegisterRemoteSKI(testSki, true)
+	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything).Return()
+	s.sut.RegisterRemoteSKI(testSki)
 
-	s.conHub.EXPECT().InitiateOrApprovePairingWithSKI(mock.Anything).Return()
-	s.sut.InitiateOrApprovePairingWithSKI(testSki)
+	s.conHub.EXPECT().UnregisterRemoteSKI(mock.Anything).Return()
+	s.sut.UnregisterRemoteSKI(testSki)
 
 	s.conHub.EXPECT().CancelPairingWithSKI(mock.Anything).Return()
 	s.sut.CancelPairingWithSKI(testSki)

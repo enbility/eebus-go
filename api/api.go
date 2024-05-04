@@ -44,21 +44,14 @@ type ServiceInterface interface {
 	// Returns the Service detail of a remote SKI
 	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
 
-	// Sets the SKI as being paired or not
-	//
-	// This should be called before `Start` for any SKI that has been
-	// paired in a previous session
-	RegisterRemoteSKI(ski string, enable bool)
+	// Sets the SKI as being paired
+	RegisterRemoteSKI(ski string)
+
+	// Sets the SKI as not being paired
+	UnregisterRemoteSKI(ski string)
 
 	// Disconnect from a connected remote SKI
 	DisconnectSKI(ski string, reason string)
-
-	// Triggers the pairing process for a SKI
-	//
-	// This should be called while the service is running and the end
-	// user selected to initiate the pairing process with a device
-	// or wants to approve an incoming pairing request
-	InitiateOrApprovePairingWithSKI(ski string)
 
 	// Cancels the pairing process for a SKI
 	//

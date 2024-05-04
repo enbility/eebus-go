@@ -180,20 +180,21 @@ func (s *Service) RemoteServiceForSKI(ski string) *shipapi.ServiceDetails {
 	return s.connectionsHub.ServiceForSKI(ski)
 }
 
-// Sets the SKI as being paired or not
+// Sets the SKI as being paired
 // and connect it if paired and not currently being connected
-func (s *Service) RegisterRemoteSKI(ski string, enable bool) {
-	s.connectionsHub.RegisterRemoteSKI(ski, enable)
+func (s *Service) RegisterRemoteSKI(ski string) {
+	s.connectionsHub.RegisterRemoteSKI(ski)
+}
+
+// Sets the SKI as not being paired
+// and disconnects it if connected
+func (s *Service) UnregisterRemoteSKI(ski string) {
+	s.connectionsHub.UnregisterRemoteSKI(ski)
 }
 
 // Close a connection to a remote SKI
 func (s *Service) DisconnectSKI(ski string, reason string) {
 	s.connectionsHub.DisconnectSKI(ski, reason)
-}
-
-// Triggers the pairing process for a SKI
-func (s *Service) InitiateOrApprovePairingWithSKI(ski string) {
-	s.connectionsHub.InitiateOrApprovePairingWithSKI(ski)
 }
 
 // Cancels the pairing process for a SKI
