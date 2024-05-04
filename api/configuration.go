@@ -103,7 +103,7 @@ func NewConfiguration(
 		port:                  port,
 		voltage:               voltage,
 		heartbeatTimeout:      heartbeatTimeout,
-		mdnsProviderSelection: mdns.MdnsProviderSelectionAll,
+		mdnsProviderSelection: mdns.MdnsProviderSelectionGoZeroConfOnly,
 	}
 
 	if port == 0 {
