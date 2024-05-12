@@ -363,6 +363,39 @@ func (_c *ServiceInterface_RemoteServiceForSKI_Call) RunAndReturn(run func(strin
 	return _c
 }
 
+// SetAutoAccept provides a mock function with given fields: value
+func (_m *ServiceInterface) SetAutoAccept(value bool) {
+	_m.Called(value)
+}
+
+// ServiceInterface_SetAutoAccept_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetAutoAccept'
+type ServiceInterface_SetAutoAccept_Call struct {
+	*mock.Call
+}
+
+// SetAutoAccept is a helper method to define mock.On call
+//   - value bool
+func (_e *ServiceInterface_Expecter) SetAutoAccept(value interface{}) *ServiceInterface_SetAutoAccept_Call {
+	return &ServiceInterface_SetAutoAccept_Call{Call: _e.mock.On("SetAutoAccept", value)}
+}
+
+func (_c *ServiceInterface_SetAutoAccept_Call) Run(run func(value bool)) *ServiceInterface_SetAutoAccept_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(bool))
+	})
+	return _c
+}
+
+func (_c *ServiceInterface_SetAutoAccept_Call) Return() *ServiceInterface_SetAutoAccept_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ServiceInterface_SetAutoAccept_Call) RunAndReturn(run func(bool)) *ServiceInterface_SetAutoAccept_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetLogging provides a mock function with given fields: logger
 func (_m *ServiceInterface) SetLogging(logger logging.LoggingInterface) {
 	_m.Called(logger)

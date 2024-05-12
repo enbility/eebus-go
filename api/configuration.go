@@ -64,15 +64,6 @@ type Configuration struct {
 	// The certificate used for the service and its connections, required
 	certificate tls.Certificate
 
-	// Wether remote devices should be automatically accepted
-	// If enabled will automatically search for other services with
-	// the same setting and automatically connect to them.
-	// Has to be set on configuring the service!
-	// TODO: if disabled, user verification needs to be implemented and supported
-	// the spec defines that this should have a timeout and be activate
-	// e.g via a physical button
-	registerAutoAccept bool
-
 	// The sites grid voltage
 	// This is useful when e.g. power values are not available and therefor
 	// need to be calculated using the current values
@@ -207,12 +198,6 @@ func (s *Configuration) SetInterfaces(ifaces []string) {
 	s.interfaces = ifaces
 }
 
-// define wether this service should announce auto accept
-// TODO: this needs to be redesigned!
-func (s *Configuration) SetRegisterAutoAccept(auto bool) {
-	s.registerAutoAccept = auto
-}
-
 // generates a standard identifier used for mDNS ID and SHIP ID
 // Brand-Model-SerialNumber
 func (s *Configuration) generateIdentifier() string {
@@ -255,10 +240,6 @@ func (s *Configuration) Port() int {
 
 func (s *Configuration) SetCertificate(cert tls.Certificate) {
 	s.certificate = cert
-}
-
-func (s *Configuration) RegisterAutoAccept() bool {
-	return s.registerAutoAccept
 }
 
 // return the sites predefined grid voltage

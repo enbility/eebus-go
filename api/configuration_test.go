@@ -91,11 +91,6 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	ifacesValue := config.Interfaces()
 	assert.Equal(s.T(), ifaces, ifacesValue)
 
-	config.SetRegisterAutoAccept(true)
-	assert.Equal(s.T(), true, config.registerAutoAccept)
-	registerValue := config.RegisterAutoAccept()
-	assert.Equal(s.T(), true, registerValue)
-
 	id := config.generateIdentifier()
 	assert.NotEqual(s.T(), "", id)
 

@@ -99,6 +99,7 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 
 	s.sut.connectionsHub = s.conHub
 	s.sut.spineLocalDevice = s.localDevice
+	s.sut.localService = shipapi.NewServiceDetails(testSki)
 
 	s.conHub.EXPECT().PairingDetailForSki(mock.Anything).Return(nil)
 	s.sut.PairingDetailForSki(testSki)
@@ -109,6 +110,10 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 
 	s.localDevice.EXPECT().SetupRemoteDevice(mock.Anything, s).Return(nil)
 	s.sut.SetupRemoteDevice(testSki, s)
+
+	s.conHub.EXPECT().SetAutoAccept(mock.Anything).Return()
+	s.sut.SetAutoAccept(true)
+	assert.True(s.T(), s.sut.IsAutoAcceptEnabled())
 
 	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything).Return()
 	s.sut.RegisterRemoteSKI(testSki)

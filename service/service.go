@@ -80,7 +80,6 @@ func (s *Service) Setup() error {
 	s.localService = shipapi.NewServiceDetails(ski)
 	s.localService.SetShipID(sd.Identifier())
 	s.localService.SetDeviceType(string(sd.DeviceType()))
-	s.localService.SetRegisterAutoAccept(sd.RegisterAutoAccept())
 
 	logging.Log().Info("Local SKI: ", ski)
 
@@ -178,6 +177,15 @@ func (s *Service) PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
 // Returns the Service detail of a given remote SKI
 func (s *Service) RemoteServiceForSKI(ski string) *shipapi.ServiceDetails {
 	return s.connectionsHub.ServiceForSKI(ski)
+}
+
+func (s *Service) SetAutoAccept(value bool) {
+	s.localService.SetAutoAccept(value)
+	s.connectionsHub.SetAutoAccept(value)
+}
+
+func (s *Service) IsAutoAcceptEnabled() bool {
+	return s.localService.AutoAccept()
 }
 
 // Sets the SKI as being paired

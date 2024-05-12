@@ -41,6 +41,14 @@ type ServiceInterface interface {
 	// Provide the current pairing state for a SKI
 	PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
 
+	// Defines wether incoming pairing requests should be automatically accepted or not
+	//
+	// Default: false
+	SetAutoAccept(value bool)
+
+	// Returns if the service has auto accept enabled or not
+	IsAutoAcceptEnabled() bool
+
 	// Returns the Service detail of a remote SKI
 	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
 
