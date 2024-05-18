@@ -1,22 +1,30 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type DeviceClassification struct {
-	*FeatureImpl
+	*Feature
 }
 
-func NewDeviceClassification(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*DeviceClassification, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceClassification, localRole, remoteRole, spineLocalDevice, entity)
+// Get a new DeviceClassification features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
+func NewDeviceClassification(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*DeviceClassification, error) {
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceClassification, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	dc := &DeviceClassification{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return dc, nil
@@ -29,14 +37,9 @@ func (d *DeviceClassification) RequestManufacturerDetails() (*model.MsgCounterTy
 
 // get the current manufacturer details for a remote device entity
 func (d *DeviceClassification) GetManufacturerDetails() (*model.DeviceClassificationManufacturerDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceClassificationManufacturerData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceClassificationManufacturerDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceClassificationManufacturerDataType](d.featureRemote, model.FunctionTypeDeviceClassificationManufacturerData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data, nil

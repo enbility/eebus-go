@@ -1,31 +1,39 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/util"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type DeviceConfiguration struct {
-	*FeatureImpl
+	*Feature
 }
 
-func NewDeviceConfiguration(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*DeviceConfiguration, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceConfiguration, localRole, remoteRole, spineLocalDevice, entity)
+// Get a new DeviceConfiguration features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
+func NewDeviceConfiguration(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*DeviceConfiguration, error) {
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceConfiguration, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	dc := &DeviceConfiguration{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return dc, nil
 }
 
 // request DeviceConfiguration data from a remote entity
-func (d *DeviceConfiguration) RequestDescriptions() error {
-	_, err := d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil)
-	return err
+func (d *DeviceConfiguration) RequestDescriptions() (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil)
 }
 
 // request DeviceConfigurationKeyValueListDataType from a remote entity
@@ -35,14 +43,9 @@ func (d *DeviceConfiguration) RequestKeyValues() (*model.MsgCounterType, error) 
 
 // return current descriptions for Device Configuration
 func (d *DeviceConfiguration) GetDescriptions() ([]model.DeviceConfigurationKeyValueDescriptionDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceConfigurationKeyValueDescriptionListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceConfigurationKeyValueDescriptionListDataType](d.featureRemote, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.DeviceConfigurationKeyValueDescriptionData, nil
@@ -61,7 +64,7 @@ func (d *DeviceConfiguration) GetDescriptionForKeyId(keyId model.DeviceConfigura
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // returns the description of a provided key name
@@ -73,30 +76,42 @@ func (d *DeviceConfiguration) GetDescriptionForKeyName(keyName model.DeviceConfi
 	}
 
 	for _, item := range descriptions {
-		if item.KeyId == nil || item.KeyName == nil {
-			continue
-		}
-		if *item.KeyName == keyName {
+		if item.KeyId != nil &&
+			item.KeyName != nil &&
+			*item.KeyName == keyName {
 			return &item, nil
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return current values for Device Configuration
 func (d *DeviceConfiguration) GetKeyValues() ([]model.DeviceConfigurationKeyValueDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceConfigurationKeyValueListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceConfigurationKeyValueListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceConfigurationKeyValueListDataType](d.featureRemote, model.FunctionTypeDeviceConfigurationKeyValueListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.DeviceConfigurationKeyValueData, nil
+}
+
+// write key values
+// returns an error if this failed
+func (d *DeviceConfiguration) WriteKeyValues(data []model.DeviceConfigurationKeyValueDataType) (*model.MsgCounterType, error) {
+	if len(data) == 0 {
+		return nil, api.ErrMissingData
+	}
+
+	cmd := model.CmdType{
+		Function: util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueListData),
+		Filter:   []model.FilterType{*model.NewFilterTypePartial()},
+		DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{
+			DeviceConfigurationKeyValueData: data,
+		},
+	}
+
+	return d.remoteDevice.Sender().Write(d.featureLocal.Address(), d.featureRemote.Address(), cmd)
 }
 
 // return a pointer value for a given key and value type
@@ -116,11 +131,7 @@ func (d *DeviceConfiguration) GetKeyValueForKeyName(keyname model.DeviceConfigur
 			continue
 		}
 
-		if desc.KeyName == nil {
-			continue
-		}
-
-		if *desc.KeyName == keyname {
+		if desc.KeyName != nil && *desc.KeyName == keyname {
 			switch valueType {
 			case model.DeviceConfigurationKeyValueTypeTypeBoolean:
 				return item.Value.Boolean, nil
@@ -137,10 +148,10 @@ func (d *DeviceConfiguration) GetKeyValueForKeyName(keyname model.DeviceConfigur
 			case model.DeviceConfigurationKeyValueTypeTypeScaledNumber:
 				return item.Value.ScaledNumber, nil
 			default:
-				return nil, ErrDataNotAvailable
+				return nil, api.ErrDataNotAvailable
 			}
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }

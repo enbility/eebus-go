@@ -1,12 +1,14 @@
-package features
+package features_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -18,21 +20,21 @@ func TestTimeSeriesSuite(t *testing.T) {
 type TimeSeriesSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
-	timeSeries  *TimeSeries
+	timeSeries  *features.TimeSeries
 	sentMessage []byte
 }
 
-var _ spine.SpineDataConnection = (*TimeSeriesSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*TimeSeriesSuite)(nil)
 
-func (s *TimeSeriesSuite) WriteSpineMessage(message []byte) {
+func (s *TimeSeriesSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 
 func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -48,19 +50,21 @@ func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.timeSeries, err = NewTimeSeries(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.timeSeries, err = features.NewTimeSeries(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.timeSeries)
 }
 
 func (s *TimeSeriesSuite) Test_RequestDescription() {
-	err := s.timeSeries.RequestDescriptions()
+	msgCounter, err := s.timeSeries.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *TimeSeriesSuite) Test_RequestConstraints() {
-	err := s.timeSeries.RequestConstraints()
+	msgCounter, err := s.timeSeries.RequestConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *TimeSeriesSuite) Test_RequestValues() {
@@ -180,7 +184,7 @@ func (s *TimeSeriesSuite) Test_GetConstraints() {
 // helpers
 
 func (s *TimeSeriesSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 
 	fData := &model.TimeSeriesListDataType{
 		TimeSeriesData: []model.TimeSeriesDataType{
@@ -210,7 +214,7 @@ func (s *TimeSeriesSuite) addData() {
 }
 
 func (s *TimeSeriesSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.TimeSeriesDescriptionListDataType{
 		TimeSeriesDescriptionData: []model.TimeSeriesDescriptionDataType{
 			{
@@ -227,7 +231,7 @@ func (s *TimeSeriesSuite) addDescription() {
 }
 
 func (s *TimeSeriesSuite) addConstraints() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.TimeSeriesConstraintsListDataType{
 		TimeSeriesConstraintsData: []model.TimeSeriesConstraintsDataType{
 			{

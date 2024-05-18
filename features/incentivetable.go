@@ -1,37 +1,43 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type IncentiveTable struct {
-	*FeatureImpl
+	*Feature
 }
 
-func NewIncentiveTable(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*IncentiveTable, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeIncentiveTable, localRole, remoteRole, spineLocalDevice, entity)
+// Get a new IncentiveTable features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
+func NewIncentiveTable(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*IncentiveTable, error) {
+	feature, err := NewFeature(model.FeatureTypeTypeIncentiveTable, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	i := &IncentiveTable{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return i, nil
 }
 
 // request FunctionTypeIncentiveTableDescriptionData from a remote entity
-func (i *IncentiveTable) RequestDescriptions() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableDescriptionData, nil, nil)
-	return err
+func (i *IncentiveTable) RequestDescriptions() (*model.MsgCounterType, error) {
+	return i.requestData(model.FunctionTypeIncentiveTableDescriptionData, nil, nil)
 }
 
 // request FunctionTypeIncentiveTableConstraintsData from a remote entity
-func (i *IncentiveTable) RequestConstraints() error {
-	_, err := i.requestData(model.FunctionTypeIncentiveTableConstraintsData, nil, nil)
-	return err
+func (i *IncentiveTable) RequestConstraints() (*model.MsgCounterType, error) {
+	return i.requestData(model.FunctionTypeIncentiveTableConstraintsData, nil, nil)
 }
 
 // request FunctionTypeIncentiveTableData from a remote entity
@@ -43,7 +49,7 @@ func (i *IncentiveTable) RequestValues() (*model.MsgCounterType, error) {
 // returns an error if this failed
 func (i *IncentiveTable) WriteValues(data []model.IncentiveTableType) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
-		return nil, ErrMissingData
+		return nil, api.ErrMissingData
 	}
 
 	cmd := model.CmdType{
@@ -52,19 +58,14 @@ func (i *IncentiveTable) WriteValues(data []model.IncentiveTableType) (*model.Ms
 		},
 	}
 
-	return i.featureRemote.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
+	return i.remoteDevice.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
 }
 
 // return current values for Time Series
 func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
-	rData := i.featureRemote.Data(model.FunctionTypeIncentiveTableData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IncentiveTableDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableDataType](i.featureRemote, model.FunctionTypeIncentiveTableData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IncentiveTable, nil
@@ -74,7 +75,7 @@ func (i *IncentiveTable) GetValues() ([]model.IncentiveTableType, error) {
 // returns an error if this failed
 func (i *IncentiveTable) WriteDescriptions(data []model.IncentiveTableDescriptionType) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
-		return nil, ErrMissingData
+		return nil, api.ErrMissingData
 	}
 
 	cmd := model.CmdType{
@@ -83,19 +84,14 @@ func (i *IncentiveTable) WriteDescriptions(data []model.IncentiveTableDescriptio
 		},
 	}
 
-	return i.featureRemote.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
+	return i.remoteDevice.Sender().Write(i.featureLocal.Address(), i.featureRemote.Address(), cmd)
 }
 
 // return list of descriptions
 func (i *IncentiveTable) GetDescriptions() ([]model.IncentiveTableDescriptionType, error) {
-	rData := i.featureRemote.Data(model.FunctionTypeIncentiveTableDescriptionData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IncentiveTableDescriptionDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableDescriptionDataType](i.featureRemote, model.FunctionTypeIncentiveTableDescriptionData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IncentiveTableDescription, nil
@@ -116,7 +112,7 @@ func (i *IncentiveTable) GetDescriptionsForScope(scope model.ScopeTypeType) ([]m
 	}
 
 	if len(result) == 0 {
-		return nil, ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil
@@ -124,14 +120,9 @@ func (i *IncentiveTable) GetDescriptionsForScope(scope model.ScopeTypeType) ([]m
 
 // return list of constraints
 func (i *IncentiveTable) GetConstraints() ([]model.IncentiveTableConstraintsType, error) {
-	rData := i.featureRemote.Data(model.FunctionTypeIncentiveTableConstraintsData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IncentiveTableConstraintsDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IncentiveTableConstraintsDataType](i.featureRemote, model.FunctionTypeIncentiveTableConstraintsData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IncentiveTableConstraints, nil

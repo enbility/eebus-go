@@ -1,37 +1,43 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type TimeSeries struct {
-	*FeatureImpl
+	*Feature
 }
 
-func NewTimeSeries(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*TimeSeries, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeTimeSeries, localRole, remoteRole, spineLocalDevice, entity)
+// Get a new TimeSeries features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
+func NewTimeSeries(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*TimeSeries, error) {
+	feature, err := NewFeature(model.FeatureTypeTypeTimeSeries, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	t := &TimeSeries{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return t, nil
 }
 
 // request FunctionTypeTimeSeriesDescriptionListData from a remote entity
-func (t *TimeSeries) RequestDescriptions() error {
-	_, err := t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
-	return err
+func (t *TimeSeries) RequestDescriptions() (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeTimeSeriesConstraintsListData from a remote entity
-func (t *TimeSeries) RequestConstraints() error {
-	_, err := t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
-	return err
+func (t *TimeSeries) RequestConstraints() (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
 }
 
 // request FunctionTypeTimeSeriesListData from a remote device
@@ -43,7 +49,7 @@ func (t *TimeSeries) RequestValues() (*model.MsgCounterType, error) {
 // returns an error if this failed
 func (t *TimeSeries) WriteValues(data []model.TimeSeriesDataType) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
-		return nil, ErrMissingData
+		return nil, api.ErrMissingData
 	}
 
 	cmd := model.CmdType{
@@ -52,19 +58,14 @@ func (t *TimeSeries) WriteValues(data []model.TimeSeriesDataType) (*model.MsgCou
 		},
 	}
 
-	return t.featureRemote.Sender().Write(t.featureLocal.Address(), t.featureRemote.Address(), cmd)
+	return t.remoteDevice.Sender().Write(t.featureLocal.Address(), t.featureRemote.Address(), cmd)
 }
 
 // return current values for Time Series
 func (t *TimeSeries) GetValues() ([]model.TimeSeriesDataType, error) {
-	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.TimeSeriesListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.TimeSeriesListDataType](t.featureRemote, model.FunctionTypeTimeSeriesListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.TimeSeriesData, nil
@@ -95,19 +96,14 @@ func (t *TimeSeries) GetValueForType(timeSeriesType model.TimeSeriesTypeType) (*
 		return &item, nil
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return list of descriptions
 func (t *TimeSeries) GetDescriptions() ([]model.TimeSeriesDescriptionDataType, error) {
-	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesDescriptionListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.TimeSeriesDescriptionListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.TimeSeriesDescriptionListDataType](t.featureRemote, model.FunctionTypeTimeSeriesDescriptionListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.TimeSeriesDescriptionData, nil
@@ -125,7 +121,7 @@ func (t *TimeSeries) GetDescriptionForId(id model.TimeSeriesIdType) (*model.Time
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 func (t *TimeSeries) GetDescriptionForType(timeSeriesType model.TimeSeriesTypeType) (*model.TimeSeriesDescriptionDataType, error) {
@@ -140,22 +136,14 @@ func (t *TimeSeries) GetDescriptionForType(timeSeriesType model.TimeSeriesTypeTy
 		}
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return current constraints for Time Series
 func (t *TimeSeries) GetConstraints() ([]model.TimeSeriesConstraintsDataType, error) {
-	rData := t.featureRemote.Data(model.FunctionTypeTimeSeriesConstraintsListData)
-	switch constraintsData := rData.(type) {
-	case *model.TimeSeriesConstraintsListDataType:
-		if constraintsData == nil {
-			return nil, ErrDataNotAvailable
-		}
-	}
-
-	data := rData.(*model.TimeSeriesConstraintsListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.TimeSeriesConstraintsListDataType](t.featureRemote, model.FunctionTypeTimeSeriesConstraintsListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.TimeSeriesConstraintsData, nil

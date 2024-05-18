@@ -1,22 +1,30 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type Identification struct {
-	*FeatureImpl
+	*Feature
 }
 
-func NewIdentification(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*Identification, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeIdentification, localRole, remoteRole, spineLocalDevice, entity)
+// Get a new Identification features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
+func NewIdentification(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*Identification, error) {
+	feature, err := NewFeature(model.FeatureTypeTypeIdentification, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	i := &Identification{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return i, nil
@@ -29,14 +37,9 @@ func (i *Identification) RequestValues() (*model.MsgCounterType, error) {
 
 // return current values for Identification
 func (i *Identification) GetValues() ([]model.IdentificationDataType, error) {
-	rData := i.featureRemote.Data(model.FunctionTypeIdentificationListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.IdentificationListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.IdentificationListDataType](i.featureRemote, model.FunctionTypeIdentificationListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.IdentificationData, nil

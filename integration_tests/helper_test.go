@@ -7,16 +7,14 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/stretchr/testify/assert"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 const (
-	wallbox_detaileddiscoverydata_recv_reply_file_path  = "./testdata/wallbox_detaileddiscoverydata_recv_reply.json"
-	wallbox_detaileddiscoverydata_recv_notify_file_path = "./testdata/wallbox_detaileddiscoverydata_recv_notify.json"
+	wallbox_detaileddiscoverydata_recv_reply_file_path  = ".//testdata/wallbox_detaileddiscoverydata_recv_reply.json"
+	wallbox_detaileddiscoverydata_recv_notify_file_path = ".//testdata/wallbox_detaileddiscoverydata_recv_notify.json"
 )
 
 type WriteMessageHandler struct {
@@ -25,9 +23,9 @@ type WriteMessageHandler struct {
 	mux sync.Mutex
 }
 
-var _ spine.SpineDataConnection = (*WriteMessageHandler)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*WriteMessageHandler)(nil)
 
-func (t *WriteMessageHandler) WriteSpineMessage(message []byte) {
+func (t *WriteMessageHandler) WriteShipMessageWithPayload(message []byte) {
 	t.mux.Lock()
 	defer t.mux.Unlock()
 
@@ -97,78 +95,23 @@ func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.Msg
 	return nil
 }
 
-func beforeTest(suiteName, testName string, fId uint, ftype model.FeatureTypeType, frole model.RoleType) (*spine.DeviceLocalImpl, string, spine.SpineDataProcessing, *WriteMessageHandler) {
-	sut := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
-	localEntity := spine.NewEntityLocalImpl(sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
-	sut.AddEntity(localEntity)
-	f := spine.NewFeatureLocalImpl(fId, localEntity, ftype, frole)
-	localEntity.AddFeature(f)
-
-	remoteSki := "TestRemoteSki"
-
-	writeHandler := &WriteMessageHandler{}
-	remoteDevice := sut.AddRemoteDevice(remoteSki, writeHandler)
-
-	return sut, remoteSki, remoteDevice, writeHandler
-}
-
-func initialCommunication(t *testing.T, readHandler spine.SpineDataProcessing, writeHandler *WriteMessageHandler) {
+func initialCommunication(t *testing.T, remoteDevice spineapi.DeviceRemoteInterface, writeHandler *WriteMessageHandler) {
 	// Initial generic communication
 
-	_, _ = readHandler.HandleIncomingSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))
+	_, _ = remoteDevice.HandleSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_reply_file_path))
 
 	// Act
-	msgCounter, _ := readHandler.HandleIncomingSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path))
+	msgCounter, _ := remoteDevice.HandleSpineMesssage(loadFileData(t, wallbox_detaileddiscoverydata_recv_notify_file_path))
 	waitForAck(t, msgCounter, writeHandler)
 }
 
 func loadFileData(t *testing.T, fileName string) []byte {
-	fileData, err := os.ReadFile(fileName)
+	fileData, err := os.ReadFile(fileName) // #nosec G304
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	return fileData
-}
-
-func checkSentData(t *testing.T, sendBytes []byte, msgSendFilePrefix string) {
-	msgSendExpectedBytes, err := os.ReadFile(msgSendFilePrefix + "_expected.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	msgSendActualFileName := msgSendFilePrefix + "_actual.json"
-	equal := jsonDatagramEqual(t, msgSendExpectedBytes, sendBytes)
-	if !equal {
-		saveJsonToFile(t, sendBytes, msgSendActualFileName)
-	}
-	assert.Truef(t, equal, "Assert equal failed! Check '%s' ", msgSendActualFileName)
-}
-
-func jsonDatagramEqual(t *testing.T, expectedJson, actualJson []byte) bool {
-	var actualDatagram model.Datagram
-	if err := json.Unmarshal(actualJson, &actualDatagram); err != nil {
-		t.Fatal(err)
-	}
-	var expectedDatagram model.Datagram
-	if err := json.Unmarshal(expectedJson, &expectedDatagram); err != nil {
-		t.Fatal(err)
-	}
-
-	less := func(a, b model.FunctionPropertyType) bool { return string(*a.Function) < string(*b.Function) }
-	return cmp.Equal(expectedDatagram, actualDatagram, cmpopts.SortSlices(less))
-}
-
-func saveJsonToFile(t *testing.T, data json.RawMessage, fileName string) {
-	jsonIndent, err := json.MarshalIndent(data, "", "    ")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = os.WriteFile(fileName, jsonIndent, os.ModePerm)
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
 func waitForAck(t *testing.T, msgCounterReference *model.MsgCounterType, writeHandler *WriteMessageHandler) {

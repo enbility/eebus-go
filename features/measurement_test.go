@@ -1,12 +1,14 @@
-package features
+package features_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -18,21 +20,21 @@ func TestMeasurementSuite(t *testing.T) {
 type MeasurementSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
-	measurement *Measurement
+	measurement *features.Measurement
 	sentMessage []byte
 }
 
-var _ spine.SpineDataConnection = (*MeasurementSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*MeasurementSuite)(nil)
 
-func (s *MeasurementSuite) WriteSpineMessage(message []byte) {
+func (s *MeasurementSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 
 func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -56,25 +58,45 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.measurement, err = NewMeasurement(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.measurement, err = features.NewMeasurement(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.measurement)
 }
 
 func (s *MeasurementSuite) Test_RequestDescriptions() {
-	err := s.measurement.RequestDescriptions()
+	msgCounter, err := s.measurement.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *MeasurementSuite) Test_RequestConstraints() {
-	err := s.measurement.RequestConstraints()
+	msgCounter, err := s.measurement.RequestConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *MeasurementSuite) Test_RequestValues() {
 	counter, err := s.measurement.RequestValues()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
+}
+
+func (s *MeasurementSuite) Test_GetValueForMeasurementId() {
+	measurement := model.MeasurementIdType(0)
+
+	value, err := s.measurement.GetValueForMeasurementId(measurement)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, value)
+
+	s.addData()
+
+	value, err = s.measurement.GetValueForMeasurementId(measurement)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 9.0, value)
+
+	value, err = s.measurement.GetValueForMeasurementId(model.MeasurementIdType(100))
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, value)
 }
 
 func (s *MeasurementSuite) Test_GetValuesForTypeCommodityScope() {
@@ -151,7 +173,7 @@ func (s *MeasurementSuite) Test_GetValues() {
 // helper
 
 func (s *MeasurementSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
 			{
@@ -173,7 +195,7 @@ func (s *MeasurementSuite) addDescription() {
 }
 
 func (s *MeasurementSuite) addConstraints() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.MeasurementConstraintsListDataType{
 		MeasurementConstraintsData: []model.MeasurementConstraintsDataType{
 			{
@@ -194,9 +216,9 @@ func (s *MeasurementSuite) addConstraints() {
 }
 
 func (s *MeasurementSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 
-	t := time.Now()
+	t := time.Now().UTC()
 	fData := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{

@@ -1,9 +1,15 @@
-package features
+package features_test
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"encoding/json"
+	"sync"
+	"time"
+
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,19 +18,102 @@ type featureFunctions struct {
 	functions   []model.FunctionType
 }
 
-func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, featureFunctions []featureFunctions) (*spine.DeviceLocalImpl, *spine.EntityRemoteImpl) {
-	localDevice := spine.NewDeviceLocalImpl("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
-	localEntity := spine.NewEntityLocalImpl(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
-	localDevice.AddEntity(localEntity)
+type WriteMessageHandler struct {
+	sentMessages [][]byte
+
+	mux sync.Mutex
+}
+
+var _ shipapi.ShipConnectionDataWriterInterface = (*WriteMessageHandler)(nil)
+
+func (t *WriteMessageHandler) WriteShipMessageWithPayload(message []byte) {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
+	t.sentMessages = append(t.sentMessages, message)
+}
+
+func (t *WriteMessageHandler) LastMessage() []byte {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
+	if len(t.sentMessages) == 0 {
+		return nil
+	}
+
+	return t.sentMessages[len(t.sentMessages)-1]
+}
+
+func (t *WriteMessageHandler) MessageWithReference(msgCounterReference *model.MsgCounterType) []byte {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
+	var datagram model.Datagram
+
+	for _, msg := range t.sentMessages {
+		if err := json.Unmarshal(msg, &datagram); err != nil {
+			return nil
+		}
+		if datagram.Datagram.Header.MsgCounterReference == nil {
+			continue
+		}
+		if uint(*datagram.Datagram.Header.MsgCounterReference) != uint(*msgCounterReference) {
+			continue
+		}
+		if datagram.Datagram.Payload.Cmd[0].ResultData != nil {
+			continue
+		}
+
+		return msg
+	}
+
+	return nil
+}
+
+func (t *WriteMessageHandler) ResultWithReference(msgCounterReference *model.MsgCounterType) []byte {
+	t.mux.Lock()
+	defer t.mux.Unlock()
+
+	var datagram model.Datagram
+
+	for _, msg := range t.sentMessages {
+		if err := json.Unmarshal(msg, &datagram); err != nil {
+			return nil
+		}
+		if datagram.Datagram.Header.MsgCounterReference == nil {
+			continue
+		}
+		if uint(*datagram.Datagram.Header.MsgCounterReference) != uint(*msgCounterReference) {
+			continue
+		}
+		if datagram.Datagram.Payload.Cmd[0].ResultData == nil {
+			continue
+		}
+
+		return msg
+	}
+
+	return nil
+}
+
+func setupFeatures(
+	t assert.TestingT,
+	dataCon shipapi.ShipConnectionDataWriterInterface,
+	featureFunctions []featureFunctions) (spineapi.EntityLocalInterface, spineapi.EntityRemoteInterface) {
+	localDevice := spine.NewDeviceLocal("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
+	localEntity := spine.NewEntityLocal(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
 
 	for i, item := range featureFunctions {
-		f := spine.NewFeatureLocalImpl(uint(i+1), localEntity, item.featureType, model.RoleTypeServer)
+		f := spine.NewFeatureLocal(uint(i+1), localEntity, item.featureType, model.RoleTypeClient)
 		localEntity.AddFeature(f)
 	}
 
+	localDevice.AddEntity(localEntity)
+
 	remoteDeviceName := "remoteDevice"
-	remoteDevice := spine.NewDeviceRemoteImpl(localDevice, "test", dataCon)
+	sender := spine.NewSender(dataCon)
+	remoteDevice := spine.NewDeviceRemote(localDevice, "test", sender)
 	data := &model.NodeManagementDetailedDiscoveryDataType{
 		DeviceInformation: &model.NodeManagementDetailedDiscoveryDeviceInformationType{
 			Description: &model.NetworkManagementDeviceDescriptionDataType{
@@ -56,7 +145,7 @@ func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, feature
 					Feature: util.Ptr(model.AddressFeatureType(i + 1)),
 				},
 				FeatureType: util.Ptr(item.featureType),
-				Role:        util.Ptr(model.RoleTypeClient),
+				Role:        util.Ptr(model.RoleTypeServer),
 			},
 		}
 		var supportedFcts []model.FunctionPropertyType
@@ -80,6 +169,9 @@ func setupFeatures(t assert.TestingT, dataCon spine.SpineDataConnection, feature
 	assert.Nil(t, err)
 	assert.NotNil(t, remoteEntities)
 	assert.NotEqual(t, 0, len(remoteEntities))
+	remoteDevice.UpdateDevice(data.DeviceInformation.Description)
 
-	return localDevice, remoteEntities[0]
+	localDevice.AddRemoteDeviceForSki("test", remoteDevice)
+
+	return localEntity, remoteEntities[0]
 }

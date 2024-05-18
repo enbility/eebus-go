@@ -1,11 +1,13 @@
-package features
+package features_test
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,21 +19,21 @@ func TestDeviceClassificationSuite(t *testing.T) {
 type DeviceClassificationSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
-	deviceClassification *DeviceClassification
+	deviceClassification *features.DeviceClassification
 	sentMessage          []byte
 }
 
-var _ spine.SpineDataConnection = (*DeviceClassificationSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*DeviceClassificationSuite)(nil)
 
-func (s *DeviceClassificationSuite) WriteSpineMessage(message []byte) {
+func (s *DeviceClassificationSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 
 func (s *DeviceClassificationSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -45,7 +47,7 @@ func (s *DeviceClassificationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.deviceClassification, err = NewDeviceClassification(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.deviceClassification, err = features.NewDeviceClassification(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceClassification)
 }
@@ -61,7 +63,7 @@ func (s *DeviceClassificationSuite) Test_GetManufacturerDetails() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.DeviceClassificationManufacturerDataType{
 		DeviceName:                     util.Ptr(model.DeviceClassificationStringType("brand")),
 		DeviceCode:                     util.Ptr(model.DeviceClassificationStringType("brand")),

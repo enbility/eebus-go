@@ -1,22 +1,32 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"time"
+
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type DeviceDiagnosis struct {
-	*FeatureImpl
+	*Feature
 }
 
-func NewDeviceDiagnosis(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*DeviceDiagnosis, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeDeviceDiagnosis, localRole, remoteRole, spineLocalDevice, entity)
+// Get a new DeviceDiagnosis features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
+func NewDeviceDiagnosis(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*DeviceDiagnosis, error) {
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceDiagnosis, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	dd := &DeviceDiagnosis{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return dd, nil
@@ -29,21 +39,36 @@ func (d *DeviceDiagnosis) RequestState() (*model.MsgCounterType, error) {
 
 // get the current diagnosis state for an device entity
 func (d *DeviceDiagnosis) GetState() (*model.DeviceDiagnosisStateDataType, error) {
-	rData := d.featureRemote.Data(model.FunctionTypeDeviceDiagnosisStateData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.DeviceDiagnosisStateDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceDiagnosisStateDataType](d.featureRemote, model.FunctionTypeDeviceDiagnosisStateData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data, nil
 }
 
-func (d *DeviceDiagnosis) SendState(operatingState *model.DeviceDiagnosisStateDataType) {
+func (d *DeviceDiagnosis) SetLocalState(operatingState *model.DeviceDiagnosisStateDataType) {
 	d.featureLocal.SetData(model.FunctionTypeDeviceDiagnosisStateData, operatingState)
+}
 
-	_, _ = d.featureLocal.NotifyData(model.FunctionTypeDeviceDiagnosisStateData, nil, nil, false, nil, d.featureRemote)
+// request FunctionTypeDeviceDiagnosisHeartbeatData from a remote device
+func (d *DeviceDiagnosis) RequestHeartbeat() (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceDiagnosisHeartbeatData, nil, nil)
+}
+
+// check if the currently available heartbeat data is within a time duration
+func (d *DeviceDiagnosis) IsHeartbeatWithinDuration(duration time.Duration) bool {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.DeviceDiagnosisHeartbeatDataType](d.featureRemote, model.FunctionTypeDeviceDiagnosisHeartbeatData)
+	if err != nil || data == nil || data.Timestamp == nil {
+		return false
+	}
+
+	timeValue, err := data.Timestamp.GetTime()
+	if err != nil {
+		return false
+	}
+
+	diff := time.Now().UTC().Add(-1 * duration)
+
+	return diff.Compare(timeValue.Local()) <= 0
 }

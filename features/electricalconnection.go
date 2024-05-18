@@ -1,39 +1,43 @@
 package features
 
 import (
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type ElectricalConnection struct {
-	*FeatureImpl
+	*Feature
 }
 
-func NewElectricalConnection(localRole, remoteRole model.RoleType, spineLocalDevice *spine.DeviceLocalImpl, entity *spine.EntityRemoteImpl) (*ElectricalConnection, error) {
-	feature, err := NewFeatureImpl(model.FeatureTypeTypeElectricalConnection, localRole, remoteRole, spineLocalDevice, entity)
+// Get a new ElectricalConnection features helper
+//
+// - The feature on the local entity has to be of role client
+// - The feature on the remote entity has to be of role server
+func NewElectricalConnection(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface) (*ElectricalConnection, error) {
+	feature, err := NewFeature(model.FeatureTypeTypeElectricalConnection, localEntity, remoteEntity)
 	if err != nil {
 		return nil, err
 	}
 
 	e := &ElectricalConnection{
-		FeatureImpl: feature,
+		Feature: feature,
 	}
 
 	return e, nil
 }
 
 // request ElectricalConnectionDescriptionListDataType from a remote entity
-func (e *ElectricalConnection) RequestDescriptions() error {
-	_, err := e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, nil, nil)
-
-	return err
+func (e *ElectricalConnection) RequestDescriptions() (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeElectricalConnectionParameterDescriptionListData from a remote entity
-func (e *ElectricalConnection) RequestParameterDescriptions() error {
-	_, err := e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, nil, nil)
-
-	return err
+func (e *ElectricalConnection) RequestParameterDescriptions() (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, nil, nil)
 }
 
 // request FunctionTypeElectricalConnectionPermittedValueSetListData from a remote entity
@@ -41,15 +45,16 @@ func (e *ElectricalConnection) RequestPermittedValueSets() (*model.MsgCounterTyp
 	return e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, nil, nil)
 }
 
+// request FunctionTypeElectricalConnectionCharacteristicListData from a remote entity
+func (e *ElectricalConnection) RequestCharacteristics() (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionCharacteristicListData, nil, nil)
+}
+
 // return list of description for Electrical Connection
 func (e *ElectricalConnection) GetDescriptions() ([]model.ElectricalConnectionDescriptionDataType, error) {
-	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionDescriptionListData)
-	if rData == nil {
-		return nil, ErrMetadataNotAvailable
-	}
-	data := rData.(*model.ElectricalConnectionDescriptionListDataType)
-	if data == nil {
-		return nil, ErrMetadataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionDescriptionListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionDescriptionListData)
+	if err != nil {
+		return nil, api.ErrMetadataNotAvailable
 	}
 
 	return data.ElectricalConnectionDescriptionData, nil
@@ -77,21 +82,35 @@ func (e *ElectricalConnection) GetDescriptionForMeasurementId(measurementId mode
 		return &item, nil
 	}
 
-	return nil, ErrMetadataNotAvailable
+	return nil, api.ErrMetadataNotAvailable
 }
 
 // return parameter descriptions for all Electrical Connections
 func (e *ElectricalConnection) GetParameterDescriptions() ([]model.ElectricalConnectionParameterDescriptionDataType, error) {
-	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionParameterDescriptionListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-	data := rData.(*model.ElectricalConnectionParameterDescriptionListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionParameterDescriptionListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionParameterDescriptionListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.ElectricalConnectionParameterDescriptionData, nil
+}
+
+// return parameter description for a specific scope
+func (e *ElectricalConnection) GetParameterDescriptionForScopeType(scope model.ScopeTypeType) (*model.ElectricalConnectionParameterDescriptionDataType, error) {
+	desc, err := e.GetParameterDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, element := range desc {
+		if element.ScopeType == nil || *element.ScopeType != scope {
+			continue
+		}
+
+		return &element, nil
+	}
+
+	return nil, api.ErrDataNotAvailable
 }
 
 // return parameter description for a specific parameterId
@@ -109,7 +128,7 @@ func (e *ElectricalConnection) GetParameterDescriptionForParameterId(parameterId
 		return &element, nil
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return parameter description for a specific measurementId
@@ -127,7 +146,7 @@ func (e *ElectricalConnection) GetParameterDescriptionForMeasurementId(measureme
 		return &element, nil
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return parameter description for a specific measurementId
@@ -145,19 +164,14 @@ func (e *ElectricalConnection) GetParameterDescriptionForMeasuredPhase(phase mod
 		return &element, nil
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return permitted values for all Electrical Connections
 func (e *ElectricalConnection) GetPermittedValueSets() ([]model.ElectricalConnectionPermittedValueSetDataType, error) {
-	rData := e.featureRemote.Data(model.FunctionTypeElectricalConnectionPermittedValueSetListData)
-	if rData == nil {
-		return nil, ErrDataNotAvailable
-	}
-
-	data := rData.(*model.ElectricalConnectionPermittedValueSetListDataType)
-	if data == nil {
-		return nil, ErrDataNotAvailable
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionPermittedValueSetListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionPermittedValueSetListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return data.ElectricalConnectionPermittedValueSetData, nil
@@ -178,7 +192,7 @@ func (e *ElectricalConnection) GetPermittedValueSetForParameterId(parameterId mo
 		return &element, nil
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // return permitted valueset for a provided measuremnetId
@@ -201,7 +215,7 @@ func (e *ElectricalConnection) GetPermittedValueSetForMeasurementId(measurementI
 		return &element, nil
 	}
 
-	return nil, ErrDataNotAvailable
+	return nil, api.ErrDataNotAvailable
 }
 
 // returns minimum, maximum, default/pause limit values
@@ -272,4 +286,37 @@ func (e *ElectricalConnection) AdjustValueToBeWithinPermittedValuesForParameter(
 	}
 
 	return value
+}
+
+// return characteristics for a Electrical Connections
+func (e *ElectricalConnection) GetCharacteristics() ([]model.ElectricalConnectionCharacteristicDataType, error) {
+	data, err := spine.RemoteFeatureDataCopyOfType[*model.ElectricalConnectionCharacteristicListDataType](e.featureRemote, model.FunctionTypeElectricalConnectionCharacteristicListData)
+	if err != nil {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	return data.ElectricalConnectionCharacteristicData, nil
+}
+
+// return characteristics for a Electrical Connections
+func (e *ElectricalConnection) GetCharacteristicForContextType(
+	context model.ElectricalConnectionCharacteristicContextType,
+	cType model.ElectricalConnectionCharacteristicTypeType,
+) (*model.ElectricalConnectionCharacteristicDataType, error) {
+	data, err := e.GetCharacteristics()
+	if err != nil || data == nil || len(data) == 0 {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	for _, item := range data {
+		if item.CharacteristicId != nil &&
+			item.CharacteristicContext != nil &&
+			*item.CharacteristicContext == context &&
+			item.CharacteristicType != nil &&
+			*item.CharacteristicType == cType {
+			return &item, nil
+		}
+	}
+
+	return nil, api.ErrDataNotAvailable
 }

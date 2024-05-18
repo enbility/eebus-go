@@ -1,11 +1,13 @@
-package features
+package features_test
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,21 +19,21 @@ func TestIncentiveTableSuite(t *testing.T) {
 type IncentiveTableSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
-	incentiveTable *IncentiveTable
+	incentiveTable *features.IncentiveTable
 	sentMessage    []byte
 }
 
-var _ spine.SpineDataConnection = (*IncentiveTableSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*IncentiveTableSuite)(nil)
 
-func (s *IncentiveTableSuite) WriteSpineMessage(message []byte) {
+func (s *IncentiveTableSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 
 func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -47,19 +49,21 @@ func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.incentiveTable, err = NewIncentiveTable(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.incentiveTable, err = features.NewIncentiveTable(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.incentiveTable)
 }
 
 func (s *IncentiveTableSuite) Test_RequestDescriptions() {
-	err := s.incentiveTable.RequestDescriptions()
+	counter, err := s.incentiveTable.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *IncentiveTableSuite) Test_RequestConstraints() {
-	err := s.incentiveTable.RequestConstraints()
+	counter, err := s.incentiveTable.RequestConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *IncentiveTableSuite) Test_RequestValues() {
@@ -216,7 +220,7 @@ func (s *IncentiveTableSuite) Test_GetConstraints() {
 // helpers
 
 func (s *IncentiveTableSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 
 	fData := &model.IncentiveTableDataType{
 		IncentiveTable: []model.IncentiveTableType{
@@ -236,7 +240,7 @@ func (s *IncentiveTableSuite) addData() {
 }
 
 func (s *IncentiveTableSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.IncentiveTableDescriptionDataType{
 		IncentiveTableDescription: []model.IncentiveTableDescriptionType{
 			{
@@ -275,7 +279,7 @@ func (s *IncentiveTableSuite) addDescription() {
 }
 
 func (s *IncentiveTableSuite) addConstraints() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.IncentiveTableConstraintsDataType{
 		IncentiveTableConstraints: []model.IncentiveTableConstraintsType{
 			{

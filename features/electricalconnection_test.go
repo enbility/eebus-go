@@ -1,11 +1,13 @@
-package features
+package features_test
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,21 +19,21 @@ func TestElectricalConnectionSuite(t *testing.T) {
 type ElectricalConnectionSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
-	electricalConnection *ElectricalConnection
+	electricalConnection *features.ElectricalConnection
 	sentMessage          []byte
 }
 
-var _ spine.SpineDataConnection = (*ElectricalConnectionSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*ElectricalConnectionSuite)(nil)
 
-func (s *ElectricalConnectionSuite) WriteSpineMessage(message []byte) {
+func (s *ElectricalConnectionSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 
 func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -41,29 +43,38 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 					model.FunctionTypeElectricalConnectionDescriptionListData,
 					model.FunctionTypeElectricalConnectionParameterDescriptionListData,
 					model.FunctionTypeElectricalConnectionPermittedValueSetListData,
+					model.FunctionTypeElectricalConnectionCharacteristicListData,
 				},
 			},
 		},
 	)
 
 	var err error
-	s.electricalConnection, err = NewElectricalConnection(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.electricalConnection, err = features.NewElectricalConnection(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.electricalConnection)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestDescriptions() {
-	err := s.electricalConnection.RequestDescriptions()
+	counter, err := s.electricalConnection.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestParameterDescriptions() {
-	err := s.electricalConnection.RequestParameterDescriptions()
+	counter, err := s.electricalConnection.RequestParameterDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestPermittedValueSets() {
 	counter, err := s.electricalConnection.RequestPermittedValueSets()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
+func (s *ElectricalConnectionSuite) Test_RequestCharacteristics() {
+	counter, err := s.electricalConnection.RequestCharacteristics()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
@@ -109,6 +120,28 @@ func (s *ElectricalConnectionSuite) Test_GetParameterDescriptions() {
 	data, err = s.electricalConnection.GetParameterDescriptions()
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
+}
+
+func (s *ElectricalConnectionSuite) Test_GetParameterDescriptionForScope() {
+	data, err := s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACPowerTotal)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACPowerTotal)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addParamDescriptionPower()
+
+	data, err = s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACPowerTotal)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+
+	data, err = s.electricalConnection.GetParameterDescriptionForScopeType(model.ScopeTypeTypeACCurrent)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 }
 
 func (s *ElectricalConnectionSuite) Test_GetParameterDescriptionForParameterId() {
@@ -201,6 +234,18 @@ func (s *ElectricalConnectionSuite) Test_GetPermittedValueSets() {
 	assert.NotNil(s.T(), data)
 }
 
+func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetsEmptyElli() {
+	data, err := s.electricalConnection.GetPermittedValueSets()
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addPermittedValueSetEmptyElli()
+
+	data, err = s.electricalConnection.GetPermittedValueSets()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
 func (s *ElectricalConnectionSuite) Test_GetPermittedValueSetForParameterId() {
 	parametertId := model.ElectricalConnectionParameterIdType(1)
 	data, err := s.electricalConnection.GetPermittedValueSetForParameterId(parametertId)
@@ -274,10 +319,44 @@ func (s *ElectricalConnectionSuite) Test_AdjustValueToBeWithinPermittedValuesFor
 	assert.Equal(s.T(), value, 0.1)
 }
 
+func (s *ElectricalConnectionSuite) Test_GetCharacteristics() {
+	data, err := s.electricalConnection.GetCharacteristics()
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addCharacteristics()
+
+	data, err = s.electricalConnection.GetCharacteristics()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
+func (s *ElectricalConnectionSuite) Test_GetCharacteristicForContextType() {
+	data, err := s.electricalConnection.GetCharacteristicForContextType(
+		model.ElectricalConnectionCharacteristicContextTypeEntity,
+		model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addCharacteristics()
+
+	data, err = s.electricalConnection.GetCharacteristicForContextType(
+		model.ElectricalConnectionCharacteristicContextTypeEntity,
+		model.ElectricalConnectionCharacteristicTypeTypeApparentPowerConsumptionNominalMax)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = s.electricalConnection.GetCharacteristicForContextType(
+		model.ElectricalConnectionCharacteristicContextTypeEntity,
+		model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
 // helper
 
 func (s *ElectricalConnectionSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionDescriptionListDataType{
 		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
 			{
@@ -291,8 +370,26 @@ func (s *ElectricalConnectionSuite) addDescription() {
 	rF.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, fData, nil, nil)
 }
 
+func (s *ElectricalConnectionSuite) addCharacteristics() {
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
+	fData := &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
+				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax),
+				Value:                  model.NewScaledNumberType(98),
+				Unit:                   util.Ptr(model.UnitOfMeasurementTypeWh),
+			},
+		},
+	}
+	rF.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, fData, nil, nil)
+}
+
 func (s *ElectricalConnectionSuite) addParamDescriptionCurrents() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
 			{
@@ -371,7 +468,7 @@ func (s *ElectricalConnectionSuite) addParamDescriptionCurrents() {
 }
 
 func (s *ElectricalConnectionSuite) addParamDescriptionPower() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
 			{
@@ -386,7 +483,7 @@ func (s *ElectricalConnectionSuite) addParamDescriptionPower() {
 }
 
 func (s *ElectricalConnectionSuite) addPermittedValueSet() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.ElectricalConnectionPermittedValueSetListDataType{
 		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{
@@ -456,6 +553,28 @@ func (s *ElectricalConnectionSuite) addPermittedValueSet() {
 						},
 					},
 				},
+			},
+		},
+	}
+	rF.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
+}
+
+func (s *ElectricalConnectionSuite) addPermittedValueSetEmptyElli() {
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
+	fData := &model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				PermittedValueSet:      []model.ScaledNumberSetType{},
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
 			},
 		},
 	}

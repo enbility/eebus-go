@@ -1,11 +1,13 @@
-package features
+package features_test
 
 import (
 	"testing"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
+	shipapi "github.com/enbility/ship-go/api"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,21 +19,21 @@ func TestLoadControlSuite(t *testing.T) {
 type LoadControlSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
-	loadControl *LoadControl
+	loadControl *features.LoadControl
 	sentMessage []byte
 }
 
-var _ spine.SpineDataConnection = (*LoadControlSuite)(nil)
+var _ shipapi.ShipConnectionDataWriterInterface = (*LoadControlSuite)(nil)
 
-func (s *LoadControlSuite) WriteSpineMessage(message []byte) {
+func (s *LoadControlSuite) WriteShipMessageWithPayload(message []byte) {
 	s.sentMessage = message
 }
 
 func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
 		s,
 		[]featureFunctions{
@@ -47,19 +49,21 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.loadControl, err = NewLoadControl(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.loadControl, err = features.NewLoadControl(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.loadControl)
 }
 
 func (s *LoadControlSuite) Test_RequestLimitDescription() {
-	err := s.loadControl.RequestLimitDescriptions()
+	counter, err := s.loadControl.RequestLimitDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *LoadControlSuite) Test_RequestLimitConstraints() {
-	err := s.loadControl.RequestLimitConstraints()
+	counter, err := s.loadControl.RequestLimitConstraints()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *LoadControlSuite) Test_RequestLimits() {
@@ -92,6 +96,34 @@ func (s *LoadControlSuite) Test_GetLimitDescriptionsForCategory() {
 	assert.Nil(s.T(), data)
 
 	data, err = s.loadControl.GetLimitDescriptionsForCategory(model.LoadControlCategoryTypeObligation)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), data)
+}
+
+func (s *LoadControlSuite) Test_GetLimitDescriptionsForTypeDirectionScope() {
+	data, err := s.loadControl.GetLimitDescriptionsForTypeCategoryDirectionScope(
+		model.LoadControlLimitTypeTypeSignDependentAbsValueLimit,
+		model.LoadControlCategoryTypeObligation,
+		model.EnergyDirectionTypeConsume,
+		model.ScopeTypeTypeActivePowerLimit)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	s.addDescription()
+
+	data, err = s.loadControl.GetLimitDescriptionsForTypeCategoryDirectionScope(
+		model.LoadControlLimitTypeTypeMaxValueLimit,
+		model.LoadControlCategoryTypeObligation,
+		model.EnergyDirectionTypeConsume,
+		model.ScopeTypeTypeActivePowerLimit)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = s.loadControl.GetLimitDescriptionsForTypeCategoryDirectionScope(
+		model.LoadControlLimitTypeTypeSignDependentAbsValueLimit,
+		model.LoadControlCategoryTypeObligation,
+		model.EnergyDirectionTypeConsume,
+		model.ScopeTypeTypeActivePowerLimit)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
 }
@@ -180,13 +212,16 @@ func (s *LoadControlSuite) Test_GetLimitDataForLimitId() {
 // helper
 
 func (s *LoadControlSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
-				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitId:        util.Ptr(model.LoadControlLimitIdType(0)),
+				MeasurementId:  util.Ptr(model.MeasurementIdType(0)),
+				LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+				LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+				ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 			},
 		},
 	}
@@ -194,7 +229,7 @@ func (s *LoadControlSuite) addDescription() {
 }
 
 func (s *LoadControlSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{
 			{

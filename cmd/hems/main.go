@@ -13,18 +13,22 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/service"
-	"github.com/enbility/eebus-go/spine/model"
+	shipapi "github.com/enbility/ship-go/api"
+	"github.com/enbility/ship-go/cert"
+	"github.com/enbility/spine-go/model"
 )
 
+var remoteSki string
+
 type hems struct {
-	myService *service.EEBUSService
+	myService *service.Service
 }
 
 func (h *hems) run() {
 	var err error
 	var certificate tls.Certificate
-	var remoteSki string
 
 	if len(os.Args) == 5 {
 		remoteSki = os.Args[2]
@@ -35,7 +39,7 @@ func (h *hems) run() {
 			log.Fatal(err)
 		}
 	} else {
-		certificate, err = service.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-01")
+		certificate, err = cert.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-01")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -60,15 +64,17 @@ func (h *hems) run() {
 		log.Fatal(err)
 	}
 
-	configuration, err := service.NewConfiguration(
+	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "HEMS", "123456789",
-		model.DeviceTypeTypeEnergyManagementSystem, port, certificate, 230)
+		model.DeviceTypeTypeEnergyManagementSystem,
+		[]model.EntityTypeType{model.EntityTypeTypeCEM},
+		port, certificate, 230, time.Second*4)
 	if err != nil {
 		log.Fatal(err)
 	}
 	configuration.SetAlternateIdentifier("Demo-HEMS-123456789")
 
-	h.myService = service.NewEEBUSService(configuration, h)
+	h.myService = service.NewService(configuration, h)
 	h.myService.SetLogging(h)
 
 	if err = h.myService.Setup(); err != nil {
@@ -80,20 +86,36 @@ func (h *hems) run() {
 		os.Exit(0)
 	}
 
+	h.myService.RegisterRemoteSKI(remoteSki)
+
 	h.myService.Start()
 	// defer h.myService.Shutdown()
-
-	remoteService := service.NewServiceDetails(remoteSki)
-	h.myService.PairRemoteService(remoteService)
 }
 
 // EEBUSServiceHandler
 
-func (h *hems) RemoteSKIConnected(service *service.EEBUSService, ski string) {}
+func (h *hems) RemoteSKIConnected(service api.ServiceInterface, ski string) {}
 
-func (h *hems) RemoteSKIDisconnected(service *service.EEBUSService, ski string) {}
+func (h *hems) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {}
 
-func (h *hems) ReportServiceShipID(ski string, shipdID string) {}
+func (h *hems) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
+}
+
+func (h *hems) ServiceShipIDUpdate(ski string, shipdID string) {}
+
+func (h *hems) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
+	if ski == remoteSki && detail.State() == shipapi.ConnectionStateRemoteDeniedTrust {
+		fmt.Println("The remote service denied trust. Exiting.")
+		h.myService.CancelPairingWithSKI(ski)
+		h.myService.UnregisterRemoteSKI(ski)
+		h.myService.Shutdown()
+		os.Exit(0)
+	}
+}
+
+func (h *hems) AllowWaitingForTrust(ski string) bool {
+	return ski == remoteSki
+}
 
 // UCEvseCommisioningConfigurationCemDelegate
 

@@ -1,12 +1,16 @@
-package features
+package features_test
 
 import (
 	"testing"
+	"time"
 
-	"github.com/enbility/eebus-go/spine"
-	"github.com/enbility/eebus-go/spine/model"
+	"github.com/enbility/eebus-go/features"
 	"github.com/enbility/eebus-go/util"
+	shipmocks "github.com/enbility/ship-go/mocks"
+	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -17,23 +21,19 @@ func TestDeviceConfigurationSuite(t *testing.T) {
 type DeviceConfigurationSuite struct {
 	suite.Suite
 
-	localDevice  *spine.DeviceLocalImpl
-	remoteEntity *spine.EntityRemoteImpl
+	localEntity  spineapi.EntityLocalInterface
+	remoteEntity spineapi.EntityRemoteInterface
 
-	deviceConfiguration *DeviceConfiguration
-	sentMessage         []byte
-}
-
-var _ spine.SpineDataConnection = (*DeviceConfigurationSuite)(nil)
-
-func (s *DeviceConfigurationSuite) WriteSpineMessage(message []byte) {
-	s.sentMessage = message
+	deviceConfiguration *features.DeviceConfiguration
 }
 
 func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
-	s.localDevice, s.remoteEntity = setupFeatures(
+	mockWriter := shipmocks.NewShipConnectionDataWriterInterface(s.T())
+	mockWriter.EXPECT().WriteShipMessageWithPayload(mock.Anything).Return().Maybe()
+
+	s.localEntity, s.remoteEntity = setupFeatures(
 		s.T(),
-		s,
+		mockWriter,
 		[]featureFunctions{
 			{
 				featureType: model.FeatureTypeTypeDeviceConfiguration,
@@ -46,14 +46,15 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.deviceConfiguration, err = NewDeviceConfiguration(model.RoleTypeServer, model.RoleTypeClient, s.localDevice, s.remoteEntity)
+	s.deviceConfiguration, err = features.NewDeviceConfiguration(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceConfiguration)
 }
 
 func (s *DeviceConfigurationSuite) Test_RequestDescriptions() {
-	err := s.deviceConfiguration.RequestDescriptions()
+	counter, err := s.deviceConfiguration.RequestDescriptions()
 	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }
 
 func (s *DeviceConfigurationSuite) Test_RequestKeyValueList() {
@@ -114,6 +115,30 @@ func (s *DeviceConfigurationSuite) Test_GetValueForKey() {
 	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor, model.DeviceConfigurationKeyValueTypeTypeScaledNumber)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypeAzimuth, model.DeviceConfigurationKeyValueTypeTypeDate)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypeBatteryType, model.DeviceConfigurationKeyValueTypeTypeDateTime)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypeTimeToAcDischargePowerMax, model.DeviceConfigurationKeyValueTypeTypeDuration)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypeIncentivesWaitIncentiveWriteable, model.DeviceConfigurationKeyValueTypeTypeTime)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameTypeIncentivesWaitIncentiveWriteable, model.DeviceConfigurationKeyValueTypeType("invalid"))
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), value)
+
+	value, err = s.deviceConfiguration.GetKeyValueForKeyName(model.DeviceConfigurationKeyNameType("invalid"), model.DeviceConfigurationKeyValueTypeType("invalid"))
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), value)
 }
 
 func (s *DeviceConfigurationSuite) Test_GetValues() {
@@ -134,10 +159,33 @@ func (s *DeviceConfigurationSuite) Test_GetValues() {
 	assert.NotNil(s.T(), data)
 }
 
+func (s *DeviceConfigurationSuite) Test_WriteValues() {
+	counter, err := s.deviceConfiguration.WriteKeyValues(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data := []model.DeviceConfigurationKeyValueDataType{}
+	counter, err = s.deviceConfiguration.WriteKeyValues(data)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data = []model.DeviceConfigurationKeyValueDataType{
+		{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				ScaledNumber: model.NewScaledNumberType(10),
+			},
+		},
+	}
+	counter, err = s.deviceConfiguration.WriteKeyValues(data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
 // helper
 
 func (s *DeviceConfigurationSuite) addDescription() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
@@ -156,13 +204,33 @@ func (s *DeviceConfigurationSuite) addDescription() {
 				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
 				Unit:      util.Ptr(model.UnitOfMeasurementTypepct),
 			},
+			{
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(3)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeAzimuth),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDate),
+			},
+			{
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(4)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeBatteryType),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDateTime),
+			},
+			{
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(5)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeTimeToAcDischargePowerMax),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
+			},
+			{
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(6)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeIncentivesWaitIncentiveWriteable),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeTime),
+			},
 		},
 	}
 	rF.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, fData, nil, nil)
 }
 
 func (s *DeviceConfigurationSuite) addData() {
-	rF := s.remoteEntity.Feature(util.Ptr(model.AddressFeatureType(1)))
+	rF := s.remoteEntity.FeatureOfAddress(util.Ptr(model.AddressFeatureType(1)))
 	fData := &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
 			{
@@ -181,6 +249,30 @@ func (s *DeviceConfigurationSuite) addData() {
 				KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(2)),
 				Value: &model.DeviceConfigurationKeyValueValueType{
 					ScaledNumber: model.NewScaledNumberType(50),
+				},
+			},
+			{
+				KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(3)),
+				Value: &model.DeviceConfigurationKeyValueValueType{
+					Date: model.NewDateType("01.01.2023"),
+				},
+			},
+			{
+				KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(4)),
+				Value: &model.DeviceConfigurationKeyValueValueType{
+					DateTime: model.NewDateTimeTypeFromTime(time.Now()),
+				},
+			},
+			{
+				KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(5)),
+				Value: &model.DeviceConfigurationKeyValueValueType{
+					Duration: model.NewDurationType(time.Second * 4),
+				},
+			},
+			{
+				KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(6)),
+				Value: &model.DeviceConfigurationKeyValueValueType{
+					Time: model.NewTimeType("13:05"),
 				},
 			},
 		},
