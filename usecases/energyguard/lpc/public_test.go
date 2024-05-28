@@ -133,8 +133,9 @@ func (s *LPCSuite) Test_FailsafeConsumptionActivePowerLimit() {
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(0)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
 			},
 		},
 	}
@@ -233,8 +234,9 @@ func (s *LPCSuite) Test_FailsafeDurationMinimum() {
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(0)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
 			},
 		},
 	}

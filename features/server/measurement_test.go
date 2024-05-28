@@ -131,8 +131,7 @@ func (s *MeasurementSuite) Test_GetDescriptionsForFilter() {
 
 	data, err = s.sut.GetDescriptionsForFilter(filter)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 1, len(data))
-	assert.NotNil(s.T(), data[0].MeasurementId)
+	assert.Equal(s.T(), 0, len(data))
 
 	filter = model.MeasurementDescriptionDataType{
 		MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),

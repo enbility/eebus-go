@@ -63,8 +63,9 @@ func (s *VAPDSuite) Test_NominalPeakPower() {
 	confData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(0)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypePeakPowerOfPVSystem),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypePeakPowerOfPVSystem),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
 			},
 		},
 	}

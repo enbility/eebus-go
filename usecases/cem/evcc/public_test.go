@@ -126,8 +126,9 @@ func (s *EVCCSuite) Test_EVCommunicationStandard() {
 	descData = &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(0)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeCommunicationsStandard),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeCommunicationsStandard),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeString),
 			},
 		},
 	}
@@ -187,8 +188,9 @@ func (s *EVCCSuite) Test_EVAsymmetricChargingSupport() {
 	descData = &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(0)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeAsymmetricChargingSupported),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeAsymmetricChargingSupported),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeBoolean),
 			},
 		},
 	}
@@ -216,7 +218,7 @@ func (s *EVCCSuite) Test_EVAsymmetricChargingSupport() {
 
 	data, err = s.sut.AsymmetricChargingSupport(s.evEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), true, data)
+	assert.True(s.T(), data)
 }
 
 func (s *EVCCSuite) Test_EVIdentification() {
