@@ -36,7 +36,8 @@ func searchFilterInItem[T any](item T, filter T) bool {
 			continue
 		}
 
-		if !filterField.IsNil() && !itemField.IsNil() && filterField.Elem().Interface() != itemField.Elem().Interface() {
+		if (!filterField.IsNil() && !itemField.IsNil() && filterField.Elem().Interface() != itemField.Elem().Interface()) ||
+			(!filterField.IsNil() && itemField.IsNil()) {
 			match = false
 			break
 		}
