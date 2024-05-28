@@ -12,7 +12,9 @@ import (
 func (s *LPCSuite) Test_ConsumptionLimit() {
 	data, err := s.sut.ConsumptionLimit(nil)
 	assert.NotNil(s.T(), err)
-	assert.Nil(s.T(), data)
+	assert.Equal(s.T(), 0.0, data.Value)
+	assert.Equal(s.T(), false, data.IsChangeable)
+	assert.Equal(s.T(), false, data.IsActive)
 
 	data, err = s.sut.ConsumptionLimit(s.monitoredEntity)
 	assert.NotNil(s.T(), err)

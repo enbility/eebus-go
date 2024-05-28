@@ -10,7 +10,7 @@ import (
 )
 
 func (s *LPPSuite) Test_LoadControlLimit() {
-	data, err := s.sut.ProductionLimit(s.monitoredEntity)
+	data, err := s.sut.ProductionLimit(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data.Value)
 	assert.Equal(s.T(), false, data.IsChangeable)
