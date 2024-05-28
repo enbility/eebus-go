@@ -68,6 +68,9 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 	s.remoteEntity = entities[1]
 
 	var err error
+	s.sut, err = server.NewMeasurement(nil)
+	assert.NotNil(s.T(), err)
+
 	s.sut, err = server.NewMeasurement(s.localEntity)
 	assert.Nil(s.T(), err)
 }

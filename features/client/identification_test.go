@@ -46,6 +46,10 @@ func (s *IdentificationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
+	s.identification, err = features.NewIdentification(s.localEntity, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.identification)
+
 	s.identification, err = features.NewIdentification(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.identification)

@@ -9,6 +9,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func (s *LPPSuite) Test_loadControlServerAndLimitId() {
+	lc, _, err := s.sut.loadControlServerAndLimitId()
+	assert.NotNil(s.T(), lc)
+	assert.Nil(s.T(), err)
+
+	f := s.sut.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	f.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, &model.LoadControlLimitDescriptionListDataType{}, nil, nil)
+	lc, _, err = s.sut.loadControlServerAndLimitId()
+	assert.NotNil(s.T(), lc)
+	assert.NotNil(s.T(), err)
+
+	s.sut.LocalEntity = nil
+	lc, _, err = s.sut.loadControlServerAndLimitId()
+	assert.Nil(s.T(), lc)
+	assert.NotNil(s.T(), err)
+}
+
 func (s *LPPSuite) Test_loadControlWriteCB() {
 	msg := &spineapi.Message{}
 

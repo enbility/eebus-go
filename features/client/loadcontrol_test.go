@@ -49,6 +49,10 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
+	s.loadControl, err = features.NewLoadControl(s.localEntity, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.loadControl)
+
 	s.loadControl, err = features.NewLoadControl(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.loadControl)

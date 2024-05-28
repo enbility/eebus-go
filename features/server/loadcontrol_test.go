@@ -68,6 +68,9 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	s.remoteEntity = entities[1]
 
 	var err error
+	s.sut, err = server.NewLoadControl(nil)
+	assert.NotNil(s.T(), err)
+
 	s.sut, err = server.NewLoadControl(s.localEntity)
 	assert.Nil(s.T(), err)
 }
