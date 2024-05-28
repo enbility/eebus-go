@@ -108,9 +108,9 @@ func (m *Measurement) UpdateDataForFilter(
 	}
 
 	partial := model.NewFilterTypePartial()
-	var delete *model.FilterType
+	var deleteFilter *model.FilterType
 	if deleteElements != nil {
-		delete = &model.FilterType{
+		deleteFilter = &model.FilterType{
 			MeasurementListDataSelectors: &model.MeasurementListDataSelectorsType{
 				MeasurementId: description.MeasurementId,
 			},
@@ -118,7 +118,7 @@ func (m *Measurement) UpdateDataForFilter(
 		}
 	}
 
-	if err := m.featureLocal.UpdateData(model.FunctionTypeMeasurementListData, datalist, partial, delete); err != nil {
+	if err := m.featureLocal.UpdateData(model.FunctionTypeMeasurementListData, datalist, partial, deleteFilter); err != nil {
 		return errors.New(err.String())
 	}
 

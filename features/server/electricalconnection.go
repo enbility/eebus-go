@@ -163,9 +163,9 @@ func (e *ElectricalConnection) UpdateCharacteristic(
 	}
 
 	partial := model.NewFilterTypePartial()
-	var delete *model.FilterType
+	var deleteFilter *model.FilterType
 	if deleteElements != nil {
-		delete = &model.FilterType{
+		deleteFilter = &model.FilterType{
 			ElectricalConnectionCharacteristicListDataSelectors: &model.ElectricalConnectionCharacteristicListDataSelectorsType{
 				CharacteristicId: data.CharacteristicId,
 			},
@@ -177,7 +177,7 @@ func (e *ElectricalConnection) UpdateCharacteristic(
 		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{data},
 	}
 
-	if err := e.featureLocal.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, datalist, partial, delete); err != nil {
+	if err := e.featureLocal.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, datalist, partial, deleteFilter); err != nil {
 		return errors.New(err.String())
 	}
 

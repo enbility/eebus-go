@@ -230,11 +230,11 @@ func (s *DeviceConfigurationSuite) Test_UpdateKeyValueDataForFilter() {
 	err = s.sut.UpdateKeyValueDataForFilter(data, nil, filter)
 	assert.Nil(s.T(), err)
 
-	delete := &model.DeviceConfigurationKeyValueDataElementsType{
+	deleteElements := &model.DeviceConfigurationKeyValueDataElementsType{
 		Value: &model.DeviceConfigurationKeyValueValueElementsType{},
 	}
 	data = model.DeviceConfigurationKeyValueDataType{}
-	err = s.sut.UpdateKeyValueDataForFilter(data, delete, filter)
+	err = s.sut.UpdateKeyValueDataForFilter(data, deleteElements, filter)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetKeyValueDataForFilter(filter)

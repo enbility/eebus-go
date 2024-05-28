@@ -106,9 +106,9 @@ func (l *LoadControl) UpdateLimitDataForFilter(
 	}
 
 	partial := model.NewFilterTypePartial()
-	var delete *model.FilterType
+	var deleteFilter *model.FilterType
 	if deleteElements != nil {
-		delete = &model.FilterType{
+		deleteFilter = &model.FilterType{
 			LoadControlLimitListDataSelectors: &model.LoadControlLimitListDataSelectorsType{
 				LimitId: description.LimitId,
 			},
@@ -116,7 +116,7 @@ func (l *LoadControl) UpdateLimitDataForFilter(
 		}
 	}
 
-	if err := l.featureLocal.UpdateData(model.FunctionTypeLoadControlLimitListData, datalist, partial, delete); err != nil {
+	if err := l.featureLocal.UpdateData(model.FunctionTypeLoadControlLimitListData, datalist, partial, deleteFilter); err != nil {
 		return errors.New(err.String())
 	}
 

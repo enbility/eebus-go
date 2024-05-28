@@ -238,11 +238,11 @@ func (s *ElectricalConnectionSuite) Test_UpdateCharacteristic() {
 	err = s.sut.UpdateCharacteristic(charData, nil)
 	assert.Nil(s.T(), err)
 
-	delete := &model.ElectricalConnectionCharacteristicDataElementsType{
+	deleteElements := &model.ElectricalConnectionCharacteristicDataElementsType{
 		Value: &model.ScaledNumberElementsType{},
 	}
 	charData.Value = nil
-	err = s.sut.UpdateCharacteristic(charData, delete)
+	err = s.sut.UpdateCharacteristic(charData, deleteElements)
 	assert.Nil(s.T(), err)
 
 	data, err = s.sut.GetCharacteristicsForFilter(filter)

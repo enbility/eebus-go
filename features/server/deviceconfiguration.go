@@ -108,9 +108,9 @@ func (d *DeviceConfiguration) UpdateKeyValueDataForFilter(
 	}
 
 	partial := model.NewFilterTypePartial()
-	var delete *model.FilterType
+	var deleteFilter *model.FilterType
 	if deleteElements != nil {
-		delete = &model.FilterType{
+		deleteFilter = &model.FilterType{
 			DeviceConfigurationKeyValueListDataSelectors: &model.DeviceConfigurationKeyValueListDataSelectorsType{
 				KeyId: description.KeyId,
 			},
@@ -118,7 +118,7 @@ func (d *DeviceConfiguration) UpdateKeyValueDataForFilter(
 		}
 	}
 
-	if err := d.featureLocal.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, datalist, partial, delete); err != nil {
+	if err := d.featureLocal.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, datalist, partial, deleteFilter); err != nil {
 		return errors.New(err.String())
 	}
 

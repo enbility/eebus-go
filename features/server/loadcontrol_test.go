@@ -267,10 +267,10 @@ func (s *LoadControlSuite) Test_GetLimitData() {
 	assert.Nil(s.T(), result)
 
 	data = model.LoadControlLimitDataType{}
-	delete := &model.LoadControlLimitDataElementsType{
+	deleteElements := &model.LoadControlLimitDataElementsType{
 		TimePeriod: &model.TimePeriodElementsType{},
 	}
-	err = s.sut.UpdateLimitDataForId(data, delete, *limitId)
+	err = s.sut.UpdateLimitDataForId(data, deleteElements, *limitId)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetLimitDataForId(*limitId)
