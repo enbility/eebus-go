@@ -23,3 +23,5 @@ var ErrFunctionNotSupported = errors.New("function is not supported")
 var ErrOperationOnFunctionNotSupported = errors.New("operation is not supported on function")
 
 var ErrMissingData = errors.New("missing data")
+
+var ErrDeviceDisconnected = errors.New("device is disconnected")
