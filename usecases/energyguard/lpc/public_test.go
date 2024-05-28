@@ -9,8 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *LPCSuite) Test_LoadControlLimit() {
-	data, err := s.sut.ConsumptionLimit(s.monitoredEntity)
+func (s *LPCSuite) Test_ConsumptionLimit() {
+	data, err := s.sut.ConsumptionLimit(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = s.sut.ConsumptionLimit(s.monitoredEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data.Value)
 	assert.Equal(s.T(), false, data.IsChangeable)

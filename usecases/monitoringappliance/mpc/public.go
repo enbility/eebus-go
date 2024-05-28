@@ -17,7 +17,7 @@ import (
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -42,7 +42,7 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -60,7 +60,7 @@ func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, e
 //
 //   - positive values are used for consumption
 func (e *MPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -92,7 +92,7 @@ func (e *MPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, er
 //
 //   - negative values are used for production
 func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -127,7 +127,7 @@ func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, er
 //   - positive values are used for consumption
 //   - negative values are used for production
 func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -143,7 +143,7 @@ func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 
 // return the phase specific voltage details
 func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -159,7 +159,7 @@ func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 
 // return frequency
 func (e *MPC) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 

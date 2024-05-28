@@ -34,7 +34,7 @@ func (e *LPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 	}
 
 	resultErr = api.ErrNoCompatibleEntity
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return
 	}
 
@@ -82,7 +82,7 @@ func (e *LPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 func (e *LPC) WriteConsumptionLimit(
 	entity spineapi.EntityRemoteInterface,
 	limit ucapi.LoadLimit) (*model.MsgCounterType, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -153,7 +153,7 @@ func (e *LPC) WriteConsumptionLimit(
 // return Failsafe limit for the consumed active (real) power of the
 // Controllable System. This limit becomes activated in "init" state or "failsafe state".
 func (e *LPC) FailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -182,7 +182,7 @@ func (e *LPC) FailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteIn
 //   - entity: the entity of the e.g. EVSE
 //   - value: the new limit in W
 func (e *LPC) WriteFailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteInterface, value float64) (*model.MsgCounterType, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -218,7 +218,7 @@ func (e *LPC) WriteFailsafeConsumptionActivePowerLimit(entity spineapi.EntityRem
 // return minimum time the Controllable System remains in "failsafe state" unless conditions
 // specified in this Use Case permit leaving the "failsafe state"
 func (e *LPC) FailsafeDurationMinimum(entity spineapi.EntityRemoteInterface) (time.Duration, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -247,7 +247,7 @@ func (e *LPC) FailsafeDurationMinimum(entity spineapi.EntityRemoteInterface) (ti
 //   - entity: the entity of the e.g. EVSE
 //   - duration: the duration, between 2h and 24h
 func (e *LPC) WriteFailsafeDurationMinimum(entity spineapi.EntityRemoteInterface, duration time.Duration) (*model.MsgCounterType, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -289,7 +289,7 @@ func (e *LPC) WriteFailsafeDurationMinimum(entity spineapi.EntityRemoteInterface
 // return nominal maximum active (real) power the Controllable System is
 // able to consume according to the device label or data sheet.
 func (e *LPC) PowerConsumptionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 

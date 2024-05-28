@@ -17,7 +17,7 @@ import (
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (e *MGCP) PowerLimitationFactor(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -58,7 +58,7 @@ func (e *MGCP) PowerLimitationFactor(entity spineapi.EntityRemoteInterface) (flo
 //   - positive values are used for consumption
 //   - negative values are used for production
 func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -81,7 +81,7 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 //
 //   - negative values are used for production
 func (e *MGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -108,7 +108,7 @@ func (e *MGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, err
 //
 //   - positive values are used for consumption
 func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -136,7 +136,7 @@ func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, e
 //   - positive values are used for consumption
 //   - negative values are used for production
 func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -152,7 +152,7 @@ func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 
 // return the voltage phase details at the grid connection point
 func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -168,7 +168,7 @@ func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 
 // return frequency at the grid connection point
 func (e *MGCP) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 

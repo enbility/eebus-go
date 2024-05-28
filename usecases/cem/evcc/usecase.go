@@ -68,7 +68,7 @@ func (e *EVCC) AddFeatures() {
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
 func (e *EVCC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if entity == nil || !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntity(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 
