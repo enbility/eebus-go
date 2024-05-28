@@ -70,19 +70,16 @@ func (e *LPP) loadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemote
 
 // the load control limit data was updated
 func (e *LPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
-	lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
-
-	filter := model.LoadControlLimitDescriptionDataType{
-		LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
-		LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
-		LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
-		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
-	}
-	if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
+	if lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity); err == nil {
+		filter := model.LoadControlLimitDescriptionDataType{
+			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+			LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+			LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
+			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+		}
+		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
+		}
 	}
 }
 

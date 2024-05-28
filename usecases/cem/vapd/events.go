@@ -119,22 +119,19 @@ func (e *VAPD) inverterMeasurementDescriptionDataUpdate(entity spineapi.EntityRe
 
 // the measurement data of an SMGW was updated
 func (e *VAPD) inverterMeasurementDataUpdate(payload spineapi.EventPayload) {
-	measurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
+	if measurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
+		// Scenario 2
+		filter := model.MeasurementDescriptionDataType{
+			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
+		}
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
+		}
 
-	// Scenario 2
-	filter := model.MeasurementDescriptionDataType{
-		ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
-	}
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
-	}
-
-	// Scenario 3
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeACYieldTotal)
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePVYieldTotal)
+		// Scenario 3
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACYieldTotal)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePVYieldTotal)
+		}
 	}
 }

@@ -58,14 +58,12 @@ func (e *EVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
 // the measurement data of an EV was updated
 func (e *EVSOC) evMeasurementDataUpdate(payload spineapi.EventPayload) {
 	// Scenario 1
-	evMeasurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity)
-	if err == nil {
-		return
-	}
-	filter := model.MeasurementDescriptionDataType{
-		ScopeType: util.Ptr(model.ScopeTypeTypeStateOfCharge),
-	}
-	if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateStateOfCharge)
+	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
+		filter := model.MeasurementDescriptionDataType{
+			ScopeType: util.Ptr(model.ScopeTypeTypeStateOfCharge),
+		}
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateStateOfCharge)
+		}
 	}
 }

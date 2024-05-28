@@ -122,38 +122,33 @@ func (e *LPC) deviceConnected(payload spineapi.EventPayload) {
 
 // subscribe to the DeviceDiagnosis Server of the entity that created a binding
 func (e *LPC) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
-	// the workaround is not needed, exit
-	if !e.heartbeatKeoWorkaround {
-		return
-	}
+	// is the workaround is needed?
+	if e.heartbeatKeoWorkaround {
+		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
+			e.heartbeatDiag = localDeviceDiag
+			if _, err := localDeviceDiag.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 
-	if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
-		e.heartbeatDiag = localDeviceDiag
-		if _, err := localDeviceDiag.Subscribe(); err != nil {
-			logging.Log().Debug(err)
-		}
-
-		if _, err := localDeviceDiag.RequestHeartbeat(); err != nil {
-			logging.Log().Debug(err)
+			if _, err := localDeviceDiag.RequestHeartbeat(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 	}
 }
 
 // the load control limit data was updated
 func (e *LPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
-	lc, err := server.NewLoadControl(e.LocalEntity)
-	if err != nil {
-		return
-	}
-
-	filter := model.LoadControlLimitDescriptionDataType{
-		LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
-		LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
-		LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
-		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
-	}
-	if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
+	if lc, err := server.NewLoadControl(e.LocalEntity); err == nil {
+		filter := model.LoadControlLimitDescriptionDataType{
+			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+			LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+			LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+		}
+		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
+		}
 	}
 }
 

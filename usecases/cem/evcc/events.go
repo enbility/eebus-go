@@ -149,39 +149,30 @@ func (e *EVCC) evConfigurationDataUpdate(payload spineapi.EventPayload) {
 
 // the operating state of an EV was updated
 func (e *EVCC) evOperatingStateDataUpdate(payload spineapi.EventPayload) {
-	deviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
-
-	if _, err := deviceDiagnosis.GetState(); err == nil {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIdentifications)
+	if deviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
+		if _, err := deviceDiagnosis.GetState(); err == nil {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIdentifications)
+		}
 	}
 }
 
 // the identification data of an EV was updated
 func (e *EVCC) evIdentificationDataUpdate(payload spineapi.EventPayload) {
-	evIdentification, err := client.NewIdentification(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
-
-	// Scenario 4
-	if evIdentification.CheckEventPayloadDataForFilter(payload.Data) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIdentifications)
+	if evIdentification, err := client.NewIdentification(e.LocalEntity, payload.Entity); err == nil {
+		// Scenario 4
+		if evIdentification.CheckEventPayloadDataForFilter(payload.Data) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIdentifications)
+		}
 	}
 }
 
 // the manufacturer data of an EV was updated
 func (e *EVCC) evManufacturerDataUpdate(payload spineapi.EventPayload) {
-	evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
-
-	// Scenario 5
-	if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateManufacturerData)
+	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
+		// Scenario 5
+		if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateManufacturerData)
+		}
 	}
 }
 
@@ -196,16 +187,13 @@ func (e *EVCC) evElectricalParamerDescriptionUpdate(entity spineapi.EntityRemote
 
 // the electrical connection permitted value sets data of an EV was updated
 func (e *EVCC) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
-	evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
-
-	filter := model.ElectricalConnectionParameterDescriptionDataType{
-		ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
-	}
-	if evElectricalConnection.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		// Scenario 6
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentLimits)
+	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
+		filter := model.ElectricalConnectionParameterDescriptionDataType{
+			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
+		}
+		if evElectricalConnection.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Scenario 6
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentLimits)
+		}
 	}
 }

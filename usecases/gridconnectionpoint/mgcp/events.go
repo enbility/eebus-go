@@ -112,46 +112,43 @@ func (e *MGCP) gridMeasurementDescriptionDataUpdate(entity spineapi.EntityRemote
 
 // the measurement data of an SMGW was updated
 func (e *MGCP) gridMeasurementDataUpdate(payload spineapi.EventPayload) {
-	measurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
+	if measurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
+		// Scenario 2
+		filter := model.MeasurementDescriptionDataType{
+			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
+		}
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
+		}
 
-	// Scenario 2
-	filter := model.MeasurementDescriptionDataType{
-		ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
-	}
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
-	}
+		// Scenario 3
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridFeedIn)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyFeedIn)
+		}
 
-	// Scenario 3
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridFeedIn)
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyFeedIn)
-	}
+		// Scenario 4
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridConsumption)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyConsumed)
+		}
 
-	// Scenario 4
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridConsumption)
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyConsumed)
-	}
+		// Scenario 5
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACCurrent)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
+		}
 
-	// Scenario 5
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeACCurrent)
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
-	}
+		// Scenario 6
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACVoltage)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateVoltagePerPhase)
+		}
 
-	// Scenario 6
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeACVoltage)
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateVoltagePerPhase)
-	}
-
-	// Scenario 7
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeACFrequency)
-	if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFrequency)
+		// Scenario 7
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACFrequency)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFrequency)
+		}
 	}
 }

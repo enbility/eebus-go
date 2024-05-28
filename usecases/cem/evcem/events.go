@@ -104,28 +104,25 @@ func (e *EVCEM) evMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteI
 
 // the measurement data of an EV was updated
 func (e *EVCEM) evMeasurementDataUpdate(payload spineapi.EventPayload) {
-	evMeasurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity)
-	if err != nil {
-		return
-	}
+	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
+		// Scenario 1
+		filter := model.MeasurementDescriptionDataType{
+			ScopeType: util.Ptr(model.ScopeTypeTypeACCurrent),
+		}
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
+		}
 
-	// Scenario 1
-	filter := model.MeasurementDescriptionDataType{
-		ScopeType: util.Ptr(model.ScopeTypeTypeACCurrent),
-	}
-	if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
-	}
+		// Scenario 2
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACPower)
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerPerPhase)
+		}
 
-	// Scenario 2
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeACPower)
-	if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerPerPhase)
-	}
-
-	// Scenario 3
-	filter.ScopeType = util.Ptr(model.ScopeTypeTypeCharge)
-	if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyCharged)
+		// Scenario 3
+		filter.ScopeType = util.Ptr(model.ScopeTypeTypeCharge)
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyCharged)
+		}
 	}
 }
