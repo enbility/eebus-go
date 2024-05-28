@@ -40,7 +40,7 @@ jobs:
         run: go test -race -v -coverprofile=coverage_temp.out  -covermode=atomic ./...
 
       - name: Remove mocks and cmd from coverage
-        run: grep -v -e "/eebus-go/mocks/" -e "/eebus-go/cmd/" coverage_temp.out > coverage.out
+        run: grep -v -e "/eebus-go/mocks/" -e "/eebus-go/usecases/mocks/" -e "/eebus-go/cmd/" coverage_temp.out > coverage.out
 
       - name: Send coverage
         uses: coverallsapp/github-action@v2
