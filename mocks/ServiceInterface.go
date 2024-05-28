@@ -140,6 +140,51 @@ func (_c *ServiceInterface_DisconnectSKI_Call) RunAndReturn(run func(string, str
 	return _c
 }
 
+// IsAutoAcceptEnabled provides a mock function with given fields:
+func (_m *ServiceInterface) IsAutoAcceptEnabled() bool {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsAutoAcceptEnabled")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func() bool); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// ServiceInterface_IsAutoAcceptEnabled_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsAutoAcceptEnabled'
+type ServiceInterface_IsAutoAcceptEnabled_Call struct {
+	*mock.Call
+}
+
+// IsAutoAcceptEnabled is a helper method to define mock.On call
+func (_e *ServiceInterface_Expecter) IsAutoAcceptEnabled() *ServiceInterface_IsAutoAcceptEnabled_Call {
+	return &ServiceInterface_IsAutoAcceptEnabled_Call{Call: _e.mock.On("IsAutoAcceptEnabled")}
+}
+
+func (_c *ServiceInterface_IsAutoAcceptEnabled_Call) Run(run func()) *ServiceInterface_IsAutoAcceptEnabled_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *ServiceInterface_IsAutoAcceptEnabled_Call) Return(_a0 bool) *ServiceInterface_IsAutoAcceptEnabled_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ServiceInterface_IsAutoAcceptEnabled_Call) RunAndReturn(run func() bool) *ServiceInterface_IsAutoAcceptEnabled_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LocalDevice provides a mock function with given fields:
 func (_m *ServiceInterface) LocalDevice() spine_goapi.DeviceLocalInterface {
 	ret := _m.Called()
