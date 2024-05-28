@@ -3,7 +3,7 @@ package internal
 import (
 	"slices"
 
-	eebusapi "github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -20,12 +20,12 @@ func MeasurementPhaseSpecificDataForFilter(
 	measurement, err := client.NewMeasurement(localEntity, remoteEntity)
 	electricalConnection, err1 := client.NewElectricalConnection(localEntity, remoteEntity)
 	if err != nil || err1 != nil {
-		return nil, err
+		return nil, api.ErrMetadataNotAvailable
 	}
 
 	data, err := measurement.GetDataForFilter(measurementFilter)
 	if err != nil || len(data) == 0 {
-		return nil, eebusapi.ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	var result []float64

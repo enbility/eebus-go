@@ -12,10 +12,6 @@ import (
 //   - ErrNoCompatibleEntity if entity is not compatible
 //   - and others
 func ManufacturerData(localEntity spineapi.EntityLocalInterface, entity spineapi.EntityRemoteInterface) (api.ManufacturerData, error) {
-	if entity == nil {
-		return api.ManufacturerData{}, api.ErrNoCompatibleEntity
-	}
-
 	deviceClassification, err := client.NewDeviceClassification(localEntity, entity)
 	if err != nil {
 		return api.ManufacturerData{}, err

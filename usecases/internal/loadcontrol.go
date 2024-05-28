@@ -21,9 +21,6 @@ func LoadControlLimits(
 ) (limits []ucapi.LoadLimitsPhase, resultErr error) {
 	limits = nil
 	resultErr = api.ErrNoCompatibleEntity
-	if remoteEntity == nil {
-		return
-	}
 
 	evLoadControl, err := client.NewLoadControl(localEntity, remoteEntity)
 	evElectricalConnection, err2 := client.NewElectricalConnection(localEntity, remoteEntity)
@@ -135,10 +132,6 @@ func WriteLoadControlLimits(
 	remoteEntity spineapi.EntityRemoteInterface,
 	category model.LoadControlCategoryType,
 	limits []ucapi.LoadLimitsPhase) (*model.MsgCounterType, error) {
-	if remoteEntity == nil {
-		return nil, api.ErrNoCompatibleEntity
-	}
-
 	loadControl, err := client.NewLoadControl(localEntity, remoteEntity)
 	electricalConnection, err2 := client.NewElectricalConnection(localEntity, remoteEntity)
 	if err != nil || err2 != nil {

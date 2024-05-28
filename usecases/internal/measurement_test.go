@@ -18,7 +18,11 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		ScopeType:       &scopeType,
 	}
 
-	data, err := MeasurementPhaseSpecificDataForFilter(
+	data, err := MeasurementPhaseSpecificDataForFilter(nil, nil, filter, energyDirection, PhaseNameMapping)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = MeasurementPhaseSpecificDataForFilter(
 		s.localEntity,
 		s.mockRemoteEntity,
 		filter,

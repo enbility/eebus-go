@@ -7,7 +7,10 @@ import (
 )
 
 func (s *InternalSuite) Test_ManufacturerData() {
-	_, err := ManufacturerData(s.localEntity, s.mockRemoteEntity)
+	_, err := ManufacturerData(nil, nil)
+	assert.NotNil(s.T(), err)
+
+	_, err = ManufacturerData(s.localEntity, s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 
 	_, err = ManufacturerData(s.localEntity, s.monitoredEntity)

@@ -21,6 +21,10 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 		LimitCategory: util.Ptr(category),
 		ScopeType:     util.Ptr(scope),
 	}
+	data, err = LoadControlLimits(nil, nil, filter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
 	data, err = LoadControlLimits(s.localEntity, s.mockRemoteEntity, filter)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -157,7 +161,11 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 
 	category := model.LoadControlCategoryTypeObligation
 
-	msgCounter, err := WriteLoadControlLimits(s.localEntity, s.mockRemoteEntity, category, loadLimits)
+	msgCounter, err := WriteLoadControlLimits(nil, nil, category, loadLimits)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), msgCounter)
+
+	msgCounter, err = WriteLoadControlLimits(s.localEntity, s.mockRemoteEntity, category, loadLimits)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), msgCounter)
 
