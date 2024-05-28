@@ -42,12 +42,9 @@ func (l *LoadControlCommon) CheckEventPayloadDataForFilter(payloadData any, filt
 
 	descs, _ := l.GetLimitDescriptionsForFilter(filterData)
 	for _, desc := range descs {
-		if desc.LimitId == nil {
-			continue
-		}
-
 		for _, item := range data.LoadControlLimitData {
 			if item.LimitId != nil &&
+				desc.LimitId != nil &&
 				*item.LimitId == *desc.LimitId &&
 				item.Value != nil {
 				return true
