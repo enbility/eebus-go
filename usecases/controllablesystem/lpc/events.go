@@ -81,7 +81,7 @@ func (e *LPC) deviceConnected(payload spineapi.EventPayload) {
 
 	entites := remoteDevice.Entities()
 	for _, entity := range entites {
-		if e.IsCompatibleEntity(entity) {
+		if !e.IsCompatibleEntity(entity) {
 			continue
 		}
 

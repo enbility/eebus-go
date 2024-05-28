@@ -12,7 +12,8 @@ import (
 
 func (s *LPPSuite) Test_Events() {
 	payload := spineapi.EventPayload{
-		Entity: s.mockRemoteEntity,
+		Entity:    s.mockRemoteEntity,
+		EventType: spineapi.EventTypeSubscriptionChange,
 	}
 	s.sut.HandleEvent(payload)
 
