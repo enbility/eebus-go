@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	"github.com/enbility/eebus-go/features/internal"
-	"github.com/enbility/eebus-go/util"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
+	"github.com/enbility/spine-go/util"
 )
 
 type ElectricalConnection struct {

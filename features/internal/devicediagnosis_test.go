@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/features/internal"
-	"github.com/enbility/eebus-go/util"
 	shipmocks "github.com/enbility/ship-go/mocks"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

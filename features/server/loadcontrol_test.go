@@ -6,13 +6,13 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
-	eebusmocks "github.com/enbility/eebus-go/mocks"
+	"github.com/enbility/eebus-go/mocks"
 	"github.com/enbility/eebus-go/service"
-	"github.com/enbility/eebus-go/util"
 	"github.com/enbility/ship-go/cert"
 	spineapi "github.com/enbility/spine-go/api"
-	"github.com/enbility/spine-go/mocks"
+	spinemocks "github.com/enbility/spine-go/mocks"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -33,7 +33,7 @@ type LoadControlSuite struct {
 
 	remoteDevice     spineapi.DeviceRemoteInterface
 	remoteEntity     spineapi.EntityRemoteInterface
-	mockRemoteEntity *mocks.EntityRemoteInterface
+	mockRemoteEntity *spinemocks.EntityRemoteInterface
 }
 
 func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
@@ -44,16 +44,16 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
 		9999, cert, 230.0, time.Second*4)
 
-	serviceHandler := eebusmocks.NewServiceReaderInterface(s.T())
+	serviceHandler := mocks.NewServiceReaderInterface(s.T())
 	serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return().Maybe()
 
 	s.service = service.NewService(configuration, serviceHandler)
 	_ = s.service.Setup()
 	s.localEntity = s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 
-	mockRemoteDevice := mocks.NewDeviceRemoteInterface(s.T())
-	s.mockRemoteEntity = mocks.NewEntityRemoteInterface(s.T())
-	mockRemoteFeature := mocks.NewFeatureRemoteInterface(s.T())
+	mockRemoteDevice := spinemocks.NewDeviceRemoteInterface(s.T())
+	s.mockRemoteEntity = spinemocks.NewEntityRemoteInterface(s.T())
+	mockRemoteFeature := spinemocks.NewFeatureRemoteInterface(s.T())
 	mockRemoteDevice.EXPECT().FeatureByEntityTypeAndRole(mock.Anything, mock.Anything, mock.Anything).Return(mockRemoteFeature).Maybe()
 	mockRemoteDevice.EXPECT().Ski().Return(remoteSki).Maybe()
 	s.mockRemoteEntity.EXPECT().Device().Return(mockRemoteDevice).Maybe()

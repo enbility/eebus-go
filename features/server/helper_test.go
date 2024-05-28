@@ -5,11 +5,11 @@ import (
 	"testing"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/util"
 	shipmocks "github.com/enbility/ship-go/mocks"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/mock"
 )
 

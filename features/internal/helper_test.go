@@ -5,11 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/enbility/eebus-go/util"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 )
 
