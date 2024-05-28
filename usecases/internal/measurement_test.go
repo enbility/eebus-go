@@ -41,6 +41,9 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
 			{
+				ScopeType: util.Ptr(model.ScopeTypeTypeACPower),
+			},
+			{
 				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
 				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
 				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
@@ -77,6 +80,9 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 
 	measData := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(10)),
+			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(10),

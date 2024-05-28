@@ -67,6 +67,9 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
 			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(10)),
+			},
+			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
 				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
@@ -164,6 +167,9 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(10)),
+			},
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),

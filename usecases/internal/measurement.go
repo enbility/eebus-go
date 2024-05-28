@@ -18,18 +18,14 @@ func MeasurementPhaseSpecificDataForFilter(
 	validPhaseNameTypes []model.ElectricalConnectionPhaseNameType,
 ) ([]float64, error) {
 	measurement, err := client.NewMeasurement(localEntity, remoteEntity)
-	if err != nil {
+	electricalConnection, err1 := client.NewElectricalConnection(localEntity, remoteEntity)
+	if err != nil || err1 != nil {
 		return nil, err
 	}
 
 	data, err := measurement.GetDataForFilter(measurementFilter)
 	if err != nil || len(data) == 0 {
 		return nil, eebusapi.ErrDataNotAvailable
-	}
-
-	electricalConnection, err := client.NewElectricalConnection(localEntity, remoteEntity)
-	if err != nil {
-		return nil, err
 	}
 
 	var result []float64
