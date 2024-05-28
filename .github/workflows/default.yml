@@ -32,8 +32,8 @@ jobs:
         uses: golangci/golangci-lint-action@master
         with:
           version: latest
-          skip-pkg-cache: true
-          skip-build-cache: true
+          skip-cache: true
+          skip-save-cache: true
           args: --timeout=3m --issues-exit-code=0 ./...
 
       - name: Test
