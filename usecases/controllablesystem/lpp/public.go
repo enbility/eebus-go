@@ -30,15 +30,9 @@ func (e *LPP) ProductionLimit() (limit ucapi.LoadLimit, resultErr error) {
 	}
 	resultErr = api.ErrDataNotAvailable
 
-	limidId, err := e.loadControlLimitId()
+	lc, limidId, err := e.loadControlServerAndLimitId()
 	if err != nil {
-		return
-	}
-
-	lc, err := server.NewLoadControl(e.LocalEntity)
-	if err != nil {
-		resultErr = err
-		return
+		return limit, err
 	}
 
 	value, err := lc.GetLimitDataForId(limidId)
@@ -60,11 +54,9 @@ func (e *LPP) ProductionLimit() (limit ucapi.LoadLimit, resultErr error) {
 
 // set the current production limit data
 func (e *LPP) SetProductionLimit(limit ucapi.LoadLimit) (resultErr error) {
-	resultErr = api.ErrDataNotAvailable
-
-	limidId, err := e.loadControlLimitId()
+	loadControlf, limidId, err := e.loadControlServerAndLimitId()
 	if err != nil {
-		return
+		return err
 	}
 
 	limitData := model.LoadControlLimitDataType{
@@ -83,11 +75,6 @@ func (e *LPP) SetProductionLimit(limit ucapi.LoadLimit) (resultErr error) {
 		TimePeriod: util.Ptr(model.TimePeriodElementsType{}),
 	}
 
-	loadControlf, err := server.NewLoadControl(e.LocalEntity)
-	if err != nil {
-		return err
-	}
-
 	return loadControlf.UpdateLimitDataForId(limitData, deleteTimePeriod, limidId)
 }
 
@@ -95,7 +82,7 @@ func (e *LPP) SetProductionLimit(limit ucapi.LoadLimit) (resultErr error) {
 func (e *LPP) PendingProductionLimits() map[model.MsgCounterType]ucapi.LoadLimit {
 	result := make(map[model.MsgCounterType]ucapi.LoadLimit)
 
-	limitId, err := e.loadControlLimitId()
+	_, limitId, err := e.loadControlServerAndLimitId()
 	if err != nil {
 		return result
 	}

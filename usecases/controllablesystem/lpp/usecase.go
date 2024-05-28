@@ -55,10 +55,9 @@ func NewLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 	return uc
 }
 
-func (e *LPP) loadControlLimitId() (limitid model.LoadControlLimitIdType, err error) {
+func (e *LPP) loadControlServerAndLimitId() (lc *server.LoadControl, limitid model.LoadControlLimitIdType, err error) {
 	limitid = model.LoadControlLimitIdType(0)
 
-	var lc *server.LoadControl
 	lc, err = server.NewLoadControl(e.LocalEntity)
 	if err != nil {
 		return
@@ -80,7 +79,7 @@ func (e *LPP) loadControlLimitId() (limitid model.LoadControlLimitIdType, err er
 		return
 	}
 
-	return *description.LimitId, nil
+	return lc, *description.LimitId, nil
 }
 
 // callback invoked on incoming write messages to this
@@ -96,7 +95,7 @@ func (e *LPP) loadControlWriteCB(msg *spineapi.Message) {
 		return
 	}
 
-	limitId, err := e.loadControlLimitId()
+	_, limitId, err := e.loadControlServerAndLimitId()
 	if err != nil {
 		return
 	}
