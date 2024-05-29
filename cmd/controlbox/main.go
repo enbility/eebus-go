@@ -15,7 +15,8 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/service"
-	"github.com/enbility/eebus-go/usecases/cs/lpc"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
+	"github.com/enbility/eebus-go/usecases/eg/lpc"
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	spineapi "github.com/enbility/spine-go/api"
@@ -24,15 +25,15 @@ import (
 
 var remoteSki string
 
-type evse struct {
+type controlbox struct {
 	myService *service.Service
 
-	uclpc *lpc.CsLPC
+	uclpc *lpc.EgLPC
 
 	isConnected bool
 }
 
-func (h *evse) run() {
+func (h *controlbox) run() {
 	var err error
 	var certificate tls.Certificate
 
@@ -45,7 +46,7 @@ func (h *evse) run() {
 			log.Fatal(err)
 		}
 	} else {
-		certificate, err = cert.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-02")
+		certificate, err = cert.CreateCertificate("Demo", "Demo", "DE", "Demo-Unit-01")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -71,14 +72,14 @@ func (h *evse) run() {
 	}
 
 	configuration, err := api.NewConfiguration(
-		"Demo", "Demo", "EVSE", "234567890",
-		model.DeviceTypeTypeChargingStation,
-		[]model.EntityTypeType{model.EntityTypeTypeEVSE},
+		"Demo", "Demo", "ControlBox", "123456789",
+		model.DeviceTypeTypeElectricitySupplySystem,
+		[]model.EntityTypeType{model.EntityTypeTypeGridGuard},
 		port, certificate, 230, time.Second*4)
 	if err != nil {
 		log.Fatal(err)
 	}
-	configuration.SetAlternateIdentifier("Demo-EVSE-234567890")
+	configuration.SetAlternateIdentifier("Demo-ControlBox-123456789")
 
 	h.myService = service.NewService(configuration, h)
 	h.myService.SetLogging(h)
@@ -88,8 +89,8 @@ func (h *evse) run() {
 		return
 	}
 
-	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeEVSE)
-	h.uclpc = lpc.NewCsLPC(localEntity, h.OnLPCEvent)
+	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
+	h.uclpc = lpc.NewEgLPC(localEntity, h.OnLPCEvent)
 	h.myService.AddUseCase(h.uclpc)
 
 	if len(remoteSki) == 0 {
@@ -104,20 +105,45 @@ func (h *evse) run() {
 
 // EEBUSServiceHandler
 
-func (h *evse) RemoteSKIConnected(service api.ServiceInterface, ski string) {
+func (h *controlbox) RemoteSKIConnected(service api.ServiceInterface, ski string) {
 	h.isConnected = true
+
+	fmt.Println("Sending a limit in 5s...")
+	time.AfterFunc(time.Second*5, func() {
+		remoteDevice := service.LocalDevice().RemoteDeviceForSki(ski)
+
+		// search a compatible entity on the remote device
+		for _, entity := range remoteDevice.Entities() {
+			if ok, err := h.uclpc.IsUseCaseSupported(entity); err != nil || !ok {
+				continue
+			}
+
+			limit := ucapi.LoadLimit{
+				Duration: time.Minute * 2,
+				IsActive: true,
+				Value:    7000,
+			}
+			msgCounter, err := h.uclpc.WriteConsumptionLimit(entity, limit)
+			if err != nil {
+				fmt.Println("Failed to send limit", err)
+				continue
+			}
+
+			fmt.Println("Sent limit to", ski, "with msgCounter", msgCounter)
+		}
+	})
 }
 
-func (h *evse) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {
+func (h *controlbox) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {
 	h.isConnected = false
 }
 
-func (h *evse) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
+func (h *controlbox) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
 }
 
-func (h *evse) ServiceShipIDUpdate(ski string, shipdID string) {}
+func (h *controlbox) ServiceShipIDUpdate(ski string, shipdID string) {}
 
-func (h *evse) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
+func (h *controlbox) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
 	if ski == remoteSki && detail.State() == shipapi.ConnectionStateRemoteDeniedTrust {
 		fmt.Println("The remote service denied trust. Exiting.")
 		h.myService.CancelPairingWithSKI(ski)
@@ -127,30 +153,21 @@ func (h *evse) ServicePairingDetailUpdate(ski string, detail *shipapi.Connection
 	}
 }
 
-func (h *evse) AllowWaitingForTrust(ski string) bool {
+func (h *controlbox) AllowWaitingForTrust(ski string) bool {
 	return ski == remoteSki
 }
 
 // LPC Event Handler
 
-func (h *evse) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+func (h *controlbox) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
 	if !h.isConnected {
 		return
 	}
 
 	switch event {
-	case lpc.WriteApprovalRequired:
-		// get pending writes
-		pendingWrites := h.uclpc.PendingConsumptionLimits()
-
-		// approve any write
-		for msgCounter, write := range pendingWrites {
-			fmt.Println("Approving write with msgCounter", msgCounter, "and limit", write.Value, "W")
-			h.uclpc.ApproveOrDenyConsumptionLimit(msgCounter, true, "")
-		}
 	case lpc.DataUpdateLimit:
-		if currentLimit, err := h.uclpc.ConsumptionLimit(); err != nil {
-			fmt.Println("New Limit set to", currentLimit.Value, "W")
+		if currentLimit, err := h.uclpc.ConsumptionLimit(entity); err == nil {
+			fmt.Println("New Limit received", currentLimit.Value, "W")
 		}
 	}
 }
@@ -158,10 +175,10 @@ func (h *evse) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 // main app
 func usage() {
 	fmt.Println("First Run:")
-	fmt.Println("  go run /cmd/evse/main.go <serverport>")
+	fmt.Println("  go run /cmd/controlbox/main.go <serverport>")
 	fmt.Println()
 	fmt.Println("General Usage:")
-	fmt.Println("  go run /cmd/evse/main.go <serverport> <hems-ski> <crtfile> <keyfile>")
+	fmt.Println("  go run /cmd/controlbox/main.go <serverport> <evse-ski> <crtfile> <keyfile>")
 }
 
 func main() {
@@ -170,7 +187,7 @@ func main() {
 		return
 	}
 
-	h := evse{}
+	h := controlbox{}
 	h.run()
 
 	// Clean exit to make sure mdns shutdown is invoked
@@ -182,48 +199,48 @@ func main() {
 
 // Logging interface
 
-func (h *evse) Trace(args ...interface{}) {
+func (h *controlbox) Trace(args ...interface{}) {
 	h.print("TRACE", args...)
 }
 
-func (h *evse) Tracef(format string, args ...interface{}) {
+func (h *controlbox) Tracef(format string, args ...interface{}) {
 	h.printFormat("TRACE", format, args...)
 }
 
-func (h *evse) Debug(args ...interface{}) {
+func (h *controlbox) Debug(args ...interface{}) {
 	h.print("DEBUG", args...)
 }
 
-func (h *evse) Debugf(format string, args ...interface{}) {
+func (h *controlbox) Debugf(format string, args ...interface{}) {
 	h.printFormat("DEBUG", format, args...)
 }
 
-func (h *evse) Info(args ...interface{}) {
+func (h *controlbox) Info(args ...interface{}) {
 	h.print("INFO ", args...)
 }
 
-func (h *evse) Infof(format string, args ...interface{}) {
+func (h *controlbox) Infof(format string, args ...interface{}) {
 	h.printFormat("INFO ", format, args...)
 }
 
-func (h *evse) Error(args ...interface{}) {
+func (h *controlbox) Error(args ...interface{}) {
 	h.print("ERROR", args...)
 }
 
-func (h *evse) Errorf(format string, args ...interface{}) {
+func (h *controlbox) Errorf(format string, args ...interface{}) {
 	h.printFormat("ERROR", format, args...)
 }
 
-func (h *evse) currentTimestamp() string {
+func (h *controlbox) currentTimestamp() string {
 	return time.Now().Format("2006-01-02 15:04:05")
 }
 
-func (h *evse) print(msgType string, args ...interface{}) {
+func (h *controlbox) print(msgType string, args ...interface{}) {
 	value := fmt.Sprintln(args...)
 	fmt.Printf("%s %s %s", h.currentTimestamp(), msgType, value)
 }
 
-func (h *evse) printFormat(msgType, format string, args ...interface{}) {
+func (h *controlbox) printFormat(msgType, format string, args ...interface{}) {
 	value := fmt.Sprintf(format, args...)
 	fmt.Println(h.currentTimestamp(), msgType, value)
 }
