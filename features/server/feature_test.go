@@ -62,6 +62,10 @@ func (s *FeatureSuite) BeforeTest(suiteName, testName string) {
 	s.remoteEntity = entities[1]
 
 	var err error
+	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeLoadControl, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.testFeature)
+
 	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeLoadControl, s.localEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.testFeature)

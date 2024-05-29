@@ -56,6 +56,14 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	s.sut = NewService(s.config, s.serviceReader)
 }
 
+func (s *ServiceSuite) Test_AddUseCase() {
+	ucMock := mocks.NewUseCaseInterface(s.T())
+	ucMock.EXPECT().AddFeatures().Return().Once()
+	ucMock.EXPECT().AddUseCase().Return().Once()
+
+	s.sut.AddUseCase(ucMock)
+}
+
 func (s *ServiceSuite) Test_EEBUSHandler() {
 	testSki := "test"
 

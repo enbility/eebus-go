@@ -33,6 +33,8 @@ type Service struct {
 
 	serviceHandler api.ServiceReaderInterface
 
+	usecases []api.UseCaseInterface
+
 	// defines wether a user interaction to accept pairing is possible
 	isPairingPossible bool
 
@@ -146,6 +148,14 @@ func (s *Service) Start() {
 func (s *Service) Shutdown() {
 	// Shut down all running connections
 	s.connectionsHub.Shutdown()
+}
+
+// add a use case to the service
+func (s *Service) AddUseCase(useCase api.UseCaseInterface) {
+	s.usecases = append(s.usecases, useCase)
+
+	useCase.AddFeatures()
+	useCase.AddUseCase()
 }
 
 func (s *Service) Configuration() *api.Configuration {

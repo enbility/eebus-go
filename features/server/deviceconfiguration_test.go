@@ -68,6 +68,9 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	s.remoteEntity = entities[1]
 
 	var err error
+	s.sut, err = server.NewDeviceConfiguration(nil)
+	assert.NotNil(s.T(), err)
+
 	s.sut, err = server.NewDeviceConfiguration(s.localEntity)
 	assert.Nil(s.T(), err)
 }

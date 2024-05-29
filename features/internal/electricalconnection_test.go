@@ -808,6 +808,9 @@ func (s *ElectricalConnectionSuite) addDescription() {
 	fData := &model.ElectricalConnectionDescriptionListDataType{
 		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
 			{
+				PowerSupplyType: util.Ptr(model.ElectricalConnectionVoltageTypeTypeDc),
+			},
+			{
 				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
 				PowerSupplyType:         util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
 				AcConnectedPhases:       util.Ptr(uint(3)),

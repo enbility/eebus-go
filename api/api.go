@@ -24,6 +24,9 @@ type ServiceInterface interface {
 	// shutdown the service
 	Shutdown()
 
+	// add a use case to the service
+	AddUseCase(useCase UseCaseInterface)
+
 	// set logging interface
 	SetLogging(logger logging.LoggingInterface)
 

@@ -46,6 +46,10 @@ func (s *DeviceClassificationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
+	s.deviceClassification, err = features.NewDeviceClassification(s.localEntity, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.deviceClassification)
+
 	s.deviceClassification, err = features.NewDeviceClassification(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceClassification)

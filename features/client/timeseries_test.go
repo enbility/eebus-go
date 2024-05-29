@@ -49,6 +49,10 @@ func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
+	s.timeSeries, err = features.NewTimeSeries(s.localEntity, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.timeSeries)
+
 	s.timeSeries, err = features.NewTimeSeries(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.timeSeries)

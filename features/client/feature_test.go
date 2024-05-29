@@ -47,6 +47,10 @@ func (s *FeatureSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
+	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeAlarm, s.localEntity, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.testFeature)
+
 	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeAlarm, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.testFeature)

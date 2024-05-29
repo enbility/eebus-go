@@ -68,6 +68,9 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 	s.remoteEntity = entities[1]
 
 	var err error
+	s.sut, err = server.NewElectricalConnection(nil)
+	assert.NotNil(s.T(), err)
+
 	s.sut, err = server.NewElectricalConnection(s.localEntity)
 	assert.Nil(s.T(), err)
 }

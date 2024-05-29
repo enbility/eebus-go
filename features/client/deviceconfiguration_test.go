@@ -60,6 +60,10 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().DataCopy(mock.Anything).Return(mock.Anything).Maybe()
 
 	var err error
+	s.deviceConfiguration, err = features.NewDeviceConfiguration(s.localEntity, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.deviceConfiguration)
+
 	s.deviceConfiguration, err = features.NewDeviceConfiguration(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceConfiguration)

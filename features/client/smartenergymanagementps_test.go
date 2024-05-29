@@ -46,6 +46,10 @@ func (s *SmartEnergyManagementPsSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
+	s.smartenergymgmtps, err = features.NewSmartEnergyManagementPs(s.localEntity, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), s.smartenergymgmtps)
+
 	s.smartenergymgmtps, err = features.NewSmartEnergyManagementPs(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.smartenergymgmtps)

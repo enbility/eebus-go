@@ -45,13 +45,11 @@ func (e *ElectricalConnectionCommon) CheckEventPayloadDataForFilter(payloadData 
 	if err != nil {
 		return false
 	}
-	for _, desc := range descs {
-		if desc.ParameterId == nil {
-			continue
-		}
 
+	for _, desc := range descs {
 		for _, item := range data.ElectricalConnectionPermittedValueSetData {
 			if item.ParameterId != nil &&
+				desc.ParameterId != nil &&
 				*item.ParameterId == *desc.ParameterId &&
 				len(item.PermittedValueSet) != 0 {
 				return true

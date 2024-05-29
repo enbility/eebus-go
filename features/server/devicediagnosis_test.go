@@ -68,6 +68,9 @@ func (s *DeviceDiagnosisSuite) BeforeTest(suiteName, testName string) {
 	s.remoteEntity = entities[1]
 
 	var err error
+	s.sut, err = server.NewDeviceDiagnosis(nil)
+	assert.NotNil(s.T(), err)
+
 	s.sut, err = server.NewDeviceDiagnosis(s.localEntity)
 	assert.Nil(s.T(), err)
 }

@@ -26,6 +26,39 @@ func (_m *ServiceInterface) EXPECT() *ServiceInterface_Expecter {
 	return &ServiceInterface_Expecter{mock: &_m.Mock}
 }
 
+// AddUseCase provides a mock function with given fields: useCase
+func (_m *ServiceInterface) AddUseCase(useCase api.UseCaseInterface) {
+	_m.Called(useCase)
+}
+
+// ServiceInterface_AddUseCase_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddUseCase'
+type ServiceInterface_AddUseCase_Call struct {
+	*mock.Call
+}
+
+// AddUseCase is a helper method to define mock.On call
+//   - useCase api.UseCaseInterface
+func (_e *ServiceInterface_Expecter) AddUseCase(useCase interface{}) *ServiceInterface_AddUseCase_Call {
+	return &ServiceInterface_AddUseCase_Call{Call: _e.mock.On("AddUseCase", useCase)}
+}
+
+func (_c *ServiceInterface_AddUseCase_Call) Run(run func(useCase api.UseCaseInterface)) *ServiceInterface_AddUseCase_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(api.UseCaseInterface))
+	})
+	return _c
+}
+
+func (_c *ServiceInterface_AddUseCase_Call) Return() *ServiceInterface_AddUseCase_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ServiceInterface_AddUseCase_Call) RunAndReturn(run func(api.UseCaseInterface)) *ServiceInterface_AddUseCase_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CancelPairingWithSKI provides a mock function with given fields: ski
 func (_m *ServiceInterface) CancelPairingWithSKI(ski string) {
 	_m.Called(ski)
