@@ -15,6 +15,7 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/service"
+	"github.com/enbility/eebus-go/usecases/eg/lpc"
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/spine-go/model"
@@ -81,6 +82,10 @@ func (h *hems) run() {
 		fmt.Println(err)
 		return
 	}
+
+	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
+	uclpc := lpc.NewEgLPC(localEntity, nil)
+	h.myService.AddUseCase(uclpc)
 
 	if len(remoteSki) == 0 {
 		os.Exit(0)
