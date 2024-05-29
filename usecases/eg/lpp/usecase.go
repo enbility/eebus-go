@@ -77,7 +77,7 @@ func (e *EgLPP) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool,
 	// check if the usecase and mandatory scenarios are supported and
 	// if the required server features are available
 	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeEnergyGuard,
+		model.UseCaseActorTypeControllableSystem,
 		e.UseCaseName,
 		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
 		[]model.FeatureTypeType{

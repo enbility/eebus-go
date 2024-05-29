@@ -44,7 +44,7 @@ func (e *CsLPP) ProductionLimit() (limit ucapi.LoadLimit, resultErr error) {
 	limit.IsChangeable = (value.IsLimitChangeable != nil && *value.IsLimitChangeable)
 	limit.IsActive = (value.IsLimitActive != nil && *value.IsLimitActive)
 	if value.TimePeriod != nil && value.TimePeriod.EndTime != nil {
-		if duration, err := value.TimePeriod.EndTime.GetTimeDuration(); err == nil {
+		if duration, err := value.TimePeriod.GetDuration(); err == nil {
 			limit.Duration = duration
 		}
 	}

@@ -120,11 +120,11 @@ func (s *LPCSuite) Test_WriteLoadControlLimit() {
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.WriteConsumptionLimit(s.monitoredEntity, limit)
-	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), err)
 
 	limit.Duration = time.Duration(time.Hour * 2)
 	_, err = s.sut.WriteConsumptionLimit(s.monitoredEntity, limit)
-	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), err)
 }
 
 func (s *LPCSuite) Test_FailsafeConsumptionActivePowerLimit() {

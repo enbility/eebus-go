@@ -87,9 +87,6 @@ func (e *CsLPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid m
 // the implementation only considers write messages for this use case and
 // approves all others
 func (e *CsLPC) loadControlWriteCB(msg *spineapi.Message) {
-	e.pendingMux.Lock()
-	defer e.pendingMux.Unlock()
-
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
 		return
@@ -108,6 +105,8 @@ func (e *CsLPC) loadControlWriteCB(msg *spineapi.Message) {
 		return
 	}
 
+	e.pendingMux.Lock()
+
 	// check if there is a matching limitId in the data
 	for _, item := range data.LoadControlLimitData {
 		if item.LimitId == nil ||
@@ -117,10 +116,12 @@ func (e *CsLPC) loadControlWriteCB(msg *spineapi.Message) {
 
 		if _, ok := e.pendingLimits[*msg.RequestHeader.MsgCounter]; !ok {
 			e.pendingLimits[*msg.RequestHeader.MsgCounter] = msg
+			e.pendingMux.Unlock()
 			e.EventCB(msg.DeviceRemote.Ski(), msg.DeviceRemote, msg.EntityRemote, WriteApprovalRequired)
 			return
 		}
 	}
+	e.pendingMux.Unlock()
 
 	// approve, because this is no request for this usecase
 	go e.ApproveOrDenyConsumptionLimit(*msg.RequestHeader.MsgCounter, true, "")
@@ -144,8 +145,16 @@ func (e *CsLPC) AddFeatures() {
 		Unit:           util.Ptr(model.UnitOfMeasurementTypeW),
 		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 	}
-	feat, _ := server.NewLoadControl(e.LocalEntity)
-	feat.AddLimitDescription(newLimitDesc)
+	if lc, err := server.NewLoadControl(e.LocalEntity); err == nil {
+		limitId := lc.AddLimitDescription(newLimitDesc)
+
+		newLimiData := model.LoadControlLimitDataType{
+			Value:             model.NewScaledNumberType(0),
+			IsLimitChangeable: util.Ptr(true),
+			IsLimitActive:     util.Ptr(false),
+		}
+		_ = lc.UpdateLimitDataForId(newLimiData, nil, *limitId)
+	}
 
 	f = e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
 	f.AddFunctionType(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, true, false)
