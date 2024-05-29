@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *EVCCSuite) Test_ChargeState() {
+func (s *CemEVCCSuite) Test_ChargeState() {
 	data, err := s.sut.ChargeState(s.mockRemoteEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), ucapi.EVChargeStateTypeUnplugged, data)
@@ -75,7 +75,7 @@ func (s *EVCCSuite) Test_ChargeState() {
 	assert.Equal(s.T(), ucapi.EVChargeStateTypeUnknown, data)
 }
 
-func (s *EVCCSuite) Test_EVConnected() {
+func (s *CemEVCCSuite) Test_EVConnected() {
 	data := s.sut.EVConnected(nil)
 	assert.Equal(s.T(), false, data)
 
@@ -97,7 +97,7 @@ func (s *EVCCSuite) Test_EVConnected() {
 	assert.Equal(s.T(), true, data)
 }
 
-func (s *EVCCSuite) Test_EVCommunicationStandard() {
+func (s *CemEVCCSuite) Test_EVCommunicationStandard() {
 	data, err := s.sut.CommunicationStandard(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), UCEVCCCommunicationStandardUnknown, data)
@@ -159,7 +159,7 @@ func (s *EVCCSuite) Test_EVCommunicationStandard() {
 	assert.Equal(s.T(), model.DeviceConfigurationKeyValueStringTypeISO151182ED2, data)
 }
 
-func (s *EVCCSuite) Test_EVAsymmetricChargingSupport() {
+func (s *CemEVCCSuite) Test_EVAsymmetricChargingSupport() {
 	data, err := s.sut.AsymmetricChargingSupport(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), false, data)
@@ -221,7 +221,7 @@ func (s *EVCCSuite) Test_EVAsymmetricChargingSupport() {
 	assert.True(s.T(), data)
 }
 
-func (s *EVCCSuite) Test_EVIdentification() {
+func (s *CemEVCCSuite) Test_EVIdentification() {
 	data, err := s.sut.Identifications(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), []ucapi.IdentificationItem(nil), data)
@@ -254,7 +254,7 @@ func (s *EVCCSuite) Test_EVIdentification() {
 	assert.Equal(s.T(), resultData, data)
 }
 
-func (s *EVCCSuite) Test_EVManufacturerData() {
+func (s *CemEVCCSuite) Test_EVManufacturerData() {
 	_, err := s.sut.ManufacturerData(nil)
 	assert.NotNil(s.T(), err)
 
@@ -292,7 +292,7 @@ func (s *EVCCSuite) Test_EVManufacturerData() {
 	assert.Equal(s.T(), "", data.BrandName)
 }
 
-func (s *EVCCSuite) Test_EVChargingPowerLimits() {
+func (s *CemEVCCSuite) Test_EVChargingPowerLimits() {
 	minData, maxData, standByData, err := s.sut.ChargingPowerLimits(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, minData)
@@ -389,7 +389,7 @@ func (s *EVCCSuite) Test_EVChargingPowerLimits() {
 	}
 }
 
-func (s *EVCCSuite) Test_EVInSleepMode() {
+func (s *CemEVCCSuite) Test_EVInSleepMode() {
 	data, err := s.sut.IsInSleepMode(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), false, data)

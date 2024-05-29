@@ -64,7 +64,7 @@ func (e *EgLPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 	limit.IsChangeable = (value.IsLimitChangeable != nil && *value.IsLimitChangeable)
 	limit.IsActive = (value.IsLimitActive != nil && *value.IsLimitActive)
 	if value.TimePeriod != nil && value.TimePeriod.EndTime != nil {
-		if duration, err := value.TimePeriod.EndTime.GetTimeDuration(); err == nil {
+		if duration, err := value.TimePeriod.GetDuration(); err == nil {
 			limit.Duration = duration
 		}
 	}
@@ -116,7 +116,7 @@ func (e *EgLPC) WriteConsumptionLimit(
 		return nil, api.ErrDataNotAvailable
 	}
 
-	for index, item := range currentLimits {
+	for _, item := range currentLimits {
 		if item.LimitId == nil ||
 			*item.LimitId != *limitDesc.LimitId {
 			continue
@@ -139,11 +139,18 @@ func (e *EgLPC) WriteConsumptionLimit(
 			}
 		}
 
-		currentLimits[index] = newLimit
+		limitData = append(limitData, newLimit)
 		break
 	}
 
-	msgCounter, err := loadControl.WriteLimitData(limitData)
+	deleteSelectors := &model.LoadControlLimitListDataSelectorsType{
+		LimitId: limitDesc.LimitId,
+	}
+	deleteElements := &model.LoadControlLimitDataElementsType{
+		TimePeriod: &model.TimePeriodElementsType{},
+	}
+
+	msgCounter, err := loadControl.WriteLimitData(limitData, deleteSelectors, deleteElements)
 
 	return msgCounter, err
 }

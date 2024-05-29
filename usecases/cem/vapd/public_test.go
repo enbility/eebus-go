@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *VAPDSuite) Test_CurrentProductionPower() {
+func (s *CemVAPDSuite) Test_CurrentProductionPower() {
 	data, err := s.sut.Power(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -51,7 +51,7 @@ func (s *VAPDSuite) Test_CurrentProductionPower() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *VAPDSuite) Test_NominalPeakPower() {
+func (s *CemVAPDSuite) Test_NominalPeakPower() {
 	data, err := s.sut.PowerNominalPeak(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -92,7 +92,7 @@ func (s *VAPDSuite) Test_NominalPeakPower() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *VAPDSuite) Test_TotalPVYield() {
+func (s *CemVAPDSuite) Test_TotalPVYield() {
 	data, err := s.sut.PVYieldTotal(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)

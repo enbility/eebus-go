@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *LPCSuite) Test_Events() {
+func (s *CsLPCSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity:    s.mockRemoteEntity,
 		EventType: spineapi.EventTypeSubscriptionChange,
@@ -64,7 +64,7 @@ func (s *LPCSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *LPCSuite) Test_deviceConnected() {
+func (s *CsLPCSuite) Test_deviceConnected() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -84,7 +84,7 @@ func (s *LPCSuite) Test_deviceConnected() {
 	s.sut.subscribeHeartbeatWorkaround(payload)
 }
 
-func (s *LPCSuite) Test_multipleDeviceDiagServer() {
+func (s *CsLPCSuite) Test_multipleDeviceDiagServer() {
 	// multiple entities each with DeviceDiagnosis server
 
 	payload := spineapi.EventPayload{
@@ -213,7 +213,7 @@ func (s *LPCSuite) Test_multipleDeviceDiagServer() {
 	s.sut.subscribeHeartbeatWorkaround(payload)
 }
 
-func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
+func (s *CsLPCSuite) Test_loadControlLimitDataUpdate() {
 	localDevice := s.service.LocalDevice()
 	localEntity := localDevice.EntityForType(model.EntityTypeTypeCEM)
 
@@ -267,7 +267,7 @@ func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *LPCSuite) Test_configurationDataUpdate() {
+func (s *CsLPCSuite) Test_configurationDataUpdate() {
 	localDevice := s.service.LocalDevice()
 	localEntity := localDevice.EntityForType(model.EntityTypeTypeCEM)
 	lFeature := localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)

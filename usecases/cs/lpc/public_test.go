@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *LPCSuite) Test_ConsumptionLimit() {
+func (s *CsLPCSuite) Test_ConsumptionLimit() {
 	limit, err := s.sut.ConsumptionLimit()
 	assert.Equal(s.T(), 0.0, limit.Value)
-	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), err)
 
 	newLimit := ucapi.LoadLimit{
 		Duration:     time.Duration(time.Hour * 2),
@@ -30,7 +30,7 @@ func (s *LPCSuite) Test_ConsumptionLimit() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *LPCSuite) Test_PendingConsumptionLimits() {
+func (s *CsLPCSuite) Test_PendingConsumptionLimits() {
 	data := s.sut.PendingConsumptionLimits()
 	assert.Equal(s.T(), 0, len(data))
 
@@ -66,7 +66,7 @@ func (s *LPCSuite) Test_PendingConsumptionLimits() {
 	s.sut.ApproveOrDenyConsumptionLimit(msgCounter, false, "leave me alone")
 }
 
-func (s *LPCSuite) Test_Failsafe() {
+func (s *CsLPCSuite) Test_Failsafe() {
 	limit, changeable, err := s.sut.FailsafeConsumptionActivePowerLimit()
 	assert.Equal(s.T(), 0.0, limit)
 	assert.Equal(s.T(), false, changeable)
@@ -103,7 +103,7 @@ func (s *LPCSuite) Test_Failsafe() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *LPCSuite) Test_IsHeartbeatWithinDuration() {
+func (s *CsLPCSuite) Test_IsHeartbeatWithinDuration() {
 	assert.Nil(s.T(), s.sut.heartbeatDiag)
 
 	value := s.sut.IsHeartbeatWithinDuration()
@@ -140,7 +140,7 @@ func (s *LPCSuite) Test_IsHeartbeatWithinDuration() {
 	assert.True(s.T(), value)
 }
 
-func (s *LPCSuite) Test_ContractualConsumptionNominalMax() {
+func (s *CsLPCSuite) Test_ContractualConsumptionNominalMax() {
 	value, err := s.sut.ContractualConsumptionNominalMax()
 	assert.Equal(s.T(), 0.0, value)
 	assert.NotNil(s.T(), err)

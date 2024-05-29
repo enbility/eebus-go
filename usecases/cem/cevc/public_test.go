@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *CEVCSuite) Test_CoordinatedChargingScenarios() {
+func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 	timeConst := &model.TimeSeriesConstraintsListDataType{
 		TimeSeriesConstraintsData: []model.TimeSeriesConstraintsDataType{
 			{

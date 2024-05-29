@@ -6,11 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *LPPSuite) Test_UpdateUseCaseAvailability() {
+func (s *EgLPPSuite) Test_UpdateUseCaseAvailability() {
 	s.sut.UpdateUseCaseAvailability(true)
 }
 
-func (s *LPPSuite) Test_IsUseCaseSupported() {
+func (s *EgLPPSuite) Test_IsUseCaseSupported() {
 	data, err := s.sut.IsUseCaseSupported(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), false, data)
@@ -22,7 +22,7 @@ func (s *LPPSuite) Test_IsUseCaseSupported() {
 	ucData := &model.NodeManagementUseCaseDataType{
 		UseCaseInformation: []model.UseCaseInformationDataType{
 			{
-				Actor: util.Ptr(model.UseCaseActorTypeEnergyGuard),
+				Actor: util.Ptr(model.UseCaseActorTypeControllableSystem),
 				UseCaseSupport: []model.UseCaseSupportType{
 					{
 						UseCaseName:      util.Ptr(model.UseCaseNameTypeLimitationOfPowerProduction),

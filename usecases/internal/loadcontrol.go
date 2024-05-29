@@ -198,7 +198,7 @@ func WriteLoadControlLimits(
 		limitData = append(limitData, newLimit)
 	}
 
-	msgCounter, err := loadControl.WriteLimitData(limitData)
+	msgCounter, err := loadControl.WriteLimitData(limitData, nil, nil)
 
 	return msgCounter, err
 }

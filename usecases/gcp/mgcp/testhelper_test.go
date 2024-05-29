@@ -19,11 +19,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-func TestMGCPSuite(t *testing.T) {
-	suite.Run(t, new(MGCPSuite))
+func TestGcpMGCPSuite(t *testing.T) {
+	suite.Run(t, new(GcpMGCPSuite))
 }
 
-type MGCPSuite struct {
+type GcpMGCPSuite struct {
 	suite.Suite
 
 	sut *GcpMGCP
@@ -37,11 +37,11 @@ type MGCPSuite struct {
 	eventCalled bool
 }
 
-func (s *MGCPSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+func (s *GcpMGCPSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
 	s.eventCalled = true
 }
 
-func (s *MGCPSuite) BeforeTest(suiteName, testName string) {
+func (s *GcpMGCPSuite) BeforeTest(suiteName, testName string) {
 	s.eventCalled = false
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(

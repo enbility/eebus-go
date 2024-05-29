@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *MGCPSuite) Test_PowerLimitationFactor() {
+func (s *GcpMGCPSuite) Test_PowerLimitationFactor() {
 	data, err := s.sut.PowerLimitationFactor(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -52,7 +52,7 @@ func (s *MGCPSuite) Test_PowerLimitationFactor() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *MGCPSuite) Test_Power() {
+func (s *GcpMGCPSuite) Test_Power() {
 	data, err := s.sut.Power(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -130,7 +130,7 @@ func (s *MGCPSuite) Test_Power() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *MGCPSuite) Test_EnergyFeedIn() {
+func (s *GcpMGCPSuite) Test_EnergyFeedIn() {
 	data, err := s.sut.EnergyFeedIn(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -175,7 +175,7 @@ func (s *MGCPSuite) Test_EnergyFeedIn() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *MGCPSuite) Test_EnergyConsumed() {
+func (s *GcpMGCPSuite) Test_EnergyConsumed() {
 	data, err := s.sut.EnergyConsumed(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -220,7 +220,7 @@ func (s *MGCPSuite) Test_EnergyConsumed() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *MGCPSuite) Test_CurrentPerPhase() {
+func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
 	data, err := s.sut.CurrentPerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -325,7 +325,7 @@ func (s *MGCPSuite) Test_CurrentPerPhase() {
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)
 }
 
-func (s *MGCPSuite) Test_VoltagePerPhase() {
+func (s *GcpMGCPSuite) Test_VoltagePerPhase() {
 	data, err := s.sut.VoltagePerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -418,7 +418,7 @@ func (s *MGCPSuite) Test_VoltagePerPhase() {
 	assert.Equal(s.T(), []float64{230, 230, 230}, data)
 }
 
-func (s *MGCPSuite) Test_Frequency() {
+func (s *GcpMGCPSuite) Test_Frequency() {
 	data, err := s.sut.Frequency(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)

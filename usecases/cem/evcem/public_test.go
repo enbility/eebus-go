@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *EVCEMSuite) Test_EVConnectedPhases() {
+func (s *CemEVCEMSuite) Test_EVConnectedPhases() {
 	data, err := s.sut.PhasesConnected(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), uint(0), data)
@@ -48,7 +48,7 @@ func (s *EVCEMSuite) Test_EVConnectedPhases() {
 	assert.Equal(s.T(), uint(1), data)
 }
 
-func (s *EVCEMSuite) Test_EVCurrentPerPhase() {
+func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 	data, err := s.sut.CurrentPerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -113,7 +113,7 @@ func (s *EVCEMSuite) Test_EVCurrentPerPhase() {
 	assert.Equal(s.T(), 10.0, data[0])
 }
 
-func (s *EVCEMSuite) Test_EVPowerPerPhase_Power() {
+func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Power() {
 	data, err := s.sut.PowerPerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -178,7 +178,7 @@ func (s *EVCEMSuite) Test_EVPowerPerPhase_Power() {
 	assert.Equal(s.T(), 80.0, data[0])
 }
 
-func (s *EVCEMSuite) Test_EVPowerPerPhase_Current() {
+func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 	data, err := s.sut.PowerPerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -243,7 +243,7 @@ func (s *EVCEMSuite) Test_EVPowerPerPhase_Current() {
 	assert.Equal(s.T(), 2300.0, data[0])
 }
 
-func (s *EVCEMSuite) Test_EVChargedEnergy() {
+func (s *CemEVCEMSuite) Test_EVChargedEnergy() {
 	data, err := s.sut.EnergyCharged(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)

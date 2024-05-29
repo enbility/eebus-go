@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *CEVCSuite) Test_ChargeStrategy() {
+func (s *CemCEVCSuite) Test_ChargeStrategy() {
 	data := s.sut.ChargeStrategy(s.mockRemoteEntity)
 	assert.Equal(s.T(), ucapi.EVChargeStrategyTypeUnknown, data)
 
@@ -158,7 +158,7 @@ func (s *CEVCSuite) Test_ChargeStrategy() {
 	assert.Equal(s.T(), ucapi.EVChargeStrategyTypeTimedCharging, data)
 }
 
-func (s *CEVCSuite) Test_EnergySingleDemand() {
+func (s *CemCEVCSuite) Test_EnergySingleDemand() {
 	demand, err := s.sut.EnergyDemand(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, demand.MinDemand)

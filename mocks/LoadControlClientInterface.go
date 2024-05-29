@@ -191,9 +191,9 @@ func (_c *LoadControlClientInterface_RequestLimitDescriptions_Call) RunAndReturn
 	return _c
 }
 
-// WriteLimitData provides a mock function with given fields: data
-func (_m *LoadControlClientInterface) WriteLimitData(data []model.LoadControlLimitDataType) (*model.MsgCounterType, error) {
-	ret := _m.Called(data)
+// WriteLimitData provides a mock function with given fields: data, deleteSelectors, deleteElements
+func (_m *LoadControlClientInterface) WriteLimitData(data []model.LoadControlLimitDataType, deleteSelectors *model.LoadControlLimitListDataSelectorsType, deleteElements *model.LoadControlLimitDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(data, deleteSelectors, deleteElements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for WriteLimitData")
@@ -201,19 +201,19 @@ func (_m *LoadControlClientInterface) WriteLimitData(data []model.LoadControlLim
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func([]model.LoadControlLimitDataType) (*model.MsgCounterType, error)); ok {
-		return rf(data)
+	if rf, ok := ret.Get(0).(func([]model.LoadControlLimitDataType, *model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(data, deleteSelectors, deleteElements)
 	}
-	if rf, ok := ret.Get(0).(func([]model.LoadControlLimitDataType) *model.MsgCounterType); ok {
-		r0 = rf(data)
+	if rf, ok := ret.Get(0).(func([]model.LoadControlLimitDataType, *model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(data, deleteSelectors, deleteElements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func([]model.LoadControlLimitDataType) error); ok {
-		r1 = rf(data)
+	if rf, ok := ret.Get(1).(func([]model.LoadControlLimitDataType, *model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) error); ok {
+		r1 = rf(data, deleteSelectors, deleteElements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -228,13 +228,15 @@ type LoadControlClientInterface_WriteLimitData_Call struct {
 
 // WriteLimitData is a helper method to define mock.On call
 //   - data []model.LoadControlLimitDataType
-func (_e *LoadControlClientInterface_Expecter) WriteLimitData(data interface{}) *LoadControlClientInterface_WriteLimitData_Call {
-	return &LoadControlClientInterface_WriteLimitData_Call{Call: _e.mock.On("WriteLimitData", data)}
+//   - deleteSelectors *model.LoadControlLimitListDataSelectorsType
+//   - deleteElements *model.LoadControlLimitDataElementsType
+func (_e *LoadControlClientInterface_Expecter) WriteLimitData(data interface{}, deleteSelectors interface{}, deleteElements interface{}) *LoadControlClientInterface_WriteLimitData_Call {
+	return &LoadControlClientInterface_WriteLimitData_Call{Call: _e.mock.On("WriteLimitData", data, deleteSelectors, deleteElements)}
 }
 
-func (_c *LoadControlClientInterface_WriteLimitData_Call) Run(run func(data []model.LoadControlLimitDataType)) *LoadControlClientInterface_WriteLimitData_Call {
+func (_c *LoadControlClientInterface_WriteLimitData_Call) Run(run func(data []model.LoadControlLimitDataType, deleteSelectors *model.LoadControlLimitListDataSelectorsType, deleteElements *model.LoadControlLimitDataElementsType)) *LoadControlClientInterface_WriteLimitData_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].([]model.LoadControlLimitDataType))
+		run(args[0].([]model.LoadControlLimitDataType), args[1].(*model.LoadControlLimitListDataSelectorsType), args[2].(*model.LoadControlLimitDataElementsType))
 	})
 	return _c
 }
@@ -244,7 +246,7 @@ func (_c *LoadControlClientInterface_WriteLimitData_Call) Return(_a0 *model.MsgC
 	return _c
 }
 
-func (_c *LoadControlClientInterface_WriteLimitData_Call) RunAndReturn(run func([]model.LoadControlLimitDataType) (*model.MsgCounterType, error)) *LoadControlClientInterface_WriteLimitData_Call {
+func (_c *LoadControlClientInterface_WriteLimitData_Call) RunAndReturn(run func([]model.LoadControlLimitDataType, *model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) (*model.MsgCounterType, error)) *LoadControlClientInterface_WriteLimitData_Call {
 	_c.Call.Return(run)
 	return _c
 }

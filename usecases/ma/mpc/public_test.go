@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *MPCSuite) Test_Power() {
+func (s *MaMPCSuite) Test_Power() {
 	data, err := s.sut.Power(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -84,7 +84,7 @@ func (s *MPCSuite) Test_Power() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *MPCSuite) Test_PowerPerPhase() {
+func (s *MaMPCSuite) Test_PowerPerPhase() {
 	data, err := s.sut.PowerPerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -189,7 +189,7 @@ func (s *MPCSuite) Test_PowerPerPhase() {
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)
 }
 
-func (s *MPCSuite) Test_EnergyConsumed() {
+func (s *MaMPCSuite) Test_EnergyConsumed() {
 	data, err := s.sut.EnergyConsumed(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -234,7 +234,7 @@ func (s *MPCSuite) Test_EnergyConsumed() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *MPCSuite) Test_EnergyProduced() {
+func (s *MaMPCSuite) Test_EnergyProduced() {
 	data, err := s.sut.EnergyProduced(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -279,7 +279,7 @@ func (s *MPCSuite) Test_EnergyProduced() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *MPCSuite) Test_CurrentPerPhase() {
+func (s *MaMPCSuite) Test_CurrentPerPhase() {
 	data, err := s.sut.CurrentPerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -384,7 +384,7 @@ func (s *MPCSuite) Test_CurrentPerPhase() {
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)
 }
 
-func (s *MPCSuite) Test_VoltagePerPhase() {
+func (s *MaMPCSuite) Test_VoltagePerPhase() {
 	data, err := s.sut.VoltagePerPhase(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -477,7 +477,7 @@ func (s *MPCSuite) Test_VoltagePerPhase() {
 	assert.Equal(s.T(), []float64{230, 230, 230}, data)
 }
 
-func (s *MPCSuite) Test_Frequency() {
+func (s *MaMPCSuite) Test_Frequency() {
 	data, err := s.sut.Frequency(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)

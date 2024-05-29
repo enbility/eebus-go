@@ -19,11 +19,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-func TestLPPSuite(t *testing.T) {
-	suite.Run(t, new(LPPSuite))
+func TestEgLPPSuite(t *testing.T) {
+	suite.Run(t, new(EgLPPSuite))
 }
 
-type LPPSuite struct {
+type EgLPPSuite struct {
 	suite.Suite
 
 	sut *EgLPP
@@ -37,11 +37,11 @@ type LPPSuite struct {
 	eventCalled bool
 }
 
-func (s *LPPSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+func (s *EgLPPSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
 	s.eventCalled = true
 }
 
-func (s *LPPSuite) BeforeTest(suiteName, testName string) {
+func (s *EgLPPSuite) BeforeTest(suiteName, testName string) {
 	s.eventCalled = false
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(

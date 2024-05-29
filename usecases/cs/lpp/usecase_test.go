@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *LPPSuite) Test_loadControlServerAndLimitId() {
+func (s *CsLPPSuite) Test_loadControlServerAndLimitId() {
 	lc, _, err := s.sut.loadControlServerAndLimitId()
 	assert.NotNil(s.T(), lc)
 	assert.Nil(s.T(), err)
@@ -26,7 +26,7 @@ func (s *LPPSuite) Test_loadControlServerAndLimitId() {
 	assert.NotNil(s.T(), err)
 }
 
-func (s *LPPSuite) Test_loadControlWriteCB() {
+func (s *CsLPPSuite) Test_loadControlWriteCB() {
 	msg := &spineapi.Message{}
 
 	s.sut.loadControlWriteCB(msg)
@@ -78,11 +78,11 @@ func (s *LPPSuite) Test_loadControlWriteCB() {
 	s.sut.loadControlWriteCB(msg)
 }
 
-func (s *LPPSuite) Test_UpdateUseCaseAvailability() {
+func (s *CsLPPSuite) Test_UpdateUseCaseAvailability() {
 	s.sut.UpdateUseCaseAvailability(true)
 }
 
-func (s *LPPSuite) Test_IsUseCaseSupported() {
+func (s *CsLPPSuite) Test_IsUseCaseSupported() {
 	data, err := s.sut.IsUseCaseSupported(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), false, data)

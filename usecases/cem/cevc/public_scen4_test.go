@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *CEVCSuite) Test_ChargePlanConstaints() {
+func (s *CemCEVCSuite) Test_ChargePlanConstaints() {
 	_, err := s.sut.ChargePlanConstraints(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 
@@ -79,7 +79,7 @@ func (s *CEVCSuite) Test_ChargePlanConstaints() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *CEVCSuite) Test_ChargePlan() {
+func (s *CemCEVCSuite) Test_ChargePlan() {
 	_, err := s.sut.ChargePlan(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 

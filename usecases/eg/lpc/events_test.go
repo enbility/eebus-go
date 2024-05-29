@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *LPCSuite) Test_Events() {
+func (s *EgLPCSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -39,13 +39,13 @@ func (s *LPCSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *LPCSuite) Test_Failures() {
+func (s *EgLPCSuite) Test_Failures() {
 	s.sut.connected(s.mockRemoteEntity)
 
 	s.sut.configurationDescriptionDataUpdate(s.mockRemoteEntity)
 }
 
-func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
+func (s *EgLPCSuite) Test_loadControlLimitDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -97,7 +97,7 @@ func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *LPCSuite) Test_configurationDataUpdate() {
+func (s *EgLPCSuite) Test_configurationDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,

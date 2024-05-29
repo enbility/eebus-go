@@ -53,14 +53,31 @@ func (l *LoadControl) RequestLimitData() (*model.MsgCounterType, error) {
 
 // write load control limits
 // returns an error if this failed
-func (l *LoadControl) WriteLimitData(data []model.LoadControlLimitDataType) (*model.MsgCounterType, error) {
+func (l *LoadControl) WriteLimitData(
+	data []model.LoadControlLimitDataType,
+	deleteSelectors *model.LoadControlLimitListDataSelectorsType,
+	deleteElements *model.LoadControlLimitDataElementsType,
+) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
 		return nil, api.ErrMissingData
 	}
 
+	var filters []model.FilterType
+	if deleteElements != nil && deleteSelectors != nil {
+		delFilter := model.FilterType{
+			CmdControl: &model.CmdControlType{
+				Delete: &model.ElementTagType{},
+			},
+			LoadControlLimitListDataSelectors: deleteSelectors,
+			LoadControlLimitDataElements:      deleteElements,
+		}
+		filters = append(filters, delFilter)
+	}
+	filters = append(filters, *model.NewFilterTypePartial())
+
 	cmd := model.CmdType{
 		Function: util.Ptr(model.FunctionTypeLoadControlLimitListData),
-		Filter:   []model.FilterType{*model.NewFilterTypePartial()},
+		Filter:   filters,
 		LoadControlLimitListData: &model.LoadControlLimitListDataType{
 			LoadControlLimitData: data,
 		},

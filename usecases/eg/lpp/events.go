@@ -45,6 +45,10 @@ func (e *EgLPP) connected(entity spineapi.EntityRemoteInterface) {
 			logging.Log().Debug(err)
 		}
 
+		if _, err := loadControl.Bind(); err != nil {
+			logging.Log().Debug(err)
+		}
+
 		// get descriptions
 		if _, err := loadControl.RequestLimitDescriptions(); err != nil {
 			logging.Log().Debug(err)

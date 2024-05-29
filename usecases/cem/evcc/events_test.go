@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *EVCCSuite) Test_Events() {
+func (s *CemEVCCSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -57,7 +57,7 @@ func (s *EVCCSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *EVCCSuite) Test_Failures() {
+func (s *CemEVCCSuite) Test_Failures() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -68,7 +68,7 @@ func (s *EVCCSuite) Test_Failures() {
 	s.sut.evElectricalParamerDescriptionUpdate(s.mockRemoteEntity)
 }
 
-func (s *EVCCSuite) Test_evConfigurationDataUpdate() {
+func (s *CemEVCCSuite) Test_evConfigurationDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -137,7 +137,7 @@ func (s *EVCCSuite) Test_evConfigurationDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *EVCCSuite) Test_evOperatingStateDataUpdate() {
+func (s *CemEVCCSuite) Test_evOperatingStateDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -162,7 +162,7 @@ func (s *EVCCSuite) Test_evOperatingStateDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *EVCCSuite) Test_evIdentificationDataUpdate() {
+func (s *CemEVCCSuite) Test_evIdentificationDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -194,7 +194,7 @@ func (s *EVCCSuite) Test_evIdentificationDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *EVCCSuite) Test_evManufacturerDataUpdate() {
+func (s *CemEVCCSuite) Test_evManufacturerDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -219,7 +219,7 @@ func (s *EVCCSuite) Test_evManufacturerDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *EVCCSuite) Test_evElectricalPermittedValuesUpdate() {
+func (s *CemEVCCSuite) Test_evElectricalPermittedValuesUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *VAPDSuite) Test_Events() {
+func (s *CemVAPDSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -39,7 +39,7 @@ func (s *VAPDSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *VAPDSuite) Test_Failures() {
+func (s *CemVAPDSuite) Test_Failures() {
 	s.sut.inverterConnected(s.mockRemoteEntity)
 
 	s.sut.inverterConfigurationDescriptionDataUpdate(s.mockRemoteEntity)
@@ -47,7 +47,7 @@ func (s *VAPDSuite) Test_Failures() {
 	s.sut.inverterMeasurementDescriptionDataUpdate(s.mockRemoteEntity)
 }
 
-func (s *VAPDSuite) Test_inverterConfigurationDataUpdate() {
+func (s *CemVAPDSuite) Test_inverterConfigurationDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -90,7 +90,7 @@ func (s *VAPDSuite) Test_inverterConfigurationDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *VAPDSuite) Test_inverterMeasurementDataUpdate() {
+func (s *CemVAPDSuite) Test_inverterMeasurementDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
