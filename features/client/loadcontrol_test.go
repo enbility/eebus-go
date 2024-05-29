@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"testing"
+	"time"
 
 	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
@@ -77,12 +78,12 @@ func (s *LoadControlSuite) Test_RequestLimits() {
 }
 
 func (s *LoadControlSuite) Test_WriteLimitValues() {
-	counter, err := s.loadControl.WriteLimitData(nil)
+	counter, err := s.loadControl.WriteLimitData(nil, nil, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), counter)
 
 	data := []model.LoadControlLimitDataType{}
-	counter, err = s.loadControl.WriteLimitData(data)
+	counter, err = s.loadControl.WriteLimitData(data, nil, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), counter)
 
@@ -90,9 +91,22 @@ func (s *LoadControlSuite) Test_WriteLimitValues() {
 		{
 			LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
 			Value:   model.NewScaledNumberType(10),
+			TimePeriod: &model.TimePeriodType{
+				EndTime: model.NewAbsoluteOrRelativeTimeTypeFromDuration(time.Minute * 5),
+			},
 		},
 	}
-	counter, err = s.loadControl.WriteLimitData(data)
+	counter, err = s.loadControl.WriteLimitData(data, nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	deleteSelectors := &model.LoadControlLimitListDataSelectorsType{
+		LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+	}
+	deleteElements := &model.LoadControlLimitDataElementsType{
+		TimePeriod: &model.TimePeriodElementsType{},
+	}
+	counter, err = s.loadControl.WriteLimitData(data, deleteSelectors, deleteElements)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
