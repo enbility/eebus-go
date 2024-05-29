@@ -10,7 +10,7 @@ import (
 )
 
 // handle SPINE events
-func (e *OPEV) HandleEvent(payload spineapi.EventPayload) {
+func (e *CemOPEV) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EV entity or device changes for this remote device
 
 	if !e.IsCompatibleEntity(payload.Entity) {
@@ -38,7 +38,7 @@ func (e *OPEV) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // an EV was connected
-func (e *OPEV) evConnected(entity spineapi.EntityRemoteInterface) {
+func (e *CemOPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evLoadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		if _, err := evLoadControl.Subscribe(); err != nil {
@@ -62,7 +62,7 @@ func (e *OPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the load control limit description data of an EV was updated
-func (e *OPEV) evLoadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *CemOPEV) evLoadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if evLoadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		// get values
 		if _, err := evLoadControl.RequestLimitData(); err != nil {
@@ -72,7 +72,7 @@ func (e *OPEV) evLoadControlLimitDescriptionDataUpdate(entity spineapi.EntityRem
 }
 
 // the load control limit data of an EV was updated
-func (e *OPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
+func (e *CemOPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity)
 	if err != nil {
 		return
@@ -89,7 +89,7 @@ func (e *OPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the electrical connection permitted value sets data of an EV was updated
-func (e *OPEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
+func (e *CemOPEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
 	if ec, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			AcMeasuredPhases: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),

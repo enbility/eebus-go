@@ -8,7 +8,7 @@ import (
 )
 
 // handle SPINE events
-func (e *OSCEV) HandleEvent(payload spineapi.EventPayload) {
+func (e *CemOSCEV) HandleEvent(payload spineapi.EventPayload) {
 	// most of the events are identical to OPEV, and OPEV is required to be used,
 	// we don't handle the same events in here
 
@@ -30,7 +30,7 @@ func (e *OSCEV) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // the load control limit data of an EV was updated
-func (e *OSCEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
+func (e *CemOSCEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity)
 	if err != nil {
 		return
@@ -48,7 +48,7 @@ func (e *OSCEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the electrical connection permitted value sets data of an EV was updated
-func (e *OSCEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
+func (e *CemOSCEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
 	if ec, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			AcMeasuredPhases: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),

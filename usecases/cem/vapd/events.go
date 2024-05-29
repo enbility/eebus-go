@@ -10,7 +10,7 @@ import (
 )
 
 // handle SPINE events
-func (e *VAPD) HandleEvent(payload spineapi.EventPayload) {
+func (e *CemVAPD) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an SGMW entity or device changes for this remote device
 
 	if !e.IsCompatibleEntity(payload.Entity) {
@@ -40,7 +40,7 @@ func (e *VAPD) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // process required steps when a grid device is connected
-func (e *VAPD) inverterConnected(entity spineapi.EntityRemoteInterface) {
+func (e *CemVAPD) inverterConnected(entity spineapi.EntityRemoteInterface) {
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		if _, err := deviceConfiguration.Subscribe(); err != nil {
 			logging.Log().Error(err)
@@ -84,7 +84,7 @@ func (e *VAPD) inverterConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the configuration key description data of an SMGW was updated
-func (e *VAPD) inverterConfigurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *CemVAPD) inverterConfigurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
 		if _, err := deviceConfiguration.RequestKeyValues(); err != nil {
@@ -94,7 +94,7 @@ func (e *VAPD) inverterConfigurationDescriptionDataUpdate(entity spineapi.Entity
 }
 
 // the measurement data of an SMGW was updated
-func (e *VAPD) inverterConfigurationDataUpdate(payload spineapi.EventPayload) {
+func (e *CemVAPD) inverterConfigurationDataUpdate(payload spineapi.EventPayload) {
 	// Scenario 1
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -108,7 +108,7 @@ func (e *VAPD) inverterConfigurationDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the measurement descriptiondata of an SMGW was updated
-func (e *VAPD) inverterMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *CemVAPD) inverterMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if measurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		// measurement descriptions received, now get the data
 		if _, err := measurement.RequestData(); err != nil {
@@ -118,7 +118,7 @@ func (e *VAPD) inverterMeasurementDescriptionDataUpdate(entity spineapi.EntityRe
 }
 
 // the measurement data of an SMGW was updated
-func (e *VAPD) inverterMeasurementDataUpdate(payload spineapi.EventPayload) {
+func (e *CemVAPD) inverterMeasurementDataUpdate(payload spineapi.EventPayload) {
 	if measurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 2
 		filter := model.MeasurementDescriptionDataType{

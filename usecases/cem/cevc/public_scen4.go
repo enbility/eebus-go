@@ -11,7 +11,7 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-func (e *CEVC) ChargePlanConstraints(entity spineapi.EntityRemoteInterface) ([]ucapi.DurationSlotValue, error) {
+func (e *CemCEVC) ChargePlanConstraints(entity spineapi.EntityRemoteInterface) ([]ucapi.DurationSlotValue, error) {
 	constraints := []ucapi.DurationSlotValue{}
 
 	if !e.IsCompatibleEntity(entity) {
@@ -69,7 +69,7 @@ func (e *CEVC) ChargePlanConstraints(entity spineapi.EntityRemoteInterface) ([]u
 	return constraints, nil
 }
 
-func (e *CEVC) ChargePlan(entity spineapi.EntityRemoteInterface) (ucapi.ChargePlan, error) {
+func (e *CemCEVC) ChargePlan(entity spineapi.EntityRemoteInterface) (ucapi.ChargePlan, error) {
 	plan := ucapi.ChargePlan{}
 
 	if !e.IsCompatibleEntity(entity) {

@@ -11,13 +11,13 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type OSCEV struct {
+type CemOSCEV struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.CemOSCEVInterface = (*OSCEV)(nil)
+var _ ucapi.CemOSCEVInterface = (*CemOSCEV)(nil)
 
-func NewOSCEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *OSCEV {
+func NewCemOSCEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CemOSCEV {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeCompressor,
 		model.EntityTypeTypeElectricalImmersionHeater,
@@ -39,7 +39,7 @@ func NewOSCEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 		validEntityTypes,
 	)
 
-	uc := &OSCEV{
+	uc := &CemOSCEV{
 		UseCaseBase: usecase,
 	}
 
@@ -48,7 +48,7 @@ func NewOSCEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 	return uc
 }
 
-func (e *OSCEV) AddFeatures() {
+func (e *CemOSCEV) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeLoadControl,
@@ -69,7 +69,7 @@ func (e *OSCEV) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *OSCEV) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+func (e *CemOSCEV) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
 	if entity == nil || entity.EntityType() != model.EntityTypeTypeEV {
 		return false, api.ErrNoCompatibleEntity
 	}

@@ -11,13 +11,13 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type VABD struct {
+type CemVABD struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.CemVABDInterface = (*VABD)(nil)
+var _ ucapi.CemVABDInterface = (*CemVABD)(nil)
 
-func NewVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *VABD {
+func NewCemVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CemVABD {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeElectricityStorageSystem,
 	}
@@ -33,7 +33,7 @@ func NewVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		validEntityTypes,
 	)
 
-	uc := &VABD{
+	uc := &CemVABD{
 		UseCaseBase: usecase,
 	}
 
@@ -42,7 +42,7 @@ func NewVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 	return uc
 }
 
-func (e *VABD) AddFeatures() {
+func (e *CemVABD) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceConfiguration,
@@ -59,7 +59,7 @@ func (e *VABD) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *VABD) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+func (e *CemVABD) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}

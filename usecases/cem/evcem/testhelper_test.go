@@ -26,7 +26,7 @@ func TestEVCEMSuite(t *testing.T) {
 type EVCEMSuite struct {
 	suite.Suite
 
-	sut *EVCEM
+	sut *CemEVCEM
 
 	service api.ServiceInterface
 
@@ -67,7 +67,7 @@ func (s *EVCEMSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	s.sut = NewEVCEM(s.service, localEntity, s.Event)
+	s.sut = NewCemEVCEM(s.service, localEntity, s.Event)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 

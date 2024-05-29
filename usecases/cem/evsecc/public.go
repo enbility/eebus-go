@@ -10,7 +10,7 @@ import (
 
 // the manufacturer data of an EVSE
 // returns deviceName, serialNumber, error
-func (e *EVSECC) ManufacturerData(
+func (e *CemEVSECC) ManufacturerData(
 	entity spineapi.EntityRemoteInterface,
 ) (
 	api.ManufacturerData,
@@ -25,7 +25,7 @@ func (e *EVSECC) ManufacturerData(
 
 // the operating state data of an EVSE
 // returns operatingState, lastErrorCode, error
-func (e *EVSECC) OperatingState(
+func (e *CemEVSECC) OperatingState(
 	entity spineapi.EntityRemoteInterface,
 ) (
 	model.DeviceDiagnosisOperatingStateType, string, error,

@@ -10,7 +10,7 @@ import (
 )
 
 // handle SPINE events
-func (e *EVCEM) HandleEvent(payload spineapi.EventPayload) {
+func (e *CemEVCEM) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EV entity or device changes for this remote device
 
 	if !e.IsCompatibleEntity(payload.Entity) {
@@ -37,7 +37,7 @@ func (e *EVCEM) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // an EV was connected
-func (e *EVCEM) evConnected(entity spineapi.EntityRemoteInterface) {
+func (e *CemEVCEM) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 
 	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
@@ -74,7 +74,7 @@ func (e *EVCEM) evConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the electrical connection description data of an EV was updated
-func (e *EVCEM) evElectricalConnectionDescriptionDataUpdate(payload spineapi.EventPayload) {
+func (e *CemEVCEM) evElectricalConnectionDescriptionDataUpdate(payload spineapi.EventPayload) {
 	if payload.Data == nil {
 		return
 	}
@@ -93,7 +93,7 @@ func (e *EVCEM) evElectricalConnectionDescriptionDataUpdate(payload spineapi.Eve
 }
 
 // the measurement description data of an EV was updated
-func (e *EVCEM) evMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *CemEVCEM) evMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		// get measurement values
 		if _, err := evMeasurement.RequestData(); err != nil {
@@ -103,7 +103,7 @@ func (e *EVCEM) evMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteI
 }
 
 // the measurement data of an EV was updated
-func (e *EVCEM) evMeasurementDataUpdate(payload spineapi.EventPayload) {
+func (e *CemEVCEM) evMeasurementDataUpdate(payload spineapi.EventPayload) {
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 1
 		filter := model.MeasurementDescriptionDataType{

@@ -10,7 +10,7 @@ import (
 )
 
 // handle SPINE events
-func (e *EVSOC) HandleEvent(payload spineapi.EventPayload) {
+func (e *CemEVSOC) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EV entity or device changes for this remote device
 
 	if !e.IsCompatibleEntity(payload.Entity) {
@@ -36,7 +36,7 @@ func (e *EVSOC) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // an EV was connected
-func (e *EVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
+func (e *CemEVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		if _, err := evMeasurement.Subscribe(); err != nil {
@@ -56,7 +56,7 @@ func (e *EVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the measurement data of an EV was updated
-func (e *EVSOC) evMeasurementDataUpdate(payload spineapi.EventPayload) {
+func (e *CemEVSOC) evMeasurementDataUpdate(payload spineapi.EventPayload) {
 	// Scenario 1
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.MeasurementDescriptionDataType{

@@ -9,19 +9,19 @@ import (
 	"github.com/enbility/spine-go/spine"
 )
 
-type EVCC struct {
+type CemEVCC struct {
 	*usecase.UseCaseBase
 
 	service api.ServiceInterface
 }
 
-var _ ucapi.CemEVCCInterface = (*EVCC)(nil)
+var _ ucapi.CemEVCCInterface = (*CemEVCC)(nil)
 
-func NewEVCC(
+func NewCemEVCC(
 	service api.ServiceInterface,
 	localEntity spineapi.EntityLocalInterface,
 	eventCB api.EntityEventCallback,
-) *EVCC {
+) *CemEVCC {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEV,
 	}
@@ -37,7 +37,7 @@ func NewEVCC(
 		validEntityTypes,
 	)
 
-	uc := &EVCC{
+	uc := &CemEVCC{
 		UseCaseBase: usecase,
 		service:     service,
 	}
@@ -47,7 +47,7 @@ func NewEVCC(
 	return uc
 }
 
-func (e *EVCC) AddFeatures() {
+func (e *CemEVCC) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceConfiguration,
@@ -67,7 +67,7 @@ func (e *EVCC) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *EVCC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+func (e *CemEVCC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}

@@ -11,7 +11,7 @@ import (
 )
 
 // return the current charge state of the EV
-func (e *EVCC) ChargeState(entity spineapi.EntityRemoteInterface) (ucapi.EVChargeStateType, error) {
+func (e *CemEVCC) ChargeState(entity spineapi.EntityRemoteInterface) (ucapi.EVChargeStateType, error) {
 	if entity == nil || entity.EntityType() != model.EntityTypeTypeEV {
 		return ucapi.EVChargeStateTypeUnplugged, nil
 	}
@@ -49,7 +49,7 @@ func (e *EVCC) ChargeState(entity spineapi.EntityRemoteInterface) (ucapi.EVCharg
 //
 // this includes all required features and
 // minimal data being available
-func (e *EVCC) EVConnected(entity spineapi.EntityRemoteInterface) bool {
+func (e *CemEVCC) EVConnected(entity spineapi.EntityRemoteInterface) bool {
 	if entity == nil || entity.Device() == nil {
 		return false
 	}
@@ -68,7 +68,7 @@ func (e *EVCC) EVConnected(entity spineapi.EntityRemoteInterface) bool {
 	return remoteDevice.Entity(entity.Address().Entity) == entity
 }
 
-func (e *EVCC) deviceConfigurationValueForKeyName(
+func (e *CemEVCC) deviceConfigurationValueForKeyName(
 	entity spineapi.EntityRemoteInterface,
 	keyname model.DeviceConfigurationKeyNameType,
 	valueType model.DeviceConfigurationKeyValueTypeType) (*model.DeviceConfigurationKeyValueDataType, error) {
@@ -116,7 +116,7 @@ func (e *EVCC) deviceConfigurationValueForKeyName(
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *EVCC) CommunicationStandard(entity spineapi.EntityRemoteInterface) (model.DeviceConfigurationKeyValueStringType, error) {
+func (e *CemEVCC) CommunicationStandard(entity spineapi.EntityRemoteInterface) (model.DeviceConfigurationKeyValueStringType, error) {
 	unknown := UCEVCCCommunicationStandardUnknown
 
 	if !e.IsCompatibleEntity(entity) {
@@ -135,7 +135,7 @@ func (e *EVCC) CommunicationStandard(entity spineapi.EntityRemoteInterface) (mod
 //
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
-func (e *EVCC) AsymmetricChargingSupport(entity spineapi.EntityRemoteInterface) (bool, error) {
+func (e *CemEVCC) AsymmetricChargingSupport(entity spineapi.EntityRemoteInterface) (bool, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
@@ -153,7 +153,7 @@ func (e *EVCC) AsymmetricChargingSupport(entity spineapi.EntityRemoteInterface) 
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *EVCC) Identifications(entity spineapi.EntityRemoteInterface) ([]ucapi.IdentificationItem, error) {
+func (e *CemEVCC) Identifications(entity spineapi.EntityRemoteInterface) ([]ucapi.IdentificationItem, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -190,7 +190,7 @@ func (e *EVCC) Identifications(entity spineapi.EntityRemoteInterface) ([]ucapi.I
 
 // the manufacturer data of an EVSE
 // returns deviceName, serialNumber, error
-func (e *EVCC) ManufacturerData(
+func (e *CemEVCC) ManufacturerData(
 	entity spineapi.EntityRemoteInterface,
 ) (
 	api.ManufacturerData,
@@ -208,7 +208,7 @@ func (e *EVCC) ManufacturerData(
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *EVCC) ChargingPowerLimits(entity spineapi.EntityRemoteInterface) (float64, float64, float64, error) {
+func (e *CemEVCC) ChargingPowerLimits(entity spineapi.EntityRemoteInterface) (float64, float64, float64, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return 0.0, 0.0, 0.0, api.ErrNoCompatibleEntity
 	}
@@ -254,7 +254,7 @@ func (e *EVCC) ChargingPowerLimits(entity spineapi.EntityRemoteInterface) (float
 
 // is the EV in sleep mode
 // returns operatingState, lastErrorCode, error
-func (e *EVCC) IsInSleepMode(
+func (e *CemEVCC) IsInSleepMode(
 	entity spineapi.EntityRemoteInterface,
 ) (bool, error) {
 	if !e.IsCompatibleEntity(entity) {

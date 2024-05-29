@@ -15,7 +15,7 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *OPEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64, []float64, []float64, error) {
+func (e *CemOPEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64, []float64, []float64, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return nil, nil, nil, api.ErrNoCompatibleEntity
 	}
@@ -39,7 +39,7 @@ func (e *OPEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64, 
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (e *OPEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
+func (e *CemOPEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 	limits []ucapi.LoadLimitsPhase, resultErr error) {
 	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
@@ -71,7 +71,7 @@ func (e *OPEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 // In ISO15118-2 the usecase is only supported via VAS extensions which are vendor specific
 // and needs to have specific EVSE support for the specific EV brand.
 // In ISO15118-20 this is a standard feature which does not need special support on the EVSE.
-func (e *OPEV) WriteLoadControlLimits(entity spineapi.EntityRemoteInterface, limits []ucapi.LoadLimitsPhase) (*model.MsgCounterType, error) {
+func (e *CemOPEV) WriteLoadControlLimits(entity spineapi.EntityRemoteInterface, limits []ucapi.LoadLimitsPhase) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}

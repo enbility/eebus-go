@@ -9,13 +9,13 @@ import (
 	"github.com/enbility/spine-go/spine"
 )
 
-type EVSECC struct {
+type CemEVSECC struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.CemEVSECCInterface = (*EVSECC)(nil)
+var _ ucapi.CemEVSECCInterface = (*CemEVSECC)(nil)
 
-func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVSECC {
+func NewCemEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CemEVSECC {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEVSE,
 	}
@@ -30,7 +30,7 @@ func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEven
 		eventCB,
 		validEntityTypes)
 
-	uc := &EVSECC{
+	uc := &CemEVSECC{
 		UseCaseBase: usecase,
 	}
 
@@ -39,7 +39,7 @@ func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEven
 	return uc
 }
 
-func (e *EVSECC) AddFeatures() {
+func (e *CemEVSECC) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceClassification,
@@ -56,7 +56,7 @@ func (e *EVSECC) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *EVSECC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+func (e *CemEVSECC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}

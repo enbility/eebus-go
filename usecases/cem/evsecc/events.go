@@ -8,7 +8,7 @@ import (
 )
 
 // handle SPINE events
-func (e *EVSECC) HandleEvent(payload spineapi.EventPayload) {
+func (e *CemEVSECC) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EVSE entity or device changes for this remote device
 
 	if !e.IsCompatibleEntity(payload.Entity) {
@@ -37,7 +37,7 @@ func (e *EVSECC) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // an EVSE was connected
-func (e *EVSECC) evseConnected(payload spineapi.EventPayload) {
+func (e *CemEVSECC) evseConnected(payload spineapi.EventPayload) {
 	if evseDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
 		_, _ = evseDeviceClassification.RequestManufacturerDetails()
 	}
@@ -50,12 +50,12 @@ func (e *EVSECC) evseConnected(payload spineapi.EventPayload) {
 }
 
 // an EVSE was disconnected
-func (e *EVSECC) evseDisconnected(payload spineapi.EventPayload) {
+func (e *CemEVSECC) evseDisconnected(payload spineapi.EventPayload) {
 	e.EventCB(payload.Ski, payload.Device, payload.Entity, EvseDisconnected)
 }
 
 // the manufacturer Data of an EVSE was updated
-func (e *EVSECC) evseManufacturerDataUpdate(payload spineapi.EventPayload) {
+func (e *CemEVSECC) evseManufacturerDataUpdate(payload spineapi.EventPayload) {
 	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
 		if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateManufacturerData)
@@ -64,7 +64,7 @@ func (e *EVSECC) evseManufacturerDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the operating State of an EVSE was updated
-func (e *EVSECC) evseStateUpdate(payload spineapi.EventPayload) {
+func (e *CemEVSECC) evseStateUpdate(payload spineapi.EventPayload) {
 	if evDeviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
 		if _, err := evDeviceDiagnosis.GetState(); err == nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateOperatingState)
