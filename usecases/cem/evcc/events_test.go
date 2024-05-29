@@ -75,11 +75,11 @@ func (s *EVCCSuite) Test_evConfigurationDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evConfigurationDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evConfigurationDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -99,7 +99,7 @@ func (s *EVCCSuite) Test_evConfigurationDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evConfigurationDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{},
@@ -108,7 +108,7 @@ func (s *EVCCSuite) Test_evConfigurationDataUpdate() {
 	payload.Data = data
 
 	s.sut.evConfigurationDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	data = &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
@@ -134,7 +134,7 @@ func (s *EVCCSuite) Test_evConfigurationDataUpdate() {
 	payload.Data = data
 
 	s.sut.evConfigurationDataUpdate(payload)
-	assert.True(s.T(), s.eventCBInvoked)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *EVCCSuite) Test_evOperatingStateDataUpdate() {
@@ -144,11 +144,11 @@ func (s *EVCCSuite) Test_evOperatingStateDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evOperatingStateDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evOperatingStateDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceDiagnosisStateDataType{
 		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
@@ -159,7 +159,7 @@ func (s *EVCCSuite) Test_evOperatingStateDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evOperatingStateDataUpdate(payload)
-	assert.True(s.T(), s.eventCBInvoked)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *EVCCSuite) Test_evIdentificationDataUpdate() {
@@ -169,11 +169,11 @@ func (s *EVCCSuite) Test_evIdentificationDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evIdentificationDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evIdentificationDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.IdentificationListDataType{
 		IdentificationData: []model.IdentificationDataType{
@@ -191,7 +191,7 @@ func (s *EVCCSuite) Test_evIdentificationDataUpdate() {
 
 	payload.Data = data
 	s.sut.evIdentificationDataUpdate(payload)
-	assert.True(s.T(), s.eventCBInvoked)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *EVCCSuite) Test_evManufacturerDataUpdate() {
@@ -201,11 +201,11 @@ func (s *EVCCSuite) Test_evManufacturerDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evManufacturerDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evManufacturerDataUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceClassificationManufacturerDataType{
 		BrandName: util.Ptr(model.DeviceClassificationStringType("test")),
@@ -216,7 +216,7 @@ func (s *EVCCSuite) Test_evManufacturerDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evManufacturerDataUpdate(payload)
-	assert.True(s.T(), s.eventCBInvoked)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *EVCCSuite) Test_evElectricalPermittedValuesUpdate() {
@@ -226,11 +226,11 @@ func (s *EVCCSuite) Test_evElectricalPermittedValuesUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evElectricalPermittedValuesUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evElectricalPermittedValuesUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -247,7 +247,7 @@ func (s *EVCCSuite) Test_evElectricalPermittedValuesUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evElectricalPermittedValuesUpdate(payload)
-	assert.False(s.T(), s.eventCBInvoked)
+	assert.False(s.T(), s.eventCalled)
 
 	permData := &model.ElectricalConnectionPermittedValueSetListDataType{
 		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
@@ -271,5 +271,5 @@ func (s *EVCCSuite) Test_evElectricalPermittedValuesUpdate() {
 
 	payload.Data = permData
 	s.sut.evElectricalPermittedValuesUpdate(payload)
-	assert.True(s.T(), s.eventCBInvoked)
+	assert.True(s.T(), s.eventCalled)
 }

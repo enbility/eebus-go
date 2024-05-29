@@ -34,14 +34,15 @@ type EVCCSuite struct {
 	mockRemoteEntity *spinemocks.EntityRemoteInterface
 	evEntity         spineapi.EntityRemoteInterface
 
-	eventCBInvoked bool
+	eventCalled bool
 }
 
 func (s *EVCCSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
-	s.eventCBInvoked = true
+	s.eventCalled = true
 }
 
 func (s *EVCCSuite) BeforeTest(suiteName, testName string) {
+	s.eventCalled = false
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(
 		"test", "test", "test", "test",
@@ -67,8 +68,6 @@ func (s *EVCCSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().DataCopy(mock.Anything).Return(mock.Anything).Maybe()
 	mockRemoteFeature.EXPECT().Address().Return(&model.FeatureAddressType{}).Maybe()
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
-
-	s.eventCBInvoked = false
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewEVCC(s.service, localEntity, s.Event)

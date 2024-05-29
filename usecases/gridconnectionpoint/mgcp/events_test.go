@@ -51,12 +51,14 @@ func (s *MGCPSuite) Test_gridConfigurationDataUpdate() {
 		Entity: s.smgwEntity,
 	}
 	s.sut.gridConfigurationDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(0)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
 			},
 		},
 	}
@@ -64,6 +66,9 @@ func (s *MGCPSuite) Test_gridConfigurationDataUpdate() {
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
 	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
+
+	s.sut.gridConfigurationDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	keyData := &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
@@ -76,10 +81,10 @@ func (s *MGCPSuite) Test_gridConfigurationDataUpdate() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
-	assert.Nil(s.T(), fErr)
+	payload.Data = keyData
 
 	s.sut.gridConfigurationDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *MGCPSuite) Test_gridMeasurementDataUpdate() {
@@ -89,6 +94,7 @@ func (s *MGCPSuite) Test_gridMeasurementDataUpdate() {
 		Entity: s.smgwEntity,
 	}
 	s.sut.gridMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -124,6 +130,7 @@ func (s *MGCPSuite) Test_gridMeasurementDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.gridMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
@@ -157,4 +164,5 @@ func (s *MGCPSuite) Test_gridMeasurementDataUpdate() {
 	payload.Data = data
 
 	s.sut.gridMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

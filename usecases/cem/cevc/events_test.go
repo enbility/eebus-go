@@ -68,9 +68,11 @@ func (s *CEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	timeDesc := &model.TimeSeriesDescriptionListDataType{
 		TimeSeriesDescriptionData: []model.TimeSeriesDescriptionDataType{
@@ -91,6 +93,7 @@ func (s *CEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	timeData := &model.TimeSeriesListDataType{
 		TimeSeriesData: []model.TimeSeriesDataType{
@@ -123,6 +126,8 @@ func (s *CEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 	assert.Equal(s.T(), 0.0, demand.DurationUntilEnd)
 
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
+	s.eventCalled = false
 
 	constData := &model.TimeSeriesConstraintsListDataType{
 		TimeSeriesConstraintsData: []model.TimeSeriesConstraintsDataType{
@@ -141,6 +146,8 @@ func (s *CEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
+	s.eventCalled = false
 
 	incConstData := &model.IncentiveTableConstraintsDataType{
 		IncentiveTableConstraints: []model.IncentiveTableConstraintsType{
@@ -158,4 +165,5 @@ func (s *CEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

@@ -33,12 +33,16 @@ type MGCPSuite struct {
 	remoteDevice     spineapi.DeviceRemoteInterface
 	mockRemoteEntity *spinemocks.EntityRemoteInterface
 	smgwEntity       spineapi.EntityRemoteInterface
+
+	eventCalled bool
 }
 
 func (s *MGCPSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+	s.eventCalled = true
 }
 
 func (s *MGCPSuite) BeforeTest(suiteName, testName string) {
+	s.eventCalled = false
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(
 		"test", "test", "test", "test",

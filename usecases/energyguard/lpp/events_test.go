@@ -52,6 +52,7 @@ func (s *LPPSuite) Test_loadControlLimitDataUpdate() {
 		Entity: s.monitoredEntity,
 	}
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
@@ -70,6 +71,7 @@ func (s *LPPSuite) Test_loadControlLimitDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{},
@@ -78,6 +80,7 @@ func (s *LPPSuite) Test_loadControlLimitDataUpdate() {
 	payload.Data = data
 
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data = &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{
@@ -91,6 +94,7 @@ func (s *LPPSuite) Test_loadControlLimitDataUpdate() {
 	payload.Data = data
 
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *LPPSuite) Test_configurationDataUpdate() {
@@ -100,6 +104,7 @@ func (s *LPPSuite) Test_configurationDataUpdate() {
 		Entity: s.monitoredEntity,
 	}
 	s.sut.configurationDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -119,6 +124,7 @@ func (s *LPPSuite) Test_configurationDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.configurationDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{},
@@ -127,6 +133,7 @@ func (s *LPPSuite) Test_configurationDataUpdate() {
 	payload.Data = data
 
 	s.sut.configurationDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data = &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
@@ -144,4 +151,5 @@ func (s *LPPSuite) Test_configurationDataUpdate() {
 	payload.Data = data
 
 	s.sut.configurationDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

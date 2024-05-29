@@ -33,12 +33,16 @@ type EVSECCSuite struct {
 	remoteDevice     spineapi.DeviceRemoteInterface
 	mockRemoteEntity *spinemocks.EntityRemoteInterface
 	evseEntity       spineapi.EntityRemoteInterface
+
+	eventCalled bool
 }
 
 func (s *EVSECCSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+	s.eventCalled = true
 }
 
 func (s *EVSECCSuite) BeforeTest(suiteName, testName string) {
+	s.eventCalled = false
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(
 		"test", "test", "test", "test",

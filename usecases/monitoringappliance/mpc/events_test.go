@@ -46,6 +46,7 @@ func (s *MPCSuite) Test_deviceMeasurementDataUpdate() {
 		Entity: s.monitoredEntity,
 	}
 	s.sut.deviceMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -85,6 +86,7 @@ func (s *MPCSuite) Test_deviceMeasurementDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.deviceMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
@@ -122,4 +124,5 @@ func (s *MPCSuite) Test_deviceMeasurementDataUpdate() {
 	payload.Data = data
 
 	s.sut.deviceMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

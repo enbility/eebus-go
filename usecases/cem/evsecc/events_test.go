@@ -48,9 +48,11 @@ func (s *EVSECCSuite) Test_evseManufacturerDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evseManufacturerDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evseEntity
 	s.sut.evseManufacturerDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceClassificationManufacturerDataType{
 		BrandName: util.Ptr(model.DeviceClassificationStringType("test")),
@@ -61,6 +63,7 @@ func (s *EVSECCSuite) Test_evseManufacturerDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evseManufacturerDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *EVSECCSuite) Test_evseStateUpdate() {
@@ -70,9 +73,11 @@ func (s *EVSECCSuite) Test_evseStateUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evseStateUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evseEntity
 	s.sut.evseStateUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceDiagnosisStateDataType{
 		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
@@ -83,4 +88,5 @@ func (s *EVSECCSuite) Test_evseStateUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evseStateUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

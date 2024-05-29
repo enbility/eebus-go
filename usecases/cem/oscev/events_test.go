@@ -40,9 +40,11 @@ func (s *OSCEVSuite) Test_evElectricalPermittedValuesUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evElectricalPermittedValuesUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evElectricalPermittedValuesUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -72,6 +74,7 @@ func (s *OSCEVSuite) Test_evElectricalPermittedValuesUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evElectricalPermittedValuesUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.ElectricalConnectionPermittedValueSetListDataType{
 		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
@@ -103,10 +106,10 @@ func (s *OSCEVSuite) Test_evElectricalPermittedValuesUpdate() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, data, nil, nil)
-	assert.Nil(s.T(), fErr)
+	payload.Data = data
 
 	s.sut.evElectricalPermittedValuesUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *OSCEVSuite) Test_evLoadControlLimitDataUpdate() {
@@ -116,9 +119,11 @@ func (s *OSCEVSuite) Test_evLoadControlLimitDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evLoadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evLoadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
@@ -136,6 +141,7 @@ func (s *OSCEVSuite) Test_evLoadControlLimitDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evLoadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{},
@@ -144,6 +150,7 @@ func (s *OSCEVSuite) Test_evLoadControlLimitDataUpdate() {
 	payload.Data = data
 
 	s.sut.evLoadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data = &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{
@@ -157,4 +164,5 @@ func (s *OSCEVSuite) Test_evLoadControlLimitDataUpdate() {
 	payload.Data = data
 
 	s.sut.evLoadControlLimitDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

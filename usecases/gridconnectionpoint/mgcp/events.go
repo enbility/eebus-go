@@ -95,8 +95,13 @@ func (e *MGCP) gridConfigurationDescriptionDataUpdate(entity spineapi.EntityRemo
 
 // the configuration key data of an SMGW was updated
 func (e *MGCP) gridConfigurationDataUpdate(payload spineapi.EventPayload) {
-	if _, err := e.PowerLimitationFactor(payload.Entity); err == nil {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerLimitationFactor)
+	if dc, err := client.NewDeviceConfiguration(e.LocalEntity, payload.Entity); err == nil {
+		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
+			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
+		}
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerLimitationFactor)
+		}
 	}
 }
 

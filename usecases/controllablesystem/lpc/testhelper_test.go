@@ -37,14 +37,15 @@ type LPCSuite struct {
 	deviceDiagnosisFeature,
 	deviceConfigurationFeature spineapi.FeatureLocalInterface
 
-	eventSent bool
+	eventCalled bool
 }
 
 func (s *LPCSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
-	s.eventSent = true
+	s.eventCalled = true
 }
 
 func (s *LPCSuite) BeforeTest(suiteName, testName string) {
+	s.eventCalled = false
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(
 		"test", "test", "test", "test",

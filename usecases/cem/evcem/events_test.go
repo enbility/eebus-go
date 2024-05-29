@@ -49,6 +49,7 @@ func (s *EVCEMSuite) Test_evElectricalConnectionDescriptionDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evElectricalConnectionDescriptionDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	payload.Data = s.evEntity
@@ -61,6 +62,7 @@ func (s *EVCEMSuite) Test_evElectricalConnectionDescriptionDataUpdate() {
 	payload.Data = descData
 
 	s.sut.evElectricalConnectionDescriptionDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData = &model.ElectricalConnectionDescriptionListDataType{
 		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
@@ -74,6 +76,7 @@ func (s *EVCEMSuite) Test_evElectricalConnectionDescriptionDataUpdate() {
 	payload.Data = descData
 
 	s.sut.evElectricalConnectionDescriptionDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *EVCEMSuite) Test_evMeasurementDataUpdate() {
@@ -83,9 +86,11 @@ func (s *EVCEMSuite) Test_evMeasurementDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -109,6 +114,7 @@ func (s *EVCEMSuite) Test_evMeasurementDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
@@ -129,4 +135,5 @@ func (s *EVCEMSuite) Test_evMeasurementDataUpdate() {
 	payload.Data = data
 
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

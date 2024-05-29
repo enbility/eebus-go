@@ -54,6 +54,7 @@ func (s *VAPDSuite) Test_inverterConfigurationDataUpdate() {
 		Entity: s.pvEntity,
 	}
 	s.sut.inverterConfigurationDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -70,6 +71,7 @@ func (s *VAPDSuite) Test_inverterConfigurationDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.inverterConfigurationDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
@@ -82,10 +84,10 @@ func (s *VAPDSuite) Test_inverterConfigurationDataUpdate() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, data, nil, nil)
-	assert.Nil(s.T(), fErr)
+	payload.Data = data
 
 	s.sut.inverterConfigurationDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *VAPDSuite) Test_inverterMeasurementDataUpdate() {
@@ -95,6 +97,7 @@ func (s *VAPDSuite) Test_inverterMeasurementDataUpdate() {
 		Entity: s.pvEntity,
 	}
 	s.sut.inverterMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -114,8 +117,10 @@ func (s *VAPDSuite) Test_inverterMeasurementDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.inverterMeasurementDescriptionDataUpdate(payload.Entity)
+	assert.False(s.T(), s.eventCalled)
 
 	s.sut.inverterMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
@@ -133,4 +138,5 @@ func (s *VAPDSuite) Test_inverterMeasurementDataUpdate() {
 	payload.Data = data
 
 	s.sut.inverterMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

@@ -90,11 +90,11 @@ func (e *OPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 
 // the electrical connection permitted value sets data of an EV was updated
 func (e *OPEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
-	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
+	if ec, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			AcMeasuredPhases: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
 		}
-		data, err := evElectricalConnection.GetParameterDescriptionsForFilter(filter)
+		data, err := ec.GetParameterDescriptionsForFilter(filter)
 		if err != nil || len(data) == 0 || data[0].ParameterId == nil {
 			return
 		}
@@ -102,11 +102,18 @@ func (e *OPEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) 
 		filter = model.ElectricalConnectionParameterDescriptionDataType{
 			ParameterId: data[0].ParameterId,
 		}
-		if values, err := evElectricalConnection.GetParameterDescriptionsForFilter(filter); err != nil || values == nil {
+		values, err := ec.GetParameterDescriptionsForFilter(filter)
+		if err != nil || values == nil {
 			return
 		}
 
 		// Scenario 6
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentLimits)
+		filter1 := model.ElectricalConnectionParameterDescriptionDataType{
+			ElectricalConnectionId: values[0].ElectricalConnectionId,
+			ParameterId:            values[0].ParameterId,
+		}
+		if ec.CheckEventPayloadDataForFilter(payload.Data, filter1) {
+			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentLimits)
+		}
 	}
 }

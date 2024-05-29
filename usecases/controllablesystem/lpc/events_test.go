@@ -223,6 +223,7 @@ func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
 		Entity: s.monitoredEntity,
 	}
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
@@ -240,6 +241,7 @@ func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
 	lFeature.SetData(model.FunctionTypeLoadControlLimitDescriptionListData, descData)
 
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{},
@@ -248,6 +250,7 @@ func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
 	payload.Data = data
 
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data = &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{
@@ -261,6 +264,7 @@ func (s *LPCSuite) Test_loadControlLimitDataUpdate() {
 	payload.Data = data
 
 	s.sut.loadControlLimitDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *LPCSuite) Test_configurationDataUpdate() {
@@ -275,9 +279,8 @@ func (s *LPCSuite) Test_configurationDataUpdate() {
 		LocalFeature: lFeature,
 	}
 
-	s.eventSent = false
 	s.sut.configurationDataUpdate(payload)
-	assert.False(s.T(), s.eventSent)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -294,9 +297,9 @@ func (s *LPCSuite) Test_configurationDataUpdate() {
 
 	lFeature.SetData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData)
 
-	s.eventSent = false
+	s.eventCalled = false
 	s.sut.configurationDataUpdate(payload)
-	assert.False(s.T(), s.eventSent)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{},
@@ -304,9 +307,9 @@ func (s *LPCSuite) Test_configurationDataUpdate() {
 
 	payload.Data = data
 
-	s.eventSent = false
+	s.eventCalled = false
 	s.sut.configurationDataUpdate(payload)
-	assert.False(s.T(), s.eventSent)
+	assert.False(s.T(), s.eventCalled)
 
 	data = &model.DeviceConfigurationKeyValueListDataType{
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
@@ -323,7 +326,7 @@ func (s *LPCSuite) Test_configurationDataUpdate() {
 
 	payload.Data = data
 
-	s.eventSent = false
+	s.eventCalled = false
 	s.sut.configurationDataUpdate(payload)
-	assert.True(s.T(), s.eventSent)
+	assert.True(s.T(), s.eventCalled)
 }

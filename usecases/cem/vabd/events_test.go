@@ -52,6 +52,7 @@ func (s *VABDSuite) Test_inverterMeasurementDataUpdate() {
 		Entity: s.batteryEntity,
 	}
 	s.sut.inverterMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -79,6 +80,7 @@ func (s *VABDSuite) Test_inverterMeasurementDataUpdate() {
 	assert.Nil(s.T(), fErr)
 
 	s.sut.inverterMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
@@ -104,4 +106,5 @@ func (s *VABDSuite) Test_inverterMeasurementDataUpdate() {
 	payload.Data = data
 
 	s.sut.inverterMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }

@@ -41,9 +41,12 @@ func (s *EVSOCSuite) Test_evMeasurementDataUpdate() {
 		Entity: s.mockRemoteEntity,
 	}
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	payload.Entity = s.evEntity
+	s.eventCalled = false
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -66,7 +69,10 @@ func (s *EVSOCSuite) Test_evMeasurementDataUpdate() {
 	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
+	s.eventCalled = false
+
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
 
 	data := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
@@ -86,6 +92,8 @@ func (s *EVSOCSuite) Test_evMeasurementDataUpdate() {
 	}
 
 	payload.Data = data
+	s.eventCalled = false
 
 	s.sut.evMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
 }
