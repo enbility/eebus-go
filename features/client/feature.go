@@ -109,7 +109,7 @@ func (f *Feature) Unbind() (*model.MsgCounterType, error) {
 	return msgCounter, nil
 }
 
-// add a callback function to be invoked once a result to a msgCounter came in
+// add a callback function to be invoked once a result or reply message for a msgCounter came in
 func (f *Feature) AddResponseCallback(
 	msgCounterReference model.MsgCounterType,
 	function func(msg spineapi.ResponseMessage)) error {
