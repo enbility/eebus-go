@@ -169,6 +169,8 @@ func (h *controlbox) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterfac
 		if currentLimit, err := h.uclpc.ConsumptionLimit(entity); err == nil {
 			fmt.Println("New Limit received", currentLimit.Value, "W")
 		}
+	default:
+		return
 	}
 }
 
