@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *VABDSuite) Test_CurrentChargePower() {
+func (s *CemVABDSuite) Test_CurrentChargePower() {
 	data, err := s.sut.Power(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -51,7 +51,7 @@ func (s *VABDSuite) Test_CurrentChargePower() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *VABDSuite) Test_TotalChargeEnergy() {
+func (s *CemVABDSuite) Test_TotalChargeEnergy() {
 	data, err := s.sut.EnergyCharged(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -96,7 +96,7 @@ func (s *VABDSuite) Test_TotalChargeEnergy() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *VABDSuite) Test_TotalDischargeEnergy() {
+func (s *CemVABDSuite) Test_TotalDischargeEnergy() {
 	data, err := s.sut.EnergyDischarged(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -141,7 +141,7 @@ func (s *VABDSuite) Test_TotalDischargeEnergy() {
 	assert.Equal(s.T(), 10.0, data)
 }
 
-func (s *VABDSuite) Test_CurrentStateOfCharge() {
+func (s *CemVABDSuite) Test_CurrentStateOfCharge() {
 	data, err := s.sut.StateOfCharge(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)

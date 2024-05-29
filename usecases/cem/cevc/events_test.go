@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *CEVCSuite) Test_Events() {
+func (s *CemCEVCSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -44,7 +44,7 @@ func (s *CEVCSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *CEVCSuite) Test_Failures() {
+func (s *CemCEVCSuite) Test_Failures() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -61,7 +61,7 @@ func (s *CEVCSuite) Test_Failures() {
 	s.sut.evCheckIncentiveTableDescriptionUpdateRequired(s.mockRemoteEntity)
 }
 
-func (s *CEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
+func (s *CemCEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,

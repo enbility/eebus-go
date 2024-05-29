@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *CEVCSuite) Test_IncentiveConstraints() {
+func (s *CemCEVCSuite) Test_IncentiveConstraints() {
 	constraints, err := s.sut.IncentiveConstraints(s.mockRemoteEntity)
 	assert.Equal(s.T(), uint(0), constraints.MinSlots)
 	assert.Equal(s.T(), uint(0), constraints.MaxSlots)
@@ -60,7 +60,7 @@ func (s *CEVCSuite) Test_IncentiveConstraints() {
 	assert.Equal(s.T(), err, nil)
 }
 
-func (s *CEVCSuite) Test_WriteIncentiveTableDescriptions() {
+func (s *CemCEVCSuite) Test_WriteIncentiveTableDescriptions() {
 	data := []ucapi.IncentiveTariffDescription{}
 
 	err := s.sut.WriteIncentiveTableDescriptions(s.mockRemoteEntity, data)
@@ -116,7 +116,7 @@ func (s *CEVCSuite) Test_WriteIncentiveTableDescriptions() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *CEVCSuite) Test_WriteIncentives() {
+func (s *CemCEVCSuite) Test_WriteIncentives() {
 	data := []ucapi.DurationSlotValue{}
 
 	err := s.sut.WriteIncentives(s.mockRemoteEntity, data)

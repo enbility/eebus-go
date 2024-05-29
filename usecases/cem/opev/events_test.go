@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *OPEVSuite) Test_Events() {
+func (s *CemOPEVSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -36,13 +36,13 @@ func (s *OPEVSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *OPEVSuite) Test_Failures() {
+func (s *CemOPEVSuite) Test_Failures() {
 	s.sut.evConnected(s.mockRemoteEntity)
 
 	s.sut.evLoadControlLimitDescriptionDataUpdate(s.mockRemoteEntity)
 }
 
-func (s *OPEVSuite) Test_evElectricalPermittedValuesUpdate() {
+func (s *CemOPEVSuite) Test_evElectricalPermittedValuesUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -121,7 +121,7 @@ func (s *OPEVSuite) Test_evElectricalPermittedValuesUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *OPEVSuite) Test_evLoadControlLimitDataUpdate() {
+func (s *CemOPEVSuite) Test_evLoadControlLimitDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,

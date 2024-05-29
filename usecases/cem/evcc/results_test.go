@@ -8,7 +8,7 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-func (s *EVCCSuite) Test_Results() {
+func (s *CemEVCCSuite) Test_Results() {
 	localDevice := s.service.LocalDevice()
 	localEntity := localDevice.EntityForType(model.EntityTypeTypeCEM)
 	localFeature := localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)

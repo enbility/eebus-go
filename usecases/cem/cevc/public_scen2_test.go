@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *CEVCSuite) Test_TimeSlotConstraints() {
+func (s *CemCEVCSuite) Test_TimeSlotConstraints() {
 	constraints, err := s.sut.TimeSlotConstraints(s.mockRemoteEntity)
 	assert.Equal(s.T(), uint(0), constraints.MinSlots)
 	assert.Equal(s.T(), uint(0), constraints.MaxSlots)
@@ -53,7 +53,7 @@ func (s *CEVCSuite) Test_TimeSlotConstraints() {
 	assert.Equal(s.T(), err, nil)
 }
 
-func (s *CEVCSuite) Test_WritePowerLimits() {
+func (s *CemCEVCSuite) Test_WritePowerLimits() {
 	data := []ucapi.DurationSlotValue{}
 
 	err := s.sut.WritePowerLimits(s.mockRemoteEntity, data)

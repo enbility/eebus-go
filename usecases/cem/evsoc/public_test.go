@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *EVSOCSuite) Test_StateOfCharge() {
+func (s *CemEVSOCSuite) Test_StateOfCharge() {
 	data, err := s.sut.StateOfCharge(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)

@@ -19,11 +19,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-func TestEVCEMSuite(t *testing.T) {
-	suite.Run(t, new(EVCEMSuite))
+func TestCemEVCEMSuite(t *testing.T) {
+	suite.Run(t, new(CemEVCEMSuite))
 }
 
-type EVCEMSuite struct {
+type CemEVCEMSuite struct {
 	suite.Suite
 
 	sut *CemEVCEM
@@ -37,11 +37,11 @@ type EVCEMSuite struct {
 	eventCalled bool
 }
 
-func (s *EVCEMSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+func (s *CemEVCEMSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
 	s.eventCalled = true
 }
 
-func (s *EVCEMSuite) BeforeTest(suiteName, testName string) {
+func (s *CemEVCEMSuite) BeforeTest(suiteName, testName string) {
 	s.eventCalled = false
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(

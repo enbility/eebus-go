@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *MGCPSuite) Test_Events() {
+func (s *GcpMGCPSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -36,7 +36,7 @@ func (s *MGCPSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *MGCPSuite) Test_Failures() {
+func (s *GcpMGCPSuite) Test_Failures() {
 	s.sut.gridConnected(s.mockRemoteEntity)
 
 	s.sut.gridConfigurationDescriptionDataUpdate(s.mockRemoteEntity)
@@ -44,7 +44,7 @@ func (s *MGCPSuite) Test_Failures() {
 	s.sut.gridMeasurementDescriptionDataUpdate(s.mockRemoteEntity)
 }
 
-func (s *MGCPSuite) Test_gridConfigurationDataUpdate() {
+func (s *GcpMGCPSuite) Test_gridConfigurationDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,
@@ -87,7 +87,7 @@ func (s *MGCPSuite) Test_gridConfigurationDataUpdate() {
 	assert.True(s.T(), s.eventCalled)
 }
 
-func (s *MGCPSuite) Test_gridMeasurementDataUpdate() {
+func (s *GcpMGCPSuite) Test_gridMeasurementDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,

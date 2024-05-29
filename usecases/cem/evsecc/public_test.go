@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *EVSECCSuite) Test_EVSEManufacturerData() {
+func (s *CemEVSECCSuite) Test_EVSEManufacturerData() {
 	_, err := s.sut.ManufacturerData(nil)
 	assert.NotNil(s.T(), err)
 
@@ -44,7 +44,7 @@ func (s *EVSECCSuite) Test_EVSEManufacturerData() {
 	assert.Equal(s.T(), "", data.BrandName)
 }
 
-func (s *EVSECCSuite) Test_EVSEOperatingState() {
+func (s *CemEVSECCSuite) Test_EVSEOperatingState() {
 	data, errCode, err := s.sut.OperatingState(nil)
 	assert.Equal(s.T(), model.DeviceDiagnosisOperatingStateTypeNormalOperation, data)
 	assert.Equal(s.T(), "", errCode)

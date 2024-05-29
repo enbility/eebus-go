@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *OPEVSuite) Test_Public() {
+func (s *CemOPEVSuite) Test_Public() {
 	// The actual tests of the functionality is located in the util package
 
 	_, _, _, err := s.sut.CurrentLimits(s.mockRemoteEntity)

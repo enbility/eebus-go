@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *MPCSuite) Test_Events() {
+func (s *MaMPCSuite) Test_Events() {
 	payload := spineapi.EventPayload{
 		Entity: s.mockRemoteEntity,
 	}
@@ -33,13 +33,13 @@ func (s *MPCSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 }
 
-func (s *MPCSuite) Test_Failures() {
+func (s *MaMPCSuite) Test_Failures() {
 	s.sut.deviceConnected(s.mockRemoteEntity)
 
 	s.sut.deviceMeasurementDescriptionDataUpdate(s.mockRemoteEntity)
 }
 
-func (s *MPCSuite) Test_deviceMeasurementDataUpdate() {
+func (s *MaMPCSuite) Test_deviceMeasurementDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,
 		Device: s.remoteDevice,

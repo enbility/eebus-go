@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *LPPSuite) Test_LoadControlLimit() {
+func (s *EgLPPSuite) Test_LoadControlLimit() {
 	data, err := s.sut.ProductionLimit(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data.Value)
@@ -68,7 +68,7 @@ func (s *LPPSuite) Test_LoadControlLimit() {
 	assert.Equal(s.T(), false, data.IsActive)
 }
 
-func (s *LPPSuite) Test_WriteLoadControlLimit() {
+func (s *EgLPPSuite) Test_WriteLoadControlLimit() {
 	limit := ucapi.LoadLimit{
 		Value:    6000,
 		IsActive: true,
@@ -121,7 +121,7 @@ func (s *LPPSuite) Test_WriteLoadControlLimit() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *LPPSuite) Test_FailsafeProductionActivePowerLimit() {
+func (s *EgLPPSuite) Test_FailsafeProductionActivePowerLimit() {
 	data, err := s.sut.FailsafeProductionActivePowerLimit(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
@@ -183,7 +183,7 @@ func (s *LPPSuite) Test_FailsafeProductionActivePowerLimit() {
 	assert.Equal(s.T(), 4000.0, data)
 }
 
-func (s *LPPSuite) Test_WriteFailsafeProductionActivePowerLimit() {
+func (s *EgLPPSuite) Test_WriteFailsafeProductionActivePowerLimit() {
 	_, err := s.sut.WriteFailsafeProductionActivePowerLimit(s.mockRemoteEntity, 6000)
 	assert.NotNil(s.T(), err)
 
@@ -222,7 +222,7 @@ func (s *LPPSuite) Test_WriteFailsafeProductionActivePowerLimit() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *LPPSuite) Test_FailsafeDurationMinimum() {
+func (s *EgLPPSuite) Test_FailsafeDurationMinimum() {
 	data, err := s.sut.FailsafeDurationMinimum(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), time.Duration(0), data)
@@ -284,7 +284,7 @@ func (s *LPPSuite) Test_FailsafeDurationMinimum() {
 	assert.Equal(s.T(), time.Duration(time.Hour*2), data)
 }
 
-func (s *LPPSuite) Test_WriteFailsafeDurationMinimum() {
+func (s *EgLPPSuite) Test_WriteFailsafeDurationMinimum() {
 	_, err := s.sut.WriteFailsafeDurationMinimum(s.mockRemoteEntity, time.Duration(time.Hour*2))
 	assert.NotNil(s.T(), err)
 
@@ -326,7 +326,7 @@ func (s *LPPSuite) Test_WriteFailsafeDurationMinimum() {
 	assert.NotNil(s.T(), err)
 }
 
-func (s *LPPSuite) Test_PowerProductionNominalMax() {
+func (s *EgLPPSuite) Test_PowerProductionNominalMax() {
 	data, err := s.sut.PowerProductionNominalMax(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
