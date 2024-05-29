@@ -21,8 +21,6 @@ func (e *OSCEV) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	// the codefactor warning is invalid, as .(type) check can not be replaced with if then
-	//revive:disable-next-line
 	switch payload.Data.(type) {
 	case *model.ElectricalConnectionPermittedValueSetListDataType:
 		e.evElectricalPermittedValuesUpdate(payload)
