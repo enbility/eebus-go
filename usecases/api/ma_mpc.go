@@ -6,7 +6,7 @@ import (
 )
 
 // Actor: Monitoring Appliance
-// UseCase: Monitoring of Power Consumption UseCase
+// UseCase: Monitoring of Power Consumption
 type MaMPCInterface interface {
 	api.UseCaseInterface
 
