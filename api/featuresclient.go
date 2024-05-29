@@ -79,7 +79,11 @@ type LoadControlClientInterface interface {
 
 	// write load control limits
 	// returns an error if this failed
-	WriteLimitData(data []model.LoadControlLimitDataType) (*model.MsgCounterType, error)
+	WriteLimitData(
+		data []model.LoadControlLimitDataType,
+		deleteSelectors *model.LoadControlLimitListDataSelectorsType,
+		deleteElements *model.LoadControlLimitDataElementsType,
+	) (*model.MsgCounterType, error)
 }
 
 type MeasurementClientInterface interface {
