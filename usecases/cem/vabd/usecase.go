@@ -28,7 +28,7 @@ func NewVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		model.UseCaseNameTypeVisualizationOfAggregatedBatteryData,
 		"1.0.1",
 		"RC1",
-		[]model.UseCaseScenarioSupportType{1, 2, 3},
+		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
 		eventCB,
 		validEntityTypes,
 	)

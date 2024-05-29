@@ -21,7 +21,7 @@ const (
 	//
 	// Use `EnergyDischarged` to get the current data
 	//
-	// Use Case VABD, Scenario 2
+	// Use Case VABD, Scenario 3
 	DataUpdateEnergyDischarged api.EventType = "cem-vabd-DataUpdateEnergyDischarged"
 
 	// Battery System state of charge data updated
