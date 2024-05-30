@@ -20,9 +20,9 @@ func (s *CemOSCEVSuite) Test_Public() {
 	_, err = s.sut.LoadControlLimits(s.evEntity)
 	assert.NotNil(s.T(), err)
 
-	_, err = s.sut.WriteLoadControlLimits(s.mockRemoteEntity, []ucapi.LoadLimitsPhase{})
+	_, err = s.sut.WriteLoadControlLimits(s.mockRemoteEntity, []ucapi.LoadLimitsPhase{}, nil)
 	assert.NotNil(s.T(), err)
 
-	_, err = s.sut.WriteLoadControlLimits(s.evEntity, []ucapi.LoadLimitsPhase{})
+	_, err = s.sut.WriteLoadControlLimits(s.evEntity, []ucapi.LoadLimitsPhase{}, nil)
 	assert.NotNil(s.T(), err)
 }

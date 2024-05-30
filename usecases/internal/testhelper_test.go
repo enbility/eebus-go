@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -25,6 +26,8 @@ func TestInternalSuite(t *testing.T) {
 
 type InternalSuite struct {
 	suite.Suite
+
+	mux sync.Mutex
 
 	service api.ServiceInterface
 

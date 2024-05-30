@@ -4,6 +4,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -101,11 +102,83 @@ func LoadControlLimits(
 	return result, nil
 }
 
+// generic helper to be used in UCLPC & UCLPP
+// send new LoadControlLimit to the remote entity
+//
+// parameters:
+//   - limits: a set of limits for a  given limit category containing phase specific limit data
+//   - resultCB: callback function for handling the result response
+func WriteLoadControlLimit(
+	localEntity spineapi.EntityLocalInterface,
+	remoteEntity spineapi.EntityRemoteInterface,
+	filter model.LoadControlLimitDescriptionDataType,
+	limit ucapi.LoadLimit,
+	resultCB func(result model.ResultDataType),
+) (*model.MsgCounterType, error) {
+	loadControl, err := client.NewLoadControl(localEntity, remoteEntity)
+	if err != nil {
+		return nil, api.ErrNoCompatibleEntity
+	}
+
+	var limitData []model.LoadControlLimitDataType
+
+	currentLimits, err := loadControl.GetLimitDataForFilter(filter)
+	if err != nil || len(currentLimits) != 1 || currentLimits[0].LimitId == nil {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	item := currentLimits[0]
+
+	// EEBus_UC_TS_LimitationOfPowerConsumption V1.0.0 3.2.2.2.2.2
+	// If set to "true", the timePeriod, value and isLimitActive Elements SHALL be writeable by a client.
+	if item.IsLimitChangeable != nil && !*item.IsLimitChangeable {
+		return nil, api.ErrNotSupported
+	}
+
+	newLimit := model.LoadControlLimitDataType{
+		LimitId:       item.LimitId,
+		IsLimitActive: util.Ptr(limit.IsActive),
+		Value:         model.NewScaledNumberType(limit.Value),
+	}
+	if limit.Duration > 0 {
+		newLimit.TimePeriod = &model.TimePeriodType{
+			EndTime: model.NewAbsoluteOrRelativeTimeTypeFromDuration(limit.Duration),
+		}
+	}
+
+	limitData = append(limitData, newLimit)
+
+	// always delete the timePeriod first
+	deleteSelectors := &model.LoadControlLimitListDataSelectorsType{
+		LimitId: currentLimits[0].LimitId,
+	}
+	deleteElements := &model.LoadControlLimitDataElementsType{
+		TimePeriod: &model.TimePeriodElementsType{},
+	}
+
+	msgCounter, err := loadControl.WriteLimitData(limitData, deleteSelectors, deleteElements)
+
+	if resultCB != nil && msgCounter != nil {
+		cb := func(msg spineapi.ResponseMessage) {
+			response, ok := msg.Data.(*model.ResultDataType)
+			if ok {
+				resultCB(*response)
+			}
+		}
+		if errCB := loadControl.AddResponseCallback(*msgCounter, cb); errCB != nil {
+			logging.Log().Debug("Failed to add response callback for msgCounter %v: %v", msgCounter, errCB)
+		}
+	}
+
+	return msgCounter, err
+}
+
 // generic helper to be used in UCOPEV & UCOSCEV
 // send new LoadControlLimits to the remote EV
 //
 // parameters:
 //   - limits: a set of limits for a  given limit category containing phase specific limit data
+//   - resultCB: callback function for handling the result response
 //
 // category obligations:
 // Sets a maximum A limit for each phase that the EV may not exceed.
@@ -127,11 +200,13 @@ func LoadControlLimits(
 //   - In ISO15118-2 the usecase is only supported via VAS extensions which are vendor specific and needs to have specific EVSE support for the specific EV brand.
 //   - In ISO15118-20 this is a standard feature which does not need special support on the EVSE.
 //   - Min power data is only provided via IEC61851 or using VAS in ISO15118-2.
-func WriteLoadControlLimits(
+func WriteLoadControlPhaseLimits(
 	localEntity spineapi.EntityLocalInterface,
 	remoteEntity spineapi.EntityRemoteInterface,
-	category model.LoadControlCategoryType,
-	limits []ucapi.LoadLimitsPhase) (*model.MsgCounterType, error) {
+	filter model.LoadControlLimitDescriptionDataType,
+	limits []ucapi.LoadLimitsPhase,
+	resultCB func(result model.ResultDataType),
+) (*model.MsgCounterType, error) {
 	loadControl, err := client.NewLoadControl(localEntity, remoteEntity)
 	electricalConnection, err2 := client.NewElectricalConnection(localEntity, remoteEntity)
 	if err != nil || err2 != nil {
@@ -141,11 +216,6 @@ func WriteLoadControlLimits(
 	var limitData []model.LoadControlLimitDataType
 
 	for _, phaseLimit := range limits {
-		// find out the appropriate limitId for each phase value
-		// limitDescription contains the measurementId for each limitId
-		filter := model.LoadControlLimitDescriptionDataType{
-			LimitCategory: &category,
-		}
 		limitDescriptions, err := loadControl.GetLimitDescriptionsForFilter(filter)
 		if err != nil || limitDescriptions == nil {
 			continue
@@ -199,6 +269,19 @@ func WriteLoadControlLimits(
 	}
 
 	msgCounter, err := loadControl.WriteLimitData(limitData, nil, nil)
+
+	if resultCB != nil && msgCounter != nil {
+		cb := func(msg spineapi.ResponseMessage) {
+			response, ok := msg.Data.(*model.ResultDataType)
+			if ok {
+				resultCB(*response)
+			}
+		}
+
+		if errCB := loadControl.AddResponseCallback(*msgCounter, cb); errCB != nil {
+			logging.Log().Debug("Failed to add response callback for msgCounter %v: %v", msgCounter, errCB)
+		}
+	}
 
 	return msgCounter, err
 }

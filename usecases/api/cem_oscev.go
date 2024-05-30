@@ -37,6 +37,7 @@ type CemOSCEVInterface interface {
 	// parameters:
 	//   - entity: the entity of the EV
 	//   - limits: a set of limits containing phase specific limit data
+	//   - resultCB: callback function for handling the result response
 	//
 	// recommendations:
 	// Sets a recommended charge power in A for each phase. This is mainly
@@ -44,7 +45,11 @@ type CemOSCEVInterface interface {
 	// The EV either needs to support the Optimization of Self Consumption usecase or
 	// the EVSE needs to be able map the recommendations into oligation limits which then
 	// works for all EVs communication either via IEC61851 or ISO15118.
-	WriteLoadControlLimits(entity spineapi.EntityRemoteInterface, limits []LoadLimitsPhase) (*model.MsgCounterType, error)
+	WriteLoadControlLimits(
+		entity spineapi.EntityRemoteInterface,
+		limits []LoadLimitsPhase,
+		resultCB func(result model.ResultDataType),
+	) (*model.MsgCounterType, error)
 
 	// Scenario 2
 

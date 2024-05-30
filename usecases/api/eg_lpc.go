@@ -33,7 +33,12 @@ type EgLPCInterface interface {
 	// parameters:
 	//   - entity: the entity of the e.g. EVSE
 	//   - limit: load limit data
-	WriteConsumptionLimit(entity spineapi.EntityRemoteInterface, limit LoadLimit) (*model.MsgCounterType, error)
+	//   - resultCB: callback function for handling the result response
+	WriteConsumptionLimit(
+		entity spineapi.EntityRemoteInterface,
+		limit LoadLimit,
+		resultCB func(result model.ResultDataType),
+	) (*model.MsgCounterType, error)
 
 	// Scenario 2
 
