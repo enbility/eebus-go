@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	model "github.com/enbility/spine-go/model"
+	eebus_goapi "github.com/enbility/eebus-go/api"
 	mock "github.com/stretchr/testify/mock"
+
+	model "github.com/enbility/spine-go/model"
 
 	spine_goapi "github.com/enbility/spine-go/api"
 )
@@ -399,6 +401,53 @@ func (_c *CemVABDInterface_Power_Call) Return(_a0 float64, _a1 error) *CemVABDIn
 }
 
 func (_c *CemVABDInterface_Power_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (float64, error)) *CemVABDInterface_Power_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoteEntities provides a mock function with given fields:
+func (_m *CemVABDInterface) RemoteEntities() []eebus_goapi.RemoteEntityScenarios {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoteEntities")
+	}
+
+	var r0 []eebus_goapi.RemoteEntityScenarios
+	if rf, ok := ret.Get(0).(func() []eebus_goapi.RemoteEntityScenarios); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]eebus_goapi.RemoteEntityScenarios)
+		}
+	}
+
+	return r0
+}
+
+// CemVABDInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
+type CemVABDInterface_RemoteEntities_Call struct {
+	*mock.Call
+}
+
+// RemoteEntities is a helper method to define mock.On call
+func (_e *CemVABDInterface_Expecter) RemoteEntities() *CemVABDInterface_RemoteEntities_Call {
+	return &CemVABDInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+}
+
+func (_c *CemVABDInterface_RemoteEntities_Call) Run(run func()) *CemVABDInterface_RemoteEntities_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CemVABDInterface_RemoteEntities_Call) Return(_a0 []eebus_goapi.RemoteEntityScenarios) *CemVABDInterface_RemoteEntities_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CemVABDInterface_RemoteEntities_Call) RunAndReturn(run func() []eebus_goapi.RemoteEntityScenarios) *CemVABDInterface_RemoteEntities_Call {
 	_c.Call.Return(run)
 	return _c
 }

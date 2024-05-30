@@ -3,7 +3,9 @@
 package mocks
 
 import (
+	eebus_goapi "github.com/enbility/eebus-go/api"
 	api "github.com/enbility/eebus-go/usecases/api"
+
 	mock "github.com/stretchr/testify/mock"
 
 	model "github.com/enbility/spine-go/model"
@@ -596,6 +598,53 @@ func (_c *CsLPPInterface_ProductionLimit_Call) Return(_a0 api.LoadLimit, _a1 err
 }
 
 func (_c *CsLPPInterface_ProductionLimit_Call) RunAndReturn(run func() (api.LoadLimit, error)) *CsLPPInterface_ProductionLimit_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoteEntities provides a mock function with given fields:
+func (_m *CsLPPInterface) RemoteEntities() []eebus_goapi.RemoteEntityScenarios {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoteEntities")
+	}
+
+	var r0 []eebus_goapi.RemoteEntityScenarios
+	if rf, ok := ret.Get(0).(func() []eebus_goapi.RemoteEntityScenarios); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]eebus_goapi.RemoteEntityScenarios)
+		}
+	}
+
+	return r0
+}
+
+// CsLPPInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
+type CsLPPInterface_RemoteEntities_Call struct {
+	*mock.Call
+}
+
+// RemoteEntities is a helper method to define mock.On call
+func (_e *CsLPPInterface_Expecter) RemoteEntities() *CsLPPInterface_RemoteEntities_Call {
+	return &CsLPPInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+}
+
+func (_c *CsLPPInterface_RemoteEntities_Call) Run(run func()) *CsLPPInterface_RemoteEntities_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CsLPPInterface_RemoteEntities_Call) Return(_a0 []eebus_goapi.RemoteEntityScenarios) *CsLPPInterface_RemoteEntities_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CsLPPInterface_RemoteEntities_Call) RunAndReturn(run func() []eebus_goapi.RemoteEntityScenarios) *CsLPPInterface_RemoteEntities_Call {
 	_c.Call.Return(run)
 	return _c
 }

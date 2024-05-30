@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	model "github.com/enbility/spine-go/model"
+	api "github.com/enbility/eebus-go/api"
 	mock "github.com/stretchr/testify/mock"
+
+	model "github.com/enbility/spine-go/model"
 
 	spine_goapi "github.com/enbility/spine-go/api"
 )
@@ -143,6 +145,53 @@ func (_c *UseCaseBaseInterface_IsCompatibleEntityType_Call) Return(_a0 bool) *Us
 }
 
 func (_c *UseCaseBaseInterface_IsCompatibleEntityType_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) bool) *UseCaseBaseInterface_IsCompatibleEntityType_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoteEntities provides a mock function with given fields:
+func (_m *UseCaseBaseInterface) RemoteEntities() []api.RemoteEntityScenarios {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoteEntities")
+	}
+
+	var r0 []api.RemoteEntityScenarios
+	if rf, ok := ret.Get(0).(func() []api.RemoteEntityScenarios); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]api.RemoteEntityScenarios)
+		}
+	}
+
+	return r0
+}
+
+// UseCaseBaseInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
+type UseCaseBaseInterface_RemoteEntities_Call struct {
+	*mock.Call
+}
+
+// RemoteEntities is a helper method to define mock.On call
+func (_e *UseCaseBaseInterface_Expecter) RemoteEntities() *UseCaseBaseInterface_RemoteEntities_Call {
+	return &UseCaseBaseInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+}
+
+func (_c *UseCaseBaseInterface_RemoteEntities_Call) Run(run func()) *UseCaseBaseInterface_RemoteEntities_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *UseCaseBaseInterface_RemoteEntities_Call) Return(_a0 []api.RemoteEntityScenarios) *UseCaseBaseInterface_RemoteEntities_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UseCaseBaseInterface_RemoteEntities_Call) RunAndReturn(run func() []api.RemoteEntityScenarios) *UseCaseBaseInterface_RemoteEntities_Call {
 	_c.Call.Return(run)
 	return _c
 }

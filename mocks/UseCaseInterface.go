@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	model "github.com/enbility/spine-go/model"
+	api "github.com/enbility/eebus-go/api"
 	mock "github.com/stretchr/testify/mock"
+
+	model "github.com/enbility/spine-go/model"
 
 	spine_goapi "github.com/enbility/spine-go/api"
 )
@@ -231,6 +233,53 @@ func (_c *UseCaseInterface_IsUseCaseSupported_Call) Return(_a0 bool, _a1 error) 
 }
 
 func (_c *UseCaseInterface_IsUseCaseSupported_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (bool, error)) *UseCaseInterface_IsUseCaseSupported_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoteEntities provides a mock function with given fields:
+func (_m *UseCaseInterface) RemoteEntities() []api.RemoteEntityScenarios {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoteEntities")
+	}
+
+	var r0 []api.RemoteEntityScenarios
+	if rf, ok := ret.Get(0).(func() []api.RemoteEntityScenarios); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]api.RemoteEntityScenarios)
+		}
+	}
+
+	return r0
+}
+
+// UseCaseInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
+type UseCaseInterface_RemoteEntities_Call struct {
+	*mock.Call
+}
+
+// RemoteEntities is a helper method to define mock.On call
+func (_e *UseCaseInterface_Expecter) RemoteEntities() *UseCaseInterface_RemoteEntities_Call {
+	return &UseCaseInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+}
+
+func (_c *UseCaseInterface_RemoteEntities_Call) Run(run func()) *UseCaseInterface_RemoteEntities_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *UseCaseInterface_RemoteEntities_Call) Return(_a0 []api.RemoteEntityScenarios) *UseCaseInterface_RemoteEntities_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UseCaseInterface_RemoteEntities_Call) RunAndReturn(run func() []api.RemoteEntityScenarios) *UseCaseInterface_RemoteEntities_Call {
 	_c.Call.Return(run)
 	return _c
 }

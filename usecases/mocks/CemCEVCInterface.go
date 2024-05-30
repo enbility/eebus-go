@@ -3,7 +3,9 @@
 package mocks
 
 import (
+	eebus_goapi "github.com/enbility/eebus-go/api"
 	api "github.com/enbility/eebus-go/usecases/api"
+
 	mock "github.com/stretchr/testify/mock"
 
 	model "github.com/enbility/spine-go/model"
@@ -505,6 +507,53 @@ func (_c *CemCEVCInterface_IsUseCaseSupported_Call) Return(_a0 bool, _a1 error) 
 }
 
 func (_c *CemCEVCInterface_IsUseCaseSupported_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (bool, error)) *CemCEVCInterface_IsUseCaseSupported_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoteEntities provides a mock function with given fields:
+func (_m *CemCEVCInterface) RemoteEntities() []eebus_goapi.RemoteEntityScenarios {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoteEntities")
+	}
+
+	var r0 []eebus_goapi.RemoteEntityScenarios
+	if rf, ok := ret.Get(0).(func() []eebus_goapi.RemoteEntityScenarios); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]eebus_goapi.RemoteEntityScenarios)
+		}
+	}
+
+	return r0
+}
+
+// CemCEVCInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
+type CemCEVCInterface_RemoteEntities_Call struct {
+	*mock.Call
+}
+
+// RemoteEntities is a helper method to define mock.On call
+func (_e *CemCEVCInterface_Expecter) RemoteEntities() *CemCEVCInterface_RemoteEntities_Call {
+	return &CemCEVCInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+}
+
+func (_c *CemCEVCInterface_RemoteEntities_Call) Run(run func()) *CemCEVCInterface_RemoteEntities_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CemCEVCInterface_RemoteEntities_Call) Return(_a0 []eebus_goapi.RemoteEntityScenarios) *CemCEVCInterface_RemoteEntities_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CemCEVCInterface_RemoteEntities_Call) RunAndReturn(run func() []eebus_goapi.RemoteEntityScenarios) *CemCEVCInterface_RemoteEntities_Call {
 	_c.Call.Return(run)
 	return _c
 }
