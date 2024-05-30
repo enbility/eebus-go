@@ -10,10 +10,10 @@ import (
 )
 
 // handle SPINE events
-func (e *CemCEVC) HandleEvent(payload spineapi.EventPayload) {
+func (e *CEVC) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EV entity or device changes for this remote device
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
@@ -22,15 +22,20 @@ func (e *CemCEVC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if payload.EventType != spineapi.EventTypeDataChange {
+	if internal.IsEntityDisconnected(payload) {
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
 		return
 	}
 
-	if payload.ChangeType != spineapi.ElementChangeUpdate {
+	if payload.EventType != spineapi.EventTypeDataChange ||
+		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return
 	}
 
 	switch payload.Data.(type) {
+	case *model.NodeManagementUseCaseDataType:
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
+
 	case *model.TimeSeriesDescriptionListDataType:
 		e.evTimeSeriesDescriptionDataUpdate(payload)
 
@@ -49,7 +54,7 @@ func (e *CemCEVC) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // an EV was connected
-func (e *CemCEVC) evConnected(entity spineapi.EntityRemoteInterface) {
+func (e *CEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		if _, err := evDeviceConfiguration.Subscribe(); err != nil {
@@ -99,7 +104,7 @@ func (e *CemCEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the time series description data of an EV was updated
-func (e *CemCEVC) evTimeSeriesDescriptionDataUpdate(payload spineapi.EventPayload) {
+func (e *CEVC) evTimeSeriesDescriptionDataUpdate(payload spineapi.EventPayload) {
 	if evTimeSeries, err := client.NewTimeSeries(e.LocalEntity, payload.Entity); err == nil {
 		// get time series values
 		if _, err := evTimeSeries.RequestData(); err != nil {
@@ -135,7 +140,7 @@ func (e *CemCEVC) evTimeSeriesDescriptionDataUpdate(payload spineapi.EventPayloa
 }
 
 // the load control limit data of an EV was updated
-func (e *CemCEVC) evTimeSeriesDataUpdate(payload spineapi.EventPayload) {
+func (e *CEVC) evTimeSeriesDataUpdate(payload spineapi.EventPayload) {
 	if _, err := e.ChargePlan(payload.Entity); err == nil {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateChargePlan)
 	}
@@ -146,7 +151,7 @@ func (e *CemCEVC) evTimeSeriesDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the incentive table description data of an EV was updated
-func (e *CemCEVC) evIncentiveTableDescriptionDataUpdate(payload spineapi.EventPayload) {
+func (e *CEVC) evIncentiveTableDescriptionDataUpdate(payload spineapi.EventPayload) {
 	if evIncentiveTable, err := client.NewIncentiveTable(e.LocalEntity, payload.Entity); err == nil {
 		// get time series values
 		if _, err := evIncentiveTable.RequestValues(); err != nil {
@@ -161,18 +166,18 @@ func (e *CemCEVC) evIncentiveTableDescriptionDataUpdate(payload spineapi.EventPa
 }
 
 // the incentive table constraint data of an EV was updated
-func (e *CemCEVC) evIncentiveTableConstraintsDataUpdate(payload spineapi.EventPayload) {
+func (e *CEVC) evIncentiveTableConstraintsDataUpdate(payload spineapi.EventPayload) {
 	e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIncentiveTable)
 }
 
 // the incentive table data of an EV was updated
-func (e *CemCEVC) evIncentiveTableDataUpdate(payload spineapi.EventPayload) {
+func (e *CEVC) evIncentiveTableDataUpdate(payload spineapi.EventPayload) {
 	e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIncentiveTable)
 }
 
 // check timeSeries descriptions if constraints element has updateRequired set to true
 // as this triggers the CEM to send power tables within 20s
-func (e *CemCEVC) evCheckTimeSeriesDescriptionConstraintsUpdateRequired(entity spineapi.EntityRemoteInterface) bool {
+func (e *CEVC) evCheckTimeSeriesDescriptionConstraintsUpdateRequired(entity spineapi.EntityRemoteInterface) bool {
 	evTimeSeries, err := client.NewTimeSeries(e.LocalEntity, entity)
 	if err != nil {
 		logging.Log().Error("timeseries feature not found")
@@ -196,7 +201,7 @@ func (e *CemCEVC) evCheckTimeSeriesDescriptionConstraintsUpdateRequired(entity s
 
 // check incentibeTable descriptions if the tariff description has updateRequired set to true
 // as this triggers the CEM to send incentive tables within 20s
-func (e *CemCEVC) evCheckIncentiveTableDescriptionUpdateRequired(entity spineapi.EntityRemoteInterface) bool {
+func (e *CEVC) evCheckIncentiveTableDescriptionUpdateRequired(entity spineapi.EntityRemoteInterface) bool {
 	evIncentiveTable, err := client.NewIncentiveTable(e.LocalEntity, entity)
 	if err != nil {
 		logging.Log().Error("incentivetable feature not found")

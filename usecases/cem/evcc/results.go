@@ -7,7 +7,7 @@ import (
 	"github.com/enbility/spine-go/model"
 )
 
-func (e *CemEVCC) HandleResponse(responseMsg api.ResponseMessage) {
+func (e *EVCC) HandleResponse(responseMsg api.ResponseMessage) {
 	// before SPINE 1.3 the heartbeats are on the EVSE entity
 	if responseMsg.EntityRemote == nil ||
 		(responseMsg.EntityRemote.EntityType() != model.EntityTypeTypeEV &&
@@ -22,7 +22,7 @@ func (e *CemEVCC) HandleResponse(responseMsg api.ResponseMessage) {
 }
 
 // Handle DeviceDiagnosis Results
-func (e *CemEVCC) handleResultDeviceDiagnosis(responseMsg api.ResponseMessage) {
+func (e *EVCC) handleResultDeviceDiagnosis(responseMsg api.ResponseMessage) {
 	// is this an error for a heartbeat message?
 	if responseMsg.DeviceRemote == nil ||
 		responseMsg.Data == nil {

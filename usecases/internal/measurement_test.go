@@ -1,6 +1,7 @@
 package internal
 
 import (
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		ScopeType:       &scopeType,
 	}
 
-	data, err := MeasurementPhaseSpecificDataForFilter(nil, nil, filter, energyDirection, PhaseNameMapping)
+	data, err := MeasurementPhaseSpecificDataForFilter(nil, nil, filter, energyDirection, ucapi.PhaseNameMapping)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
@@ -27,7 +28,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		s.mockRemoteEntity,
 		filter,
 		energyDirection,
-		PhaseNameMapping,
+		ucapi.PhaseNameMapping,
 	)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -37,7 +38,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		s.monitoredEntity,
 		filter,
 		energyDirection,
-		PhaseNameMapping,
+		ucapi.PhaseNameMapping,
 	)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -77,7 +78,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		s.monitoredEntity,
 		filter,
 		energyDirection,
-		PhaseNameMapping,
+		ucapi.PhaseNameMapping,
 	)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -110,7 +111,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		s.monitoredEntity,
 		filter,
 		energyDirection,
-		PhaseNameMapping,
+		ucapi.PhaseNameMapping,
 	)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))
@@ -156,7 +157,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		s.monitoredEntity,
 		filter,
 		energyDirection,
-		PhaseNameMapping,
+		ucapi.PhaseNameMapping,
 	)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)

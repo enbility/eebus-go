@@ -2,10 +2,7 @@ package internal
 
 import (
 	spineapi "github.com/enbility/spine-go/api"
-	"github.com/enbility/spine-go/model"
 )
-
-var PhaseNameMapping = []model.ElectricalConnectionPhaseNameType{model.ElectricalConnectionPhaseNameTypeA, model.ElectricalConnectionPhaseNameTypeB, model.ElectricalConnectionPhaseNameTypeC}
 
 func IsDeviceConnected(payload spineapi.EventPayload) bool {
 	return payload.Device != nil &&

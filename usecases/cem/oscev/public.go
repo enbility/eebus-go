@@ -15,8 +15,8 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemOSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64, []float64, []float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *OSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64, []float64, []float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, nil, nil, api.ErrNoCompatibleEntity
 	}
 
@@ -39,9 +39,9 @@ func (e *CemOSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (e *CemOSCEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
+func (e *OSCEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 	limits []ucapi.LoadLimitsPhase, resultErr error) {
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -66,12 +66,12 @@ func (e *CemOSCEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 // The EV either needs to support the Optimization of Self Consumption usecase or
 // the EVSE needs to be able map the recommendations into oligation limits which then
 // works for all EVs communication either via IEC61851 or ISO15118.
-func (e *CemOSCEV) WriteLoadControlLimits(
+func (e *OSCEV) WriteLoadControlLimits(
 	entity spineapi.EntityRemoteInterface,
 	limits []ucapi.LoadLimitsPhase,
 	resultCB func(result model.ResultDataType),
 ) (*model.MsgCounterType, error) {
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 

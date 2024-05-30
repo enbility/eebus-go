@@ -10,15 +10,20 @@ import (
 )
 
 // handle SPINE events
-func (e *MaMPC) HandleEvent(payload spineapi.EventPayload) {
+func (e *MPC) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an SGMW entity or device changes for this remote device
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
 	if internal.IsEntityConnected(payload) {
 		e.deviceConnected(payload.Entity)
+		return
+	}
+
+	if internal.IsEntityDisconnected(payload) {
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
 		return
 	}
 
@@ -28,15 +33,19 @@ func (e *MaMPC) HandleEvent(payload spineapi.EventPayload) {
 	}
 
 	switch payload.Data.(type) {
+	case *model.NodeManagementUseCaseDataType:
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
+
 	case *model.MeasurementDescriptionListDataType:
 		e.deviceMeasurementDescriptionDataUpdate(payload.Entity)
+
 	case *model.MeasurementListDataType:
 		e.deviceMeasurementDataUpdate(payload)
 	}
 }
 
 // process required steps when a device is connected
-func (e *MaMPC) deviceConnected(entity spineapi.EntityRemoteInterface) {
+func (e *MPC) deviceConnected(entity spineapi.EntityRemoteInterface) {
 	if electricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
 		if _, err := electricalConnection.Subscribe(); err != nil {
 			logging.Log().Error(err)
@@ -69,7 +78,7 @@ func (e *MaMPC) deviceConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the measurement descriptiondata of a device was updated
-func (e *MaMPC) deviceMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *MPC) deviceMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if measurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		// measurement descriptions received, now get the data
 		if _, err := measurement.RequestData(); err != nil {
@@ -79,7 +88,7 @@ func (e *MaMPC) deviceMeasurementDescriptionDataUpdate(entity spineapi.EntityRem
 }
 
 // the measurement data of a device was updated
-func (e *MaMPC) deviceMeasurementDataUpdate(payload spineapi.EventPayload) {
+func (e *MPC) deviceMeasurementDataUpdate(payload spineapi.EventPayload) {
 	if measurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 1
 		filter := model.MeasurementDescriptionDataType{

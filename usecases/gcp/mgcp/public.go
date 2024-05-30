@@ -3,6 +3,7 @@ package mgcp
 import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	internal "github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -16,8 +17,8 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (e *GcpMGCP) PowerLimitationFactor(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) PowerLimitationFactor(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -57,8 +58,8 @@ func (e *GcpMGCP) PowerLimitationFactor(entity spineapi.EntityRemoteInterface) (
 //
 //   - positive values are used for consumption
 //   - negative values are used for production
-func (e *GcpMGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -80,8 +81,8 @@ func (e *GcpMGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) 
 // return the total feed in energy at the grid connection point
 //
 //   - negative values are used for production
-func (e *GcpMGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -107,8 +108,8 @@ func (e *GcpMGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, 
 // return the total consumption energy at the grid connection point
 //
 //   - positive values are used for consumption
-func (e *GcpMGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -135,8 +136,8 @@ func (e *GcpMGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64
 //
 //   - positive values are used for consumption
 //   - negative values are used for production
-func (e *GcpMGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -145,14 +146,14 @@ func (e *GcpMGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]floa
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, internal.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
 }
 
 // Scenario 6
 
 // return the voltage phase details at the grid connection point
-func (e *GcpMGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -161,14 +162,14 @@ func (e *GcpMGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]floa
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", internal.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
 }
 
 // Scenario 7
 
 // return frequency at the grid connection point
-func (e *GcpMGCP) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 

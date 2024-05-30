@@ -10,15 +10,20 @@ import (
 )
 
 // handle SPINE events
-func (e *GcpMGCP) HandleEvent(payload spineapi.EventPayload) {
+func (e *MGCP) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an SGMW entity or device changes for this remote device
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
 	if internal.IsEntityConnected(payload) {
 		e.gridConnected(payload.Entity)
+		return
+	}
+
+	if internal.IsEntityDisconnected(payload) {
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
 		return
 	}
 
@@ -28,19 +33,25 @@ func (e *GcpMGCP) HandleEvent(payload spineapi.EventPayload) {
 	}
 
 	switch payload.Data.(type) {
+	case *model.NodeManagementUseCaseDataType:
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
+
 	case *model.DeviceConfigurationKeyValueDescriptionListDataType:
 		e.gridConfigurationDescriptionDataUpdate(payload.Entity)
+
 	case *model.DeviceConfigurationKeyValueListDataType:
 		e.gridConfigurationDataUpdate(payload)
+
 	case *model.MeasurementDescriptionListDataType:
 		e.gridMeasurementDescriptionDataUpdate(payload.Entity)
+
 	case *model.MeasurementListDataType:
 		e.gridMeasurementDataUpdate(payload)
 	}
 }
 
 // process required steps when a grid device is connected
-func (e *GcpMGCP) gridConnected(entity spineapi.EntityRemoteInterface) {
+func (e *MGCP) gridConnected(entity spineapi.EntityRemoteInterface) {
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		if _, err := deviceConfiguration.Subscribe(); err != nil {
 			logging.Log().Error(err)
@@ -84,7 +95,7 @@ func (e *GcpMGCP) gridConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the configuration key description data of an SMGW was updated
-func (e *GcpMGCP) gridConfigurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *MGCP) gridConfigurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
 		if _, err := deviceConfiguration.RequestKeyValues(); err != nil {
@@ -94,7 +105,7 @@ func (e *GcpMGCP) gridConfigurationDescriptionDataUpdate(entity spineapi.EntityR
 }
 
 // the configuration key data of an SMGW was updated
-func (e *GcpMGCP) gridConfigurationDataUpdate(payload spineapi.EventPayload) {
+func (e *MGCP) gridConfigurationDataUpdate(payload spineapi.EventPayload) {
 	if dc, err := client.NewDeviceConfiguration(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
@@ -106,7 +117,7 @@ func (e *GcpMGCP) gridConfigurationDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the measurement descriptiondata of an SMGW was updated
-func (e *GcpMGCP) gridMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *MGCP) gridMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if measurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		// measurement descriptions received, now get the data
 		if _, err := measurement.RequestData(); err != nil {
@@ -116,7 +127,7 @@ func (e *GcpMGCP) gridMeasurementDescriptionDataUpdate(entity spineapi.EntityRem
 }
 
 // the measurement data of an SMGW was updated
-func (e *GcpMGCP) gridMeasurementDataUpdate(payload spineapi.EventPayload) {
+func (e *MGCP) gridMeasurementDataUpdate(payload spineapi.EventPayload) {
 	if measurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 2
 		filter := model.MeasurementDescriptionDataType{

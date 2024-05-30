@@ -11,13 +11,13 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type CemOPEV struct {
+type OPEV struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.CemOPEVInterface = (*CemOPEV)(nil)
+var _ ucapi.CemOPEVInterface = (*OPEV)(nil)
 
-func NewCemOPEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CemOPEV {
+func NewOPEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *OPEV {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEV,
 	}
@@ -33,7 +33,7 @@ func NewCemOPEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEve
 		validEntityTypes,
 	)
 
-	uc := &CemOPEV{
+	uc := &OPEV{
 		UseCaseBase: usecase,
 	}
 
@@ -42,7 +42,7 @@ func NewCemOPEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEve
 	return uc
 }
 
-func (e *CemOPEV) AddFeatures() {
+func (e *OPEV) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeLoadControl,
@@ -63,8 +63,8 @@ func (e *CemOPEV) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *CemOPEV) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *OPEV) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 

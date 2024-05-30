@@ -5,15 +5,15 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
-	internal "github.com/enbility/eebus-go/usecases/internal"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 )
 
 // return the number of ac connected phases of the EV or 0 if it is unknown
-func (e *CemEVCEM) PhasesConnected(entity spineapi.EntityRemoteInterface) (uint, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *EVCEM) PhasesConnected(entity spineapi.EntityRemoteInterface) (uint, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -42,8 +42,8 @@ func (e *CemEVCEM) PhasesConnected(entity spineapi.EntityRemoteInterface) (uint,
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemEVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -67,7 +67,7 @@ func (e *CemEVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]flo
 	refetch := true
 	compare := time.Now().Add(-1 * time.Minute)
 
-	for _, phase := range internal.PhaseNameMapping {
+	for _, phase := range ucapi.PhaseNameMapping {
 		for _, item := range data {
 			if item.Value == nil {
 				continue
@@ -107,8 +107,8 @@ func (e *CemEVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]flo
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemEVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -141,7 +141,7 @@ func (e *CemEVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float
 
 	var result []float64
 
-	for _, phase := range internal.PhaseNameMapping {
+	for _, phase := range ucapi.PhaseNameMapping {
 		for _, item := range data {
 			if item.Value == nil {
 				continue
@@ -173,8 +173,8 @@ func (e *CemEVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemEVCEM) EnergyCharged(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *EVCEM) EnergyCharged(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 

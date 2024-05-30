@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -34,6 +35,8 @@ type UseCaseSuite struct {
 	mockRemoteEntity *spinemocks.EntityRemoteInterface
 	evseEntity       spineapi.EntityRemoteInterface
 	monitoredEntity  spineapi.EntityRemoteInterface
+
+	mux sync.Mutex
 }
 
 func (s *UseCaseSuite) Event(ski string, entity spineapi.EntityRemoteInterface, event api.EventType) {

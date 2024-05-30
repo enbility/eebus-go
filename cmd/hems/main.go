@@ -84,7 +84,7 @@ func (h *hems) run() {
 	}
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	uclpc := lpc.NewEgLPC(localEntity, nil)
+	uclpc := lpc.NewLPC(localEntity, nil)
 	h.myService.AddUseCase(uclpc)
 
 	if len(remoteSki) == 0 {

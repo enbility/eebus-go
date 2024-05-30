@@ -304,12 +304,59 @@ func (_c *CsLPPInterface_FailsafeProductionActivePowerLimit_Call) RunAndReturn(r
 	return _c
 }
 
-// IsCompatibleEntity provides a mock function with given fields: entity
-func (_m *CsLPPInterface) IsCompatibleEntity(entity spine_goapi.EntityRemoteInterface) bool {
+// HasSupportForUseCaseScenarios provides a mock function with given fields: entity, scenarios
+func (_m *CsLPPInterface) HasSupportForUseCaseScenarios(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType) bool {
+	ret := _m.Called(entity, scenarios)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HasSupportForUseCaseScenarios")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool); ok {
+		r0 = rf(entity, scenarios)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// CsLPPInterface_HasSupportForUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasSupportForUseCaseScenarios'
+type CsLPPInterface_HasSupportForUseCaseScenarios_Call struct {
+	*mock.Call
+}
+
+// HasSupportForUseCaseScenarios is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+//   - scenarios []model.UseCaseScenarioSupportType
+func (_e *CsLPPInterface_Expecter) HasSupportForUseCaseScenarios(entity interface{}, scenarios interface{}) *CsLPPInterface_HasSupportForUseCaseScenarios_Call {
+	return &CsLPPInterface_HasSupportForUseCaseScenarios_Call{Call: _e.mock.On("HasSupportForUseCaseScenarios", entity, scenarios)}
+}
+
+func (_c *CsLPPInterface_HasSupportForUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType)) *CsLPPInterface_HasSupportForUseCaseScenarios_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].([]model.UseCaseScenarioSupportType))
+	})
+	return _c
+}
+
+func (_c *CsLPPInterface_HasSupportForUseCaseScenarios_Call) Return(_a0 bool) *CsLPPInterface_HasSupportForUseCaseScenarios_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CsLPPInterface_HasSupportForUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool) *CsLPPInterface_HasSupportForUseCaseScenarios_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IsCompatibleEntityType provides a mock function with given fields: entity
+func (_m *CsLPPInterface) IsCompatibleEntityType(entity spine_goapi.EntityRemoteInterface) bool {
 	ret := _m.Called(entity)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsCompatibleEntity")
+		panic("no return value specified for IsCompatibleEntityType")
 	}
 
 	var r0 bool
@@ -322,30 +369,30 @@ func (_m *CsLPPInterface) IsCompatibleEntity(entity spine_goapi.EntityRemoteInte
 	return r0
 }
 
-// CsLPPInterface_IsCompatibleEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsCompatibleEntity'
-type CsLPPInterface_IsCompatibleEntity_Call struct {
+// CsLPPInterface_IsCompatibleEntityType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsCompatibleEntityType'
+type CsLPPInterface_IsCompatibleEntityType_Call struct {
 	*mock.Call
 }
 
-// IsCompatibleEntity is a helper method to define mock.On call
+// IsCompatibleEntityType is a helper method to define mock.On call
 //   - entity spine_goapi.EntityRemoteInterface
-func (_e *CsLPPInterface_Expecter) IsCompatibleEntity(entity interface{}) *CsLPPInterface_IsCompatibleEntity_Call {
-	return &CsLPPInterface_IsCompatibleEntity_Call{Call: _e.mock.On("IsCompatibleEntity", entity)}
+func (_e *CsLPPInterface_Expecter) IsCompatibleEntityType(entity interface{}) *CsLPPInterface_IsCompatibleEntityType_Call {
+	return &CsLPPInterface_IsCompatibleEntityType_Call{Call: _e.mock.On("IsCompatibleEntityType", entity)}
 }
 
-func (_c *CsLPPInterface_IsCompatibleEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *CsLPPInterface_IsCompatibleEntity_Call {
+func (_c *CsLPPInterface_IsCompatibleEntityType_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *CsLPPInterface_IsCompatibleEntityType_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(spine_goapi.EntityRemoteInterface))
 	})
 	return _c
 }
 
-func (_c *CsLPPInterface_IsCompatibleEntity_Call) Return(_a0 bool) *CsLPPInterface_IsCompatibleEntity_Call {
+func (_c *CsLPPInterface_IsCompatibleEntityType_Call) Return(_a0 bool) *CsLPPInterface_IsCompatibleEntityType_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *CsLPPInterface_IsCompatibleEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) bool) *CsLPPInterface_IsCompatibleEntity_Call {
+func (_c *CsLPPInterface_IsCompatibleEntityType_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) bool) *CsLPPInterface_IsCompatibleEntityType_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -553,6 +600,38 @@ func (_c *CsLPPInterface_ProductionLimit_Call) RunAndReturn(run func() (api.Load
 	return _c
 }
 
+// RemoveUseCase provides a mock function with given fields:
+func (_m *CsLPPInterface) RemoveUseCase() {
+	_m.Called()
+}
+
+// CsLPPInterface_RemoveUseCase_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveUseCase'
+type CsLPPInterface_RemoveUseCase_Call struct {
+	*mock.Call
+}
+
+// RemoveUseCase is a helper method to define mock.On call
+func (_e *CsLPPInterface_Expecter) RemoveUseCase() *CsLPPInterface_RemoveUseCase_Call {
+	return &CsLPPInterface_RemoveUseCase_Call{Call: _e.mock.On("RemoveUseCase")}
+}
+
+func (_c *CsLPPInterface_RemoveUseCase_Call) Run(run func()) *CsLPPInterface_RemoveUseCase_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CsLPPInterface_RemoveUseCase_Call) Return() *CsLPPInterface_RemoveUseCase_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *CsLPPInterface_RemoveUseCase_Call) RunAndReturn(run func()) *CsLPPInterface_RemoveUseCase_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetContractualProductionNominalMax provides a mock function with given fields: value
 func (_m *CsLPPInterface) SetContractualProductionNominalMax(value float64) error {
 	ret := _m.Called(value)
@@ -735,6 +814,54 @@ func (_c *CsLPPInterface_SetProductionLimit_Call) Return(resultErr error) *CsLPP
 }
 
 func (_c *CsLPPInterface_SetProductionLimit_Call) RunAndReturn(run func(api.LoadLimit) error) *CsLPPInterface_SetProductionLimit_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SupportedUseCaseScenarios provides a mock function with given fields: entity
+func (_m *CsLPPInterface) SupportedUseCaseScenarios(entity spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType {
+	ret := _m.Called(entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SupportedUseCaseScenarios")
+	}
+
+	var r0 []model.UseCaseScenarioSupportType
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType); ok {
+		r0 = rf(entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.UseCaseScenarioSupportType)
+		}
+	}
+
+	return r0
+}
+
+// CsLPPInterface_SupportedUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SupportedUseCaseScenarios'
+type CsLPPInterface_SupportedUseCaseScenarios_Call struct {
+	*mock.Call
+}
+
+// SupportedUseCaseScenarios is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+func (_e *CsLPPInterface_Expecter) SupportedUseCaseScenarios(entity interface{}) *CsLPPInterface_SupportedUseCaseScenarios_Call {
+	return &CsLPPInterface_SupportedUseCaseScenarios_Call{Call: _e.mock.On("SupportedUseCaseScenarios", entity)}
+}
+
+func (_c *CsLPPInterface_SupportedUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *CsLPPInterface_SupportedUseCaseScenarios_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(spine_goapi.EntityRemoteInterface))
+	})
+	return _c
+}
+
+func (_c *CsLPPInterface_SupportedUseCaseScenarios_Call) Return(_a0 []model.UseCaseScenarioSupportType) *CsLPPInterface_SupportedUseCaseScenarios_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CsLPPInterface_SupportedUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType) *CsLPPInterface_SupportedUseCaseScenarios_Call {
 	_c.Call.Return(run)
 	return _c
 }

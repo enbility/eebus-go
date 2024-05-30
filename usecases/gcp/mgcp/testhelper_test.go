@@ -26,7 +26,7 @@ func TestGcpMGCPSuite(t *testing.T) {
 type GcpMGCPSuite struct {
 	suite.Suite
 
-	sut *GcpMGCP
+	sut *MGCP
 
 	service api.ServiceInterface
 
@@ -70,7 +70,7 @@ func (s *GcpMGCPSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	s.sut = NewGcpMGCP(localEntity, s.Event)
+	s.sut = NewMGCP(localEntity, s.Event)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 

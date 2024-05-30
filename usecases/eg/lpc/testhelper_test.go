@@ -26,7 +26,7 @@ func TestEgLPCSuite(t *testing.T) {
 type EgLPCSuite struct {
 	suite.Suite
 
-	sut *EgLPC
+	sut *LPC
 
 	service api.ServiceInterface
 
@@ -70,7 +70,7 @@ func (s *EgLPCSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	s.sut = NewEgLPC(localEntity, s.Event)
+	s.sut = NewLPC(localEntity, s.Event)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 

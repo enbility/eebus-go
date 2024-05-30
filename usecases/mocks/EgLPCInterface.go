@@ -258,12 +258,59 @@ func (_c *EgLPCInterface_FailsafeDurationMinimum_Call) RunAndReturn(run func(spi
 	return _c
 }
 
-// IsCompatibleEntity provides a mock function with given fields: entity
-func (_m *EgLPCInterface) IsCompatibleEntity(entity spine_goapi.EntityRemoteInterface) bool {
+// HasSupportForUseCaseScenarios provides a mock function with given fields: entity, scenarios
+func (_m *EgLPCInterface) HasSupportForUseCaseScenarios(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType) bool {
+	ret := _m.Called(entity, scenarios)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HasSupportForUseCaseScenarios")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool); ok {
+		r0 = rf(entity, scenarios)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// EgLPCInterface_HasSupportForUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasSupportForUseCaseScenarios'
+type EgLPCInterface_HasSupportForUseCaseScenarios_Call struct {
+	*mock.Call
+}
+
+// HasSupportForUseCaseScenarios is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+//   - scenarios []model.UseCaseScenarioSupportType
+func (_e *EgLPCInterface_Expecter) HasSupportForUseCaseScenarios(entity interface{}, scenarios interface{}) *EgLPCInterface_HasSupportForUseCaseScenarios_Call {
+	return &EgLPCInterface_HasSupportForUseCaseScenarios_Call{Call: _e.mock.On("HasSupportForUseCaseScenarios", entity, scenarios)}
+}
+
+func (_c *EgLPCInterface_HasSupportForUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType)) *EgLPCInterface_HasSupportForUseCaseScenarios_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].([]model.UseCaseScenarioSupportType))
+	})
+	return _c
+}
+
+func (_c *EgLPCInterface_HasSupportForUseCaseScenarios_Call) Return(_a0 bool) *EgLPCInterface_HasSupportForUseCaseScenarios_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *EgLPCInterface_HasSupportForUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool) *EgLPCInterface_HasSupportForUseCaseScenarios_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IsCompatibleEntityType provides a mock function with given fields: entity
+func (_m *EgLPCInterface) IsCompatibleEntityType(entity spine_goapi.EntityRemoteInterface) bool {
 	ret := _m.Called(entity)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsCompatibleEntity")
+		panic("no return value specified for IsCompatibleEntityType")
 	}
 
 	var r0 bool
@@ -276,30 +323,30 @@ func (_m *EgLPCInterface) IsCompatibleEntity(entity spine_goapi.EntityRemoteInte
 	return r0
 }
 
-// EgLPCInterface_IsCompatibleEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsCompatibleEntity'
-type EgLPCInterface_IsCompatibleEntity_Call struct {
+// EgLPCInterface_IsCompatibleEntityType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsCompatibleEntityType'
+type EgLPCInterface_IsCompatibleEntityType_Call struct {
 	*mock.Call
 }
 
-// IsCompatibleEntity is a helper method to define mock.On call
+// IsCompatibleEntityType is a helper method to define mock.On call
 //   - entity spine_goapi.EntityRemoteInterface
-func (_e *EgLPCInterface_Expecter) IsCompatibleEntity(entity interface{}) *EgLPCInterface_IsCompatibleEntity_Call {
-	return &EgLPCInterface_IsCompatibleEntity_Call{Call: _e.mock.On("IsCompatibleEntity", entity)}
+func (_e *EgLPCInterface_Expecter) IsCompatibleEntityType(entity interface{}) *EgLPCInterface_IsCompatibleEntityType_Call {
+	return &EgLPCInterface_IsCompatibleEntityType_Call{Call: _e.mock.On("IsCompatibleEntityType", entity)}
 }
 
-func (_c *EgLPCInterface_IsCompatibleEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *EgLPCInterface_IsCompatibleEntity_Call {
+func (_c *EgLPCInterface_IsCompatibleEntityType_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *EgLPCInterface_IsCompatibleEntityType_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(spine_goapi.EntityRemoteInterface))
 	})
 	return _c
 }
 
-func (_c *EgLPCInterface_IsCompatibleEntity_Call) Return(_a0 bool) *EgLPCInterface_IsCompatibleEntity_Call {
+func (_c *EgLPCInterface_IsCompatibleEntityType_Call) Return(_a0 bool) *EgLPCInterface_IsCompatibleEntityType_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *EgLPCInterface_IsCompatibleEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) bool) *EgLPCInterface_IsCompatibleEntity_Call {
+func (_c *EgLPCInterface_IsCompatibleEntityType_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) bool) *EgLPCInterface_IsCompatibleEntityType_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -416,6 +463,86 @@ func (_c *EgLPCInterface_PowerConsumptionNominalMax_Call) RunAndReturn(run func(
 	return _c
 }
 
+// RemoveUseCase provides a mock function with given fields:
+func (_m *EgLPCInterface) RemoveUseCase() {
+	_m.Called()
+}
+
+// EgLPCInterface_RemoveUseCase_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveUseCase'
+type EgLPCInterface_RemoveUseCase_Call struct {
+	*mock.Call
+}
+
+// RemoveUseCase is a helper method to define mock.On call
+func (_e *EgLPCInterface_Expecter) RemoveUseCase() *EgLPCInterface_RemoveUseCase_Call {
+	return &EgLPCInterface_RemoveUseCase_Call{Call: _e.mock.On("RemoveUseCase")}
+}
+
+func (_c *EgLPCInterface_RemoveUseCase_Call) Run(run func()) *EgLPCInterface_RemoveUseCase_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *EgLPCInterface_RemoveUseCase_Call) Return() *EgLPCInterface_RemoveUseCase_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *EgLPCInterface_RemoveUseCase_Call) RunAndReturn(run func()) *EgLPCInterface_RemoveUseCase_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SupportedUseCaseScenarios provides a mock function with given fields: entity
+func (_m *EgLPCInterface) SupportedUseCaseScenarios(entity spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType {
+	ret := _m.Called(entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SupportedUseCaseScenarios")
+	}
+
+	var r0 []model.UseCaseScenarioSupportType
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType); ok {
+		r0 = rf(entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.UseCaseScenarioSupportType)
+		}
+	}
+
+	return r0
+}
+
+// EgLPCInterface_SupportedUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SupportedUseCaseScenarios'
+type EgLPCInterface_SupportedUseCaseScenarios_Call struct {
+	*mock.Call
+}
+
+// SupportedUseCaseScenarios is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+func (_e *EgLPCInterface_Expecter) SupportedUseCaseScenarios(entity interface{}) *EgLPCInterface_SupportedUseCaseScenarios_Call {
+	return &EgLPCInterface_SupportedUseCaseScenarios_Call{Call: _e.mock.On("SupportedUseCaseScenarios", entity)}
+}
+
+func (_c *EgLPCInterface_SupportedUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *EgLPCInterface_SupportedUseCaseScenarios_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(spine_goapi.EntityRemoteInterface))
+	})
+	return _c
+}
+
+func (_c *EgLPCInterface_SupportedUseCaseScenarios_Call) Return(_a0 []model.UseCaseScenarioSupportType) *EgLPCInterface_SupportedUseCaseScenarios_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *EgLPCInterface_SupportedUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType) *EgLPCInterface_SupportedUseCaseScenarios_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateUseCaseAvailability provides a mock function with given fields: available
 func (_m *EgLPCInterface) UpdateUseCaseAvailability(available bool) {
 	_m.Called(available)
@@ -449,9 +576,9 @@ func (_c *EgLPCInterface_UpdateUseCaseAvailability_Call) RunAndReturn(run func(b
 	return _c
 }
 
-// WriteConsumptionLimit provides a mock function with given fields: entity, limit
-func (_m *EgLPCInterface) WriteConsumptionLimit(entity spine_goapi.EntityRemoteInterface, limit api.LoadLimit) (*model.MsgCounterType, error) {
-	ret := _m.Called(entity, limit)
+// WriteConsumptionLimit provides a mock function with given fields: entity, limit, resultCB
+func (_m *EgLPCInterface) WriteConsumptionLimit(entity spine_goapi.EntityRemoteInterface, limit api.LoadLimit, resultCB func(model.ResultDataType)) (*model.MsgCounterType, error) {
+	ret := _m.Called(entity, limit, resultCB)
 
 	if len(ret) == 0 {
 		panic("no return value specified for WriteConsumptionLimit")
@@ -459,19 +586,19 @@ func (_m *EgLPCInterface) WriteConsumptionLimit(entity spine_goapi.EntityRemoteI
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, api.LoadLimit) (*model.MsgCounterType, error)); ok {
-		return rf(entity, limit)
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, api.LoadLimit, func(model.ResultDataType)) (*model.MsgCounterType, error)); ok {
+		return rf(entity, limit, resultCB)
 	}
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, api.LoadLimit) *model.MsgCounterType); ok {
-		r0 = rf(entity, limit)
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, api.LoadLimit, func(model.ResultDataType)) *model.MsgCounterType); ok {
+		r0 = rf(entity, limit, resultCB)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(spine_goapi.EntityRemoteInterface, api.LoadLimit) error); ok {
-		r1 = rf(entity, limit)
+	if rf, ok := ret.Get(1).(func(spine_goapi.EntityRemoteInterface, api.LoadLimit, func(model.ResultDataType)) error); ok {
+		r1 = rf(entity, limit, resultCB)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -487,13 +614,14 @@ type EgLPCInterface_WriteConsumptionLimit_Call struct {
 // WriteConsumptionLimit is a helper method to define mock.On call
 //   - entity spine_goapi.EntityRemoteInterface
 //   - limit api.LoadLimit
-func (_e *EgLPCInterface_Expecter) WriteConsumptionLimit(entity interface{}, limit interface{}) *EgLPCInterface_WriteConsumptionLimit_Call {
-	return &EgLPCInterface_WriteConsumptionLimit_Call{Call: _e.mock.On("WriteConsumptionLimit", entity, limit)}
+//   - resultCB func(model.ResultDataType)
+func (_e *EgLPCInterface_Expecter) WriteConsumptionLimit(entity interface{}, limit interface{}, resultCB interface{}) *EgLPCInterface_WriteConsumptionLimit_Call {
+	return &EgLPCInterface_WriteConsumptionLimit_Call{Call: _e.mock.On("WriteConsumptionLimit", entity, limit, resultCB)}
 }
 
-func (_c *EgLPCInterface_WriteConsumptionLimit_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, limit api.LoadLimit)) *EgLPCInterface_WriteConsumptionLimit_Call {
+func (_c *EgLPCInterface_WriteConsumptionLimit_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, limit api.LoadLimit, resultCB func(model.ResultDataType))) *EgLPCInterface_WriteConsumptionLimit_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].(api.LoadLimit))
+		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].(api.LoadLimit), args[2].(func(model.ResultDataType)))
 	})
 	return _c
 }
@@ -503,7 +631,7 @@ func (_c *EgLPCInterface_WriteConsumptionLimit_Call) Return(_a0 *model.MsgCounte
 	return _c
 }
 
-func (_c *EgLPCInterface_WriteConsumptionLimit_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, api.LoadLimit) (*model.MsgCounterType, error)) *EgLPCInterface_WriteConsumptionLimit_Call {
+func (_c *EgLPCInterface_WriteConsumptionLimit_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, api.LoadLimit, func(model.ResultDataType)) (*model.MsgCounterType, error)) *EgLPCInterface_WriteConsumptionLimit_Call {
 	_c.Call.Return(run)
 	return _c
 }

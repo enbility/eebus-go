@@ -15,7 +15,7 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type CsLPC struct {
+type LPC struct {
 	*usecase.UseCaseBase
 
 	pendingMux    sync.Mutex
@@ -26,9 +26,9 @@ type CsLPC struct {
 	heartbeatKeoWorkaround bool // required because KEO Stack uses multiple identical entities for the same functionality, and it is not clear which to use
 }
 
-var _ ucapi.CsLPCInterface = (*CsLPC)(nil)
+var _ ucapi.CsLPCInterface = (*LPC)(nil)
 
-func NewCsLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CsLPC {
+func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPC {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeGridGuard,
 		model.EntityTypeTypeCEM, // KEO uses this entity type for an SMGW whysoever
@@ -45,7 +45,7 @@ func NewCsLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 		validEntityTypes,
 	)
 
-	uc := &CsLPC{
+	uc := &LPC{
 		UseCaseBase:   usecase,
 		pendingLimits: make(map[model.MsgCounterType]*spineapi.Message),
 	}
@@ -55,7 +55,7 @@ func NewCsLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 	return uc
 }
 
-func (e *CsLPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid model.LoadControlLimitIdType, err error) {
+func (e *LPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid model.LoadControlLimitIdType, err error) {
 	limitid = model.LoadControlLimitIdType(0)
 
 	lc, err = server.NewLoadControl(e.LocalEntity)
@@ -86,7 +86,7 @@ func (e *CsLPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid m
 // loadcontrol server feature.
 // the implementation only considers write messages for this use case and
 // approves all others
-func (e *CsLPC) loadControlWriteCB(msg *spineapi.Message) {
+func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
 		return
@@ -127,7 +127,7 @@ func (e *CsLPC) loadControlWriteCB(msg *spineapi.Message) {
 	go e.ApproveOrDenyConsumptionLimit(*msg.RequestHeader.MsgCounter, true, "")
 }
 
-func (e *CsLPC) AddFeatures() {
+func (e *LPC) AddFeatures() {
 	// client features
 	_ = e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)
 
@@ -229,8 +229,8 @@ func (e *CsLPC) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *CsLPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 

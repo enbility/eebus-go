@@ -3,6 +3,11 @@ package vabd
 import "github.com/enbility/eebus-go/api"
 
 const (
+	// Update of the list of remote entites supporting the Use Case
+	//
+	// Use `RemoteEntities` to get the current data
+	UseCaseSupportUpdate api.EventType = "cem-vabd-UseCaseSupportUpdate"
+
 	// Battery System (dis)charge power data updated
 	//
 	// Use `Power` to get the current data

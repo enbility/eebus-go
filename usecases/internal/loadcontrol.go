@@ -39,8 +39,8 @@ func LoadControlLimits(
 
 	var result []ucapi.LoadLimitsPhase
 
-	for i := 0; i < len(PhaseNameMapping); i++ {
-		phaseName := PhaseNameMapping[i]
+	for i := 0; i < len(ucapi.PhaseNameMapping); i++ {
+		phaseName := ucapi.PhaseNameMapping[i]
 
 		// electricalParameterDescription contains the measured phase for each measurementId
 		filter := model.ElectricalConnectionParameterDescriptionDataType{

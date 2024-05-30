@@ -14,10 +14,10 @@ import (
 )
 
 // returns the constraints for the time slots
-func (e *CemCEVC) TimeSlotConstraints(entity spineapi.EntityRemoteInterface) (ucapi.TimeSlotConstraints, error) {
+func (e *CEVC) TimeSlotConstraints(entity spineapi.EntityRemoteInterface) (ucapi.TimeSlotConstraints, error) {
 	result := ucapi.TimeSlotConstraints{}
 
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return result, api.ErrNoCompatibleEntity
 	}
 
@@ -61,8 +61,8 @@ func (e *CemCEVC) TimeSlotConstraints(entity spineapi.EntityRemoteInterface) (uc
 
 // send power limits to the EV
 // if no data is provided, default power limits with the max possible value for 7 days will be sent
-func (e *CemCEVC) WritePowerLimits(entity spineapi.EntityRemoteInterface, data []ucapi.DurationSlotValue) error {
-	if !e.IsCompatibleEntity(entity) {
+func (e *CEVC) WritePowerLimits(entity spineapi.EntityRemoteInterface, data []ucapi.DurationSlotValue) error {
+	if !e.IsCompatibleEntityType(entity) {
 		return api.ErrNoCompatibleEntity
 	}
 
@@ -136,7 +136,7 @@ func (e *CemCEVC) WritePowerLimits(entity spineapi.EntityRemoteInterface, data [
 	return err
 }
 
-func (e *CemCEVC) defaultPowerLimits(entity spineapi.EntityRemoteInterface) ([]ucapi.DurationSlotValue, error) {
+func (e *CEVC) defaultPowerLimits(entity spineapi.EntityRemoteInterface) ([]ucapi.DurationSlotValue, error) {
 	// send default power limits for the maximum timeframe
 	// to fullfill spec, as there is no data provided
 	logging.Log().Info("Fallback sending default power limits")

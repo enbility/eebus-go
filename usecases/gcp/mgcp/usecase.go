@@ -11,13 +11,13 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type GcpMGCP struct {
+type MGCP struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.GcpMGCPInterface = (*GcpMGCP)(nil)
+var _ ucapi.GcpMGCPInterface = (*MGCP)(nil)
 
-func NewGcpMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *GcpMGCP {
+func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeCEM,
 		model.EntityTypeTypeGridConnectionPointOfPremises,
@@ -33,7 +33,7 @@ func NewGcpMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEve
 		eventCB,
 		validEntityTypes)
 
-	uc := &GcpMGCP{
+	uc := &MGCP{
 		UseCaseBase: usecase,
 	}
 
@@ -42,7 +42,7 @@ func NewGcpMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEve
 	return uc
 }
 
-func (e *GcpMGCP) AddFeatures() {
+func (e *MGCP) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceConfiguration,
@@ -59,8 +59,8 @@ func (e *GcpMGCP) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *GcpMGCP) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MGCP) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 

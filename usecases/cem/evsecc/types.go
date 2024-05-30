@@ -3,6 +3,11 @@ package evsecc
 import "github.com/enbility/eebus-go/api"
 
 const (
+	// Update of the list of remote entites supporting the Use Case
+	//
+	// Use `RemoteEntities` to get the current data
+	UseCaseSupportUpdate api.EventType = "cem-evsecc-UseCaseSupportUpdate"
+
 	// An EVSE was connected
 	EvseConnected api.EventType = "cem-evsecc-EvseConnected"
 

@@ -509,7 +509,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 
 				phaseLimitValues := []ucapi.LoadLimitsPhase{}
 				for index, limit := range data.limits {
-					phase := PhaseNameMapping[index]
+					phase := ucapi.PhaseNameMapping[index]
 					phaseLimitValues = append(phaseLimitValues, ucapi.LoadLimitsPhase{
 						Phase:    phase,
 						IsActive: true,

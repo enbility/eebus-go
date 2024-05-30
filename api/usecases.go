@@ -2,6 +2,7 @@ package api
 
 import (
 	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 // Entity event callback
@@ -13,11 +14,31 @@ type UseCaseBaseInterface interface {
 	// add the use case
 	AddUseCase()
 
+	// remove the use case
+	RemoveUseCase()
+
 	// update availability of the use case
+	//
+	// NOTE: only allowed to be used for client side implementations
+	// of a use case! Otherwise use `RemoveUseCase` and `AddUseCase`.
 	UpdateUseCaseAvailability(available bool)
 
 	// check if the entity is compatible with the use case
-	IsCompatibleEntity(entity spineapi.EntityRemoteInterface) bool
+	IsCompatibleEntityType(entity spineapi.EntityRemoteInterface) bool
+
+	// get the supported use case scenarios of the remote entity
+	SupportedUseCaseScenarios(
+		entity spineapi.EntityRemoteInterface,
+	) []model.UseCaseScenarioSupportType
+
+	// check if the entity supports all provided use case scenarios
+	HasSupportForUseCaseScenarios(
+		entity spineapi.EntityRemoteInterface,
+		scenarios []model.UseCaseScenarioSupportType,
+	) bool
+
+	// return the current list of compatible remote entities and their scenarios
+	RemoteEntities() []RemoteEntityScenarios
 }
 
 // Implemented by each Use Case

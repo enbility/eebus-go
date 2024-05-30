@@ -10,15 +10,20 @@ import (
 )
 
 // handle SPINE events
-func (e *CemOPEV) HandleEvent(payload spineapi.EventPayload) {
+func (e *OPEV) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EV entity or device changes for this remote device
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
 	if internal.IsEntityConnected(payload) {
 		e.evConnected(payload.Entity)
+		return
+	}
+
+	if internal.IsEntityDisconnected(payload) {
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
 		return
 	}
 
@@ -28,17 +33,22 @@ func (e *CemOPEV) HandleEvent(payload spineapi.EventPayload) {
 	}
 
 	switch payload.Data.(type) {
+	case *model.NodeManagementUseCaseDataType:
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
+
 	case *model.ElectricalConnectionPermittedValueSetListDataType:
 		e.evElectricalPermittedValuesUpdate(payload)
+
 	case *model.LoadControlLimitDescriptionListDataType:
 		e.evLoadControlLimitDescriptionDataUpdate(payload.Entity)
+
 	case *model.LoadControlLimitListDataType:
 		e.evLoadControlLimitDataUpdate(payload)
 	}
 }
 
 // an EV was connected
-func (e *CemOPEV) evConnected(entity spineapi.EntityRemoteInterface) {
+func (e *OPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evLoadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		if _, err := evLoadControl.Subscribe(); err != nil {
@@ -62,7 +72,7 @@ func (e *CemOPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the load control limit description data of an EV was updated
-func (e *CemOPEV) evLoadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *OPEV) evLoadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if evLoadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		// get values
 		if _, err := evLoadControl.RequestLimitData(); err != nil {
@@ -72,7 +82,7 @@ func (e *CemOPEV) evLoadControlLimitDescriptionDataUpdate(entity spineapi.Entity
 }
 
 // the load control limit data of an EV was updated
-func (e *CemOPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
+func (e *OPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity)
 	if err != nil {
 		return
@@ -89,7 +99,7 @@ func (e *CemOPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the electrical connection permitted value sets data of an EV was updated
-func (e *CemOPEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
+func (e *OPEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
 	if ec, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			AcMeasuredPhases: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),

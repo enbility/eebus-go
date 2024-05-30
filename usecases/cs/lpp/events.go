@@ -11,13 +11,18 @@ import (
 )
 
 // handle SPINE events
-func (e *CsLPP) HandleEvent(payload spineapi.EventPayload) {
+func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
+		return
+	}
+
 	if internal.IsDeviceConnected(payload) {
 		e.deviceConnected(payload)
 		return
 	}
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if internal.IsEntityDisconnected(payload) {
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
 		return
 	}
 
@@ -37,6 +42,17 @@ func (e *CsLPP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
+	if payload.EventType == spineapi.EventTypeDataChange &&
+		payload.ChangeType == spineapi.ElementChangeUpdate {
+		// the codefactor warning is invalid, as .(type) check can not be replaced with if then
+		//revive:disable-next-line
+		switch payload.Data.(type) {
+		case *model.NodeManagementUseCaseDataType:
+			e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
+			return
+		}
+	}
+
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate ||
 		payload.CmdClassifier == nil ||
@@ -44,8 +60,6 @@ func (e *CsLPP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	// the codefactor warning is invalid, as .(type) check can not be replaced with if then
-	//revive:disable-next-line
 	switch payload.Data.(type) {
 	case *model.LoadControlLimitListDataType:
 		serverF := e.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
@@ -69,7 +83,7 @@ func (e *CsLPP) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // a remote device was connected and we know its entities
-func (e *CsLPP) deviceConnected(payload spineapi.EventPayload) {
+func (e *LPP) deviceConnected(payload spineapi.EventPayload) {
 	if payload.Device == nil {
 		return
 	}
@@ -81,7 +95,7 @@ func (e *CsLPP) deviceConnected(payload spineapi.EventPayload) {
 
 	entites := remoteDevice.Entities()
 	for _, entity := range entites {
-		if !e.IsCompatibleEntity(entity) {
+		if !e.IsCompatibleEntityType(entity) {
 			continue
 		}
 
@@ -121,7 +135,7 @@ func (e *CsLPP) deviceConnected(payload spineapi.EventPayload) {
 }
 
 // subscribe to the DeviceDiagnosis Server of the entity that created a binding
-func (e *CsLPP) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
+func (e *LPP) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
 	// is the workaround is needed?
 	if e.heartbeatKeoWorkaround {
 		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
@@ -138,7 +152,7 @@ func (e *CsLPP) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
 }
 
 // the load control limit data was updated
-func (e *CsLPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
+func (e *LPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	if lc, err := server.NewLoadControl(e.LocalEntity); err == nil {
 		filter := model.LoadControlLimitDescriptionDataType{
 			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
@@ -153,7 +167,7 @@ func (e *CsLPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the configuration key data was updated
-func (e *CsLPP) configurationDataUpdate(payload spineapi.EventPayload) {
+func (e *LPP) configurationDataUpdate(payload spineapi.EventPayload) {
 	if dc, err := server.NewDeviceConfiguration(e.LocalEntity); err == nil {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeProductionActivePowerLimit),

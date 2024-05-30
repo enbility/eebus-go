@@ -10,10 +10,10 @@ import (
 )
 
 // handle SPINE events
-func (e *CemEVSOC) HandleEvent(payload spineapi.EventPayload) {
+func (e *EVSOC) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EV entity or device changes for this remote device
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
@@ -22,21 +22,27 @@ func (e *CemEVSOC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
+	if internal.IsEntityDisconnected(payload) {
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
+		return
+	}
+
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return
 	}
 
-	// the codefactor warning is invalid, as .(type) check can not be replaced with if then
-	//revive:disable-next-line
 	switch payload.Data.(type) {
+	case *model.NodeManagementUseCaseDataType:
+		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
+
 	case *model.MeasurementListDataType:
 		e.evMeasurementDataUpdate(payload)
 	}
 }
 
 // an EV was connected
-func (e *CemEVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
+func (e *EVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		if _, err := evMeasurement.Subscribe(); err != nil {
@@ -56,7 +62,7 @@ func (e *CemEVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the measurement data of an EV was updated
-func (e *CemEVSOC) evMeasurementDataUpdate(payload spineapi.EventPayload) {
+func (e *EVSOC) evMeasurementDataUpdate(payload spineapi.EventPayload) {
 	// Scenario 1
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.MeasurementDescriptionDataType{

@@ -10,13 +10,13 @@ import (
 
 // the manufacturer data of an EVSE
 // returns deviceName, serialNumber, error
-func (e *CemEVSECC) ManufacturerData(
+func (e *EVSECC) ManufacturerData(
 	entity spineapi.EntityRemoteInterface,
 ) (
 	api.ManufacturerData,
 	error,
 ) {
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return api.ManufacturerData{}, api.ErrNoCompatibleEntity
 	}
 
@@ -25,7 +25,7 @@ func (e *CemEVSECC) ManufacturerData(
 
 // the operating state data of an EVSE
 // returns operatingState, lastErrorCode, error
-func (e *CemEVSECC) OperatingState(
+func (e *EVSECC) OperatingState(
 	entity spineapi.EntityRemoteInterface,
 ) (
 	model.DeviceDiagnosisOperatingStateType, string, error,
@@ -33,7 +33,7 @@ func (e *CemEVSECC) OperatingState(
 	operatingState := model.DeviceDiagnosisOperatingStateTypeNormalOperation
 	lastErrorCode := ""
 
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return operatingState, lastErrorCode, api.ErrNoCompatibleEntity
 	}
 

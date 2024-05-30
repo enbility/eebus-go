@@ -10,13 +10,13 @@ import (
 	"github.com/enbility/spine-go/spine"
 )
 
-type EgLPP struct {
+type LPP struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.EgLPPInterface = (*EgLPP)(nil)
+var _ ucapi.EgLPPInterface = (*LPP)(nil)
 
-func NewEgLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EgLPP {
+func NewLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPP {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEVSE,
 		model.EntityTypeTypeInverter,
@@ -34,7 +34,7 @@ func NewEgLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 		eventCB,
 		validEntityTypes)
 
-	uc := &EgLPP{
+	uc := &LPP{
 		UseCaseBase: usecase,
 	}
 
@@ -43,7 +43,7 @@ func NewEgLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 	return uc
 }
 
-func (e *EgLPP) AddFeatures() {
+func (e *LPP) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceDiagnosis,
@@ -60,7 +60,7 @@ func (e *EgLPP) AddFeatures() {
 	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
 }
 
-func (e *EgLPP) UpdateUseCaseAvailability(available bool) {
+func (e *LPP) UpdateUseCaseAvailability(available bool) {
 	e.LocalEntity.SetUseCaseAvailability(model.UseCaseActorTypeEnergyGuard, e.UseCaseName, available)
 }
 
@@ -69,8 +69,8 @@ func (e *EgLPP) UpdateUseCaseAvailability(available bool) {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *EgLPP) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPP) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 

@@ -11,13 +11,13 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type CemEVSOC struct {
+type EVSOC struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.CemEVSOCInterface = (*CemEVSOC)(nil)
+var _ ucapi.CemEVSOCInterface = (*EVSOC)(nil)
 
-func NewCemEVSOC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CemEVSOC {
+func NewEVSOC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVSOC {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEV,
 	}
@@ -33,7 +33,7 @@ func NewCemEVSOC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEv
 		validEntityTypes,
 	)
 
-	uc := &CemEVSOC{
+	uc := &EVSOC{
 		UseCaseBase: usecase,
 	}
 
@@ -42,7 +42,7 @@ func NewCemEVSOC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEv
 	return uc
 }
 
-func (e *CemEVSOC) AddFeatures() {
+func (e *EVSOC) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeElectricalConnection,
@@ -53,7 +53,7 @@ func (e *CemEVSOC) AddFeatures() {
 	}
 }
 
-func (e *CemEVSOC) UpdateUseCaseAvailability(available bool) {
+func (e *EVSOC) UpdateUseCaseAvailability(available bool) {
 	e.LocalEntity.SetUseCaseAvailability(model.UseCaseActorTypeCEM, e.UseCaseName, available)
 }
 
@@ -62,8 +62,8 @@ func (e *CemEVSOC) UpdateUseCaseAvailability(available bool) {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *CemEVSOC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *EVSOC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 

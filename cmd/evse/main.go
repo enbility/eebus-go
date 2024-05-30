@@ -27,7 +27,7 @@ var remoteSki string
 type evse struct {
 	myService *service.Service
 
-	uclpc *lpc.CsLPC
+	uclpc *lpc.LPC
 
 	isConnected bool
 }
@@ -89,7 +89,7 @@ func (h *evse) run() {
 	}
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeEVSE)
-	h.uclpc = lpc.NewCsLPC(localEntity, h.OnLPCEvent)
+	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
 	h.myService.AddUseCase(h.uclpc)
 
 	if len(remoteSki) == 0 {

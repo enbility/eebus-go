@@ -11,13 +11,13 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type MaMPC struct {
+type MPC struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.MaMPCInterface = (*MaMPC)(nil)
+var _ ucapi.MaMPCInterface = (*MPC)(nil)
 
-func NewMaMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MaMPC {
+func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MPC {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeCompressor,
 		model.EntityTypeTypeElectricalImmersionHeater,
@@ -38,7 +38,7 @@ func NewMaMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 		eventCB,
 		validEntityTypes)
 
-	uc := &MaMPC{
+	uc := &MPC{
 		UseCaseBase: usecase,
 	}
 
@@ -47,7 +47,7 @@ func NewMaMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 	return uc
 }
 
-func (e *MaMPC) AddFeatures() {
+func (e *MPC) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeElectricalConnection,
@@ -63,8 +63,8 @@ func (e *MaMPC) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *MaMPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 

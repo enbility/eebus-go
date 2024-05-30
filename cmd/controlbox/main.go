@@ -90,7 +90,7 @@ func (h *controlbox) run() {
 	}
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
-	h.uclpc = lpc.NewEgLPC(localEntity, h.OnLPCEvent)
+	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
 	h.myService.AddUseCase(h.uclpc)
 
 	if len(remoteSki) == 0 {

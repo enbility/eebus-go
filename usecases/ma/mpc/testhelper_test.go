@@ -26,7 +26,7 @@ func TestMaMPCSuite(t *testing.T) {
 type MaMPCSuite struct {
 	suite.Suite
 
-	sut *MaMPC
+	sut *MPC
 
 	service api.ServiceInterface
 
@@ -70,7 +70,7 @@ func (s *MaMPCSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	s.sut = NewMaMPC(localEntity, s.Event)
+	s.sut = NewMPC(localEntity, s.Event)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 

@@ -10,13 +10,13 @@ import (
 	"github.com/enbility/spine-go/spine"
 )
 
-type EgLPC struct {
+type LPC struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.EgLPCInterface = (*EgLPC)(nil)
+var _ ucapi.EgLPCInterface = (*LPC)(nil)
 
-func NewEgLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EgLPC {
+func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPC {
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeCompressor,
 		model.EntityTypeTypeEVSE,
@@ -36,7 +36,7 @@ func NewEgLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 		eventCB,
 		validEntityTypes)
 
-	uc := &EgLPC{
+	uc := &LPC{
 		UseCaseBase: usecase,
 	}
 
@@ -45,7 +45,7 @@ func NewEgLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 	return uc
 }
 
-func (e *EgLPC) AddFeatures() {
+func (e *LPC) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceDiagnosis,
@@ -67,8 +67,8 @@ func (e *EgLPC) AddFeatures() {
 // possible errors:
 //   - ErrDataNotAvailable if that information is not (yet) available
 //   - and others
-func (e *EgLPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return false, api.ErrNoCompatibleEntity
 	}
 

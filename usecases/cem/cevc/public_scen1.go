@@ -12,8 +12,8 @@ import (
 )
 
 // returns the current charging strategy
-func (e *CemCEVC) ChargeStrategy(entity spineapi.EntityRemoteInterface) ucapi.EVChargeStrategyType {
-	if !e.IsCompatibleEntity(entity) {
+func (e *CEVC) ChargeStrategy(entity spineapi.EntityRemoteInterface) ucapi.EVChargeStrategyType {
+	if !e.IsCompatibleEntityType(entity) {
 		return ucapi.EVChargeStrategyTypeUnknown
 	}
 
@@ -73,10 +73,10 @@ func (e *CemCEVC) ChargeStrategy(entity spineapi.EntityRemoteInterface) ucapi.EV
 }
 
 // returns the current energy demand in Wh and the duration
-func (e *CemCEVC) EnergyDemand(entity spineapi.EntityRemoteInterface) (ucapi.Demand, error) {
+func (e *CEVC) EnergyDemand(entity spineapi.EntityRemoteInterface) (ucapi.Demand, error) {
 	demand := ucapi.Demand{}
 
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return demand, api.ErrNoCompatibleEntity
 	}
 
