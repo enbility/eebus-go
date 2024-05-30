@@ -7,6 +7,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	internal "github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -79,19 +80,15 @@ func (e *EgLPP) ProductionLimit(entity spineapi.EntityRemoteInterface) (
 // parameters:
 //   - entity: the entity of the e.g. EVSE
 //   - limit: load limit data
+//   - resultCB: callback function for handling the result response
 func (e *EgLPP) WriteProductionLimit(
 	entity spineapi.EntityRemoteInterface,
-	limit ucapi.LoadLimit) (*model.MsgCounterType, error) {
+	limit ucapi.LoadLimit,
+	resultCB func(result model.ResultDataType),
+) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
-
-	loadControl, err := client.NewLoadControl(e.LocalEntity, entity)
-	if err != nil {
-		return nil, api.ErrNoCompatibleEntity
-	}
-
-	var limitData []model.LoadControlLimitDataType
 
 	filter := model.LoadControlLimitDescriptionDataType{
 		LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
@@ -99,60 +96,7 @@ func (e *EgLPP) WriteProductionLimit(
 		LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
 		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 	}
-	limitDescriptions, err := loadControl.GetLimitDescriptionsForFilter(filter)
-	if err != nil || len(limitDescriptions) != 1 ||
-		limitDescriptions[0].LimitId == nil {
-		return nil, api.ErrMetadataNotAvailable
-	}
-
-	limitDesc := limitDescriptions[0]
-
-	if _, err := loadControl.GetLimitDataForId(*limitDesc.LimitId); err != nil {
-		return nil, api.ErrDataNotAvailable
-	}
-
-	currentLimits, err := loadControl.GetLimitDataForFilter(model.LoadControlLimitDescriptionDataType{})
-	if err != nil {
-		return nil, api.ErrDataNotAvailable
-	}
-
-	for _, item := range currentLimits {
-		if item.LimitId == nil ||
-			*item.LimitId != *limitDesc.LimitId {
-			continue
-		}
-
-		// EEBus_UC_TS_LimitationOfPowerProduction V1.0.0 3.2.2.2.2.2
-		// If set to "true", the timePeriod, value and isLimitActive Elements SHALL be writeable by a client.
-		if item.IsLimitChangeable != nil && !*item.IsLimitChangeable {
-			return nil, api.ErrNotSupported
-		}
-
-		newLimit := model.LoadControlLimitDataType{
-			LimitId:       limitDesc.LimitId,
-			IsLimitActive: util.Ptr(limit.IsActive),
-			Value:         model.NewScaledNumberType(limit.Value),
-		}
-		if limit.Duration > 0 {
-			newLimit.TimePeriod = &model.TimePeriodType{
-				EndTime: model.NewAbsoluteOrRelativeTimeTypeFromDuration(limit.Duration),
-			}
-		}
-
-		limitData = append(limitData, newLimit)
-		break
-	}
-
-	deleteSelectors := &model.LoadControlLimitListDataSelectorsType{
-		LimitId: limitDesc.LimitId,
-	}
-	deleteElements := &model.LoadControlLimitDataElementsType{
-		TimePeriod: &model.TimePeriodElementsType{},
-	}
-
-	msgCounter, err := loadControl.WriteLimitData(limitData, deleteSelectors, deleteElements)
-
-	return msgCounter, err
+	return internal.WriteLoadControlLimit(e.LocalEntity, entity, filter, limit, resultCB)
 }
 
 // Scenario 2

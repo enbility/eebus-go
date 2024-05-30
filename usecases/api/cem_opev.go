@@ -37,6 +37,7 @@ type CemOPEVInterface interface {
 	// parameters:
 	//   - entity: the entity of the EV
 	//   - limits: a set of limits containing phase specific limit data
+	//   - resultCB: callback function for handling the result response
 	//
 	// Sets a maximum A limit for each phase that the EV may not exceed.
 	// Mainly used for implementing overload protection of the site or limiting the
@@ -51,7 +52,11 @@ type CemOPEVInterface interface {
 	// In ISO15118-2 the usecase is only supported via VAS extensions which are vendor specific
 	// and needs to have specific EVSE support for the specific EV brand.
 	// In ISO15118-20 this is a standard feature which does not need special support on the EVSE.
-	WriteLoadControlLimits(entity spineapi.EntityRemoteInterface, limits []LoadLimitsPhase) (*model.MsgCounterType, error)
+	WriteLoadControlLimits(
+		entity spineapi.EntityRemoteInterface,
+		limits []LoadLimitsPhase,
+		resultCB func(result model.ResultDataType),
+	) (*model.MsgCounterType, error)
 
 	// Scenario 2
 

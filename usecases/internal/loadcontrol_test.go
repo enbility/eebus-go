@@ -2,8 +2,10 @@ package internal
 
 import (
 	"testing"
+	"time"
 
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -156,20 +158,151 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 	assert.Equal(s.T(), 16.0, data[0].Value)
 }
 
+func (s *InternalSuite) Test_WriteLoadControlLimit() {
+	loadLimit := ucapi.LoadLimit{
+		Duration: time.Minute * 2,
+		IsActive: true,
+		Value:    5000,
+	}
+
+	filter := model.LoadControlLimitDescriptionDataType{
+		LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+		LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+		LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+	}
+
+	msgCounter, err := WriteLoadControlLimit(nil, nil, filter, loadLimit, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), msgCounter)
+
+	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.mockRemoteEntity, filter, loadLimit, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), msgCounter)
+
+	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), msgCounter)
+
+	descData := &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId:        util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+				MeasurementId:  util.Ptr(model.MeasurementIdType(0)),
+				LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+				ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+				LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
+			},
+			{
+				LimitId:        util.Ptr(model.LoadControlLimitIdType(1)),
+				LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+				MeasurementId:  util.Ptr(model.MeasurementIdType(0)),
+				LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+				ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+				LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+			},
+		},
+	}
+	lc := s.monitoredEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	lc.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+
+	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), msgCounter)
+
+	data := &model.LoadControlLimitListDataType{LoadControlLimitData: []model.LoadControlLimitDataType{}}
+	lc.UpdateData(model.FunctionTypeLoadControlLimitListData, data, nil, nil)
+
+	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), msgCounter)
+
+	data = &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{
+				LimitId:           util.Ptr(model.LoadControlLimitIdType(1)),
+				IsLimitChangeable: util.Ptr(false),
+				IsLimitActive:     util.Ptr(false),
+				Value:             model.NewScaledNumberType(0),
+			},
+		},
+	}
+	lc.UpdateData(model.FunctionTypeLoadControlLimitListData, data, nil, nil)
+
+	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), msgCounter)
+
+	data = &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+			},
+			{
+				LimitId:           util.Ptr(model.LoadControlLimitIdType(1)),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(false),
+				Value:             model.NewScaledNumberType(0),
+			},
+		},
+	}
+	lc.UpdateData(model.FunctionTypeLoadControlLimitListData, data, nil, nil)
+
+	s.mux.Lock()
+	cbInvoked := false
+	s.mux.Unlock()
+	cb := func(result model.ResultDataType) {
+		s.mux.Lock()
+		cbInvoked = true
+		s.mux.Unlock()
+	}
+	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, cb)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
+
+	lf := s.localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeClient)
+	msg := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter:          util.Ptr(model.MsgCounterType(100)),
+			MsgCounterReference: msgCounter,
+		},
+		CmdClassifier: model.CmdClassifierTypeResult,
+		Cmd: model.CmdType{
+			ResultData: &model.ResultDataType{
+				ErrorNumber: util.Ptr(model.ErrorNumberType(1)),
+			},
+		},
+		FeatureRemote: lc,
+		EntityRemote:  s.monitoredEntity,
+		DeviceRemote:  s.remoteDevice,
+	}
+	lf.HandleMessage(msg)
+	time.Sleep(time.Millisecond * 200)
+	s.mux.Lock()
+	assert.True(s.T(), cbInvoked)
+	s.mux.Unlock()
+}
+
 func (s *InternalSuite) Test_WriteLoadControlLimits() {
 	loadLimits := []ucapi.LoadLimitsPhase{}
 
-	category := model.LoadControlCategoryTypeObligation
+	filter := model.LoadControlLimitDescriptionDataType{
+		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+		LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+		Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+		ScopeType:     util.Ptr(model.ScopeTypeTypeOverloadProtection),
+	}
 
-	msgCounter, err := WriteLoadControlLimits(nil, nil, category, loadLimits)
+	msgCounter, err := WriteLoadControlPhaseLimits(nil, nil, filter, loadLimits, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), msgCounter)
 
-	msgCounter, err = WriteLoadControlLimits(s.localEntity, s.mockRemoteEntity, category, loadLimits)
+	msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.mockRemoteEntity, filter, loadLimits, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), msgCounter)
 
-	msgCounter, err = WriteLoadControlLimits(s.localEntity, s.monitoredEntity, category, loadLimits)
+	msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), msgCounter)
 
@@ -203,7 +336,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
-	msgCounter, err = WriteLoadControlLimits(s.localEntity, s.monitoredEntity, category, loadLimits)
+	msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), msgCounter)
 
@@ -309,7 +442,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 				fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
-				msgCounter, err := WriteLoadControlLimits(s.localEntity, s.monitoredEntity, category, loadLimits)
+				msgCounter, err := WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
 				assert.NotNil(t, err)
 				assert.Nil(t, msgCounter)
 
@@ -320,6 +453,9 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 						LimitId:       util.Ptr(id),
 						LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
 						MeasurementId: util.Ptr(model.MeasurementIdType(index)),
+						LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+						Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+						ScopeType:     util.Ptr(model.ScopeTypeTypeOverloadProtection),
 					}
 					limitDesc = append(limitDesc, limitItem)
 				}
@@ -330,6 +466,9 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 						LimitId:       util.Ptr(id),
 						LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
 						MeasurementId: util.Ptr(model.MeasurementIdType(index)),
+						LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+						Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+						ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
 					}
 					limitDesc = append(limitDesc, limitItem)
 				}
@@ -342,7 +481,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 				fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
-				msgCounter, err = WriteLoadControlLimits(s.localEntity, s.monitoredEntity, category, loadLimits)
+				msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
 				assert.NotNil(t, err)
 				assert.Nil(t, msgCounter)
 
@@ -364,7 +503,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 				fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitListData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
-				msgCounter, err = WriteLoadControlLimits(s.localEntity, s.monitoredEntity, category, loadLimits)
+				msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
 				assert.NotNil(t, err)
 				assert.Nil(t, msgCounter)
 
@@ -378,13 +517,43 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 					})
 				}
 
-				msgCounter, err = WriteLoadControlLimits(s.localEntity, s.monitoredEntity, category, phaseLimitValues)
+				s.mux.Lock()
+				cbInvoked := false
+				s.mux.Unlock()
+				cb := func(result model.ResultDataType) {
+					s.mux.Lock()
+					cbInvoked = true
+					s.mux.Unlock()
+				}
+				msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, phaseLimitValues, cb)
 				assert.Nil(t, err)
 				assert.NotNil(t, msgCounter)
 
-				msgCounter, err = WriteLoadControlLimits(s.localEntity, s.monitoredEntity, category, phaseLimitValues)
+				msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, phaseLimitValues, cb)
 				assert.Nil(t, err)
 				assert.NotNil(t, msgCounter)
+
+				lf := s.localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeClient)
+				msg := &spineapi.Message{
+					RequestHeader: &model.HeaderType{
+						MsgCounter:          util.Ptr(model.MsgCounterType(100)),
+						MsgCounterReference: msgCounter,
+					},
+					CmdClassifier: model.CmdClassifierTypeResult,
+					Cmd: model.CmdType{
+						ResultData: &model.ResultDataType{
+							ErrorNumber: util.Ptr(model.ErrorNumberType(1)),
+						},
+					},
+					FeatureRemote: rFeature,
+					EntityRemote:  s.monitoredEntity,
+					DeviceRemote:  s.remoteDevice,
+				}
+				lf.HandleMessage(msg)
+				time.Sleep(time.Millisecond * 200)
+				s.mux.Lock()
+				assert.True(s.T(), cbInvoked)
+				s.mux.Unlock()
 			}
 		})
 	}

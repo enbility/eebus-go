@@ -56,7 +56,9 @@ func (e *CemOPEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 // send new LoadControlLimits to the remote EV
 //
 // parameters:
+//   - entity: the entity of the e.g. EVSE
 //   - limits: a set of limits containing phase specific limit data
+//   - resultCB: callback function for handling the result response
 //
 // Sets a maximum A limit for each phase that the EV may not exceed.
 // Mainly used for implementing overload protection of the site or limiting the
@@ -71,10 +73,20 @@ func (e *CemOPEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 // In ISO15118-2 the usecase is only supported via VAS extensions which are vendor specific
 // and needs to have specific EVSE support for the specific EV brand.
 // In ISO15118-20 this is a standard feature which does not need special support on the EVSE.
-func (e *CemOPEV) WriteLoadControlLimits(entity spineapi.EntityRemoteInterface, limits []ucapi.LoadLimitsPhase) (*model.MsgCounterType, error) {
+func (e *CemOPEV) WriteLoadControlLimits(
+	entity spineapi.EntityRemoteInterface,
+	limits []ucapi.LoadLimitsPhase,
+	resultCB func(result model.ResultDataType),
+) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
-	return internal.WriteLoadControlLimits(e.LocalEntity, entity, model.LoadControlCategoryTypeObligation, limits)
+	filter := model.LoadControlLimitDescriptionDataType{
+		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+		LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+		Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+		ScopeType:     util.Ptr(model.ScopeTypeTypeOverloadProtection),
+	}
+	return internal.WriteLoadControlPhaseLimits(e.LocalEntity, entity, filter, limits, resultCB)
 }

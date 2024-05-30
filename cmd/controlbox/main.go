@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/features/client"
 	"github.com/enbility/eebus-go/service"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/eg/lpc"
@@ -29,7 +28,7 @@ var remoteSki string
 type controlbox struct {
 	myService *service.Service
 
-	uclpc *lpc.EgLPC
+	uclpc ucapi.EgLPCInterface
 
 	isConnected bool
 }
@@ -124,32 +123,19 @@ func (h *controlbox) RemoteSKIConnected(service api.ServiceInterface, ski string
 				IsActive: true,
 				Value:    7000,
 			}
-			msgCounter, err := h.uclpc.WriteConsumptionLimit(entity, limit)
+
+			resultCB := func(msg model.ResultDataType) {
+				if *msg.ErrorNumber == model.ErrorNumberTypeNoError {
+					fmt.Println("Limit accepted.")
+				} else {
+					fmt.Println("Limit rejected. Code", msg.ErrorNumber, "Description", msg.Description)
+				}
+			}
+			msgCounter, err := h.uclpc.WriteConsumptionLimit(entity, limit, resultCB)
 			if err != nil {
 				fmt.Println("Failed to send limit", err)
 				continue
 			}
-
-			// add a callback to the result
-			if lc, err := client.NewLoadControl(h.uclpc.LocalEntity, entity); err == nil {
-				err := lc.AddResponseCallback(*msgCounter, func(msg spineapi.ResponseMessage) {
-					// the response has to be of model.ResultDataType
-					response, ok := msg.Data.(*model.ResultDataType)
-					if !ok || response.ErrorNumber == nil {
-						return
-					}
-
-					if *response.ErrorNumber == model.ErrorNumberTypeNoError {
-						fmt.Println("Limit accepted.")
-					} else {
-						fmt.Println("Limit rejected. Code", response.ErrorNumber, "Description", response.Description)
-					}
-				})
-				if err != nil {
-					fmt.Println("Failed to add callback", err)
-				}
-			}
-
 			fmt.Println("Sent limit to", ski, "with msgCounter", msgCounter)
 		}
 	})

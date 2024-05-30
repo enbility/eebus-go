@@ -56,7 +56,9 @@ func (e *CemOSCEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 // send new LoadControlLimits to the remote EV
 //
 // parameters:
+//   - entity: the entity of the e.g. EVSE
 //   - limits: a set of limits containing phase specific limit data
+//   - resultCB: callback function for handling the result response
 //
 // recommendations:
 // Sets a recommended charge power in A for each phase. This is mainly
@@ -64,10 +66,20 @@ func (e *CemOSCEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 // The EV either needs to support the Optimization of Self Consumption usecase or
 // the EVSE needs to be able map the recommendations into oligation limits which then
 // works for all EVs communication either via IEC61851 or ISO15118.
-func (e *CemOSCEV) WriteLoadControlLimits(entity spineapi.EntityRemoteInterface, limits []ucapi.LoadLimitsPhase) (*model.MsgCounterType, error) {
+func (e *CemOSCEV) WriteLoadControlLimits(
+	entity spineapi.EntityRemoteInterface,
+	limits []ucapi.LoadLimitsPhase,
+	resultCB func(result model.ResultDataType),
+) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntity(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
-	return internal.WriteLoadControlLimits(e.LocalEntity, entity, model.LoadControlCategoryTypeRecommendation, limits)
+	filter := model.LoadControlLimitDescriptionDataType{
+		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+		LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
+		Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+		ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
+	}
+	return internal.WriteLoadControlPhaseLimits(e.LocalEntity, entity, filter, limits, resultCB)
 }
