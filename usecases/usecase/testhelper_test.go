@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"fmt"
-	"sync"
 	"testing"
 	"time"
 
@@ -29,18 +28,28 @@ type UseCaseSuite struct {
 
 	service api.ServiceInterface
 
+	uc *UseCaseBase
+
 	localEntity spineapi.EntityLocalInterface
 
 	remoteDevice     spineapi.DeviceRemoteInterface
 	mockRemoteEntity *spinemocks.EntityRemoteInterface
 	evseEntity       spineapi.EntityRemoteInterface
 	monitoredEntity  spineapi.EntityRemoteInterface
-
-	mux sync.Mutex
 }
 
-func (s *UseCaseSuite) Event(ski string, entity spineapi.EntityRemoteInterface, event api.EventType) {
+func (s *UseCaseSuite) Event(
+	ski string,
+	Device spineapi.DeviceRemoteInterface,
+	entity spineapi.EntityRemoteInterface,
+	event api.EventType) {
 }
+
+const (
+	useCaseUpdateEvent = "test-update-event"
+	useCaseActor       = model.UseCaseActorTypeCEM
+	useCaseName        = model.UseCaseNameTypeOverloadProtectionByEVChargingCurrentCurtailment
+)
 
 func (s *UseCaseSuite) BeforeTest(suiteName, testName string) {
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
@@ -72,6 +81,33 @@ func (s *UseCaseSuite) BeforeTest(suiteName, testName string) {
 	s.localEntity, s.remoteDevice, entities = setupDevices(s.service, s.T())
 	s.evseEntity = entities[0]
 	s.monitoredEntity = entities[1]
+
+	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeEV}
+	validEntityTypes := []model.EntityTypeType{model.EntityTypeTypeEV}
+	scenarios := []api.UseCaseScenario{
+		{
+			Scenario:       1,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeLoadControl},
+		},
+		{
+			Scenario: 2,
+		},
+		{
+			Scenario: 3,
+		},
+	}
+	s.uc = NewUseCaseBase(
+		s.localEntity,
+		useCaseActor,
+		useCaseName,
+		"1.0.0",
+		"release",
+		scenarios,
+		s.Event,
+		useCaseUpdateEvent,
+		validActorTypes,
+		validEntityTypes,
+	)
 }
 
 const remoteSki string = "testremoteski"

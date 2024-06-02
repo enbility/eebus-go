@@ -2,7 +2,6 @@ package oscev
 
 import (
 	"github.com/enbility/eebus-go/features/client"
-	"github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -17,20 +16,12 @@ func (e *OSCEV) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityDisconnected(payload) {
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-		return
-	}
-
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return
 	}
 
 	switch payload.Data.(type) {
-	case *model.NodeManagementUseCaseDataType:
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-
 	case *model.ElectricalConnectionPermittedValueSetListDataType:
 		e.evElectricalPermittedValuesUpdate(payload)
 

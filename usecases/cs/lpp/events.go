@@ -21,11 +21,6 @@ func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityDisconnected(payload) {
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-		return
-	}
-
 	// did we receive a binding to the loadControl server and the
 	// heartbeatWorkaround is required?
 	if payload.EventType == spineapi.EventTypeBindingChange &&
@@ -40,17 +35,6 @@ func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 	if internal.IsHeartbeat(payload) {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateHeartbeat)
 		return
-	}
-
-	if payload.EventType == spineapi.EventTypeDataChange &&
-		payload.ChangeType == spineapi.ElementChangeUpdate {
-		// the codefactor warning is invalid, as .(type) check can not be replaced with if then
-		//revive:disable-next-line
-		switch payload.Data.(type) {
-		case *model.NodeManagementUseCaseDataType:
-			e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-			return
-		}
 	}
 
 	if payload.EventType != spineapi.EventTypeDataChange ||

@@ -1,4 +1,4 @@
-package mpc
+package mgcp
 
 import (
 	"github.com/enbility/eebus-go/api"
@@ -9,62 +9,70 @@ import (
 	"github.com/enbility/spine-go/spine"
 )
 
-type MPC struct {
+type MGCP struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.MaMPCInterface = (*MPC)(nil)
+var _ ucapi.GcpMGCPInterface = (*MGCP)(nil)
 
-func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MPC {
-	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeMonitoringAppliance}
+func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
+	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
 	validEntityTypes := []model.EntityTypeType{
-		model.EntityTypeTypeCompressor,
-		model.EntityTypeTypeElectricalImmersionHeater,
-		model.EntityTypeTypeEVSE,
-		model.EntityTypeTypeHeatPumpAppliance,
-		model.EntityTypeTypeInverter,
-		model.EntityTypeTypeSmartEnergyAppliance,
-		model.EntityTypeTypeSubMeterElectricity,
+		model.EntityTypeTypeCEM,
+		model.EntityTypeTypeGridConnectionPointOfPremises,
 	}
 	useCaseScenarios := []api.UseCaseScenario{
 		{
-			Scenario:  model.UseCaseScenarioSupportType(1),
-			Mandatory: true,
-			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeElectricalConnection,
-				model.FeatureTypeTypeMeasurement,
-			},
+			Scenario:       model.UseCaseScenarioSupportType(1),
+			Mandatory:      false,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceConfiguration},
 		},
 		{
 			Scenario:  model.UseCaseScenarioSupportType(2),
-			Mandatory: false,
+			Mandatory: true,
 			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
+				model.FeatureTypeTypeElectricalConnection,
 			},
 		},
 		{
 			Scenario:  model.UseCaseScenarioSupportType(3),
-			Mandatory: false,
+			Mandatory: true,
 			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
+				model.FeatureTypeTypeElectricalConnection,
 			},
 		},
 		{
 			Scenario:  model.UseCaseScenarioSupportType(4),
-			Mandatory: false,
+			Mandatory: true,
 			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
+				model.FeatureTypeTypeElectricalConnection,
 			},
 		},
 		{
 			Scenario:  model.UseCaseScenarioSupportType(5),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
+				model.FeatureTypeTypeElectricalConnection,
+			},
+		},
+		{
+			Scenario:  model.UseCaseScenarioSupportType(6),
+			Mandatory: false,
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeMeasurement,
+				model.FeatureTypeTypeElectricalConnection,
+			},
+		},
+		{
+			Scenario:  model.UseCaseScenarioSupportType(7),
+			Mandatory: false,
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeMeasurement,
+				model.FeatureTypeTypeElectricalConnection,
 			},
 		},
 	}
@@ -72,7 +80,7 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 	usecase := usecase.NewUseCaseBase(
 		localEntity,
 		model.UseCaseActorTypeMonitoringAppliance,
-		model.UseCaseNameTypeMonitoringOfPowerConsumption,
+		model.UseCaseNameTypeMonitoringOfGridConnectionPoint,
 		"1.0.0",
 		"release",
 		useCaseScenarios,
@@ -81,7 +89,7 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 		validActorTypes,
 		validEntityTypes)
 
-	uc := &MPC{
+	uc := &MGCP{
 		UseCaseBase: usecase,
 	}
 
@@ -90,9 +98,10 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 	return uc
 }
 
-func (e *MPC) AddFeatures() {
+func (e *MGCP) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
+		model.FeatureTypeTypeDeviceConfiguration,
 		model.FeatureTypeTypeElectricalConnection,
 		model.FeatureTypeTypeMeasurement,
 	}

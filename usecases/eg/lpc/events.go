@@ -14,14 +14,8 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
-
 	if internal.IsEntityConnected(payload) {
 		e.connected(payload.Entity)
-		return
-	}
-
-	if internal.IsEntityDisconnected(payload) {
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
 		return
 	}
 
@@ -31,9 +25,6 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 	}
 
 	switch payload.Data.(type) {
-	case *model.NodeManagementUseCaseDataType:
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-
 	case *model.LoadControlLimitDescriptionListDataType:
 		e.loadControlLimitDescriptionDataUpdate(payload.Entity)
 
@@ -72,30 +63,6 @@ func (e *LPC) connected(entity spineapi.EntityRemoteInterface) {
 		}
 	}
 }
-
-// // use case data updated or entity was removed,
-// // update the supported remote entities list and send event if neccessary
-// func (e *EgLPC) useCaseDataUpdate(payload spineapi.EventPayload) {
-// 	// entity was removed, so remove it from the list
-// 	if internal.IsEntityDisconnected(payload) {
-// 		if e.HasRemoteEntity(payload.Entity) {
-// 			e.RemoveRemoteEntity(payload.Entity)
-// 		}
-
-// 		return
-// 	}
-
-// 	// entity changed usecase data
-// 	if result, err := e.IsUseCaseSupported(payload.Entity); err == nil && result {
-// 		scenarios := e.SupportedUseCaseScenarios(payload.Entity)
-// 		e.SetRemoteEntityScenarios(payload.Entity, scenarios)
-
-// 		return
-// 	}
-
-// 	// entity does not support the use case, maybe support was removed
-// 	e.RemoveRemoteEntity(payload.Entity)
-// }
 
 // the load control limit description data was updated
 func (e *LPC) loadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {

@@ -5,6 +5,19 @@ import (
 	"github.com/enbility/spine-go/model"
 )
 
+// details about each use case scenario
+type UseCaseScenario struct {
+	Scenario       model.UseCaseScenarioSupportType // the scenario number
+	Mandatory      bool                             // if this scenario is mandatory to be supported by the remote entity
+	ServerFeatures []model.FeatureTypeType          // the server features required for this scenario on the remote entity
+}
+
+// contains the available scenarios of a remote entity
+type RemoteEntityScenarios struct {
+	Entity    spineapi.EntityRemoteInterface
+	Scenarios []uint
+}
+
 // Entity event callback
 //
 // Used by Use Case implementations
@@ -26,19 +39,17 @@ type UseCaseBaseInterface interface {
 	// check if the entity is compatible with the use case
 	IsCompatibleEntityType(entity spineapi.EntityRemoteInterface) bool
 
-	// get the supported use case scenarios of the remote entity
-	SupportedUseCaseScenarios(
-		entity spineapi.EntityRemoteInterface,
-	) []model.UseCaseScenarioSupportType
+	// return the current list of compatible remote entities and their available scenarios of this use case
+	RemoteEntitiesScenarios() []RemoteEntityScenarios
 
-	// check if the entity supports all provided use case scenarios
-	HasSupportForUseCaseScenarios(
+	// return the current list of available scenarios of this use case for the remote entity
+	AvailableScenariosForEntity(entity spineapi.EntityRemoteInterface) []uint
+
+	// check if the provided scenario are available at the remote entity
+	IsScenarioAvailableAtEntity(
 		entity spineapi.EntityRemoteInterface,
-		scenarios []model.UseCaseScenarioSupportType,
+		scenario uint,
 	) bool
-
-	// return the current list of compatible remote entities and their scenarios
-	RemoteEntities() []RemoteEntityScenarios
 }
 
 // Implemented by each Use Case
@@ -47,13 +58,6 @@ type UseCaseInterface interface {
 
 	// add the features
 	AddFeatures()
-
-	// returns if the entity supports the usecase
-	//
-	// possible errors:
-	//   - ErrDataNotAvailable if that information is not (yet) available
-	//   - and others
-	IsUseCaseSupported(remoteEntity spineapi.EntityRemoteInterface) (bool, error)
 }
 
 type ManufacturerData struct {

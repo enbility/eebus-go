@@ -18,8 +18,34 @@ type EVCEM struct {
 var _ ucapi.CemEVCEMInterface = (*EVCEM)(nil)
 
 func NewEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVCEM {
+	validActorTypes := []model.UseCaseActorType{
+		model.UseCaseActorTypeEV,
+	}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEV,
+	}
+	useCaseScenarios := []api.UseCaseScenario{
+		{
+			Scenario: model.UseCaseScenarioSupportType(1),
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeElectricalConnection,
+				model.FeatureTypeTypeMeasurement,
+			},
+		},
+		{
+			Scenario: model.UseCaseScenarioSupportType(2),
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeElectricalConnection,
+				model.FeatureTypeTypeMeasurement,
+			},
+		},
+		{
+			Scenario: model.UseCaseScenarioSupportType(3),
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeElectricalConnection,
+				model.FeatureTypeTypeMeasurement,
+			},
+		},
 	}
 
 	usecase := usecase.NewUseCaseBase(
@@ -28,8 +54,10 @@ func NewEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalInte
 		model.UseCaseNameTypeMeasurementOfElectricityDuringEVCharging,
 		"1.0.1",
 		"release",
-		[]model.UseCaseScenarioSupportType{1, 2, 3},
+		useCaseScenarios,
 		eventCB,
+		UseCaseSupportUpdate,
+		validActorTypes,
 		validEntityTypes)
 
 	uc := &EVCEM{
@@ -51,28 +79,4 @@ func (e *EVCEM) AddFeatures() {
 	for _, feature := range clientFeatures {
 		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 	}
-}
-
-// returns if the entity supports the usecase
-//
-// possible errors:
-//   - ErrDataNotAvailable if that information is not (yet) available
-//   - and others
-func (e *EVCEM) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntityType(entity) {
-		return false, api.ErrNoCompatibleEntity
-	}
-
-	// check if the usecase and mandatory scenarios are supported and
-	// if the required server features are available
-	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeEV,
-		e.UseCaseName,
-		nil,
-		nil,
-	) {
-		return false, nil
-	}
-
-	return true, nil
 }

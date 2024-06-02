@@ -19,7 +19,6 @@ func (e *EVSECC) HandleEvent(payload spineapi.EventPayload) {
 		e.evseConnected(payload)
 		return
 	} else if internal.IsEntityDisconnected(payload) {
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
 		e.evseDisconnected(payload)
 		return
 	}
@@ -30,9 +29,6 @@ func (e *EVSECC) HandleEvent(payload spineapi.EventPayload) {
 	}
 
 	switch payload.Data.(type) {
-	case *model.NodeManagementUseCaseDataType:
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-
 	case *model.DeviceClassificationManufacturerDataType:
 		e.evseManufacturerDataUpdate(payload)
 

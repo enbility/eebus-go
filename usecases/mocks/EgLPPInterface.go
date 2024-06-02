@@ -92,6 +92,54 @@ func (_c *EgLPPInterface_AddUseCase_Call) RunAndReturn(run func()) *EgLPPInterfa
 	return _c
 }
 
+// AvailableScenariosForEntity provides a mock function with given fields: entity
+func (_m *EgLPPInterface) AvailableScenariosForEntity(entity spine_goapi.EntityRemoteInterface) []uint {
+	ret := _m.Called(entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AvailableScenariosForEntity")
+	}
+
+	var r0 []uint
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []uint); ok {
+		r0 = rf(entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]uint)
+		}
+	}
+
+	return r0
+}
+
+// EgLPPInterface_AvailableScenariosForEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AvailableScenariosForEntity'
+type EgLPPInterface_AvailableScenariosForEntity_Call struct {
+	*mock.Call
+}
+
+// AvailableScenariosForEntity is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+func (_e *EgLPPInterface_Expecter) AvailableScenariosForEntity(entity interface{}) *EgLPPInterface_AvailableScenariosForEntity_Call {
+	return &EgLPPInterface_AvailableScenariosForEntity_Call{Call: _e.mock.On("AvailableScenariosForEntity", entity)}
+}
+
+func (_c *EgLPPInterface_AvailableScenariosForEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *EgLPPInterface_AvailableScenariosForEntity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(spine_goapi.EntityRemoteInterface))
+	})
+	return _c
+}
+
+func (_c *EgLPPInterface_AvailableScenariosForEntity_Call) Return(_a0 []uint) *EgLPPInterface_AvailableScenariosForEntity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *EgLPPInterface_AvailableScenariosForEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []uint) *EgLPPInterface_AvailableScenariosForEntity_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // FailsafeDurationMinimum provides a mock function with given fields: entity
 func (_m *EgLPPInterface) FailsafeDurationMinimum(entity spine_goapi.EntityRemoteInterface) (time.Duration, error) {
 	ret := _m.Called(entity)
@@ -204,53 +252,6 @@ func (_c *EgLPPInterface_FailsafeProductionActivePowerLimit_Call) RunAndReturn(r
 	return _c
 }
 
-// HasSupportForUseCaseScenarios provides a mock function with given fields: entity, scenarios
-func (_m *EgLPPInterface) HasSupportForUseCaseScenarios(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType) bool {
-	ret := _m.Called(entity, scenarios)
-
-	if len(ret) == 0 {
-		panic("no return value specified for HasSupportForUseCaseScenarios")
-	}
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool); ok {
-		r0 = rf(entity, scenarios)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}
-
-// EgLPPInterface_HasSupportForUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasSupportForUseCaseScenarios'
-type EgLPPInterface_HasSupportForUseCaseScenarios_Call struct {
-	*mock.Call
-}
-
-// HasSupportForUseCaseScenarios is a helper method to define mock.On call
-//   - entity spine_goapi.EntityRemoteInterface
-//   - scenarios []model.UseCaseScenarioSupportType
-func (_e *EgLPPInterface_Expecter) HasSupportForUseCaseScenarios(entity interface{}, scenarios interface{}) *EgLPPInterface_HasSupportForUseCaseScenarios_Call {
-	return &EgLPPInterface_HasSupportForUseCaseScenarios_Call{Call: _e.mock.On("HasSupportForUseCaseScenarios", entity, scenarios)}
-}
-
-func (_c *EgLPPInterface_HasSupportForUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType)) *EgLPPInterface_HasSupportForUseCaseScenarios_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].([]model.UseCaseScenarioSupportType))
-	})
-	return _c
-}
-
-func (_c *EgLPPInterface_HasSupportForUseCaseScenarios_Call) Return(_a0 bool) *EgLPPInterface_HasSupportForUseCaseScenarios_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *EgLPPInterface_HasSupportForUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool) *EgLPPInterface_HasSupportForUseCaseScenarios_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // IsCompatibleEntityType provides a mock function with given fields: entity
 func (_m *EgLPPInterface) IsCompatibleEntityType(entity spine_goapi.EntityRemoteInterface) bool {
 	ret := _m.Called(entity)
@@ -297,58 +298,49 @@ func (_c *EgLPPInterface_IsCompatibleEntityType_Call) RunAndReturn(run func(spin
 	return _c
 }
 
-// IsUseCaseSupported provides a mock function with given fields: remoteEntity
-func (_m *EgLPPInterface) IsUseCaseSupported(remoteEntity spine_goapi.EntityRemoteInterface) (bool, error) {
-	ret := _m.Called(remoteEntity)
+// IsScenarioAvailableAtEntity provides a mock function with given fields: entity, scenario
+func (_m *EgLPPInterface) IsScenarioAvailableAtEntity(entity spine_goapi.EntityRemoteInterface, scenario uint) bool {
+	ret := _m.Called(entity, scenario)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsUseCaseSupported")
+		panic("no return value specified for IsScenarioAvailableAtEntity")
 	}
 
 	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) (bool, error)); ok {
-		return rf(remoteEntity)
-	}
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) bool); ok {
-		r0 = rf(remoteEntity)
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, uint) bool); ok {
+		r0 = rf(entity, scenario)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(spine_goapi.EntityRemoteInterface) error); ok {
-		r1 = rf(remoteEntity)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// EgLPPInterface_IsUseCaseSupported_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsUseCaseSupported'
-type EgLPPInterface_IsUseCaseSupported_Call struct {
+// EgLPPInterface_IsScenarioAvailableAtEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsScenarioAvailableAtEntity'
+type EgLPPInterface_IsScenarioAvailableAtEntity_Call struct {
 	*mock.Call
 }
 
-// IsUseCaseSupported is a helper method to define mock.On call
-//   - remoteEntity spine_goapi.EntityRemoteInterface
-func (_e *EgLPPInterface_Expecter) IsUseCaseSupported(remoteEntity interface{}) *EgLPPInterface_IsUseCaseSupported_Call {
-	return &EgLPPInterface_IsUseCaseSupported_Call{Call: _e.mock.On("IsUseCaseSupported", remoteEntity)}
+// IsScenarioAvailableAtEntity is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+//   - scenario uint
+func (_e *EgLPPInterface_Expecter) IsScenarioAvailableAtEntity(entity interface{}, scenario interface{}) *EgLPPInterface_IsScenarioAvailableAtEntity_Call {
+	return &EgLPPInterface_IsScenarioAvailableAtEntity_Call{Call: _e.mock.On("IsScenarioAvailableAtEntity", entity, scenario)}
 }
 
-func (_c *EgLPPInterface_IsUseCaseSupported_Call) Run(run func(remoteEntity spine_goapi.EntityRemoteInterface)) *EgLPPInterface_IsUseCaseSupported_Call {
+func (_c *EgLPPInterface_IsScenarioAvailableAtEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenario uint)) *EgLPPInterface_IsScenarioAvailableAtEntity_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface))
+		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].(uint))
 	})
 	return _c
 }
 
-func (_c *EgLPPInterface_IsUseCaseSupported_Call) Return(_a0 bool, _a1 error) *EgLPPInterface_IsUseCaseSupported_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *EgLPPInterface_IsScenarioAvailableAtEntity_Call) Return(_a0 bool) *EgLPPInterface_IsScenarioAvailableAtEntity_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *EgLPPInterface_IsUseCaseSupported_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (bool, error)) *EgLPPInterface_IsUseCaseSupported_Call {
+func (_c *EgLPPInterface_IsScenarioAvailableAtEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, uint) bool) *EgLPPInterface_IsScenarioAvailableAtEntity_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -465,12 +457,12 @@ func (_c *EgLPPInterface_ProductionLimit_Call) RunAndReturn(run func(spine_goapi
 	return _c
 }
 
-// RemoteEntities provides a mock function with given fields:
-func (_m *EgLPPInterface) RemoteEntities() []eebus_goapi.RemoteEntityScenarios {
+// RemoteEntitiesScenarios provides a mock function with given fields:
+func (_m *EgLPPInterface) RemoteEntitiesScenarios() []eebus_goapi.RemoteEntityScenarios {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for RemoteEntities")
+		panic("no return value specified for RemoteEntitiesScenarios")
 	}
 
 	var r0 []eebus_goapi.RemoteEntityScenarios
@@ -485,29 +477,29 @@ func (_m *EgLPPInterface) RemoteEntities() []eebus_goapi.RemoteEntityScenarios {
 	return r0
 }
 
-// EgLPPInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
-type EgLPPInterface_RemoteEntities_Call struct {
+// EgLPPInterface_RemoteEntitiesScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntitiesScenarios'
+type EgLPPInterface_RemoteEntitiesScenarios_Call struct {
 	*mock.Call
 }
 
-// RemoteEntities is a helper method to define mock.On call
-func (_e *EgLPPInterface_Expecter) RemoteEntities() *EgLPPInterface_RemoteEntities_Call {
-	return &EgLPPInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+// RemoteEntitiesScenarios is a helper method to define mock.On call
+func (_e *EgLPPInterface_Expecter) RemoteEntitiesScenarios() *EgLPPInterface_RemoteEntitiesScenarios_Call {
+	return &EgLPPInterface_RemoteEntitiesScenarios_Call{Call: _e.mock.On("RemoteEntitiesScenarios")}
 }
 
-func (_c *EgLPPInterface_RemoteEntities_Call) Run(run func()) *EgLPPInterface_RemoteEntities_Call {
+func (_c *EgLPPInterface_RemoteEntitiesScenarios_Call) Run(run func()) *EgLPPInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *EgLPPInterface_RemoteEntities_Call) Return(_a0 []eebus_goapi.RemoteEntityScenarios) *EgLPPInterface_RemoteEntities_Call {
+func (_c *EgLPPInterface_RemoteEntitiesScenarios_Call) Return(_a0 []eebus_goapi.RemoteEntityScenarios) *EgLPPInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *EgLPPInterface_RemoteEntities_Call) RunAndReturn(run func() []eebus_goapi.RemoteEntityScenarios) *EgLPPInterface_RemoteEntities_Call {
+func (_c *EgLPPInterface_RemoteEntitiesScenarios_Call) RunAndReturn(run func() []eebus_goapi.RemoteEntityScenarios) *EgLPPInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -540,54 +532,6 @@ func (_c *EgLPPInterface_RemoveUseCase_Call) Return() *EgLPPInterface_RemoveUseC
 }
 
 func (_c *EgLPPInterface_RemoveUseCase_Call) RunAndReturn(run func()) *EgLPPInterface_RemoveUseCase_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SupportedUseCaseScenarios provides a mock function with given fields: entity
-func (_m *EgLPPInterface) SupportedUseCaseScenarios(entity spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType {
-	ret := _m.Called(entity)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SupportedUseCaseScenarios")
-	}
-
-	var r0 []model.UseCaseScenarioSupportType
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType); ok {
-		r0 = rf(entity)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.UseCaseScenarioSupportType)
-		}
-	}
-
-	return r0
-}
-
-// EgLPPInterface_SupportedUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SupportedUseCaseScenarios'
-type EgLPPInterface_SupportedUseCaseScenarios_Call struct {
-	*mock.Call
-}
-
-// SupportedUseCaseScenarios is a helper method to define mock.On call
-//   - entity spine_goapi.EntityRemoteInterface
-func (_e *EgLPPInterface_Expecter) SupportedUseCaseScenarios(entity interface{}) *EgLPPInterface_SupportedUseCaseScenarios_Call {
-	return &EgLPPInterface_SupportedUseCaseScenarios_Call{Call: _e.mock.On("SupportedUseCaseScenarios", entity)}
-}
-
-func (_c *EgLPPInterface_SupportedUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *EgLPPInterface_SupportedUseCaseScenarios_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface))
-	})
-	return _c
-}
-
-func (_c *EgLPPInterface_SupportedUseCaseScenarios_Call) Return(_a0 []model.UseCaseScenarioSupportType) *EgLPPInterface_SupportedUseCaseScenarios_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *EgLPPInterface_SupportedUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType) *EgLPPInterface_SupportedUseCaseScenarios_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -16,8 +16,23 @@ type EVSECC struct {
 var _ ucapi.CemEVSECCInterface = (*EVSECC)(nil)
 
 func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVSECC {
+	validActorTypes := []model.UseCaseActorType{
+		model.UseCaseActorTypeEVSE,
+		model.UseCaseActorTypeEV, // The Porsche PMCC devices use this actor for this use case incorrectly
+	}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEVSE,
+	}
+	useCaseScenarios := []api.UseCaseScenario{
+		{
+			Scenario:       model.UseCaseScenarioSupportType(1),
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceClassification},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(2),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceDiagnosis},
+		},
 	}
 
 	usecase := usecase.NewUseCaseBase(
@@ -26,8 +41,10 @@ func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEven
 		model.UseCaseNameTypeEVSECommissioningAndConfiguration,
 		"1.0.1",
 		"release",
-		[]model.UseCaseScenarioSupportType{1, 2},
+		useCaseScenarios,
 		eventCB,
+		UseCaseSupportUpdate,
+		validActorTypes,
 		validEntityTypes)
 
 	uc := &EVSECC{
@@ -49,37 +66,4 @@ func (e *EVSECC) AddFeatures() {
 	for _, feature := range clientFeatures {
 		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 	}
-}
-
-// returns if the entity supports the usecase
-//
-// possible errors:
-//   - ErrDataNotAvailable if that information is not (yet) available
-//   - and others
-func (e *EVSECC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntityType(entity) {
-		return false, api.ErrNoCompatibleEntity
-	}
-
-	// check if the usecase and mandatory scenarios are supported and
-	// if the required server features are available
-	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeEVSE,
-		e.UseCaseName,
-		[]model.UseCaseScenarioSupportType{2},
-		[]model.FeatureTypeType{model.FeatureTypeTypeDeviceDiagnosis},
-	) {
-		// Workaround for the Porsche Mobile Charger Connect that falsely reports
-		// the usecase to be on the EV actor
-		if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-			model.UseCaseActorTypeEV,
-			e.UseCaseName,
-			[]model.UseCaseScenarioSupportType{2},
-			[]model.FeatureTypeType{model.FeatureTypeTypeDeviceDiagnosis},
-		) {
-			return false, nil
-		}
-	}
-
-	return true, nil
 }

@@ -2,7 +2,6 @@ package lpc
 
 import (
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	usecase "github.com/enbility/eebus-go/usecases/usecase"
 	spineapi "github.com/enbility/spine-go/api"
@@ -17,6 +16,7 @@ type LPC struct {
 var _ ucapi.EgLPCInterface = (*LPC)(nil)
 
 func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPC {
+	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeControllableSystem}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeCompressor,
 		model.EntityTypeTypeEVSE,
@@ -25,6 +25,28 @@ func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 		model.EntityTypeTypeSmartEnergyAppliance,
 		model.EntityTypeTypeSubMeterElectricity,
 	}
+	useCaseScenarios := []api.UseCaseScenario{
+		{
+			Scenario:       model.UseCaseScenarioSupportType(1),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeLoadControl},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(2),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceConfiguration},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(3),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceDiagnosis},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(4),
+			Mandatory:      false,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeElectricalConnection},
+		},
+	}
 
 	usecase := usecase.NewUseCaseBase(
 		localEntity,
@@ -32,9 +54,12 @@ func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 		model.UseCaseNameTypeLimitationOfPowerConsumption,
 		"1.0.0",
 		"release",
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
+		useCaseScenarios,
 		eventCB,
-		validEntityTypes)
+		UseCaseSupportUpdate,
+		validActorTypes,
+		validEntityTypes,
+	)
 
 	uc := &LPC{
 		UseCaseBase: usecase,
@@ -60,44 +85,4 @@ func (e *LPC) AddFeatures() {
 	// server features
 	f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
-}
-
-// returns if the entity supports the usecase
-//
-// possible errors:
-//   - ErrDataNotAvailable if that information is not (yet) available
-//   - and others
-func (e *LPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntityType(entity) {
-		return false, api.ErrNoCompatibleEntity
-	}
-
-	// check if the usecase and mandatory scenarios are supported and
-	// if the required server features are available
-	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeControllableSystem,
-		e.UseCaseName,
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
-		[]model.FeatureTypeType{
-			model.FeatureTypeTypeDeviceDiagnosis,
-			model.FeatureTypeTypeLoadControl,
-			model.FeatureTypeTypeDeviceConfiguration,
-		},
-	) {
-		return false, nil
-	}
-
-	if _, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err != nil {
-		return false, api.ErrFunctionNotSupported
-	}
-
-	if _, err := client.NewLoadControl(e.LocalEntity, entity); err != nil {
-		return false, api.ErrFunctionNotSupported
-	}
-
-	if _, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err != nil {
-		return false, api.ErrFunctionNotSupported
-	}
-
-	return true, nil
 }

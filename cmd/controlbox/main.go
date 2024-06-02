@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"slices"
 	"strconv"
 	"syscall"
 	"time"
@@ -75,7 +76,7 @@ func (h *controlbox) run() {
 		"Demo", "Demo", "ControlBox", "123456789",
 		model.DeviceTypeTypeElectricitySupplySystem,
 		[]model.EntityTypeType{model.EntityTypeTypeGridGuard},
-		port, certificate, 230, time.Second*4)
+		port, certificate, 230, time.Second*60)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -107,38 +108,6 @@ func (h *controlbox) run() {
 
 func (h *controlbox) RemoteSKIConnected(service api.ServiceInterface, ski string) {
 	h.isConnected = true
-
-	fmt.Println("Sending a limit in 5s...")
-	time.AfterFunc(time.Second*5, func() {
-		remoteDevice := service.LocalDevice().RemoteDeviceForSki(ski)
-
-		// search a compatible entity on the remote device
-		for _, entity := range remoteDevice.Entities() {
-			if ok, err := h.uclpc.IsUseCaseSupported(entity); err != nil || !ok {
-				continue
-			}
-
-			limit := ucapi.LoadLimit{
-				Duration: time.Minute * 2,
-				IsActive: true,
-				Value:    7000,
-			}
-
-			resultCB := func(msg model.ResultDataType) {
-				if *msg.ErrorNumber == model.ErrorNumberTypeNoError {
-					fmt.Println("Limit accepted.")
-				} else {
-					fmt.Println("Limit rejected. Code", msg.ErrorNumber, "Description", msg.Description)
-				}
-			}
-			msgCounter, err := h.uclpc.WriteConsumptionLimit(entity, limit, resultCB)
-			if err != nil {
-				fmt.Println("Failed to send limit", err)
-				continue
-			}
-			fmt.Println("Sent limit to", ski, "with msgCounter", msgCounter)
-		}
-	})
 }
 
 func (h *controlbox) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {
@@ -166,12 +135,45 @@ func (h *controlbox) AllowWaitingForTrust(ski string) bool {
 
 // LPC Event Handler
 
+func (h *controlbox) sendLimit(entity spineapi.EntityRemoteInterface) {
+	scenarios := h.uclpc.AvailableScenariosForEntity(entity)
+	if len(scenarios) == 0 ||
+		!slices.Contains(scenarios, 1) {
+		return
+	}
+
+	fmt.Println("Sending a limit in 5s...")
+	time.AfterFunc(time.Second*5, func() {
+		limit := ucapi.LoadLimit{
+			Duration: time.Minute * 2,
+			IsActive: true,
+			Value:    7000,
+		}
+
+		resultCB := func(msg model.ResultDataType) {
+			if *msg.ErrorNumber == model.ErrorNumberTypeNoError {
+				fmt.Println("Limit accepted.")
+			} else {
+				fmt.Println("Limit rejected. Code", msg.ErrorNumber, "Description", msg.Description)
+			}
+		}
+		msgCounter, err := h.uclpc.WriteConsumptionLimit(entity, limit, resultCB)
+		if err != nil {
+			fmt.Println("Failed to send limit", err)
+			return
+		}
+		fmt.Println("Sent limit to", entity.Device().Ski(), "with msgCounter", msgCounter)
+	})
+}
+
 func (h *controlbox) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
 	if !h.isConnected {
 		return
 	}
 
 	switch event {
+	case lpc.UseCaseSupportUpdate:
+		h.sendLimit(entity)
 	case lpc.DataUpdateLimit:
 		if currentLimit, err := h.uclpc.ConsumptionLimit(entity); err == nil {
 			fmt.Println("New Limit received", currentLimit.Value, "W")
@@ -209,19 +211,19 @@ func main() {
 // Logging interface
 
 func (h *controlbox) Trace(args ...interface{}) {
-	h.print("TRACE", args...)
+	// h.print("TRACE", args...)
 }
 
 func (h *controlbox) Tracef(format string, args ...interface{}) {
-	h.printFormat("TRACE", format, args...)
+	// h.printFormat("TRACE", format, args...)
 }
 
 func (h *controlbox) Debug(args ...interface{}) {
-	h.print("DEBUG", args...)
+	// h.print("DEBUG", args...)
 }
 
 func (h *controlbox) Debugf(format string, args ...interface{}) {
-	h.printFormat("DEBUG", format, args...)
+	// h.printFormat("DEBUG", format, args...)
 }
 
 func (h *controlbox) Info(args ...interface{}) {

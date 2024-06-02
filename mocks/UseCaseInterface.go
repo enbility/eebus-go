@@ -6,8 +6,6 @@ import (
 	api "github.com/enbility/eebus-go/api"
 	mock "github.com/stretchr/testify/mock"
 
-	model "github.com/enbility/spine-go/model"
-
 	spine_goapi "github.com/enbility/spine-go/api"
 )
 
@@ -88,49 +86,50 @@ func (_c *UseCaseInterface_AddUseCase_Call) RunAndReturn(run func()) *UseCaseInt
 	return _c
 }
 
-// HasSupportForUseCaseScenarios provides a mock function with given fields: entity, scenarios
-func (_m *UseCaseInterface) HasSupportForUseCaseScenarios(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType) bool {
-	ret := _m.Called(entity, scenarios)
+// AvailableScenariosForEntity provides a mock function with given fields: entity
+func (_m *UseCaseInterface) AvailableScenariosForEntity(entity spine_goapi.EntityRemoteInterface) []uint {
+	ret := _m.Called(entity)
 
 	if len(ret) == 0 {
-		panic("no return value specified for HasSupportForUseCaseScenarios")
+		panic("no return value specified for AvailableScenariosForEntity")
 	}
 
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool); ok {
-		r0 = rf(entity, scenarios)
+	var r0 []uint
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []uint); ok {
+		r0 = rf(entity)
 	} else {
-		r0 = ret.Get(0).(bool)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]uint)
+		}
 	}
 
 	return r0
 }
 
-// UseCaseInterface_HasSupportForUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasSupportForUseCaseScenarios'
-type UseCaseInterface_HasSupportForUseCaseScenarios_Call struct {
+// UseCaseInterface_AvailableScenariosForEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AvailableScenariosForEntity'
+type UseCaseInterface_AvailableScenariosForEntity_Call struct {
 	*mock.Call
 }
 
-// HasSupportForUseCaseScenarios is a helper method to define mock.On call
+// AvailableScenariosForEntity is a helper method to define mock.On call
 //   - entity spine_goapi.EntityRemoteInterface
-//   - scenarios []model.UseCaseScenarioSupportType
-func (_e *UseCaseInterface_Expecter) HasSupportForUseCaseScenarios(entity interface{}, scenarios interface{}) *UseCaseInterface_HasSupportForUseCaseScenarios_Call {
-	return &UseCaseInterface_HasSupportForUseCaseScenarios_Call{Call: _e.mock.On("HasSupportForUseCaseScenarios", entity, scenarios)}
+func (_e *UseCaseInterface_Expecter) AvailableScenariosForEntity(entity interface{}) *UseCaseInterface_AvailableScenariosForEntity_Call {
+	return &UseCaseInterface_AvailableScenariosForEntity_Call{Call: _e.mock.On("AvailableScenariosForEntity", entity)}
 }
 
-func (_c *UseCaseInterface_HasSupportForUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType)) *UseCaseInterface_HasSupportForUseCaseScenarios_Call {
+func (_c *UseCaseInterface_AvailableScenariosForEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *UseCaseInterface_AvailableScenariosForEntity_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].([]model.UseCaseScenarioSupportType))
+		run(args[0].(spine_goapi.EntityRemoteInterface))
 	})
 	return _c
 }
 
-func (_c *UseCaseInterface_HasSupportForUseCaseScenarios_Call) Return(_a0 bool) *UseCaseInterface_HasSupportForUseCaseScenarios_Call {
+func (_c *UseCaseInterface_AvailableScenariosForEntity_Call) Return(_a0 []uint) *UseCaseInterface_AvailableScenariosForEntity_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *UseCaseInterface_HasSupportForUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool) *UseCaseInterface_HasSupportForUseCaseScenarios_Call {
+func (_c *UseCaseInterface_AvailableScenariosForEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []uint) *UseCaseInterface_AvailableScenariosForEntity_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -181,68 +180,59 @@ func (_c *UseCaseInterface_IsCompatibleEntityType_Call) RunAndReturn(run func(sp
 	return _c
 }
 
-// IsUseCaseSupported provides a mock function with given fields: remoteEntity
-func (_m *UseCaseInterface) IsUseCaseSupported(remoteEntity spine_goapi.EntityRemoteInterface) (bool, error) {
-	ret := _m.Called(remoteEntity)
+// IsScenarioAvailableAtEntity provides a mock function with given fields: entity, scenario
+func (_m *UseCaseInterface) IsScenarioAvailableAtEntity(entity spine_goapi.EntityRemoteInterface, scenario uint) bool {
+	ret := _m.Called(entity, scenario)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsUseCaseSupported")
+		panic("no return value specified for IsScenarioAvailableAtEntity")
 	}
 
 	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) (bool, error)); ok {
-		return rf(remoteEntity)
-	}
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) bool); ok {
-		r0 = rf(remoteEntity)
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, uint) bool); ok {
+		r0 = rf(entity, scenario)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(spine_goapi.EntityRemoteInterface) error); ok {
-		r1 = rf(remoteEntity)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// UseCaseInterface_IsUseCaseSupported_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsUseCaseSupported'
-type UseCaseInterface_IsUseCaseSupported_Call struct {
+// UseCaseInterface_IsScenarioAvailableAtEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsScenarioAvailableAtEntity'
+type UseCaseInterface_IsScenarioAvailableAtEntity_Call struct {
 	*mock.Call
 }
 
-// IsUseCaseSupported is a helper method to define mock.On call
-//   - remoteEntity spine_goapi.EntityRemoteInterface
-func (_e *UseCaseInterface_Expecter) IsUseCaseSupported(remoteEntity interface{}) *UseCaseInterface_IsUseCaseSupported_Call {
-	return &UseCaseInterface_IsUseCaseSupported_Call{Call: _e.mock.On("IsUseCaseSupported", remoteEntity)}
+// IsScenarioAvailableAtEntity is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+//   - scenario uint
+func (_e *UseCaseInterface_Expecter) IsScenarioAvailableAtEntity(entity interface{}, scenario interface{}) *UseCaseInterface_IsScenarioAvailableAtEntity_Call {
+	return &UseCaseInterface_IsScenarioAvailableAtEntity_Call{Call: _e.mock.On("IsScenarioAvailableAtEntity", entity, scenario)}
 }
 
-func (_c *UseCaseInterface_IsUseCaseSupported_Call) Run(run func(remoteEntity spine_goapi.EntityRemoteInterface)) *UseCaseInterface_IsUseCaseSupported_Call {
+func (_c *UseCaseInterface_IsScenarioAvailableAtEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenario uint)) *UseCaseInterface_IsScenarioAvailableAtEntity_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface))
+		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].(uint))
 	})
 	return _c
 }
 
-func (_c *UseCaseInterface_IsUseCaseSupported_Call) Return(_a0 bool, _a1 error) *UseCaseInterface_IsUseCaseSupported_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *UseCaseInterface_IsScenarioAvailableAtEntity_Call) Return(_a0 bool) *UseCaseInterface_IsScenarioAvailableAtEntity_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *UseCaseInterface_IsUseCaseSupported_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (bool, error)) *UseCaseInterface_IsUseCaseSupported_Call {
+func (_c *UseCaseInterface_IsScenarioAvailableAtEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, uint) bool) *UseCaseInterface_IsScenarioAvailableAtEntity_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RemoteEntities provides a mock function with given fields:
-func (_m *UseCaseInterface) RemoteEntities() []api.RemoteEntityScenarios {
+// RemoteEntitiesScenarios provides a mock function with given fields:
+func (_m *UseCaseInterface) RemoteEntitiesScenarios() []api.RemoteEntityScenarios {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for RemoteEntities")
+		panic("no return value specified for RemoteEntitiesScenarios")
 	}
 
 	var r0 []api.RemoteEntityScenarios
@@ -257,29 +247,29 @@ func (_m *UseCaseInterface) RemoteEntities() []api.RemoteEntityScenarios {
 	return r0
 }
 
-// UseCaseInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
-type UseCaseInterface_RemoteEntities_Call struct {
+// UseCaseInterface_RemoteEntitiesScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntitiesScenarios'
+type UseCaseInterface_RemoteEntitiesScenarios_Call struct {
 	*mock.Call
 }
 
-// RemoteEntities is a helper method to define mock.On call
-func (_e *UseCaseInterface_Expecter) RemoteEntities() *UseCaseInterface_RemoteEntities_Call {
-	return &UseCaseInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+// RemoteEntitiesScenarios is a helper method to define mock.On call
+func (_e *UseCaseInterface_Expecter) RemoteEntitiesScenarios() *UseCaseInterface_RemoteEntitiesScenarios_Call {
+	return &UseCaseInterface_RemoteEntitiesScenarios_Call{Call: _e.mock.On("RemoteEntitiesScenarios")}
 }
 
-func (_c *UseCaseInterface_RemoteEntities_Call) Run(run func()) *UseCaseInterface_RemoteEntities_Call {
+func (_c *UseCaseInterface_RemoteEntitiesScenarios_Call) Run(run func()) *UseCaseInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *UseCaseInterface_RemoteEntities_Call) Return(_a0 []api.RemoteEntityScenarios) *UseCaseInterface_RemoteEntities_Call {
+func (_c *UseCaseInterface_RemoteEntitiesScenarios_Call) Return(_a0 []api.RemoteEntityScenarios) *UseCaseInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *UseCaseInterface_RemoteEntities_Call) RunAndReturn(run func() []api.RemoteEntityScenarios) *UseCaseInterface_RemoteEntities_Call {
+func (_c *UseCaseInterface_RemoteEntitiesScenarios_Call) RunAndReturn(run func() []api.RemoteEntityScenarios) *UseCaseInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -312,54 +302,6 @@ func (_c *UseCaseInterface_RemoveUseCase_Call) Return() *UseCaseInterface_Remove
 }
 
 func (_c *UseCaseInterface_RemoveUseCase_Call) RunAndReturn(run func()) *UseCaseInterface_RemoveUseCase_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SupportedUseCaseScenarios provides a mock function with given fields: entity
-func (_m *UseCaseInterface) SupportedUseCaseScenarios(entity spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType {
-	ret := _m.Called(entity)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SupportedUseCaseScenarios")
-	}
-
-	var r0 []model.UseCaseScenarioSupportType
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType); ok {
-		r0 = rf(entity)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.UseCaseScenarioSupportType)
-		}
-	}
-
-	return r0
-}
-
-// UseCaseInterface_SupportedUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SupportedUseCaseScenarios'
-type UseCaseInterface_SupportedUseCaseScenarios_Call struct {
-	*mock.Call
-}
-
-// SupportedUseCaseScenarios is a helper method to define mock.On call
-//   - entity spine_goapi.EntityRemoteInterface
-func (_e *UseCaseInterface_Expecter) SupportedUseCaseScenarios(entity interface{}) *UseCaseInterface_SupportedUseCaseScenarios_Call {
-	return &UseCaseInterface_SupportedUseCaseScenarios_Call{Call: _e.mock.On("SupportedUseCaseScenarios", entity)}
-}
-
-func (_c *UseCaseInterface_SupportedUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *UseCaseInterface_SupportedUseCaseScenarios_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface))
-	})
-	return _c
-}
-
-func (_c *UseCaseInterface_SupportedUseCaseScenarios_Call) Return(_a0 []model.UseCaseScenarioSupportType) *UseCaseInterface_SupportedUseCaseScenarios_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *UseCaseInterface_SupportedUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType) *UseCaseInterface_SupportedUseCaseScenarios_Call {
 	_c.Call.Return(run)
 	return _c
 }

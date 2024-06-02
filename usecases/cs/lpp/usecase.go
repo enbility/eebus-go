@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/features/client"
 	features "github.com/enbility/eebus-go/features/client"
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
@@ -29,19 +28,40 @@ type LPP struct {
 var _ ucapi.CsLPPInterface = (*LPP)(nil)
 
 func NewLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPP {
+	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeEnergyGuard}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeGridGuard,
 		model.EntityTypeTypeCEM, // KEO uses this entity type for an SMGW whysoever
 	}
-
+	useCaseScenarios := []api.UseCaseScenario{
+		{
+			Scenario:  model.UseCaseScenarioSupportType(1),
+			Mandatory: true,
+		},
+		{
+			Scenario:  model.UseCaseScenarioSupportType(2),
+			Mandatory: true,
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(3),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceDiagnosis},
+		},
+		{
+			Scenario:  model.UseCaseScenarioSupportType(4),
+			Mandatory: true,
+		},
+	}
 	usecase := usecase.NewUseCaseBase(
 		localEntity,
 		model.UseCaseActorTypeControllableSystem,
 		model.UseCaseNameTypeLimitationOfPowerProduction,
 		"1.0.0",
 		"release",
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
+		useCaseScenarios,
 		eventCB,
+		UseCaseSupportUpdate,
+		validActorTypes,
 		validEntityTypes,
 	)
 
@@ -223,34 +243,4 @@ func (e *LPP) AddFeatures() {
 		}
 		_, _ = ec.AddCharacteristic(newCharData)
 	}
-}
-
-// returns if the entity supports the usecase
-//
-// possible errors:
-//   - ErrDataNotAvailable if that information is not (yet) available
-//   - and others
-func (e *LPP) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntityType(entity) {
-		return false, api.ErrNoCompatibleEntity
-	}
-
-	// check if the usecase and mandatory scenarios are supported and
-	// if the required server features are available
-	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeEnergyGuard,
-		e.UseCaseName,
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
-		[]model.FeatureTypeType{
-			model.FeatureTypeTypeDeviceDiagnosis,
-		},
-	) {
-		return false, nil
-	}
-
-	if _, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err != nil {
-		return false, api.ErrFunctionNotSupported
-	}
-
-	return true, nil
 }

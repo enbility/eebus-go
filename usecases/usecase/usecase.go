@@ -5,24 +5,27 @@ import (
 	"sync"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/spine"
 )
 
 type UseCaseBase struct {
-	LocalEntity    spineapi.EntityLocalInterface
-	remoteEntities map[spineapi.EntityRemoteInterface][]model.UseCaseScenarioSupportType
+	LocalEntity spineapi.EntityLocalInterface
 
 	UseCaseActor              model.UseCaseActorType
 	UseCaseName               model.UseCaseNameType
 	useCaseVersion            model.SpecificationVersionType
 	useCaseDocumentSubVersion string
-	useCaseScenarios          []model.UseCaseScenarioSupportType
+	useCaseScenarios          []api.UseCaseScenario
 
-	EventCB api.EntityEventCallback
+	EventCB            api.EntityEventCallback
+	useCaseUpdateEvent api.EventType
 
-	validEntityTypes []model.EntityTypeType
+	availableEntityScenarios []api.RemoteEntityScenarios // map of scenarios and their availability for each compatible remote entity
+
+	validActorTypes  []model.UseCaseActorType // valid remote actor types for this use case
+	validEntityTypes []model.EntityTypeType   // valid remote entity types for this use case
 
 	mux sync.Mutex
 }
@@ -35,11 +38,13 @@ func NewUseCaseBase(
 	usecaseName model.UseCaseNameType,
 	useCaseVersion string,
 	useCaseDocumentSubVersion string,
-	useCaseScenarios []model.UseCaseScenarioSupportType,
+	useCaseScenarios []api.UseCaseScenario,
 	eventCB api.EntityEventCallback,
+	useCaseUpdateEvent api.EventType,
+	validActorTypes []model.UseCaseActorType,
 	validEntityTypes []model.EntityTypeType,
 ) *UseCaseBase {
-	return &UseCaseBase{
+	ucb := &UseCaseBase{
 		LocalEntity:               localEntity,
 		UseCaseActor:              usecaseActor,
 		UseCaseName:               usecaseName,
@@ -47,19 +52,29 @@ func NewUseCaseBase(
 		useCaseDocumentSubVersion: useCaseDocumentSubVersion,
 		useCaseScenarios:          useCaseScenarios,
 		EventCB:                   eventCB,
+		useCaseUpdateEvent:        useCaseUpdateEvent,
+		validActorTypes:           validActorTypes,
 		validEntityTypes:          validEntityTypes,
-		remoteEntities:            make(map[spineapi.EntityRemoteInterface][]model.UseCaseScenarioSupportType),
 	}
+
+	_ = spine.Events.Subscribe(ucb)
+
+	return ucb
 }
 
 func (u *UseCaseBase) AddUseCase() {
+	useCaseScenarios := []model.UseCaseScenarioSupportType{}
+	for _, scenario := range u.useCaseScenarios {
+		useCaseScenarios = append(useCaseScenarios, scenario.Scenario)
+	}
+
 	u.LocalEntity.AddUseCaseSupport(
 		u.UseCaseActor,
 		u.UseCaseName,
 		u.useCaseVersion,
 		u.useCaseDocumentSubVersion,
 		true,
-		u.useCaseScenarios)
+		useCaseScenarios)
 }
 
 func (u *UseCaseBase) RemoveUseCase() {
@@ -78,167 +93,102 @@ func (u *UseCaseBase) IsCompatibleEntityType(entity spineapi.EntityRemoteInterfa
 	return slices.Contains(u.validEntityTypes, entity.EntityType())
 }
 
-func (u *UseCaseBase) SupportedUseCaseScenarios(
-	entity spineapi.EntityRemoteInterface,
-) []model.UseCaseScenarioSupportType {
-	if entity == nil ||
-		entity.Device() == nil {
-		return nil
-	}
+// return the current list of compatible remote entities and their scenarios
+func (u *UseCaseBase) RemoteEntitiesScenarios() []api.RemoteEntityScenarios {
+	u.mux.Lock()
+	defer u.mux.Unlock()
 
-	ucs := entity.Device().UseCases()
-	for _, uc := range ucs {
-		// check if the use case entity address is identical to the entity address
-		// the address may not exist, as it only available since SPINE 1.3
-		if uc.Address != nil &&
-			entity.Address() != nil &&
-			slices.Compare(uc.Address.Entity, entity.Address().Entity) != 0 {
-			continue
-		}
-
-		for _, support := range uc.UseCaseSupport {
-			if support.UseCaseName == nil ||
-				*support.UseCaseName != u.UseCaseName {
-				continue
-			}
-
-			return support.ScenarioSupport
-		}
-	}
-
-	return nil
+	return u.availableEntityScenarios
 }
 
-func (u *UseCaseBase) HasSupportForUseCaseScenarios(
+// return the currently available scenarios for the use case for a remote entity
+func (u *UseCaseBase) AvailableScenariosForEntity(entity spineapi.EntityRemoteInterface) []uint {
+	_, scenarios := u.indexAndScenariosOfEntity(entity)
+
+	return scenarios
+}
+
+// check if the provided scenario are available at the remote entity
+func (u *UseCaseBase) IsScenarioAvailableAtEntity(
 	entity spineapi.EntityRemoteInterface,
-	scenarios []model.UseCaseScenarioSupportType,
+	scenario uint,
 ) bool {
-	if entity == nil ||
-		entity.Device() == nil ||
-		len(scenarios) == 0 {
-		return false
-	}
-
-	ucs := entity.Device().UseCases()
-	for _, uc := range ucs {
-		// check if the use case entity address is identical to the entity address
-		// the address may not exist, as it only available since SPINE 1.3
-		if uc.Address != nil &&
-			entity.Address() != nil &&
-			slices.Compare(uc.Address.Entity, entity.Address().Entity) != 0 {
-			continue
-		}
-
-		for _, support := range uc.UseCaseSupport {
-			if support.UseCaseName == nil ||
-				*support.UseCaseName != u.UseCaseName ||
-				(support.UseCaseAvailable != nil && !*support.UseCaseAvailable) {
-				continue
-			}
-
-			allFound := true
-			for _, scenario := range scenarios {
-				if !slices.Contains(support.ScenarioSupport, scenario) {
-					allFound = false
-					break
-				}
-			}
-			if allFound {
-				return true
-			}
-		}
+	if _, scenarios := u.indexAndScenariosOfEntity(entity); scenarios != nil {
+		return slices.Contains(scenarios, scenario)
 	}
 
 	return false
 }
 
-func (u *UseCaseBase) UseCaseDataUpdate(
-	payload spineapi.EventPayload,
-	eventCB api.EntityEventCallback,
-	event api.EventType,
-) {
-	// entity was removed, so remove it from the list
-	if internal.IsEntityDisconnected(payload) {
-		if u.hasRemoteEntity(payload.Entity) {
-			u.removeRemoteEntity(payload.Entity)
-		}
-
-		eventCB(payload.Ski, payload.Device, payload.Entity, event)
-
-		return
-	}
-
-	// entity updated usecase data
-	scenarios := u.SupportedUseCaseScenarios(payload.Entity)
-	if scenarios != nil {
-		curScenarios := u.scenariosForRemoteEntity(payload.Entity)
-		if slices.Compare(scenarios, curScenarios) != 0 {
-			u.setRemoteEntityScenarios(payload.Entity, scenarios)
-			eventCB(payload.Ski, payload.Device, payload.Entity, event)
-		}
-	} else {
-		// entity does not support the use case, maybe support was removed
-		u.removeRemoteEntity(payload.Entity)
-		eventCB(payload.Ski, payload.Device, payload.Entity, event)
-	}
-}
-
-// return the current list of compatible remote entities and their scenarios
-func (u *UseCaseBase) RemoteEntities() []api.RemoteEntityScenarios {
+// return the index and the scenarios of the entity in the available entity scenarios
+// and return -1 and nil if not found
+func (u *UseCaseBase) indexAndScenariosOfEntity(entity spineapi.EntityRemoteInterface) (int, []uint) {
 	u.mux.Lock()
 	defer u.mux.Unlock()
 
-	entities := make([]api.RemoteEntityScenarios, 0, len(u.remoteEntities))
-	for entity, scenarios := range u.remoteEntities {
-		newItem := api.RemoteEntityScenarios{
-			Entity:    entity,
-			Scenarios: scenarios,
+	for i, remoteEntity := range u.availableEntityScenarios {
+		if entity == remoteEntity.Entity {
+			return i, remoteEntity.Scenarios
 		}
-		entities = append(entities, newItem)
 	}
 
-	return entities
+	return -1, nil
 }
 
 // set the scenarios of a remote entity
-func (u *UseCaseBase) setRemoteEntityScenarios(
+func (u *UseCaseBase) updateRemoteEntityScenarios(
 	entity spineapi.EntityRemoteInterface,
 	scenarios []model.UseCaseScenarioSupportType,
 ) {
-	u.mux.Lock()
-	defer u.mux.Unlock()
+	updateEvent := false
 
-	u.remoteEntities[entity] = scenarios
-}
+	scenarioValues := []uint{}
+	for _, scenario := range scenarios {
+		scenarioValues = append(scenarioValues, uint(scenario))
+	}
 
-// check if the entity is already added
-func (u *UseCaseBase) hasRemoteEntity(entity spineapi.EntityRemoteInterface) bool {
-	u.mux.Lock()
-	defer u.mux.Unlock()
+	i, _ := u.indexAndScenariosOfEntity(entity)
+	if i == -1 {
+		newItem := api.RemoteEntityScenarios{
+			Entity:    entity,
+			Scenarios: scenarioValues,
+		}
 
-	_, ok := u.remoteEntities[entity]
-	return ok
+		u.mux.Lock()
+		u.availableEntityScenarios = append(u.availableEntityScenarios, newItem)
+		u.mux.Unlock()
+
+		updateEvent = true
+	} else if i >= 0 && slices.Compare(u.availableEntityScenarios[i].Scenarios, scenarioValues) != 0 {
+		u.mux.Lock()
+		u.availableEntityScenarios[i].Scenarios = scenarioValues
+		u.mux.Unlock()
+
+		updateEvent = true
+	}
+
+	if updateEvent {
+		u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
+	}
 }
 
 // remove a remote entity from the use case
-func (u *UseCaseBase) removeRemoteEntity(entity spineapi.EntityRemoteInterface) {
-	if !u.hasRemoteEntity(entity) {
-		return
+func (u *UseCaseBase) removeEntityFromAvailableEntityScenarios(entity spineapi.EntityRemoteInterface) {
+	if i, _ := u.indexAndScenariosOfEntity(entity); i >= 0 {
+		u.mux.Lock()
+		u.availableEntityScenarios = append(u.availableEntityScenarios[:i], u.availableEntityScenarios[i+1:]...)
+		u.mux.Unlock()
+
+		u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
 	}
-
-	u.mux.Lock()
-	defer u.mux.Unlock()
-
-	delete(u.remoteEntities, entity)
 }
 
-// check if the entity is already added as being compatible with the use case
-func (u *UseCaseBase) scenariosForRemoteEntity(entity spineapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType {
-	u.mux.Lock()
-	defer u.mux.Unlock()
-
-	if value, ok := u.remoteEntities[entity]; ok {
-		return value
+// return the required server features for a use case scenario
+func (u *UseCaseBase) requiredServerFeaturesForScenario(scenario model.UseCaseScenarioSupportType) []model.FeatureTypeType {
+	for _, serverFeatures := range u.useCaseScenarios {
+		if serverFeatures.Scenario == scenario {
+			return serverFeatures.ServerFeatures
+		}
 	}
 
 	return nil

@@ -183,19 +183,19 @@ func main() {
 // Logging interface
 
 func (h *evse) Trace(args ...interface{}) {
-	h.print("TRACE", args...)
+	// h.print("TRACE", args...)
 }
 
 func (h *evse) Tracef(format string, args ...interface{}) {
-	h.printFormat("TRACE", format, args...)
+	// h.printFormat("TRACE", format, args...)
 }
 
 func (h *evse) Debug(args ...interface{}) {
-	h.print("DEBUG", args...)
+	// h.print("DEBUG", args...)
 }
 
 func (h *evse) Debugf(format string, args ...interface{}) {
-	h.printFormat("DEBUG", format, args...)
+	// h.printFormat("DEBUG", format, args...)
 }
 
 func (h *evse) Info(args ...interface{}) {

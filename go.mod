@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/enbility/ship-go v0.5.0
-	github.com/enbility/spine-go v0.0.0-20240530120417-73e4d4303230
+	github.com/enbility/spine-go v0.0.0-20240602103422-c96bc14d05b0
 	github.com/stretchr/testify v1.8.4
 )
 
@@ -13,8 +13,8 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/enbility/zeroconf/v2 v2.0.0-20240210101930-d0004078577b // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
+	github.com/golanguzb70/lrucache v1.2.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/holoplot/go-avahi v0.0.0-20240210093433-b8dc0fc11e7e // indirect
 	github.com/miekg/dns v1.1.58 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

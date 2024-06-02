@@ -20,20 +20,12 @@ func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityDisconnected(payload) {
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-		return
-	}
-
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return
 	}
 
 	switch payload.Data.(type) {
-	case *model.NodeManagementUseCaseDataType:
-		e.UseCaseDataUpdate(payload, e.EventCB, UseCaseSupportUpdate)
-
 	case *model.LoadControlLimitDescriptionListDataType:
 		e.loadControlLimitDescriptionDataUpdate(payload.Entity)
 

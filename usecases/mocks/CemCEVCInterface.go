@@ -8,8 +8,6 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
-	model "github.com/enbility/spine-go/model"
-
 	spine_goapi "github.com/enbility/spine-go/api"
 )
 
@@ -86,6 +84,54 @@ func (_c *CemCEVCInterface_AddUseCase_Call) Return() *CemCEVCInterface_AddUseCas
 }
 
 func (_c *CemCEVCInterface_AddUseCase_Call) RunAndReturn(run func()) *CemCEVCInterface_AddUseCase_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// AvailableScenariosForEntity provides a mock function with given fields: entity
+func (_m *CemCEVCInterface) AvailableScenariosForEntity(entity spine_goapi.EntityRemoteInterface) []uint {
+	ret := _m.Called(entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AvailableScenariosForEntity")
+	}
+
+	var r0 []uint
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []uint); ok {
+		r0 = rf(entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]uint)
+		}
+	}
+
+	return r0
+}
+
+// CemCEVCInterface_AvailableScenariosForEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AvailableScenariosForEntity'
+type CemCEVCInterface_AvailableScenariosForEntity_Call struct {
+	*mock.Call
+}
+
+// AvailableScenariosForEntity is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+func (_e *CemCEVCInterface_Expecter) AvailableScenariosForEntity(entity interface{}) *CemCEVCInterface_AvailableScenariosForEntity_Call {
+	return &CemCEVCInterface_AvailableScenariosForEntity_Call{Call: _e.mock.On("AvailableScenariosForEntity", entity)}
+}
+
+func (_c *CemCEVCInterface_AvailableScenariosForEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *CemCEVCInterface_AvailableScenariosForEntity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(spine_goapi.EntityRemoteInterface))
+	})
+	return _c
+}
+
+func (_c *CemCEVCInterface_AvailableScenariosForEntity_Call) Return(_a0 []uint) *CemCEVCInterface_AvailableScenariosForEntity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CemCEVCInterface_AvailableScenariosForEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []uint) *CemCEVCInterface_AvailableScenariosForEntity_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -306,53 +352,6 @@ func (_c *CemCEVCInterface_EnergyDemand_Call) RunAndReturn(run func(spine_goapi.
 	return _c
 }
 
-// HasSupportForUseCaseScenarios provides a mock function with given fields: entity, scenarios
-func (_m *CemCEVCInterface) HasSupportForUseCaseScenarios(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType) bool {
-	ret := _m.Called(entity, scenarios)
-
-	if len(ret) == 0 {
-		panic("no return value specified for HasSupportForUseCaseScenarios")
-	}
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool); ok {
-		r0 = rf(entity, scenarios)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}
-
-// CemCEVCInterface_HasSupportForUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasSupportForUseCaseScenarios'
-type CemCEVCInterface_HasSupportForUseCaseScenarios_Call struct {
-	*mock.Call
-}
-
-// HasSupportForUseCaseScenarios is a helper method to define mock.On call
-//   - entity spine_goapi.EntityRemoteInterface
-//   - scenarios []model.UseCaseScenarioSupportType
-func (_e *CemCEVCInterface_Expecter) HasSupportForUseCaseScenarios(entity interface{}, scenarios interface{}) *CemCEVCInterface_HasSupportForUseCaseScenarios_Call {
-	return &CemCEVCInterface_HasSupportForUseCaseScenarios_Call{Call: _e.mock.On("HasSupportForUseCaseScenarios", entity, scenarios)}
-}
-
-func (_c *CemCEVCInterface_HasSupportForUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenarios []model.UseCaseScenarioSupportType)) *CemCEVCInterface_HasSupportForUseCaseScenarios_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].([]model.UseCaseScenarioSupportType))
-	})
-	return _c
-}
-
-func (_c *CemCEVCInterface_HasSupportForUseCaseScenarios_Call) Return(_a0 bool) *CemCEVCInterface_HasSupportForUseCaseScenarios_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *CemCEVCInterface_HasSupportForUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, []model.UseCaseScenarioSupportType) bool) *CemCEVCInterface_HasSupportForUseCaseScenarios_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // IncentiveConstraints provides a mock function with given fields: entity
 func (_m *CemCEVCInterface) IncentiveConstraints(entity spine_goapi.EntityRemoteInterface) (api.IncentiveSlotConstraints, error) {
 	ret := _m.Called(entity)
@@ -455,68 +454,59 @@ func (_c *CemCEVCInterface_IsCompatibleEntityType_Call) RunAndReturn(run func(sp
 	return _c
 }
 
-// IsUseCaseSupported provides a mock function with given fields: remoteEntity
-func (_m *CemCEVCInterface) IsUseCaseSupported(remoteEntity spine_goapi.EntityRemoteInterface) (bool, error) {
-	ret := _m.Called(remoteEntity)
+// IsScenarioAvailableAtEntity provides a mock function with given fields: entity, scenario
+func (_m *CemCEVCInterface) IsScenarioAvailableAtEntity(entity spine_goapi.EntityRemoteInterface, scenario uint) bool {
+	ret := _m.Called(entity, scenario)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsUseCaseSupported")
+		panic("no return value specified for IsScenarioAvailableAtEntity")
 	}
 
 	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) (bool, error)); ok {
-		return rf(remoteEntity)
-	}
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) bool); ok {
-		r0 = rf(remoteEntity)
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface, uint) bool); ok {
+		r0 = rf(entity, scenario)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(spine_goapi.EntityRemoteInterface) error); ok {
-		r1 = rf(remoteEntity)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// CemCEVCInterface_IsUseCaseSupported_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsUseCaseSupported'
-type CemCEVCInterface_IsUseCaseSupported_Call struct {
+// CemCEVCInterface_IsScenarioAvailableAtEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsScenarioAvailableAtEntity'
+type CemCEVCInterface_IsScenarioAvailableAtEntity_Call struct {
 	*mock.Call
 }
 
-// IsUseCaseSupported is a helper method to define mock.On call
-//   - remoteEntity spine_goapi.EntityRemoteInterface
-func (_e *CemCEVCInterface_Expecter) IsUseCaseSupported(remoteEntity interface{}) *CemCEVCInterface_IsUseCaseSupported_Call {
-	return &CemCEVCInterface_IsUseCaseSupported_Call{Call: _e.mock.On("IsUseCaseSupported", remoteEntity)}
+// IsScenarioAvailableAtEntity is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+//   - scenario uint
+func (_e *CemCEVCInterface_Expecter) IsScenarioAvailableAtEntity(entity interface{}, scenario interface{}) *CemCEVCInterface_IsScenarioAvailableAtEntity_Call {
+	return &CemCEVCInterface_IsScenarioAvailableAtEntity_Call{Call: _e.mock.On("IsScenarioAvailableAtEntity", entity, scenario)}
 }
 
-func (_c *CemCEVCInterface_IsUseCaseSupported_Call) Run(run func(remoteEntity spine_goapi.EntityRemoteInterface)) *CemCEVCInterface_IsUseCaseSupported_Call {
+func (_c *CemCEVCInterface_IsScenarioAvailableAtEntity_Call) Run(run func(entity spine_goapi.EntityRemoteInterface, scenario uint)) *CemCEVCInterface_IsScenarioAvailableAtEntity_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface))
+		run(args[0].(spine_goapi.EntityRemoteInterface), args[1].(uint))
 	})
 	return _c
 }
 
-func (_c *CemCEVCInterface_IsUseCaseSupported_Call) Return(_a0 bool, _a1 error) *CemCEVCInterface_IsUseCaseSupported_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *CemCEVCInterface_IsScenarioAvailableAtEntity_Call) Return(_a0 bool) *CemCEVCInterface_IsScenarioAvailableAtEntity_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *CemCEVCInterface_IsUseCaseSupported_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (bool, error)) *CemCEVCInterface_IsUseCaseSupported_Call {
+func (_c *CemCEVCInterface_IsScenarioAvailableAtEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, uint) bool) *CemCEVCInterface_IsScenarioAvailableAtEntity_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RemoteEntities provides a mock function with given fields:
-func (_m *CemCEVCInterface) RemoteEntities() []eebus_goapi.RemoteEntityScenarios {
+// RemoteEntitiesScenarios provides a mock function with given fields:
+func (_m *CemCEVCInterface) RemoteEntitiesScenarios() []eebus_goapi.RemoteEntityScenarios {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for RemoteEntities")
+		panic("no return value specified for RemoteEntitiesScenarios")
 	}
 
 	var r0 []eebus_goapi.RemoteEntityScenarios
@@ -531,29 +521,29 @@ func (_m *CemCEVCInterface) RemoteEntities() []eebus_goapi.RemoteEntityScenarios
 	return r0
 }
 
-// CemCEVCInterface_RemoteEntities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntities'
-type CemCEVCInterface_RemoteEntities_Call struct {
+// CemCEVCInterface_RemoteEntitiesScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteEntitiesScenarios'
+type CemCEVCInterface_RemoteEntitiesScenarios_Call struct {
 	*mock.Call
 }
 
-// RemoteEntities is a helper method to define mock.On call
-func (_e *CemCEVCInterface_Expecter) RemoteEntities() *CemCEVCInterface_RemoteEntities_Call {
-	return &CemCEVCInterface_RemoteEntities_Call{Call: _e.mock.On("RemoteEntities")}
+// RemoteEntitiesScenarios is a helper method to define mock.On call
+func (_e *CemCEVCInterface_Expecter) RemoteEntitiesScenarios() *CemCEVCInterface_RemoteEntitiesScenarios_Call {
+	return &CemCEVCInterface_RemoteEntitiesScenarios_Call{Call: _e.mock.On("RemoteEntitiesScenarios")}
 }
 
-func (_c *CemCEVCInterface_RemoteEntities_Call) Run(run func()) *CemCEVCInterface_RemoteEntities_Call {
+func (_c *CemCEVCInterface_RemoteEntitiesScenarios_Call) Run(run func()) *CemCEVCInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *CemCEVCInterface_RemoteEntities_Call) Return(_a0 []eebus_goapi.RemoteEntityScenarios) *CemCEVCInterface_RemoteEntities_Call {
+func (_c *CemCEVCInterface_RemoteEntitiesScenarios_Call) Return(_a0 []eebus_goapi.RemoteEntityScenarios) *CemCEVCInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *CemCEVCInterface_RemoteEntities_Call) RunAndReturn(run func() []eebus_goapi.RemoteEntityScenarios) *CemCEVCInterface_RemoteEntities_Call {
+func (_c *CemCEVCInterface_RemoteEntitiesScenarios_Call) RunAndReturn(run func() []eebus_goapi.RemoteEntityScenarios) *CemCEVCInterface_RemoteEntitiesScenarios_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -586,54 +576,6 @@ func (_c *CemCEVCInterface_RemoveUseCase_Call) Return() *CemCEVCInterface_Remove
 }
 
 func (_c *CemCEVCInterface_RemoveUseCase_Call) RunAndReturn(run func()) *CemCEVCInterface_RemoveUseCase_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SupportedUseCaseScenarios provides a mock function with given fields: entity
-func (_m *CemCEVCInterface) SupportedUseCaseScenarios(entity spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType {
-	ret := _m.Called(entity)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SupportedUseCaseScenarios")
-	}
-
-	var r0 []model.UseCaseScenarioSupportType
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType); ok {
-		r0 = rf(entity)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.UseCaseScenarioSupportType)
-		}
-	}
-
-	return r0
-}
-
-// CemCEVCInterface_SupportedUseCaseScenarios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SupportedUseCaseScenarios'
-type CemCEVCInterface_SupportedUseCaseScenarios_Call struct {
-	*mock.Call
-}
-
-// SupportedUseCaseScenarios is a helper method to define mock.On call
-//   - entity spine_goapi.EntityRemoteInterface
-func (_e *CemCEVCInterface_Expecter) SupportedUseCaseScenarios(entity interface{}) *CemCEVCInterface_SupportedUseCaseScenarios_Call {
-	return &CemCEVCInterface_SupportedUseCaseScenarios_Call{Call: _e.mock.On("SupportedUseCaseScenarios", entity)}
-}
-
-func (_c *CemCEVCInterface_SupportedUseCaseScenarios_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *CemCEVCInterface_SupportedUseCaseScenarios_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface))
-	})
-	return _c
-}
-
-func (_c *CemCEVCInterface_SupportedUseCaseScenarios_Call) Return(_a0 []model.UseCaseScenarioSupportType) *CemCEVCInterface_SupportedUseCaseScenarios_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *CemCEVCInterface_SupportedUseCaseScenarios_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) []model.UseCaseScenarioSupportType) *CemCEVCInterface_SupportedUseCaseScenarios_Call {
 	_c.Call.Return(run)
 	return _c
 }
