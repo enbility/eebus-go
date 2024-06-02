@@ -51,6 +51,30 @@ func (s *EgLPPSuite) Test_Failures() {
 	s.sut.configurationDescriptionDataUpdate(s.mockRemoteEntity)
 }
 
+func (s *EgLPPSuite) Test_loadControlLimitDescriptionDataUpdate() {
+	s.sut.loadControlLimitDescriptionDataUpdate(s.mockRemoteEntity)
+
+	s.sut.loadControlLimitDescriptionDataUpdate(s.monitoredEntity)
+
+	descData := &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId:        util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+				LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
+				ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	s.sut.loadControlLimitDescriptionDataUpdate(s.monitoredEntity)
+}
+
 func (s *EgLPPSuite) Test_loadControlLimitDataUpdate() {
 	payload := spineapi.EventPayload{
 		Ski:    remoteSki,

@@ -47,7 +47,6 @@ func (e *LPP) ProductionLimit(entity spineapi.EntityRemoteInterface) (
 
 	filter := model.LoadControlLimitDescriptionDataType{
 		LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
-		LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
 		LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
 		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 	}
@@ -92,7 +91,6 @@ func (e *LPP) WriteProductionLimit(
 
 	filter := model.LoadControlLimitDescriptionDataType{
 		LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
-		LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
 		LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
 		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 	}

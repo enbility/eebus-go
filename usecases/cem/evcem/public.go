@@ -96,7 +96,7 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 	// if there was no timestamp provided or the time for the last value
 	// is older than 1 minute, send a read request
 	if refetch {
-		_, _ = evMeasurement.RequestData()
+		_, _ = evMeasurement.RequestData(nil, nil)
 	}
 
 	return result, nil

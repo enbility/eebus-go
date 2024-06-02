@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipmocks "github.com/enbility/ship-go/mocks"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/mocks"
@@ -25,7 +24,7 @@ type DeviceConfigurationSuite struct {
 	remoteEntity     spineapi.EntityRemoteInterface
 	mockRemoteEntity *mocks.EntityRemoteInterface
 
-	deviceConfiguration *features.DeviceConfiguration
+	deviceConfiguration *DeviceConfiguration
 }
 
 const remoteSki string = "testremoteski"
@@ -60,23 +59,37 @@ func (s *DeviceConfigurationSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().DataCopy(mock.Anything).Return(mock.Anything).Maybe()
 
 	var err error
-	s.deviceConfiguration, err = features.NewDeviceConfiguration(s.localEntity, nil)
+	s.deviceConfiguration, err = NewDeviceConfiguration(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.deviceConfiguration)
 
-	s.deviceConfiguration, err = features.NewDeviceConfiguration(s.localEntity, s.remoteEntity)
+	s.deviceConfiguration, err = NewDeviceConfiguration(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceConfiguration)
 }
 
-func (s *DeviceConfigurationSuite) Test_RequestDescriptions() {
-	counter, err := s.deviceConfiguration.RequestDescriptions()
+func (s *DeviceConfigurationSuite) Test_RequestKeyValueDescriptions() {
+	counter, err := s.deviceConfiguration.RequestKeyValueDescriptions(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.deviceConfiguration.RequestKeyValueDescriptions(
+		&model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType{},
+		&model.DeviceConfigurationKeyValueDescriptionDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
 func (s *DeviceConfigurationSuite) Test_RequestKeyValueList() {
-	counter, err := s.deviceConfiguration.RequestKeyValues()
+	counter, err := s.deviceConfiguration.RequestKeyValues(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.deviceConfiguration.RequestKeyValues(
+		&model.DeviceConfigurationKeyValueListDataSelectorsType{},
+		&model.DeviceConfigurationKeyValueDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }

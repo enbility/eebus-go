@@ -125,18 +125,23 @@ func (f *Feature) AddResultCallback(function func(msg spineapi.ResponseMessage))
 // selectors and elements are used if specific data should be requested by using
 // model.FilterType DataSelectors (selectors) and/or DataElements (elements)
 // both should use the proper data types for the used function
+//
+// Note: selectors and elements have to be pointers!
 func (f *Feature) requestData(function model.FunctionType, selectors any, elements any) (*model.MsgCounterType, error) {
 	if f.featureRemote == nil {
 		return nil, api.ErrDataNotAvailable
 	}
 
 	fTypes := f.featureRemote.Operations()
-	if _, exists := fTypes[function]; !exists {
-		return nil, api.ErrFunctionNotSupported
+	op, exists := fTypes[function]
+	if !exists || !op.Read() {
+		return nil, api.ErrOperationOnFunctionNotSupported
 	}
 
-	if !fTypes[function].Read() {
-		return nil, api.ErrOperationOnFunctionNotSupported
+	// remove the selectors if the remote does not allow partial reads
+	if selectors != nil && !op.ReadPartial() {
+		selectors = nil
+		elements = nil
 	}
 
 	msgCounter, fErr := f.featureLocal.RequestRemoteData(function, selectors, elements, f.featureRemote)

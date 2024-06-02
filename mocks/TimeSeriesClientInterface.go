@@ -20,9 +20,9 @@ func (_m *TimeSeriesClientInterface) EXPECT() *TimeSeriesClientInterface_Expecte
 	return &TimeSeriesClientInterface_Expecter{mock: &_m.Mock}
 }
 
-// RequestConstraints provides a mock function with given fields:
-func (_m *TimeSeriesClientInterface) RequestConstraints() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestConstraints provides a mock function with given fields: selector, elements
+func (_m *TimeSeriesClientInterface) RequestConstraints(selector *model.TimeSeriesConstraintsListDataSelectorsType, elements *model.TimeSeriesConstraintsDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestConstraints")
@@ -30,19 +30,19 @@ func (_m *TimeSeriesClientInterface) RequestConstraints() (*model.MsgCounterType
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.TimeSeriesConstraintsListDataSelectorsType, *model.TimeSeriesConstraintsDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.TimeSeriesConstraintsListDataSelectorsType, *model.TimeSeriesConstraintsDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.TimeSeriesConstraintsListDataSelectorsType, *model.TimeSeriesConstraintsDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,13 +56,15 @@ type TimeSeriesClientInterface_RequestConstraints_Call struct {
 }
 
 // RequestConstraints is a helper method to define mock.On call
-func (_e *TimeSeriesClientInterface_Expecter) RequestConstraints() *TimeSeriesClientInterface_RequestConstraints_Call {
-	return &TimeSeriesClientInterface_RequestConstraints_Call{Call: _e.mock.On("RequestConstraints")}
+//   - selector *model.TimeSeriesConstraintsListDataSelectorsType
+//   - elements *model.TimeSeriesConstraintsDataElementsType
+func (_e *TimeSeriesClientInterface_Expecter) RequestConstraints(selector interface{}, elements interface{}) *TimeSeriesClientInterface_RequestConstraints_Call {
+	return &TimeSeriesClientInterface_RequestConstraints_Call{Call: _e.mock.On("RequestConstraints", selector, elements)}
 }
 
-func (_c *TimeSeriesClientInterface_RequestConstraints_Call) Run(run func()) *TimeSeriesClientInterface_RequestConstraints_Call {
+func (_c *TimeSeriesClientInterface_RequestConstraints_Call) Run(run func(selector *model.TimeSeriesConstraintsListDataSelectorsType, elements *model.TimeSeriesConstraintsDataElementsType)) *TimeSeriesClientInterface_RequestConstraints_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.TimeSeriesConstraintsListDataSelectorsType), args[1].(*model.TimeSeriesConstraintsDataElementsType))
 	})
 	return _c
 }
@@ -72,14 +74,14 @@ func (_c *TimeSeriesClientInterface_RequestConstraints_Call) Return(_a0 *model.M
 	return _c
 }
 
-func (_c *TimeSeriesClientInterface_RequestConstraints_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *TimeSeriesClientInterface_RequestConstraints_Call {
+func (_c *TimeSeriesClientInterface_RequestConstraints_Call) RunAndReturn(run func(*model.TimeSeriesConstraintsListDataSelectorsType, *model.TimeSeriesConstraintsDataElementsType) (*model.MsgCounterType, error)) *TimeSeriesClientInterface_RequestConstraints_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestData provides a mock function with given fields:
-func (_m *TimeSeriesClientInterface) RequestData() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestData provides a mock function with given fields: selector, elements
+func (_m *TimeSeriesClientInterface) RequestData(selector *model.TimeSeriesListDataSelectorsType, elements *model.TimeSeriesDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestData")
@@ -87,19 +89,19 @@ func (_m *TimeSeriesClientInterface) RequestData() (*model.MsgCounterType, error
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.TimeSeriesListDataSelectorsType, *model.TimeSeriesDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.TimeSeriesListDataSelectorsType, *model.TimeSeriesDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.TimeSeriesListDataSelectorsType, *model.TimeSeriesDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,13 +115,15 @@ type TimeSeriesClientInterface_RequestData_Call struct {
 }
 
 // RequestData is a helper method to define mock.On call
-func (_e *TimeSeriesClientInterface_Expecter) RequestData() *TimeSeriesClientInterface_RequestData_Call {
-	return &TimeSeriesClientInterface_RequestData_Call{Call: _e.mock.On("RequestData")}
+//   - selector *model.TimeSeriesListDataSelectorsType
+//   - elements *model.TimeSeriesDataElementsType
+func (_e *TimeSeriesClientInterface_Expecter) RequestData(selector interface{}, elements interface{}) *TimeSeriesClientInterface_RequestData_Call {
+	return &TimeSeriesClientInterface_RequestData_Call{Call: _e.mock.On("RequestData", selector, elements)}
 }
 
-func (_c *TimeSeriesClientInterface_RequestData_Call) Run(run func()) *TimeSeriesClientInterface_RequestData_Call {
+func (_c *TimeSeriesClientInterface_RequestData_Call) Run(run func(selector *model.TimeSeriesListDataSelectorsType, elements *model.TimeSeriesDataElementsType)) *TimeSeriesClientInterface_RequestData_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.TimeSeriesListDataSelectorsType), args[1].(*model.TimeSeriesDataElementsType))
 	})
 	return _c
 }
@@ -129,14 +133,14 @@ func (_c *TimeSeriesClientInterface_RequestData_Call) Return(_a0 *model.MsgCount
 	return _c
 }
 
-func (_c *TimeSeriesClientInterface_RequestData_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *TimeSeriesClientInterface_RequestData_Call {
+func (_c *TimeSeriesClientInterface_RequestData_Call) RunAndReturn(run func(*model.TimeSeriesListDataSelectorsType, *model.TimeSeriesDataElementsType) (*model.MsgCounterType, error)) *TimeSeriesClientInterface_RequestData_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestDescriptions provides a mock function with given fields:
-func (_m *TimeSeriesClientInterface) RequestDescriptions() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestDescriptions provides a mock function with given fields: selector, elements
+func (_m *TimeSeriesClientInterface) RequestDescriptions(selector *model.TimeSeriesDescriptionListDataSelectorsType, elements *model.TimeSeriesDescriptionDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestDescriptions")
@@ -144,19 +148,19 @@ func (_m *TimeSeriesClientInterface) RequestDescriptions() (*model.MsgCounterTyp
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.TimeSeriesDescriptionListDataSelectorsType, *model.TimeSeriesDescriptionDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.TimeSeriesDescriptionListDataSelectorsType, *model.TimeSeriesDescriptionDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.TimeSeriesDescriptionListDataSelectorsType, *model.TimeSeriesDescriptionDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -170,13 +174,15 @@ type TimeSeriesClientInterface_RequestDescriptions_Call struct {
 }
 
 // RequestDescriptions is a helper method to define mock.On call
-func (_e *TimeSeriesClientInterface_Expecter) RequestDescriptions() *TimeSeriesClientInterface_RequestDescriptions_Call {
-	return &TimeSeriesClientInterface_RequestDescriptions_Call{Call: _e.mock.On("RequestDescriptions")}
+//   - selector *model.TimeSeriesDescriptionListDataSelectorsType
+//   - elements *model.TimeSeriesDescriptionDataElementsType
+func (_e *TimeSeriesClientInterface_Expecter) RequestDescriptions(selector interface{}, elements interface{}) *TimeSeriesClientInterface_RequestDescriptions_Call {
+	return &TimeSeriesClientInterface_RequestDescriptions_Call{Call: _e.mock.On("RequestDescriptions", selector, elements)}
 }
 
-func (_c *TimeSeriesClientInterface_RequestDescriptions_Call) Run(run func()) *TimeSeriesClientInterface_RequestDescriptions_Call {
+func (_c *TimeSeriesClientInterface_RequestDescriptions_Call) Run(run func(selector *model.TimeSeriesDescriptionListDataSelectorsType, elements *model.TimeSeriesDescriptionDataElementsType)) *TimeSeriesClientInterface_RequestDescriptions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.TimeSeriesDescriptionListDataSelectorsType), args[1].(*model.TimeSeriesDescriptionDataElementsType))
 	})
 	return _c
 }
@@ -186,7 +192,7 @@ func (_c *TimeSeriesClientInterface_RequestDescriptions_Call) Return(_a0 *model.
 	return _c
 }
 
-func (_c *TimeSeriesClientInterface_RequestDescriptions_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *TimeSeriesClientInterface_RequestDescriptions_Call {
+func (_c *TimeSeriesClientInterface_RequestDescriptions_Call) RunAndReturn(run func(*model.TimeSeriesDescriptionListDataSelectorsType, *model.TimeSeriesDescriptionDataElementsType) (*model.MsgCounterType, error)) *TimeSeriesClientInterface_RequestDescriptions_Call {
 	_c.Call.Return(run)
 	return _c
 }

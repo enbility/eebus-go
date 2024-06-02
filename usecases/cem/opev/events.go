@@ -52,12 +52,12 @@ func (e *OPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 		}
 
 		// get descriptions
-		if _, err := evLoadControl.RequestLimitDescriptions(); err != nil {
+		if _, err := evLoadControl.RequestLimitDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 
 		// get constraints
-		if _, err := evLoadControl.RequestLimitConstraints(); err != nil {
+		if _, err := evLoadControl.RequestLimitConstraints(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -67,7 +67,7 @@ func (e *OPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 func (e *OPEV) evLoadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if evLoadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		// get values
-		if _, err := evLoadControl.RequestLimitData(); err != nil {
+		if _, err := evLoadControl.RequestLimitData(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}

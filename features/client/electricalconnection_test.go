@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -21,7 +20,7 @@ type ElectricalConnectionSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	electricalConnection *features.ElectricalConnection
+	electricalConnection *ElectricalConnection
 	sentMessage          []byte
 }
 
@@ -49,35 +48,63 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.electricalConnection, err = features.NewElectricalConnection(s.localEntity, nil)
+	s.electricalConnection, err = NewElectricalConnection(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.electricalConnection)
 
-	s.electricalConnection, err = features.NewElectricalConnection(s.localEntity, s.remoteEntity)
+	s.electricalConnection, err = NewElectricalConnection(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.electricalConnection)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestDescriptions() {
-	counter, err := s.electricalConnection.RequestDescriptions()
+	counter, err := s.electricalConnection.RequestDescriptions(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.electricalConnection.RequestDescriptions(
+		&model.ElectricalConnectionDescriptionListDataSelectorsType{},
+		&model.ElectricalConnectionDescriptionDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestParameterDescriptions() {
-	counter, err := s.electricalConnection.RequestParameterDescriptions()
+	counter, err := s.electricalConnection.RequestParameterDescriptions(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.electricalConnection.RequestParameterDescriptions(
+		&model.ElectricalConnectionParameterDescriptionListDataSelectorsType{},
+		&model.ElectricalConnectionParameterDescriptionDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestPermittedValueSets() {
-	counter, err := s.electricalConnection.RequestPermittedValueSets()
+	counter, err := s.electricalConnection.RequestPermittedValueSets(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.electricalConnection.RequestPermittedValueSets(
+		&model.ElectricalConnectionPermittedValueSetListDataSelectorsType{},
+		&model.ElectricalConnectionPermittedValueSetDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
 func (s *ElectricalConnectionSuite) Test_RequestCharacteristics() {
-	counter, err := s.electricalConnection.RequestCharacteristics()
+	counter, err := s.electricalConnection.RequestCharacteristics(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.electricalConnection.RequestCharacteristics(
+		&model.ElectricalConnectionCharacteristicListDataSelectorsType{},
+		&model.ElectricalConnectionCharacteristicDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }

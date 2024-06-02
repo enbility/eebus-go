@@ -20,9 +20,9 @@ func (_m *LoadControlClientInterface) EXPECT() *LoadControlClientInterface_Expec
 	return &LoadControlClientInterface_Expecter{mock: &_m.Mock}
 }
 
-// RequestLimitConstraints provides a mock function with given fields:
-func (_m *LoadControlClientInterface) RequestLimitConstraints() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestLimitConstraints provides a mock function with given fields: selector, elements
+func (_m *LoadControlClientInterface) RequestLimitConstraints(selector *model.LoadControlLimitConstraintsListDataSelectorsType, elements *model.LoadControlLimitConstraintsDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestLimitConstraints")
@@ -30,19 +30,19 @@ func (_m *LoadControlClientInterface) RequestLimitConstraints() (*model.MsgCount
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.LoadControlLimitConstraintsListDataSelectorsType, *model.LoadControlLimitConstraintsDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.LoadControlLimitConstraintsListDataSelectorsType, *model.LoadControlLimitConstraintsDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.LoadControlLimitConstraintsListDataSelectorsType, *model.LoadControlLimitConstraintsDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,13 +56,15 @@ type LoadControlClientInterface_RequestLimitConstraints_Call struct {
 }
 
 // RequestLimitConstraints is a helper method to define mock.On call
-func (_e *LoadControlClientInterface_Expecter) RequestLimitConstraints() *LoadControlClientInterface_RequestLimitConstraints_Call {
-	return &LoadControlClientInterface_RequestLimitConstraints_Call{Call: _e.mock.On("RequestLimitConstraints")}
+//   - selector *model.LoadControlLimitConstraintsListDataSelectorsType
+//   - elements *model.LoadControlLimitConstraintsDataElementsType
+func (_e *LoadControlClientInterface_Expecter) RequestLimitConstraints(selector interface{}, elements interface{}) *LoadControlClientInterface_RequestLimitConstraints_Call {
+	return &LoadControlClientInterface_RequestLimitConstraints_Call{Call: _e.mock.On("RequestLimitConstraints", selector, elements)}
 }
 
-func (_c *LoadControlClientInterface_RequestLimitConstraints_Call) Run(run func()) *LoadControlClientInterface_RequestLimitConstraints_Call {
+func (_c *LoadControlClientInterface_RequestLimitConstraints_Call) Run(run func(selector *model.LoadControlLimitConstraintsListDataSelectorsType, elements *model.LoadControlLimitConstraintsDataElementsType)) *LoadControlClientInterface_RequestLimitConstraints_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.LoadControlLimitConstraintsListDataSelectorsType), args[1].(*model.LoadControlLimitConstraintsDataElementsType))
 	})
 	return _c
 }
@@ -72,14 +74,14 @@ func (_c *LoadControlClientInterface_RequestLimitConstraints_Call) Return(_a0 *m
 	return _c
 }
 
-func (_c *LoadControlClientInterface_RequestLimitConstraints_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *LoadControlClientInterface_RequestLimitConstraints_Call {
+func (_c *LoadControlClientInterface_RequestLimitConstraints_Call) RunAndReturn(run func(*model.LoadControlLimitConstraintsListDataSelectorsType, *model.LoadControlLimitConstraintsDataElementsType) (*model.MsgCounterType, error)) *LoadControlClientInterface_RequestLimitConstraints_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestLimitData provides a mock function with given fields:
-func (_m *LoadControlClientInterface) RequestLimitData() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestLimitData provides a mock function with given fields: selector, elements
+func (_m *LoadControlClientInterface) RequestLimitData(selector *model.LoadControlLimitListDataSelectorsType, elements *model.LoadControlLimitDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestLimitData")
@@ -87,19 +89,19 @@ func (_m *LoadControlClientInterface) RequestLimitData() (*model.MsgCounterType,
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,13 +115,15 @@ type LoadControlClientInterface_RequestLimitData_Call struct {
 }
 
 // RequestLimitData is a helper method to define mock.On call
-func (_e *LoadControlClientInterface_Expecter) RequestLimitData() *LoadControlClientInterface_RequestLimitData_Call {
-	return &LoadControlClientInterface_RequestLimitData_Call{Call: _e.mock.On("RequestLimitData")}
+//   - selector *model.LoadControlLimitListDataSelectorsType
+//   - elements *model.LoadControlLimitDataElementsType
+func (_e *LoadControlClientInterface_Expecter) RequestLimitData(selector interface{}, elements interface{}) *LoadControlClientInterface_RequestLimitData_Call {
+	return &LoadControlClientInterface_RequestLimitData_Call{Call: _e.mock.On("RequestLimitData", selector, elements)}
 }
 
-func (_c *LoadControlClientInterface_RequestLimitData_Call) Run(run func()) *LoadControlClientInterface_RequestLimitData_Call {
+func (_c *LoadControlClientInterface_RequestLimitData_Call) Run(run func(selector *model.LoadControlLimitListDataSelectorsType, elements *model.LoadControlLimitDataElementsType)) *LoadControlClientInterface_RequestLimitData_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.LoadControlLimitListDataSelectorsType), args[1].(*model.LoadControlLimitDataElementsType))
 	})
 	return _c
 }
@@ -129,14 +133,14 @@ func (_c *LoadControlClientInterface_RequestLimitData_Call) Return(_a0 *model.Ms
 	return _c
 }
 
-func (_c *LoadControlClientInterface_RequestLimitData_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *LoadControlClientInterface_RequestLimitData_Call {
+func (_c *LoadControlClientInterface_RequestLimitData_Call) RunAndReturn(run func(*model.LoadControlLimitListDataSelectorsType, *model.LoadControlLimitDataElementsType) (*model.MsgCounterType, error)) *LoadControlClientInterface_RequestLimitData_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestLimitDescriptions provides a mock function with given fields:
-func (_m *LoadControlClientInterface) RequestLimitDescriptions() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestLimitDescriptions provides a mock function with given fields: selector, elements
+func (_m *LoadControlClientInterface) RequestLimitDescriptions(selector *model.LoadControlLimitDescriptionListDataSelectorsType, elements *model.LoadControlLimitDescriptionDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestLimitDescriptions")
@@ -144,19 +148,19 @@ func (_m *LoadControlClientInterface) RequestLimitDescriptions() (*model.MsgCoun
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.LoadControlLimitDescriptionListDataSelectorsType, *model.LoadControlLimitDescriptionDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.LoadControlLimitDescriptionListDataSelectorsType, *model.LoadControlLimitDescriptionDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.LoadControlLimitDescriptionListDataSelectorsType, *model.LoadControlLimitDescriptionDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -170,13 +174,15 @@ type LoadControlClientInterface_RequestLimitDescriptions_Call struct {
 }
 
 // RequestLimitDescriptions is a helper method to define mock.On call
-func (_e *LoadControlClientInterface_Expecter) RequestLimitDescriptions() *LoadControlClientInterface_RequestLimitDescriptions_Call {
-	return &LoadControlClientInterface_RequestLimitDescriptions_Call{Call: _e.mock.On("RequestLimitDescriptions")}
+//   - selector *model.LoadControlLimitDescriptionListDataSelectorsType
+//   - elements *model.LoadControlLimitDescriptionDataElementsType
+func (_e *LoadControlClientInterface_Expecter) RequestLimitDescriptions(selector interface{}, elements interface{}) *LoadControlClientInterface_RequestLimitDescriptions_Call {
+	return &LoadControlClientInterface_RequestLimitDescriptions_Call{Call: _e.mock.On("RequestLimitDescriptions", selector, elements)}
 }
 
-func (_c *LoadControlClientInterface_RequestLimitDescriptions_Call) Run(run func()) *LoadControlClientInterface_RequestLimitDescriptions_Call {
+func (_c *LoadControlClientInterface_RequestLimitDescriptions_Call) Run(run func(selector *model.LoadControlLimitDescriptionListDataSelectorsType, elements *model.LoadControlLimitDescriptionDataElementsType)) *LoadControlClientInterface_RequestLimitDescriptions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.LoadControlLimitDescriptionListDataSelectorsType), args[1].(*model.LoadControlLimitDescriptionDataElementsType))
 	})
 	return _c
 }
@@ -186,7 +192,7 @@ func (_c *LoadControlClientInterface_RequestLimitDescriptions_Call) Return(_a0 *
 	return _c
 }
 
-func (_c *LoadControlClientInterface_RequestLimitDescriptions_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *LoadControlClientInterface_RequestLimitDescriptions_Call {
+func (_c *LoadControlClientInterface_RequestLimitDescriptions_Call) RunAndReturn(run func(*model.LoadControlLimitDescriptionListDataSelectorsType, *model.LoadControlLimitDescriptionDataElementsType) (*model.MsgCounterType, error)) *LoadControlClientInterface_RequestLimitDescriptions_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -36,18 +36,27 @@ func NewTimeSeries(
 var _ api.TimeSeriesClientInterface = (*TimeSeries)(nil)
 
 // request FunctionTypeTimeSeriesDescriptionListData from a remote entity
-func (t *TimeSeries) RequestDescriptions() (*model.MsgCounterType, error) {
-	return t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, nil, nil)
+func (t *TimeSeries) RequestDescriptions(
+	selector *model.TimeSeriesDescriptionListDataSelectorsType,
+	elements *model.TimeSeriesDescriptionDataElementsType,
+) (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesDescriptionListData, selector, elements)
 }
 
 // request FunctionTypeTimeSeriesConstraintsListData from a remote entity
-func (t *TimeSeries) RequestConstraints() (*model.MsgCounterType, error) {
-	return t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, nil, nil)
+func (t *TimeSeries) RequestConstraints(
+	selector *model.TimeSeriesConstraintsListDataSelectorsType,
+	elements *model.TimeSeriesConstraintsDataElementsType,
+) (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesConstraintsListData, selector, elements)
 }
 
 // request FunctionTypeTimeSeriesListData from a remote device
-func (t *TimeSeries) RequestData() (*model.MsgCounterType, error) {
-	return t.requestData(model.FunctionTypeTimeSeriesListData, nil, nil)
+func (t *TimeSeries) RequestData(
+	selector *model.TimeSeriesListDataSelectorsType,
+	elements *model.TimeSeriesDataElementsType,
+) (*model.MsgCounterType, error) {
+	return t.requestData(model.FunctionTypeTimeSeriesListData, selector, elements)
 }
 
 // write Time Series values

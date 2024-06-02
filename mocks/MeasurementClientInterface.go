@@ -20,9 +20,9 @@ func (_m *MeasurementClientInterface) EXPECT() *MeasurementClientInterface_Expec
 	return &MeasurementClientInterface_Expecter{mock: &_m.Mock}
 }
 
-// RequestConstraints provides a mock function with given fields:
-func (_m *MeasurementClientInterface) RequestConstraints() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestConstraints provides a mock function with given fields: selector, elements
+func (_m *MeasurementClientInterface) RequestConstraints(selector *model.MeasurementConstraintsListDataSelectorsType, elements *model.MeasurementConstraintsDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestConstraints")
@@ -30,19 +30,19 @@ func (_m *MeasurementClientInterface) RequestConstraints() (*model.MsgCounterTyp
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.MeasurementConstraintsListDataSelectorsType, *model.MeasurementConstraintsDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.MeasurementConstraintsListDataSelectorsType, *model.MeasurementConstraintsDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.MeasurementConstraintsListDataSelectorsType, *model.MeasurementConstraintsDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,13 +56,15 @@ type MeasurementClientInterface_RequestConstraints_Call struct {
 }
 
 // RequestConstraints is a helper method to define mock.On call
-func (_e *MeasurementClientInterface_Expecter) RequestConstraints() *MeasurementClientInterface_RequestConstraints_Call {
-	return &MeasurementClientInterface_RequestConstraints_Call{Call: _e.mock.On("RequestConstraints")}
+//   - selector *model.MeasurementConstraintsListDataSelectorsType
+//   - elements *model.MeasurementConstraintsDataElementsType
+func (_e *MeasurementClientInterface_Expecter) RequestConstraints(selector interface{}, elements interface{}) *MeasurementClientInterface_RequestConstraints_Call {
+	return &MeasurementClientInterface_RequestConstraints_Call{Call: _e.mock.On("RequestConstraints", selector, elements)}
 }
 
-func (_c *MeasurementClientInterface_RequestConstraints_Call) Run(run func()) *MeasurementClientInterface_RequestConstraints_Call {
+func (_c *MeasurementClientInterface_RequestConstraints_Call) Run(run func(selector *model.MeasurementConstraintsListDataSelectorsType, elements *model.MeasurementConstraintsDataElementsType)) *MeasurementClientInterface_RequestConstraints_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.MeasurementConstraintsListDataSelectorsType), args[1].(*model.MeasurementConstraintsDataElementsType))
 	})
 	return _c
 }
@@ -72,14 +74,14 @@ func (_c *MeasurementClientInterface_RequestConstraints_Call) Return(_a0 *model.
 	return _c
 }
 
-func (_c *MeasurementClientInterface_RequestConstraints_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *MeasurementClientInterface_RequestConstraints_Call {
+func (_c *MeasurementClientInterface_RequestConstraints_Call) RunAndReturn(run func(*model.MeasurementConstraintsListDataSelectorsType, *model.MeasurementConstraintsDataElementsType) (*model.MsgCounterType, error)) *MeasurementClientInterface_RequestConstraints_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestData provides a mock function with given fields:
-func (_m *MeasurementClientInterface) RequestData() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestData provides a mock function with given fields: selector, elements
+func (_m *MeasurementClientInterface) RequestData(selector *model.MeasurementListDataSelectorsType, elements *model.MeasurementDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestData")
@@ -87,19 +89,19 @@ func (_m *MeasurementClientInterface) RequestData() (*model.MsgCounterType, erro
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.MeasurementListDataSelectorsType, *model.MeasurementDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.MeasurementListDataSelectorsType, *model.MeasurementDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.MeasurementListDataSelectorsType, *model.MeasurementDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,13 +115,15 @@ type MeasurementClientInterface_RequestData_Call struct {
 }
 
 // RequestData is a helper method to define mock.On call
-func (_e *MeasurementClientInterface_Expecter) RequestData() *MeasurementClientInterface_RequestData_Call {
-	return &MeasurementClientInterface_RequestData_Call{Call: _e.mock.On("RequestData")}
+//   - selector *model.MeasurementListDataSelectorsType
+//   - elements *model.MeasurementDataElementsType
+func (_e *MeasurementClientInterface_Expecter) RequestData(selector interface{}, elements interface{}) *MeasurementClientInterface_RequestData_Call {
+	return &MeasurementClientInterface_RequestData_Call{Call: _e.mock.On("RequestData", selector, elements)}
 }
 
-func (_c *MeasurementClientInterface_RequestData_Call) Run(run func()) *MeasurementClientInterface_RequestData_Call {
+func (_c *MeasurementClientInterface_RequestData_Call) Run(run func(selector *model.MeasurementListDataSelectorsType, elements *model.MeasurementDataElementsType)) *MeasurementClientInterface_RequestData_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.MeasurementListDataSelectorsType), args[1].(*model.MeasurementDataElementsType))
 	})
 	return _c
 }
@@ -129,14 +133,14 @@ func (_c *MeasurementClientInterface_RequestData_Call) Return(_a0 *model.MsgCoun
 	return _c
 }
 
-func (_c *MeasurementClientInterface_RequestData_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *MeasurementClientInterface_RequestData_Call {
+func (_c *MeasurementClientInterface_RequestData_Call) RunAndReturn(run func(*model.MeasurementListDataSelectorsType, *model.MeasurementDataElementsType) (*model.MsgCounterType, error)) *MeasurementClientInterface_RequestData_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestDescriptions provides a mock function with given fields:
-func (_m *MeasurementClientInterface) RequestDescriptions() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestDescriptions provides a mock function with given fields: selector, elements
+func (_m *MeasurementClientInterface) RequestDescriptions(selector *model.MeasurementDescriptionListDataSelectorsType, elements *model.MeasurementDescriptionDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestDescriptions")
@@ -144,19 +148,19 @@ func (_m *MeasurementClientInterface) RequestDescriptions() (*model.MsgCounterTy
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.MeasurementDescriptionListDataSelectorsType, *model.MeasurementDescriptionDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.MeasurementDescriptionListDataSelectorsType, *model.MeasurementDescriptionDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.MeasurementDescriptionListDataSelectorsType, *model.MeasurementDescriptionDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -170,13 +174,15 @@ type MeasurementClientInterface_RequestDescriptions_Call struct {
 }
 
 // RequestDescriptions is a helper method to define mock.On call
-func (_e *MeasurementClientInterface_Expecter) RequestDescriptions() *MeasurementClientInterface_RequestDescriptions_Call {
-	return &MeasurementClientInterface_RequestDescriptions_Call{Call: _e.mock.On("RequestDescriptions")}
+//   - selector *model.MeasurementDescriptionListDataSelectorsType
+//   - elements *model.MeasurementDescriptionDataElementsType
+func (_e *MeasurementClientInterface_Expecter) RequestDescriptions(selector interface{}, elements interface{}) *MeasurementClientInterface_RequestDescriptions_Call {
+	return &MeasurementClientInterface_RequestDescriptions_Call{Call: _e.mock.On("RequestDescriptions", selector, elements)}
 }
 
-func (_c *MeasurementClientInterface_RequestDescriptions_Call) Run(run func()) *MeasurementClientInterface_RequestDescriptions_Call {
+func (_c *MeasurementClientInterface_RequestDescriptions_Call) Run(run func(selector *model.MeasurementDescriptionListDataSelectorsType, elements *model.MeasurementDescriptionDataElementsType)) *MeasurementClientInterface_RequestDescriptions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.MeasurementDescriptionListDataSelectorsType), args[1].(*model.MeasurementDescriptionDataElementsType))
 	})
 	return _c
 }
@@ -186,7 +192,7 @@ func (_c *MeasurementClientInterface_RequestDescriptions_Call) Return(_a0 *model
 	return _c
 }
 
-func (_c *MeasurementClientInterface_RequestDescriptions_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *MeasurementClientInterface_RequestDescriptions_Call {
+func (_c *MeasurementClientInterface_RequestDescriptions_Call) RunAndReturn(run func(*model.MeasurementDescriptionListDataSelectorsType, *model.MeasurementDescriptionDataElementsType) (*model.MsgCounterType, error)) *MeasurementClientInterface_RequestDescriptions_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -21,7 +20,7 @@ type DeviceClassificationSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	deviceClassification *features.DeviceClassification
+	deviceClassification *DeviceClassification
 	sentMessage          []byte
 }
 
@@ -46,11 +45,11 @@ func (s *DeviceClassificationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.deviceClassification, err = features.NewDeviceClassification(s.localEntity, nil)
+	s.deviceClassification, err = NewDeviceClassification(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.deviceClassification)
 
-	s.deviceClassification, err = features.NewDeviceClassification(s.localEntity, s.remoteEntity)
+	s.deviceClassification, err = NewDeviceClassification(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.deviceClassification)
 }

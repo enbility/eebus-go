@@ -53,13 +53,34 @@ func (e *LPP) connected(entity spineapi.EntityRemoteInterface) {
 		}
 
 		// get descriptions
-		if _, err := loadControl.RequestLimitDescriptions(); err != nil {
+		selector := &model.LoadControlLimitDescriptionListDataSelectorsType{
+			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+			LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
+			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+		}
+		if _, err := loadControl.RequestLimitDescriptions(selector, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
 
-	if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err == nil {
-		if _, err := localDeviceDiag.Subscribe(); err != nil {
+	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
+		if _, err := deviceConfiguration.Subscribe(); err != nil {
+			logging.Log().Debug(err)
+		}
+
+		if _, err := deviceConfiguration.Bind(); err != nil {
+			logging.Log().Debug(err)
+		}
+
+		// get descriptions
+		// don't use selectors yet, as we would have to query 2 which could result in 2 full reads
+		if _, err := deviceConfiguration.RequestKeyValueDescriptions(nil, nil); err != nil {
+			logging.Log().Debug(err)
+		}
+	}
+
+	if deviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err == nil {
+		if _, err := deviceDiagnosis.Subscribe(); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -69,7 +90,18 @@ func (e *LPP) connected(entity spineapi.EntityRemoteInterface) {
 func (e *LPP) loadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if loadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		// get values
-		if _, err := loadControl.RequestLimitData(); err != nil {
+		var selector *model.LoadControlLimitListDataSelectorsType
+		filter := model.LoadControlLimitDescriptionDataType{
+			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+			LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
+			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+		}
+		if descs, err := loadControl.GetLimitDescriptionsForFilter(filter); err == nil && len(descs) > 0 {
+			selector = &model.LoadControlLimitListDataSelectorsType{
+				LimitId: descs[0].LimitId,
+			}
+		}
+		if _, err := loadControl.RequestLimitData(selector, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -80,7 +112,6 @@ func (e *LPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	if lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.LoadControlLimitDescriptionDataType{
 			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
-			LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
 			LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
 			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 		}
@@ -94,7 +125,7 @@ func (e *LPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 func (e *LPP) configurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
-		if _, err := deviceConfiguration.RequestKeyValues(); err != nil {
+		if _, err := deviceConfiguration.RequestKeyValues(nil, nil); err != nil {
 			logging.Log().Error("Error getting configuration key values:", err)
 		}
 	}

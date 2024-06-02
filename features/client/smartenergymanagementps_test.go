@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -21,7 +20,7 @@ type SmartEnergyManagementPsSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	smartenergymgmtps *features.SmartEnergyManagementPs
+	smartenergymgmtps *SmartEnergyManagementPs
 	sentMessage       []byte
 }
 
@@ -46,11 +45,11 @@ func (s *SmartEnergyManagementPsSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.smartenergymgmtps, err = features.NewSmartEnergyManagementPs(s.localEntity, nil)
+	s.smartenergymgmtps, err = NewSmartEnergyManagementPs(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.smartenergymgmtps)
 
-	s.smartenergymgmtps, err = features.NewSmartEnergyManagementPs(s.localEntity, s.remoteEntity)
+	s.smartenergymgmtps, err = NewSmartEnergyManagementPs(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.smartenergymgmtps)
 }

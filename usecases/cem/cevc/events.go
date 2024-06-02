@@ -54,7 +54,7 @@ func (e *CEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 		}
 
 		// get device configuration descriptions
-		if _, err := evDeviceConfiguration.RequestDescriptions(); err != nil {
+		if _, err := evDeviceConfiguration.RequestKeyValueDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -69,12 +69,12 @@ func (e *CEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 		}
 
 		// get time series descriptions
-		if _, err := evTimeSeries.RequestDescriptions(); err != nil {
+		if _, err := evTimeSeries.RequestDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 
 		// get time series constraints
-		if _, err := evTimeSeries.RequestConstraints(); err != nil {
+		if _, err := evTimeSeries.RequestConstraints(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -99,7 +99,7 @@ func (e *CEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 func (e *CEVC) evTimeSeriesDescriptionDataUpdate(payload spineapi.EventPayload) {
 	if evTimeSeries, err := client.NewTimeSeries(e.LocalEntity, payload.Entity); err == nil {
 		// get time series values
-		if _, err := evTimeSeries.RequestData(); err != nil {
+		if _, err := evTimeSeries.RequestData(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}

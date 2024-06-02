@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/enbility/ship-go v0.5.0
-	github.com/enbility/spine-go v0.0.0-20240602103422-c96bc14d05b0
+	github.com/enbility/spine-go v0.0.0-20240602174658-bd2d85f71c67
 	github.com/stretchr/testify v1.8.4
 )
 

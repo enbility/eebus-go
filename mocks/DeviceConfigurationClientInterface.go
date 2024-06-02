@@ -299,29 +299,29 @@ func (_c *DeviceConfigurationClientInterface_GetKeyValueDescriptionsForFilter_Ca
 	return _c
 }
 
-// RequestDescriptions provides a mock function with given fields:
-func (_m *DeviceConfigurationClientInterface) RequestDescriptions() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestKeyValueDescriptions provides a mock function with given fields: selector, elements
+func (_m *DeviceConfigurationClientInterface) RequestKeyValueDescriptions(selector *model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType, elements *model.DeviceConfigurationKeyValueDescriptionDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RequestDescriptions")
+		panic("no return value specified for RequestKeyValueDescriptions")
 	}
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType, *model.DeviceConfigurationKeyValueDescriptionDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType, *model.DeviceConfigurationKeyValueDescriptionDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType, *model.DeviceConfigurationKeyValueDescriptionDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -329,36 +329,38 @@ func (_m *DeviceConfigurationClientInterface) RequestDescriptions() (*model.MsgC
 	return r0, r1
 }
 
-// DeviceConfigurationClientInterface_RequestDescriptions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RequestDescriptions'
-type DeviceConfigurationClientInterface_RequestDescriptions_Call struct {
+// DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RequestKeyValueDescriptions'
+type DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call struct {
 	*mock.Call
 }
 
-// RequestDescriptions is a helper method to define mock.On call
-func (_e *DeviceConfigurationClientInterface_Expecter) RequestDescriptions() *DeviceConfigurationClientInterface_RequestDescriptions_Call {
-	return &DeviceConfigurationClientInterface_RequestDescriptions_Call{Call: _e.mock.On("RequestDescriptions")}
+// RequestKeyValueDescriptions is a helper method to define mock.On call
+//   - selector *model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType
+//   - elements *model.DeviceConfigurationKeyValueDescriptionDataElementsType
+func (_e *DeviceConfigurationClientInterface_Expecter) RequestKeyValueDescriptions(selector interface{}, elements interface{}) *DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call {
+	return &DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call{Call: _e.mock.On("RequestKeyValueDescriptions", selector, elements)}
 }
 
-func (_c *DeviceConfigurationClientInterface_RequestDescriptions_Call) Run(run func()) *DeviceConfigurationClientInterface_RequestDescriptions_Call {
+func (_c *DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call) Run(run func(selector *model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType, elements *model.DeviceConfigurationKeyValueDescriptionDataElementsType)) *DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType), args[1].(*model.DeviceConfigurationKeyValueDescriptionDataElementsType))
 	})
 	return _c
 }
 
-func (_c *DeviceConfigurationClientInterface_RequestDescriptions_Call) Return(_a0 *model.MsgCounterType, _a1 error) *DeviceConfigurationClientInterface_RequestDescriptions_Call {
+func (_c *DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call) Return(_a0 *model.MsgCounterType, _a1 error) *DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *DeviceConfigurationClientInterface_RequestDescriptions_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *DeviceConfigurationClientInterface_RequestDescriptions_Call {
+func (_c *DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call) RunAndReturn(run func(*model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType, *model.DeviceConfigurationKeyValueDescriptionDataElementsType) (*model.MsgCounterType, error)) *DeviceConfigurationClientInterface_RequestKeyValueDescriptions_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestKeyValues provides a mock function with given fields:
-func (_m *DeviceConfigurationClientInterface) RequestKeyValues() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestKeyValues provides a mock function with given fields: selector, elements
+func (_m *DeviceConfigurationClientInterface) RequestKeyValues(selector *model.DeviceConfigurationKeyValueListDataSelectorsType, elements *model.DeviceConfigurationKeyValueDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestKeyValues")
@@ -366,19 +368,19 @@ func (_m *DeviceConfigurationClientInterface) RequestKeyValues() (*model.MsgCoun
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.DeviceConfigurationKeyValueListDataSelectorsType, *model.DeviceConfigurationKeyValueDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.DeviceConfigurationKeyValueListDataSelectorsType, *model.DeviceConfigurationKeyValueDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.DeviceConfigurationKeyValueListDataSelectorsType, *model.DeviceConfigurationKeyValueDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -392,13 +394,15 @@ type DeviceConfigurationClientInterface_RequestKeyValues_Call struct {
 }
 
 // RequestKeyValues is a helper method to define mock.On call
-func (_e *DeviceConfigurationClientInterface_Expecter) RequestKeyValues() *DeviceConfigurationClientInterface_RequestKeyValues_Call {
-	return &DeviceConfigurationClientInterface_RequestKeyValues_Call{Call: _e.mock.On("RequestKeyValues")}
+//   - selector *model.DeviceConfigurationKeyValueListDataSelectorsType
+//   - elements *model.DeviceConfigurationKeyValueDataElementsType
+func (_e *DeviceConfigurationClientInterface_Expecter) RequestKeyValues(selector interface{}, elements interface{}) *DeviceConfigurationClientInterface_RequestKeyValues_Call {
+	return &DeviceConfigurationClientInterface_RequestKeyValues_Call{Call: _e.mock.On("RequestKeyValues", selector, elements)}
 }
 
-func (_c *DeviceConfigurationClientInterface_RequestKeyValues_Call) Run(run func()) *DeviceConfigurationClientInterface_RequestKeyValues_Call {
+func (_c *DeviceConfigurationClientInterface_RequestKeyValues_Call) Run(run func(selector *model.DeviceConfigurationKeyValueListDataSelectorsType, elements *model.DeviceConfigurationKeyValueDataElementsType)) *DeviceConfigurationClientInterface_RequestKeyValues_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.DeviceConfigurationKeyValueListDataSelectorsType), args[1].(*model.DeviceConfigurationKeyValueDataElementsType))
 	})
 	return _c
 }
@@ -408,7 +412,7 @@ func (_c *DeviceConfigurationClientInterface_RequestKeyValues_Call) Return(_a0 *
 	return _c
 }
 
-func (_c *DeviceConfigurationClientInterface_RequestKeyValues_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *DeviceConfigurationClientInterface_RequestKeyValues_Call {
+func (_c *DeviceConfigurationClientInterface_RequestKeyValues_Call) RunAndReturn(run func(*model.DeviceConfigurationKeyValueListDataSelectorsType, *model.DeviceConfigurationKeyValueDataElementsType) (*model.MsgCounterType, error)) *DeviceConfigurationClientInterface_RequestKeyValues_Call {
 	_c.Call.Return(run)
 	return _c
 }

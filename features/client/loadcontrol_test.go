@@ -1,10 +1,9 @@
-package client_test
+package client
 
 import (
 	"testing"
 	"time"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -23,7 +22,7 @@ type LoadControlSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	loadControl *features.LoadControl
+	loadControl *LoadControl
 	sentMessage []byte
 }
 
@@ -50,29 +49,50 @@ func (s *LoadControlSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.loadControl, err = features.NewLoadControl(s.localEntity, nil)
+	s.loadControl, err = NewLoadControl(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.loadControl)
 
-	s.loadControl, err = features.NewLoadControl(s.localEntity, s.remoteEntity)
+	s.loadControl, err = NewLoadControl(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.loadControl)
 }
 
 func (s *LoadControlSuite) Test_RequestLimitDescription() {
-	counter, err := s.loadControl.RequestLimitDescriptions()
+	counter, err := s.loadControl.RequestLimitDescriptions(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.loadControl.RequestLimitDescriptions(
+		&model.LoadControlLimitDescriptionListDataSelectorsType{},
+		&model.LoadControlLimitDescriptionDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
 func (s *LoadControlSuite) Test_RequestLimitConstraints() {
-	counter, err := s.loadControl.RequestLimitConstraints()
+	counter, err := s.loadControl.RequestLimitConstraints(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.loadControl.RequestLimitConstraints(
+		&model.LoadControlLimitConstraintsListDataSelectorsType{},
+		&model.LoadControlLimitConstraintsDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
 
 func (s *LoadControlSuite) Test_RequestLimits() {
-	counter, err := s.loadControl.RequestLimitData()
+	counter, err := s.loadControl.RequestLimitData(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.loadControl.RequestLimitData(
+		&model.LoadControlLimitListDataSelectorsType{},
+		&model.LoadControlLimitDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }

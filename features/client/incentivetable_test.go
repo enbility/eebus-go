@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -22,7 +21,7 @@ type IncentiveTableSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	incentiveTable *features.IncentiveTable
+	incentiveTable *IncentiveTable
 	sentMessage    []byte
 }
 
@@ -49,11 +48,11 @@ func (s *IncentiveTableSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.incentiveTable, err = features.NewIncentiveTable(s.localEntity, nil)
+	s.incentiveTable, err = NewIncentiveTable(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.incentiveTable)
 
-	s.incentiveTable, err = features.NewIncentiveTable(s.localEntity, s.remoteEntity)
+	s.incentiveTable, err = NewIncentiveTable(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.incentiveTable)
 }

@@ -73,7 +73,7 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 			logging.Log().Debug(err)
 		}
 		// get ev configuration data
-		if _, err := evDeviceConfiguration.RequestDescriptions(); err != nil {
+		if _, err := evDeviceConfiguration.RequestKeyValueDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -95,12 +95,12 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 		}
 
 		// get electrical connection parameter descriptions
-		if _, err := evElectricalConnection.RequestParameterDescriptions(); err != nil {
+		if _, err := evElectricalConnection.RequestParameterDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 
 		// get electrical permitted values descriptions
-		if _, err := evElectricalConnection.RequestPermittedValueSets(); err != nil {
+		if _, err := evElectricalConnection.RequestPermittedValueSets(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -128,7 +128,7 @@ func (e *EVCC) evDisconnected(payload spineapi.EventPayload) {
 func (e *EVCC) evConfigurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
-		if _, err := evDeviceConfiguration.RequestKeyValues(); err != nil {
+		if _, err := evDeviceConfiguration.RequestKeyValues(nil, nil); err != nil {
 			logging.Log().Error("Error getting configuration key values:", err)
 		}
 	}
@@ -185,7 +185,7 @@ func (e *EVCC) evManufacturerDataUpdate(payload spineapi.EventPayload) {
 // the electrical connection parameter description data of an EV was updated
 func (e *EVCC) evElectricalParamerDescriptionUpdate(entity spineapi.EntityRemoteInterface) {
 	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
-		if _, err := evElectricalConnection.RequestPermittedValueSets(); err != nil {
+		if _, err := evElectricalConnection.RequestPermittedValueSets(nil, nil); err != nil {
 			logging.Log().Error("Error getting electrical permitted values:", err)
 		}
 	}

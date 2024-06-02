@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -22,7 +21,7 @@ type TimeSeriesSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	timeSeries  *features.TimeSeries
+	timeSeries  *TimeSeries
 	sentMessage []byte
 }
 
@@ -49,29 +48,50 @@ func (s *TimeSeriesSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.timeSeries, err = features.NewTimeSeries(s.localEntity, nil)
+	s.timeSeries, err = NewTimeSeries(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.timeSeries)
 
-	s.timeSeries, err = features.NewTimeSeries(s.localEntity, s.remoteEntity)
+	s.timeSeries, err = NewTimeSeries(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.timeSeries)
 }
 
 func (s *TimeSeriesSuite) Test_RequestDescription() {
-	msgCounter, err := s.timeSeries.RequestDescriptions()
+	msgCounter, err := s.timeSeries.RequestDescriptions(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
+
+	msgCounter, err = s.timeSeries.RequestDescriptions(
+		&model.TimeSeriesDescriptionListDataSelectorsType{},
+		&model.TimeSeriesDescriptionDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *TimeSeriesSuite) Test_RequestConstraints() {
-	msgCounter, err := s.timeSeries.RequestConstraints()
+	msgCounter, err := s.timeSeries.RequestConstraints(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
+
+	msgCounter, err = s.timeSeries.RequestConstraints(
+		&model.TimeSeriesConstraintsListDataSelectorsType{},
+		&model.TimeSeriesConstraintsDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *TimeSeriesSuite) Test_RequestData() {
-	counter, err := s.timeSeries.RequestData()
+	counter, err := s.timeSeries.RequestData(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.timeSeries.RequestData(
+		&model.TimeSeriesListDataSelectorsType{},
+		&model.TimeSeriesDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
