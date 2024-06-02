@@ -20,9 +20,9 @@ func (_m *ElectricalConnectionClientInterface) EXPECT() *ElectricalConnectionCli
 	return &ElectricalConnectionClientInterface_Expecter{mock: &_m.Mock}
 }
 
-// RequestCharacteristics provides a mock function with given fields:
-func (_m *ElectricalConnectionClientInterface) RequestCharacteristics() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestCharacteristics provides a mock function with given fields: selector, elements
+func (_m *ElectricalConnectionClientInterface) RequestCharacteristics(selector *model.ElectricalConnectionCharacteristicListDataSelectorsType, elements *model.ElectricalConnectionCharacteristicDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestCharacteristics")
@@ -30,19 +30,19 @@ func (_m *ElectricalConnectionClientInterface) RequestCharacteristics() (*model.
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionCharacteristicListDataSelectorsType, *model.ElectricalConnectionCharacteristicDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionCharacteristicListDataSelectorsType, *model.ElectricalConnectionCharacteristicDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.ElectricalConnectionCharacteristicListDataSelectorsType, *model.ElectricalConnectionCharacteristicDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,13 +56,15 @@ type ElectricalConnectionClientInterface_RequestCharacteristics_Call struct {
 }
 
 // RequestCharacteristics is a helper method to define mock.On call
-func (_e *ElectricalConnectionClientInterface_Expecter) RequestCharacteristics() *ElectricalConnectionClientInterface_RequestCharacteristics_Call {
-	return &ElectricalConnectionClientInterface_RequestCharacteristics_Call{Call: _e.mock.On("RequestCharacteristics")}
+//   - selector *model.ElectricalConnectionCharacteristicListDataSelectorsType
+//   - elements *model.ElectricalConnectionCharacteristicDataElementsType
+func (_e *ElectricalConnectionClientInterface_Expecter) RequestCharacteristics(selector interface{}, elements interface{}) *ElectricalConnectionClientInterface_RequestCharacteristics_Call {
+	return &ElectricalConnectionClientInterface_RequestCharacteristics_Call{Call: _e.mock.On("RequestCharacteristics", selector, elements)}
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestCharacteristics_Call) Run(run func()) *ElectricalConnectionClientInterface_RequestCharacteristics_Call {
+func (_c *ElectricalConnectionClientInterface_RequestCharacteristics_Call) Run(run func(selector *model.ElectricalConnectionCharacteristicListDataSelectorsType, elements *model.ElectricalConnectionCharacteristicDataElementsType)) *ElectricalConnectionClientInterface_RequestCharacteristics_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.ElectricalConnectionCharacteristicListDataSelectorsType), args[1].(*model.ElectricalConnectionCharacteristicDataElementsType))
 	})
 	return _c
 }
@@ -72,14 +74,14 @@ func (_c *ElectricalConnectionClientInterface_RequestCharacteristics_Call) Retur
 	return _c
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestCharacteristics_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestCharacteristics_Call {
+func (_c *ElectricalConnectionClientInterface_RequestCharacteristics_Call) RunAndReturn(run func(*model.ElectricalConnectionCharacteristicListDataSelectorsType, *model.ElectricalConnectionCharacteristicDataElementsType) (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestCharacteristics_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestDescriptions provides a mock function with given fields:
-func (_m *ElectricalConnectionClientInterface) RequestDescriptions() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestDescriptions provides a mock function with given fields: selector, elements
+func (_m *ElectricalConnectionClientInterface) RequestDescriptions(selector *model.ElectricalConnectionDescriptionListDataSelectorsType, elements *model.ElectricalConnectionDescriptionDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestDescriptions")
@@ -87,19 +89,19 @@ func (_m *ElectricalConnectionClientInterface) RequestDescriptions() (*model.Msg
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionDescriptionListDataSelectorsType, *model.ElectricalConnectionDescriptionDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionDescriptionListDataSelectorsType, *model.ElectricalConnectionDescriptionDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.ElectricalConnectionDescriptionListDataSelectorsType, *model.ElectricalConnectionDescriptionDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,13 +115,15 @@ type ElectricalConnectionClientInterface_RequestDescriptions_Call struct {
 }
 
 // RequestDescriptions is a helper method to define mock.On call
-func (_e *ElectricalConnectionClientInterface_Expecter) RequestDescriptions() *ElectricalConnectionClientInterface_RequestDescriptions_Call {
-	return &ElectricalConnectionClientInterface_RequestDescriptions_Call{Call: _e.mock.On("RequestDescriptions")}
+//   - selector *model.ElectricalConnectionDescriptionListDataSelectorsType
+//   - elements *model.ElectricalConnectionDescriptionDataElementsType
+func (_e *ElectricalConnectionClientInterface_Expecter) RequestDescriptions(selector interface{}, elements interface{}) *ElectricalConnectionClientInterface_RequestDescriptions_Call {
+	return &ElectricalConnectionClientInterface_RequestDescriptions_Call{Call: _e.mock.On("RequestDescriptions", selector, elements)}
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestDescriptions_Call) Run(run func()) *ElectricalConnectionClientInterface_RequestDescriptions_Call {
+func (_c *ElectricalConnectionClientInterface_RequestDescriptions_Call) Run(run func(selector *model.ElectricalConnectionDescriptionListDataSelectorsType, elements *model.ElectricalConnectionDescriptionDataElementsType)) *ElectricalConnectionClientInterface_RequestDescriptions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.ElectricalConnectionDescriptionListDataSelectorsType), args[1].(*model.ElectricalConnectionDescriptionDataElementsType))
 	})
 	return _c
 }
@@ -129,14 +133,14 @@ func (_c *ElectricalConnectionClientInterface_RequestDescriptions_Call) Return(_
 	return _c
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestDescriptions_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestDescriptions_Call {
+func (_c *ElectricalConnectionClientInterface_RequestDescriptions_Call) RunAndReturn(run func(*model.ElectricalConnectionDescriptionListDataSelectorsType, *model.ElectricalConnectionDescriptionDataElementsType) (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestDescriptions_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestParameterDescriptions provides a mock function with given fields:
-func (_m *ElectricalConnectionClientInterface) RequestParameterDescriptions() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestParameterDescriptions provides a mock function with given fields: selector, elements
+func (_m *ElectricalConnectionClientInterface) RequestParameterDescriptions(selector *model.ElectricalConnectionParameterDescriptionListDataSelectorsType, elements *model.ElectricalConnectionParameterDescriptionDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestParameterDescriptions")
@@ -144,19 +148,19 @@ func (_m *ElectricalConnectionClientInterface) RequestParameterDescriptions() (*
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionParameterDescriptionListDataSelectorsType, *model.ElectricalConnectionParameterDescriptionDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionParameterDescriptionListDataSelectorsType, *model.ElectricalConnectionParameterDescriptionDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.ElectricalConnectionParameterDescriptionListDataSelectorsType, *model.ElectricalConnectionParameterDescriptionDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -170,13 +174,15 @@ type ElectricalConnectionClientInterface_RequestParameterDescriptions_Call struc
 }
 
 // RequestParameterDescriptions is a helper method to define mock.On call
-func (_e *ElectricalConnectionClientInterface_Expecter) RequestParameterDescriptions() *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call {
-	return &ElectricalConnectionClientInterface_RequestParameterDescriptions_Call{Call: _e.mock.On("RequestParameterDescriptions")}
+//   - selector *model.ElectricalConnectionParameterDescriptionListDataSelectorsType
+//   - elements *model.ElectricalConnectionParameterDescriptionDataElementsType
+func (_e *ElectricalConnectionClientInterface_Expecter) RequestParameterDescriptions(selector interface{}, elements interface{}) *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call {
+	return &ElectricalConnectionClientInterface_RequestParameterDescriptions_Call{Call: _e.mock.On("RequestParameterDescriptions", selector, elements)}
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call) Run(run func()) *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call {
+func (_c *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call) Run(run func(selector *model.ElectricalConnectionParameterDescriptionListDataSelectorsType, elements *model.ElectricalConnectionParameterDescriptionDataElementsType)) *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.ElectricalConnectionParameterDescriptionListDataSelectorsType), args[1].(*model.ElectricalConnectionParameterDescriptionDataElementsType))
 	})
 	return _c
 }
@@ -186,14 +192,14 @@ func (_c *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call)
 	return _c
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call {
+func (_c *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call) RunAndReturn(run func(*model.ElectricalConnectionParameterDescriptionListDataSelectorsType, *model.ElectricalConnectionParameterDescriptionDataElementsType) (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestParameterDescriptions_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RequestPermittedValueSets provides a mock function with given fields:
-func (_m *ElectricalConnectionClientInterface) RequestPermittedValueSets() (*model.MsgCounterType, error) {
-	ret := _m.Called()
+// RequestPermittedValueSets provides a mock function with given fields: selector, elements
+func (_m *ElectricalConnectionClientInterface) RequestPermittedValueSets(selector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType, elements *model.ElectricalConnectionPermittedValueSetDataElementsType) (*model.MsgCounterType, error) {
+	ret := _m.Called(selector, elements)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RequestPermittedValueSets")
@@ -201,19 +207,19 @@ func (_m *ElectricalConnectionClientInterface) RequestPermittedValueSets() (*mod
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionPermittedValueSetListDataSelectorsType, *model.ElectricalConnectionPermittedValueSetDataElementsType) (*model.MsgCounterType, error)); ok {
+		return rf(selector, elements)
 	}
-	if rf, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*model.ElectricalConnectionPermittedValueSetListDataSelectorsType, *model.ElectricalConnectionPermittedValueSetDataElementsType) *model.MsgCounterType); ok {
+		r0 = rf(selector, elements)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*model.ElectricalConnectionPermittedValueSetListDataSelectorsType, *model.ElectricalConnectionPermittedValueSetDataElementsType) error); ok {
+		r1 = rf(selector, elements)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -227,13 +233,15 @@ type ElectricalConnectionClientInterface_RequestPermittedValueSets_Call struct {
 }
 
 // RequestPermittedValueSets is a helper method to define mock.On call
-func (_e *ElectricalConnectionClientInterface_Expecter) RequestPermittedValueSets() *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call {
-	return &ElectricalConnectionClientInterface_RequestPermittedValueSets_Call{Call: _e.mock.On("RequestPermittedValueSets")}
+//   - selector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType
+//   - elements *model.ElectricalConnectionPermittedValueSetDataElementsType
+func (_e *ElectricalConnectionClientInterface_Expecter) RequestPermittedValueSets(selector interface{}, elements interface{}) *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call {
+	return &ElectricalConnectionClientInterface_RequestPermittedValueSets_Call{Call: _e.mock.On("RequestPermittedValueSets", selector, elements)}
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call) Run(run func()) *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call {
+func (_c *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call) Run(run func(selector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType, elements *model.ElectricalConnectionPermittedValueSetDataElementsType)) *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*model.ElectricalConnectionPermittedValueSetListDataSelectorsType), args[1].(*model.ElectricalConnectionPermittedValueSetDataElementsType))
 	})
 	return _c
 }
@@ -243,7 +251,7 @@ func (_c *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call) Re
 	return _c
 }
 
-func (_c *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call {
+func (_c *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call) RunAndReturn(run func(*model.ElectricalConnectionPermittedValueSetListDataSelectorsType, *model.ElectricalConnectionPermittedValueSetDataElementsType) (*model.MsgCounterType, error)) *ElectricalConnectionClientInterface_RequestPermittedValueSets_Call {
 	_c.Call.Return(run)
 	return _c
 }

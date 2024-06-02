@@ -37,18 +37,27 @@ func NewLoadControl(
 var _ api.LoadControlClientInterface = (*LoadControl)(nil)
 
 // request FunctionTypeLoadControlLimitDescriptionListData from a remote device
-func (l *LoadControl) RequestLimitDescriptions() (*model.MsgCounterType, error) {
-	return l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData, nil, nil)
+func (l *LoadControl) RequestLimitDescriptions(
+	selector *model.LoadControlLimitDescriptionListDataSelectorsType,
+	elements *model.LoadControlLimitDescriptionDataElementsType,
+) (*model.MsgCounterType, error) {
+	return l.requestData(model.FunctionTypeLoadControlLimitDescriptionListData, selector, elements)
 }
 
 // request FunctionTypeLoadControlLimitConstraintsListData from a remote device
-func (l *LoadControl) RequestLimitConstraints() (*model.MsgCounterType, error) {
-	return l.requestData(model.FunctionTypeLoadControlLimitConstraintsListData, nil, nil)
+func (l *LoadControl) RequestLimitConstraints(
+	selector *model.LoadControlLimitConstraintsListDataSelectorsType,
+	elements *model.LoadControlLimitConstraintsDataElementsType,
+) (*model.MsgCounterType, error) {
+	return l.requestData(model.FunctionTypeLoadControlLimitConstraintsListData, selector, elements)
 }
 
 // request FunctionTypeLoadControlLimitListData from a remote device
-func (l *LoadControl) RequestLimitData() (*model.MsgCounterType, error) {
-	return l.requestData(model.FunctionTypeLoadControlLimitListData, nil, nil)
+func (l *LoadControl) RequestLimitData(
+	selector *model.LoadControlLimitListDataSelectorsType,
+	elements *model.LoadControlLimitDataElementsType,
+) (*model.MsgCounterType, error) {
+	return l.requestData(model.FunctionTypeLoadControlLimitListData, selector, elements)
 }
 
 // write load control limits

@@ -1,4 +1,4 @@
-package client_test
+package client
 
 import (
 	"encoding/json"
@@ -16,6 +16,7 @@ import (
 type featureFunctions struct {
 	featureType model.FeatureTypeType
 	functions   []model.FunctionType
+	partial     bool
 }
 
 type WriteMessageHandler struct {
@@ -150,11 +151,22 @@ func setupFeatures(
 		}
 		var supportedFcts []model.FunctionPropertyType
 		for _, function := range item.functions {
+			read := &model.PossibleOperationsReadType{}
+			write := &model.PossibleOperationsWriteType{}
+			if item.partial {
+				read = &model.PossibleOperationsReadType{
+					Partial: &model.ElementTagType{},
+				}
+				write = &model.PossibleOperationsWriteType{
+					Partial: &model.ElementTagType{},
+				}
+			}
+
 			supportedFct := model.FunctionPropertyType{
 				Function: util.Ptr(function),
 				PossibleOperations: &model.PossibleOperationsType{
-					Read:  &model.PossibleOperationsReadType{},
-					Write: &model.PossibleOperationsWriteType{},
+					Read:  read,
+					Write: write,
 				},
 			}
 

@@ -10,11 +10,17 @@ type DeviceClassificationClientInterface interface {
 type DeviceConfigurationClientInterface interface {
 	DeviceConfigurationCommonInterface
 
-	// request DeviceConfigurationDescriptionListData from a remote entity
-	RequestDescriptions() (*model.MsgCounterType, error)
+	// request DeviceConfigurationKeyValueDescriptionDataType from a remote entity
+	RequestKeyValueDescriptions(
+		selector *model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType,
+		elements *model.DeviceConfigurationKeyValueDescriptionDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request DeviceConfigurationKeyValueListData from a remote entity
-	RequestKeyValues() (*model.MsgCounterType, error)
+	RequestKeyValues(
+		selector *model.DeviceConfigurationKeyValueListDataSelectorsType,
+		elements *model.DeviceConfigurationKeyValueDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// write key values
 	// returns an error if this failed
@@ -31,16 +37,28 @@ type DeviceDiagnosisClientInterface interface {
 
 type ElectricalConnectionClientInterface interface {
 	// request ElectricalConnectionDescriptionListDataType from a remote entity
-	RequestDescriptions() (*model.MsgCounterType, error)
+	RequestDescriptions(
+		selector *model.ElectricalConnectionDescriptionListDataSelectorsType,
+		elements *model.ElectricalConnectionDescriptionDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeElectricalConnectionParameterDescriptionListData from a remote entity
-	RequestParameterDescriptions() (*model.MsgCounterType, error)
+	RequestParameterDescriptions(
+		selector *model.ElectricalConnectionParameterDescriptionListDataSelectorsType,
+		elements *model.ElectricalConnectionParameterDescriptionDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeElectricalConnectionPermittedValueSetListData from a remote entity
-	RequestPermittedValueSets() (*model.MsgCounterType, error)
+	RequestPermittedValueSets(
+		selector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType,
+		elements *model.ElectricalConnectionPermittedValueSetDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeElectricalConnectionCharacteristicListData from a remote entity
-	RequestCharacteristics() (*model.MsgCounterType, error)
+	RequestCharacteristics(
+		selector *model.ElectricalConnectionCharacteristicListDataSelectorsType,
+		elements *model.ElectricalConnectionCharacteristicDataElementsType,
+	) (*model.MsgCounterType, error)
 }
 
 type IdentificationClientInterface interface {
@@ -69,13 +87,22 @@ type IncentiveTableClientInterface interface {
 
 type LoadControlClientInterface interface {
 	// request FunctionTypeLoadControlLimitDescriptionListData from a remote device
-	RequestLimitDescriptions() (*model.MsgCounterType, error)
+	RequestLimitDescriptions(
+		selector *model.LoadControlLimitDescriptionListDataSelectorsType,
+		elements *model.LoadControlLimitDescriptionDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeLoadControlLimitConstraintsListData from a remote device
-	RequestLimitConstraints() (*model.MsgCounterType, error)
+	RequestLimitConstraints(
+		selector *model.LoadControlLimitConstraintsListDataSelectorsType,
+		elements *model.LoadControlLimitConstraintsDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeLoadControlLimitListData from a remote device
-	RequestLimitData() (*model.MsgCounterType, error)
+	RequestLimitData(
+		selector *model.LoadControlLimitListDataSelectorsType,
+		elements *model.LoadControlLimitDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// write load control limits
 	// returns an error if this failed
@@ -88,13 +115,22 @@ type LoadControlClientInterface interface {
 
 type MeasurementClientInterface interface {
 	// request FunctionTypeMeasurementDescriptionListData from a remote device
-	RequestDescriptions() (*model.MsgCounterType, error)
+	RequestDescriptions(
+		selector *model.MeasurementDescriptionListDataSelectorsType,
+		elements *model.MeasurementDescriptionDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeMeasurementConstraintsListData from a remote entity
-	RequestConstraints() (*model.MsgCounterType, error)
+	RequestConstraints(
+		selector *model.MeasurementConstraintsListDataSelectorsType,
+		elements *model.MeasurementConstraintsDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeMeasurementListData from a remote entity
-	RequestData() (*model.MsgCounterType, error)
+	RequestData(
+		selector *model.MeasurementListDataSelectorsType,
+		elements *model.MeasurementDataElementsType,
+	) (*model.MsgCounterType, error)
 }
 
 type SmartEnergyManagementPsClientInterface interface {
@@ -108,13 +144,22 @@ type SmartEnergyManagementPsClientInterface interface {
 
 type TimeSeriesClientInterface interface {
 	// request FunctionTypeTimeSeriesDescriptionListData from a remote entity
-	RequestDescriptions() (*model.MsgCounterType, error)
+	RequestDescriptions(
+		selector *model.TimeSeriesDescriptionListDataSelectorsType,
+		elements *model.TimeSeriesDescriptionDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeTimeSeriesConstraintsListData from a remote entity
-	RequestConstraints() (*model.MsgCounterType, error)
+	RequestConstraints(
+		selector *model.TimeSeriesConstraintsListDataSelectorsType,
+		elements *model.TimeSeriesConstraintsDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// request FunctionTypeTimeSeriesListData from a remote device
-	RequestData() (*model.MsgCounterType, error)
+	RequestData(
+		selector *model.TimeSeriesListDataSelectorsType,
+		elements *model.TimeSeriesDataElementsType,
+	) (*model.MsgCounterType, error)
 
 	// write Time Series values
 	// returns an error if this failed

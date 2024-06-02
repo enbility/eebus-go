@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -21,7 +20,7 @@ type MeasurementSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	measurement *features.Measurement
+	measurement *Measurement
 	sentMessage []byte
 }
 
@@ -56,29 +55,50 @@ func (s *MeasurementSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.measurement, err = features.NewMeasurement(s.localEntity, nil)
+	s.measurement, err = NewMeasurement(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.measurement)
 
-	s.measurement, err = features.NewMeasurement(s.localEntity, s.remoteEntity)
+	s.measurement, err = NewMeasurement(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.measurement)
 }
 
 func (s *MeasurementSuite) Test_RequestDescriptions() {
-	msgCounter, err := s.measurement.RequestDescriptions()
+	msgCounter, err := s.measurement.RequestDescriptions(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
+
+	msgCounter, err = s.measurement.RequestDescriptions(
+		&model.MeasurementDescriptionListDataSelectorsType{},
+		&model.MeasurementDescriptionDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *MeasurementSuite) Test_RequestConstraints() {
-	msgCounter, err := s.measurement.RequestConstraints()
+	msgCounter, err := s.measurement.RequestConstraints(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
+
+	msgCounter, err = s.measurement.RequestConstraints(
+		&model.MeasurementConstraintsListDataSelectorsType{},
+		&model.MeasurementConstraintsDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *MeasurementSuite) Test_RequestData() {
-	counter, err := s.measurement.RequestData()
+	counter, err := s.measurement.RequestData(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	counter, err = s.measurement.RequestData(
+		&model.MeasurementListDataSelectorsType{},
+		&model.MeasurementDataElementsType{},
+	)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }

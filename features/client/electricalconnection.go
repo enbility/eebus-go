@@ -36,21 +36,33 @@ func NewElectricalConnection(
 var _ api.ElectricalConnectionClientInterface = (*ElectricalConnection)(nil)
 
 // request ElectricalConnectionDescriptionListDataType from a remote entity
-func (e *ElectricalConnection) RequestDescriptions() (*model.MsgCounterType, error) {
-	return e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, nil, nil)
+func (e *ElectricalConnection) RequestDescriptions(
+	selector *model.ElectricalConnectionDescriptionListDataSelectorsType,
+	elements *model.ElectricalConnectionDescriptionDataElementsType,
+) (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionDescriptionListData, selector, elements)
 }
 
 // request FunctionTypeElectricalConnectionParameterDescriptionListData from a remote entity
-func (e *ElectricalConnection) RequestParameterDescriptions() (*model.MsgCounterType, error) {
-	return e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, nil, nil)
+func (e *ElectricalConnection) RequestParameterDescriptions(
+	selector *model.ElectricalConnectionParameterDescriptionListDataSelectorsType,
+	elements *model.ElectricalConnectionParameterDescriptionDataElementsType,
+) (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, selector, elements)
 }
 
 // request FunctionTypeElectricalConnectionPermittedValueSetListData from a remote entity
-func (e *ElectricalConnection) RequestPermittedValueSets() (*model.MsgCounterType, error) {
-	return e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, nil, nil)
+func (e *ElectricalConnection) RequestPermittedValueSets(
+	selector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType,
+	elements *model.ElectricalConnectionPermittedValueSetDataElementsType,
+) (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, selector, elements)
 }
 
 // request FunctionTypeElectricalConnectionCharacteristicListData from a remote entity
-func (e *ElectricalConnection) RequestCharacteristics() (*model.MsgCounterType, error) {
-	return e.requestData(model.FunctionTypeElectricalConnectionCharacteristicListData, nil, nil)
+func (e *ElectricalConnection) RequestCharacteristics(
+	selector *model.ElectricalConnectionCharacteristicListDataSelectorsType,
+	elements *model.ElectricalConnectionCharacteristicDataElementsType,
+) (*model.MsgCounterType, error) {
+	return e.requestData(model.FunctionTypeElectricalConnectionCharacteristicListData, selector, elements)
 }

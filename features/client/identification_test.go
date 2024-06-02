@@ -1,9 +1,8 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -21,7 +20,7 @@ type IdentificationSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	identification *features.Identification
+	identification *Identification
 	sentMessage    []byte
 }
 
@@ -46,11 +45,11 @@ func (s *IdentificationSuite) BeforeTest(suiteName, testName string) {
 	)
 
 	var err error
-	s.identification, err = features.NewIdentification(s.localEntity, nil)
+	s.identification, err = NewIdentification(s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.identification)
 
-	s.identification, err = features.NewIdentification(s.localEntity, s.remoteEntity)
+	s.identification, err = NewIdentification(s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.identification)
 }

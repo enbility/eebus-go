@@ -1,13 +1,13 @@
-package client_test
+package client
 
 import (
 	"testing"
 
-	features "github.com/enbility/eebus-go/features/client"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -22,8 +22,8 @@ type FeatureSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	testFeature *features.Feature
-	sentMessage []byte
+	testFeature, testFeature2 *Feature
+	sentMessage               []byte
 }
 
 var _ shipapi.ShipConnectionDataWriterInterface = (*FeatureSuite)(nil)
@@ -42,37 +42,49 @@ func (s *FeatureSuite) BeforeTest(suiteName, testName string) {
 				functions: []model.FunctionType{
 					model.FunctionTypeAlarmListData,
 				},
+				partial: false,
+			},
+			{
+				featureType: model.FeatureTypeTypeLoadControl,
+				functions: []model.FunctionType{
+					model.FunctionTypeLoadControlLimitListData,
+				},
+				partial: true,
 			},
 		},
 	)
 
 	var err error
-	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeAlarm, s.localEntity, nil)
+	s.testFeature, err = NewFeature(model.FeatureTypeTypeAlarm, s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), s.testFeature)
 
-	s.testFeature, err = features.NewFeature(model.FeatureTypeTypeAlarm, s.localEntity, s.remoteEntity)
+	s.testFeature, err = NewFeature(model.FeatureTypeTypeAlarm, s.localEntity, s.remoteEntity)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), s.testFeature)
+
+	s.testFeature2, err = NewFeature(model.FeatureTypeTypeLoadControl, s.localEntity, s.remoteEntity)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), s.testFeature2)
 }
 
 func (s *FeatureSuite) Test_NewFeature() {
-	newFeature, err := features.NewFeature(model.FeatureTypeTypeBill, nil, s.remoteEntity)
+	newFeature, err := NewFeature(model.FeatureTypeTypeBill, nil, s.remoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), newFeature)
 
-	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, s.localEntity, nil)
+	newFeature, err = NewFeature(model.FeatureTypeTypeBill, s.localEntity, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), newFeature)
 
-	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, s.localEntity, s.remoteEntity)
+	newFeature, err = NewFeature(model.FeatureTypeTypeBill, s.localEntity, s.remoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.NotNil(s.T(), newFeature)
 
 	f := spine.NewFeatureLocal(1, s.localEntity, model.FeatureTypeTypeBill, model.RoleTypeClient)
 	s.localEntity.AddFeature(f)
 
-	newFeature, err = features.NewFeature(model.FeatureTypeTypeBill, s.localEntity, s.remoteEntity)
+	newFeature, err = NewFeature(model.FeatureTypeTypeBill, s.localEntity, s.remoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.NotNil(s.T(), newFeature)
 }
@@ -129,4 +141,24 @@ func (s *FeatureSuite) Test_ResultCallback() {
 	assert.Nil(s.T(), err)
 
 	s.testFeature.AddResultCallback(testFct)
+}
+
+func (s *FeatureSuite) Test_requestData() {
+	counter, err := s.testFeature.requestData(model.FunctionTypeAlarmListData, nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	selectors := model.AlarmListDataSelectorsType{
+		AlarmId: util.Ptr(model.AlarmIdType(0)),
+	}
+	counter, err = s.testFeature.requestData(model.FunctionTypeAlarmListData, selectors, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	selectors2 := &model.LoadControlLimitListDataSelectorsType{
+		LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+	}
+	counter, err = s.testFeature2.requestData(model.FunctionTypeLoadControlLimitListData, selectors2, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
 }

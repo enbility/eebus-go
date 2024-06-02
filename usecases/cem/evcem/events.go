@@ -48,12 +48,12 @@ func (e *EVCEM) evConnected(entity spineapi.EntityRemoteInterface) {
 		}
 
 		// get electrical connection descriptions
-		if _, err := evElectricalConnection.RequestDescriptions(); err != nil {
+		if _, err := evElectricalConnection.RequestDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 
 		// get electrical connection parameter descriptions
-		if _, err := evElectricalConnection.RequestParameterDescriptions(); err != nil {
+		if _, err := evElectricalConnection.RequestParameterDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -64,12 +64,12 @@ func (e *EVCEM) evConnected(entity spineapi.EntityRemoteInterface) {
 		}
 
 		// get measurement descriptions
-		if _, err := evMeasurement.RequestDescriptions(); err != nil {
+		if _, err := evMeasurement.RequestDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 
 		// get measurement constraints
-		if _, err := evMeasurement.RequestConstraints(); err != nil {
+		if _, err := evMeasurement.RequestConstraints(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}
@@ -98,7 +98,7 @@ func (e *EVCEM) evElectricalConnectionDescriptionDataUpdate(payload spineapi.Eve
 func (e *EVCEM) evMeasurementDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		// get measurement values
-		if _, err := evMeasurement.RequestData(); err != nil {
+		if _, err := evMeasurement.RequestData(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}

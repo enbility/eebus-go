@@ -44,12 +44,12 @@ func (e *EVSOC) evConnected(entity spineapi.EntityRemoteInterface) {
 		}
 
 		// get measurement descriptions
-		if _, err := evMeasurement.RequestDescriptions(); err != nil {
+		if _, err := evMeasurement.RequestDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 
 		// get measurement constraints
-		if _, err := evMeasurement.RequestConstraints(); err != nil {
+		if _, err := evMeasurement.RequestConstraints(nil, nil); err != nil {
 			logging.Log().Debug(err)
 		}
 	}

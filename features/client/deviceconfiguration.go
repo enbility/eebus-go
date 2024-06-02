@@ -36,14 +36,20 @@ func NewDeviceConfiguration(
 
 var _ api.DeviceConfigurationClientInterface = (*DeviceConfiguration)(nil)
 
-// request DeviceConfiguration data from a remote entity
-func (d *DeviceConfiguration) RequestDescriptions() (*model.MsgCounterType, error) {
-	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, nil, nil)
+// request DeviceConfigurationKeyValueDescriptionDataType from a remote entity
+func (d *DeviceConfiguration) RequestKeyValueDescriptions(
+	selector *model.DeviceConfigurationKeyValueDescriptionListDataSelectorsType,
+	elements *model.DeviceConfigurationKeyValueDescriptionDataElementsType,
+) (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, selector, elements)
 }
 
-// request DeviceConfigurationKeyValueListDataType from a remote entity
-func (d *DeviceConfiguration) RequestKeyValues() (*model.MsgCounterType, error) {
-	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData, nil, nil)
+// request DeviceConfigurationKeyValueListData from a remote entity
+func (d *DeviceConfiguration) RequestKeyValues(
+	selector *model.DeviceConfigurationKeyValueListDataSelectorsType,
+	elements *model.DeviceConfigurationKeyValueDataElementsType,
+) (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceConfigurationKeyValueListData, selector, elements)
 }
 
 // write key values
