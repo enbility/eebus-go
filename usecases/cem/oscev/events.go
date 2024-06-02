@@ -8,11 +8,11 @@ import (
 )
 
 // handle SPINE events
-func (e *CemOSCEV) HandleEvent(payload spineapi.EventPayload) {
+func (e *OSCEV) HandleEvent(payload spineapi.EventPayload) {
 	// most of the events are identical to OPEV, and OPEV is required to be used,
 	// we don't handle the same events in here
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
@@ -24,13 +24,14 @@ func (e *CemOSCEV) HandleEvent(payload spineapi.EventPayload) {
 	switch payload.Data.(type) {
 	case *model.ElectricalConnectionPermittedValueSetListDataType:
 		e.evElectricalPermittedValuesUpdate(payload)
+
 	case *model.LoadControlLimitListDataType:
 		e.evLoadControlLimitDataUpdate(payload)
 	}
 }
 
 // the load control limit data of an EV was updated
-func (e *CemOSCEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
+func (e *OSCEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity)
 	if err != nil {
 		return
@@ -48,7 +49,7 @@ func (e *CemOSCEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the electrical connection permitted value sets data of an EV was updated
-func (e *CemOSCEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
+func (e *OSCEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
 	if ec, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			AcMeasuredPhases: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),

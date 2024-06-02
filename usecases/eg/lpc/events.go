@@ -10,11 +10,10 @@ import (
 )
 
 // handle SPINE events
-func (e *EgLPC) HandleEvent(payload spineapi.EventPayload) {
-	if !e.IsCompatibleEntity(payload.Entity) {
+func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
-
 	if internal.IsEntityConnected(payload) {
 		e.connected(payload.Entity)
 		return
@@ -28,17 +27,20 @@ func (e *EgLPC) HandleEvent(payload spineapi.EventPayload) {
 	switch payload.Data.(type) {
 	case *model.LoadControlLimitDescriptionListDataType:
 		e.loadControlLimitDescriptionDataUpdate(payload.Entity)
+
 	case *model.LoadControlLimitListDataType:
 		e.loadControlLimitDataUpdate(payload)
+
 	case *model.DeviceConfigurationKeyValueDescriptionListDataType:
 		e.configurationDescriptionDataUpdate(payload.Entity)
+
 	case *model.DeviceConfigurationKeyValueListDataType:
 		e.configurationDataUpdate(payload)
 	}
 }
 
 // the remote entity was connected
-func (e *EgLPC) connected(entity spineapi.EntityRemoteInterface) {
+func (e *LPC) connected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if loadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		if _, err := loadControl.Subscribe(); err != nil {
@@ -63,7 +65,7 @@ func (e *EgLPC) connected(entity spineapi.EntityRemoteInterface) {
 }
 
 // the load control limit description data was updated
-func (e *EgLPC) loadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *LPC) loadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if loadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
 		// get values
 		if _, err := loadControl.RequestLimitData(); err != nil {
@@ -73,7 +75,7 @@ func (e *EgLPC) loadControlLimitDescriptionDataUpdate(entity spineapi.EntityRemo
 }
 
 // the load control limit data was updated
-func (e *EgLPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
+func (e *LPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	if lc, err := client.NewLoadControl(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.LoadControlLimitDescriptionDataType{
 			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
@@ -88,7 +90,7 @@ func (e *EgLPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the configuration key description data was updated
-func (e *EgLPC) configurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *LPC) configurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
 		if _, err := deviceConfiguration.RequestKeyValues(); err != nil {
@@ -98,7 +100,7 @@ func (e *EgLPC) configurationDescriptionDataUpdate(entity spineapi.EntityRemoteI
 }
 
 // the configuration key data was updated
-func (e *EgLPC) configurationDataUpdate(payload spineapi.EventPayload) {
+func (e *LPC) configurationDataUpdate(payload spineapi.EventPayload) {
 	if dc, err := client.NewDeviceConfiguration(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),

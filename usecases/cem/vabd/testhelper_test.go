@@ -26,7 +26,7 @@ func TestCemVABDSuite(t *testing.T) {
 type CemVABDSuite struct {
 	suite.Suite
 
-	sut *CemVABD
+	sut *VABD
 
 	service api.ServiceInterface
 
@@ -70,7 +70,7 @@ func (s *CemVABDSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	s.sut = NewCemVABD(localEntity, s.Event)
+	s.sut = NewVABD(localEntity, s.Event)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 

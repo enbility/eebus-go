@@ -22,6 +22,9 @@ func (s *CemCEVCSuite) Test_Events() {
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
 
+	payload.ChangeType = spineapi.ElementChangeRemove
+	s.sut.HandleEvent(payload)
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
@@ -41,6 +44,9 @@ func (s *CemCEVCSuite) Test_Events() {
 	s.sut.HandleEvent(payload)
 
 	payload.Data = util.Ptr(model.IncentiveDataType{})
+	s.sut.HandleEvent(payload)
+
+	payload.Data = util.Ptr(model.NodeManagementUseCaseDataType{})
 	s.sut.HandleEvent(payload)
 }
 

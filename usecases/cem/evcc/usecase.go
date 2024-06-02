@@ -9,21 +9,60 @@ import (
 	"github.com/enbility/spine-go/spine"
 )
 
-type CemEVCC struct {
+type EVCC struct {
 	*usecase.UseCaseBase
 
 	service api.ServiceInterface
 }
 
-var _ ucapi.CemEVCCInterface = (*CemEVCC)(nil)
+var _ ucapi.CemEVCCInterface = (*EVCC)(nil)
 
-func NewCemEVCC(
+func NewEVCC(
 	service api.ServiceInterface,
 	localEntity spineapi.EntityLocalInterface,
 	eventCB api.EntityEventCallback,
-) *CemEVCC {
+) *EVCC {
+	validActorTypes := []model.UseCaseActorType{
+		model.UseCaseActorTypeEV,
+	}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEV,
+	}
+	useCaseScenarios := []api.UseCaseScenario{
+		{
+			Scenario:  model.UseCaseScenarioSupportType(1),
+			Mandatory: true,
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(2),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceConfiguration},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(3),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceConfiguration},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(4),
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeIdentification},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(5),
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceClassification},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(6),
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeElectricalConnection},
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(7),
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceDiagnosis},
+		},
+		{
+			Scenario:  model.UseCaseScenarioSupportType(8),
+			Mandatory: true,
+		},
 	}
 
 	usecase := usecase.NewUseCaseBase(
@@ -32,12 +71,14 @@ func NewCemEVCC(
 		model.UseCaseNameTypeEVCommissioningAndConfiguration,
 		"1.0.1",
 		"release",
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 4, 5, 6, 7, 8},
+		useCaseScenarios,
 		eventCB,
+		UseCaseSupportUpdate,
+		validActorTypes,
 		validEntityTypes,
 	)
 
-	uc := &CemEVCC{
+	uc := &EVCC{
 		UseCaseBase: usecase,
 		service:     service,
 	}
@@ -47,7 +88,7 @@ func NewCemEVCC(
 	return uc
 }
 
-func (e *CemEVCC) AddFeatures() {
+func (e *EVCC) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceConfiguration,
@@ -60,28 +101,4 @@ func (e *CemEVCC) AddFeatures() {
 		f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 		f.AddResultCallback(e.HandleResponse)
 	}
-}
-
-// returns if the entity supports the usecase
-//
-// possible errors:
-//   - ErrDataNotAvailable if that information is not (yet) available
-//   - and others
-func (e *CemEVCC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
-		return false, api.ErrNoCompatibleEntity
-	}
-
-	// check if the usecase and mandatory scenarios are supported and
-	// if the required server features are available
-	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeEV,
-		e.UseCaseName,
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 8},
-		[]model.FeatureTypeType{model.FeatureTypeTypeDeviceConfiguration},
-	) {
-		return false, nil
-	}
-
-	return true, nil
 }

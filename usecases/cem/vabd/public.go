@@ -16,8 +16,8 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemVABD) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *VABD) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -34,8 +34,8 @@ func (e *CemVABD) Power(entity spineapi.EntityRemoteInterface) (float64, error) 
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemVABD) EnergyCharged(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *VABD) EnergyCharged(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -52,8 +52,8 @@ func (e *CemVABD) EnergyCharged(entity spineapi.EntityRemoteInterface) (float64,
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemVABD) EnergyDischarged(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *VABD) EnergyDischarged(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -70,8 +70,8 @@ func (e *CemVABD) EnergyDischarged(entity spineapi.EntityRemoteInterface) (float
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemVABD) StateOfCharge(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *VABD) StateOfCharge(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -85,7 +85,7 @@ func (e *CemVABD) StateOfCharge(entity spineapi.EntityRemoteInterface) (float64,
 
 // helper
 
-func (e *CemVABD) getValuesFoFilter(
+func (e *VABD) getValuesFoFilter(
 	entity spineapi.EntityRemoteInterface,
 	filter model.MeasurementDescriptionDataType,
 ) (float64, error) {

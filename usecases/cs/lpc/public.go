@@ -21,7 +21,7 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (e *CsLPC) ConsumptionLimit() (limit ucapi.LoadLimit, resultErr error) {
+func (e *LPC) ConsumptionLimit() (limit ucapi.LoadLimit, resultErr error) {
 	limit = ucapi.LoadLimit{
 		Value:        0.0,
 		IsChangeable: false,
@@ -53,7 +53,7 @@ func (e *CsLPC) ConsumptionLimit() (limit ucapi.LoadLimit, resultErr error) {
 }
 
 // set the current loadcontrol limit data
-func (e *CsLPC) SetConsumptionLimit(limit ucapi.LoadLimit) (resultErr error) {
+func (e *LPC) SetConsumptionLimit(limit ucapi.LoadLimit) (resultErr error) {
 	loadControlf, limidId, err := e.loadControlServerAndLimitId()
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func (e *CsLPC) SetConsumptionLimit(limit ucapi.LoadLimit) (resultErr error) {
 }
 
 // return the currently pending incoming consumption write limits
-func (e *CsLPC) PendingConsumptionLimits() map[model.MsgCounterType]ucapi.LoadLimit {
+func (e *LPC) PendingConsumptionLimits() map[model.MsgCounterType]ucapi.LoadLimit {
 	result := make(map[model.MsgCounterType]ucapi.LoadLimit)
 
 	_, limitId, err := e.loadControlServerAndLimitId()
@@ -129,7 +129,7 @@ func (e *CsLPC) PendingConsumptionLimits() map[model.MsgCounterType]ucapi.LoadLi
 // accept or deny an incoming consumption write limit
 //
 // use PendingConsumptionLimits to get the list of currently pending requests
-func (e *CsLPC) ApproveOrDenyConsumptionLimit(msgCounter model.MsgCounterType, approve bool, reason string) {
+func (e *LPC) ApproveOrDenyConsumptionLimit(msgCounter model.MsgCounterType, approve bool, reason string) {
 	e.pendingMux.Lock()
 	defer e.pendingMux.Unlock()
 
@@ -154,7 +154,7 @@ func (e *CsLPC) ApproveOrDenyConsumptionLimit(msgCounter model.MsgCounterType, a
 
 // return Failsafe limit for the consumed active (real) power of the
 // Controllable System. This limit becomes activated in "init" state or "failsafe state".
-func (e *CsLPC) FailsafeConsumptionActivePowerLimit() (limit float64, isChangeable bool, resultErr error) {
+func (e *LPC) FailsafeConsumptionActivePowerLimit() (limit float64, isChangeable bool, resultErr error) {
 	limit = 0
 	isChangeable = false
 	resultErr = api.ErrDataNotAvailable
@@ -180,7 +180,7 @@ func (e *CsLPC) FailsafeConsumptionActivePowerLimit() (limit float64, isChangeab
 
 // set Failsafe limit for the consumed active (real) power of the
 // Controllable System. This limit becomes activated in "init" state or "failsafe state".
-func (e *CsLPC) SetFailsafeConsumptionActivePowerLimit(value float64, changeable bool) error {
+func (e *LPC) SetFailsafeConsumptionActivePowerLimit(value float64, changeable bool) error {
 	keyName := model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit
 	keyValue := model.DeviceConfigurationKeyValueValueType{
 		ScaledNumber: model.NewScaledNumberType(value),
@@ -203,7 +203,7 @@ func (e *CsLPC) SetFailsafeConsumptionActivePowerLimit(value float64, changeable
 
 // return minimum time the Controllable System remains in "failsafe state" unless conditions
 // specified in this Use Case permit leaving the "failsafe state"
-func (e *CsLPC) FailsafeDurationMinimum() (duration time.Duration, isChangeable bool, resultErr error) {
+func (e *LPC) FailsafeDurationMinimum() (duration time.Duration, isChangeable bool, resultErr error) {
 	duration = 0
 	isChangeable = false
 	resultErr = api.ErrDataNotAvailable
@@ -238,7 +238,7 @@ func (e *CsLPC) FailsafeDurationMinimum() (duration time.Duration, isChangeable 
 // parameters:
 //   - duration: has to be >= 2h and <= 24h
 //   - changeable: boolean if the client service can change this value
-func (e *CsLPC) SetFailsafeDurationMinimum(duration time.Duration, changeable bool) error {
+func (e *LPC) SetFailsafeDurationMinimum(duration time.Duration, changeable bool) error {
 	if duration < time.Duration(time.Hour*2) || duration > time.Duration(time.Hour*24) {
 		return errors.New("duration outside of allowed range")
 	}
@@ -264,7 +264,7 @@ func (e *CsLPC) SetFailsafeDurationMinimum(duration time.Duration, changeable bo
 
 // Scenario 3
 
-func (e *CsLPC) IsHeartbeatWithinDuration() bool {
+func (e *LPC) IsHeartbeatWithinDuration() bool {
 	if e.heartbeatDiag == nil {
 		return false
 	}
@@ -276,7 +276,7 @@ func (e *CsLPC) IsHeartbeatWithinDuration() bool {
 
 // return nominal maximum active (real) power the Controllable System is
 // allowed to consume due to the customer's contract.
-func (e *CsLPC) ContractualConsumptionNominalMax() (value float64, resultErr error) {
+func (e *LPC) ContractualConsumptionNominalMax() (value float64, resultErr error) {
 	value = 0
 	resultErr = api.ErrDataNotAvailable
 
@@ -304,7 +304,7 @@ func (e *CsLPC) ContractualConsumptionNominalMax() (value float64, resultErr err
 
 // set nominal maximum active (real) power the Controllable System is
 // allowed to consume due to the customer's contract.
-func (e *CsLPC) SetContractualConsumptionNominalMax(value float64) error {
+func (e *LPC) SetContractualConsumptionNominalMax(value float64) error {
 	ec, err := server.NewElectricalConnection(e.LocalEntity)
 	if err != nil {
 		return err

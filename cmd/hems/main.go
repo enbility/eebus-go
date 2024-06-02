@@ -84,7 +84,7 @@ func (h *hems) run() {
 	}
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	uclpc := lpc.NewEgLPC(localEntity, nil)
+	uclpc := lpc.NewLPC(localEntity, nil)
 	h.myService.AddUseCase(uclpc)
 
 	if len(remoteSki) == 0 {
@@ -157,18 +157,22 @@ func main() {
 // Logging interface
 
 func (h *hems) Trace(args ...interface{}) {
+	// h.print("TRACE", args...)
 	h.print("TRACE", args...)
 }
 
 func (h *hems) Tracef(format string, args ...interface{}) {
+	// h.print("TRACE", args...)
 	h.printFormat("TRACE", format, args...)
 }
 
 func (h *hems) Debug(args ...interface{}) {
+	// h.print("TRACE", args...)
 	h.print("DEBUG", args...)
 }
 
 func (h *hems) Debugf(format string, args ...interface{}) {
+	// h.print("TRACE", args...)
 	h.printFormat("DEBUG", format, args...)
 }
 

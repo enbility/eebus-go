@@ -13,8 +13,8 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemVAPD) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *VAPD) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -31,8 +31,8 @@ func (e *CemVAPD) Power(entity spineapi.EntityRemoteInterface) (float64, error) 
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemVAPD) PowerNominalPeak(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *VAPD) PowerNominalPeak(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -66,8 +66,8 @@ func (e *CemVAPD) PowerNominalPeak(entity spineapi.EntityRemoteInterface) (float
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *CemVAPD) PVYieldTotal(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *VAPD) PVYieldTotal(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -81,7 +81,7 @@ func (e *CemVAPD) PVYieldTotal(entity spineapi.EntityRemoteInterface) (float64, 
 
 // helper
 
-func (e *CemVAPD) getValuesFoFilter(
+func (e *VAPD) getValuesFoFilter(
 	entity spineapi.EntityRemoteInterface,
 	filter model.MeasurementDescriptionDataType,
 ) (float64, error) {

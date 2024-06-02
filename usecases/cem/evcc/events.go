@@ -10,10 +10,10 @@ import (
 )
 
 // handle SPINE events
-func (e *CemEVCC) HandleEvent(payload spineapi.EventPayload) {
+func (e *EVCC) HandleEvent(payload spineapi.EventPayload) {
 	// only about events from an EV entity or device changes for this remote device
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
@@ -33,23 +33,29 @@ func (e *CemEVCC) HandleEvent(payload spineapi.EventPayload) {
 	switch payload.Data.(type) {
 	case *model.DeviceConfigurationKeyValueDescriptionListDataType:
 		e.evConfigurationDescriptionDataUpdate(payload.Entity)
+
 	case *model.DeviceConfigurationKeyValueListDataType:
 		e.evConfigurationDataUpdate(payload)
+
 	case *model.DeviceDiagnosisOperatingStateType:
 		e.evOperatingStateDataUpdate(payload)
+
 	case *model.DeviceClassificationManufacturerDataType:
 		e.evManufacturerDataUpdate(payload)
+
 	case *model.ElectricalConnectionParameterDescriptionListDataType:
 		e.evElectricalParamerDescriptionUpdate(payload.Entity)
+
 	case *model.ElectricalConnectionPermittedValueSetListDataType:
 		e.evElectricalPermittedValuesUpdate(payload)
+
 	case *model.IdentificationListDataType:
 		e.evIdentificationDataUpdate(payload)
 	}
 }
 
 // an EV was connected
-func (e *CemEVCC) evConnected(payload spineapi.EventPayload) {
+func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
 		if _, err := evDeviceClassification.Subscribe(); err != nil {
@@ -114,12 +120,12 @@ func (e *CemEVCC) evConnected(payload spineapi.EventPayload) {
 }
 
 // an EV was disconnected
-func (e *CemEVCC) evDisconnected(payload spineapi.EventPayload) {
+func (e *EVCC) evDisconnected(payload spineapi.EventPayload) {
 	e.EventCB(payload.Ski, payload.Device, payload.Entity, EvDisconnected)
 }
 
 // the configuration key description data of an EV was updated
-func (e *CemEVCC) evConfigurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *EVCC) evConfigurationDescriptionDataUpdate(entity spineapi.EntityRemoteInterface) {
 	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
 		if _, err := evDeviceConfiguration.RequestKeyValues(); err != nil {
@@ -129,7 +135,7 @@ func (e *CemEVCC) evConfigurationDescriptionDataUpdate(entity spineapi.EntityRem
 }
 
 // the configuration key data of an EV was updated
-func (e *CemEVCC) evConfigurationDataUpdate(payload spineapi.EventPayload) {
+func (e *EVCC) evConfigurationDataUpdate(payload spineapi.EventPayload) {
 	if dc, err := client.NewDeviceConfiguration(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 2
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -148,7 +154,7 @@ func (e *CemEVCC) evConfigurationDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the operating state of an EV was updated
-func (e *CemEVCC) evOperatingStateDataUpdate(payload spineapi.EventPayload) {
+func (e *EVCC) evOperatingStateDataUpdate(payload spineapi.EventPayload) {
 	if deviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
 		if _, err := deviceDiagnosis.GetState(); err == nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIdentifications)
@@ -157,7 +163,7 @@ func (e *CemEVCC) evOperatingStateDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the identification data of an EV was updated
-func (e *CemEVCC) evIdentificationDataUpdate(payload spineapi.EventPayload) {
+func (e *EVCC) evIdentificationDataUpdate(payload spineapi.EventPayload) {
 	if evIdentification, err := client.NewIdentification(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 4
 		if evIdentification.CheckEventPayloadDataForFilter(payload.Data) {
@@ -167,7 +173,7 @@ func (e *CemEVCC) evIdentificationDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the manufacturer data of an EV was updated
-func (e *CemEVCC) evManufacturerDataUpdate(payload spineapi.EventPayload) {
+func (e *EVCC) evManufacturerDataUpdate(payload spineapi.EventPayload) {
 	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 5
 		if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil {
@@ -177,7 +183,7 @@ func (e *CemEVCC) evManufacturerDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the electrical connection parameter description data of an EV was updated
-func (e *CemEVCC) evElectricalParamerDescriptionUpdate(entity spineapi.EntityRemoteInterface) {
+func (e *EVCC) evElectricalParamerDescriptionUpdate(entity spineapi.EntityRemoteInterface) {
 	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
 		if _, err := evElectricalConnection.RequestPermittedValueSets(); err != nil {
 			logging.Log().Error("Error getting electrical permitted values:", err)
@@ -186,7 +192,7 @@ func (e *CemEVCC) evElectricalParamerDescriptionUpdate(entity spineapi.EntityRem
 }
 
 // the electrical connection permitted value sets data of an EV was updated
-func (e *CemEVCC) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
+func (e *EVCC) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) {
 	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),

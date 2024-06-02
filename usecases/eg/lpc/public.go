@@ -26,7 +26,7 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (e *EgLPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
+func (e *LPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 	limit ucapi.LoadLimit, resultErr error) {
 	limit = ucapi.LoadLimit{
 		Value:        0.0,
@@ -35,7 +35,7 @@ func (e *EgLPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 	}
 
 	resultErr = api.ErrNoCompatibleEntity
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return
 	}
 
@@ -81,12 +81,12 @@ func (e *EgLPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 //   - entity: the entity of the e.g. EVSE
 //   - limit: load limit data
 //   - resultCB: callback function for handling the result response
-func (e *EgLPC) WriteConsumptionLimit(
+func (e *LPC) WriteConsumptionLimit(
 	entity spineapi.EntityRemoteInterface,
 	limit ucapi.LoadLimit,
 	resultCB func(result model.ResultDataType),
 ) (*model.MsgCounterType, error) {
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -104,8 +104,8 @@ func (e *EgLPC) WriteConsumptionLimit(
 
 // return Failsafe limit for the consumed active (real) power of the
 // Controllable System. This limit becomes activated in "init" state or "failsafe state".
-func (e *EgLPC) FailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPC) FailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -133,8 +133,8 @@ func (e *EgLPC) FailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemote
 // parameters:
 //   - entity: the entity of the e.g. EVSE
 //   - value: the new limit in W
-func (e *EgLPC) WriteFailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteInterface, value float64) (*model.MsgCounterType, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPC) WriteFailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteInterface, value float64) (*model.MsgCounterType, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -169,8 +169,8 @@ func (e *EgLPC) WriteFailsafeConsumptionActivePowerLimit(entity spineapi.EntityR
 
 // return minimum time the Controllable System remains in "failsafe state" unless conditions
 // specified in this Use Case permit leaving the "failsafe state"
-func (e *EgLPC) FailsafeDurationMinimum(entity spineapi.EntityRemoteInterface) (time.Duration, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPC) FailsafeDurationMinimum(entity spineapi.EntityRemoteInterface) (time.Duration, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -198,8 +198,8 @@ func (e *EgLPC) FailsafeDurationMinimum(entity spineapi.EntityRemoteInterface) (
 // parameters:
 //   - entity: the entity of the e.g. EVSE
 //   - duration: the duration, between 2h and 24h
-func (e *EgLPC) WriteFailsafeDurationMinimum(entity spineapi.EntityRemoteInterface, duration time.Duration) (*model.MsgCounterType, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPC) WriteFailsafeDurationMinimum(entity spineapi.EntityRemoteInterface, duration time.Duration) (*model.MsgCounterType, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -240,8 +240,8 @@ func (e *EgLPC) WriteFailsafeDurationMinimum(entity spineapi.EntityRemoteInterfa
 
 // return nominal maximum active (real) power the Controllable System is
 // able to consume according to the device label or data sheet.
-func (e *EgLPC) PowerConsumptionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *LPC) PowerConsumptionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 

@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/features/client"
 	features "github.com/enbility/eebus-go/features/client"
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
@@ -15,7 +14,7 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
-type CsLPC struct {
+type LPC struct {
 	*usecase.UseCaseBase
 
 	pendingMux    sync.Mutex
@@ -26,12 +25,32 @@ type CsLPC struct {
 	heartbeatKeoWorkaround bool // required because KEO Stack uses multiple identical entities for the same functionality, and it is not clear which to use
 }
 
-var _ ucapi.CsLPCInterface = (*CsLPC)(nil)
+var _ ucapi.CsLPCInterface = (*LPC)(nil)
 
-func NewCsLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CsLPC {
+func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPC {
+	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeEnergyGuard}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeGridGuard,
 		model.EntityTypeTypeCEM, // KEO uses this entity type for an SMGW whysoever
+	}
+	useCaseScenarios := []api.UseCaseScenario{
+		{
+			Scenario:  model.UseCaseScenarioSupportType(1),
+			Mandatory: true,
+		},
+		{
+			Scenario:  model.UseCaseScenarioSupportType(2),
+			Mandatory: true,
+		},
+		{
+			Scenario:       model.UseCaseScenarioSupportType(3),
+			Mandatory:      true,
+			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceDiagnosis},
+		},
+		{
+			Scenario:  model.UseCaseScenarioSupportType(4),
+			Mandatory: true,
+		},
 	}
 
 	usecase := usecase.NewUseCaseBase(
@@ -40,12 +59,14 @@ func NewCsLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 		model.UseCaseNameTypeLimitationOfPowerConsumption,
 		"1.0.0",
 		"release",
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
+		useCaseScenarios,
 		eventCB,
+		UseCaseSupportUpdate,
+		validActorTypes,
 		validEntityTypes,
 	)
 
-	uc := &CsLPC{
+	uc := &LPC{
 		UseCaseBase:   usecase,
 		pendingLimits: make(map[model.MsgCounterType]*spineapi.Message),
 	}
@@ -55,7 +76,7 @@ func NewCsLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 	return uc
 }
 
-func (e *CsLPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid model.LoadControlLimitIdType, err error) {
+func (e *LPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid model.LoadControlLimitIdType, err error) {
 	limitid = model.LoadControlLimitIdType(0)
 
 	lc, err = server.NewLoadControl(e.LocalEntity)
@@ -86,7 +107,7 @@ func (e *CsLPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid m
 // loadcontrol server feature.
 // the implementation only considers write messages for this use case and
 // approves all others
-func (e *CsLPC) loadControlWriteCB(msg *spineapi.Message) {
+func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
 		return
@@ -127,7 +148,7 @@ func (e *CsLPC) loadControlWriteCB(msg *spineapi.Message) {
 	go e.ApproveOrDenyConsumptionLimit(*msg.RequestHeader.MsgCounter, true, "")
 }
 
-func (e *CsLPC) AddFeatures() {
+func (e *LPC) AddFeatures() {
 	// client features
 	_ = e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)
 
@@ -222,34 +243,4 @@ func (e *CsLPC) AddFeatures() {
 		}
 		_, _ = ec.AddCharacteristic(newCharData)
 	}
-}
-
-// returns if the entity supports the usecase
-//
-// possible errors:
-//   - ErrDataNotAvailable if that information is not (yet) available
-//   - and others
-func (e *CsLPC) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
-		return false, api.ErrNoCompatibleEntity
-	}
-
-	// check if the usecase and mandatory scenarios are supported and
-	// if the required server features are available
-	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeEnergyGuard,
-		e.UseCaseName,
-		[]model.UseCaseScenarioSupportType{1, 2, 3, 4},
-		[]model.FeatureTypeType{
-			model.FeatureTypeTypeDeviceDiagnosis,
-		},
-	) {
-		return false, nil
-	}
-
-	if _, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err != nil {
-		return false, api.ErrFunctionNotSupported
-	}
-
-	return true, nil
 }

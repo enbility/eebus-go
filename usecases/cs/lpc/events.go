@@ -11,13 +11,13 @@ import (
 )
 
 // handle SPINE events
-func (e *CsLPC) HandleEvent(payload spineapi.EventPayload) {
-	if internal.IsDeviceConnected(payload) {
-		e.deviceConnected(payload)
+func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
-	if !e.IsCompatibleEntity(payload.Entity) {
+	if internal.IsDeviceConnected(payload) {
+		e.deviceConnected(payload)
 		return
 	}
 
@@ -44,8 +44,6 @@ func (e *CsLPC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	// the codefactor warning is invalid, as .(type) check can not be replaced with if then
-	//revive:disable-next-line
 	switch payload.Data.(type) {
 	case *model.LoadControlLimitListDataType:
 		serverF := e.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
@@ -69,7 +67,7 @@ func (e *CsLPC) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // a remote device was connected and we know its entities
-func (e *CsLPC) deviceConnected(payload spineapi.EventPayload) {
+func (e *LPC) deviceConnected(payload spineapi.EventPayload) {
 	if payload.Device == nil {
 		return
 	}
@@ -81,7 +79,7 @@ func (e *CsLPC) deviceConnected(payload spineapi.EventPayload) {
 
 	entites := remoteDevice.Entities()
 	for _, entity := range entites {
-		if !e.IsCompatibleEntity(entity) {
+		if !e.IsCompatibleEntityType(entity) {
 			continue
 		}
 
@@ -121,7 +119,7 @@ func (e *CsLPC) deviceConnected(payload spineapi.EventPayload) {
 }
 
 // subscribe to the DeviceDiagnosis Server of the entity that created a binding
-func (e *CsLPC) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
+func (e *LPC) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
 	// is the workaround is needed?
 	if e.heartbeatKeoWorkaround {
 		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
@@ -138,7 +136,7 @@ func (e *CsLPC) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
 }
 
 // the load control limit data was updated
-func (e *CsLPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
+func (e *LPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 	if lc, err := server.NewLoadControl(e.LocalEntity); err == nil {
 		filter := model.LoadControlLimitDescriptionDataType{
 			LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
@@ -153,7 +151,7 @@ func (e *CsLPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 }
 
 // the configuration key data of an SMGW was updated
-func (e *CsLPC) configurationDataUpdate(payload spineapi.EventPayload) {
+func (e *LPC) configurationDataUpdate(payload spineapi.EventPayload) {
 	if dc, err := server.NewDeviceConfiguration(e.LocalEntity); err == nil {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),

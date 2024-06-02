@@ -26,7 +26,7 @@ func TestCsLPPSuite(t *testing.T) {
 type CsLPPSuite struct {
 	suite.Suite
 
-	sut *CsLPP
+	sut *LPP
 
 	service api.ServiceInterface
 
@@ -73,7 +73,7 @@ func (s *CsLPPSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	s.sut = NewCsLPP(localEntity, s.Event)
+	s.sut = NewLPP(localEntity, s.Event)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 

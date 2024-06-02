@@ -14,10 +14,10 @@ import (
 )
 
 // returns the minimum and maximum number of incentive slots allowed
-func (e *CemCEVC) IncentiveConstraints(entity spineapi.EntityRemoteInterface) (ucapi.IncentiveSlotConstraints, error) {
+func (e *CEVC) IncentiveConstraints(entity spineapi.EntityRemoteInterface) (ucapi.IncentiveSlotConstraints, error) {
 	result := ucapi.IncentiveSlotConstraints{}
 
-	if !e.IsCompatibleEntity(entity) {
+	if !e.IsCompatibleEntityType(entity) {
 		return result, api.ErrNoCompatibleEntity
 	}
 
@@ -47,8 +47,8 @@ func (e *CemCEVC) IncentiveConstraints(entity spineapi.EntityRemoteInterface) (u
 // inform the EVSE about used currency and boundary units
 //
 // SPINE UC CoordinatedEVCharging 2.4.3
-func (e *CemCEVC) WriteIncentiveTableDescriptions(entity spineapi.EntityRemoteInterface, data []ucapi.IncentiveTariffDescription) error {
-	if !e.IsCompatibleEntity(entity) {
+func (e *CEVC) WriteIncentiveTableDescriptions(entity spineapi.EntityRemoteInterface, data []ucapi.IncentiveTariffDescription) error {
+	if !e.IsCompatibleEntityType(entity) {
 		return api.ErrNoCompatibleEntity
 	}
 
@@ -188,8 +188,8 @@ func (e *CemCEVC) WriteIncentiveTableDescriptions(entity spineapi.EntityRemoteIn
 
 // send incentives to the EV
 // if no data is provided, default incentives with the same price for 7 days will be sent
-func (e *CemCEVC) WriteIncentives(entity spineapi.EntityRemoteInterface, data []ucapi.DurationSlotValue) error {
-	if !e.IsCompatibleEntity(entity) {
+func (e *CEVC) WriteIncentives(entity spineapi.EntityRemoteInterface, data []ucapi.DurationSlotValue) error {
+	if !e.IsCompatibleEntityType(entity) {
 		return api.ErrNoCompatibleEntity
 	}
 

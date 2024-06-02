@@ -9,17 +9,43 @@ import (
 	"github.com/enbility/spine-go/spine"
 )
 
-type CemEVCEM struct {
+type EVCEM struct {
 	*usecase.UseCaseBase
 
 	service api.ServiceInterface
 }
 
-var _ ucapi.CemEVCEMInterface = (*CemEVCEM)(nil)
+var _ ucapi.CemEVCEMInterface = (*EVCEM)(nil)
 
-func NewCemEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CemEVCEM {
+func NewEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVCEM {
+	validActorTypes := []model.UseCaseActorType{
+		model.UseCaseActorTypeEV,
+	}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeEV,
+	}
+	useCaseScenarios := []api.UseCaseScenario{
+		{
+			Scenario: model.UseCaseScenarioSupportType(1),
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeElectricalConnection,
+				model.FeatureTypeTypeMeasurement,
+			},
+		},
+		{
+			Scenario: model.UseCaseScenarioSupportType(2),
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeElectricalConnection,
+				model.FeatureTypeTypeMeasurement,
+			},
+		},
+		{
+			Scenario: model.UseCaseScenarioSupportType(3),
+			ServerFeatures: []model.FeatureTypeType{
+				model.FeatureTypeTypeElectricalConnection,
+				model.FeatureTypeTypeMeasurement,
+			},
+		},
 	}
 
 	usecase := usecase.NewUseCaseBase(
@@ -28,11 +54,13 @@ func NewCemEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalI
 		model.UseCaseNameTypeMeasurementOfElectricityDuringEVCharging,
 		"1.0.1",
 		"release",
-		[]model.UseCaseScenarioSupportType{1, 2, 3},
+		useCaseScenarios,
 		eventCB,
+		UseCaseSupportUpdate,
+		validActorTypes,
 		validEntityTypes)
 
-	uc := &CemEVCEM{
+	uc := &EVCEM{
 		UseCaseBase: usecase,
 		service:     service,
 	}
@@ -42,7 +70,7 @@ func NewCemEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalI
 	return uc
 }
 
-func (e *CemEVCEM) AddFeatures() {
+func (e *EVCEM) AddFeatures() {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeElectricalConnection,
@@ -51,28 +79,4 @@ func (e *CemEVCEM) AddFeatures() {
 	for _, feature := range clientFeatures {
 		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 	}
-}
-
-// returns if the entity supports the usecase
-//
-// possible errors:
-//   - ErrDataNotAvailable if that information is not (yet) available
-//   - and others
-func (e *CemEVCEM) IsUseCaseSupported(entity spineapi.EntityRemoteInterface) (bool, error) {
-	if !e.IsCompatibleEntity(entity) {
-		return false, api.ErrNoCompatibleEntity
-	}
-
-	// check if the usecase and mandatory scenarios are supported and
-	// if the required server features are available
-	if !entity.Device().VerifyUseCaseScenariosAndFeaturesSupport(
-		model.UseCaseActorTypeEV,
-		e.UseCaseName,
-		nil,
-		nil,
-	) {
-		return false, nil
-	}
-
-	return true, nil
 }

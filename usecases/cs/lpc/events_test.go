@@ -29,6 +29,9 @@ func (s *CsLPCSuite) Test_Events() {
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
 
+	payload.ChangeType = spineapi.ElementChangeRemove
+	s.sut.HandleEvent(payload)
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.CmdClassifier = util.Ptr(model.CmdClassifierTypeWrite)
@@ -61,6 +64,10 @@ func (s *CsLPCSuite) Test_Events() {
 	payload.LocalFeature = s.deviceDiagnosisFeature
 	payload.CmdClassifier = util.Ptr(model.CmdClassifierTypeNotify)
 	payload.Data = util.Ptr(model.DeviceDiagnosisHeartbeatDataType{})
+	s.sut.HandleEvent(payload)
+
+	payload.Function = model.FunctionTypeDeviceConfigurationKeyValueListData
+	payload.Data = util.Ptr(model.NodeManagementUseCaseDataType{})
 	s.sut.HandleEvent(payload)
 }
 

@@ -7,10 +7,14 @@ import (
 
 // value if the UCEVCC communication standard is unknown
 const (
-	UCEVCCCommunicationStandardUnknown model.DeviceConfigurationKeyValueStringType = "unknown"
+	EVCCCommunicationStandardUnknown model.DeviceConfigurationKeyValueStringType = "unknown"
 )
 
 const (
+	// Update of the list of remote entites supporting the Use Case
+	//
+	// Use `RemoteEntities` to get the current data
+	UseCaseSupportUpdate api.EventType = "cem-evcc-UseCaseSupportUpdate"
 
 	// An EV was connected
 	//

@@ -3,6 +3,7 @@ package mpc
 import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	internal "github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -16,8 +17,8 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (e *MaMPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -41,8 +42,8 @@ func (e *MaMPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (e *MaMPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -51,7 +52,7 @@ func (e *MaMPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, internal.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
 }
 
 // Scenario 2
@@ -59,8 +60,8 @@ func (e *MaMPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 // return the total consumption energy
 //
 //   - positive values are used for consumption
-func (e *MaMPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -91,8 +92,8 @@ func (e *MaMPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, 
 // return the total feed in energy
 //
 //   - negative values are used for production
-func (e *MaMPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
@@ -126,8 +127,8 @@ func (e *MaMPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, 
 //
 //   - positive values are used for consumption
 //   - negative values are used for production
-func (e *MaMPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -136,14 +137,14 @@ func (e *MaMPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, internal.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
 }
 
 // Scenario 4
 
 // return the phase specific voltage details
-func (e *MaMPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
 
@@ -152,14 +153,14 @@ func (e *MaMPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", internal.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
 }
 
 // Scenario 5
 
 // return frequency
-func (e *MaMPC) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
-	if !e.IsCompatibleEntity(entity) {
+func (e *MPC) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
+	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
 
