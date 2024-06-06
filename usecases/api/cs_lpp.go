@@ -27,10 +27,10 @@ type CsLPPInterface interface {
 	// set the current loadcontrol limit data
 	SetProductionLimit(limit LoadLimit) (resultErr error)
 
-	// return the currently pending incoming consumption write limits
+	// return the currently pending incoming production write limits
 	PendingProductionLimits() map[model.MsgCounterType]LoadLimit
 
-	// accept or deny an incoming consumption write limit
+	// accept or deny an incoming production write limit
 	//
 	// parameters:
 	//  - msg: the incoming write message
