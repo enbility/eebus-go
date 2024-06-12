@@ -2,10 +2,12 @@ package client
 
 import (
 	"testing"
+	"time"
 
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -66,8 +68,43 @@ func (s *SmartEnergyManagementPsSuite) Test_WriteData() {
 	assert.Nil(s.T(), counter)
 
 	data := &model.SmartEnergyManagementPsDataType{
-		NodeScheduleInformation: &model.PowerSequenceNodeScheduleInformationDataType{},
-		Alternatives:            []model.SmartEnergyManagementPsAlternativesType{},
+		Alternatives: []model.SmartEnergyManagementPsAlternativesType{
+			{
+				Relation: &model.SmartEnergyManagementPsAlternativesRelationType{
+					AlternativesId: util.Ptr(model.AlternativesIdType(1)),
+				},
+				PowerSequence: []model.SmartEnergyManagementPsPowerSequenceType{
+					{
+						Description: &model.PowerSequenceDescriptionDataType{
+							SequenceId: util.Ptr(model.PowerSequenceIdType(1)),
+						},
+						State: &model.PowerSequenceStateDataType{
+							State: util.Ptr(model.PowerSequenceStateTypeInactive),
+						},
+						Schedule: &model.PowerSequenceScheduleDataType{
+							StartTime: model.NewAbsoluteOrRelativeTimeTypeFromDuration(time.Minute * 28),
+							EndTime:   model.NewAbsoluteOrRelativeTimeTypeFromDuration(time.Hour*2 + time.Minute*28),
+						},
+						PowerTimeSlot: []model.SmartEnergyManagementPsPowerTimeSlotType{
+							{
+								ValueList: &model.SmartEnergyManagementPsPowerTimeSlotValueListType{
+									Value: []model.PowerTimeSlotValueDataType{
+										{
+											ValueType: util.Ptr(model.PowerTimeSlotValueTypeTypePower),
+											Value:     model.NewScaledNumberType(4444),
+										},
+										{
+											ValueType: util.Ptr(model.PowerTimeSlotValueTypeTypePowerMax),
+											Value:     model.NewScaledNumberType(9999),
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	counter, err = s.smartenergymgmtps.WriteData(data)
 	assert.Nil(s.T(), err)
