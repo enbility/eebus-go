@@ -91,6 +91,8 @@ func (e *LPC) deviceConnected(payload spineapi.EventPayload) {
 		deviceDiagEntites = append(deviceDiagEntites, entity)
 	}
 
+	logging.Log().Debug("cs-lpc:", len(deviceDiagEntites), "DeviceDiagnosis Server found")
+
 	// the remote device does not have a DeviceDiagnosis Server, which it should
 	if len(deviceDiagEntites) == 0 {
 		return
