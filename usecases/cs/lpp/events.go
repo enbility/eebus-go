@@ -12,12 +12,12 @@ import (
 
 // handle SPINE events
 func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
-	if !e.IsCompatibleEntityType(payload.Entity) {
+	if internal.IsDeviceConnected(payload) {
+		e.deviceConnected(payload)
 		return
 	}
 
-	if internal.IsDeviceConnected(payload) {
-		e.deviceConnected(payload)
+	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
