@@ -5,9 +5,9 @@ import (
 	spineapi "github.com/enbility/spine-go/api"
 )
 
-// Actor: Grid Connection Point
+// Actor: Monitoring Appliance
 // UseCase: Monitoring of Grid Connection Point
-type GcpMGCPInterface interface {
+type MaMGCPInterface interface {
 	api.UseCaseInterface
 
 	// Scenario 1

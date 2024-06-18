@@ -13,7 +13,7 @@ type MGCP struct {
 	*usecase.UseCaseBase
 }
 
-var _ ucapi.GcpMGCPInterface = (*MGCP)(nil)
+var _ ucapi.MaMGCPInterface = (*MGCP)(nil)
 
 func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
