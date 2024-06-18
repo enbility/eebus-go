@@ -18,6 +18,7 @@ var _ ucapi.EgLPPInterface = (*LPP)(nil)
 func NewLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeControllableSystem}
 	validEntityTypes := []model.EntityTypeType{
+		model.EntityTypeTypeCEM,
 		model.EntityTypeTypeEVSE,
 		model.EntityTypeTypeInverter,
 		model.EntityTypeTypeSmartEnergyAppliance,

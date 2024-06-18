@@ -18,6 +18,7 @@ var _ ucapi.EgLPCInterface = (*LPC)(nil)
 func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPC {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeControllableSystem}
 	validEntityTypes := []model.EntityTypeType{
+		model.EntityTypeTypeCEM,
 		model.EntityTypeTypeCompressor,
 		model.EntityTypeTypeEVSE,
 		model.EntityTypeTypeHeatPumpAppliance,
