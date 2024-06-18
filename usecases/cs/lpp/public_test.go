@@ -49,7 +49,12 @@ func (s *CsLPPSuite) Test_PendingProductionLimits() {
 						Value:         model.NewScaledNumberType(1000),
 						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
 					},
-				},
+					{
+						LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
+						IsLimitActive: util.Ptr(true),
+						Value:         model.NewScaledNumberType(1000),
+						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
+					}},
 			},
 		},
 		DeviceRemote: s.remoteDevice,
@@ -63,7 +68,13 @@ func (s *CsLPPSuite) Test_PendingProductionLimits() {
 
 	s.sut.ApproveOrDenyProductionLimit(model.MsgCounterType(499), true, "")
 
+	data = s.sut.PendingProductionLimits()
+	assert.Equal(s.T(), 1, len(data))
+
 	s.sut.ApproveOrDenyProductionLimit(msgCounter, false, "leave me alone")
+
+	data = s.sut.PendingProductionLimits()
+	assert.Equal(s.T(), 0, len(data))
 }
 
 func (s *CsLPPSuite) Test_Failsafe() {

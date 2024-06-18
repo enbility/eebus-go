@@ -49,6 +49,12 @@ func (s *CsLPCSuite) Test_PendingConsumptionLimits() {
 						Value:         model.NewScaledNumberType(1000),
 						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
 					},
+					{
+						LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
+						IsLimitActive: util.Ptr(true),
+						Value:         model.NewScaledNumberType(1000),
+						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
+					},
 				},
 			},
 		},
@@ -63,7 +69,13 @@ func (s *CsLPCSuite) Test_PendingConsumptionLimits() {
 
 	s.sut.ApproveOrDenyConsumptionLimit(model.MsgCounterType(499), true, "")
 
+	data = s.sut.PendingConsumptionLimits()
+	assert.Equal(s.T(), 1, len(data))
+
 	s.sut.ApproveOrDenyConsumptionLimit(msgCounter, false, "leave me alone")
+
+	data = s.sut.PendingConsumptionLimits()
+	assert.Equal(s.T(), 0, len(data))
 }
 
 func (s *CsLPCSuite) Test_Failsafe() {
