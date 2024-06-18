@@ -7,6 +7,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 )
@@ -94,7 +95,7 @@ func (e *LPP) PendingProductionLimits() map[model.MsgCounterType]ucapi.LoadLimit
 		data := msg.Cmd.LoadControlLimitListData
 
 		// elements are only added to the map if all required fields exist
-		// therefor not check for these are needed here
+		// therefor no checks for these are needed here
 
 		// find the item which contains the limit for this usecase
 		for _, item := range data.LoadControlLimitData {
@@ -133,21 +134,31 @@ func (e *LPP) ApproveOrDenyProductionLimit(msgCounter model.MsgCounterType, appr
 	e.pendingMux.Lock()
 	defer e.pendingMux.Unlock()
 
-	msg, ok := e.pendingLimits[msgCounter]
-	if !ok {
-		return
-	}
-
 	f := e.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
 
 	result := model.ErrorType{
 		ErrorNumber: model.ErrorNumberType(0),
 	}
+
+	msg, ok := e.pendingLimits[msgCounter]
+	if !ok {
+		// it is not a limit of this usecase, so approve it
+		newMsg := &spineapi.Message{
+			RequestHeader: &model.HeaderType{
+				MsgCounter: &msgCounter,
+			},
+		}
+		f.ApproveOrDenyWrite(newMsg, result)
+		return
+	}
+
 	if !approve {
 		result.ErrorNumber = model.ErrorNumberType(7)
 		result.Description = util.Ptr(model.DescriptionType(reason))
 	}
 	f.ApproveOrDenyWrite(msg, result)
+
+	delete(e.pendingLimits, msgCounter)
 }
 
 // Scenario 2

@@ -83,6 +83,10 @@ func (e *LPP) connected(entity spineapi.EntityRemoteInterface) {
 		if _, err := deviceDiagnosis.Subscribe(); err != nil {
 			logging.Log().Debug(err)
 		}
+
+		if _, err := deviceDiagnosis.RequestHeartbeat(); err != nil {
+			logging.Log().Debug(err)
+		}
 	}
 }
 
