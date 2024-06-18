@@ -18,6 +18,7 @@ import (
 	"github.com/enbility/eebus-go/service"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/eg/lpc"
+	"github.com/enbility/eebus-go/usecases/eg/lpp"
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	spineapi "github.com/enbility/spine-go/api"
@@ -30,6 +31,7 @@ type controlbox struct {
 	myService *service.Service
 
 	uclpc ucapi.EgLPCInterface
+	uclpp ucapi.EgLPPInterface
 
 	isConnected bool
 }
@@ -94,6 +96,9 @@ func (h *controlbox) run() {
 	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
 	h.myService.AddUseCase(h.uclpc)
 
+	h.uclpp = lpp.NewLPP(localEntity, h.OnLPPEvent)
+	h.myService.AddUseCase(h.uclpp)
+
 	if len(remoteSki) == 0 {
 		os.Exit(0)
 	}
@@ -154,7 +159,7 @@ func (h *controlbox) sendLimit(entity spineapi.EntityRemoteInterface) {
 			if *msg.ErrorNumber == model.ErrorNumberTypeNoError {
 				fmt.Println("Limit accepted.")
 			} else {
-				fmt.Println("Limit rejected. Code", msg.ErrorNumber, "Description", msg.Description)
+				fmt.Println("Limit rejected. Code", *msg.ErrorNumber, "Description", *msg.Description)
 			}
 		}
 		msgCounter, err := h.uclpc.WriteConsumptionLimit(entity, limit, resultCB)
@@ -165,8 +170,24 @@ func (h *controlbox) sendLimit(entity spineapi.EntityRemoteInterface) {
 		fmt.Println("Sent limit to", entity.Device().Ski(), "with msgCounter", msgCounter)
 	})
 }
-
 func (h *controlbox) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+	if !h.isConnected {
+		return
+	}
+
+	switch event {
+	case lpc.UseCaseSupportUpdate:
+		h.sendLimit(entity)
+	case lpc.DataUpdateLimit:
+		if currentLimit, err := h.uclpc.ConsumptionLimit(entity); err == nil {
+			fmt.Println("New Limit received", currentLimit.Value, "W")
+		}
+	default:
+		return
+	}
+}
+
+func (h *controlbox) OnLPPEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
 	if !h.isConnected {
 		return
 	}
