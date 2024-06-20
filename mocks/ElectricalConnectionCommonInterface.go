@@ -474,9 +474,9 @@ func (_c *ElectricalConnectionCommonInterface_GetPermittedValueSetForFilter_Call
 	return _c
 }
 
-// GetPhaseCurrentLimits provides a mock function with given fields:
-func (_m *ElectricalConnectionCommonInterface) GetPhaseCurrentLimits() ([]float64, []float64, []float64, error) {
-	ret := _m.Called()
+// GetPhaseCurrentLimits provides a mock function with given fields: measDesc
+func (_m *ElectricalConnectionCommonInterface) GetPhaseCurrentLimits(measDesc []model.MeasurementDescriptionDataType) ([]float64, []float64, []float64, error) {
+	ret := _m.Called(measDesc)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPhaseCurrentLimits")
@@ -486,35 +486,35 @@ func (_m *ElectricalConnectionCommonInterface) GetPhaseCurrentLimits() ([]float6
 	var r1 []float64
 	var r2 []float64
 	var r3 error
-	if rf, ok := ret.Get(0).(func() ([]float64, []float64, []float64, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func([]model.MeasurementDescriptionDataType) ([]float64, []float64, []float64, error)); ok {
+		return rf(measDesc)
 	}
-	if rf, ok := ret.Get(0).(func() []float64); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func([]model.MeasurementDescriptionDataType) []float64); ok {
+		r0 = rf(measDesc)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]float64)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() []float64); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func([]model.MeasurementDescriptionDataType) []float64); ok {
+		r1 = rf(measDesc)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]float64)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func() []float64); ok {
-		r2 = rf()
+	if rf, ok := ret.Get(2).(func([]model.MeasurementDescriptionDataType) []float64); ok {
+		r2 = rf(measDesc)
 	} else {
 		if ret.Get(2) != nil {
 			r2 = ret.Get(2).([]float64)
 		}
 	}
 
-	if rf, ok := ret.Get(3).(func() error); ok {
-		r3 = rf()
+	if rf, ok := ret.Get(3).(func([]model.MeasurementDescriptionDataType) error); ok {
+		r3 = rf(measDesc)
 	} else {
 		r3 = ret.Error(3)
 	}
@@ -528,13 +528,14 @@ type ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call struct {
 }
 
 // GetPhaseCurrentLimits is a helper method to define mock.On call
-func (_e *ElectricalConnectionCommonInterface_Expecter) GetPhaseCurrentLimits() *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call {
-	return &ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call{Call: _e.mock.On("GetPhaseCurrentLimits")}
+//   - measDesc []model.MeasurementDescriptionDataType
+func (_e *ElectricalConnectionCommonInterface_Expecter) GetPhaseCurrentLimits(measDesc interface{}) *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call {
+	return &ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call{Call: _e.mock.On("GetPhaseCurrentLimits", measDesc)}
 }
 
-func (_c *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call) Run(run func()) *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call {
+func (_c *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call) Run(run func(measDesc []model.MeasurementDescriptionDataType)) *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].([]model.MeasurementDescriptionDataType))
 	})
 	return _c
 }
@@ -544,7 +545,7 @@ func (_c *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call) Return
 	return _c
 }
 
-func (_c *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call) RunAndReturn(run func() ([]float64, []float64, []float64, error)) *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call {
+func (_c *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call) RunAndReturn(run func([]model.MeasurementDescriptionDataType) ([]float64, []float64, []float64, error)) *ElectricalConnectionCommonInterface_GetPhaseCurrentLimits_Call {
 	_c.Call.Return(run)
 	return _c
 }

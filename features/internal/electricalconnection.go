@@ -176,7 +176,7 @@ var PhaseNameMapping = []model.ElectricalConnectionPhaseNameType{
 	model.ElectricalConnectionPhaseNameTypeC}
 
 // Get the min, max, default current limits for each phase
-func (e *ElectricalConnectionCommon) GetPhaseCurrentLimits() (
+func (e *ElectricalConnectionCommon) GetPhaseCurrentLimits(measurementDescs []model.MeasurementDescriptionDataType) (
 	resultMin []float64, resultMax []float64, resultDefault []float64, resultErr error) {
 	for _, phaseName := range PhaseNameMapping {
 		// electricalParameterDescription contains the measured phase for each measurementId
@@ -184,25 +184,44 @@ func (e *ElectricalConnectionCommon) GetPhaseCurrentLimits() (
 			AcMeasuredPhases: util.Ptr(phaseName),
 		}
 		elParamDesc, err := e.GetParameterDescriptionsForFilter(filter)
-		if err != nil || len(elParamDesc) != 1 || elParamDesc[0].ParameterId == nil {
+		if err != nil || len(elParamDesc) == 0 {
 			continue
 		}
 
-		filter1 := model.ElectricalConnectionPermittedValueSetDataType{
-			ParameterId: elParamDesc[0].ParameterId,
-		}
-		dataMin, dataMax, dataDefault, err := e.GetPermittedValueDataForFilter(filter1)
-		if err != nil {
-			continue
-		}
+		// check all params and assume there are no phase specific power limits
+		for _, paramEl := range elParamDesc {
+			if paramEl.ParameterId == nil || paramEl.MeasurementId == nil {
+				continue
+			}
 
-		// Min current data should be derived from min power data
-		// but as this value is only properly provided via VAS the
-		// currrent min values can not be trusted.
+			// check if the measurementId is in measurementDescs
+			found := false
+			for _, mDesc := range measurementDescs {
+				if mDesc.MeasurementId != nil && *mDesc.MeasurementId == *paramEl.MeasurementId {
+					found = true
+					break
+				}
+			}
+			if !found {
+				continue
+			}
 
-		resultMin = append(resultMin, dataMin)
-		resultMax = append(resultMax, dataMax)
-		resultDefault = append(resultDefault, dataDefault)
+			filter1 := model.ElectricalConnectionPermittedValueSetDataType{
+				ParameterId: paramEl.ParameterId,
+			}
+			dataMin, dataMax, dataDefault, err := e.GetPermittedValueDataForFilter(filter1)
+			if err != nil {
+				continue
+			}
+
+			// Min current data should be derived from min power data
+			// but as this value is only properly provided via VAS the
+			// currrent min values can not be trusted.
+
+			resultMin = append(resultMin, dataMin)
+			resultMax = append(resultMax, dataMax)
+			resultDefault = append(resultDefault, dataDefault)
+		}
 	}
 
 	if len(resultMin) == 0 {
