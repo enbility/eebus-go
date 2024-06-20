@@ -25,7 +25,23 @@ func (e *OSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64,
 		return nil, nil, nil, err
 	}
 
-	return ec.GetPhaseCurrentLimits()
+	meas, err := client.NewMeasurement(e.LocalEntity, entity)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+	}
+	measDesc, err := meas.GetDescriptionsForFilter(filter)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return ec.GetPhaseCurrentLimits(measDesc)
 }
 
 // return the current loadcontrol recommendation limits

@@ -114,7 +114,7 @@ type ElectricalConnectionCommonInterface interface {
 		float64, float64, float64, error)
 
 	// Get the min, max, default current limits for each phase
-	GetPhaseCurrentLimits() (
+	GetPhaseCurrentLimits(measDesc []model.MeasurementDescriptionDataType) (
 		resultMin []float64, resultMax []float64, resultDefault []float64, resultErr error)
 
 	// Adjust a value to be within the permitted value range

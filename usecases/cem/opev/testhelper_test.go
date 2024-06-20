@@ -74,6 +74,13 @@ func (s *CemOPEVSuite) BeforeTest(suiteName, testName string) {
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
+	var clientFeatures = []model.FeatureTypeType{
+		model.FeatureTypeTypeMeasurement,
+	}
+	for _, feature := range clientFeatures {
+		_ = localEntity.GetOrAddFeature(feature, model.RoleTypeClient)
+	}
+
 	var entities []spineapi.EntityRemoteInterface
 	s.remoteDevice, entities = setupDevices(s.service, s.T())
 	s.evEntity = entities[1]
@@ -102,6 +109,11 @@ func setupDevices(
 			[]model.FunctionType{
 				model.FunctionTypeElectricalConnectionParameterDescriptionListData,
 				model.FunctionTypeElectricalConnectionPermittedValueSetListData,
+			},
+		},
+		{model.FeatureTypeTypeMeasurement,
+			[]model.FunctionType{
+				model.FunctionTypeMeasurementDescriptionListData,
 			},
 		},
 		{model.FeatureTypeTypeLoadControl,

@@ -23,8 +23,8 @@ type ElectricalConnectionSuite struct {
 	localEntity  spineapi.EntityLocalInterface
 	remoteEntity spineapi.EntityRemoteInterface
 
-	localFeature  spineapi.FeatureLocalInterface
-	remoteFeature spineapi.FeatureRemoteInterface
+	localFeature, localMeasFeature   spineapi.FeatureLocalInterface
+	remoteFeature, remoteMeasFeature spineapi.FeatureRemoteInterface
 
 	localSut,
 	remoteSut *internal.ElectricalConnectionCommon
@@ -47,6 +47,12 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 					model.FunctionTypeElectricalConnectionCharacteristicListData,
 				},
 			},
+			{
+				featureType: model.FeatureTypeTypeMeasurement,
+				functions: []model.FunctionType{
+					model.FunctionTypeMeasurementDescriptionListData,
+				},
+			},
 		},
 	)
 
@@ -54,11 +60,15 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 	assert.NotNil(s.T(), s.localFeature)
 	s.localSut = internal.NewLocalElectricalConnection(s.localFeature)
 	assert.NotNil(s.T(), s.localSut)
+	s.localMeasFeature = s.localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	assert.NotNil(s.T(), s.localMeasFeature)
 
 	s.remoteFeature = s.remoteEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
 	assert.NotNil(s.T(), s.remoteFeature)
 	s.remoteSut = internal.NewRemoteElectricalConnection(s.remoteFeature)
 	assert.NotNil(s.T(), s.remoteSut)
+	s.remoteMeasFeature = s.remoteEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	assert.NotNil(s.T(), s.remoteMeasFeature)
 }
 
 func (s *ElectricalConnectionSuite) Test_CheckEventPayloadDataForFilter() {
@@ -612,34 +622,34 @@ func (s *ElectricalConnectionSuite) Test_GetCharacteristicForContextType() {
 }
 
 func (s *ElectricalConnectionSuite) Test_EVCurrentLimits() {
-	minData, maxData, defaultData, err := s.localSut.GetPhaseCurrentLimits()
+	minData, maxData, defaultData, err := s.localSut.GetPhaseCurrentLimits(nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), minData)
 	assert.Nil(s.T(), maxData)
 	assert.Nil(s.T(), defaultData)
-	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits()
-	assert.NotNil(s.T(), err)
-	assert.Nil(s.T(), minData)
-	assert.Nil(s.T(), maxData)
-	assert.Nil(s.T(), defaultData)
-
-	minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits()
-	assert.NotNil(s.T(), err)
-	assert.Nil(s.T(), minData)
-	assert.Nil(s.T(), maxData)
-	assert.Nil(s.T(), defaultData)
-	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits()
+	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits(nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), minData)
 	assert.Nil(s.T(), maxData)
 	assert.Nil(s.T(), defaultData)
 
-	minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits()
+	minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits(nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), minData)
 	assert.Nil(s.T(), maxData)
 	assert.Nil(s.T(), defaultData)
-	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits()
+	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), minData)
+	assert.Nil(s.T(), maxData)
+	assert.Nil(s.T(), defaultData)
+
+	minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), minData)
+	assert.Nil(s.T(), maxData)
+	assert.Nil(s.T(), defaultData)
+	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits(nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), minData)
 	assert.Nil(s.T(), maxData)
@@ -673,17 +683,45 @@ func (s *ElectricalConnectionSuite) Test_EVCurrentLimits() {
 	fErr = s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
-	minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits()
+	minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits(nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), minData)
 	assert.Nil(s.T(), maxData)
 	assert.Nil(s.T(), defaultData)
 
-	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits()
+	minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits(nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), minData)
 	assert.Nil(s.T(), maxData)
 	assert.Nil(s.T(), defaultData)
+
+	measData := &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent)},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(2)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent)},
+		},
+	}
+	fErr = s.localMeasFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+	fErr = s.remoteMeasFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
 
 	type permittedStruct struct {
 		defaultExists                      bool
@@ -775,7 +813,7 @@ func (s *ElectricalConnectionSuite) Test_EVCurrentLimits() {
 			fErr = s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 			assert.Nil(s.T(), fErr)
 
-			minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits()
+			minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits(measData.MeasurementDescriptionData)
 			assert.Nil(s.T(), err)
 
 			assert.Equal(s.T(), len(tc.permitted), len(minData))
@@ -787,7 +825,7 @@ func (s *ElectricalConnectionSuite) Test_EVCurrentLimits() {
 				assert.Equal(s.T(), item.expectedDefaultValue, defaultData[index])
 			}
 
-			minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits()
+			minData, maxData, defaultData, err = s.remoteSut.GetPhaseCurrentLimits(measData.MeasurementDescriptionData)
 			assert.Nil(s.T(), err)
 
 			assert.Equal(s.T(), len(tc.permitted), len(minData))
