@@ -65,7 +65,7 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 
 	var result []float64
 	refetch := true
-	compare := time.Now().Add(-1 * time.Minute)
+	compare := time.Now().UTC().Add(-1 * time.Minute)
 
 	for _, phase := range ucapi.PhaseNameMapping {
 		for _, item := range data {
@@ -85,7 +85,18 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 			phaseValue := item.Value.GetValue()
 			result = append(result, phaseValue)
 
-			if item.Timestamp != nil {
+			if item.Timestamp == nil {
+				continue
+			}
+
+			if timestamp, err := item.Timestamp.GetTime(); err == nil {
+				refetch = timestamp.Before(compare)
+			}
+
+			// the MEB cars report the wrong NTP time by 1 or 2 hours (depending on DST)
+			// and PMCC uses NTP from the EV, so check these cases as well
+			for i := 0; i < 2 && refetch; i++ {
+				compare = compare.Add(-1 * time.Hour)
 				if timestamp, err := item.Timestamp.GetTime(); err == nil {
 					refetch = timestamp.Before(compare)
 				}

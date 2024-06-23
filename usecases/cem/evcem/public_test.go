@@ -1,6 +1,8 @@
 package evcem
 
 import (
+	"time"
+
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -101,6 +103,61 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.evEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 10.0, data[0])
+
+	now := time.Now().Add(-50 * time.Second)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(now),
+			},
+		},
+	}
+
+	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.evEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 10.0, data[0])
+
+	now = now.Add(-1 * time.Hour)
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(now),
+			},
+		},
+	}
+
+	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.evEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 10.0, data[0])
+
+	now = now.Add(-1 * time.Hour)
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(now),
 			},
 		},
 	}
