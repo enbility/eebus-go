@@ -158,6 +158,9 @@ func (s *ServiceSuite) Test_Setup() {
 	err = s.sut.Setup()
 	assert.Nil(s.T(), err)
 
+	address := s.sut.LocalDevice().Address()
+	assert.Equal(s.T(), "d:_n:vendor_model-serial", string(*address))
+
 	s.sut.connectionsHub = s.conHub
 	s.conHub.EXPECT().Start()
 	s.sut.Start()
@@ -169,4 +172,65 @@ func (s *ServiceSuite) Test_Setup() {
 
 	device := s.sut.LocalDevice()
 	assert.NotNil(s.T(), device)
+}
+
+func (s *ServiceSuite) Test_Setup_IANA() {
+	var err error
+	certificate := tls.Certificate{}
+	s.config, err = api.NewConfiguration(
+		"12345", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
+		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
+	assert.Nil(s.T(), nil, err)
+
+	s.sut = NewService(s.config, s.serviceReader)
+
+	err = s.sut.Setup()
+	assert.NotNil(s.T(), err)
+
+	certificate, err = cert.CreateCertificate("unit", "org", "de", "cn")
+	assert.Nil(s.T(), err)
+	s.config.SetCertificate(certificate)
+
+	err = s.sut.Setup()
+	assert.Nil(s.T(), err)
+
+	address := s.sut.LocalDevice().Address()
+	assert.Equal(s.T(), "d:_i:12345_model-serial", string(*address))
+
+	s.sut.connectionsHub = s.conHub
+	s.conHub.EXPECT().Start()
+	s.sut.Start()
+
+	time.Sleep(time.Millisecond * 200)
+
+	s.conHub.EXPECT().Shutdown()
+	s.sut.Shutdown()
+
+	device := s.sut.LocalDevice()
+	assert.NotNil(s.T(), device)
+}
+
+func (s *ServiceSuite) Test_Setup_Error_DeviceName() {
+	var err error
+	certificate := tls.Certificate{}
+	s.config, err = api.NewConfiguration(
+		"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+		"brand",
+		"modelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodel",
+		"serialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserial",
+		model.DeviceTypeTypeEnergyManagementSystem,
+		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
+	assert.Nil(s.T(), nil, err)
+
+	s.sut = NewService(s.config, s.serviceReader)
+
+	err = s.sut.Setup()
+	assert.NotNil(s.T(), err)
+
+	certificate, err = cert.CreateCertificate("unit", "org", "de", "cn")
+	assert.Nil(s.T(), err)
+	s.config.SetCertificate(certificate)
+
+	err = s.sut.Setup()
+	assert.NotNil(s.T(), err)
 }
