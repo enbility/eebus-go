@@ -209,3 +209,28 @@ func (s *ServiceSuite) Test_Setup_IANA() {
 	device := s.sut.LocalDevice()
 	assert.NotNil(s.T(), device)
 }
+
+func (s *ServiceSuite) Test_Setup_Error_DeviceName() {
+	var err error
+	certificate := tls.Certificate{}
+	s.config, err = api.NewConfiguration(
+		"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+		"brand",
+		"modelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodel",
+		"serialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserial",
+		model.DeviceTypeTypeEnergyManagementSystem,
+		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
+	assert.Nil(s.T(), nil, err)
+
+	s.sut = NewService(s.config, s.serviceReader)
+
+	err = s.sut.Setup()
+	assert.NotNil(s.T(), err)
+
+	certificate, err = cert.CreateCertificate("unit", "org", "de", "cn")
+	assert.Nil(s.T(), err)
+	s.config.SetCertificate(certificate)
+
+	err = s.sut.Setup()
+	assert.NotNil(s.T(), err)
+}

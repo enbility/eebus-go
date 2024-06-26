@@ -104,6 +104,10 @@ func (s *Service) Setup() error {
 	}
 	deviceAddress = fmt.Sprintf("d:_%s:%s_%s%s", vendorType, vendor, sd.DeviceModel(), serial)
 
+	if len(deviceAddress) > 256 {
+		return fmt.Errorf("generated device address may not be longer than 256 characters: %s", deviceAddress)
+	}
+
 	// Create the local SPINE device
 	s.spineLocalDevice = spine.NewDeviceLocal(
 		sd.DeviceBrand(),
