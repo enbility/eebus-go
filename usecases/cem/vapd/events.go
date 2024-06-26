@@ -104,7 +104,7 @@ func (e *VAPD) inverterConfigurationDataUpdate(payload spineapi.EventPayload) {
 			KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypePeakPowerOfPVSystem),
 			ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
 		}
-		if deviceConfiguration.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if deviceConfiguration.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerNominalPeak)
 		}
 	}
@@ -127,13 +127,13 @@ func (e *VAPD) inverterMeasurementDataUpdate(payload spineapi.EventPayload) {
 		filter := model.MeasurementDescriptionDataType{
 			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
 		}
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
 		}
 
 		// Scenario 3
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACYieldTotal)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePVYieldTotal)
 		}
 	}

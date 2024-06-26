@@ -87,7 +87,7 @@ func (e *EVCEM) evElectricalConnectionDescriptionDataUpdate(payload spineapi.Eve
 	}
 
 	for _, item := range data.ElectricalConnectionDescriptionData {
-		if item.ElectricalConnectionId != nil && item.AcConnectedPhases != nil {
+		if item.ElectricalConnectionId != nil && item.AcConnectedPhases != nil && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePhasesConnected)
 			return
 		}
@@ -111,19 +111,19 @@ func (e *EVCEM) evMeasurementDataUpdate(payload spineapi.EventPayload) {
 		filter := model.MeasurementDescriptionDataType{
 			ScopeType: util.Ptr(model.ScopeTypeTypeACCurrent),
 		}
-		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
 		}
 
 		// Scenario 2
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACPower)
-		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerPerPhase)
 		}
 
 		// Scenario 3
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeCharge)
-		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyCharged)
 		}
 	}

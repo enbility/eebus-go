@@ -119,7 +119,7 @@ func (e *LPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 			LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
 			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 		}
-		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
 		}
 	}
@@ -141,11 +141,11 @@ func (e *LPP) configurationDataUpdate(payload spineapi.EventPayload) {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeProductionActivePowerLimit),
 		}
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeProductionActivePowerLimit)
 		}
 		filter.KeyName = util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum)
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeDurationMinimum)
 		}
 	}

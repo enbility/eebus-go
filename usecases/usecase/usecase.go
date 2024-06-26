@@ -167,7 +167,7 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 		updateEvent = true
 	}
 
-	if updateEvent {
+	if updateEvent && u.EventCB != nil {
 		u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
 	}
 }
@@ -179,7 +179,9 @@ func (u *UseCaseBase) removeEntityFromAvailableEntityScenarios(entity spineapi.E
 		u.availableEntityScenarios = append(u.availableEntityScenarios[:i], u.availableEntityScenarios[i+1:]...)
 		u.mux.Unlock()
 
-		u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
+		if u.EventCB != nil {
+			u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
+		}
 	}
 }
 

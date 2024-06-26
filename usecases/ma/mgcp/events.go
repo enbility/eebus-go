@@ -102,7 +102,7 @@ func (e *MGCP) gridConfigurationDataUpdate(payload spineapi.EventPayload) {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
 		}
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerLimitationFactor)
 		}
 	}
@@ -125,37 +125,37 @@ func (e *MGCP) gridMeasurementDataUpdate(payload spineapi.EventPayload) {
 		filter := model.MeasurementDescriptionDataType{
 			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
 		}
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
 		}
 
 		// Scenario 3
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridFeedIn)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyFeedIn)
 		}
 
 		// Scenario 4
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridConsumption)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyConsumed)
 		}
 
 		// Scenario 5
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACCurrent)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
 		}
 
 		// Scenario 6
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACVoltage)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateVoltagePerPhase)
 		}
 
 		// Scenario 7
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACFrequency)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFrequency)
 		}
 	}

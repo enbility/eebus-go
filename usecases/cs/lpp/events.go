@@ -32,7 +32,7 @@ func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsHeartbeat(payload) {
+	if internal.IsHeartbeat(payload) && e.EventCB != nil {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateHeartbeat)
 		return
 	}
@@ -146,7 +146,7 @@ func (e *LPP) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 			LimitDirection: util.Ptr(model.EnergyDirectionTypeProduce),
 		}
-		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
 		}
 	}
@@ -158,13 +158,13 @@ func (e *LPP) configurationDataUpdate(payload spineapi.EventPayload) {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeProductionActivePowerLimit),
 		}
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeProductionActivePowerLimit)
 		}
 		filter = model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
 		}
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeDurationMinimum)
 		}
 	}

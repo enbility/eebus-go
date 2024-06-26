@@ -62,7 +62,7 @@ func (e *EVSOC) evMeasurementDataUpdate(payload spineapi.EventPayload) {
 		filter := model.MeasurementDescriptionDataType{
 			ScopeType: util.Ptr(model.ScopeTypeTypeStateOfCharge),
 		}
-		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if evMeasurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateStateOfCharge)
 		}
 	}

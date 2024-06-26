@@ -85,7 +85,7 @@ func (e *OPEV) evLoadControlLimitDataUpdate(payload spineapi.EventPayload) {
 		LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
 		ScopeType:     util.Ptr(model.ScopeTypeTypeOverloadProtection),
 	}
-	if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+	if lc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
 	}
 }
@@ -114,7 +114,7 @@ func (e *OPEV) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) 
 			ElectricalConnectionId: values[0].ElectricalConnectionId,
 			ParameterId:            values[0].ParameterId,
 		}
-		if ec.CheckEventPayloadDataForFilter(payload.Data, filter1) {
+		if ec.CheckEventPayloadDataForFilter(payload.Data, filter1) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentLimits)
 		}
 	}

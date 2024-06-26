@@ -114,7 +114,9 @@ func (e *CEVC) evTimeSeriesDescriptionDataUpdate(payload spineapi.EventPayload) 
 		return
 	}
 
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyDemand)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyDemand)
+	}
 
 	_, err = e.TimeSlotConstraints(payload.Entity)
 	if err != nil {
@@ -128,16 +130,18 @@ func (e *CEVC) evTimeSeriesDescriptionDataUpdate(payload spineapi.EventPayload) 
 		return
 	}
 
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, DataRequestedPowerLimitsAndIncentives)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataRequestedPowerLimitsAndIncentives)
+	}
 }
 
 // the load control limit data of an EV was updated
 func (e *CEVC) evTimeSeriesDataUpdate(payload spineapi.EventPayload) {
-	if _, err := e.ChargePlan(payload.Entity); err == nil {
+	if _, err := e.ChargePlan(payload.Entity); err == nil && e.EventCB != nil {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateChargePlan)
 	}
 
-	if _, err := e.ChargePlanConstraints(payload.Entity); err == nil {
+	if _, err := e.ChargePlanConstraints(payload.Entity); err == nil && e.EventCB != nil {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateTimeSlotConstraints)
 	}
 }
@@ -152,19 +156,23 @@ func (e *CEVC) evIncentiveTableDescriptionDataUpdate(payload spineapi.EventPaylo
 	}
 
 	// check if we are required to update the plan
-	if e.evCheckIncentiveTableDescriptionUpdateRequired(payload.Entity) {
+	if e.evCheckIncentiveTableDescriptionUpdateRequired(payload.Entity) && e.EventCB != nil {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataRequestedIncentiveTableDescription)
 	}
 }
 
 // the incentive table constraint data of an EV was updated
 func (e *CEVC) evIncentiveTableConstraintsDataUpdate(payload spineapi.EventPayload) {
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIncentiveTable)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIncentiveTable)
+	}
 }
 
 // the incentive table data of an EV was updated
 func (e *CEVC) evIncentiveTableDataUpdate(payload spineapi.EventPayload) {
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIncentiveTable)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIncentiveTable)
+	}
 }
 
 // check timeSeries descriptions if constraints element has updateRequired set to true

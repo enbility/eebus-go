@@ -116,12 +116,16 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 		}
 	}
 
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, EvConnected)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, EvConnected)
+	}
 }
 
 // an EV was disconnected
 func (e *EVCC) evDisconnected(payload spineapi.EventPayload) {
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, EvDisconnected)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, EvDisconnected)
+	}
 }
 
 // the configuration key description data of an EV was updated
@@ -141,13 +145,13 @@ func (e *EVCC) evConfigurationDataUpdate(payload spineapi.EventPayload) {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeCommunicationsStandard),
 		}
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCommunicationStandard)
 		}
 
 		// Scenario 3
 		filter.KeyName = util.Ptr(model.DeviceConfigurationKeyNameTypeAsymmetricChargingSupported)
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateAsymmetricChargingSupport)
 		}
 	}
@@ -156,7 +160,7 @@ func (e *EVCC) evConfigurationDataUpdate(payload spineapi.EventPayload) {
 // the operating state of an EV was updated
 func (e *EVCC) evOperatingStateDataUpdate(payload spineapi.EventPayload) {
 	if deviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := deviceDiagnosis.GetState(); err == nil {
+		if _, err := deviceDiagnosis.GetState(); err == nil && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIdentifications)
 		}
 	}
@@ -166,7 +170,7 @@ func (e *EVCC) evOperatingStateDataUpdate(payload spineapi.EventPayload) {
 func (e *EVCC) evIdentificationDataUpdate(payload spineapi.EventPayload) {
 	if evIdentification, err := client.NewIdentification(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 4
-		if evIdentification.CheckEventPayloadDataForFilter(payload.Data) {
+		if evIdentification.CheckEventPayloadDataForFilter(payload.Data) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateIdentifications)
 		}
 	}
@@ -176,7 +180,7 @@ func (e *EVCC) evIdentificationDataUpdate(payload spineapi.EventPayload) {
 func (e *EVCC) evManufacturerDataUpdate(payload spineapi.EventPayload) {
 	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
 		// Scenario 5
-		if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil {
+		if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateManufacturerData)
 		}
 	}
@@ -197,7 +201,7 @@ func (e *EVCC) evElectricalPermittedValuesUpdate(payload spineapi.EventPayload) 
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
 		}
-		if evElectricalConnection.CheckEventPayloadDataForFilter(payload.Data, filter) {
+		if evElectricalConnection.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			// Scenario 6
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentLimits)
 		}

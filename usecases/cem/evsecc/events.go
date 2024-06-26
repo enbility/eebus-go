@@ -47,18 +47,22 @@ func (e *EVSECC) evseConnected(payload spineapi.EventPayload) {
 		_, _ = evseDeviceDiagnosis.RequestState()
 	}
 
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, EvseConnected)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, EvseConnected)
+	}
 }
 
 // an EVSE was disconnected
 func (e *EVSECC) evseDisconnected(payload spineapi.EventPayload) {
-	e.EventCB(payload.Ski, payload.Device, payload.Entity, EvseDisconnected)
+	if e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, EvseDisconnected)
+	}
 }
 
 // the manufacturer Data of an EVSE was updated
 func (e *EVSECC) evseManufacturerDataUpdate(payload spineapi.EventPayload) {
 	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil {
+		if _, err := evDeviceClassification.GetManufacturerDetails(); err == nil && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateManufacturerData)
 		}
 	}
@@ -67,7 +71,7 @@ func (e *EVSECC) evseManufacturerDataUpdate(payload spineapi.EventPayload) {
 // the operating State of an EVSE was updated
 func (e *EVSECC) evseStateUpdate(payload spineapi.EventPayload) {
 	if evDeviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := evDeviceDiagnosis.GetState(); err == nil {
+		if _, err := evDeviceDiagnosis.GetState(); err == nil && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateOperatingState)
 		}
 	}
