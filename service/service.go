@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/enbility/eebus-go/api"
@@ -96,7 +97,12 @@ func (s *Service) Setup() error {
 	}
 
 	// Create the SPINE device address, according to Protocol Specification 7.1.1.2
-	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s", vendor, sd.DeviceModel(), serial)
+	var deviceAddress string
+	vendorType := "i"
+	if _, err := strconv.Atoi(vendor); err != nil {
+		vendorType = "n"
+	}
+	deviceAddress = fmt.Sprintf("d:_%s:%s_%s%s", vendorType, vendor, sd.DeviceModel(), serial)
 
 	// Create the local SPINE device
 	s.spineLocalDevice = spine.NewDeviceLocal(
@@ -104,7 +110,7 @@ func (s *Service) Setup() error {
 		sd.DeviceModel(),
 		sd.DeviceSerialNumber(),
 		sd.Identifier(),
-		deviceAdress,
+		deviceAddress,
 		sd.DeviceType(),
 		sd.FeatureSet(),
 		sd.HeartbeatTimeout(),
