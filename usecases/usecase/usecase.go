@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"reflect"
 	"slices"
 	"sync"
 
@@ -127,7 +128,9 @@ func (u *UseCaseBase) indexAndScenariosOfEntity(entity spineapi.EntityRemoteInte
 	defer u.mux.Unlock()
 
 	for i, remoteEntity := range u.availableEntityScenarios {
-		if entity != nil && entity.Address() == remoteEntity.Entity.Address() {
+		if entity != nil && entity.Address() != nil && remoteEntity.Entity.Address() != nil &&
+			reflect.DeepEqual(entity.Address().Device, remoteEntity.Entity.Address().Device) &&
+			reflect.DeepEqual(entity.Address().Entity, remoteEntity.Entity.Address().Entity) {
 			return i, remoteEntity.Scenarios
 		}
 	}
