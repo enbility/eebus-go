@@ -127,7 +127,7 @@ func (u *UseCaseBase) indexAndScenariosOfEntity(entity spineapi.EntityRemoteInte
 	defer u.mux.Unlock()
 
 	for i, remoteEntity := range u.availableEntityScenarios {
-		if entity == remoteEntity.Entity {
+		if entity != nil && entity.Address() == remoteEntity.Entity.Address() {
 			return i, remoteEntity.Scenarios
 		}
 	}
