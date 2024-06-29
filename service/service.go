@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/enbility/eebus-go/api"
@@ -32,6 +33,8 @@ type Service struct {
 	spineLocalDevice spineapi.DeviceLocalInterface
 
 	serviceHandler api.ServiceReaderInterface
+
+	usecases []api.UseCaseInterface
 
 	// defines wether a user interaction to accept pairing is possible
 	isPairingPossible bool
@@ -94,7 +97,16 @@ func (s *Service) Setup() error {
 	}
 
 	// Create the SPINE device address, according to Protocol Specification 7.1.1.2
-	deviceAdress := fmt.Sprintf("d:_i:%s_%s%s", vendor, sd.DeviceModel(), serial)
+	var deviceAddress string
+	vendorType := "i"
+	if _, err := strconv.Atoi(vendor); err != nil {
+		vendorType = "n"
+	}
+	deviceAddress = fmt.Sprintf("d:_%s:%s_%s%s", vendorType, vendor, sd.DeviceModel(), serial)
+
+	if len(deviceAddress) > 256 {
+		return fmt.Errorf("generated device address may not be longer than 256 characters: %s", deviceAddress)
+	}
 
 	// Create the local SPINE device
 	s.spineLocalDevice = spine.NewDeviceLocal(
@@ -102,7 +114,7 @@ func (s *Service) Setup() error {
 		sd.DeviceModel(),
 		sd.DeviceSerialNumber(),
 		sd.Identifier(),
-		deviceAdress,
+		deviceAddress,
 		sd.DeviceType(),
 		sd.FeatureSet(),
 		sd.HeartbeatTimeout(),
@@ -146,6 +158,14 @@ func (s *Service) Start() {
 func (s *Service) Shutdown() {
 	// Shut down all running connections
 	s.connectionsHub.Shutdown()
+}
+
+// add a use case to the service
+func (s *Service) AddUseCase(useCase api.UseCaseInterface) {
+	s.usecases = append(s.usecases, useCase)
+
+	useCase.AddFeatures()
+	useCase.AddUseCase()
 }
 
 func (s *Service) Configuration() *api.Configuration {

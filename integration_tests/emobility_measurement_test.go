@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/enbility/eebus-go/features"
+	features "github.com/enbility/eebus-go/features/client"
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
@@ -81,7 +81,12 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 	measurement := model.MeasurementTypeTypeCurrent
 	commodity := model.CommodityTypeTypeElectricity
 	scope := model.ScopeTypeTypeACCurrent
-	data, err := s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: &measurement,
+		CommodityType:   &commodity,
+		ScopeType:       &scope,
+	}
+	data, err := s.measurement.GetDataForFilter(filter)
 
 	// Assert
 	assert.Nil(s.T(), err)
@@ -91,7 +96,9 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 
 	measurement = model.MeasurementTypeTypePower
 	scope = model.ScopeTypeTypeACPower
-	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
+	filter.MeasurementType = &measurement
+	filter.ScopeType = &scope
+	data, err = s.measurement.GetDataForFilter(filter)
 
 	// Assert
 	assert.Nil(s.T(), err)
@@ -101,7 +108,9 @@ func (s *EmobilityMeasurementSuite) TestGetValuesPerPhaseForScope() {
 
 	measurement = model.MeasurementTypeTypeEnergy
 	scope = model.ScopeTypeTypeCharge
-	data, err = s.measurement.GetValuesForTypeCommodityScope(measurement, commodity, scope)
+	filter.MeasurementType = &measurement
+	filter.ScopeType = &scope
+	data, err = s.measurement.GetDataForFilter(filter)
 
 	// Assert
 	assert.Nil(s.T(), err)

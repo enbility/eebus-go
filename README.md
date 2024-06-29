@@ -24,9 +24,10 @@ The supported functionality contains:
 ## Packages
 
 - `api`: global API interface definitions and eebus service configuration
-- `features`: provides feature helpers with the local SPINE feature having the client role and the remote SPINE feature being the server for easy access to commonly used functions
+- `features/client`: provides feature helpers with the local SPINE feature having the client role and the remote SPINE feature being the server for easy access to commonly used functions
+- `features/server`: provides feature helpers with the local SPINE feature having the server role for easy access to commonly used functions
 - `service`: central package which provides access to SHIP and SPINE. Use this to create the EEBUS service, its configuration and connect to remote EEBUS services
-- `util`: package with various useful helper functions
+- `usecases`: containing actor and use case based implementations with use case scenario based APIs and events
 
 ## Usage
 

@@ -15,8 +15,10 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/service"
+	"github.com/enbility/eebus-go/usecases/cs/lpc"
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
+	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 )
 
@@ -24,6 +26,10 @@ var remoteSki string
 
 type evse struct {
 	myService *service.Service
+
+	uclpc *lpc.LPC
+
+	isConnected bool
 }
 
 func (h *evse) run() {
@@ -82,6 +88,10 @@ func (h *evse) run() {
 		return
 	}
 
+	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeEVSE)
+	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
+	h.myService.AddUseCase(h.uclpc)
+
 	if len(remoteSki) == 0 {
 		os.Exit(0)
 	}
@@ -94,9 +104,13 @@ func (h *evse) run() {
 
 // EEBUSServiceHandler
 
-func (h *evse) RemoteSKIConnected(service api.ServiceInterface, ski string) {}
+func (h *evse) RemoteSKIConnected(service api.ServiceInterface, ski string) {
+	h.isConnected = true
+}
 
-func (h *evse) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {}
+func (h *evse) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {
+	h.isConnected = false
+}
 
 func (h *evse) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
 }
@@ -115,6 +129,30 @@ func (h *evse) ServicePairingDetailUpdate(ski string, detail *shipapi.Connection
 
 func (h *evse) AllowWaitingForTrust(ski string) bool {
 	return ski == remoteSki
+}
+
+// LPC Event Handler
+
+func (h *evse) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
+	if !h.isConnected {
+		return
+	}
+
+	switch event {
+	case lpc.WriteApprovalRequired:
+		// get pending writes
+		pendingWrites := h.uclpc.PendingConsumptionLimits()
+
+		// approve any write
+		for msgCounter, write := range pendingWrites {
+			fmt.Println("Approving write with msgCounter", msgCounter, "and limit", write.Value, "W")
+			h.uclpc.ApproveOrDenyConsumptionLimit(msgCounter, true, "")
+		}
+	case lpc.DataUpdateLimit:
+		if currentLimit, err := h.uclpc.ConsumptionLimit(); err != nil {
+			fmt.Println("New Limit set to", currentLimit.Value, "W")
+		}
+	}
 }
 
 // main app
@@ -145,19 +183,19 @@ func main() {
 // Logging interface
 
 func (h *evse) Trace(args ...interface{}) {
-	h.print("TRACE", args...)
+	// h.print("TRACE", args...)
 }
 
 func (h *evse) Tracef(format string, args ...interface{}) {
-	h.printFormat("TRACE", format, args...)
+	// h.printFormat("TRACE", format, args...)
 }
 
 func (h *evse) Debug(args ...interface{}) {
-	h.print("DEBUG", args...)
+	// h.print("DEBUG", args...)
 }
 
 func (h *evse) Debugf(format string, args ...interface{}) {
-	h.printFormat("DEBUG", format, args...)
+	// h.printFormat("DEBUG", format, args...)
 }
 
 func (h *evse) Info(args ...interface{}) {
