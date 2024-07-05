@@ -249,9 +249,58 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				ScopeType:              util.Ptr(model.ScopeTypeTypeACPowerTotal),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
 				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
 				ScopeType:              util.Ptr(model.ScopeTypeTypeACCurrent),
 				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+				ScopeType:              util.Ptr(model.ScopeTypeTypeACCurrent),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(2)),
+				ScopeType:              util.Ptr(model.ScopeTypeTypeACCurrent),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(4)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(3)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(5)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(4)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(6)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(5)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(7)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(6)),
+				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
+				AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
 			},
 		},
 	}
@@ -271,6 +320,49 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
 				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(2)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(3)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(4)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(5)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(6)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeCharge),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
 			},
 		},
 	}
@@ -287,7 +379,27 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				Value:         model.NewScaledNumberType(10),
+				Value:         model.NewScaledNumberType(5.09),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Value:         model.NewScaledNumberType(4.04),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				Value:         model.NewScaledNumberType(5.09),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(3)),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(4)),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(5)),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(6)),
 			},
 		},
 	}
@@ -297,7 +409,8 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 2300.0, data[0])
+	assert.Equal(s.T(), 3, len(data))
+	assert.Equal(s.T(), 1170.7, data[0])
 }
 
 func (s *CemEVCEMSuite) Test_EVChargedEnergy() {
