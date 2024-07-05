@@ -131,7 +131,6 @@ func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 
 	var data []model.MeasurementDataType
 
-	powerAvailable := true
 	filter := model.MeasurementDescriptionDataType{
 		MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
@@ -140,15 +139,7 @@ func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 	data, err = evMeasurement.GetDataForFilter(filter)
 	// Elli Charger Connect/Pro (Gen1) returns power descriptions, but only measurements without actual values, see test caseTest_EVPowerPerPhase_Current
 	if err != nil || len(data) == 0 || data[0].Value == nil {
-		powerAvailable = false
-
-		// If power is not provided, fall back to power calculations via currents
-		filter.MeasurementType = util.Ptr(model.MeasurementTypeTypeCurrent)
-		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACCurrent)
-		data, err = evMeasurement.GetDataForFilter(filter)
-		if err != nil || len(data) == 0 {
-			return nil, api.ErrDataNotAvailable
-		}
+		return nil, api.ErrDataNotAvailable
 	}
 
 	var result []float64
@@ -169,10 +160,6 @@ func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 			}
 
 			phaseValue := item.Value.GetValue()
-			if !powerAvailable {
-				phaseValue *= e.service.Configuration().Voltage()
-			}
-
 			result = append(result, phaseValue)
 		}
 	}

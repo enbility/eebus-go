@@ -27,54 +27,53 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	model := "model"
 	serial := "serial"
 	port := 4567
-	volt := 230.0
 	heartbeatTimeout := time.Second * 4
 	entityTypes := []spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}
 
 	config, err := NewConfiguration("", brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, 0, certificate, volt, heartbeatTimeout)
+		entityTypes, 0, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration("", brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, volt, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, "", model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, 230, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, "", serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, 230, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, "", spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, 230, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, serial, "",
-		entityTypes, port, certificate, 230, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{}, port, certificate, 230, heartbeatTimeout)
+		[]spinemodel.EntityTypeType{}, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
 	config, err = NewConfiguration(vendor, brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, 230, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.NotNil(s.T(), config)
 	assert.Nil(s.T(), err)
@@ -109,9 +108,6 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config.SetAlternateMdnsServiceName(alternate)
 	id = config.MdnsServiceName()
 	assert.Equal(s.T(), alternate, id)
-
-	voltage := config.Voltage()
-	assert.Equal(s.T(), volt, voltage)
 
 	portValue := config.Port()
 	assert.Equal(s.T(), port, portValue)

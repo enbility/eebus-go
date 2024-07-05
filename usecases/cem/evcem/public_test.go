@@ -408,9 +408,8 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
-	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 3, len(data))
-	assert.Equal(s.T(), 1170.7, data[0])
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0, len(data))
 }
 
 func (s *CemEVCEMSuite) Test_EVChargedEnergy() {
@@ -456,4 +455,112 @@ func (s *CemEVCEMSuite) Test_EVChargedEnergy() {
 	data, err = s.sut.EnergyCharged(s.evEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 80.0, data)
+}
+
+func (s *CemEVCEMSuite) Test_EVChargedEnergy_ElliGen1() {
+	data, err := s.sut.EnergyCharged(s.mockRemoteEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	data, err = s.sut.EnergyCharged(s.evEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	measDesc := &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(2)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(3)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(4)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(5)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(6)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeCharge),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyCharged(s.evEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	measData := &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(5.09),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Value:         model.NewScaledNumberType(4.04),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				Value:         model.NewScaledNumberType(5.09),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(3)),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(4)),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(5)),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(6)),
+			},
+		},
+	}
+
+	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyCharged(s.evEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
 }

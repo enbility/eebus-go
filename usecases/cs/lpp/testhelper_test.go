@@ -51,7 +51,7 @@ func (s *CsLPPSuite) BeforeTest(suiteName, testName string) {
 		"test", "test", "test", "test",
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
-		9999, cert, 230.0, time.Second*4)
+		9999, cert, time.Second*4)
 
 	serviceHandler := mocks.NewServiceReaderInterface(s.T())
 	serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return().Maybe()
