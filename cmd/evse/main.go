@@ -74,7 +74,7 @@ func (h *evse) run() {
 		"Demo", "Demo", "EVSE", "234567890",
 		model.DeviceTypeTypeChargingStation,
 		[]model.EntityTypeType{model.EntityTypeTypeEVSE},
-		port, certificate, 230, time.Second*4)
+		port, certificate, time.Second*4)
 	if err != nil {
 		log.Fatal(err)
 	}

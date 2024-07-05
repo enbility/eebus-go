@@ -50,7 +50,7 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	var err error
 	s.config, err = api.NewConfiguration(
 		"vendor", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
-		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
+		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, time.Second*4)
 	assert.Nil(s.T(), nil, err)
 
 	s.sut = NewService(s.config, s.serviceReader)
@@ -179,7 +179,7 @@ func (s *ServiceSuite) Test_Setup_IANA() {
 	certificate := tls.Certificate{}
 	s.config, err = api.NewConfiguration(
 		"12345", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
-		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
+		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, time.Second*4)
 	assert.Nil(s.T(), nil, err)
 
 	s.sut = NewService(s.config, s.serviceReader)
@@ -219,7 +219,7 @@ func (s *ServiceSuite) Test_Setup_Error_DeviceName() {
 		"modelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodel",
 		"serialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserial",
 		model.DeviceTypeTypeEnergyManagementSystem,
-		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, 230.0, time.Second*4)
+		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, time.Second*4)
 	assert.Nil(s.T(), nil, err)
 
 	s.sut = NewService(s.config, s.serviceReader)

@@ -80,7 +80,7 @@ func (h *hems) run() {
 		"Demo", "Demo", "HEMS", "123456789",
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
-		port, certificate, 230, time.Second*4)
+		port, certificate, time.Second*4)
 	if err != nil {
 		log.Fatal(err)
 	}

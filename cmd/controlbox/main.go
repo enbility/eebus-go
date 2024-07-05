@@ -78,7 +78,7 @@ func (h *controlbox) run() {
 		"Demo", "Demo", "ControlBox", "123456789",
 		model.DeviceTypeTypeElectricitySupplySystem,
 		[]model.EntityTypeType{model.EntityTypeTypeGridGuard},
-		port, certificate, 230, time.Second*60)
+		port, certificate, time.Second*60)
 	if err != nil {
 		log.Fatal(err)
 	}
