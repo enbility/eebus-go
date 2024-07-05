@@ -155,6 +155,14 @@ func (s *FeatureSuite) Test_requestData() {
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 
+	counter, err = s.testFeature2.requestData(model.FunctionTypeMeasurementDescriptionListData, nil, nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	counter, err = s.testFeature2.requestData(model.FunctionTypeLoadControlLimitListData, nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
 	selectors2 := &model.LoadControlLimitListDataSelectorsType{
 		LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
 	}
