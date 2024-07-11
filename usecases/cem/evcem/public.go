@@ -1,8 +1,6 @@
 package evcem
 
 import (
-	"time"
-
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
@@ -64,8 +62,6 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 	}
 
 	var result []float64
-	refetch := true
-	compare := time.Now().UTC().Add(-1 * time.Minute)
 
 	for _, phase := range ucapi.PhaseNameMapping {
 		for _, item := range data {
@@ -84,30 +80,7 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 
 			phaseValue := item.Value.GetValue()
 			result = append(result, phaseValue)
-
-			if item.Timestamp == nil {
-				continue
-			}
-
-			if timestamp, err := item.Timestamp.GetTime(); err == nil {
-				refetch = timestamp.Before(compare)
-			}
-
-			// the MEB cars report the wrong NTP time by 1 or 2 hours (depending on DST)
-			// and PMCC uses NTP from the EV, so check these cases as well
-			for i := 0; i < 2 && refetch; i++ {
-				compare = compare.Add(-1 * time.Hour)
-				if timestamp, err := item.Timestamp.GetTime(); err == nil {
-					refetch = timestamp.Before(compare)
-				}
-			}
 		}
-	}
-
-	// if there was no timestamp provided or the time for the last value
-	// is older than 1 minute, send a read request
-	if refetch {
-		_, _ = evMeasurement.RequestData(nil, nil)
 	}
 
 	return result, nil
@@ -137,7 +110,7 @@ func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
 	}
 	data, err = evMeasurement.GetDataForFilter(filter)
-	// Elli Charger Connect/Pro (Gen1) returns power descriptions, but only measurements without actual values, see test caseTest_EVPowerPerPhase_Current
+	// Elli Charger Connect/Pro (Gen1) returns power descriptions, but only measurements without actual values, see test case Test_EVPowerPerPhase_Current
 	if err != nil || len(data) == 0 || data[0].Value == nil {
 		return nil, api.ErrDataNotAvailable
 	}
