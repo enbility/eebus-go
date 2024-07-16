@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/enbility/eebus-go/api"
 	spineapi "github.com/enbility/spine-go/api"
@@ -135,7 +136,8 @@ func (f *Feature) requestData(function model.FunctionType, selectors any, elemen
 	fTypes := f.featureRemote.Operations()
 	op, exists := fTypes[function]
 	if !exists || !op.Read() {
-		return nil, api.ErrOperationOnFunctionNotSupported
+		errWithFunction := fmt.Sprintf("%s %s", api.ErrOperationOnFunctionNotSupported.Error(), function)
+		return nil, errors.New(errWithFunction)
 	}
 
 	// remove the selectors if the remote does not allow partial reads

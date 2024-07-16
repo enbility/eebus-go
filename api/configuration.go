@@ -64,11 +64,6 @@ type Configuration struct {
 	// The certificate used for the service and its connections, required
 	certificate tls.Certificate
 
-	// The sites grid voltage
-	// This is useful when e.g. power values are not available and therefor
-	// need to be calculated using the current values
-	voltage float64
-
 	// The timeout to be used for sending heartbeats
 	heartbeatTimeout time.Duration
 
@@ -86,13 +81,11 @@ func NewConfiguration(
 	entityTypes []model.EntityTypeType,
 	port int,
 	certificate tls.Certificate,
-	voltage float64,
 	heartbeatTimeout time.Duration,
 ) (*Configuration, error) {
 	configuration := &Configuration{
 		certificate:           certificate,
 		port:                  port,
-		voltage:               voltage,
 		heartbeatTimeout:      heartbeatTimeout,
 		mdnsProviderSelection: mdns.MdnsProviderSelectionGoZeroConfOnly,
 	}
@@ -240,11 +233,6 @@ func (s *Configuration) Port() int {
 
 func (s *Configuration) SetCertificate(cert tls.Certificate) {
 	s.certificate = cert
-}
-
-// return the sites predefined grid voltage
-func (s *Configuration) Voltage() float64 {
-	return s.voltage
 }
 
 func (s *Configuration) HeartbeatTimeout() time.Duration {
