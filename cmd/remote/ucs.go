@@ -48,6 +48,6 @@ func (r *Remote) PropagateEvent(
 	params["device"] = device.Address()
 	params["entity"] = entity.Address()
 	for _, conn := range r.connections {
-		conn.Notify(context.Background(), string(event), params)
+		_ = conn.Notify(context.Background(), string(event), params)
 	}
 }

@@ -196,7 +196,7 @@ func (r Remote) RemoteSKIConnected(service api.ServiceInterface, ski string) {
 		}
 
 		for _, conn := range r.connections {
-			conn.Notify(context.Background(), "remote/RemoteSKIConnected", params)
+			_ = conn.Notify(context.Background(), "remote/RemoteSKIConnected", params)
 		}
 	}()
 }
@@ -205,7 +205,7 @@ func (r Remote) RemoteSKIDisconnected(service api.ServiceInterface, ski string) 
 	params := make(map[string]interface{}, 1)
 	params["ski"] = ski
 	for _, conn := range r.connections {
-		conn.Notify(context.Background(), "remote/RemoteSKIDisconnected", params)
+		_ = conn.Notify(context.Background(), "remote/RemoteSKIDisconnected", params)
 	}
 }
 
@@ -213,7 +213,7 @@ func (r *Remote) VisibleRemoteServicesUpdated(service api.ServiceInterface, entr
 	r.remoteServices = entries
 
 	for _, conn := range r.connections {
-		conn.Notify(context.Background(), "remote/VisibleRemoteServicesUpdated", entries)
+		_ = conn.Notify(context.Background(), "remote/VisibleRemoteServicesUpdated", entries)
 	}
 }
 
@@ -223,7 +223,7 @@ func (r Remote) ServiceShipIDUpdate(ski string, shipID string) {
 	params["shipID"] = shipID
 
 	for _, conn := range r.connections {
-		conn.Notify(context.Background(), "remote/ServiceShipIDUpdate", params)
+		_ = conn.Notify(context.Background(), "remote/ServiceShipIDUpdate", params)
 	}
 }
 
