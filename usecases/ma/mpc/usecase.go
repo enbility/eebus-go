@@ -16,7 +16,7 @@ type MPC struct {
 var _ ucapi.MaMPCInterface = (*MPC)(nil)
 
 func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MPC {
-	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeMonitoringAppliance}
+	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeMonitoredUnit}
 	validEntityTypes := []model.EntityTypeType{
 		model.EntityTypeTypeCompressor,
 		model.EntityTypeTypeElectricalImmersionHeater,
