@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -152,20 +151,6 @@ func (r *Remote) handleRPC(ctx context.Context, req *jsonrpc2.Request) (interfac
 		switch numOut {
 		case 0:
 			resp = []interface{}{}
-		case 1:
-			resp = output[0]
-			log.Printf("resp: %v", resp)
-		case 2:
-			if output[1] == nil {
-				resp = output[0]
-			} else {
-				if err, ok := output[1].(error); ok {
-					log.Printf("error handling %v: %v", req.Method, err)
-					return nil, jsonrpc2.ErrInternal
-				} else {
-					resp = output
-				}
-			}
 		default:
 			resp = output
 		}
