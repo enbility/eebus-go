@@ -15,7 +15,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/usecases/cem/evcc"
 	"github.com/enbility/eebus-go/usecases/cem/evsecc"
-	"github.com/enbility/eebus-go/usecases/eg/lpc"
+	eglpc "github.com/enbility/eebus-go/usecases/eg/lpc"
 	"github.com/enbility/eebus-go/usecases/ma/mpc"
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
@@ -111,18 +111,33 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r.RegisterUseCase(model.EntityTypeTypeCEM, "EG-LPC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
-		return lpc.NewLPC(localEntity, eventCB)
+	err = r.RegisterUseCase(model.EntityTypeTypeCEM, "EG-LPC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
+		return eglpc.NewLPC(localEntity, eventCB)
 	})
-	r.RegisterUseCase(model.EntityTypeTypeCEM, "MA-MPC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = r.RegisterUseCase(model.EntityTypeTypeCEM, "MA-MPC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
 		return mpc.NewMPC(localEntity, eventCB)
 	})
-	r.RegisterUseCase(model.EntityTypeTypeCEM, "CEM-EVCC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = r.RegisterUseCase(model.EntityTypeTypeCEM, "CEM-EVCC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
 		return evcc.NewEVCC(r.service, localEntity, eventCB)
 	})
-	r.RegisterUseCase(model.EntityTypeTypeCEM, "CEM-EVSECC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = r.RegisterUseCase(model.EntityTypeTypeCEM, "CEM-EVSECC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
 		return evsecc.NewEVSECC(localEntity, eventCB)
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	ctx, cancelCtx := context.WithCancel(context.Background())
 	if err = r.Listen(ctx, "tcp", net.JoinHostPort("::", strconv.Itoa(3393))); err != nil {

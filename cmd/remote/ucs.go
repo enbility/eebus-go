@@ -18,7 +18,7 @@ const (
 
 type UseCaseBuilder func(spineapi.EntityLocalInterface, api.EntityEventCallback) api.UseCaseInterface
 
-func (r *Remote) RegisterUseCase(entityType model.EntityTypeType, usecaseId string, builder UseCaseBuilder) {
+func (r *Remote) RegisterUseCase(entityType model.EntityTypeType, usecaseId string, builder UseCaseBuilder) error {
 	// entityType/uc
 	var identifier UseCaseId = UseCaseId(fmt.Sprintf("%s/%s", entityType, usecaseId))
 
@@ -33,7 +33,7 @@ func (r *Remote) RegisterUseCase(entityType model.EntityTypeType, usecaseId stri
 	})
 	r.service.AddUseCase(uc)
 
-	r.registerStaticReceiverProxy(usecaseId, uc)
+	return r.registerStaticReceiverProxy(usecaseId, uc)
 }
 
 func (r *Remote) PropagateEvent(
