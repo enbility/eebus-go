@@ -22,7 +22,7 @@ type LoadLimitsPhase struct {
 	Phase        model.ElectricalConnectionPhaseNameType // the phase
 	IsChangeable bool                                    // if the value can be changed via write, ignored when writing data
 	IsActive     bool                                    // if the limit is active
-	Value        float64                                 // the limit in A
+	Value        float64                                 // the limit
 }
 
 // Defines a limit data set
@@ -30,7 +30,7 @@ type LoadLimit struct {
 	Duration     time.Duration // the duration of the limit,
 	IsChangeable bool          // if the value can be changed via write, ignored when writing data
 	IsActive     bool          // if the limit is active
-	Value        float64       // the limit in A
+	Value        float64       // the limit
 }
 
 // identification
