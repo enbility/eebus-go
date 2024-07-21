@@ -75,10 +75,10 @@ func (e *LPP) deviceConnected(payload spineapi.EventPayload) {
 	// check if there is a DeviceDiagnosis server on one or more entities
 	remoteDevice := payload.Device
 
-	var deviceDiagEntites []spineapi.EntityRemoteInterface
+	var deviceDiagEntities []spineapi.EntityRemoteInterface
 
-	entites := remoteDevice.Entities()
-	for _, entity := range entites {
+	entities := remoteDevice.Entities()
+	for _, entity := range entities {
 		if !e.IsCompatibleEntityType(entity) {
 			continue
 		}
@@ -88,19 +88,19 @@ func (e *LPP) deviceConnected(payload spineapi.EventPayload) {
 			continue
 		}
 
-		deviceDiagEntites = append(deviceDiagEntites, entity)
+		deviceDiagEntities = append(deviceDiagEntities, entity)
 	}
 
-	logging.Log().Debug("cs-lpp:", len(deviceDiagEntites), "DeviceDiagnosis Server found")
+	logging.Log().Debug("cs-lpp:", len(deviceDiagEntities), "DeviceDiagnosis Server found")
 
 	// the remote device does not have a DeviceDiagnosis Server, which it should
-	if len(deviceDiagEntites) == 0 {
+	if len(deviceDiagEntities) == 0 {
 		return
 	}
 
 	// we only found one matching entity, as it should be, subscribe
-	if len(deviceDiagEntites) == 1 {
-		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, deviceDiagEntites[0]); err == nil {
+	if len(deviceDiagEntities) == 1 {
+		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, deviceDiagEntities[0]); err == nil {
 			e.heartbeatDiag = localDeviceDiag
 			if _, err := localDeviceDiag.Subscribe(); err != nil {
 				logging.Log().Debug(err)

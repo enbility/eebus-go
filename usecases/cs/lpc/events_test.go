@@ -130,7 +130,7 @@ func (s *CsLPCSuite) Test_multipleDeviceDiagServer() {
 		},
 	}
 	var featureInformations []model.NodeManagementDetailedDiscoveryFeatureInformationType
-	// 4 entites
+	// 4 entities
 	for i := 1; i < 5; i++ {
 		for index, feature := range remoteFeatures {
 			supportedFcts := []model.FunctionPropertyType{}
