@@ -189,12 +189,19 @@ func (e *LPP) AddFeatures() {
 				Unit:      util.Ptr(model.UnitOfMeasurementTypeW),
 			},
 		)
-		dcs.AddKeyValueDescription(
-			model.DeviceConfigurationKeyValueDescriptionDataType{
-				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
-				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
-			},
-		)
+
+		// only add if it doesn't exist yet
+		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
+			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+		}
+		if data, err := dcs.GetKeyValueDescriptionsForFilter(filter); err == nil && len(data) == 0 {
+			dcs.AddKeyValueDescription(
+				model.DeviceConfigurationKeyValueDescriptionDataType{
+					KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+					ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
+				},
+			)
+		}
 
 		value := &model.DeviceConfigurationKeyValueValueType{
 			ScaledNumber: model.NewScaledNumberType(0),

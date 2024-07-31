@@ -79,7 +79,7 @@ func (e *LPP) SetProductionLimit(limit ucapi.LoadLimit) (resultErr error) {
 	return loadControlf.UpdateLimitDataForId(limitData, deleteTimePeriod, limidId)
 }
 
-// return the currently pending incoming consumption write limits
+// return the currently pending incoming production write limits
 func (e *LPP) PendingProductionLimits() map[model.MsgCounterType]ucapi.LoadLimit {
 	result := make(map[model.MsgCounterType]ucapi.LoadLimit)
 
@@ -127,7 +127,7 @@ func (e *LPP) PendingProductionLimits() map[model.MsgCounterType]ucapi.LoadLimit
 	return result
 }
 
-// accept or deny an incoming consumption write limit
+// accept or deny an incoming production write limit
 //
 // use PendingProductionLimits to get the list of currently pending requests
 func (e *LPP) ApproveOrDenyProductionLimit(msgCounter model.MsgCounterType, approve bool, reason string) {
