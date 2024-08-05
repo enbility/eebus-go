@@ -26,7 +26,7 @@ type UseCaseBase struct {
 	availableEntityScenarios []api.RemoteEntityScenarios // map of scenarios and their availability for each compatible remote entity
 
 	validActorTypes  []model.UseCaseActorType // valid remote actor types for this use case
-	validEntityTypes []model.EntityTypeType   // valid remote entity types for this use case
+	validEntityTypes []model.EntityTypeType   // valid remote entity types for this use case (if nil all are valid)
 
 	mux sync.Mutex
 }
@@ -89,6 +89,10 @@ func (u *UseCaseBase) UpdateUseCaseAvailability(available bool) {
 func (u *UseCaseBase) IsCompatibleEntityType(entity spineapi.EntityRemoteInterface) bool {
 	if entity == nil {
 		return false
+	}
+
+	if u.validEntityTypes == nil {
+		return true
 	}
 
 	return slices.Contains(u.validEntityTypes, entity.EntityType())

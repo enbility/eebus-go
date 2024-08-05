@@ -81,7 +81,7 @@ func (u *UseCaseBase) useCaseDataUpdate(
 			}
 
 			for _, entity := range entitiesToCheck {
-				if !slices.Contains(u.validEntityTypes, entity.EntityType()) {
+				if u.validEntityTypes != nil && !slices.Contains(u.validEntityTypes, entity.EntityType()) {
 					continue
 				}
 
