@@ -196,6 +196,62 @@ func (_c *EgLPCInterface_ConsumptionLimit_Call) RunAndReturn(run func(spine_goap
 	return _c
 }
 
+// ConsumptionNominalMax provides a mock function with given fields: entity
+func (_m *EgLPCInterface) ConsumptionNominalMax(entity spine_goapi.EntityRemoteInterface) (float64, error) {
+	ret := _m.Called(entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ConsumptionNominalMax")
+	}
+
+	var r0 float64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) (float64, error)); ok {
+		return rf(entity)
+	}
+	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) float64); ok {
+		r0 = rf(entity)
+	} else {
+		r0 = ret.Get(0).(float64)
+	}
+
+	if rf, ok := ret.Get(1).(func(spine_goapi.EntityRemoteInterface) error); ok {
+		r1 = rf(entity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// EgLPCInterface_ConsumptionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConsumptionNominalMax'
+type EgLPCInterface_ConsumptionNominalMax_Call struct {
+	*mock.Call
+}
+
+// ConsumptionNominalMax is a helper method to define mock.On call
+//   - entity spine_goapi.EntityRemoteInterface
+func (_e *EgLPCInterface_Expecter) ConsumptionNominalMax(entity interface{}) *EgLPCInterface_ConsumptionNominalMax_Call {
+	return &EgLPCInterface_ConsumptionNominalMax_Call{Call: _e.mock.On("ConsumptionNominalMax", entity)}
+}
+
+func (_c *EgLPCInterface_ConsumptionNominalMax_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *EgLPCInterface_ConsumptionNominalMax_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(spine_goapi.EntityRemoteInterface))
+	})
+	return _c
+}
+
+func (_c *EgLPCInterface_ConsumptionNominalMax_Call) Return(_a0 float64, _a1 error) *EgLPCInterface_ConsumptionNominalMax_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *EgLPCInterface_ConsumptionNominalMax_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (float64, error)) *EgLPCInterface_ConsumptionNominalMax_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // FailsafeConsumptionActivePowerLimit provides a mock function with given fields: entity
 func (_m *EgLPCInterface) FailsafeConsumptionActivePowerLimit(entity spine_goapi.EntityRemoteInterface) (float64, error) {
 	ret := _m.Called(entity)
@@ -397,62 +453,6 @@ func (_c *EgLPCInterface_IsScenarioAvailableAtEntity_Call) Return(_a0 bool) *EgL
 }
 
 func (_c *EgLPCInterface_IsScenarioAvailableAtEntity_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface, uint) bool) *EgLPCInterface_IsScenarioAvailableAtEntity_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// PowerConsumptionNominalMax provides a mock function with given fields: entity
-func (_m *EgLPCInterface) PowerConsumptionNominalMax(entity spine_goapi.EntityRemoteInterface) (float64, error) {
-	ret := _m.Called(entity)
-
-	if len(ret) == 0 {
-		panic("no return value specified for PowerConsumptionNominalMax")
-	}
-
-	var r0 float64
-	var r1 error
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) (float64, error)); ok {
-		return rf(entity)
-	}
-	if rf, ok := ret.Get(0).(func(spine_goapi.EntityRemoteInterface) float64); ok {
-		r0 = rf(entity)
-	} else {
-		r0 = ret.Get(0).(float64)
-	}
-
-	if rf, ok := ret.Get(1).(func(spine_goapi.EntityRemoteInterface) error); ok {
-		r1 = rf(entity)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// EgLPCInterface_PowerConsumptionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PowerConsumptionNominalMax'
-type EgLPCInterface_PowerConsumptionNominalMax_Call struct {
-	*mock.Call
-}
-
-// PowerConsumptionNominalMax is a helper method to define mock.On call
-//   - entity spine_goapi.EntityRemoteInterface
-func (_e *EgLPCInterface_Expecter) PowerConsumptionNominalMax(entity interface{}) *EgLPCInterface_PowerConsumptionNominalMax_Call {
-	return &EgLPCInterface_PowerConsumptionNominalMax_Call{Call: _e.mock.On("PowerConsumptionNominalMax", entity)}
-}
-
-func (_c *EgLPCInterface_PowerConsumptionNominalMax_Call) Run(run func(entity spine_goapi.EntityRemoteInterface)) *EgLPCInterface_PowerConsumptionNominalMax_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(spine_goapi.EntityRemoteInterface))
-	})
-	return _c
-}
-
-func (_c *EgLPCInterface_PowerConsumptionNominalMax_Call) Return(_a0 float64, _a1 error) *EgLPCInterface_PowerConsumptionNominalMax_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *EgLPCInterface_PowerConsumptionNominalMax_Call) RunAndReturn(run func(spine_goapi.EntityRemoteInterface) (float64, error)) *EgLPCInterface_PowerConsumptionNominalMax_Call {
 	_c.Call.Return(run)
 	return _c
 }

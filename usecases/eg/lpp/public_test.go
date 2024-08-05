@@ -327,11 +327,11 @@ func (s *EgLPPSuite) Test_WriteFailsafeDurationMinimum() {
 }
 
 func (s *EgLPPSuite) Test_PowerProductionNominalMax() {
-	data, err := s.sut.PowerProductionNominalMax(s.mockRemoteEntity)
+	data, err := s.sut.ProductionNominalMax(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
 
-	data, err = s.sut.PowerProductionNominalMax(s.monitoredEntity)
+	data, err = s.sut.ProductionNominalMax(s.monitoredEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
 
@@ -351,7 +351,27 @@ func (s *EgLPPSuite) Test_PowerProductionNominalMax() {
 	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
-	data, err = s.sut.PowerProductionNominalMax(s.monitoredEntity)
+	data, err = s.sut.ProductionNominalMax(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	charData = &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
+				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax),
+				Value:                  model.NewScaledNumberType(8000),
+			},
+		},
+	}
+
+	rFeature = s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.ProductionNominalMax(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 8000.0, data)
 }

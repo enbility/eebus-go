@@ -83,9 +83,9 @@ type EgLPCInterface interface {
 	// Scenario 4
 
 	// return nominal maximum active (real) power the Controllable System is
-	// able to consume according to the device label or data sheet.
+	// able to consume according to the contract (EMS), device label or data sheet.
 	//
 	// parameters:
 	//   - entity: the entity of the e.g. EVSE
-	PowerConsumptionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error)
+	ConsumptionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error)
 }
