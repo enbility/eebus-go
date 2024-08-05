@@ -175,61 +175,6 @@ func (_c *CsLPPInterface_AvailableScenariosForEntity_Call) RunAndReturn(run func
 	return _c
 }
 
-// ContractualProductionNominalMax provides a mock function with given fields:
-func (_m *CsLPPInterface) ContractualProductionNominalMax() (float64, error) {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for ContractualProductionNominalMax")
-	}
-
-	var r0 float64
-	var r1 error
-	if rf, ok := ret.Get(0).(func() (float64, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() float64); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(float64)
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// CsLPPInterface_ContractualProductionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ContractualProductionNominalMax'
-type CsLPPInterface_ContractualProductionNominalMax_Call struct {
-	*mock.Call
-}
-
-// ContractualProductionNominalMax is a helper method to define mock.On call
-func (_e *CsLPPInterface_Expecter) ContractualProductionNominalMax() *CsLPPInterface_ContractualProductionNominalMax_Call {
-	return &CsLPPInterface_ContractualProductionNominalMax_Call{Call: _e.mock.On("ContractualProductionNominalMax")}
-}
-
-func (_c *CsLPPInterface_ContractualProductionNominalMax_Call) Run(run func()) *CsLPPInterface_ContractualProductionNominalMax_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *CsLPPInterface_ContractualProductionNominalMax_Call) Return(_a0 float64, _a1 error) *CsLPPInterface_ContractualProductionNominalMax_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *CsLPPInterface_ContractualProductionNominalMax_Call) RunAndReturn(run func() (float64, error)) *CsLPPInterface_ContractualProductionNominalMax_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // FailsafeDurationMinimum provides a mock function with given fields:
 func (_m *CsLPPInterface) FailsafeDurationMinimum() (time.Duration, bool, error) {
 	ret := _m.Called()
@@ -594,6 +539,61 @@ func (_c *CsLPPInterface_ProductionLimit_Call) RunAndReturn(run func() (api.Load
 	return _c
 }
 
+// ProductionNominalMax provides a mock function with given fields:
+func (_m *CsLPPInterface) ProductionNominalMax() (float64, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProductionNominalMax")
+	}
+
+	var r0 float64
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (float64, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() float64); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(float64)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CsLPPInterface_ProductionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ProductionNominalMax'
+type CsLPPInterface_ProductionNominalMax_Call struct {
+	*mock.Call
+}
+
+// ProductionNominalMax is a helper method to define mock.On call
+func (_e *CsLPPInterface_Expecter) ProductionNominalMax() *CsLPPInterface_ProductionNominalMax_Call {
+	return &CsLPPInterface_ProductionNominalMax_Call{Call: _e.mock.On("ProductionNominalMax")}
+}
+
+func (_c *CsLPPInterface_ProductionNominalMax_Call) Run(run func()) *CsLPPInterface_ProductionNominalMax_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CsLPPInterface_ProductionNominalMax_Call) Return(_a0 float64, _a1 error) *CsLPPInterface_ProductionNominalMax_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CsLPPInterface_ProductionNominalMax_Call) RunAndReturn(run func() (float64, error)) *CsLPPInterface_ProductionNominalMax_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // RemoteEntitiesScenarios provides a mock function with given fields:
 func (_m *CsLPPInterface) RemoteEntitiesScenarios() []eebus_goapi.RemoteEntityScenarios {
 	ret := _m.Called()
@@ -669,52 +669,6 @@ func (_c *CsLPPInterface_RemoveUseCase_Call) Return() *CsLPPInterface_RemoveUseC
 }
 
 func (_c *CsLPPInterface_RemoveUseCase_Call) RunAndReturn(run func()) *CsLPPInterface_RemoveUseCase_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SetContractualProductionNominalMax provides a mock function with given fields: value
-func (_m *CsLPPInterface) SetContractualProductionNominalMax(value float64) error {
-	ret := _m.Called(value)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetContractualProductionNominalMax")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(float64) error); ok {
-		r0 = rf(value)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// CsLPPInterface_SetContractualProductionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetContractualProductionNominalMax'
-type CsLPPInterface_SetContractualProductionNominalMax_Call struct {
-	*mock.Call
-}
-
-// SetContractualProductionNominalMax is a helper method to define mock.On call
-//   - value float64
-func (_e *CsLPPInterface_Expecter) SetContractualProductionNominalMax(value interface{}) *CsLPPInterface_SetContractualProductionNominalMax_Call {
-	return &CsLPPInterface_SetContractualProductionNominalMax_Call{Call: _e.mock.On("SetContractualProductionNominalMax", value)}
-}
-
-func (_c *CsLPPInterface_SetContractualProductionNominalMax_Call) Run(run func(value float64)) *CsLPPInterface_SetContractualProductionNominalMax_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(float64))
-	})
-	return _c
-}
-
-func (_c *CsLPPInterface_SetContractualProductionNominalMax_Call) Return(resultErr error) *CsLPPInterface_SetContractualProductionNominalMax_Call {
-	_c.Call.Return(resultErr)
-	return _c
-}
-
-func (_c *CsLPPInterface_SetContractualProductionNominalMax_Call) RunAndReturn(run func(float64) error) *CsLPPInterface_SetContractualProductionNominalMax_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -855,6 +809,52 @@ func (_c *CsLPPInterface_SetProductionLimit_Call) Return(resultErr error) *CsLPP
 }
 
 func (_c *CsLPPInterface_SetProductionLimit_Call) RunAndReturn(run func(api.LoadLimit) error) *CsLPPInterface_SetProductionLimit_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetProductionNominalMax provides a mock function with given fields: value
+func (_m *CsLPPInterface) SetProductionNominalMax(value float64) error {
+	ret := _m.Called(value)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetProductionNominalMax")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(float64) error); ok {
+		r0 = rf(value)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CsLPPInterface_SetProductionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetProductionNominalMax'
+type CsLPPInterface_SetProductionNominalMax_Call struct {
+	*mock.Call
+}
+
+// SetProductionNominalMax is a helper method to define mock.On call
+//   - value float64
+func (_e *CsLPPInterface_Expecter) SetProductionNominalMax(value interface{}) *CsLPPInterface_SetProductionNominalMax_Call {
+	return &CsLPPInterface_SetProductionNominalMax_Call{Call: _e.mock.On("SetProductionNominalMax", value)}
+}
+
+func (_c *CsLPPInterface_SetProductionNominalMax_Call) Run(run func(value float64)) *CsLPPInterface_SetProductionNominalMax_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(float64))
+	})
+	return _c
+}
+
+func (_c *CsLPPInterface_SetProductionNominalMax_Call) Return(resultErr error) *CsLPPInterface_SetProductionNominalMax_Call {
+	_c.Call.Return(resultErr)
+	return _c
+}
+
+func (_c *CsLPPInterface_SetProductionNominalMax_Call) RunAndReturn(run func(float64) error) *CsLPPInterface_SetProductionNominalMax_Call {
 	_c.Call.Return(run)
 	return _c
 }

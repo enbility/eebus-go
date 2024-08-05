@@ -152,15 +152,15 @@ func (s *CsLPCSuite) Test_IsHeartbeatWithinDuration() {
 	assert.True(s.T(), value)
 }
 
-func (s *CsLPCSuite) Test_ContractualConsumptionNominalMax() {
-	value, err := s.sut.ContractualConsumptionNominalMax()
+func (s *CsLPCSuite) Test_ConsumptionNominalMax() {
+	value, err := s.sut.ConsumptionNominalMax()
 	assert.Equal(s.T(), 0.0, value)
 	assert.NotNil(s.T(), err)
 
-	err = s.sut.SetContractualConsumptionNominalMax(10)
+	err = s.sut.SetConsumptionNominalMax(10)
 	assert.Nil(s.T(), err)
 
-	value, err = s.sut.ContractualConsumptionNominalMax()
+	value, err = s.sut.ConsumptionNominalMax()
 	assert.Equal(s.T(), 10.0, value)
 	assert.Nil(s.T(), err)
 }

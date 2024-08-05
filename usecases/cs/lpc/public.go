@@ -285,9 +285,11 @@ func (e *LPC) IsHeartbeatWithinDuration() bool {
 
 // Scenario 4
 
-// return nominal maximum active (real) power the Controllable System is
-// allowed to consume due to the customer's contract.
-func (e *LPC) ContractualConsumptionNominalMax() (value float64, resultErr error) {
+// return nominal maximum active (real) power the Controllable System is allowed to consume.
+//
+// If the local device type is an EnergyManagementSystem, the contractual consumption
+// nominal max is returned, otherwise the power consumption nominal max is returned.
+func (e *LPC) ConsumptionNominalMax() (value float64, resultErr error) {
 	value = 0
 	resultErr = api.ErrDataNotAvailable
 
@@ -301,7 +303,7 @@ func (e *LPC) ContractualConsumptionNominalMax() (value float64, resultErr error
 		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 		ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
 		CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-		CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax),
+		CharacteristicType:     util.Ptr(e.characteristicType()),
 	}
 	charData, err := ec.GetCharacteristicsForFilter(filter)
 	if err != nil || len(charData) == 0 ||
@@ -313,9 +315,14 @@ func (e *LPC) ContractualConsumptionNominalMax() (value float64, resultErr error
 	return charData[0].Value.GetValue(), nil
 }
 
-// set nominal maximum active (real) power the Controllable System is
-// allowed to consume due to the customer's contract.
-func (e *LPC) SetContractualConsumptionNominalMax(value float64) error {
+// set nominal maximum active (real) power the Controllable System is allowed to consume.
+//
+// If the local device type is an EnergyManagementSystem, the contractual consumption
+// nominal max is set, otherwise the power consumption nominal max is set.
+//
+// parameters:
+//   - value: nominal max power consumption in W
+func (e *LPC) SetConsumptionNominalMax(value float64) error {
 	ec, err := server.NewElectricalConnection(e.LocalEntity)
 	if err != nil {
 		return err
@@ -327,7 +334,7 @@ func (e *LPC) SetContractualConsumptionNominalMax(value float64) error {
 		ElectricalConnectionId: electricalConnectionid,
 		ParameterId:            parameterId,
 		CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-		CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax),
+		CharacteristicType:     util.Ptr(e.characteristicType()),
 	})
 	if err != nil || len(charList) == 0 {
 		return api.ErrDataNotAvailable
@@ -340,4 +347,19 @@ func (e *LPC) SetContractualConsumptionNominalMax(value float64) error {
 		Value:                  model.NewScaledNumberType(value),
 	}
 	return ec.UpdateCharacteristic(data, nil)
+}
+
+// returns the characteristictype depending on the local entities device devicetype
+func (e *LPC) characteristicType() model.ElectricalConnectionCharacteristicTypeType {
+	deviceType := e.LocalEntity.Device().DeviceType()
+
+	// According to LPC V1.0 2.2, lines 400ff:
+	// - a HEMS provides contractual consumption nominal max
+	// - any other devices provides power consupmtion nominal max
+	characteristic := model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax
+	if deviceType == nil || *deviceType == model.DeviceTypeTypeEnergyManagementSystem {
+		characteristic = model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax
+	}
+
+	return characteristic
 }

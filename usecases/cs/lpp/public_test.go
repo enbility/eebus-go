@@ -152,14 +152,14 @@ func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
 }
 
 func (s *CsLPPSuite) Test_ContractualProductionNominalMax() {
-	value, err := s.sut.ContractualProductionNominalMax()
+	value, err := s.sut.ProductionNominalMax()
 	assert.Equal(s.T(), 0.0, value)
 	assert.NotNil(s.T(), err)
 
-	err = s.sut.SetContractualProductionNominalMax(10)
+	err = s.sut.SetProductionNominalMax(10)
 	assert.Nil(s.T(), err)
 
-	value, err = s.sut.ContractualProductionNominalMax()
+	value, err = s.sut.ProductionNominalMax()
 	assert.Equal(s.T(), 10.0, value)
 	assert.Nil(s.T(), err)
 }

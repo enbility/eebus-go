@@ -245,7 +245,7 @@ func (e *LPP) AddFeatures() {
 			ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 			ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
 			CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-			CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax),
+			CharacteristicType:     util.Ptr(e.characteristicType()),
 			Unit:                   util.Ptr(model.UnitOfMeasurementTypeW),
 		}
 		_, _ = ec.AddCharacteristic(newCharData)
