@@ -81,14 +81,18 @@ type CsLPPInterface interface {
 
 	// Scenario 4
 
-	// return nominal maximum active (real) power the Controllable System is
-	// allowed to produce due to the customer's contract.
-	ContractualProductionNominalMax() (float64, error)
+	// return nominal maximum active (real) power the Controllable System is allowed to produce.
+	//
+	// If the local device type is an EnergyManagementSystem, the contractual production
+	// nominal max is returned, otherwise the power production nominal max is returned.
+	ProductionNominalMax() (float64, error)
 
-	// set nominal maximum active (real) power the Controllable System is
-	// allowed to produce due to the customer's contract.
+	// set power nominal maximum active (real) power the Controllable System is allowed to produce.
+	//
+	// If the local device type is an EnergyManagementSystem, the contractual production
+	// nominal max is set, otherwise the power production nominal max is set.
 	//
 	// parameters:
-	//   - value: contractual nominal max power production in W
-	SetContractualProductionNominalMax(value float64) (resultErr error)
+	//   - value: nominal max power production in W
+	SetProductionNominalMax(value float64) (resultErr error)
 }
