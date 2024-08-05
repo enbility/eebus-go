@@ -353,9 +353,9 @@ func (e *LPP) SetProductionNominalMax(value float64) error {
 func (e *LPP) characteristicType() model.ElectricalConnectionCharacteristicTypeType {
 	deviceType := e.LocalEntity.Device().DeviceType()
 
-	// According to LPC V1.0 2.2, lines 400ff:
-	// - a HEMS provides contractual consumption nominal max
-	// - any other devices provides power consupmtion nominal max
+	// According to LPP V1.0 2.2, lines 420ff:
+	// - a HEMS provides contractual production nominal max
+	// - any other devices provides power production nominal max
 	characteristic := model.ElectricalConnectionCharacteristicTypeTypePowerProductionNominalMax
 	if deviceType == nil || *deviceType == model.DeviceTypeTypeEnergyManagementSystem {
 		characteristic = model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax
