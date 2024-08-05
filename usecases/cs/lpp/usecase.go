@@ -41,8 +41,11 @@ var _ ucapi.CsLPPInterface = (*LPP)(nil)
 func NewLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeEnergyGuard}
 	validEntityTypes := []model.EntityTypeType{
-		model.EntityTypeTypeGridGuard,
-		model.EntityTypeTypeCEM, // KEO uses this entity type for an SMGW whysoever
+		model.EntityTypeTypeCEM,
+		model.EntityTypeTypeEVSE,
+		model.EntityTypeTypeInverter,
+		model.EntityTypeTypeSmartEnergyAppliance,
+		model.EntityTypeTypeSubMeterElectricity,
 	}
 	useCaseScenarios := []api.UseCaseScenario{
 		{
