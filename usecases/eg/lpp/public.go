@@ -236,8 +236,8 @@ func (e *LPP) WriteFailsafeDurationMinimum(entity spineapi.EntityRemoteInterface
 // Scenario 4
 
 // return nominal maximum active (real) power the Controllable System is
-// able to produce according to the device label or data sheet.
-func (e *LPP) PowerProductionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error) {
+// able to produce according to the contract (EMS), device label or data sheet.
+func (e *LPP) ProductionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
 	}
@@ -249,12 +249,33 @@ func (e *LPP) PowerProductionNominalMax(entity spineapi.EntityRemoteInterface) (
 
 	filter := model.ElectricalConnectionCharacteristicDataType{
 		CharacteristicContext: util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-		CharacteristicType:    util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerProductionNominalMax),
+		CharacteristicType:    util.Ptr(e.characteristicType(entity)),
 	}
 	data, err := electricalConnection.GetCharacteristicsForFilter(filter)
-	if err != nil || len(data) == 0 || data[0].Value == nil {
+	if err != nil {
 		return 0, err
+	} else if len(data) == 0 || data[0].Value == nil {
+		return 0, api.ErrDataNotAvailable
 	}
 
 	return data[0].Value.GetValue(), nil
+}
+
+// returns the characteristictype depending on the remote entities device devicetype
+func (e *LPP) characteristicType(entity spineapi.EntityRemoteInterface) model.ElectricalConnectionCharacteristicTypeType {
+	// According to LPC V1.0 2.2, lines 400ff:
+	// - a HEMS provides contractual consumption nominal max
+	// - any other devices provides power consupmtion nominal max
+	characteristic := model.ElectricalConnectionCharacteristicTypeTypePowerProductionNominalMax
+
+	if entity == nil || entity.Device() == nil {
+		return characteristic
+	}
+
+	deviceType := entity.Device().DeviceType()
+	if deviceType == nil || *deviceType == model.DeviceTypeTypeEnergyManagementSystem {
+		characteristic = model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax
+	}
+
+	return characteristic
 }
