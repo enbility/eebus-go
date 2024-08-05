@@ -34,3 +34,8 @@ Actors:
   Use Cases:
   - `mpc`: Monitoring of Power Consumption
   - `mgcp`: Monitoring of Grid Connection Point
+
+- `mu`: Monitored Unit
+
+  Use Cases:
+  - `mpc`: Monitoring of Power Consumption
