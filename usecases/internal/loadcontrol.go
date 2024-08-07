@@ -81,7 +81,11 @@ func LoadControlLimits(
 			}
 			_, dataMax, _, err := evElectricalConnection.GetPermittedValueDataForFilter(filter)
 			if err != nil {
-				return
+				// the device provides no limits for this phase (e.g. Bender 1 Phase)
+				// according to OpEV Spec 1.0.1b, page 30: "At least one set of permitted values SHALL be stated."
+				// which is not the case for all elements for this EVSE setup
+				// but we have to ignore this case and continue with the next phase
+				continue
 			}
 
 			limitValue = dataMax
