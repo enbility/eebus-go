@@ -84,7 +84,7 @@ func (s *Service) Setup() error {
 	s.localService.SetShipID(sd.Identifier())
 	s.localService.SetDeviceType(string(sd.DeviceType()))
 
-	logging.Log().Info("Local SKI: ", ski)
+	logging.Log().Info("Local SKI:", ski)
 
 	vendor := sd.VendorCode()
 	if vendor == "" {
