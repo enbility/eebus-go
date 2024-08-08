@@ -85,6 +85,8 @@ func LoadControlLimits(
 				// according to OpEV Spec 1.0.1b, page 30: "At least one set of permitted values SHALL be stated."
 				// which is not the case for all elements for this EVSE setup
 				// but we have to ignore this case and continue with the next phase
+
+				// In addition Elli Conenct/Pro (Gen1) returns no or empty PermittedValueSet data
 				continue
 			}
 

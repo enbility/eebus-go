@@ -309,7 +309,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 	assert.Nil(s.T(), data)
 	assert.Equal(s.T(), 0, len(data))
 
-	// according to OPeV Spec 1.0.1b, page 30: "At least one set of permitted values SHALL be stated."
+	// according to OpEV Spec 1.0.1b, page 30: "At least one set of permitted values SHALL be stated."
 	// which is not the case here for all elements
 	permData := &model.ElectricalConnectionPermittedValueSetListDataType{
 		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
@@ -362,6 +362,223 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 1, len(data))
 	assert.Equal(s.T(), 16.0, data[0].Value)
+}
+
+func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
+	var data []ucapi.LoadLimitsPhase
+	var err error
+	limitType := model.LoadControlLimitTypeTypeMaxValueLimit
+	scope := model.ScopeTypeTypeOverloadProtection
+	scopeSelf := model.ScopeTypeTypeSelfConsumption
+	category := model.LoadControlCategoryTypeObligation
+	categoryRec := model.LoadControlCategoryTypeRecommendation
+
+	filter := model.LoadControlLimitDescriptionDataType{
+		LimitType:     util.Ptr(limitType),
+		LimitCategory: util.Ptr(category),
+		ScopeType:     util.Ptr(scope),
+	}
+	data, err = LoadControlLimits(nil, nil, filter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = LoadControlLimits(s.localEntity, s.mockRemoteEntity, filter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	descData := &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitType:     util.Ptr(limitType),
+				LimitCategory: util.Ptr(category),
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:     util.Ptr(scope),
+			},
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
+				LimitType:     util.Ptr(limitType),
+				LimitCategory: util.Ptr(category),
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:     util.Ptr(scope),
+			},
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(2)),
+				LimitType:     util.Ptr(limitType),
+				LimitCategory: util.Ptr(category),
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:     util.Ptr(scope),
+			},
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(3)),
+				LimitType:     util.Ptr(limitType),
+				LimitCategory: util.Ptr(categoryRec),
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:     util.Ptr(scopeSelf),
+			},
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(4)),
+				LimitType:     util.Ptr(limitType),
+				LimitCategory: util.Ptr(categoryRec),
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:     util.Ptr(scopeSelf),
+			},
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(5)),
+				LimitType:     util.Ptr(limitType),
+				LimitCategory: util.Ptr(categoryRec),
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:     util.Ptr(scopeSelf),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 3, len(data))
+	assert.Equal(s.T(), 0.0, data[0].Value)
+
+	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
+				ScopeType:              util.Ptr(model.ScopeTypeTypeACPowerTotal),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(2)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(4)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(3)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(5)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(4)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(6)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(5)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(7)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(6)),
+				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
+				AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+			},
+		},
+	}
+
+	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	limitData := &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+			},
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(1)),
+			},
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(2)),
+			},
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(3)),
+			},
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(4)),
+			},
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(5)),
+			},
+		},
+	}
+
+	fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
+	assert.Nil(s.T(), err)
+	assert.Nil(s.T(), data)
+	assert.Equal(s.T(), 0, len(data))
+
+	// according to OpEV Spec 1.0.1b, page 30: "At least one set of permitted values SHALL be stated."
+	// which is not the case here for all elements
+	permData := &model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				PermittedValueSet:      []model.ScaledNumberSetType{},
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+			},
+		},
+	}
+
+	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 0, len(data))
 }
 
 func (s *InternalSuite) Test_WriteLoadControlLimit() {
