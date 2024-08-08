@@ -149,9 +149,7 @@ func (s *Service) Setup() error {
 
 // Starts the service
 func (s *Service) Start() {
-	s.startOnce.Do(func() {
-		s.connectionsHub.Start()
-	})
+	s.startOnce.Do(s.connectionsHub.Start)
 }
 
 // Shutdown all services and stop the server.
