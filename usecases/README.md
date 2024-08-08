@@ -29,6 +29,11 @@ Actors:
   - `lpc`: Limitation of Power Consumption
   - `lpp`: Limitation of Power Production
 
+- `gcp`: Grid Connection Point
+
+  Use Cases:
+  - `mgcp`: Monitoring of Grid Connection Point
+
 - `ma`: Monitoring Appliance
 
   Use Cases:
