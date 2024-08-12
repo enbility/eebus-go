@@ -9,6 +9,7 @@ import (
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 	"github.com/enbility/spine-go/util"
+	"time"
 )
 
 type MGCP struct {
@@ -18,9 +19,9 @@ type MGCP struct {
 	idM1  *model.MeasurementIdType
 	idM2  *model.MeasurementIdType
 	idM3  *model.MeasurementIdType
-	idM43 *model.MeasurementIdType
 	idM41 *model.MeasurementIdType
 	idM42 *model.MeasurementIdType
+	idM43 *model.MeasurementIdType
 	idM51 *model.MeasurementIdType
 	idM52 *model.MeasurementIdType
 	idM53 *model.MeasurementIdType
@@ -399,15 +400,48 @@ func (e *MGCP) AddFeatures() {
 		e.idM56,
 		e.idM6,
 	} {
-		e.setMeasurementForId(m, 0.0)
+		err = e.setMeasurementDataForId(m, 0.0)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
-func (e *MGCP) setMeasurementForId(id *model.MeasurementIdType, value float64) {
-	// TODO
+func (e *MGCP) setMeasurementDataForId(id *model.MeasurementIdType, value float64) error {
+	measurements, err := server.NewMeasurement(e.LocalEntity)
+	if err != nil {
+		return err
+	}
+
+	err = measurements.UpdateDataForId(model.MeasurementDataType{
+		MeasurementId: id,
+		ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+		Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(time.Now()),
+		Value:         model.NewScaledNumberType(value),
+		ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+	}, nil, *id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (e *MGCP) getMeasurementForId(id *model.MeasurementIdType) float64 {
-	// TODO
-	return 0.0
+func (e *MGCP) getMeasurementDataForId(id *model.MeasurementIdType) (float64, error) {
+	measurements, err := server.NewMeasurement(e.LocalEntity)
+	if err != nil {
+		return 0, err
+	}
+
+	data, err := measurements.GetDataForId(*id)
+	if err != nil {
+		return 0, err
+	}
+
+	if data == nil {
+		return 0, api.ErrDataNotAvailable
+	}
+
+	return data.Value.GetValue(), nil
 }
