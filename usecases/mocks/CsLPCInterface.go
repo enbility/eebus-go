@@ -230,12 +230,12 @@ func (_c *CsLPCInterface_ConsumptionLimit_Call) RunAndReturn(run func() (api.Loa
 	return _c
 }
 
-// ContractualConsumptionNominalMax provides a mock function with given fields:
-func (_m *CsLPCInterface) ContractualConsumptionNominalMax() (float64, error) {
+// ConsumptionNominalMax provides a mock function with given fields:
+func (_m *CsLPCInterface) ConsumptionNominalMax() (float64, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for ContractualConsumptionNominalMax")
+		panic("no return value specified for ConsumptionNominalMax")
 	}
 
 	var r0 float64
@@ -258,29 +258,29 @@ func (_m *CsLPCInterface) ContractualConsumptionNominalMax() (float64, error) {
 	return r0, r1
 }
 
-// CsLPCInterface_ContractualConsumptionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ContractualConsumptionNominalMax'
-type CsLPCInterface_ContractualConsumptionNominalMax_Call struct {
+// CsLPCInterface_ConsumptionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConsumptionNominalMax'
+type CsLPCInterface_ConsumptionNominalMax_Call struct {
 	*mock.Call
 }
 
-// ContractualConsumptionNominalMax is a helper method to define mock.On call
-func (_e *CsLPCInterface_Expecter) ContractualConsumptionNominalMax() *CsLPCInterface_ContractualConsumptionNominalMax_Call {
-	return &CsLPCInterface_ContractualConsumptionNominalMax_Call{Call: _e.mock.On("ContractualConsumptionNominalMax")}
+// ConsumptionNominalMax is a helper method to define mock.On call
+func (_e *CsLPCInterface_Expecter) ConsumptionNominalMax() *CsLPCInterface_ConsumptionNominalMax_Call {
+	return &CsLPCInterface_ConsumptionNominalMax_Call{Call: _e.mock.On("ConsumptionNominalMax")}
 }
 
-func (_c *CsLPCInterface_ContractualConsumptionNominalMax_Call) Run(run func()) *CsLPCInterface_ContractualConsumptionNominalMax_Call {
+func (_c *CsLPCInterface_ConsumptionNominalMax_Call) Run(run func()) *CsLPCInterface_ConsumptionNominalMax_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *CsLPCInterface_ContractualConsumptionNominalMax_Call) Return(_a0 float64, _a1 error) *CsLPCInterface_ContractualConsumptionNominalMax_Call {
+func (_c *CsLPCInterface_ConsumptionNominalMax_Call) Return(_a0 float64, _a1 error) *CsLPCInterface_ConsumptionNominalMax_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *CsLPCInterface_ContractualConsumptionNominalMax_Call) RunAndReturn(run func() (float64, error)) *CsLPCInterface_ContractualConsumptionNominalMax_Call {
+func (_c *CsLPCInterface_ConsumptionNominalMax_Call) RunAndReturn(run func() (float64, error)) *CsLPCInterface_ConsumptionNominalMax_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -719,12 +719,12 @@ func (_c *CsLPCInterface_SetConsumptionLimit_Call) RunAndReturn(run func(api.Loa
 	return _c
 }
 
-// SetContractualConsumptionNominalMax provides a mock function with given fields: value
-func (_m *CsLPCInterface) SetContractualConsumptionNominalMax(value float64) error {
+// SetConsumptionNominalMax provides a mock function with given fields: value
+func (_m *CsLPCInterface) SetConsumptionNominalMax(value float64) error {
 	ret := _m.Called(value)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SetContractualConsumptionNominalMax")
+		panic("no return value specified for SetConsumptionNominalMax")
 	}
 
 	var r0 error
@@ -737,30 +737,30 @@ func (_m *CsLPCInterface) SetContractualConsumptionNominalMax(value float64) err
 	return r0
 }
 
-// CsLPCInterface_SetContractualConsumptionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetContractualConsumptionNominalMax'
-type CsLPCInterface_SetContractualConsumptionNominalMax_Call struct {
+// CsLPCInterface_SetConsumptionNominalMax_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetConsumptionNominalMax'
+type CsLPCInterface_SetConsumptionNominalMax_Call struct {
 	*mock.Call
 }
 
-// SetContractualConsumptionNominalMax is a helper method to define mock.On call
+// SetConsumptionNominalMax is a helper method to define mock.On call
 //   - value float64
-func (_e *CsLPCInterface_Expecter) SetContractualConsumptionNominalMax(value interface{}) *CsLPCInterface_SetContractualConsumptionNominalMax_Call {
-	return &CsLPCInterface_SetContractualConsumptionNominalMax_Call{Call: _e.mock.On("SetContractualConsumptionNominalMax", value)}
+func (_e *CsLPCInterface_Expecter) SetConsumptionNominalMax(value interface{}) *CsLPCInterface_SetConsumptionNominalMax_Call {
+	return &CsLPCInterface_SetConsumptionNominalMax_Call{Call: _e.mock.On("SetConsumptionNominalMax", value)}
 }
 
-func (_c *CsLPCInterface_SetContractualConsumptionNominalMax_Call) Run(run func(value float64)) *CsLPCInterface_SetContractualConsumptionNominalMax_Call {
+func (_c *CsLPCInterface_SetConsumptionNominalMax_Call) Run(run func(value float64)) *CsLPCInterface_SetConsumptionNominalMax_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(float64))
 	})
 	return _c
 }
 
-func (_c *CsLPCInterface_SetContractualConsumptionNominalMax_Call) Return(resultErr error) *CsLPCInterface_SetContractualConsumptionNominalMax_Call {
+func (_c *CsLPCInterface_SetConsumptionNominalMax_Call) Return(resultErr error) *CsLPCInterface_SetConsumptionNominalMax_Call {
 	_c.Call.Return(resultErr)
 	return _c
 }
 
-func (_c *CsLPCInterface_SetContractualConsumptionNominalMax_Call) RunAndReturn(run func(float64) error) *CsLPCInterface_SetContractualConsumptionNominalMax_Call {
+func (_c *CsLPCInterface_SetConsumptionNominalMax_Call) RunAndReturn(run func(float64) error) *CsLPCInterface_SetConsumptionNominalMax_Call {
 	_c.Call.Return(run)
 	return _c
 }

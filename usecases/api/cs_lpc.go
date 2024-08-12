@@ -81,14 +81,18 @@ type CsLPCInterface interface {
 
 	// Scenario 4
 
-	// return nominal maximum active (real) power the Controllable System is
-	// allowed to consume due to the customer's contract.
-	ContractualConsumptionNominalMax() (float64, error)
+	// return nominal maximum active (real) power the Controllable System is allowed to consume.
+	//
+	// If the local device type is an EnergyManagementSystem, the contractual consumption
+	// nominal max is returned, otherwise the power consumption nominal max is returned.
+	ConsumptionNominalMax() (float64, error)
 
-	// set nominal maximum active (real) power the Controllable System is
-	// allowed to consume due to the customer's contract.
+	// set power nominal maximum active (real) power the Controllable System is allowed to consume.
+	//
+	// If the local device type is an EnergyManagementSystem, the contractual consumption
+	// nominal max is set, otherwise the power consumption nominal max is set.
 	//
 	// parameters:
-	//   - value: contractual nominal max power consumption in W
-	SetContractualConsumptionNominalMax(value float64) (resultErr error)
+	//   - value: nominal max power consumption in W
+	SetConsumptionNominalMax(value float64) (resultErr error)
 }

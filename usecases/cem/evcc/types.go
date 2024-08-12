@@ -11,7 +11,7 @@ const (
 )
 
 const (
-	// Update of the list of remote entites supporting the Use Case
+	// Update of the list of remote entities supporting the Use Case
 	//
 	// Use `RemoteEntities` to get the current data
 	UseCaseSupportUpdate api.EventType = "cem-evcc-UseCaseSupportUpdate"

@@ -83,9 +83,9 @@ type EgLPPInterface interface {
 	// Scenario 4
 
 	// return nominal maximum active (real) power the Controllable System is
-	// able to produce according to the device label or data sheet.
+	// able to produce according to the contract (EMS), device label or data sheet.
 	//
 	// parameters:
 	//   - entity: the entity of the e.g. EVSE
-	PowerProductionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error)
+	ProductionNominalMax(entity spineapi.EntityRemoteInterface) (float64, error)
 }

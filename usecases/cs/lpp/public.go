@@ -79,7 +79,7 @@ func (e *LPP) SetProductionLimit(limit ucapi.LoadLimit) (resultErr error) {
 	return loadControlf.UpdateLimitDataForId(limitData, deleteTimePeriod, limidId)
 }
 
-// return the currently pending incoming consumption write limits
+// return the currently pending incoming production write limits
 func (e *LPP) PendingProductionLimits() map[model.MsgCounterType]ucapi.LoadLimit {
 	result := make(map[model.MsgCounterType]ucapi.LoadLimit)
 
@@ -127,7 +127,7 @@ func (e *LPP) PendingProductionLimits() map[model.MsgCounterType]ucapi.LoadLimit
 	return result
 }
 
-// accept or deny an incoming consumption write limit
+// accept or deny an incoming production write limit
 //
 // use PendingProductionLimits to get the list of currently pending requests
 func (e *LPP) ApproveOrDenyProductionLimit(msgCounter model.MsgCounterType, approve bool, reason string) {
@@ -285,9 +285,11 @@ func (e *LPP) IsHeartbeatWithinDuration() bool {
 
 // Scenario 4
 
-// return nominal maximum active (real) power the Controllable System is
-// allowed to produce due to the customer's contract.
-func (e *LPP) ContractualProductionNominalMax() (value float64, resultErr error) {
+// return nominal maximum active (real) power the Controllable System is allowed to produce.
+//
+// If the local device type is an EnergyManagementSystem, the contractual production
+// nominal max is returned, otherwise the power production nominal max is returned.
+func (e *LPP) ProductionNominalMax() (value float64, resultErr error) {
 	value = 0
 	resultErr = api.ErrDataNotAvailable
 
@@ -301,7 +303,7 @@ func (e *LPP) ContractualProductionNominalMax() (value float64, resultErr error)
 		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 		ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
 		CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-		CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax),
+		CharacteristicType:     util.Ptr(e.characteristicType()),
 	}
 	charData, err := ec.GetCharacteristicsForFilter(filter)
 	if err != nil || len(charData) == 0 ||
@@ -313,9 +315,14 @@ func (e *LPP) ContractualProductionNominalMax() (value float64, resultErr error)
 	return charData[0].Value.GetValue(), nil
 }
 
-// set nominal maximum active (real) power the Controllable System is
-// allowed to produce due to the customer's contract.
-func (e *LPP) SetContractualProductionNominalMax(value float64) error {
+// set nominal maximum active (real) power the Controllable System is allowed to produce.
+//
+// If the local device type is an EnergyManagementSystem, the contractual production
+// nominal max is set, otherwise the power production nominal max is set.
+//
+// parameters:
+//   - value: nominal max power production in W
+func (e *LPP) SetProductionNominalMax(value float64) error {
 	ec, err := server.NewElectricalConnection(e.LocalEntity)
 	if err != nil {
 		return err
@@ -327,7 +334,7 @@ func (e *LPP) SetContractualProductionNominalMax(value float64) error {
 		ElectricalConnectionId: electricalConnectionid,
 		ParameterId:            parameterId,
 		CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-		CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax),
+		CharacteristicType:     util.Ptr(e.characteristicType()),
 	})
 	if err != nil || len(charList) == 0 {
 		return api.ErrDataNotAvailable
@@ -340,4 +347,19 @@ func (e *LPP) SetContractualProductionNominalMax(value float64) error {
 		Value:                  model.NewScaledNumberType(value),
 	}
 	return ec.UpdateCharacteristic(data, nil)
+}
+
+// returns the characteristictype depending on the local entities device devicetype
+func (e *LPP) characteristicType() model.ElectricalConnectionCharacteristicTypeType {
+	deviceType := e.LocalEntity.Device().DeviceType()
+
+	// According to LPP V1.0 2.2, lines 420ff:
+	// - a HEMS provides contractual production nominal max
+	// - any other devices provides power production nominal max
+	characteristic := model.ElectricalConnectionCharacteristicTypeTypePowerProductionNominalMax
+	if deviceType == nil || *deviceType == model.DeviceTypeTypeEnergyManagementSystem {
+		characteristic = model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax
+	}
+
+	return characteristic
 }

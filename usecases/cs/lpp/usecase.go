@@ -189,12 +189,19 @@ func (e *LPP) AddFeatures() {
 				Unit:      util.Ptr(model.UnitOfMeasurementTypeW),
 			},
 		)
-		dcs.AddKeyValueDescription(
-			model.DeviceConfigurationKeyValueDescriptionDataType{
-				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
-				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
-			},
-		)
+
+		// only add if it doesn't exist yet
+		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
+			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+		}
+		if data, err := dcs.GetKeyValueDescriptionsForFilter(filter); err == nil && len(data) == 0 {
+			dcs.AddKeyValueDescription(
+				model.DeviceConfigurationKeyValueDescriptionDataType{
+					KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+					ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
+				},
+			)
+		}
 
 		value := &model.DeviceConfigurationKeyValueValueType{
 			ScaledNumber: model.NewScaledNumberType(0),
@@ -238,7 +245,7 @@ func (e *LPP) AddFeatures() {
 			ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 			ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
 			CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-			CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualProductionNominalMax),
+			CharacteristicType:     util.Ptr(e.characteristicType()),
 			Unit:                   util.Ptr(model.UnitOfMeasurementTypeW),
 		}
 		_, _ = ec.AddCharacteristic(newCharData)
