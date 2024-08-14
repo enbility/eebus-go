@@ -29,10 +29,7 @@ var _ ucapi.GcpMGCPInterface = (*MGCP)(nil)
 // At the moment the MGCP use case configures itself as a 3-phase meter by default (ABC).
 func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
-	validEntityTypes := []model.EntityTypeType{
-		model.EntityTypeTypeCEM,
-		model.EntityTypeTypeGridConnectionPointOfPremises,
-	}
+	validEntityTypes := []model.EntityTypeType(nil) // accept all entity types
 	useCaseScenarios := []api.UseCaseScenario{
 		{
 			Scenario:       model.UseCaseScenarioSupportType(1),
