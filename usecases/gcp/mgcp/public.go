@@ -19,15 +19,6 @@ func (m *MGCP) SetPowerLimitationFactor(factor float64) error {
 	return errors.New("not implemented")
 }
 
-// return the current power limitation factor
-//
-// possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
-//   - and others
-func (m *MGCP) PowerLimitationFactor() (float64, error) {
-	return 0, errors.New("not implemented")
-}
-
 // Scenario 2
 
 // set the momentary power consumption or production at the grid connection point
@@ -41,24 +32,11 @@ func (m *MGCP) PowerLimitationFactor() (float64, error) {
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (m *MGCP) SetPower(power float64) error {
-	if m.idM1 == nil {
+	if m.acPowerTotal == nil {
 		return api.ErrMissingData
 	}
 
-	return m.setMeasurementDataForId(m.idM1, power)
-}
-
-// return the momentary power consumption or production at the grid connection point
-//
-// return values:
-//   - positive values are used for consumption
-//   - negative values are used for production
-func (m *MGCP) Power() (float64, error) {
-	if m.idM1 == nil {
-		return 0, api.ErrMissingData
-	}
-
-	return m.getMeasurementDataForId(m.idM1)
+	return m.setMeasurementDataForId(m.acPowerTotal, power)
 }
 
 // Scenario 3
@@ -73,23 +51,11 @@ func (m *MGCP) Power() (float64, error) {
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (m *MGCP) SetEnergyFeedIn(energy float64) error {
-	if m.idM2 == nil {
+	if m.gridFeedIn == nil {
 		return api.ErrMissingData
 	}
 
-	return m.setMeasurementDataForId(m.idM2, energy)
-}
-
-// return the total feed in energy at the grid connection point
-//
-// return values:
-//   - negative values are used for production
-func (m *MGCP) EnergyFeedIn() (float64, error) {
-	if m.idM2 == nil {
-		return 0, api.ErrMissingData
-	}
-
-	return m.getMeasurementDataForId(m.idM2)
+	return m.setMeasurementDataForId(m.gridFeedIn, energy)
 }
 
 // Scenario 4
@@ -104,23 +70,10 @@ func (m *MGCP) EnergyFeedIn() (float64, error) {
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (m *MGCP) SetEnergyConsumed(energy float64) error {
-	if m.idM3 == nil {
+	if m.gridConsumption == nil {
 		return api.ErrMissingData
 	}
-
-	return m.setMeasurementDataForId(m.idM3, energy)
-}
-
-// return the total consumption energy at the grid connection point
-//
-// return values:
-//   - positive values are used for consumption
-func (m *MGCP) EnergyConsumed() (float64, error) {
-	if m.idM3 == nil {
-		return 0, api.ErrMissingData
-	}
-
-	return m.getMeasurementDataForId(m.idM3)
+	return m.setMeasurementDataForId(m.gridConsumption, energy)
 }
 
 // Scenario 5
@@ -136,50 +89,26 @@ func (m *MGCP) EnergyConsumed() (float64, error) {
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (m *MGCP) SetCurrentPerPhase(phaseA, phaseB, phaseC float64) error {
-	if (m.idM41 == nil) || (m.idM42 == nil) || (m.idM43 == nil) {
-		return api.ErrMissingData
+	for _, v := range m.acCurrent {
+		if v == nil {
+			return api.ErrMissingData
+		}
 	}
 
-	err := m.setMeasurementDataForId(m.idM41, phaseA)
+	err := m.setMeasurementDataForId(m.acCurrent[0], phaseA)
 	if err != nil {
 		return err
 	}
-	err = m.setMeasurementDataForId(m.idM42, phaseB)
+	err = m.setMeasurementDataForId(m.acCurrent[1], phaseB)
 	if err != nil {
 		return err
 	}
-	err = m.setMeasurementDataForId(m.idM43, phaseC)
+	err = m.setMeasurementDataForId(m.acCurrent[2], phaseC)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// return the momentary current consumption or production at the grid connection point
-//
-// return values:
-//   - positive values are used for consumption
-//   - negative values are used for production
-func (m *MGCP) CurrentPerPhase() ([]float64, error) {
-	if (m.idM41 == nil) || (m.idM42 == nil) || (m.idM43 == nil) {
-		return []float64{}, api.ErrMissingData
-	}
-
-	valueA, err := m.getMeasurementDataForId(m.idM41)
-	if err != nil {
-		return []float64{}, err
-	}
-	valueB, err := m.getMeasurementDataForId(m.idM42)
-	if err != nil {
-		return []float64{}, err
-	}
-	valueC, err := m.getMeasurementDataForId(m.idM43)
-	if err != nil {
-		return []float64{}, err
-	}
-
-	return []float64{valueA, valueB, valueC}, nil
 }
 
 // Scenario 6
@@ -195,70 +124,26 @@ func (m *MGCP) CurrentPerPhase() ([]float64, error) {
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (m *MGCP) SetVoltagePerPhase(phaseA, phaseB, phaseC float64) error {
-	if (m.idM51 == nil) || (m.idM52 == nil) || (m.idM53 == nil) || (m.idM54 == nil) || (m.idM55 == nil) || (m.idM56 == nil) {
-		return api.ErrMissingData
+	for _, v := range m.acVoltage {
+		if v == nil {
+			return api.ErrMissingData
+		}
 	}
 
-	err := m.setMeasurementDataForId(m.idM51, phaseA)
+	err := m.setMeasurementDataForId(m.acVoltage[0], phaseA)
 	if err != nil {
 		return err
 	}
-	err = m.setMeasurementDataForId(m.idM52, phaseB)
+	err = m.setMeasurementDataForId(m.acVoltage[1], phaseB)
 	if err != nil {
 		return err
 	}
-	err = m.setMeasurementDataForId(m.idM53, phaseC)
-	if err != nil {
-		return err
-	}
-	err = m.setMeasurementDataForId(m.idM54, phaseA-phaseB)
-	if err != nil {
-		return err
-	}
-	err = m.setMeasurementDataForId(m.idM55, phaseB-phaseC)
-	if err != nil {
-		return err
-	}
-	err = m.setMeasurementDataForId(m.idM56, phaseC-phaseA)
+	err = m.setMeasurementDataForId(m.acVoltage[2], phaseC)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// return the voltage phase details at the grid connection point
-func (m *MGCP) VoltagePerPhase() ([]float64, error) {
-	if (m.idM51 == nil) || (m.idM52 == nil) || (m.idM53 == nil) || (m.idM54 == nil) || (m.idM55 == nil) || (m.idM56 == nil) {
-		return []float64{}, api.ErrMissingData
-	}
-
-	valueA, err := m.getMeasurementDataForId(m.idM51)
-	if err != nil {
-		return []float64{}, err
-	}
-	valueB, err := m.getMeasurementDataForId(m.idM52)
-	if err != nil {
-		return []float64{}, err
-	}
-	valueC, err := m.getMeasurementDataForId(m.idM53)
-	if err != nil {
-		return []float64{}, err
-	}
-	valueAB, err := m.getMeasurementDataForId(m.idM54)
-	if err != nil {
-		return []float64{}, err
-	}
-	valueBC, err := m.getMeasurementDataForId(m.idM55)
-	if err != nil {
-		return []float64{}, err
-	}
-	valueCA, err := m.getMeasurementDataForId(m.idM56)
-	if err != nil {
-		return []float64{}, err
-	}
-
-	return []float64{valueA, valueB, valueC, valueAB, valueBC, valueCA}, nil
 }
 
 // Scenario 7
@@ -272,18 +157,8 @@ func (m *MGCP) VoltagePerPhase() ([]float64, error) {
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
 func (m *MGCP) SetFrequency(frequency float64) error {
-	if m.idM6 == nil {
+	if m.acFrequency == nil {
 		return api.ErrMissingData
 	}
-
-	return m.setMeasurementDataForId(m.idM6, frequency)
-}
-
-// return frequency at the grid connection point
-func (m *MGCP) Frequency() (float64, error) {
-	if m.idM6 == nil {
-		return 0, api.ErrMissingData
-	}
-
-	return m.getMeasurementDataForId(m.idM6)
+	return m.setMeasurementDataForId(m.acFrequency, frequency)
 }

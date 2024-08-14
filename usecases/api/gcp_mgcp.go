@@ -21,13 +21,6 @@ type GcpMGCPInterface interface {
 	//   - and others
 	SetPowerLimitationFactor(factor float64) error
 
-	// return the current power limitation factor
-	//
-	// possible errors:
-	//   - ErrDataNotAvailable if no such limit is (yet) available
-	//   - and others
-	PowerLimitationFactor() (float64, error)
-
 	// Scenario 2
 
 	// set the momentary power consumption or production at the grid connection point
@@ -42,13 +35,6 @@ type GcpMGCPInterface interface {
 	//   - and others
 	SetPower(power float64) error
 
-	// return the momentary power consumption or production at the grid connection point
-	//
-	// return values:
-	//   - positive values are used for consumption
-	//   - negative values are used for production
-	Power() (float64, error)
-
 	// Scenario 3
 
 	// set the total feed in energy at the grid connection point
@@ -62,12 +48,6 @@ type GcpMGCPInterface interface {
 	//   - and others
 	SetEnergyFeedIn(energy float64) error
 
-	// return the total feed in energy at the grid connection point
-	//
-	// return values:
-	//   - negative values are used for production
-	EnergyFeedIn() (float64, error)
-
 	// Scenario 4
 
 	// set the total consumption energy at the grid connection point
@@ -80,12 +60,6 @@ type GcpMGCPInterface interface {
 	//   - ErrDataNotAvailable if no such limit is (yet) available
 	//   - and others
 	SetEnergyConsumed(energy float64) error
-
-	// return the total consumption energy at the grid connection point
-	//
-	// return values:
-	//   - positive values are used for consumption
-	EnergyConsumed() (float64, error)
 
 	// Scenario 5
 
@@ -101,13 +75,6 @@ type GcpMGCPInterface interface {
 	//   - and others
 	SetCurrentPerPhase(phaseA, phaseB, phaseC float64) error
 
-	// return the momentary current consumption or production at the grid connection point
-	//
-	// return values:
-	//   - positive values are used for consumption
-	//   - negative values are used for production
-	CurrentPerPhase() ([]float64, error)
-
 	// Scenario 6
 
 	// set the voltage phase details at the grid connection point
@@ -122,9 +89,6 @@ type GcpMGCPInterface interface {
 	//   - and others
 	SetVoltagePerPhase(phaseA, phaseB, phaseC float64) error
 
-	// return the voltage phase details at the grid connection point
-	VoltagePerPhase() ([]float64, error)
-
 	// Scenario 7
 
 	// set the frequency at the grid connection point
@@ -136,7 +100,4 @@ type GcpMGCPInterface interface {
 	//   - ErrDataNotAvailable if no such limit is (yet) available
 	//   - and others
 	SetFrequency(frequency float64) error
-
-	// return frequency at the grid connection point
-	Frequency() (float64, error)
 }
