@@ -6,4 +6,5 @@ import (
 
 // handle SPINE events
 func (m *MGCP) HandleEvent(payload spineapi.EventPayload) {
+	// No event handling for MGCP
 }

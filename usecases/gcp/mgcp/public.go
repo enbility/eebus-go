@@ -1,8 +1,9 @@
 package mgcp
 
 import (
-	"errors"
 	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/features/server"
+	"github.com/enbility/spine-go/model"
 )
 
 // Scenario 1
@@ -15,8 +16,26 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such limit is (yet) available
 //   - and others
-func (m *MGCP) SetPowerLimitationFactor(factor float64) error {
-	return errors.New("not implemented")
+func (m *MGCP) SetPvFeedInLimitationFactor(factor float64) error {
+	configuration, err := server.NewDeviceConfiguration(m.LocalEntity)
+	if err != nil {
+		panic(err)
+	}
+
+	value := model.DeviceConfigurationKeyValueValueType{
+		ScaledNumber: model.NewScaledNumberType(factor),
+	}
+
+	data := model.DeviceConfigurationKeyValueDataType{
+		KeyId: m.pvFeedInLimitationFactor,
+		Value: &value,
+	}
+
+	return configuration.UpdateKeyValueDataForKeyId(
+		data,
+		nil,
+		*m.pvFeedInLimitationFactor,
+	)
 }
 
 // Scenario 2

@@ -19,7 +19,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrDataNotAvailable if no such limit is (yet) available
 	//   - and others
-	SetPowerLimitationFactor(factor float64) error
+	SetPvFeedInLimitationFactor(factor float64) error
 
 	// Scenario 2
 

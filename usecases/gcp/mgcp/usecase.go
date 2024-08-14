@@ -15,17 +15,18 @@ import (
 type MGCP struct {
 	*usecase.UseCaseBase
 
-	pvLimitationFactor *model.DeviceConfigurationKeyIdType
-	acPowerTotal       *model.MeasurementIdType
-	gridFeedIn         *model.MeasurementIdType
-	gridConsumption    *model.MeasurementIdType
-	acCurrent          [3]*model.MeasurementIdType
-	acVoltage          [3]*model.MeasurementIdType
-	acFrequency        *model.MeasurementIdType
+	pvFeedInLimitationFactor *model.DeviceConfigurationKeyIdType
+	acPowerTotal             *model.MeasurementIdType
+	gridFeedIn               *model.MeasurementIdType
+	gridConsumption          *model.MeasurementIdType
+	acCurrent                [3]*model.MeasurementIdType
+	acVoltage                [3]*model.MeasurementIdType // Phase to phase voltages are not supported (yet)
+	acFrequency              *model.MeasurementIdType
 }
 
 var _ ucapi.GcpMGCPInterface = (*MGCP)(nil)
 
+// At the moment the MGCP use case configures itself as a 3-phase meter by default (ABC).
 func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
 	validEntityTypes := []model.EntityTypeType{
@@ -130,12 +131,12 @@ func (m *MGCP) AddFeatures() {
 		panic(err)
 	}
 
-	m.pvLimitationFactor = configuration.AddKeyValueDescription(model.DeviceConfigurationKeyValueDescriptionDataType{
+	m.pvFeedInLimitationFactor = configuration.AddKeyValueDescription(model.DeviceConfigurationKeyValueDescriptionDataType{
 		KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
 		ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
 		Unit:      util.Ptr(model.UnitOfMeasurementTypepct),
 	})
-	if m.pvLimitationFactor == nil {
+	if m.pvFeedInLimitationFactor == nil {
 		panic("failed to add key description")
 	}
 
@@ -302,6 +303,11 @@ func (m *MGCP) AddFeatures() {
 		panic("failed to add electrical connection parameter description")
 	}
 
+	err = m.SetPvFeedInLimitationFactor(0.0)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, meas := range []*model.MeasurementIdType{
 		m.acPowerTotal,
 		m.gridFeedIn,
@@ -336,22 +342,4 @@ func (m *MGCP) setMeasurementDataForId(id *model.MeasurementIdType, value float6
 	}
 
 	return nil
-}
-
-func (m *MGCP) getMeasurementDataForId(id *model.MeasurementIdType) (float64, error) {
-	measurements, err := server.NewMeasurement(m.LocalEntity)
-	if err != nil {
-		return 0, err
-	}
-
-	data, err := measurements.GetDataForId(*id)
-	if err != nil {
-		return 0, err
-	}
-
-	if data == nil {
-		return 0, api.ErrDataNotAvailable
-	}
-
-	return data.Value.GetValue(), nil
 }
