@@ -7,7 +7,6 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
-	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 )
@@ -134,29 +133,13 @@ func (e *LPC) ApproveOrDenyConsumptionLimit(msgCounter model.MsgCounterType, app
 	e.pendingMux.Lock()
 	defer e.pendingMux.Unlock()
 
-	f := e.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-
-	result := model.ErrorType{
-		ErrorNumber: model.ErrorNumberType(0),
-	}
-
 	msg, ok := e.pendingLimits[msgCounter]
 	if !ok {
-		// it is not a limit of this usecase, so approve it
-		newMsg := &spineapi.Message{
-			RequestHeader: &model.HeaderType{
-				MsgCounter: &msgCounter,
-			},
-		}
-		f.ApproveOrDenyWrite(newMsg, result)
+		// no pending limit for this msgCounter, this is a caller error
 		return
 	}
 
-	if !approve {
-		result.ErrorNumber = model.ErrorNumberType(7)
-		result.Description = util.Ptr(model.DescriptionType(reason))
-	}
-	f.ApproveOrDenyWrite(msg, result)
+	e.approveOrDenyConsumptionLimit(msg, approve, reason)
 
 	delete(e.pendingLimits, msgCounter)
 }

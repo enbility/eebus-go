@@ -102,6 +102,20 @@ func (e *LPP) loadControlServerAndLimitId() (lc *server.LoadControl, limitid mod
 	return lc, *description.LimitId, nil
 }
 
+func (e *LPP) approveOrDenyProductionLimit(msg *spineapi.Message, approve bool, reason string) {
+	f := e.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+
+	result := model.ErrorType{
+		ErrorNumber: model.ErrorNumberType(0),
+	}
+
+	if !approve {
+		result.ErrorNumber = model.ErrorNumberType(7)
+		result.Description = util.Ptr(model.DescriptionType(reason))
+	}
+	f.ApproveOrDenyWrite(msg, result)
+}
+
 // callback invoked on incoming write messages to this
 // loadcontrol server feature.
 // the implementation only considers write messages for this use case and
@@ -145,7 +159,7 @@ func (e *LPP) loadControlWriteCB(msg *spineapi.Message) {
 	e.pendingMux.Unlock()
 
 	// approve, because this is no request for this usecase
-	go e.ApproveOrDenyProductionLimit(*msg.RequestHeader.MsgCounter, true, "")
+	go e.approveOrDenyProductionLimit(msg, true, "")
 }
 
 func (e *LPP) AddFeatures() {
