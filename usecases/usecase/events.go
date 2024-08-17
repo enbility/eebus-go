@@ -64,6 +64,12 @@ func (u *UseCaseBase) useCaseDataUpdate(
 			// if the address is given, use that for further checks
 			if uc.Address != nil {
 				ucEntity := remoteDevice.Entity(uc.Address.Entity)
+				// the PMCP EVSE reports EV use cases with the address of the EVSE
+				if *uc.Actor == model.UseCaseActorTypeEV && len(uc.Address.Entity) == 1 {
+					// add the EV subentity to the address
+					evAddress := append(uc.Address.Entity, 1)
+					ucEntity = remoteDevice.Entity(evAddress)
+				}
 				if ucEntity != nil {
 					entitiesToCheck = append(entitiesToCheck, ucEntity)
 				}
