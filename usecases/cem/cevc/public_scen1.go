@@ -32,7 +32,7 @@ func (e *CEVC) ChargeStrategy(entity spineapi.EntityRemoteInterface) ucapi.EVCha
 	}
 
 	// without time series slots, there is no known strategy
-	if data[0].TimeSeriesSlot == nil || len(data[0].TimeSeriesSlot) == 0 {
+	if len(data[0].TimeSeriesSlot) == 0 {
 		return ucapi.EVChargeStrategyTypeUnknown
 	}
 
