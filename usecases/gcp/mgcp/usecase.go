@@ -29,7 +29,7 @@ var _ ucapi.GcpMGCPInterface = (*MGCP)(nil)
 // At the moment the MGCP use case configures itself as a 3-phase meter by default (ABC).
 func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
-	validEntityTypes := []model.EntityTypeType(nil) // accept all entity types
+	var validEntityTypes []model.EntityTypeType = nil // all entity types are valid
 	useCaseScenarios := []api.UseCaseScenario{
 		{
 			Scenario:       model.UseCaseScenarioSupportType(1),
@@ -88,7 +88,7 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 
 	usecase := usecase.NewUseCaseBase(
 		localEntity,
-		model.UseCaseActorTypeMonitoringAppliance,
+		model.UseCaseActorTypeGridConnectionPoint,
 		model.UseCaseNameTypeMonitoringOfGridConnectionPoint,
 		"1.0.0",
 		"release",
@@ -110,16 +110,15 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 func (m *MGCP) AddFeatures() {
 	// server features
 	deviceConfigurationFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	measurementFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	electricalConnectionFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-
 	deviceConfigurationFeature.AddFunctionType(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, true, false)
 	deviceConfigurationFeature.AddFunctionType(model.FunctionTypeDeviceConfigurationKeyValueListData, true, false)
 
+	measurementFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementDescriptionListData, true, false)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementConstraintsListData, true, false)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementListData, true, false)
 
+	electricalConnectionFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
 	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionDescriptionListData, true, false)
 	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionParameterDescriptionListData, true, false)
 
