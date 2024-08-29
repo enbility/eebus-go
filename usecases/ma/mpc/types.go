@@ -6,7 +6,7 @@ const (
 	// Update of the list of remote entities supporting the Use Case
 	//
 	// Use `RemoteEntities` to get the current data
-	UseCaseSupportUpdate api.EventType = "ma-mpc-oscev-UseCaseSupportUpdate"
+	UseCaseSupportUpdate api.EventType = "ma-mpc-UseCaseSupportUpdate"
 
 	// Total momentary active power consumption or production
 	//
