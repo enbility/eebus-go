@@ -58,7 +58,9 @@ func NewEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalInte
 		eventCB,
 		UseCaseSupportUpdate,
 		validActorTypes,
-		validEntityTypes)
+		validEntityTypes,
+		false,
+	)
 
 	uc := &EVCEM{
 		UseCaseBase: usecase,

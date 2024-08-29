@@ -1,6 +1,8 @@
 package mpc
 
 import (
+	"time"
+
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
@@ -9,7 +11,6 @@ import (
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 	"github.com/enbility/spine-go/util"
-	"time"
 )
 
 type MPC struct {
@@ -29,7 +30,7 @@ var _ ucapi.MuMPCInterface = (*MPC)(nil)
 // At the moment the MPC use case configures itself as a 3-phase meter by default (ABC).
 func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MPC {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeMonitoringAppliance}
-	var validEntityTypes []model.EntityTypeType = nil // all entity types are valid
+	allEntityTypesValid := true
 	useCaseScenarios := []api.UseCaseScenario{
 		{
 			Scenario:  model.UseCaseScenarioSupportType(1),
@@ -83,7 +84,9 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 		eventCB,
 		UseCaseSupportUpdate,
 		validActorTypes,
-		validEntityTypes)
+		nil,
+		allEntityTypesValid,
+	)
 
 	uc := &MPC{
 		UseCaseBase: u,

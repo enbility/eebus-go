@@ -108,6 +108,7 @@ func (s *UseCaseSuite) BeforeTest(suiteName, testName string) {
 		useCaseUpdateEvent,
 		validActorTypes,
 		validEntityTypes,
+		false,
 	)
 }
 
