@@ -19,7 +19,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 	}
 
 	rTimeFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr := rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesConstraintsListData, timeConst, nil, nil)
+	_, fErr := rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesConstraintsListData, timeConst, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	timeDesc := &model.TimeSeriesDescriptionListDataType{
@@ -46,7 +46,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, timeDesc, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, timeDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	incDesc := &model.IncentiveTableDescriptionDataType{
@@ -63,7 +63,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 	}
 
 	rIncentiveFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeIncentiveTable, model.RoleTypeServer)
-	fErr = rIncentiveFeature.UpdateData(model.FunctionTypeIncentiveTableDescriptionData, incDesc, nil, nil)
+	_, fErr = rIncentiveFeature.UpdateData(true, model.FunctionTypeIncentiveTableDescriptionData, incDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	// demand, No Profile No Timer demand
@@ -86,7 +86,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err := s.sut.EnergyDemand(s.evEntity)
@@ -127,7 +127,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	// demand, profile + timer with 80% target and no climate, minSoC reached
@@ -156,7 +156,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err = s.sut.EnergyDemand(s.evEntity)
@@ -197,7 +197,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	// demand, profile with 25% min SoC, minSoC not reached, no timer
@@ -242,7 +242,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err = s.sut.EnergyDemand(s.evEntity)
@@ -278,7 +278,7 @@ func (s *CemCEVCSuite) Test_CoordinatedChargingScenarios() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 }
 

@@ -27,7 +27,7 @@ func (s *CemVABDSuite) Test_CurrentChargePower() {
 	}
 
 	measurementFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.batteryEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := measurementFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := measurementFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.batteryEntity)
@@ -43,7 +43,7 @@ func (s *CemVABDSuite) Test_CurrentChargePower() {
 		},
 	}
 
-	fErr = measurementFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = measurementFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.batteryEntity)
@@ -72,7 +72,7 @@ func (s *CemVABDSuite) Test_TotalChargeEnergy() {
 	}
 
 	measurementFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.batteryEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := measurementFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := measurementFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyCharged(s.batteryEntity)
@@ -88,7 +88,7 @@ func (s *CemVABDSuite) Test_TotalChargeEnergy() {
 		},
 	}
 
-	fErr = measurementFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = measurementFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyCharged(s.batteryEntity)
@@ -117,7 +117,7 @@ func (s *CemVABDSuite) Test_TotalDischargeEnergy() {
 	}
 
 	measurementFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.batteryEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := measurementFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := measurementFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyDischarged(s.batteryEntity)
@@ -133,7 +133,7 @@ func (s *CemVABDSuite) Test_TotalDischargeEnergy() {
 		},
 	}
 
-	fErr = measurementFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = measurementFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyDischarged(s.batteryEntity)
@@ -162,7 +162,7 @@ func (s *CemVABDSuite) Test_CurrentStateOfCharge() {
 	}
 
 	measurementFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.batteryEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := measurementFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := measurementFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.StateOfCharge(s.batteryEntity)
@@ -178,7 +178,7 @@ func (s *CemVABDSuite) Test_CurrentStateOfCharge() {
 		},
 	}
 
-	fErr = measurementFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = measurementFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.StateOfCharge(s.batteryEntity)

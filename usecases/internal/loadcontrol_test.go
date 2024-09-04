@@ -62,7 +62,7 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -97,7 +97,7 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 	}
 
 	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -120,7 +120,7 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -150,7 +150,7 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 		},
 	}
 
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -213,7 +213,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -280,7 +280,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 	}
 
 	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -301,7 +301,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -355,7 +355,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 		},
 	}
 
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -444,7 +444,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -511,7 +511,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
 	}
 
 	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -541,7 +541,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -573,7 +573,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
 		},
 	}
 
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
@@ -628,14 +628,14 @@ func (s *InternalSuite) Test_WriteLoadControlLimit() {
 		},
 	}
 	lc := s.monitoredEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	lc.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, _ = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 
 	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), msgCounter)
 
 	data := &model.LoadControlLimitListDataType{LoadControlLimitData: []model.LoadControlLimitDataType{}}
-	lc.UpdateData(model.FunctionTypeLoadControlLimitListData, data, nil, nil)
+	_, _ = lc.UpdateData(true, model.FunctionTypeLoadControlLimitListData, data, nil, nil)
 
 	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
 	assert.NotNil(s.T(), err)
@@ -651,7 +651,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimit() {
 			},
 		},
 	}
-	lc.UpdateData(model.FunctionTypeLoadControlLimitListData, data, nil, nil)
+	_, _ = lc.UpdateData(true, model.FunctionTypeLoadControlLimitListData, data, nil, nil)
 
 	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
 	assert.NotNil(s.T(), err)
@@ -670,7 +670,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimit() {
 			},
 		},
 	}
-	lc.UpdateData(model.FunctionTypeLoadControlLimitListData, data, nil, nil)
+	_, _ = lc.UpdateData(true, model.FunctionTypeLoadControlLimitListData, data, nil, nil)
 
 	s.mux.Lock()
 	cbInvoked := false
@@ -756,7 +756,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
@@ -833,7 +833,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 				assert.NotNil(s.T(), remoteLoadControlF)
 
 				emptyLimits := model.LoadControlLimitListDataType{}
-				errT := remoteLoadControlF.UpdateData(model.FunctionTypeLoadControlLimitListData, &emptyLimits, nil, nil)
+				_, errT := remoteLoadControlF.UpdateData(true, model.FunctionTypeLoadControlLimitListData, &emptyLimits, nil, nil)
 				assert.Nil(s.T(), errT)
 
 				for phase := 0; phase < data.phases; phase++ {
@@ -862,7 +862,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 					ElectricalConnectionPermittedValueSetData: dataSet,
 				}
 
-				fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+				_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
 				msgCounter, err := WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
@@ -901,7 +901,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 				}
 
 				rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-				fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+				_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
 				msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)
@@ -923,7 +923,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 					LoadControlLimitData: limitData,
 				}
 
-				fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitListData, nil, nil)
+				_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitListData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
 				msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, loadLimits, nil)

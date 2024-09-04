@@ -141,7 +141,8 @@ func (f *Feature) requestData(function model.FunctionType, selectors any, elemen
 	}
 
 	// remove the selectors if the remote does not allow partial reads
-	if selectors != nil && !op.ReadPartial() {
+	// or partial writes, because in that case we need to have all data
+	if selectors != nil && (!op.ReadPartial() || !op.WritePartial()) {
 		selectors = nil
 		elements = nil
 	}

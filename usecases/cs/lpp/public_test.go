@@ -135,7 +135,7 @@ func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
 		HeartbeatCounter: util.Ptr(uint64(1)),
 		HeartbeatTimeout: model.NewDurationType(time.Second * 120),
 	}
-	err1 := remoteDiagServer.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_, err1 := remoteDiagServer.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
 	assert.Nil(s.T(), err1)
 
 	value = s.sut.IsHeartbeatWithinDuration()
@@ -144,7 +144,7 @@ func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
 	timestamp = time.Now()
 	data.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(timestamp)
 
-	err1 = remoteDiagServer.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_, err1 = remoteDiagServer.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
 	assert.Nil(s.T(), err1)
 
 	value = s.sut.IsHeartbeatWithinDuration()

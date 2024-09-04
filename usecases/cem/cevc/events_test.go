@@ -95,7 +95,7 @@ func (s *CemCEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 	}
 
 	rTimeFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr := rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, timeDesc, nil, nil)
+	_, fErr := rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, timeDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
@@ -120,7 +120,7 @@ func (s *CemCEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err := s.sut.EnergyDemand(s.evEntity)
@@ -148,7 +148,7 @@ func (s *CemCEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesConstraintsListData, constData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesConstraintsListData, constData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)
@@ -167,7 +167,7 @@ func (s *CemCEVCSuite) Test_evTimeSeriesDescriptionDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeIncentiveTable, model.RoleTypeServer)
-	fErr = rFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, incConstData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeIncentiveTableConstraintsData, incConstData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evTimeSeriesDescriptionDataUpdate(payload)

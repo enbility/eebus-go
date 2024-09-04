@@ -23,7 +23,7 @@ func (s *CemEVCCSuite) Test_ChargeState() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ChargeState(s.evEntity)
@@ -34,7 +34,7 @@ func (s *CemEVCCSuite) Test_ChargeState() {
 		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeStandby),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ChargeState(s.evEntity)
@@ -45,7 +45,7 @@ func (s *CemEVCCSuite) Test_ChargeState() {
 		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeFailure),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ChargeState(s.evEntity)
@@ -56,7 +56,7 @@ func (s *CemEVCCSuite) Test_ChargeState() {
 		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeFinished),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ChargeState(s.evEntity)
@@ -67,7 +67,7 @@ func (s *CemEVCCSuite) Test_ChargeState() {
 		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeInAlarm),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ChargeState(s.evEntity)
@@ -90,7 +90,7 @@ func (s *CemEVCCSuite) Test_EVConnected() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, stateData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.EVConnected(s.evEntity)
@@ -116,7 +116,7 @@ func (s *CemEVCCSuite) Test_EVCommunicationStandard() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CommunicationStandard(s.evEntity)
@@ -133,7 +133,7 @@ func (s *CemEVCCSuite) Test_EVCommunicationStandard() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CommunicationStandard(s.evEntity)
@@ -151,7 +151,7 @@ func (s *CemEVCCSuite) Test_EVCommunicationStandard() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, devData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, devData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CommunicationStandard(s.evEntity)
@@ -178,7 +178,7 @@ func (s *CemEVCCSuite) Test_EVAsymmetricChargingSupport() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.AsymmetricChargingSupport(s.evEntity)
@@ -195,7 +195,7 @@ func (s *CemEVCCSuite) Test_EVAsymmetricChargingSupport() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.AsymmetricChargingSupport(s.evEntity)
@@ -213,7 +213,7 @@ func (s *CemEVCCSuite) Test_EVAsymmetricChargingSupport() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, devData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, devData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.AsymmetricChargingSupport(s.evEntity)
@@ -245,7 +245,7 @@ func (s *CemEVCCSuite) Test_EVIdentification() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeIdentification, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeIdentificationListData, idData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeIdentificationListData, idData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Identifications(s.evEntity)
@@ -267,7 +267,7 @@ func (s *CemEVCCSuite) Test_EVManufacturerData() {
 	descData := &model.DeviceClassificationManufacturerDataType{}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err := s.sut.ManufacturerData(s.evEntity)
@@ -281,7 +281,7 @@ func (s *CemEVCCSuite) Test_EVManufacturerData() {
 		SerialNumber: util.Ptr(model.DeviceClassificationStringType("12345")),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ManufacturerData(s.evEntity)
@@ -316,7 +316,7 @@ func (s *CemEVCCSuite) Test_EVChargingPowerLimits() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	minData, maxData, standByData, err = s.sut.ChargingPowerLimits(s.evEntity)
@@ -375,7 +375,7 @@ func (s *CemEVCCSuite) Test_EVChargingPowerLimits() {
 				ElectricalConnectionPermittedValueSetData: dataSet,
 			}
 
-			fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+			_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 			assert.Nil(s.T(), fErr)
 
 			minData, maxData, standByData, err = s.sut.ChargingPowerLimits(s.evEntity)
@@ -401,7 +401,7 @@ func (s *CemEVCCSuite) Test_EVInSleepMode() {
 	descData := &model.DeviceDiagnosisStateDataType{}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.IsInSleepMode(s.evEntity)
@@ -412,7 +412,7 @@ func (s *CemEVCCSuite) Test_EVInSleepMode() {
 		OperatingState: util.Ptr(model.DeviceDiagnosisOperatingStateTypeStandby),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.IsInSleepMode(s.evEntity)

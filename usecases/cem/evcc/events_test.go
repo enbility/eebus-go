@@ -101,7 +101,7 @@ func (s *CemEVCCSuite) Test_evConfigurationDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evConfigurationDataUpdate(payload)
@@ -161,7 +161,7 @@ func (s *CemEVCCSuite) Test_evOperatingStateDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, data, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, data, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evOperatingStateDataUpdate(payload)
@@ -218,7 +218,7 @@ func (s *CemEVCCSuite) Test_evManufacturerDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, data, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, data, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evManufacturerDataUpdate(payload)
@@ -249,7 +249,7 @@ func (s *CemEVCCSuite) Test_evElectricalPermittedValuesUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evElectricalPermittedValuesUpdate(payload)

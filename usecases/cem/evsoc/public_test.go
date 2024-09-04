@@ -32,7 +32,7 @@ func (s *CemEVSOCSuite) Test_StateOfCharge() {
 
 	nodemgmtEntity := s.remoteDevice.Entity([]model.AddressEntityType{0})
 	nodeFeature := s.remoteDevice.FeatureByEntityTypeAndRole(nodemgmtEntity, model.FeatureTypeTypeNodeManagement, model.RoleTypeSpecial)
-	fErr := nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, ucData, nil, nil)
+	_, fErr := nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, ucData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.StateOfCharge(s.evEntity)
@@ -51,7 +51,7 @@ func (s *CemEVSOCSuite) Test_StateOfCharge() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.StateOfCharge(s.evEntity)
@@ -66,7 +66,7 @@ func (s *CemEVSOCSuite) Test_StateOfCharge() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.StateOfCharge(s.evEntity)
@@ -82,7 +82,7 @@ func (s *CemEVSOCSuite) Test_StateOfCharge() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.StateOfCharge(s.evEntity)

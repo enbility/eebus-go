@@ -65,7 +65,7 @@ func (s *CemEVSECCSuite) Test_evseManufacturerDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evseEntity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, data, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, data, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evseManufacturerDataUpdate(payload)
@@ -90,7 +90,7 @@ func (s *CemEVSECCSuite) Test_evseStateUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evseEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, data, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, data, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.evseStateUpdate(payload)

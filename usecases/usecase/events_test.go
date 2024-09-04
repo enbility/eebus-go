@@ -55,7 +55,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 		"release",
 		false,
 		[]model.UseCaseScenarioSupportType{1, 2, 3})
-	nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	s.uc.useCaseDataUpdate(payload)
 
@@ -71,7 +71,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 		"release",
 		false,
 		[]model.UseCaseScenarioSupportType{1, 2, 3})
-	nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	s.uc.useCaseDataUpdate(payload)
 
@@ -87,7 +87,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 		"release",
 		true,
 		[]model.UseCaseScenarioSupportType{1, 2, 3})
-	nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	s.uc.useCaseDataUpdate(payload)
 
@@ -103,7 +103,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 		"release",
 		true,
 		[]model.UseCaseScenarioSupportType{1, 2, 3})
-	nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	s.uc.useCaseDataUpdate(payload)
 
@@ -119,7 +119,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 		"release",
 		true,
 		[]model.UseCaseScenarioSupportType{2, 3})
-	nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	s.uc.useCaseDataUpdate(payload)
 
@@ -135,7 +135,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 		"release",
 		true,
 		[]model.UseCaseScenarioSupportType{1, 2, 3})
-	nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	s.uc.useCaseScenarios[0].ServerFeatures = []model.FeatureTypeType{model.FeatureTypeTypeSmartEnergyManagementPs}
 
@@ -208,7 +208,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate_PMCP() {
 			},
 		},
 	}
-	nodeFeature.UpdateData(model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
 	s.uc.useCaseDataUpdate(payload)
 

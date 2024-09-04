@@ -27,7 +27,7 @@ func (s *CemVAPDSuite) Test_CurrentProductionPower() {
 	}
 
 	measurementFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.pvEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := measurementFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := measurementFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.pvEntity)
@@ -43,7 +43,7 @@ func (s *CemVAPDSuite) Test_CurrentProductionPower() {
 		},
 	}
 
-	fErr = measurementFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = measurementFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.pvEntity)
@@ -71,7 +71,7 @@ func (s *CemVAPDSuite) Test_NominalPeakPower() {
 	}
 
 	confFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.pvEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := confFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, confData, nil, nil)
+	_, fErr := confFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, confData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	keyData := &model.DeviceConfigurationKeyValueListDataType{
@@ -84,7 +84,7 @@ func (s *CemVAPDSuite) Test_NominalPeakPower() {
 			},
 		},
 	}
-	fErr = confFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = confFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerNominalPeak(s.pvEntity)
@@ -113,7 +113,7 @@ func (s *CemVAPDSuite) Test_TotalPVYield() {
 	}
 
 	measurementFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.pvEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := measurementFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := measurementFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PVYieldTotal(s.pvEntity)
@@ -129,7 +129,7 @@ func (s *CemVAPDSuite) Test_TotalPVYield() {
 		},
 	}
 
-	fErr = measurementFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = measurementFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PVYieldTotal(s.pvEntity)
