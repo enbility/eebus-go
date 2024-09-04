@@ -41,7 +41,7 @@ func (s *CemCEVCSuite) Test_TimeSlotConstraints() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeTimeSeriesConstraintsListData, constData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeTimeSeriesConstraintsListData, constData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	constraints, err = s.sut.TimeSlotConstraints(s.evEntity)
@@ -73,7 +73,7 @@ func (s *CemCEVCSuite) Test_WritePowerLimits() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamDesc, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	err = s.sut.WritePowerLimits(s.evEntity, data)
@@ -88,7 +88,7 @@ func (s *CemCEVCSuite) Test_WritePowerLimits() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, elPermDesc, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, elPermDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	err = s.sut.WritePowerLimits(s.evEntity, data)
@@ -112,7 +112,7 @@ func (s *CemCEVCSuite) Test_WritePowerLimits() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, elPermDesc, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, elPermDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	err = s.sut.WritePowerLimits(s.evEntity, data)
@@ -128,7 +128,7 @@ func (s *CemCEVCSuite) Test_WritePowerLimits() {
 	}
 
 	rFeature = s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr = rFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	err = s.sut.WritePowerLimits(s.evEntity, data)
@@ -204,7 +204,7 @@ func (s *CemCEVCSuite) Test_WritePowerLimits() {
 					},
 				}
 
-				fErr := rFeature.UpdateData(model.FunctionTypeTimeSeriesConstraintsListData, constData, nil, nil)
+				_, fErr := rFeature.UpdateData(true, model.FunctionTypeTimeSeriesConstraintsListData, constData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
 				err = s.sut.WritePowerLimits(s.evEntity, data.slots)

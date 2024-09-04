@@ -88,7 +88,7 @@ func (s *MaMPCSuite) Test_deviceMeasurementDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.deviceMeasurementDataUpdate(payload)

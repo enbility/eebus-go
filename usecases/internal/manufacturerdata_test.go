@@ -25,7 +25,7 @@ func (s *InternalSuite) Test_ManufacturerData() {
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
 	assert.NotNil(s.T(), rFeature)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 	data, err := ManufacturerData(s.localEntity, s.monitoredEntity)
 	assert.Nil(s.T(), err)

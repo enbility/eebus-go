@@ -72,24 +72,43 @@ func (l *LoadControl) WriteLimitData(
 	}
 
 	var filters []model.FilterType
+	var delFilter *model.FilterType
+	partialFilter := model.NewFilterTypePartial()
 	if deleteElements != nil && deleteSelectors != nil {
-		delFilter := model.FilterType{
+		delFilter = &model.FilterType{
 			CmdControl: &model.CmdControlType{
 				Delete: &model.ElementTagType{},
 			},
 			LoadControlLimitListDataSelectors: deleteSelectors,
 			LoadControlLimitDataElements:      deleteElements,
 		}
-		filters = append(filters, delFilter)
+		filters = append(filters, *delFilter)
 	}
-	filters = append(filters, *model.NewFilterTypePartial())
+	filters = append(filters, *partialFilter)
+
+	// does the remote server feature not support partials?
+	operation := l.featureRemote.Operations()[model.FunctionTypeLoadControlLimitListData]
+	if operation == nil || !operation.WritePartial() {
+		filters = nil
+		// we need to send all data
+		updateData := &model.LoadControlLimitListDataType{
+			LoadControlLimitData: data,
+		}
+
+		if mergedData, err := l.featureRemote.UpdateData(false, model.FunctionTypeLoadControlLimitListData, updateData, partialFilter, delFilter); err == nil {
+			data = mergedData.([]model.LoadControlLimitDataType)
+		}
+	}
 
 	cmd := model.CmdType{
-		Function: util.Ptr(model.FunctionTypeLoadControlLimitListData),
-		Filter:   filters,
 		LoadControlLimitListData: &model.LoadControlLimitListDataType{
 			LoadControlLimitData: data,
 		},
+	}
+
+	if filters != nil {
+		cmd.Filter = filters
+		cmd.Function = util.Ptr(model.FunctionTypeLoadControlLimitListData)
 	}
 
 	return l.remoteDevice.Sender().Write(l.featureLocal.Address(), l.featureRemote.Address(), cmd)

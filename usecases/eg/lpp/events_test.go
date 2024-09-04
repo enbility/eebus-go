@@ -69,7 +69,7 @@ func (s *EgLPPSuite) Test_loadControlLimitDescriptionDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.loadControlLimitDescriptionDataUpdate(s.monitoredEntity)
@@ -97,7 +97,7 @@ func (s *EgLPPSuite) Test_loadControlLimitDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.loadControlLimitDataUpdate(payload)
@@ -150,7 +150,7 @@ func (s *EgLPPSuite) Test_configurationDataUpdate() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	s.sut.configurationDataUpdate(payload)

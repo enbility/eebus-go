@@ -129,6 +129,6 @@ func (s *IdentificationSuite) addData() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeIdentificationListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeIdentificationListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeIdentificationListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeIdentificationListData, fData, nil, nil)
 }

@@ -23,7 +23,7 @@ func (s *CemCEVCSuite) Test_ChargePlanConstaints() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.ChargePlanConstraints(s.evEntity)
@@ -40,7 +40,7 @@ func (s *CemCEVCSuite) Test_ChargePlanConstaints() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeTimeSeriesListData, data, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, data, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.ChargePlanConstraints(s.evEntity)
@@ -72,7 +72,7 @@ func (s *CemCEVCSuite) Test_ChargePlanConstaints() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeTimeSeriesListData, data, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, data, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.ChargePlanConstraints(s.evEntity)
@@ -111,7 +111,7 @@ func (s *CemCEVCSuite) Test_ChargePlan() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.ChargePlan(s.evEntity)
@@ -166,7 +166,7 @@ func (s *CemCEVCSuite) Test_ChargePlan() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.ChargePlan(s.evEntity)

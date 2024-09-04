@@ -154,7 +154,7 @@ func (s *IncentiveTableSuite) addData() {
 		},
 	}
 	s.localFeature.UpdateData(model.FunctionTypeIncentiveTableData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeIncentiveTableData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeIncentiveTableData, fData, nil, nil)
 }
 
 func (s *IncentiveTableSuite) addDescription() {
@@ -192,8 +192,8 @@ func (s *IncentiveTableSuite) addDescription() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeIncentiveTableDescriptionData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeIncentiveTableDescriptionData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeIncentiveTableDescriptionData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeIncentiveTableDescriptionData, fData, nil, nil)
 }
 
 func (s *IncentiveTableSuite) addConstraints() {
@@ -214,6 +214,6 @@ func (s *IncentiveTableSuite) addConstraints() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeIncentiveTableConstraintsData, fData, nil, nil)
 }

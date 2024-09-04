@@ -72,8 +72,8 @@ func (s *DeviceDiagnosisSuite) Test_GetState() {
 		OperatingState:       util.Ptr(model.DeviceDiagnosisOperatingStateTypeNormalOperation),
 		PowerSupplyCondition: util.Ptr(model.PowerSupplyConditionTypeGood),
 	}
-	s.localFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, fData, nil, nil)
 
 	result, err = s.localSut.GetState()
 	assert.Nil(s.T(), err)
@@ -96,8 +96,8 @@ func (s *DeviceDiagnosisSuite) Test_IsHeartbeatWithinDuration() {
 		HeartbeatTimeout: model.NewDurationType(time.Second * 4),
 	}
 
-	s.localFeature.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
 
 	result = s.localSut.IsHeartbeatWithinDuration(time.Second * 10)
 	assert.Equal(s.T(), false, result)
@@ -105,8 +105,8 @@ func (s *DeviceDiagnosisSuite) Test_IsHeartbeatWithinDuration() {
 	assert.Equal(s.T(), false, result)
 
 	data.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(now)
-	s.localFeature.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
 
 	result = s.localSut.IsHeartbeatWithinDuration(time.Second * 10)
 	assert.Equal(s.T(), true, result)

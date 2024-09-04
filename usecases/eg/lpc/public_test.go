@@ -41,7 +41,7 @@ func (s *EgLPCSuite) Test_ConsumptionLimit() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ConsumptionLimit(s.monitoredEntity)
@@ -64,7 +64,7 @@ func (s *EgLPCSuite) Test_ConsumptionLimit() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ConsumptionLimit(s.monitoredEntity)
@@ -99,7 +99,7 @@ func (s *EgLPCSuite) Test_WriteLoadControlLimit() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.WriteConsumptionLimit(s.monitoredEntity, limit, nil)
@@ -116,7 +116,7 @@ func (s *EgLPCSuite) Test_WriteLoadControlLimit() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.WriteConsumptionLimit(s.monitoredEntity, limit, nil)
@@ -147,7 +147,7 @@ func (s *EgLPCSuite) Test_FailsafeConsumptionActivePowerLimit() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.FailsafeConsumptionActivePowerLimit(s.monitoredEntity)
@@ -163,7 +163,7 @@ func (s *EgLPCSuite) Test_FailsafeConsumptionActivePowerLimit() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.FailsafeConsumptionActivePowerLimit(s.monitoredEntity)
@@ -181,7 +181,7 @@ func (s *EgLPCSuite) Test_FailsafeConsumptionActivePowerLimit() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.FailsafeConsumptionActivePowerLimit(s.monitoredEntity)
@@ -206,7 +206,7 @@ func (s *EgLPCSuite) Test_WriteFailsafeConsumptionActivePowerLimit() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.WriteFailsafeConsumptionActivePowerLimit(s.monitoredEntity, 6000)
@@ -221,7 +221,7 @@ func (s *EgLPCSuite) Test_WriteFailsafeConsumptionActivePowerLimit() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.WriteFailsafeConsumptionActivePowerLimit(s.monitoredEntity, 6000)
@@ -248,7 +248,7 @@ func (s *EgLPCSuite) Test_FailsafeDurationMinimum() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.FailsafeDurationMinimum(s.monitoredEntity)
@@ -264,7 +264,7 @@ func (s *EgLPCSuite) Test_FailsafeDurationMinimum() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.FailsafeDurationMinimum(s.monitoredEntity)
@@ -282,7 +282,7 @@ func (s *EgLPCSuite) Test_FailsafeDurationMinimum() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.FailsafeDurationMinimum(s.monitoredEntity)
@@ -307,7 +307,7 @@ func (s *EgLPCSuite) Test_WriteFailsafeDurationMinimum() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.WriteFailsafeDurationMinimum(s.monitoredEntity, time.Duration(time.Hour*2))
@@ -322,7 +322,7 @@ func (s *EgLPCSuite) Test_WriteFailsafeDurationMinimum() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	_, err = s.sut.WriteFailsafeDurationMinimum(s.monitoredEntity, time.Duration(time.Hour*2))
@@ -354,7 +354,7 @@ func (s *EgLPCSuite) Test_PowerConsumptionNominalMax() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ConsumptionNominalMax(s.monitoredEntity)
@@ -374,7 +374,7 @@ func (s *EgLPCSuite) Test_PowerConsumptionNominalMax() {
 	}
 
 	rFeature = s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ConsumptionNominalMax(s.monitoredEntity)
