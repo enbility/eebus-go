@@ -307,6 +307,7 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase_AudiConnect() {
 
 	data, err = s.sut.CurrentPerPhase(s.evEntity)
 	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(data))
 	assert.Equal(s.T(), 10.0, data[0])
 }
 
