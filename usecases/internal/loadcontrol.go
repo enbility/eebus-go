@@ -49,7 +49,7 @@ func LoadControlLimits(
 		elParamDesc, err := evElectricalConnection.GetParameterDescriptionsForFilter(filter)
 		if err != nil || len(elParamDesc) == 0 || elParamDesc[0].MeasurementId == nil {
 			// there is no data for this phase, the phase may not exist
-			result = append(result, ucapi.LoadLimitsPhase{Phase: phaseName})
+			// so do not add id to the result
 			continue
 		}
 
