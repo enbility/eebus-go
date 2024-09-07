@@ -81,27 +81,30 @@ func (s *CsLPCSuite) Test_PendingConsumptionLimits() {
 func (s *CsLPCSuite) Test_Failsafe() {
 	limit, changeable, err := s.sut.FailsafeConsumptionActivePowerLimit()
 	assert.Equal(s.T(), 0.0, limit)
-	assert.Equal(s.T(), false, changeable)
+	assert.Equal(s.T(), true, changeable)
 	assert.Nil(s.T(), err)
 
-	err = s.sut.SetFailsafeConsumptionActivePowerLimit(10, true)
+	err = s.sut.SetFailsafeConsumptionActivePowerLimit(10, false)
 	assert.Nil(s.T(), err)
 
 	limit, changeable, err = s.sut.FailsafeConsumptionActivePowerLimit()
 	assert.Equal(s.T(), 10.0, limit)
-	assert.Equal(s.T(), true, changeable)
+	assert.Equal(s.T(), false, changeable)
 	assert.Nil(s.T(), err)
 
 	// The actual tests of the functionality is located in the util package
 	duration, changeable, err := s.sut.FailsafeDurationMinimum()
 	assert.Equal(s.T(), time.Duration(0), duration)
-	assert.Equal(s.T(), false, changeable)
+	assert.Equal(s.T(), true, changeable)
 	assert.Nil(s.T(), err)
 
 	err = s.sut.SetFailsafeDurationMinimum(time.Duration(time.Hour*1), true)
 	assert.NotNil(s.T(), err)
 
 	err = s.sut.SetFailsafeDurationMinimum(time.Duration(time.Hour*2), true)
+	assert.Nil(s.T(), err)
+
+	err = s.sut.SetFailsafeConsumptionActivePowerLimit(10, true)
 	assert.Nil(s.T(), err)
 
 	limit, changeable, err = s.sut.FailsafeConsumptionActivePowerLimit()

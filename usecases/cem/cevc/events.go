@@ -49,8 +49,10 @@ func (e *CEVC) HandleEvent(payload spineapi.EventPayload) {
 func (e *CEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
-		if _, err := evDeviceConfiguration.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evDeviceConfiguration.HasSubscription() {
+			if _, err := evDeviceConfiguration.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get device configuration descriptions
@@ -60,12 +62,16 @@ func (e *CEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if evTimeSeries, err := client.NewTimeSeries(e.LocalEntity, entity); err == nil {
-		if _, err := evTimeSeries.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evTimeSeries.HasSubscription() {
+			if _, err := evTimeSeries.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
-		if _, err := evTimeSeries.Bind(); err != nil {
-			logging.Log().Debug(err)
+		if !evTimeSeries.HasBinding() {
+			if _, err := evTimeSeries.Bind(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get time series descriptions
@@ -80,12 +86,16 @@ func (e *CEVC) evConnected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if evIncentiveTable, err := client.NewIncentiveTable(e.LocalEntity, entity); err == nil {
-		if _, err := evIncentiveTable.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evIncentiveTable.HasSubscription() {
+			if _, err := evIncentiveTable.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
-		if _, err := evIncentiveTable.Bind(); err != nil {
-			logging.Log().Debug(err)
+		if !evIncentiveTable.HasBinding() {
+			if _, err := evIncentiveTable.Bind(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get incentivetable descriptions

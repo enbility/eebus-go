@@ -45,8 +45,10 @@ func (e *MGCP) HandleEvent(payload spineapi.EventPayload) {
 // process required steps when a grid device is connected
 func (e *MGCP) gridConnected(entity spineapi.EntityRemoteInterface) {
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
-		if _, err := deviceConfiguration.Subscribe(); err != nil {
-			logging.Log().Error(err)
+		if !deviceConfiguration.HasSubscription() {
+			if _, err := deviceConfiguration.Subscribe(); err != nil {
+				logging.Log().Error(err)
+			}
 		}
 
 		// get configuration data
@@ -56,8 +58,10 @@ func (e *MGCP) gridConnected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if electricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
-		if _, err := electricalConnection.Subscribe(); err != nil {
-			logging.Log().Error(err)
+		if !electricalConnection.HasSubscription() {
+			if _, err := electricalConnection.Subscribe(); err != nil {
+				logging.Log().Error(err)
+			}
 		}
 
 		// get electrical connection parameter
@@ -71,8 +75,10 @@ func (e *MGCP) gridConnected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if measurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
-		if _, err := measurement.Subscribe(); err != nil {
-			logging.Log().Error(err)
+		if !measurement.HasSubscription() {
+			if _, err := measurement.Subscribe(); err != nil {
+				logging.Log().Error(err)
+			}
 		}
 
 		// get measurement parameters

@@ -58,8 +58,10 @@ func (e *EVCC) HandleEvent(payload spineapi.EventPayload) {
 func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := evDeviceClassification.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evDeviceClassification.HasSubscription() {
+			if _, err := evDeviceClassification.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get manufacturer details
@@ -69,9 +71,12 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 	}
 
 	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := evDeviceConfiguration.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evDeviceConfiguration.HasSubscription() {
+			if _, err := evDeviceConfiguration.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
+
 		// get ev configuration data
 		if _, err := evDeviceConfiguration.RequestKeyValueDescriptions(nil, nil); err != nil {
 			logging.Log().Debug(err)
@@ -79,8 +84,10 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 	}
 
 	if evDeviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := evDeviceDiagnosis.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evDeviceDiagnosis.HasSubscription() {
+			if _, err := evDeviceDiagnosis.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get device diagnosis state
@@ -90,8 +97,10 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 	}
 
 	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := evElectricalConnection.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evElectricalConnection.HasSubscription() {
+			if _, err := evElectricalConnection.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get electrical connection parameter descriptions
@@ -106,8 +115,10 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 	}
 
 	if evIdentification, err := client.NewIdentification(e.LocalEntity, payload.Entity); err == nil {
-		if _, err := evIdentification.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evIdentification.HasSubscription() {
+			if _, err := evIdentification.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get identification

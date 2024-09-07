@@ -43,8 +43,10 @@ func (e *EVCEM) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 
 	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
-		if _, err := evElectricalConnection.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evElectricalConnection.HasSubscription() {
+			if _, err := evElectricalConnection.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get electrical connection descriptions
@@ -59,8 +61,10 @@ func (e *EVCEM) evConnected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if evMeasurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
-		if _, err := evMeasurement.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evMeasurement.HasSubscription() {
+			if _, err := evMeasurement.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get measurement descriptions

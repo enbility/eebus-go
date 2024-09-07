@@ -8,6 +8,7 @@ import (
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
+	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
@@ -124,11 +125,13 @@ func (e *LPC) approveOrDenyConsumptionLimit(msg *spineapi.Message, approve bool,
 func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
+		logging.Log().Debug("LPC loadControlWriteCB: invalid message")
 		return
 	}
 
 	_, limitId, err := e.loadControlServerAndLimitId()
 	if err != nil {
+		logging.Log().Debug("LPC loadControlWriteCB: error getting limit id")
 		return
 	}
 
@@ -137,6 +140,7 @@ func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	// we assume there is always only one limit
 	if data == nil || data.LoadControlLimitData == nil ||
 		len(data.LoadControlLimitData) == 0 {
+		logging.Log().Debug("LPC loadControlWriteCB: no data")
 		return
 	}
 
@@ -223,7 +227,7 @@ func (e *LPC) AddFeatures() {
 		_ = dcs.UpdateKeyValueDataForFilter(
 			model.DeviceConfigurationKeyValueDataType{
 				Value:             value,
-				IsValueChangeable: util.Ptr(false),
+				IsValueChangeable: util.Ptr(true),
 			},
 			nil,
 			model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -237,7 +241,7 @@ func (e *LPC) AddFeatures() {
 		_ = dcs.UpdateKeyValueDataForFilter(
 			model.DeviceConfigurationKeyValueDataType{
 				Value:             value,
-				IsValueChangeable: util.Ptr(false),
+				IsValueChangeable: util.Ptr(true),
 			},
 			nil,
 			model.DeviceConfigurationKeyValueDescriptionDataType{

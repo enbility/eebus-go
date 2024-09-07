@@ -102,8 +102,10 @@ func (e *LPC) deviceConnected(payload spineapi.EventPayload) {
 	if len(deviceDiagEntities) == 1 {
 		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, deviceDiagEntities[0]); err == nil {
 			e.heartbeatDiag = localDeviceDiag
-			if _, err := localDeviceDiag.Subscribe(); err != nil {
-				logging.Log().Debug(err)
+			if !localDeviceDiag.HasSubscription() {
+				if _, err := localDeviceDiag.Subscribe(); err != nil {
+					logging.Log().Debug(err)
+				}
 			}
 
 			if _, err := localDeviceDiag.RequestHeartbeat(); err != nil {
@@ -126,8 +128,10 @@ func (e *LPC) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
 	if e.heartbeatKeoWorkaround {
 		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
 			e.heartbeatDiag = localDeviceDiag
-			if _, err := localDeviceDiag.Subscribe(); err != nil {
-				logging.Log().Debug(err)
+			if !localDeviceDiag.HasSubscription() {
+				if _, err := localDeviceDiag.Subscribe(); err != nil {
+					logging.Log().Debug(err)
+				}
 			}
 
 			if _, err := localDeviceDiag.RequestHeartbeat(); err != nil {
