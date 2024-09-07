@@ -123,7 +123,6 @@ func (e *LPC) approveOrDenyConsumptionLimit(msg *spineapi.Message, approve bool,
 // the implementation only considers write messages for this use case and
 // approves all others
 func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
-	logging.Log().Debug("LPC loadControlWriteCB")
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
 		logging.Log().Debug("LPC loadControlWriteCB: invalid message")
@@ -151,7 +150,6 @@ func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	for _, item := range data.LoadControlLimitData {
 		if item.LimitId == nil ||
 			limitId != *item.LimitId {
-			logging.Log().Debug("LPC loadControlWriteCB: no matching limit id")
 			continue
 		}
 

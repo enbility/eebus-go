@@ -8,6 +8,7 @@ import (
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
+	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
@@ -123,11 +124,13 @@ func (e *LPP) approveOrDenyProductionLimit(msg *spineapi.Message, approve bool, 
 func (e *LPP) loadControlWriteCB(msg *spineapi.Message) {
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
+		logging.Log().Debug("LPC loadControlWriteCB: invalid message")
 		return
 	}
 
 	_, limitId, err := e.loadControlServerAndLimitId()
 	if err != nil {
+		logging.Log().Debug("LPC loadControlWriteCB: error getting limit id")
 		return
 	}
 
