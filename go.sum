@@ -6,8 +6,8 @@ github.com/enbility/go-avahi v0.0.0-20240829083637-9ae2ef5f5ed2 h1:voP4zFVNvVWxl
 github.com/enbility/go-avahi v0.0.0-20240829083637-9ae2ef5f5ed2/go.mod h1:KJXUEgg/b4XZzS+OFfqnykHREsinuNSL/IzJ+nU43P8=
 github.com/enbility/ship-go v0.0.0-20240904104254-04d944c4f825 h1:i/n9UFYf660TyC8Y48P3MDxLaWWKRNW3pFjEOVzPzto=
 github.com/enbility/ship-go v0.0.0-20240904104254-04d944c4f825/go.mod h1:dzymc1D7BDZUTLVHVt9JRRkFLlBrlUmRKyLJvAe07Mc=
-github.com/enbility/spine-go v0.0.0-20240903070433-dd8261993071 h1:rjvpnD3xTrSPdU6AQK4miwl/gZQ84CJ6gv/kEEguBME=
-github.com/enbility/spine-go v0.0.0-20240903070433-dd8261993071/go.mod h1:6AbRXzd0fLVGFJdT60YQACe1WskwdjiznCfljQ+Ud6s=
+github.com/enbility/spine-go v0.0.0-20240907194637-0024041a4f36 h1:Y44hzp5uIYSEyBMe/zwFzlXKokgZHQ9cv2NiIF1NkZs=
+github.com/enbility/spine-go v0.0.0-20240907194637-0024041a4f36/go.mod h1:BDvhbs+XsWDGYwd8eQOzPXc8w/avVFmWKLlSKV/gx9k=
 github.com/enbility/zeroconf/v2 v2.0.0-20240827101515-f3956627c450 h1:39tnpfiV5OVfYb9sOqYmoivBzTHyNLWSYIxd9Qng1eg=
 github.com/enbility/zeroconf/v2 v2.0.0-20240827101515-f3956627c450/go.mod h1:1sUbJ+VE7yLNyRzGoCMjoDWtdZ+bW4aYBKx2+Rw+9hs=
 github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=

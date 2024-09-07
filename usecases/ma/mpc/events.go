@@ -39,8 +39,10 @@ func (e *MPC) HandleEvent(payload spineapi.EventPayload) {
 // process required steps when a device is connected
 func (e *MPC) deviceConnected(entity spineapi.EntityRemoteInterface) {
 	if electricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
-		if _, err := electricalConnection.Subscribe(); err != nil {
-			logging.Log().Error(err)
+		if !electricalConnection.HasSubscription() {
+			if _, err := electricalConnection.Subscribe(); err != nil {
+				logging.Log().Error(err)
+			}
 		}
 
 		// get electrical connection parameter
@@ -54,8 +56,10 @@ func (e *MPC) deviceConnected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if measurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
-		if _, err := measurement.Subscribe(); err != nil {
-			logging.Log().Error(err)
+		if !measurement.HasSubscription() {
+			if _, err := measurement.Subscribe(); err != nil {
+				logging.Log().Error(err)
+			}
 		}
 
 		// get measurement parameters

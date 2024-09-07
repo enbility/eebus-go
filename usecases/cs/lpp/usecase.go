@@ -223,7 +223,7 @@ func (e *LPP) AddFeatures() {
 		_ = dcs.UpdateKeyValueDataForFilter(
 			model.DeviceConfigurationKeyValueDataType{
 				Value:             value,
-				IsValueChangeable: util.Ptr(false),
+				IsValueChangeable: util.Ptr(true),
 			},
 			nil,
 			model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -237,7 +237,7 @@ func (e *LPP) AddFeatures() {
 		_ = dcs.UpdateKeyValueDataForFilter(
 			model.DeviceConfigurationKeyValueDataType{
 				Value:             value,
-				IsValueChangeable: util.Ptr(false),
+				IsValueChangeable: util.Ptr(true),
 			},
 			nil,
 			model.DeviceConfigurationKeyValueDescriptionDataType{

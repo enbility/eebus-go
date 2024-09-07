@@ -27,11 +27,12 @@ func (s *CsLPCSuite) Test_loadControlServerAndLimitId() {
 }
 
 func (s *CsLPCSuite) Test_loadControlWriteCB() {
-	msg := &spineapi.Message{}
+	msg := spineapi.Message{}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(&msg)
+	assert.False(s.T(), s.eventCalled)
 
-	msg = &spineapi.Message{
+	msg = spineapi.Message{
 		RequestHeader: &model.HeaderType{
 			MsgCounter: util.Ptr(model.MsgCounterType(500)),
 		},
@@ -42,17 +43,23 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 		EntityRemote: s.monitoredEntity,
 	}
 
-	s.sut.loadControlWriteCB(msg)
+	msg0 := msg
+	s.sut.loadControlWriteCB(&msg0)
 
-	msg.Cmd = model.CmdType{
+	msg1 := msg
+	msg1.RequestHeader.MsgCounter = util.Ptr(model.MsgCounterType(501))
+	msg1.Cmd = model.CmdType{
 		LoadControlLimitListData: &model.LoadControlLimitListDataType{
 			LoadControlLimitData: []model.LoadControlLimitDataType{},
 		},
 	}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(&msg1)
+	assert.False(s.T(), s.eventCalled)
 
-	msg.Cmd = model.CmdType{
+	msg2 := msg
+	msg2.RequestHeader.MsgCounter = util.Ptr(model.MsgCounterType(502))
+	msg2.Cmd = model.CmdType{
 		LoadControlLimitListData: &model.LoadControlLimitListDataType{
 			LoadControlLimitData: []model.LoadControlLimitDataType{
 				{},
@@ -60,9 +67,12 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 		},
 	}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(&msg2)
+	assert.False(s.T(), s.eventCalled)
 
-	msg.Cmd = model.CmdType{
+	msg3 := msg
+	msg3.RequestHeader.MsgCounter = util.Ptr(model.MsgCounterType(503))
+	msg3.Cmd = model.CmdType{
 		LoadControlLimitListData: &model.LoadControlLimitListDataType{
 			LoadControlLimitData: []model.LoadControlLimitDataType{
 				{
@@ -75,7 +85,33 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 		},
 	}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(&msg3)
+	assert.True(s.T(), s.eventCalled)
+
+	msg4 := msg
+	msg4.RequestHeader.MsgCounter = util.Ptr(model.MsgCounterType(504))
+	msg4.Cmd = model.CmdType{
+		Filter: []model.FilterType{
+			{
+				CmdControl: &model.CmdControlType{
+					Partial: util.Ptr(model.ElementTagType{}),
+				},
+			},
+		},
+		LoadControlLimitListData: &model.LoadControlLimitListDataType{
+			LoadControlLimitData: []model.LoadControlLimitDataType{
+				{
+					LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
+					IsLimitActive: util.Ptr(true),
+					Value:         model.NewScaledNumberType(5000),
+					TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Hour * 3),
+				},
+			},
+		},
+	}
+
+	s.sut.loadControlWriteCB(&msg4)
+	assert.True(s.T(), s.eventCalled)
 }
 
 func (s *CsLPCSuite) Test_UpdateUseCaseAvailability() {
