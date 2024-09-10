@@ -3,7 +3,7 @@ module github.com/enbility/eebus-go
 go 1.21.1
 
 require (
-	github.com/enbility/ship-go v0.0.0-20240904104254-04d944c4f825
+	github.com/enbility/ship-go v0.0.0-20240909200111-0d37cebbfc21
 	github.com/enbility/spine-go v0.0.0-20240907194637-0024041a4f36
 	github.com/stretchr/testify v1.9.0
 )
@@ -11,7 +11,7 @@ require (
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/enbility/go-avahi v0.0.0-20240829083637-9ae2ef5f5ed2 // indirect
+	github.com/enbility/go-avahi v0.0.0-20240909195612-d5de6b280d7a // indirect
 	github.com/enbility/zeroconf/v2 v2.0.0-20240827101515-f3956627c450 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golanguzb70/lrucache v1.2.0 // indirect
