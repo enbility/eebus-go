@@ -124,13 +124,13 @@ func (e *LPP) approveOrDenyProductionLimit(msg *spineapi.Message, approve bool, 
 func (e *LPP) loadControlWriteCB(msg *spineapi.Message) {
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
-		logging.Log().Debug("LPC loadControlWriteCB: invalid message")
+		logging.Log().Debug("LPP loadControlWriteCB: invalid message")
 		return
 	}
 
 	_, limitId, err := e.loadControlServerAndLimitId()
 	if err != nil {
-		logging.Log().Debug("LPC loadControlWriteCB: error getting limit id")
+		logging.Log().Debug("LPP loadControlWriteCB: error getting limit id")
 		return
 	}
 
@@ -139,6 +139,7 @@ func (e *LPP) loadControlWriteCB(msg *spineapi.Message) {
 	// we assume there is always only one limit
 	if data == nil || data.LoadControlLimitData == nil ||
 		len(data.LoadControlLimitData) == 0 {
+		logging.Log().Debug("LPP loadControlWriteCB: no data")
 		return
 	}
 
