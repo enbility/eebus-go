@@ -16,7 +16,6 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/service"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
-	"github.com/enbility/eebus-go/usecases/cs/lpc"
 	cslpc "github.com/enbility/eebus-go/usecases/cs/lpc"
 	cslpp "github.com/enbility/eebus-go/usecases/cs/lpp"
 	eglpc "github.com/enbility/eebus-go/usecases/eg/lpc"
@@ -122,7 +121,7 @@ func (h *hems) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 	}
 
 	switch event {
-	case lpc.WriteApprovalRequired:
+	case cslpc.WriteApprovalRequired:
 		// get pending writes
 		pendingWrites := h.uccslpc.PendingConsumptionLimits()
 
@@ -131,7 +130,7 @@ func (h *hems) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 			fmt.Println("Approving LPC write with msgCounter", msgCounter, "and limit", write.Value, "W")
 			h.uccslpc.ApproveOrDenyConsumptionLimit(msgCounter, true, "")
 		}
-	case lpc.DataUpdateLimit:
+	case cslpc.DataUpdateLimit:
 		if currentLimit, err := h.uccslpc.ConsumptionLimit(); err != nil {
 			fmt.Println("New LPC Limit set to", currentLimit.Value, "W")
 		}
@@ -146,7 +145,7 @@ func (h *hems) OnLPPEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 	}
 
 	switch event {
-	case lpc.WriteApprovalRequired:
+	case cslpp.WriteApprovalRequired:
 		// get pending writes
 		pendingWrites := h.uccslpp.PendingProductionLimits()
 
@@ -155,7 +154,7 @@ func (h *hems) OnLPPEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 			fmt.Println("Approving LPP write with msgCounter", msgCounter, "and limit", write.Value, "W")
 			h.uccslpp.ApproveOrDenyProductionLimit(msgCounter, true, "")
 		}
-	case lpc.DataUpdateLimit:
+	case cslpp.DataUpdateLimit:
 		if currentLimit, err := h.uccslpp.ProductionLimit(); err != nil {
 			fmt.Println("New LPP Limit set to", currentLimit.Value, "W")
 		}
