@@ -39,8 +39,8 @@ type EmobilityMeasurementSuite struct {
 
 func (s *EmobilityMeasurementSuite) BeforeTest(suiteName, testName string) {
 	s.sut = spine.NewDeviceLocal("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	s.localEntity = spine.NewEntityLocal(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	s.localEntity = spine.NewEntityLocal(s.sut, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}), time.Second*4)
 	s.sut.AddEntity(s.localEntity)
 
 	f := spine.NewFeatureLocal(1, s.localEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeClient)
