@@ -88,7 +88,7 @@ func NewConfiguration(
 		certificate:           certificate,
 		port:                  port,
 		heartbeatTimeout:      heartbeatTimeout,
-		mdnsProviderSelection: mdns.MdnsProviderSelectionGoZeroConfOnly,
+		mdnsProviderSelection: mdns.MdnsProviderSelectionAll,
 	}
 
 	if port == 0 {

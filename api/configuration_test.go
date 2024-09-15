@@ -78,7 +78,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	assert.NotNil(s.T(), config)
 	assert.Nil(s.T(), err)
 
-	assert.Equal(s.T(), mdns.MdnsProviderSelectionGoZeroConfOnly, config.MdnsProviderSelection())
+	assert.Equal(s.T(), mdns.MdnsProviderSelectionAll, config.MdnsProviderSelection())
 
 	config.SetMdnsProviderSelection(mdns.MdnsProviderSelectionAvahiOnly)
 	assert.Equal(s.T(), mdns.MdnsProviderSelectionAvahiOnly, config.MdnsProviderSelection())
