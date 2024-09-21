@@ -103,6 +103,25 @@ func (h *hems) run() {
 	h.uceglpp = eglpp.NewLPP(localEntity, nil)
 	h.myService.AddUseCase(h.uceglpp)
 
+	// Initialize local server data
+	_ = h.uccslpc.SetConsumptionNominalMax(32000)
+	_ = h.uccslpc.SetConsumptionLimit(ucapi.LoadLimit{
+		Value:        4200,
+		IsChangeable: true,
+		IsActive:     false,
+	})
+	_ = h.uccslpc.SetFailsafeConsumptionActivePowerLimit(4200, true)
+	_ = h.uccslpc.SetFailsafeDurationMinimum(2*time.Hour, true)
+
+	_ = h.uccslpp.SetProductionNominalMax(10000)
+	_ = h.uccslpp.SetProductionLimit(ucapi.LoadLimit{
+		Value:        10000,
+		IsChangeable: true,
+		IsActive:     false,
+	})
+	_ = h.uccslpp.SetFailsafeProductionActivePowerLimit(4200, true)
+	_ = h.uccslpp.SetFailsafeDurationMinimum(2*time.Hour, true)
+
 	if len(remoteSki) == 0 {
 		os.Exit(0)
 	}
