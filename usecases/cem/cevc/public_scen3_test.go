@@ -33,7 +33,7 @@ func (s *CemCEVCSuite) Test_IncentiveConstraints() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeIncentiveTable, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	constraints, err = s.sut.IncentiveConstraints(s.evEntity)
@@ -51,7 +51,7 @@ func (s *CemCEVCSuite) Test_IncentiveConstraints() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	constraints, err = s.sut.IncentiveConstraints(s.evEntity)
@@ -81,7 +81,7 @@ func (s *CemCEVCSuite) Test_WriteIncentiveTableDescriptions() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeIncentiveTable, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeIncentiveTableDescriptionData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeIncentiveTableDescriptionData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	err = s.sut.WriteIncentiveTableDescriptions(s.evEntity, data)
@@ -137,7 +137,7 @@ func (s *CemCEVCSuite) Test_WriteIncentives() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeIncentiveTable, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	err = s.sut.WriteIncentives(s.evEntity, data)
@@ -214,7 +214,7 @@ func (s *CemCEVCSuite) Test_WriteIncentives() {
 					},
 				}
 
-				fErr := rFeature.UpdateData(model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
+				_, fErr := rFeature.UpdateData(true, model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
 				assert.Nil(s.T(), fErr)
 
 				err = s.sut.WriteIncentives(s.evEntity, data.slots)

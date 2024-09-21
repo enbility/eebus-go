@@ -84,7 +84,7 @@ func (s *Service) Setup() error {
 	s.localService.SetShipID(sd.Identifier())
 	s.localService.SetDeviceType(string(sd.DeviceType()))
 
-	logging.Log().Info("Local SKI: ", ski)
+	logging.Log().Info("Local SKI:", ski)
 
 	vendor := sd.VendorCode()
 	if vendor == "" {
@@ -117,14 +117,13 @@ func (s *Service) Setup() error {
 		deviceAddress,
 		sd.DeviceType(),
 		sd.FeatureSet(),
-		sd.HeartbeatTimeout(),
 	)
 
 	// Create the device entities and add it to the SPINE device
 	for _, entityType := range sd.EntityTypes() {
 		entityAddressId := model.AddressEntityType(len(s.spineLocalDevice.Entities()))
 		entityAddress := []model.AddressEntityType{entityAddressId}
-		entity := spine.NewEntityLocal(s.spineLocalDevice, entityType, entityAddress)
+		entity := spine.NewEntityLocal(s.spineLocalDevice, entityType, entityAddress, sd.HeartbeatTimeout())
 		s.spineLocalDevice.AddEntity(entity)
 	}
 

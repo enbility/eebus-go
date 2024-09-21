@@ -26,7 +26,7 @@ func (s *GcpMGCPSuite) Test_PowerLimitationFactor() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerLimitationFactor(s.smgwEntity)
@@ -44,7 +44,7 @@ func (s *GcpMGCPSuite) Test_PowerLimitationFactor() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerLimitationFactor(s.smgwEntity)
@@ -73,7 +73,7 @@ func (s *GcpMGCPSuite) Test_Power() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.smgwEntity)
@@ -89,7 +89,7 @@ func (s *GcpMGCPSuite) Test_Power() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.smgwEntity)
@@ -106,7 +106,7 @@ func (s *GcpMGCPSuite) Test_Power() {
 	}
 
 	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.smgwEntity)
@@ -122,7 +122,7 @@ func (s *GcpMGCPSuite) Test_Power() {
 		},
 	}
 
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.smgwEntity)
@@ -151,7 +151,7 @@ func (s *GcpMGCPSuite) Test_EnergyFeedIn() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyFeedIn(s.smgwEntity)
@@ -167,7 +167,7 @@ func (s *GcpMGCPSuite) Test_EnergyFeedIn() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyFeedIn(s.smgwEntity)
@@ -196,7 +196,7 @@ func (s *GcpMGCPSuite) Test_EnergyConsumed() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyConsumed(s.smgwEntity)
@@ -212,7 +212,7 @@ func (s *GcpMGCPSuite) Test_EnergyConsumed() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyConsumed(s.smgwEntity)
@@ -253,7 +253,7 @@ func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.smgwEntity)
@@ -277,7 +277,7 @@ func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.smgwEntity)
@@ -305,7 +305,7 @@ func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
 	}
 
 	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	elDescData := &model.ElectricalConnectionDescriptionListDataType{
@@ -317,7 +317,7 @@ func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
 		},
 	}
 
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.smgwEntity)
@@ -358,7 +358,7 @@ func (s *GcpMGCPSuite) Test_VoltagePerPhase() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.VoltagePerPhase(s.smgwEntity)
@@ -382,7 +382,7 @@ func (s *GcpMGCPSuite) Test_VoltagePerPhase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.VoltagePerPhase(s.smgwEntity)
@@ -410,7 +410,7 @@ func (s *GcpMGCPSuite) Test_VoltagePerPhase() {
 	}
 
 	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.VoltagePerPhase(s.smgwEntity)
@@ -439,7 +439,7 @@ func (s *GcpMGCPSuite) Test_Frequency() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Frequency(s.smgwEntity)
@@ -455,7 +455,7 @@ func (s *GcpMGCPSuite) Test_Frequency() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Frequency(s.smgwEntity)

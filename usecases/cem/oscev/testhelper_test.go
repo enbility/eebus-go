@@ -205,6 +205,10 @@ func setupDevices(
 	}
 	remoteDevice.UpdateDevice(detailedData.DeviceInformation.Description)
 
+	for _, entity := range entities {
+		entity.UpdateDeviceAddress(*remoteDevice.Address())
+	}
+
 	localDevice.AddRemoteDeviceForSki(remoteSki, remoteDevice)
 
 	return remoteDevice, entities

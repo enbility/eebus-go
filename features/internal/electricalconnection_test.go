@@ -108,7 +108,7 @@ func (s *ElectricalConnectionSuite) Test_CheckEventPayloadDataForFilter() {
 
 	fErr := s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
-	fErr = s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, descData, nil, nil)
+	_, fErr = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	exists = s.localSut.CheckEventPayloadDataForFilter(nil, filter)
@@ -549,15 +549,67 @@ func (s *ElectricalConnectionSuite) Test_GetLimitsForParameterId() {
 	assert.Equal(s.T(), defaultV, 0.1)
 }
 
+func (s *ElectricalConnectionSuite) Test_GetLimitsForParameterId_Elli_1Phase() {
+	filter := model.ElectricalConnectionPermittedValueSetDataType{
+		ParameterId: util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+	}
+	minV, maxV, defaultV, err := s.localSut.GetPermittedValueDataForFilter(filter)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), minV, 0.0)
+	assert.Equal(s.T(), maxV, 0.0)
+	assert.Equal(s.T(), defaultV, 0.0)
+	minV, maxV, defaultV, err = s.remoteSut.GetPermittedValueDataForFilter(filter)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), minV, 0.0)
+	assert.Equal(s.T(), maxV, 0.0)
+	assert.Equal(s.T(), defaultV, 0.0)
+
+	s.addParamDescription_Elli_1Phase()
+	s.addPermittedValueSetEmptyElli()
+
+	minV, maxV, defaultV, err = s.localSut.GetPermittedValueDataForFilter(filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), minV, 0.0)
+	assert.Equal(s.T(), maxV, 0.0)
+	assert.Equal(s.T(), defaultV, 0.0)
+	minV, maxV, defaultV, err = s.remoteSut.GetPermittedValueDataForFilter(filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), minV, 0.0)
+	assert.Equal(s.T(), maxV, 0.0)
+	assert.Equal(s.T(), defaultV, 0.0)
+}
+
 func (s *ElectricalConnectionSuite) Test_AdjustValueToBeWithinPermittedValuesForParameter() {
 	parameterId := model.ElectricalConnectionParameterIdType(1)
 	s.addPermittedValueSet()
 	s.addParamDescriptionCurrents()
 
 	value := s.localSut.AdjustValueToBeWithinPermittedValuesForParameterId(20, parameterId)
-	assert.Equal(s.T(), value, 16.0)
+	assert.Equal(s.T(), 16.0, value)
 	value = s.remoteSut.AdjustValueToBeWithinPermittedValuesForParameterId(20, parameterId)
-	assert.Equal(s.T(), value, 16.0)
+	assert.Equal(s.T(), 16.0, value)
+
+	value = s.localSut.AdjustValueToBeWithinPermittedValuesForParameterId(2, parameterId)
+	assert.Equal(s.T(), 2.0, value)
+	value = s.remoteSut.AdjustValueToBeWithinPermittedValuesForParameterId(2, parameterId)
+	assert.Equal(s.T(), 2.0, value)
+
+	value = s.localSut.AdjustValueToBeWithinPermittedValuesForParameterId(1, parameterId)
+	assert.Equal(s.T(), 0.1, value)
+	value = s.remoteSut.AdjustValueToBeWithinPermittedValuesForParameterId(1, parameterId)
+	assert.Equal(s.T(), 0.1, value)
+}
+
+func (s *ElectricalConnectionSuite) Test_AdjustValueToBeWithinPermittedValuesForParameter_Elli_1Phase() {
+	parameterId := model.ElectricalConnectionParameterIdType(1)
+
+	s.addPermittedValueSetEmptyElli()
+	s.addParamDescription_Elli_1Phase()
+
+	value := s.localSut.AdjustValueToBeWithinPermittedValuesForParameterId(20, parameterId)
+	assert.Equal(s.T(), value, 20.0)
+	value = s.remoteSut.AdjustValueToBeWithinPermittedValuesForParameterId(20, parameterId)
+	assert.Equal(s.T(), value, 20.0)
 
 	value = s.localSut.AdjustValueToBeWithinPermittedValuesForParameterId(2, parameterId)
 	assert.Equal(s.T(), value, 2.0)
@@ -565,9 +617,9 @@ func (s *ElectricalConnectionSuite) Test_AdjustValueToBeWithinPermittedValuesFor
 	assert.Equal(s.T(), value, 2.0)
 
 	value = s.localSut.AdjustValueToBeWithinPermittedValuesForParameterId(1, parameterId)
-	assert.Equal(s.T(), value, 0.1)
+	assert.Equal(s.T(), value, 1.0)
 	value = s.remoteSut.AdjustValueToBeWithinPermittedValuesForParameterId(1, parameterId)
-	assert.Equal(s.T(), value, 0.1)
+	assert.Equal(s.T(), value, 1.0)
 }
 
 func (s *ElectricalConnectionSuite) Test_GetCharacteristics() {
@@ -680,7 +732,7 @@ func (s *ElectricalConnectionSuite) Test_EVCurrentLimits() {
 
 	fErr := s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
-	fErr = s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	_, fErr = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits(nil)
@@ -720,7 +772,7 @@ func (s *ElectricalConnectionSuite) Test_EVCurrentLimits() {
 	}
 	fErr = s.localMeasFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
-	fErr = s.remoteMeasFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measData, nil, nil)
+	_, fErr = s.remoteMeasFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	type permittedStruct struct {
@@ -810,7 +862,7 @@ func (s *ElectricalConnectionSuite) Test_EVCurrentLimits() {
 
 			fErr := s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 			assert.Nil(s.T(), fErr)
-			fErr = s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+			_, fErr = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
 			assert.Nil(s.T(), fErr)
 
 			minData, maxData, defaultData, err = s.localSut.GetPhaseCurrentLimits(measData.MeasurementDescriptionData)
@@ -856,8 +908,8 @@ func (s *ElectricalConnectionSuite) addDescription() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, fData, nil, nil)
 }
 
 func (s *ElectricalConnectionSuite) addCharacteristics() {
@@ -874,8 +926,8 @@ func (s *ElectricalConnectionSuite) addCharacteristics() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionCharacteristicListData, fData, nil, nil)
 }
 
 func (s *ElectricalConnectionSuite) addParamDescriptionCurrents() {
@@ -953,8 +1005,8 @@ func (s *ElectricalConnectionSuite) addParamDescriptionCurrents() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
 }
 
 func (s *ElectricalConnectionSuite) addParamDescriptionPower() {
@@ -968,8 +1020,70 @@ func (s *ElectricalConnectionSuite) addParamDescriptionPower() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
+}
+
+func (s *ElectricalConnectionSuite) addParamDescription_Elli_1Phase() {
+	fData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
+				ScopeType:              util.Ptr(model.ScopeTypeTypeACPowerTotal),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(2)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(4)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(3)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(5)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(4)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(6)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(5)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(7)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(6)),
+				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
+				AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+			},
+		},
+	}
+	_ = s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, fData, nil, nil)
 }
 
 func (s *ElectricalConnectionSuite) addPermittedValueSet() {
@@ -1045,8 +1159,8 @@ func (s *ElectricalConnectionSuite) addPermittedValueSet() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
 }
 
 func (s *ElectricalConnectionSuite) addPermittedValueSetEmptyElli() {
@@ -1067,6 +1181,6 @@ func (s *ElectricalConnectionSuite) addPermittedValueSetEmptyElli() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, fData, nil, nil)
 }

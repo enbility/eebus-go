@@ -233,8 +233,8 @@ func (s *TimeSeriesSuite) addData() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeTimeSeriesListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeTimeSeriesListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeTimeSeriesListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, fData, nil, nil)
 }
 
 func (s *TimeSeriesSuite) addDescription() {
@@ -250,8 +250,8 @@ func (s *TimeSeriesSuite) addDescription() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, fData, nil, nil)
 }
 
 func (s *TimeSeriesSuite) addConstraints() {
@@ -272,6 +272,6 @@ func (s *TimeSeriesSuite) addConstraints() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeTimeSeriesConstraintsListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeTimeSeriesConstraintsListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeTimeSeriesConstraintsListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeTimeSeriesConstraintsListData, fData, nil, nil)
 }

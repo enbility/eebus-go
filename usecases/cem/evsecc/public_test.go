@@ -19,7 +19,7 @@ func (s *CemEVSECCSuite) Test_EVSEManufacturerData() {
 	descData := &model.DeviceClassificationManufacturerDataType{}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evseEntity, model.FeatureTypeTypeDeviceClassification, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err := s.sut.ManufacturerData(s.evseEntity)
@@ -33,7 +33,7 @@ func (s *CemEVSECCSuite) Test_EVSEManufacturerData() {
 		SerialNumber: util.Ptr(model.DeviceClassificationStringType("12345")),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ManufacturerData(s.evseEntity)
@@ -63,7 +63,7 @@ func (s *CemEVSECCSuite) Test_EVSEOperatingState() {
 	descData := &model.DeviceDiagnosisStateDataType{}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evseEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, errCode, err = s.sut.OperatingState(s.evseEntity)
@@ -76,7 +76,7 @@ func (s *CemEVSECCSuite) Test_EVSEOperatingState() {
 		LastErrorCode:  util.Ptr(model.LastErrorCodeType("error")),
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceDiagnosisStateData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, errCode, err = s.sut.OperatingState(s.evseEntity)

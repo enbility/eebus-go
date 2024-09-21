@@ -245,7 +245,7 @@ func (e *EVCC) ChargingPowerLimits(entity spineapi.EntityRemoteInterface) (float
 	if dataSet[0].PermittedValueSet[0].Range[0].Max != nil {
 		maxValue = dataSet[0].PermittedValueSet[0].Range[0].Max.GetValue()
 	}
-	if dataSet[0].PermittedValueSet[0].Value != nil && len(dataSet[0].PermittedValueSet[0].Value) > 0 {
+	if len(dataSet[0].PermittedValueSet[0].Value) > 0 {
 		standByValue = dataSet[0].PermittedValueSet[0].Value[0].GetValue()
 	}
 

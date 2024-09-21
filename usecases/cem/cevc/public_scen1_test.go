@@ -26,7 +26,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.ChargeStrategy(s.evEntity)
@@ -43,7 +43,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.ChargeStrategy(s.evEntity)
@@ -59,7 +59,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 	}
 
 	rTimeFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, timeDescData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, timeDescData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	timeData := &model.TimeSeriesListDataType{
@@ -70,7 +70,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.ChargeStrategy(s.evEntity)
@@ -89,7 +89,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.ChargeStrategy(s.evEntity)
@@ -110,7 +110,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.ChargeStrategy(s.evEntity)
@@ -130,7 +130,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.ChargeStrategy(s.evEntity)
@@ -151,7 +151,7 @@ func (s *CemCEVCSuite) Test_ChargeStrategy() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data = s.sut.ChargeStrategy(s.evEntity)
@@ -185,7 +185,7 @@ func (s *CemCEVCSuite) Test_EnergySingleDemand() {
 	}
 
 	rTimeFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeTimeSeries, model.RoleTypeServer)
-	fErr := rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesDescriptionListData, timeDescData, nil, nil)
+	_, fErr := rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesDescriptionListData, timeDescData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	timeData := &model.TimeSeriesListDataType{
@@ -196,7 +196,7 @@ func (s *CemCEVCSuite) Test_EnergySingleDemand() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err = s.sut.EnergyDemand(s.evEntity)
@@ -223,7 +223,7 @@ func (s *CemCEVCSuite) Test_EnergySingleDemand() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err = s.sut.EnergyDemand(s.evEntity)
@@ -253,7 +253,7 @@ func (s *CemCEVCSuite) Test_EnergySingleDemand() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err = s.sut.EnergyDemand(s.evEntity)
@@ -282,7 +282,7 @@ func (s *CemCEVCSuite) Test_EnergySingleDemand() {
 		},
 	}
 
-	fErr = rTimeFeature.UpdateData(model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	demand, err = s.sut.EnergyDemand(s.evEntity)

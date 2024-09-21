@@ -26,7 +26,7 @@ func (s *CemEVCEMSuite) Test_EVConnectedPhases() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PhasesConnected(s.evEntity)
@@ -42,7 +42,7 @@ func (s *CemEVCEMSuite) Test_EVConnectedPhases() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, descData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PhasesConnected(s.evEntity)
@@ -72,7 +72,7 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramDesc, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
@@ -91,7 +91,7 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 	}
 
 	rFeature = s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.evEntity)
@@ -107,7 +107,7 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.evEntity)
@@ -126,7 +126,7 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.evEntity)
@@ -144,7 +144,7 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.evEntity)
@@ -162,11 +162,152 @@ func (s *CemEVCEMSuite) Test_EVCurrentPerPhase() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.evEntity)
 	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 10.0, data[0])
+}
+
+func (s *CemEVCEMSuite) Test_EVCurrentPerPhase_AudiConnect() {
+	data, err := s.sut.CurrentPerPhase(s.mockRemoteEntity)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	data, err = s.sut.CurrentPerPhase(s.evEntity)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	paramDesc := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:             util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				MeasurementId:           util.Ptr(model.MeasurementIdType(1)),
+				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:             util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				MeasurementId:           util.Ptr(model.MeasurementIdType(4)),
+				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:             util.Ptr(model.ElectricalConnectionParameterIdType(3)),
+				MeasurementId:           util.Ptr(model.MeasurementIdType(7)),
+				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(8)),
+				ScopeType:              util.Ptr(model.ScopeTypeTypeACPowerTotal),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramDesc, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.PowerPerPhase(s.evEntity)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	measDesc := &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(4)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(7)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeCharge),
+			},
+		},
+	}
+
+	rFeature = s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.evEntity)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	measData := &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Value:         model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.evEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 10.0, data[0])
+
+	now := time.Now().Add(-50 * time.Second)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Value:         model.NewScaledNumberType(10),
+				Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(now),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(4)),
+				Value:         model.NewScaledNumberType(10),
+				Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(now),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(7)),
+				Value:         model.NewScaledNumberType(10),
+				Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(now),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.evEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(data))
 	assert.Equal(s.T(), 10.0, data[0])
 }
 
@@ -192,7 +333,7 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Power() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramDesc, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
@@ -211,7 +352,7 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Power() {
 	}
 
 	rFeature = s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
@@ -227,7 +368,7 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Power() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
@@ -306,7 +447,7 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramDesc, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
@@ -368,7 +509,7 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 	}
 
 	rFeature = s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
@@ -404,7 +545,7 @@ func (s *CemEVCEMSuite) Test_EVPowerPerPhase_Current() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.evEntity)
@@ -433,7 +574,7 @@ func (s *CemEVCEMSuite) Test_EVChargedEnergy() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyCharged(s.evEntity)
@@ -449,7 +590,7 @@ func (s *CemEVCEMSuite) Test_EVChargedEnergy() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyCharged(s.evEntity)
@@ -521,7 +662,7 @@ func (s *CemEVCEMSuite) Test_EVChargedEnergy_ElliGen1() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, measDesc, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyCharged(s.evEntity)
@@ -557,7 +698,7 @@ func (s *CemEVCEMSuite) Test_EVChargedEnergy_ElliGen1() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyCharged(s.evEntity)

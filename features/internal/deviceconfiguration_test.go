@@ -89,7 +89,7 @@ func (s *DeviceConfigurationSuite) Test_CheckEventPayloadDataForFilter() {
 		},
 	}
 
-	fErr := s.remoteFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr := s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 	fErr = s.localFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
@@ -115,7 +115,7 @@ func (s *DeviceConfigurationSuite) Test_CheckEventPayloadDataForFilter() {
 		},
 	}
 
-	fErr = s.remoteFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	_, fErr = s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 	fErr = s.localFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
@@ -412,8 +412,8 @@ func (s *DeviceConfigurationSuite) addDescription() {
 			},
 		},
 	}
-	s.remoteFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, fData, nil, nil)
-	s.localFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, fData, nil, nil)
 }
 
 func (s *DeviceConfigurationSuite) addData() {
@@ -463,6 +463,6 @@ func (s *DeviceConfigurationSuite) addData() {
 			},
 		},
 	}
-	s.remoteFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, fData, nil, nil)
-	s.localFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeDeviceConfigurationKeyValueListData, fData, nil, nil)
 }

@@ -102,8 +102,8 @@ func setupFeatures(
 	dataCon shipapi.ShipConnectionDataWriterInterface,
 	featureFunctions []featureFunctions) (spineapi.EntityLocalInterface, spineapi.EntityRemoteInterface) {
 	localDevice := spine.NewDeviceLocal("TestBrandName", "TestDeviceModel", "TestSerialNumber", "TestDeviceCode",
-		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart, time.Second*4)
-	localEntity := spine.NewEntityLocal(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}))
+		"TestDeviceAddress", model.DeviceTypeTypeEnergyManagementSystem, model.NetworkManagementFeatureSetTypeSmart)
+	localEntity := spine.NewEntityLocal(localDevice, model.EntityTypeTypeCEM, spine.NewAddressEntityType([]uint{1}), time.Second*4)
 
 	for i, item := range featureFunctions {
 		f := spine.NewFeatureLocal(uint(i+1), localEntity, item.featureType, model.RoleTypeClient)

@@ -80,8 +80,8 @@ func (s *DeviceClassificationSuite) Test_GetManufacturerDetails() {
 		ManufacturerLabel:              util.Ptr(model.LabelType("label")),
 		ManufacturerDescription:        util.Ptr(model.DescriptionType("description")),
 	}
-	s.remoteFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, fData, nil, nil)
-	s.localFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeDeviceClassificationManufacturerData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeDeviceClassificationManufacturerData, fData, nil, nil)
 
 	result, err = s.remoteSut.GetManufacturerDetails()
 	assert.Nil(s.T(), err)

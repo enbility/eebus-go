@@ -80,27 +80,30 @@ func (s *CsLPPSuite) Test_PendingProductionLimits() {
 func (s *CsLPPSuite) Test_Failsafe() {
 	limit, changeable, err := s.sut.FailsafeProductionActivePowerLimit()
 	assert.Equal(s.T(), 0.0, limit)
-	assert.Equal(s.T(), false, changeable)
+	assert.Equal(s.T(), true, changeable)
 	assert.Nil(s.T(), err)
 
-	err = s.sut.SetFailsafeProductionActivePowerLimit(10, true)
+	err = s.sut.SetFailsafeProductionActivePowerLimit(10, false)
 	assert.Nil(s.T(), err)
 
 	limit, changeable, err = s.sut.FailsafeProductionActivePowerLimit()
 	assert.Equal(s.T(), 10.0, limit)
-	assert.Equal(s.T(), true, changeable)
+	assert.Equal(s.T(), false, changeable)
 	assert.Nil(s.T(), err)
 
 	// The actual tests of the functionality is located in the util package
 	duration, changeable, err := s.sut.FailsafeDurationMinimum()
 	assert.Equal(s.T(), time.Duration(0), duration)
-	assert.Equal(s.T(), false, changeable)
+	assert.Equal(s.T(), true, changeable)
 	assert.Nil(s.T(), err)
 
 	err = s.sut.SetFailsafeDurationMinimum(time.Duration(time.Hour*1), true)
 	assert.NotNil(s.T(), err)
 
 	err = s.sut.SetFailsafeDurationMinimum(time.Duration(time.Hour*2), true)
+	assert.Nil(s.T(), err)
+
+	err = s.sut.SetFailsafeProductionActivePowerLimit(10, true)
 	assert.Nil(s.T(), err)
 
 	limit, changeable, err = s.sut.FailsafeProductionActivePowerLimit()
@@ -135,7 +138,7 @@ func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
 		HeartbeatCounter: util.Ptr(uint64(1)),
 		HeartbeatTimeout: model.NewDurationType(time.Second * 120),
 	}
-	err1 := remoteDiagServer.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_, err1 := remoteDiagServer.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
 	assert.Nil(s.T(), err1)
 
 	value = s.sut.IsHeartbeatWithinDuration()
@@ -144,7 +147,7 @@ func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
 	timestamp = time.Now()
 	data.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(timestamp)
 
-	err1 = remoteDiagServer.UpdateData(model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	_, err1 = remoteDiagServer.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
 	assert.Nil(s.T(), err1)
 
 	value = s.sut.IsHeartbeatWithinDuration()

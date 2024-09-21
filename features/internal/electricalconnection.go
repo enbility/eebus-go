@@ -152,7 +152,7 @@ func (e *ElectricalConnectionCommon) GetPermittedValueDataForFilter(
 	var resultMin, resultMax, resultDefault float64
 
 	for _, set := range data[0].PermittedValueSet {
-		if set.Value != nil && len(set.Value) > 0 {
+		if len(set.Value) > 0 {
 			resultDefault = set.Value[0].GetValue()
 		}
 		if set.Range != nil {
@@ -247,12 +247,12 @@ func (e *ElectricalConnectionCommon) AdjustValueToBeWithinPermittedValuesForPara
 
 	for _, element := range data[0].PermittedValueSet {
 		// is a value set
-		if element.Value != nil && len(element.Value) > 0 {
+		if len(element.Value) > 0 {
 			defaultValue = element.Value[0].GetValue()
 			hasDefaultValue = true
 		}
 		// is a range set
-		if element.Range != nil && len(element.Range) > 0 {
+		if len(element.Range) > 0 {
 			if element.Range[0].Min != nil {
 				minValue = element.Range[0].Min.GetValue()
 			}

@@ -8,6 +8,7 @@ import (
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
+	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
@@ -103,6 +104,20 @@ func (e *LPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid mod
 	return lc, *description.LimitId, nil
 }
 
+func (e *LPC) approveOrDenyConsumptionLimit(msg *spineapi.Message, approve bool, reason string) {
+	f := e.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+
+	result := model.ErrorType{
+		ErrorNumber: model.ErrorNumberType(0),
+	}
+
+	if !approve {
+		result.ErrorNumber = model.ErrorNumberType(7)
+		result.Description = util.Ptr(model.DescriptionType(reason))
+	}
+	f.ApproveOrDenyWrite(msg, result)
+}
+
 // callback invoked on incoming write messages to this
 // loadcontrol server feature.
 // the implementation only considers write messages for this use case and
@@ -110,11 +125,13 @@ func (e *LPC) loadControlServerAndLimitId() (lc *server.LoadControl, limitid mod
 func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	if msg.RequestHeader == nil || msg.RequestHeader.MsgCounter == nil ||
 		msg.Cmd.LoadControlLimitListData == nil {
+		logging.Log().Debug("LPC loadControlWriteCB: invalid message")
 		return
 	}
 
 	_, limitId, err := e.loadControlServerAndLimitId()
 	if err != nil {
+		logging.Log().Debug("LPC loadControlWriteCB: error getting limit id")
 		return
 	}
 
@@ -123,6 +140,7 @@ func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	// we assume there is always only one limit
 	if data == nil || data.LoadControlLimitData == nil ||
 		len(data.LoadControlLimitData) == 0 {
+		logging.Log().Debug("LPC loadControlWriteCB: no data")
 		return
 	}
 
@@ -145,7 +163,7 @@ func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 	e.pendingMux.Unlock()
 
 	// approve, because this is no request for this usecase
-	go e.ApproveOrDenyConsumptionLimit(*msg.RequestHeader.MsgCounter, true, "")
+	go e.approveOrDenyConsumptionLimit(msg, true, "")
 }
 
 func (e *LPC) AddFeatures() {
@@ -209,7 +227,7 @@ func (e *LPC) AddFeatures() {
 		_ = dcs.UpdateKeyValueDataForFilter(
 			model.DeviceConfigurationKeyValueDataType{
 				Value:             value,
-				IsValueChangeable: util.Ptr(false),
+				IsValueChangeable: util.Ptr(true),
 			},
 			nil,
 			model.DeviceConfigurationKeyValueDescriptionDataType{
@@ -223,7 +241,7 @@ func (e *LPC) AddFeatures() {
 		_ = dcs.UpdateKeyValueDataForFilter(
 			model.DeviceConfigurationKeyValueDataType{
 				Value:             value,
-				IsValueChangeable: util.Ptr(false),
+				IsValueChangeable: util.Ptr(true),
 			},
 			nil,
 			model.DeviceConfigurationKeyValueDescriptionDataType{

@@ -64,7 +64,8 @@ type Configuration struct {
 	// The certificate used for the service and its connections, required
 	certificate tls.Certificate
 
-	// The timeout to be used for sending heartbeats
+	// The timeout to be used for sending heartbeats and applied to all
+	// local entities created on setup the service
 	heartbeatTimeout time.Duration
 
 	// Optional set which mDNS providers should be used
@@ -87,7 +88,7 @@ func NewConfiguration(
 		certificate:           certificate,
 		port:                  port,
 		heartbeatTimeout:      heartbeatTimeout,
-		mdnsProviderSelection: mdns.MdnsProviderSelectionGoZeroConfOnly,
+		mdnsProviderSelection: mdns.MdnsProviderSelectionAll,
 	}
 
 	if port == 0 {

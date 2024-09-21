@@ -43,12 +43,16 @@ func (e *OPEV) HandleEvent(payload spineapi.EventPayload) {
 func (e *OPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if evLoadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
-		if _, err := evLoadControl.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !evLoadControl.HasSubscription() {
+			if _, err := evLoadControl.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
-		if _, err := evLoadControl.Bind(); err != nil {
-			logging.Log().Debug(err)
+		if !evLoadControl.HasBinding() {
+			if _, err := evLoadControl.Bind(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get descriptions

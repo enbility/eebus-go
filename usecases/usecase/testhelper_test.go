@@ -81,6 +81,7 @@ func (s *UseCaseSuite) BeforeTest(suiteName, testName string) {
 	s.localEntity, s.remoteDevice, entities = setupDevices(s.service, s.T())
 	s.evseEntity = entities[0]
 	s.monitoredEntity = entities[1]
+	s.remoteDevice.AddEntity(s.monitoredEntity)
 
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeEV}
 	validEntityTypes := []model.EntityTypeType{model.EntityTypeTypeEV}
@@ -260,6 +261,11 @@ func setupDevices(
 	entities, err := remoteDevice.AddEntityAndFeatures(true, detailedData)
 	if err != nil {
 		fmt.Println(err)
+	}
+	remoteDevice.UpdateDevice(detailedData.DeviceInformation.Description)
+
+	for _, entity := range entities {
+		entity.UpdateDeviceAddress(*remoteDevice.Address())
 	}
 
 	localDevice.AddRemoteDeviceForSki(remoteSki, remoteDevice)

@@ -98,7 +98,7 @@ func (s *MeasurementSuite) Test_MeasurementCheckPayloadDataForScope() {
 
 	fErr := s.localFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
-	fErr = s.remoteFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr = s.remoteFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	exists = s.localSut.CheckEventPayloadDataForFilter(nil, filter)
@@ -325,8 +325,8 @@ func (s *MeasurementSuite) addDescription() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, fData, nil, nil)
 }
 
 func (s *MeasurementSuite) addConstraints() {
@@ -346,8 +346,8 @@ func (s *MeasurementSuite) addConstraints() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeMeasurementConstraintsListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeMeasurementConstraintsListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeMeasurementConstraintsListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeMeasurementConstraintsListData, fData, nil, nil)
 }
 
 func (s *MeasurementSuite) addData() {
@@ -366,6 +366,6 @@ func (s *MeasurementSuite) addData() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeMeasurementListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeMeasurementListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeMeasurementListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeMeasurementListData, fData, nil, nil)
 }

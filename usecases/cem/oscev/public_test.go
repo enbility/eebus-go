@@ -30,7 +30,7 @@ func (s *CemOSCEVSuite) Test_Public() {
 			},
 		},
 	}
-	errT := meas.UpdateData(model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
+	_, errT := meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
 	assert.Nil(s.T(), errT)
 
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)

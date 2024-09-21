@@ -43,12 +43,16 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 func (e *LPC) connected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
 	if loadControl, err := client.NewLoadControl(e.LocalEntity, entity); err == nil {
-		if _, err := loadControl.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !loadControl.HasSubscription() {
+			if _, err := loadControl.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
-		if _, err := loadControl.Bind(); err != nil {
-			logging.Log().Debug(err)
+		if !loadControl.HasBinding() {
+			if _, err := loadControl.Bind(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get descriptions
@@ -63,12 +67,16 @@ func (e *LPC) connected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
-		if _, err := deviceConfiguration.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !deviceConfiguration.HasSubscription() {
+			if _, err := deviceConfiguration.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
-		if _, err := deviceConfiguration.Bind(); err != nil {
-			logging.Log().Debug(err)
+		if !deviceConfiguration.HasBinding() {
+			if _, err := deviceConfiguration.Bind(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		// get descriptions
@@ -79,8 +87,10 @@ func (e *LPC) connected(entity spineapi.EntityRemoteInterface) {
 	}
 
 	if deviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err == nil {
-		if _, err := deviceDiagnosis.Subscribe(); err != nil {
-			logging.Log().Debug(err)
+		if !deviceDiagnosis.HasSubscription() {
+			if _, err := deviceDiagnosis.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
 		}
 
 		if _, err := deviceDiagnosis.RequestHeartbeat(); err != nil {

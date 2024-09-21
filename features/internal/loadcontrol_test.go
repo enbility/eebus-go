@@ -111,7 +111,7 @@ func (s *LoadControlSuite) Test_CheckEventPayloadDataForFilter() {
 
 	fErr := s.localFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
-	fErr = s.remoteFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	_, fErr = s.remoteFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	exists = s.localSut.CheckEventPayloadDataForFilter(nil, filter)
@@ -335,8 +335,8 @@ func (s *LoadControlSuite) addDescription() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeLoadControlLimitDescriptionListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, fData, nil, nil)
 }
 
 func (s *LoadControlSuite) addData() {
@@ -350,6 +350,6 @@ func (s *LoadControlSuite) addData() {
 			},
 		},
 	}
-	s.localFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, fData, nil, nil)
-	s.remoteFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, fData, nil, nil)
+	_ = s.localFeature.UpdateData(model.FunctionTypeLoadControlLimitListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, fData, nil, nil)
 }

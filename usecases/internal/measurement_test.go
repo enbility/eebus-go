@@ -70,7 +70,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 	}
 
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
-	fErr := rFeature.UpdateData(model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = MeasurementPhaseSpecificDataForFilter(
@@ -103,7 +103,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		},
 	}
 
-	fErr = rFeature.UpdateData(model.FunctionTypeMeasurementListData, measData, nil, nil)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = MeasurementPhaseSpecificDataForFilter(
@@ -137,7 +137,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 	}
 
 	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	elDescData := &model.ElectricalConnectionDescriptionListDataType{
@@ -149,7 +149,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		},
 	}
 
-	fErr = rElFeature.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = MeasurementPhaseSpecificDataForFilter(

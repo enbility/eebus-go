@@ -15,6 +15,7 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/service"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/cs/lpc"
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
@@ -91,6 +92,16 @@ func (h *evse) run() {
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeEVSE)
 	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
 	h.myService.AddUseCase(h.uclpc)
+
+	// Initialize local server data
+	_ = h.uclpc.SetConsumptionNominalMax(32000)
+	_ = h.uclpc.SetConsumptionLimit(ucapi.LoadLimit{
+		Value:        4200,
+		IsChangeable: true,
+		IsActive:     false,
+	})
+	_ = h.uclpc.SetFailsafeConsumptionActivePowerLimit(4200, true)
+	_ = h.uclpc.SetFailsafeDurationMinimum(2*time.Hour, true)
 
 	if len(remoteSki) == 0 {
 		os.Exit(0)
