@@ -71,48 +71,73 @@ func (l *LoadControl) AddLimitDescription(
 }
 
 // Set or update data set for a limitId
-// Elements provided in deleteElements will be removed from the data set before the update
+// Id provided in deleteId will trigger removal of matching items from the data set before the update
+// Elements provided in deleteElement will limit the fields to be removed using Id
 //
 // Will return an error if the data set could not be updated
-func (l *LoadControl) UpdateLimitDataForId(
-	data model.LoadControlLimitDataType,
+func (l *LoadControl) UpdateLimitDataForIds(
+	data []api.LoadControlLimitDataForID,
+	deleteId *model.LoadControlLimitIdType,
 	deleteElements *model.LoadControlLimitDataElementsType,
-	limitId model.LoadControlLimitIdType,
 ) (resultErr error) {
-	return l.UpdateLimitDataForFilter(data, deleteElements, model.LoadControlLimitDescriptionDataType{LimitId: &limitId})
+	var filterData []api.LoadControlLimitDataForFilter
+	for _, item := range data {
+		filterData = append(filterData, api.LoadControlLimitDataForFilter{
+			Data:   item.Data,
+			Filter: model.LoadControlLimitDescriptionDataType{LimitId: &item.Id},
+		})
+	}
+
+	var deleteSelector *model.LoadControlLimitListDataSelectorsType
+	if deleteId != nil {
+		deleteSelector = &model.LoadControlLimitListDataSelectorsType{
+			LimitId: deleteId,
+		}
+	}
+
+	return l.UpdateLimitDataForFilters(filterData, deleteSelector, deleteElements)
 }
 
 // Set or update data set for a filter
-// Elements provided in deleteElements will be removed from the data set before the update
+// Id provided in deleteId will trigger removal of matching items from the data set before the update
+// Elements provided in deleteElement will limit the fields to be removed using Id
 //
 // Will return an error if the data set could not be updated
-func (l *LoadControl) UpdateLimitDataForFilter(
-	data model.LoadControlLimitDataType,
+func (l *LoadControl) UpdateLimitDataForFilters(
+	data []api.LoadControlLimitDataForFilter,
+	deleteSelector *model.LoadControlLimitListDataSelectorsType,
 	deleteElements *model.LoadControlLimitDataElementsType,
-	filter model.LoadControlLimitDescriptionDataType,
 ) (resultErr error) {
 	resultErr = api.ErrDataNotAvailable
 
-	descriptions, err := l.GetLimitDescriptionsForFilter(filter)
-	if err != nil || descriptions == nil || len(descriptions) != 1 {
-		return
-	}
+	var limitData []model.LoadControlLimitDataType
 
-	description := descriptions[0]
-	data.LimitId = description.LimitId
+	for _, item := range data {
+		descriptions, err := l.GetLimitDescriptionsForFilter(item.Filter)
+		if err != nil || descriptions == nil || len(descriptions) != 1 {
+			return
+		}
 
-	datalist := &model.LoadControlLimitListDataType{
-		LoadControlLimitData: []model.LoadControlLimitDataType{data},
+		description := descriptions[0]
+		item.Data.LimitId = description.LimitId
+
+		limitData = append(limitData, item.Data)
 	}
 
 	partial := model.NewFilterTypePartial()
+
+	datalist := &model.LoadControlLimitListDataType{
+		LoadControlLimitData: limitData,
+	}
+
 	var deleteFilter *model.FilterType
-	if deleteElements != nil {
+	if deleteSelector != nil {
 		deleteFilter = &model.FilterType{
-			LoadControlLimitListDataSelectors: &model.LoadControlLimitListDataSelectorsType{
-				LimitId: description.LimitId,
-			},
-			LoadControlLimitDataElements: deleteElements,
+			LoadControlLimitListDataSelectors: deleteSelector,
+		}
+
+		if deleteElements != nil {
+			deleteFilter.LoadControlLimitDataElements = deleteElements
 		}
 	}
 

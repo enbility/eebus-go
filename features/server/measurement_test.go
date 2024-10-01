@@ -154,14 +154,23 @@ func (s *MeasurementSuite) Test_GetLimitData() {
 		ScopeType:       util.Ptr(model.ScopeTypeTypeStateOfCharge),
 	}
 
-	data := model.MeasurementDataType{}
-	err := s.sut.UpdateDataForFilter(data, nil, filter)
+	data := []api.MeasurementDataForFilter{
+		{
+			Filter: filter,
+		},
+	}
+	err := s.sut.UpdateDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
-	data = model.MeasurementDataType{
-		MeasurementId: util.Ptr(model.MeasurementIdType(100)),
+	data = []api.MeasurementDataForFilter{
+		{
+			Data: model.MeasurementDataType{
+				MeasurementId: util.Ptr(model.MeasurementIdType(100)),
+			},
+			Filter: filter,
+		},
 	}
-	err = s.sut.UpdateDataForFilter(data, nil, filter)
+	err = s.sut.UpdateDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
 	mId := s.sut.AddDescription(filter)
@@ -175,12 +184,17 @@ func (s *MeasurementSuite) Test_GetLimitData() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	data = model.MeasurementDataType{
-		MeasurementId: mId,
-		ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-		Value:         model.NewScaledNumberType(16),
+	data = []api.MeasurementDataForFilter{
+		{
+			Data: model.MeasurementDataType{
+				MeasurementId: mId,
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(16),
+			},
+			Filter: filter,
+		},
 	}
-	err = s.sut.UpdateDataForFilter(data, nil, filter)
+	err = s.sut.UpdateDataForFilters(data, nil, nil)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetDataForId(*mId)
@@ -191,11 +205,11 @@ func (s *MeasurementSuite) Test_GetLimitData() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	data = model.MeasurementDataType{}
+	dataIds := []api.MeasurementDataForID{}
 	deleteElements := &model.MeasurementDataElementsType{
 		Value: util.Ptr(model.ElementTagType{}),
 	}
-	err = s.sut.UpdateDataForId(data, deleteElements, *mId)
+	err = s.sut.UpdateDataForIds(dataIds, mId, deleteElements)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetDataForId(*mId)

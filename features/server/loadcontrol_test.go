@@ -232,14 +232,23 @@ func (s *LoadControlSuite) Test_GetLimitData() {
 		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 	}
 
-	data := model.LoadControlLimitDataType{}
-	err := s.sut.UpdateLimitDataForFilter(data, nil, filter)
+	data := []api.LoadControlLimitDataForFilter{
+		{
+			Filter: filter,
+		},
+	}
+	err := s.sut.UpdateLimitDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
-	data = model.LoadControlLimitDataType{
-		LimitId: util.Ptr(model.LoadControlLimitIdType(100)),
+	data = []api.LoadControlLimitDataForFilter{
+		{
+			Data: model.LoadControlLimitDataType{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(100)),
+			},
+			Filter: filter,
+		},
 	}
-	err = s.sut.UpdateLimitDataForFilter(data, nil, filter)
+	err = s.sut.UpdateLimitDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
 	limitId := s.sut.AddLimitDescription(filter)
@@ -253,12 +262,17 @@ func (s *LoadControlSuite) Test_GetLimitData() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	data = model.LoadControlLimitDataType{
-		LimitId:    limitId,
-		Value:      model.NewScaledNumberType(16),
-		TimePeriod: model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
+	data = []api.LoadControlLimitDataForFilter{
+		{
+			Data: model.LoadControlLimitDataType{
+				LimitId:    limitId,
+				Value:      model.NewScaledNumberType(16),
+				TimePeriod: model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
+			},
+			Filter: filter,
+		},
 	}
-	err = s.sut.UpdateLimitDataForFilter(data, nil, filter)
+	err = s.sut.UpdateLimitDataForFilters(data, nil, nil)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetLimitDataForId(*limitId)
@@ -269,11 +283,11 @@ func (s *LoadControlSuite) Test_GetLimitData() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	data = model.LoadControlLimitDataType{}
+	dataIds := []api.LoadControlLimitDataForID{}
 	deleteElements := &model.LoadControlLimitDataElementsType{
 		TimePeriod: &model.TimePeriodElementsType{},
 	}
-	err = s.sut.UpdateLimitDataForId(data, deleteElements, *limitId)
+	err = s.sut.UpdateLimitDataForIds(dataIds, limitId, deleteElements)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetLimitDataForId(*limitId)
