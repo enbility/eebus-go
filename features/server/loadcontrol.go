@@ -81,10 +81,10 @@ func (l *LoadControl) UpdateLimitDataForIds(
 	deleteElements *model.LoadControlLimitDataElementsType,
 ) (resultErr error) {
 	var filterData []api.LoadControlLimitDataForFilter
-	for _, item := range data {
+	for index, item := range data {
 		filterData = append(filterData, api.LoadControlLimitDataForFilter{
 			Data:   item.Data,
-			Filter: model.LoadControlLimitDescriptionDataType{LimitId: &item.Id},
+			Filter: model.LoadControlLimitDescriptionDataType{LimitId: &data[index].Id},
 		})
 	}
 

@@ -83,10 +83,10 @@ func (m *Measurement) UpdateDataForIds(
 	deleteElements *model.MeasurementDataElementsType,
 ) (resultErr error) {
 	var filterData []api.MeasurementDataForFilter
-	for _, item := range data {
+	for index, item := range data {
 		filterData = append(filterData, api.MeasurementDataForFilter{
 			Data:   item.Data,
-			Filter: model.MeasurementDescriptionDataType{MeasurementId: &item.Id},
+			Filter: model.MeasurementDescriptionDataType{MeasurementId: &data[index].Id},
 		})
 	}
 
