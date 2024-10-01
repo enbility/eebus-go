@@ -118,17 +118,17 @@ func (_c *LoadControlServerInterface_UpdateLimitDataForFilter_Call) RunAndReturn
 	return _c
 }
 
-// UpdateLimitDataForIds provides a mock function with given fields: data, deleteId, deleteElements
-func (_m *LoadControlServerInterface) UpdateLimitDataForIds(data []api.LoadControlLimitDataForID, deleteId *model.LoadControlLimitIdType, deleteElements *model.LoadControlLimitDataElementsType) error {
-	ret := _m.Called(data, deleteId, deleteElements)
+// UpdateLimitDataForIds provides a mock function with given fields: data
+func (_m *LoadControlServerInterface) UpdateLimitDataForIds(data []api.LoadControlLimitDataForID) error {
+	ret := _m.Called(data)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateLimitDataForIds")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]api.LoadControlLimitDataForID, *model.LoadControlLimitIdType, *model.LoadControlLimitDataElementsType) error); ok {
-		r0 = rf(data, deleteId, deleteElements)
+	if rf, ok := ret.Get(0).(func([]api.LoadControlLimitDataForID) error); ok {
+		r0 = rf(data)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -143,15 +143,13 @@ type LoadControlServerInterface_UpdateLimitDataForIds_Call struct {
 
 // UpdateLimitDataForIds is a helper method to define mock.On call
 //   - data []api.LoadControlLimitDataForID
-//   - deleteId *model.LoadControlLimitIdType
-//   - deleteElements *model.LoadControlLimitDataElementsType
-func (_e *LoadControlServerInterface_Expecter) UpdateLimitDataForIds(data interface{}, deleteId interface{}, deleteElements interface{}) *LoadControlServerInterface_UpdateLimitDataForIds_Call {
-	return &LoadControlServerInterface_UpdateLimitDataForIds_Call{Call: _e.mock.On("UpdateLimitDataForIds", data, deleteId, deleteElements)}
+func (_e *LoadControlServerInterface_Expecter) UpdateLimitDataForIds(data interface{}) *LoadControlServerInterface_UpdateLimitDataForIds_Call {
+	return &LoadControlServerInterface_UpdateLimitDataForIds_Call{Call: _e.mock.On("UpdateLimitDataForIds", data)}
 }
 
-func (_c *LoadControlServerInterface_UpdateLimitDataForIds_Call) Run(run func(data []api.LoadControlLimitDataForID, deleteId *model.LoadControlLimitIdType, deleteElements *model.LoadControlLimitDataElementsType)) *LoadControlServerInterface_UpdateLimitDataForIds_Call {
+func (_c *LoadControlServerInterface_UpdateLimitDataForIds_Call) Run(run func(data []api.LoadControlLimitDataForID)) *LoadControlServerInterface_UpdateLimitDataForIds_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].([]api.LoadControlLimitDataForID), args[1].(*model.LoadControlLimitIdType), args[2].(*model.LoadControlLimitDataElementsType))
+		run(args[0].([]api.LoadControlLimitDataForID))
 	})
 	return _c
 }
@@ -161,7 +159,7 @@ func (_c *LoadControlServerInterface_UpdateLimitDataForIds_Call) Return(_a0 erro
 	return _c
 }
 
-func (_c *LoadControlServerInterface_UpdateLimitDataForIds_Call) RunAndReturn(run func([]api.LoadControlLimitDataForID, *model.LoadControlLimitIdType, *model.LoadControlLimitDataElementsType) error) *LoadControlServerInterface_UpdateLimitDataForIds_Call {
+func (_c *LoadControlServerInterface_UpdateLimitDataForIds_Call) RunAndReturn(run func([]api.LoadControlLimitDataForID) error) *LoadControlServerInterface_UpdateLimitDataForIds_Call {
 	_c.Call.Return(run)
 	return _c
 }

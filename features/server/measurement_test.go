@@ -205,11 +205,14 @@ func (s *MeasurementSuite) Test_GetLimitData() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	dataIds := []api.MeasurementDataForID{}
+	dataIds := []api.MeasurementDataForFilter{}
+	deleteSelectors := &model.MeasurementListDataSelectorsType{
+		MeasurementId: mId,
+	}
 	deleteElements := &model.MeasurementDataElementsType{
 		Value: util.Ptr(model.ElementTagType{}),
 	}
-	err = s.sut.UpdateDataForIds(dataIds, mId, deleteElements)
+	err = s.sut.UpdateDataForFilters(dataIds, deleteSelectors, deleteElements)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetDataForId(*mId)

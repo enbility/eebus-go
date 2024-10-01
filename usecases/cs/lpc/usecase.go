@@ -197,7 +197,7 @@ func (e *LPC) AddFeatures() {
 				Id: *limitId,
 			},
 		}
-		_ = lc.UpdateLimitDataForIds(newLimiData, nil, nil)
+		_ = lc.UpdateLimitDataForIds(newLimiData)
 	}
 
 	f = e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)

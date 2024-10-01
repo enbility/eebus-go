@@ -59,14 +59,16 @@ func (e *LPP) SetProductionLimit(limit ucapi.LoadLimit) (resultErr error) {
 		return err
 	}
 
-	limitData := []api.LoadControlLimitDataForID{
+	limitData := []api.LoadControlLimitDataForFilter{
 		{
 			Data: model.LoadControlLimitDataType{
 				IsLimitChangeable: util.Ptr(limit.IsChangeable),
 				IsLimitActive:     util.Ptr(limit.IsActive),
 				Value:             model.NewScaledNumberType(limit.Value),
 			},
-			Id: limidId,
+			Filter: model.LoadControlLimitDescriptionDataType{
+				LimitId: &limidId,
+			},
 		},
 	}
 
@@ -76,11 +78,15 @@ func (e *LPP) SetProductionLimit(limit ucapi.LoadLimit) (resultErr error) {
 		}
 	}
 
+	deleteSelector := &model.LoadControlLimitListDataSelectorsType{
+		LimitId: &limidId,
+	}
+
 	deleteTimePeriod := &model.LoadControlLimitDataElementsType{
 		TimePeriod: util.Ptr(model.TimePeriodElementsType{}),
 	}
 
-	return loadControlf.UpdateLimitDataForIds(limitData, &limidId, deleteTimePeriod)
+	return loadControlf.UpdateLimitDataForFilters(limitData, deleteSelector, deleteTimePeriod)
 }
 
 // return the currently pending incoming production write limits

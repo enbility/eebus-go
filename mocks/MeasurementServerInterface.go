@@ -118,17 +118,17 @@ func (_c *MeasurementServerInterface_UpdateDataForFilters_Call) RunAndReturn(run
 	return _c
 }
 
-// UpdateDataForIds provides a mock function with given fields: data, deleteId, deleteElements
-func (_m *MeasurementServerInterface) UpdateDataForIds(data []api.MeasurementDataForID, deleteId *model.MeasurementIdType, deleteElements *model.MeasurementDataElementsType) error {
-	ret := _m.Called(data, deleteId, deleteElements)
+// UpdateDataForIds provides a mock function with given fields: data
+func (_m *MeasurementServerInterface) UpdateDataForIds(data []api.MeasurementDataForID) error {
+	ret := _m.Called(data)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataForIds")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]api.MeasurementDataForID, *model.MeasurementIdType, *model.MeasurementDataElementsType) error); ok {
-		r0 = rf(data, deleteId, deleteElements)
+	if rf, ok := ret.Get(0).(func([]api.MeasurementDataForID) error); ok {
+		r0 = rf(data)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -143,15 +143,13 @@ type MeasurementServerInterface_UpdateDataForIds_Call struct {
 
 // UpdateDataForIds is a helper method to define mock.On call
 //   - data []api.MeasurementDataForID
-//   - deleteId *model.MeasurementIdType
-//   - deleteElements *model.MeasurementDataElementsType
-func (_e *MeasurementServerInterface_Expecter) UpdateDataForIds(data interface{}, deleteId interface{}, deleteElements interface{}) *MeasurementServerInterface_UpdateDataForIds_Call {
-	return &MeasurementServerInterface_UpdateDataForIds_Call{Call: _e.mock.On("UpdateDataForIds", data, deleteId, deleteElements)}
+func (_e *MeasurementServerInterface_Expecter) UpdateDataForIds(data interface{}) *MeasurementServerInterface_UpdateDataForIds_Call {
+	return &MeasurementServerInterface_UpdateDataForIds_Call{Call: _e.mock.On("UpdateDataForIds", data)}
 }
 
-func (_c *MeasurementServerInterface_UpdateDataForIds_Call) Run(run func(data []api.MeasurementDataForID, deleteId *model.MeasurementIdType, deleteElements *model.MeasurementDataElementsType)) *MeasurementServerInterface_UpdateDataForIds_Call {
+func (_c *MeasurementServerInterface_UpdateDataForIds_Call) Run(run func(data []api.MeasurementDataForID)) *MeasurementServerInterface_UpdateDataForIds_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].([]api.MeasurementDataForID), args[1].(*model.MeasurementIdType), args[2].(*model.MeasurementDataElementsType))
+		run(args[0].([]api.MeasurementDataForID))
 	})
 	return _c
 }
@@ -161,7 +159,7 @@ func (_c *MeasurementServerInterface_UpdateDataForIds_Call) Return(_a0 error) *M
 	return _c
 }
 
-func (_c *MeasurementServerInterface_UpdateDataForIds_Call) RunAndReturn(run func([]api.MeasurementDataForID, *model.MeasurementIdType, *model.MeasurementDataElementsType) error) *MeasurementServerInterface_UpdateDataForIds_Call {
+func (_c *MeasurementServerInterface_UpdateDataForIds_Call) RunAndReturn(run func([]api.MeasurementDataForID) error) *MeasurementServerInterface_UpdateDataForIds_Call {
 	_c.Call.Return(run)
 	return _c
 }

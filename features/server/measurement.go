@@ -73,14 +73,10 @@ func (m *Measurement) AddDescription(
 }
 
 // Set or update data set for a measurementId
-// Id provided in deleteId will trigger removal of matching items from the data set before the update
-// Elements provided in deleteElement will limit the fields to be removed using Id
 //
 // Will return an error if the data set could not be updated
 func (m *Measurement) UpdateDataForIds(
 	data []api.MeasurementDataForID,
-	deleteId *model.MeasurementIdType,
-	deleteElements *model.MeasurementDataElementsType,
 ) (resultErr error) {
 	var filterData []api.MeasurementDataForFilter
 	for index, item := range data {
@@ -90,19 +86,12 @@ func (m *Measurement) UpdateDataForIds(
 		})
 	}
 
-	var deleteSelector *model.MeasurementListDataSelectorsType
-	if deleteId != nil {
-		deleteSelector = &model.MeasurementListDataSelectorsType{
-			MeasurementId: deleteId,
-		}
-	}
-
-	return m.UpdateDataForFilters(filterData, deleteSelector, deleteElements)
+	return m.UpdateDataForFilters(filterData, nil, nil)
 }
 
 // Set or update data set for a filter
-// Selector provided in deleteSelector will trigger removal of matching items from the data set before the update
-// Elements provided in deleteElement will limit the fields to be removed using Selector
+// deleteSelector will trigger removal of matching items from the data set before the update
+// deleteElement will limit the fields to be removed using Id
 //
 // Will return an error if the data set could not be updated
 func (m *Measurement) UpdateDataForFilters(

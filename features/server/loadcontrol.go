@@ -71,14 +71,10 @@ func (l *LoadControl) AddLimitDescription(
 }
 
 // Set or update data set for a limitId
-// Id provided in deleteId will trigger removal of matching items from the data set before the update
-// Elements provided in deleteElement will limit the fields to be removed using Id
 //
 // Will return an error if the data set could not be updated
 func (l *LoadControl) UpdateLimitDataForIds(
 	data []api.LoadControlLimitDataForID,
-	deleteId *model.LoadControlLimitIdType,
-	deleteElements *model.LoadControlLimitDataElementsType,
 ) (resultErr error) {
 	var filterData []api.LoadControlLimitDataForFilter
 	for index, item := range data {
@@ -88,19 +84,12 @@ func (l *LoadControl) UpdateLimitDataForIds(
 		})
 	}
 
-	var deleteSelector *model.LoadControlLimitListDataSelectorsType
-	if deleteId != nil {
-		deleteSelector = &model.LoadControlLimitListDataSelectorsType{
-			LimitId: deleteId,
-		}
-	}
-
-	return l.UpdateLimitDataForFilters(filterData, deleteSelector, deleteElements)
+	return l.UpdateLimitDataForFilters(filterData, nil, nil)
 }
 
 // Set or update data set for a filter
-// Id provided in deleteId will trigger removal of matching items from the data set before the update
-// Elements provided in deleteElement will limit the fields to be removed using Id
+// deleteSelector will trigger removal of matching items from the data set before the update
+// deleteElement will limit the fields to be removed using Id
 //
 // Will return an error if the data set could not be updated
 func (l *LoadControl) UpdateLimitDataForFilters(
