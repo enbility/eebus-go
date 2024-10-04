@@ -147,7 +147,19 @@ func (s *MeasurementSuite) Test_GetDescriptionsForFilter() {
 	assert.Equal(s.T(), 0, len(data))
 }
 
-func (s *MeasurementSuite) Test_GetLimitData() {
+func (s *MeasurementSuite) Test_GetData() {
+	ids := []api.MeasurementDataForID{
+		{
+			Id: model.MeasurementIdType(100),
+			Data: model.MeasurementDataType{
+				Value: model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	err := s.sut.UpdateDataForIds(ids)
+	assert.NotNil(s.T(), err)
+
 	filter := model.MeasurementDescriptionDataType{
 		MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
@@ -159,7 +171,7 @@ func (s *MeasurementSuite) Test_GetLimitData() {
 			Filter: filter,
 		},
 	}
-	err := s.sut.UpdateDataForFilters(data, nil, nil)
+	err = s.sut.UpdateDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
 	data = []api.MeasurementDataForFilter{

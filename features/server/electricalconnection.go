@@ -228,6 +228,7 @@ func (e *ElectricalConnection) UpdatePermittedValueSetForFilters(
 		}
 
 		description := descriptions[0]
+		item.Data.ElectricalConnectionId = description.ElectricalConnectionId
 		item.Data.ParameterId = description.ParameterId
 
 		permittedData = append(permittedData, item.Data)

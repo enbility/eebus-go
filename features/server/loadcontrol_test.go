@@ -225,6 +225,15 @@ func (s *LoadControlSuite) Test_GetDescriptionsForFilter() {
 }
 
 func (s *LoadControlSuite) Test_GetLimitData() {
+	ids := []api.LoadControlLimitDataForID{
+		{
+			Id: model.LoadControlLimitIdType(100),
+		},
+	}
+
+	err := s.sut.UpdateLimitDataForIds(ids)
+	assert.NotNil(s.T(), err)
+
 	filter := model.LoadControlLimitDescriptionDataType{
 		LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
 		LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
@@ -237,7 +246,7 @@ func (s *LoadControlSuite) Test_GetLimitData() {
 			Filter: filter,
 		},
 	}
-	err := s.sut.UpdateLimitDataForFilters(data, nil, nil)
+	err = s.sut.UpdateLimitDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
 	data = []api.LoadControlLimitDataForFilter{
