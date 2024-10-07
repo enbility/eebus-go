@@ -141,6 +141,9 @@ func WriteLoadControlLimit(
 		return nil, api.ErrNotSupported
 	}
 
+	var deleteSelectors *model.LoadControlLimitListDataSelectorsType
+	var deleteElements *model.LoadControlLimitDataElementsType
+
 	newLimit := model.LoadControlLimitDataType{
 		LimitId:       item.LimitId,
 		IsLimitActive: util.Ptr(limit.IsActive),
@@ -152,15 +155,17 @@ func WriteLoadControlLimit(
 		}
 	}
 
-	limitData = append(limitData, newLimit)
+	// should we delete the TimePeriod value?
+	if limit.DeleteTimePeriod {
+		deleteSelectors = &model.LoadControlLimitListDataSelectorsType{
+			LimitId: currentLimits[0].LimitId,
+		}
+		deleteElements = &model.LoadControlLimitDataElementsType{
+			TimePeriod: &model.TimePeriodElementsType{},
+		}
+	}
 
-	// always delete the timePeriod first
-	deleteSelectors := &model.LoadControlLimitListDataSelectorsType{
-		LimitId: currentLimits[0].LimitId,
-	}
-	deleteElements := &model.LoadControlLimitDataElementsType{
-		TimePeriod: &model.TimePeriodElementsType{},
-	}
+	limitData = append(limitData, newLimit)
 
 	msgCounter, err := loadControl.WriteLimitData(limitData, deleteSelectors, deleteElements)
 

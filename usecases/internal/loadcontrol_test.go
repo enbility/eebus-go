@@ -877,6 +877,17 @@ func (s *InternalSuite) Test_WriteLoadControlLimit() {
 	s.mux.Lock()
 	assert.True(s.T(), cbInvoked)
 	s.mux.Unlock()
+
+	loadLimit = ucapi.LoadLimit{
+		Duration:         0,
+		IsActive:         true,
+		Value:            5000,
+		DeleteTimePeriod: true,
+	}
+
+	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }
 
 func (s *InternalSuite) Test_WriteLoadControlLimits() {
