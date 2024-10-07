@@ -173,7 +173,7 @@ func usage() {
 	fmt.Println("  go run /cmd/evse/main.go <serverport>")
 	fmt.Println()
 	fmt.Println("General Usage:")
-	fmt.Println("  go run /cmd/evse/main.go <serverport> <hems-ski> <crtfile> <keyfile>")
+	fmt.Println("  go run /cmd/evse/main.go <serverport> <remoteski> <crtfile> <keyfile>")
 }
 
 func main() {
