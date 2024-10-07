@@ -8,6 +8,7 @@ import (
 	"github.com/enbility/eebus-go/features/server"
 	"github.com/enbility/eebus-go/mocks"
 	"github.com/enbility/eebus-go/service"
+	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	spineapi "github.com/enbility/spine-go/api"
 	spinemocks "github.com/enbility/spine-go/mocks"
@@ -40,6 +41,7 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(
 		"test", "test", "test", "test",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
 		9999, cert, time.Second*4)

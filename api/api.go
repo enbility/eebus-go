@@ -52,6 +52,10 @@ type ServiceInterface interface {
 	// Returns if the service has auto accept enabled or not
 	IsAutoAcceptEnabled() bool
 
+	// Returns the QR code text for the service
+	// as defined in SHIP Requirements for Installation Process V1.0.0
+	QRCodeText() string
+
 	// Returns the Service detail of a remote SKI
 	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
 

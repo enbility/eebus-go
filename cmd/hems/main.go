@@ -77,6 +77,7 @@ func (h *hems) run() {
 
 	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "HEMS", "123456789",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
 		port, certificate, time.Second*4)

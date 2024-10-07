@@ -26,6 +26,9 @@ type Service struct {
 	// The local service details
 	localService *shipapi.ServiceDetails
 
+	// mDNS manager
+	mdns shipapi.MdnsInterface
+
 	// Connection Registrations
 	connectionsHub shipapi.HubInterface
 
@@ -128,11 +131,13 @@ func (s *Service) Setup() error {
 	}
 
 	// setup mDNS
-	mdns := mdns.NewMDNS(
+	s.mdns = mdns.NewMDNS(
 		s.localService.SKI(),
 		sd.DeviceBrand(),
 		sd.DeviceModel(),
 		string(sd.DeviceType()),
+		sd.DeviceSerialNumber(),
+		sd.DeviceCategories(),
 		sd.Identifier(),
 		sd.MdnsServiceName(),
 		sd.Port(),
@@ -141,7 +146,7 @@ func (s *Service) Setup() error {
 	)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	s.connectionsHub = hub.NewHub(s, mdns, s.configuration.Port(), s.configuration.Certificate(), s.localService)
+	s.connectionsHub = hub.NewHub(s, s.mdns, s.configuration.Port(), s.configuration.Certificate(), s.localService)
 
 	return nil
 }
@@ -205,6 +210,12 @@ func (s *Service) SetAutoAccept(value bool) {
 
 func (s *Service) IsAutoAcceptEnabled() bool {
 	return s.localService.AutoAccept()
+}
+
+// Returns the QR code text for the service
+// as defined in SHIP Requirements for Installation Process V1.0.0
+func (s *Service) QRCodeText() string {
+	return s.mdns.QRCodeText()
 }
 
 // Sets the SKI as being paired

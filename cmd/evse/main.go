@@ -73,6 +73,7 @@ func (h *evse) run() {
 
 	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "EVSE", "234567890",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEMobility},
 		model.DeviceTypeTypeChargingStation,
 		[]model.EntityTypeType{model.EntityTypeTypeEVSE},
 		port, certificate, time.Second*4)
