@@ -27,7 +27,6 @@ type LoadLimitsPhase struct {
 
 // Defines a limit data set
 type LoadLimit struct {
-	IsDurationSet  bool          // if the duration is set (only used for read commands. Relevant for LPC & LPP only)
 	Duration       time.Duration // the duration of the limit,
 	IsChangeable   bool          // if the value can be changed via write, ignored when writing data
 	IsActive       bool          // if the limit is active
