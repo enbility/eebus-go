@@ -44,6 +44,7 @@ func (e *LPC) ConsumptionLimit() (limit ucapi.LoadLimit, resultErr error) {
 	limit.IsChangeable = (value.IsLimitChangeable != nil && *value.IsLimitChangeable)
 	limit.IsActive = (value.IsLimitActive != nil && *value.IsLimitActive)
 	if value.TimePeriod != nil && value.TimePeriod.EndTime != nil {
+		limit.IsDurationSet = true
 		if duration, err := value.TimePeriod.GetDuration(); err == nil {
 			limit.Duration = duration
 		}
@@ -106,6 +107,7 @@ func (e *LPC) PendingConsumptionLimits() map[model.MsgCounterType]ucapi.LoadLimi
 			limit := ucapi.LoadLimit{}
 
 			if item.TimePeriod != nil {
+				limit.IsDurationSet = true
 				if duration, err := item.TimePeriod.GetDuration(); err == nil {
 					limit.Duration = duration
 				}

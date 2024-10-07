@@ -44,6 +44,7 @@ func (e *LPP) ProductionLimit() (limit ucapi.LoadLimit, resultErr error) {
 	limit.IsChangeable = (value.IsLimitChangeable != nil && *value.IsLimitChangeable)
 	limit.IsActive = (value.IsLimitActive != nil && *value.IsLimitActive)
 	if value.TimePeriod != nil && value.TimePeriod.EndTime != nil {
+		limit.IsDurationSet = true
 		if duration, err := value.TimePeriod.GetDuration(); err == nil {
 			limit.Duration = duration
 		}
@@ -106,6 +107,7 @@ func (e *LPP) PendingProductionLimits() map[model.MsgCounterType]ucapi.LoadLimit
 			limit := ucapi.LoadLimit{}
 
 			if item.TimePeriod != nil {
+				limit.IsDurationSet = true
 				if duration, err := item.TimePeriod.GetDuration(); err == nil {
 					limit.Duration = duration
 				}

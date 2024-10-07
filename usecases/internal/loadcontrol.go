@@ -156,7 +156,7 @@ func WriteLoadControlLimit(
 	}
 
 	// should we delete the TimePeriod value?
-	if limit.DeleteTimePeriod {
+	if limit.DeleteDuration {
 		deleteSelectors = &model.LoadControlLimitListDataSelectorsType{
 			LimitId: currentLimits[0].LimitId,
 		}

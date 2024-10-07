@@ -879,10 +879,10 @@ func (s *InternalSuite) Test_WriteLoadControlLimit() {
 	s.mux.Unlock()
 
 	loadLimit = ucapi.LoadLimit{
-		Duration:         0,
-		IsActive:         true,
-		Value:            5000,
-		DeleteTimePeriod: true,
+		Duration:       0,
+		IsActive:       true,
+		Value:          5000,
+		DeleteDuration: true,
 	}
 
 	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, nil)
