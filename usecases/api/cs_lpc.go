@@ -74,7 +74,14 @@ type CsLPCInterface interface {
 
 	// Scenario 3
 
-	// this is automatically covered by the SPINE implementation
+	// start sending heartbeat from the local entity supporting this usecase
+	//
+	// the heartbeat is started by default when a non 0 timeout is set in the service configuration
+	StartHeartbeat()
+
+	// stop sending heartbeat from the local entity supporting this usecase
+	StopHeartbeat()
+
 	//
 	// returns true, if the last heartbeat is within 2 minutes, otherwise false
 	IsHeartbeatWithinDuration() bool

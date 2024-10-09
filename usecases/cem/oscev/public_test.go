@@ -47,4 +47,10 @@ func (s *CemOSCEVSuite) Test_Public() {
 
 	_, err = s.sut.WriteLoadControlLimits(s.evEntity, []ucapi.LoadLimitsPhase{}, nil)
 	assert.NotNil(s.T(), err)
+
+	s.sut.StopHeartbeat()
+	s.sut.StartHeartbeat()
+
+	err = s.sut.SetOperatingState(true)
+	assert.Nil(s.T(), err)
 }

@@ -84,3 +84,7 @@ func (s *DeviceDiagnosisSuite) Test_SetState() {
 	}
 	s.sut.SetLocalState(data)
 }
+
+func (s *DeviceDiagnosisSuite) Test_SetLocalOperatingState() {
+	s.sut.SetLocalOperatingState(model.DeviceDiagnosisOperatingStateTypeNormalOperation)
+}

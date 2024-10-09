@@ -60,10 +60,19 @@ type CemOPEVInterface interface {
 
 	// Scenario 2
 
-	// this is automatically covered by the SPINE implementation
+	// start sending heartbeat from the local CEM entity
+	//
+	// the heartbeat is started by default when a non 0 timeout is set in the service configuration
+	StartHeartbeat()
+
+	// stop sending heartbeat from the local CEM entity
+	StopHeartbeat()
 
 	// Scenario 3
 
-	// this is covered by the central CEM interface implementation
-	// use that one to set the CEM's operation state which will inform all remote devices
+	// set the local operating state of the local cem entity
+	//
+	// parameters:
+	//   - failureState: if true, the operating state is set to failure, otherwise to normal
+	SetOperatingState(failureState bool) error
 }

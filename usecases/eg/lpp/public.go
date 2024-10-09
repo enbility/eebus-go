@@ -233,6 +233,36 @@ func (e *LPP) WriteFailsafeDurationMinimum(entity spineapi.EntityRemoteInterface
 	return msgCounter, err
 }
 
+// Scenario 3
+
+// start sending heartbeat from the local entity supporting this usecase
+//
+// the heartbeat is started by default when a non 0 timeout is set in the service configuration
+func (e *LPP) StartHeartbeat() {
+	if hm := e.LocalEntity.HeartbeatManager(); hm != nil {
+		_ = hm.StartHeartbeat()
+	}
+}
+
+// stop sending heartbeat from the local CEM entity
+func (e *LPP) StopHeartbeat() {
+	if hm := e.LocalEntity.HeartbeatManager(); hm != nil {
+		hm.StopHeartbeat()
+	}
+}
+
+// check wether there was a heartbeat received within the last 2 minutes
+//
+// returns true, if the last heartbeat is within 2 minutes, otherwise false
+func (e *LPP) IsHeartbeatWithinDuration(entity spineapi.EntityRemoteInterface) bool {
+	lf, err := client.NewDeviceDiagnosis(e.LocalEntity, entity)
+	if err != nil {
+		return false
+	}
+
+	return lf.IsHeartbeatWithinDuration(2 * time.Minute)
+}
+
 // Scenario 4
 
 // return nominal maximum active (real) power the Controllable System is
