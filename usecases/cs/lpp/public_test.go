@@ -117,7 +117,7 @@ func (s *CsLPPSuite) Test_Failsafe() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
+func (s *CsLPPSuite) Test_Heartbeat() {
 	assert.Nil(s.T(), s.sut.heartbeatDiag)
 
 	value := s.sut.IsHeartbeatWithinDuration()
@@ -128,7 +128,7 @@ func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
 
 	var err error
 	s.sut.heartbeatDiag, err = client.NewDeviceDiagnosis(s.sut.LocalEntity, s.monitoredEntity)
-	assert.NotNil(s.T(), remoteDiagServer)
+	assert.NotNil(s.T(), s.sut.heartbeatDiag)
 	assert.Nil(s.T(), err)
 
 	// add heartbeat data to the remoteDiagServer
@@ -152,6 +152,9 @@ func (s *CsLPPSuite) Test_IsHeartbeatWithinDuration() {
 
 	value = s.sut.IsHeartbeatWithinDuration()
 	assert.True(s.T(), value)
+
+	s.sut.StopHeartbeat()
+	s.sut.StartHeartbeat()
 }
 
 func (s *CsLPPSuite) Test_ContractualProductionNominalMax() {

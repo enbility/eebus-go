@@ -78,7 +78,18 @@ type EgLPPInterface interface {
 
 	// Scenario 3
 
-	// this is automatically covered by the SPINE implementation
+	// start sending heartbeat from the local entity supporting this usecase
+	//
+	// the heartbeat is started by default when a non 0 timeout is set in the service configuration
+	StartHeartbeat()
+
+	// stop sending heartbeat from the local entity supporting this usecase
+	StopHeartbeat()
+
+	// check wether there was a heartbeat received within the last 2 minutes
+	//
+	// returns true, if the last heartbeat is within 2 minutes, otherwise false
+	IsHeartbeatWithinDuration(entity spineapi.EntityRemoteInterface) bool
 
 	// Scenario 4
 

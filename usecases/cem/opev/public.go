@@ -3,6 +3,7 @@ package opev
 import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
+	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
@@ -105,4 +106,43 @@ func (e *OPEV) WriteLoadControlLimits(
 		ScopeType:     util.Ptr(model.ScopeTypeTypeOverloadProtection),
 	}
 	return internal.WriteLoadControlPhaseLimits(e.LocalEntity, entity, filter, limits, resultCB)
+}
+
+// Scenario 2
+
+// start sending heartbeat from the local CEM entity
+//
+// the heartbeat is started by default when a non 0 timeout is set in the service configuration
+func (e *OPEV) StartHeartbeat() {
+	if hm := e.LocalEntity.HeartbeatManager(); hm != nil {
+		_ = hm.StartHeartbeat()
+	}
+}
+
+// stop sending heartbeat from the local CEM entity
+func (e *OPEV) StopHeartbeat() {
+	if hm := e.LocalEntity.HeartbeatManager(); hm != nil {
+		hm.StopHeartbeat()
+	}
+}
+
+// Scenario 3
+
+// set the local operating state of the local cem entity
+//
+// parameters:
+//   - failureState: if true, the operating state is set to failure, otherwise to normal
+func (e *OPEV) SetOperatingState(failureState bool) error {
+	lf, err := server.NewDeviceDiagnosis(e.LocalEntity)
+	if err != nil {
+		return err
+	}
+
+	state := model.DeviceDiagnosisOperatingStateTypeNormalOperation
+	if failureState {
+		state = model.DeviceDiagnosisOperatingStateTypeFailure
+	}
+	lf.SetLocalOperatingState(state)
+
+	return nil
 }
