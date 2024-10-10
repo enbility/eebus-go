@@ -147,7 +147,7 @@ func (h *hems) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 			h.uccslpc.ApproveOrDenyConsumptionLimit(msgCounter, true, "")
 		}
 	case cslpc.DataUpdateLimit:
-		if currentLimit, err := h.uccslpc.ConsumptionLimit(); err != nil {
+		if currentLimit, err := h.uccslpc.ConsumptionLimit(); err == nil {
 			fmt.Println("New LPC Limit set to", currentLimit.Value, "W")
 		}
 	}
