@@ -41,6 +41,15 @@ func (s *EgLPCSuite) Test_Events() {
 	payload.Data = util.Ptr(model.DeviceConfigurationKeyValueListDataType{})
 	s.sut.HandleEvent(payload)
 
+	payload.EventType = spineapi.EventTypeDataChange
+	payload.ChangeType = spineapi.ElementChangeUpdate
+	payload.Function = model.FunctionTypeDeviceDiagnosisHeartbeatData
+	deviceDiagF := s.sut.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
+	payload.LocalFeature = deviceDiagF
+	payload.CmdClassifier = util.Ptr(model.CmdClassifierTypeNotify)
+	payload.Data = util.Ptr(model.DeviceDiagnosisHeartbeatDataType{})
+	s.sut.HandleEvent(payload)
+
 	payload.Data = util.Ptr(model.NodeManagementUseCaseDataType{})
 	s.sut.HandleEvent(payload)
 }
