@@ -5,7 +5,6 @@ import (
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
-	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -21,14 +20,15 @@ type MPC struct {
 	acEnergyConsumed *model.MeasurementIdType
 	acEnergyProduced *model.MeasurementIdType
 	acCurrent        [3]*model.MeasurementIdType
-	acVoltage        [3]*model.MeasurementIdType // Phase to phase voltages are not supported (yet)
+	acVoltage        [6]*model.MeasurementIdType // Phase to phase voltages are not supported (yet)
 	acFrequency      *model.MeasurementIdType
 }
 
-var _ ucapi.MuMPCInterface = (*MPC)(nil)
-
 // At the moment the MPC use case configures itself as a 3-phase meter by default (ABC).
-func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MPC {
+func NewMPC(
+	localEntity spineapi.EntityLocalInterface,
+	eventCB api.EntityEventCallback,
+) *MPC {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeMonitoringAppliance}
 	useCaseScenarios := []api.UseCaseScenario{
 		{
@@ -350,37 +350,6 @@ func (e *MPC) AddFeatures() {
 	if idP7 == nil {
 		panic("error adding parameter description")
 	}
-
-	for _, id := range []*model.MeasurementIdType{
-		e.acPowerTotal,
-		e.acPower[0], e.acPower[1], e.acPower[2],
-		e.acEnergyConsumed,
-		e.acEnergyProduced,
-		e.acCurrent[0], e.acCurrent[1], e.acCurrent[2],
-		e.acVoltage[0], e.acVoltage[1], e.acVoltage[2],
-		e.acFrequency} {
-		if err := e.setMeasurementDataForId(id, 0); err != nil {
-			panic(err)
-		}
-	}
-}
-
-func (e *MPC) setMeasurementDataForId(id *model.MeasurementIdType, measurementData float64) error {
-	measurements, err := server.NewMeasurement(e.LocalEntity)
-	if err != nil {
-		return err
-	}
-
-	err = measurements.UpdateDataForId(model.MeasurementDataType{
-		MeasurementId: id,
-		ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-		Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(time.Now()),
-		Value:         model.NewScaledNumberType(measurementData),
-		ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-		ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
-	}, nil, *id)
-
-	return err
 }
 
 func (e *MPC) getMeasurementDataForId(id *model.MeasurementIdType) (float64, error) {
@@ -399,4 +368,14 @@ func (e *MPC) getMeasurementDataForId(id *model.MeasurementIdType) (float64, err
 	}
 
 	return data.Value.GetValue(), nil
+}
+
+func measuredValue(value float64) model.MeasurementDataType {
+	return model.MeasurementDataType{
+		ValueType:   util.Ptr(model.MeasurementValueTypeTypeValue),
+		Timestamp:   model.NewAbsoluteOrRelativeTimeTypeFromTime(time.Now()),
+		Value:       model.NewScaledNumberType(value),
+		ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueState:  util.Ptr(model.MeasurementValueStateTypeNormal),
+	}
 }
