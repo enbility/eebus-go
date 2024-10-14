@@ -3,13 +3,11 @@ package mgcp
 import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
-	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 	"github.com/enbility/spine-go/util"
-	"time"
 )
 
 type MGCP struct {
@@ -20,16 +18,13 @@ type MGCP struct {
 	gridFeedIn               *model.MeasurementIdType
 	gridConsumption          *model.MeasurementIdType
 	acCurrent                [3]*model.MeasurementIdType
-	acVoltage                [3]*model.MeasurementIdType // Phase to phase voltages are not supported (yet)
+	acVoltage                [6]*model.MeasurementIdType
 	acFrequency              *model.MeasurementIdType
 }
-
-var _ ucapi.GcpMGCPInterface = (*MGCP)(nil)
 
 // At the moment the MGCP use case configures itself as a 3-phase meter by default (ABC).
 func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
-	var validEntityTypes []model.EntityTypeType = nil // all entity types are valid
 	useCaseScenarios := []api.UseCaseScenario{
 		{
 			Scenario:       model.UseCaseScenarioSupportType(1),
@@ -88,7 +83,7 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 
 	usecase := usecase.NewUseCaseBase(
 		localEntity,
-		model.UseCaseActorTypeGridConnectionPoint,
+		model.UseCaseActorTypeMonitoringAppliance,
 		model.UseCaseNameTypeMonitoringOfGridConnectionPoint,
 		"1.0.0",
 		"release",
@@ -96,7 +91,9 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		eventCB,
 		UseCaseSupportUpdate,
 		validActorTypes,
-		validEntityTypes)
+		nil,
+		true,
+	)
 
 	uc := &MGCP{
 		UseCaseBase: usecase,
@@ -110,15 +107,16 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 func (m *MGCP) AddFeatures() {
 	// server features
 	deviceConfigurationFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
+	measurementFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	electricalConnectionFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+
 	deviceConfigurationFeature.AddFunctionType(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, true, false)
 	deviceConfigurationFeature.AddFunctionType(model.FunctionTypeDeviceConfigurationKeyValueListData, true, false)
 
-	measurementFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementDescriptionListData, true, false)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementConstraintsListData, true, false)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementListData, true, false)
 
-	electricalConnectionFeature := m.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
 	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionDescriptionListData, true, false)
 	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionParameterDescriptionListData, true, false)
 
@@ -299,43 +297,17 @@ func (m *MGCP) AddFeatures() {
 		panic("failed to add electrical connection parameter description")
 	}
 
-	err = m.SetPvFeedInLimitationFactor(0.0)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, meas := range []*model.MeasurementIdType{
-		m.acPowerTotal,
-		m.gridFeedIn,
-		m.gridConsumption,
-		m.acCurrent[0], m.acCurrent[1], m.acCurrent[2],
-		m.acVoltage[0], m.acVoltage[1], m.acVoltage[2],
-		m.acFrequency,
-	} {
-		err = m.setMeasurementDataForId(meas, 0.0)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
-func (m *MGCP) setMeasurementDataForId(id *model.MeasurementIdType, value float64) error {
-	measurements, err := server.NewMeasurement(m.LocalEntity)
-	if err != nil {
-		return err
-	}
-
-	err = measurements.UpdateDataForId(model.MeasurementDataType{
-		MeasurementId: id,
-		ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-		Timestamp:     model.NewAbsoluteOrRelativeTimeTypeFromTime(time.Now()),
-		Value:         model.NewScaledNumberType(value),
-		ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-		ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
-	}, nil, *id)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	m.Update( // TODO: optional?
+		m.ConfigurationPvFeedInLimitationFactor(0.0),
+		m.MeasurementAcPowerTotal(0.0),
+		m.MeasurementAcEnergyFeedIn(0.0),
+		m.MeasurementAcEnergyConsumed(0.0),
+		m.MeasurementAcCurrentPhaseA(0.0),
+		m.MeasurementAcCurrentPhaseB(0.0),
+		m.MeasurementAcCurrentPhaseC(0.0),
+		m.MeasurementAcVoltagePhaseA(0.0),
+		m.MeasurementAcVoltagePhaseB(0.0),
+		m.MeasurementAcVoltagePhaseC(0.0),
+		m.MeasurementAcFrequency(0.0),
+	)
 }

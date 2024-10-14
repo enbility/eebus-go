@@ -6,178 +6,230 @@ import (
 	"github.com/enbility/spine-go/model"
 )
 
+// -------- Getters -------- //
+
+// -------- Setters -------- //
+
 // Scenario 1
 
-// set the current power limitation factor
-//
-// parameters:
-//   - factor: the factor to set
-//
-// possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
-//   - and others
-func (m *MGCP) SetPvFeedInLimitationFactor(factor float64) error {
-	configuration, err := server.NewDeviceConfiguration(m.LocalEntity)
-	if err != nil {
-		panic(err)
+// Use MGCP.ConfigurationPvFeedInLimitationFactor in MGCP.Update to set the current power limitation factor
+func (m *MGCP) ConfigurationPvFeedInLimitationFactor(pvFeedInLimitationFactor float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeConfiguration,
+		updateTypeConfiguration: model.DeviceConfigurationKeyValueDataType{
+			KeyId: m.pvFeedInLimitationFactor,
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				ScaledNumber: model.NewScaledNumberType(pvFeedInLimitationFactor),
+			},
+		},
 	}
-
-	value := model.DeviceConfigurationKeyValueValueType{
-		ScaledNumber: model.NewScaledNumberType(factor),
-	}
-
-	data := model.DeviceConfigurationKeyValueDataType{
-		KeyId: m.pvFeedInLimitationFactor,
-		Value: &value,
-	}
-
-	return configuration.UpdateKeyValueDataForKeyId(
-		data,
-		nil,
-		*m.pvFeedInLimitationFactor,
-	)
 }
 
 // Scenario 2
 
-// set the momentary power consumption or production at the grid connection point
-//
-// parameters:
-//   - power: the power to set
-//   - positive values are used for consumption
-//   - negative values are used for production
-//
-// possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
-//   - and others
-func (m *MGCP) SetPower(power float64) error {
-	if m.acPowerTotal == nil {
-		return api.ErrMissingData
+// Use MGCP.MeasurementAcPowerTotal in MGCP.Update to set the current total power
+func (m *MGCP) MeasurementAcPowerTotal(acPowerTotal float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(acPowerTotal),
+			Id:   *m.acPowerTotal,
+		},
 	}
-
-	return m.setMeasurementDataForId(m.acPowerTotal, power)
 }
 
 // Scenario 3
 
-// set the total feed in energy at the grid connection point
-//
-// parameters:
-//   - energy: the energy to set
-//   - negative values are used for production
-//
-// possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
-//   - and others
-func (m *MGCP) SetEnergyFeedIn(energy float64) error {
-	if m.gridFeedIn == nil {
-		return api.ErrMissingData
+// Use MGCP.MeasurementAcEnergyFeedIn in MGCP.Update to set the total feed in energy
+func (m *MGCP) MeasurementAcEnergyFeedIn(energy float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(energy),
+			Id:   *m.gridFeedIn,
+		},
 	}
-
-	return m.setMeasurementDataForId(m.gridFeedIn, energy)
 }
 
 // Scenario 4
 
-// set the total consumption energy at the grid connection point
-//
-// parameters:
-//   - energy: the energy to set
-//   - positive values are used for consumption
-//
-// possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
-//   - and others
-func (m *MGCP) SetEnergyConsumed(energy float64) error {
-	if m.gridConsumption == nil {
-		return api.ErrMissingData
+// Use MGCP.MeasurementAcEnergyConsumed in MGCP.Update to set the total feed in energy
+func (m *MGCP) MeasurementAcEnergyConsumed(energy float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(energy),
+			Id:   *m.gridConsumption,
+		},
 	}
-	return m.setMeasurementDataForId(m.gridConsumption, energy)
 }
 
 // Scenario 5
 
-// set the momentary current consumption or production at the grid connection point
-//
-// parameters:
-//   - phaseA: the current of phase A
-//   - phaseB: the current of phase B
-//   - phaseC: the current of phase C
-//
-// possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
-//   - and others
-func (m *MGCP) SetCurrentPerPhase(phaseA, phaseB, phaseC float64) error {
-	for _, v := range m.acCurrent {
-		if v == nil {
-			return api.ErrMissingData
-		}
+// Use MGCP.MeasurementAcCurrentPhaseA in MGCP.Update to set the current of phase A
+func (m *MGCP) MeasurementAcCurrentPhaseA(current float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(current),
+			Id:   *m.acCurrent[0],
+		},
 	}
+}
 
-	err := m.setMeasurementDataForId(m.acCurrent[0], phaseA)
-	if err != nil {
-		return err
+// Use MGCP.MeasurementAcCurrentPhaseB in MGCP.Update to set the current of phase B
+func (m *MGCP) MeasurementAcCurrentPhaseB(current float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(current),
+			Id:   *m.acCurrent[1],
+		},
 	}
-	err = m.setMeasurementDataForId(m.acCurrent[1], phaseB)
-	if err != nil {
-		return err
-	}
-	err = m.setMeasurementDataForId(m.acCurrent[2], phaseC)
-	if err != nil {
-		return err
-	}
+}
 
-	return nil
+// Use MGCP.MeasurementAcCurrentPhaseC in MGCP.Update to set the current of phase C
+func (m *MGCP) MeasurementAcCurrentPhaseC(current float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(current),
+			Id:   *m.acCurrent[2],
+		},
+	}
 }
 
 // Scenario 6
 
-// set the voltage phase details at the grid connection point
-//
-// parameters:
-//   - phaseA: the voltage of phase A
-//   - phaseB: the voltage of phase B
-//   - phaseC: the voltage of phase C
-//
-// possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
-//   - and others
-func (m *MGCP) SetVoltagePerPhase(phaseA, phaseB, phaseC float64) error {
-	for _, v := range m.acVoltage {
-		if v == nil {
-			return api.ErrMissingData
-		}
+// Use MGCP.MeasurementAcVoltagePhaseA in MGCP.Update to set the voltage of phase A
+func (m *MGCP) MeasurementAcVoltagePhaseA(voltage float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(voltage),
+			Id:   *m.acVoltage[0],
+		},
 	}
+}
 
-	err := m.setMeasurementDataForId(m.acVoltage[0], phaseA)
-	if err != nil {
-		return err
+// Use MGCP.MeasurementAcVoltagePhaseB in MGCP.Update to set the voltage of phase B
+func (m *MGCP) MeasurementAcVoltagePhaseB(voltage float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(voltage),
+			Id:   *m.acVoltage[1],
+		},
 	}
-	err = m.setMeasurementDataForId(m.acVoltage[1], phaseB)
-	if err != nil {
-		return err
-	}
-	err = m.setMeasurementDataForId(m.acVoltage[2], phaseC)
-	if err != nil {
-		return err
-	}
+}
 
-	return nil
+// Use MGCP.MeasurementAcVoltagePhaseC in MGCP.Update to set the voltage of phase C
+func (m *MGCP) MeasurementAcVoltagePhaseC(voltage float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(voltage),
+			Id:   *m.acVoltage[2],
+		},
+	}
+}
+
+// Use MGCP.MeasurementAcVoltagePhaseAToB in MGCP.Update to set the voltage between phase A and B
+func (m *MGCP) MeasurementAcVoltagePhaseAToB(voltage float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(voltage),
+			Id:   *m.acVoltage[3],
+		},
+	}
+}
+
+// Use MGCP.MeasurementAcVoltagePhaseBToC in MGCP.Update to set the voltage between phase B and C
+func (m *MGCP) MeasurementAcVoltagePhaseBToC(voltage float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(voltage),
+			Id:   *m.acVoltage[4],
+		},
+	}
+}
+
+// Use MGCP.MeasurementAcVoltagePhaseCToA in MGCP.Update to set the voltage between phase C and A
+func (m *MGCP) MeasurementAcVoltagePhaseCToA(voltage float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(voltage),
+			Id:   *m.acVoltage[5],
+		},
+	}
 }
 
 // Scenario 7
 
-// set the frequency at the grid connection point
+// Use MGCP.MeasurementAcFrequency in MGCP.Update to set the frequency
+func (m *MGCP) MeasurementAcFrequency(frequency float64) UpdateValueType {
+	return UpdateValueType{
+		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateTypeMeasurement: api.MeasurementDataForID{
+			Data: measuredValue(frequency),
+			Id:   *m.acFrequency,
+		},
+	}
+}
+
+// Update the data
+
+// use MPC.Update to update the data of the MGCP Usecase
+// use it like this:
 //
-// parameters:
-//   - frequency: the frequency to set
+//	mgcp.Update(
+//	  mgcp.MeasuredAcPowerTotal(1000),
+//	  mgcp.MeasuredAcPowerPhaseA(500),
+//	  ...
+//	)
 //
 // possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
+//   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) SetFrequency(frequency float64) error {
-	if m.acFrequency == nil {
-		return api.ErrMissingData
+func (m *MGCP) Update(updateValueType ...UpdateValueType) []error {
+	measurements := make([]api.MeasurementDataForID, 0)
+	configurations := make([]model.DeviceConfigurationKeyValueDataType, 0)
+	errors := make([]error, 0)
+
+	for _, update := range updateValueType {
+		if update.updateValueType == SupportedUpdateValueTypeMeasurement {
+			measurements = append(measurements, update.updateTypeMeasurement)
+		} else {
+			configurations = append(configurations, update.updateTypeConfiguration)
+		}
 	}
-	return m.setMeasurementDataForId(m.acFrequency, frequency)
+
+	if len(measurements) > 0 {
+		_measurements, err := server.NewMeasurement(m.LocalEntity)
+		if err != nil {
+			errors = append(errors, err)
+		}
+
+		err = _measurements.UpdateDataForIds(measurements)
+		if err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	if len(configurations) == 1 {
+		_configurations, err := server.NewDeviceConfiguration(m.LocalEntity)
+		if err != nil {
+			errors = append(errors, err)
+		}
+
+		err = _configurations.UpdateKeyValueDataForKeyId(configurations[0], nil, *configurations[0].KeyId)
+		if err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	return errors
 }
