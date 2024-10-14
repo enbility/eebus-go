@@ -85,7 +85,9 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 		eventCB,
 		UseCaseSupportUpdate,
 		validActorTypes,
-		validEntityTypes)
+		validEntityTypes,
+		false,
+	)
 
 	uc := &MPC{
 		UseCaseBase: usecase,

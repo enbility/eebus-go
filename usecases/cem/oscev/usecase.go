@@ -58,6 +58,7 @@ func NewOSCEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 		UseCaseSupportUpdate,
 		validActorTypes,
 		validEntityTypes,
+		false,
 	)
 
 	uc := &OSCEV{
