@@ -1,12 +1,15 @@
 package mpc
 
 import (
+	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
+	"time"
 )
 
 func (s *MuMPCSuite) Test_Power() {
 	err := s.sut.Update(
-		s.sut.MeasuredAcPowerTotal(5.0),
+		s.sut.UpdateDataPowerTotal(5.0, util.Ptr(time.Now()), nil),
 	)
 	assert.Nil(s.T(), err)
 
@@ -17,9 +20,9 @@ func (s *MuMPCSuite) Test_Power() {
 
 func (s *MuMPCSuite) Test_PowerPerPhase() {
 	err := s.sut.Update(
-		s.sut.MeasuredAcPowerPhaseA(5.0),
-		s.sut.MeasuredAcPowerPhaseB(6.0),
-		s.sut.MeasuredAcPowerPhaseC(7.0),
+		s.sut.UpdateDataPowerPhaseA(5.0, util.Ptr(time.Now()), nil),
+		s.sut.UpdateDataPowerPhaseB(6.0, util.Ptr(time.Now()), nil),
+		s.sut.UpdateDataPowerPhaseC(7.0, util.Ptr(time.Now()), util.Ptr(model.MeasurementValueStateTypeError)),
 	)
 	assert.Nil(s.T(), err)
 
@@ -30,7 +33,7 @@ func (s *MuMPCSuite) Test_PowerPerPhase() {
 
 func (s *MuMPCSuite) Test_EnergyConsumed() {
 	err := s.sut.Update(
-		s.sut.MeasuredAcEnergyConsumed(5.0),
+		s.sut.UpdateDataEnergyConsumed(5.0, util.Ptr(time.Now()), nil, util.Ptr(time.Now()), util.Ptr(time.Now())),
 	)
 	assert.Nil(s.T(), err)
 
@@ -41,7 +44,7 @@ func (s *MuMPCSuite) Test_EnergyConsumed() {
 
 func (s *MuMPCSuite) Test_EnergyProduced() {
 	err := s.sut.Update(
-		s.sut.MeasuredAcEnergyProduced(5.0),
+		s.sut.UpdateDataEnergyProduced(5.0, nil, nil, nil, nil),
 	)
 	assert.Nil(s.T(), err)
 
@@ -52,25 +55,25 @@ func (s *MuMPCSuite) Test_EnergyProduced() {
 
 func (s *MuMPCSuite) Test_CurrentPerPhase() {
 	err := s.sut.Update(
-		s.sut.MeasuredAcCurrentPhaseA(5.0),
-		s.sut.MeasuredAcCurrentPhaseB(5.0),
-		s.sut.MeasuredAcCurrentPhaseC(5.0),
+		s.sut.UpdateDataCurrentPhaseA(5.0, nil, nil),
+		s.sut.UpdateDataCurrentPhaseB(3.0, nil, nil),
+		s.sut.UpdateDataCurrentPhaseC(1.0, nil, nil),
 	)
 	assert.Nil(s.T(), err)
 
 	currentPerPhases, err := s.sut.CurrentPerPhase()
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{5.0, 5.0, 5.0}, currentPerPhases)
+	assert.Equal(s.T(), []float64{5.0, 3.0, 1.0}, currentPerPhases)
 }
 
 func (s *MuMPCSuite) Test_VoltagePerPhase() {
 	err := s.sut.Update(
-		s.sut.MeasuredAcVoltagePhaseA(5.0),
-		s.sut.MeasuredAcVoltagePhaseB(6.0),
-		s.sut.MeasuredAcVoltagePhaseC(7.0),
-		s.sut.MeasuredAcVoltagePhaseAToB(8.0),
-		s.sut.MeasuredAcVoltagePhaseBToC(9.0),
-		s.sut.MeasuredAcVoltagePhaseCToA(10.0),
+		s.sut.UpdateDataVoltagePhaseA(5.0, nil, nil),
+		s.sut.UpdateDataVoltagePhaseB(6.0, nil, nil),
+		s.sut.UpdateDataVoltagePhaseC(7.0, nil, nil),
+		s.sut.UpdateDataVoltagePhaseAToB(8.0, nil, nil),
+		s.sut.UpdateDataVoltagePhaseBToC(9.0, nil, nil),
+		s.sut.UpdateDataVoltagePhaseCToA(10.0, nil, nil),
 	)
 	assert.Nil(s.T(), err)
 
@@ -81,7 +84,7 @@ func (s *MuMPCSuite) Test_VoltagePerPhase() {
 
 func (s *MuMPCSuite) Test_Frequency() {
 	err := s.sut.Update(
-		s.sut.MeasuredAcFrequency(5.0),
+		s.sut.UpdateDataFrequency(5.0, nil, nil),
 	)
 	assert.Nil(s.T(), err)
 

@@ -12,6 +12,7 @@ import (
 	spineapi "github.com/enbility/spine-go/api"
 	spinemocks "github.com/enbility/spine-go/mocks"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -73,7 +74,43 @@ func (s *MuMPCSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
-	s.sut = NewMPC(localEntity, s.Event)
+	s.sut, _ = NewMPC(
+		localEntity,
+		s.Event,
+		&MonitorPowerConfig{
+			ConnectedPhases:   ConnectedPhasesABC,
+			ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			SupportPhaseToPhase:  true,
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+	)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
