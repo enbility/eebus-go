@@ -20,6 +20,11 @@ func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
+	if internal.IsHeartbeat(payload) && e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateHeartbeat)
+		return
+	}
+
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return

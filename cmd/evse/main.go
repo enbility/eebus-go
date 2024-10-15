@@ -73,6 +73,7 @@ func (h *evse) run() {
 
 	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "EVSE", "234567890",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEMobility},
 		model.DeviceTypeTypeChargingStation,
 		[]model.EntityTypeType{model.EntityTypeTypeEVSE},
 		port, certificate, time.Second*4)
@@ -160,7 +161,7 @@ func (h *evse) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 			h.uclpc.ApproveOrDenyConsumptionLimit(msgCounter, true, "")
 		}
 	case lpc.DataUpdateLimit:
-		if currentLimit, err := h.uclpc.ConsumptionLimit(); err != nil {
+		if currentLimit, err := h.uclpc.ConsumptionLimit(); err == nil {
 			fmt.Println("New Limit set to", currentLimit.Value, "W")
 		}
 	}
@@ -172,7 +173,7 @@ func usage() {
 	fmt.Println("  go run /cmd/evse/main.go <serverport>")
 	fmt.Println()
 	fmt.Println("General Usage:")
-	fmt.Println("  go run /cmd/evse/main.go <serverport> <hems-ski> <crtfile> <keyfile>")
+	fmt.Println("  go run /cmd/evse/main.go <serverport> <remoteski> <crtfile> <keyfile>")
 }
 
 func main() {

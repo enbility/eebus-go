@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	"github.com/enbility/ship-go/mdns"
 	spinemodel "github.com/enbility/spine-go/model"
@@ -26,53 +27,78 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	brand := "brand"
 	model := "model"
 	serial := "serial"
+	categories := []shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem}
 	port := 4567
 	heartbeatTimeout := time.Second * 4
 	entityTypes := []spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}
 
-	config, err := NewConfiguration("", brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+	config, err := NewConfiguration("", brand, model, serial,
+		categories,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		entityTypes, 0, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
-	config, err = NewConfiguration("", brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+	config, err = NewConfiguration("", brand, model, serial,
+		categories,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
-	config, err = NewConfiguration(vendor, "", model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+	config, err = NewConfiguration(vendor, "", model, serial,
+		categories,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
-	config, err = NewConfiguration(vendor, brand, "", serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+	config, err = NewConfiguration(vendor, brand, "", serial,
+		categories,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
-	config, err = NewConfiguration(vendor, brand, model, "", spinemodel.DeviceTypeTypeEnergyManagementSystem,
+	config, err = NewConfiguration(vendor, brand, model, "",
+		categories,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
-	config, err = NewConfiguration(vendor, brand, model, serial, "",
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		nil,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
-	config, err = NewConfiguration(vendor, brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		categories,
+		"",
+		entityTypes, port, certificate, heartbeatTimeout)
+
+	assert.Nil(s.T(), config)
+	assert.NotNil(s.T(), err)
+
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		categories,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		[]spinemodel.EntityTypeType{}, port, certificate, heartbeatTimeout)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
 
-	config, err = NewConfiguration(vendor, brand, model, serial, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		categories,
+		spinemodel.DeviceTypeTypeEnergyManagementSystem,
 		entityTypes, port, certificate, heartbeatTimeout)
 
 	assert.NotNil(s.T(), config)
@@ -126,6 +152,9 @@ func (s *ConfigurationSuite) Test_Configuration() {
 
 	serialValue := config.DeviceSerialNumber()
 	assert.Equal(s.T(), serial, serialValue)
+
+	categoryValue := config.DeviceCategories()
+	assert.Equal(s.T(), categories, categoryValue)
 
 	deviceTypeValue := config.DeviceType()
 	assert.Equal(s.T(), spinemodel.DeviceTypeTypeEnergyManagementSystem, deviceTypeValue)

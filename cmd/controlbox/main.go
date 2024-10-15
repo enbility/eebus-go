@@ -76,6 +76,7 @@ func (h *controlbox) run() {
 
 	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "ControlBox", "123456789",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeGridConnectionHub},
 		model.DeviceTypeTypeElectricitySupplySystem,
 		[]model.EntityTypeType{model.EntityTypeTypeGridGuard},
 		port, certificate, time.Second*60)
@@ -150,9 +151,9 @@ func (h *controlbox) sendLimit(entity spineapi.EntityRemoteInterface) {
 	fmt.Println("Sending a limit in 5s...")
 	time.AfterFunc(time.Second*5, func() {
 		limit := ucapi.LoadLimit{
-			Duration: time.Minute * 2,
+			Duration: time.Hour*1 + time.Minute*2 + time.Second*3,
 			IsActive: true,
-			Value:    7000,
+			Value:    100,
 		}
 
 		resultCB := func(msg model.ResultDataType) {
@@ -210,7 +211,7 @@ func usage() {
 	fmt.Println("  go run /cmd/controlbox/main.go <serverport>")
 	fmt.Println()
 	fmt.Println("General Usage:")
-	fmt.Println("  go run /cmd/controlbox/main.go <serverport> <evse-ski> <crtfile> <keyfile>")
+	fmt.Println("  go run /cmd/controlbox/main.go <serverport> <remoteski> <crtfile> <keyfile>")
 }
 
 func main() {

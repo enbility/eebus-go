@@ -30,4 +30,10 @@ const (
 	//
 	// Use Case LPC, Scenario 2
 	DataUpdateFailsafeDurationMinimum api.EventType = "eg-lpp-DataUpdateFailsafeDurationMinimum"
+
+	// Indicates a notify heartbeat event the application should care of.
+	// E.g. going into or out of the Failsafe state
+	//
+	// Use Case LPC, Scenario 3
+	DataUpdateHeartbeat api.EventType = "cs-lpc-DataUpdateHeartbeat"
 )

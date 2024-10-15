@@ -77,6 +77,7 @@ func (h *hems) run() {
 
 	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "HEMS", "123456789",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
 		port, certificate, time.Second*4)
@@ -135,10 +136,6 @@ func (h *hems) run() {
 // Controllable System LPC Event Handler
 
 func (h *hems) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
-	if entity.EntityType() != model.EntityTypeTypeGridGuard {
-		return
-	}
-
 	switch event {
 	case cslpc.WriteApprovalRequired:
 		// get pending writes
@@ -150,7 +147,7 @@ func (h *hems) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 			h.uccslpc.ApproveOrDenyConsumptionLimit(msgCounter, true, "")
 		}
 	case cslpc.DataUpdateLimit:
-		if currentLimit, err := h.uccslpc.ConsumptionLimit(); err != nil {
+		if currentLimit, err := h.uccslpc.ConsumptionLimit(); err == nil {
 			fmt.Println("New LPC Limit set to", currentLimit.Value, "W")
 		}
 	}
@@ -159,10 +156,6 @@ func (h *hems) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterface, ent
 // Controllable System LPP Event Handler
 
 func (h *hems) OnLPPEvent(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
-	if entity.EntityType() != model.EntityTypeTypeGridGuard {
-		return
-	}
-
 	switch event {
 	case cslpp.WriteApprovalRequired:
 		// get pending writes
@@ -218,7 +211,7 @@ func usage() {
 	fmt.Println("  go run /cmd/hems/main.go <serverport>")
 	fmt.Println()
 	fmt.Println("General Usage:")
-	fmt.Println("  go run /cmd/hems/main.go <serverport> <evse-ski> <crtfile> <keyfile>")
+	fmt.Println("  go run /cmd/hems/main.go <serverport> <remoteski> <crtfile> <keyfile>")
 }
 
 func main() {

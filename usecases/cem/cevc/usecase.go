@@ -86,4 +86,9 @@ func (e *CEVC) AddFeatures() {
 	for _, feature := range clientFeatures {
 		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 	}
+
+	// server features
+	f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
+	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisStateData, true, false)
+	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
 }

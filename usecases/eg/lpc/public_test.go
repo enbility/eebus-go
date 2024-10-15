@@ -3,6 +3,7 @@ package lpc
 import (
 	"time"
 
+	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -330,6 +331,41 @@ func (s *EgLPCSuite) Test_WriteFailsafeDurationMinimum() {
 
 	_, err = s.sut.WriteFailsafeDurationMinimum(s.monitoredEntity, time.Duration(time.Hour*1))
 	assert.NotNil(s.T(), err)
+}
+
+func (s *EgLPCSuite) Test_Heartbeat() {
+	remoteDiagServer := s.monitoredEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
+	assert.NotNil(s.T(), remoteDiagServer)
+
+	var err error
+	heartbeatDiag, err := client.NewDeviceDiagnosis(s.sut.LocalEntity, s.monitoredEntity)
+	assert.NotNil(s.T(), heartbeatDiag)
+	assert.Nil(s.T(), err)
+
+	// add heartbeat data to the remoteDiagServer
+	timestamp := time.Now().Add(-time.Second * 121)
+	data := &model.DeviceDiagnosisHeartbeatDataType{
+		Timestamp:        model.NewAbsoluteOrRelativeTimeTypeFromTime(timestamp),
+		HeartbeatCounter: util.Ptr(uint64(1)),
+		HeartbeatTimeout: model.NewDurationType(time.Second * 120),
+	}
+	_, err1 := remoteDiagServer.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	assert.Nil(s.T(), err1)
+
+	value := s.sut.IsHeartbeatWithinDuration(s.monitoredEntity)
+	assert.False(s.T(), value)
+
+	timestamp = time.Now()
+	data.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(timestamp)
+
+	_, err1 = remoteDiagServer.UpdateData(true, model.FunctionTypeDeviceDiagnosisHeartbeatData, data, nil, nil)
+	assert.Nil(s.T(), err1)
+
+	value = s.sut.IsHeartbeatWithinDuration(s.monitoredEntity)
+	assert.True(s.T(), value)
+
+	s.sut.StopHeartbeat()
+	s.sut.StartHeartbeat()
 }
 
 func (s *EgLPCSuite) Test_PowerConsumptionNominalMax() {

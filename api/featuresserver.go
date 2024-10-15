@@ -35,8 +35,11 @@ type DeviceConfigurationServerInterface interface {
 }
 
 type DeviceDiagnosisServerInterface interface {
-	// set the local diagnosis state of the device
-	SetLocalState(operatingState *model.DeviceDiagnosisStateDataType)
+	// set the local device diagnosis state of the device
+	SetLocalState(statetate *model.DeviceDiagnosisStateDataType)
+
+	// set the local device diagnosis operating state
+	SetLocalOperatingState(operatingState model.DeviceDiagnosisOperatingStateType)
 }
 
 type ElectricalConnectionPermittedValueSetForID struct {

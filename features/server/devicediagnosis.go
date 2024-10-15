@@ -14,7 +14,7 @@ type DeviceDiagnosis struct {
 }
 
 func NewDeviceDiagnosis(localEntity spineapi.EntityLocalInterface) (*DeviceDiagnosis, error) {
-	feature, err := NewFeature(model.FeatureTypeTypeDeviceConfiguration, localEntity)
+	feature, err := NewFeature(model.FeatureTypeTypeDeviceDiagnosis, localEntity)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,15 @@ func NewDeviceDiagnosis(localEntity spineapi.EntityLocalInterface) (*DeviceDiagn
 
 var _ api.DeviceDiagnosisServerInterface = (*DeviceDiagnosis)(nil)
 
-// set the local diagnosis state of the device
-func (d *DeviceDiagnosis) SetLocalState(operatingState *model.DeviceDiagnosisStateDataType) {
-	d.featureLocal.SetData(model.FunctionTypeDeviceDiagnosisStateData, operatingState)
+// set the local device diagnosis state of the device
+func (d *DeviceDiagnosis) SetLocalState(state *model.DeviceDiagnosisStateDataType) {
+	d.featureLocal.SetData(model.FunctionTypeDeviceDiagnosisStateData, state)
+}
+
+// set the local device diagnosis operating state
+func (d *DeviceDiagnosis) SetLocalOperatingState(operatingState model.DeviceDiagnosisOperatingStateType) {
+	stateData := &model.DeviceDiagnosisStateDataType{
+		OperatingState: &operatingState,
+	}
+	d.SetLocalState(stateData)
 }

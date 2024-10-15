@@ -268,6 +268,22 @@ func (e *LPC) SetFailsafeDurationMinimum(duration time.Duration, changeable bool
 
 // Scenario 3
 
+// start sending heartbeat from the local entity supporting this usecase
+//
+// the heartbeat is started by default when a non 0 timeout is set in the service configuration
+func (e *LPC) StartHeartbeat() {
+	if hm := e.LocalEntity.HeartbeatManager(); hm != nil {
+		_ = hm.StartHeartbeat()
+	}
+}
+
+// stop sending heartbeat from the local CEM entity
+func (e *LPC) StopHeartbeat() {
+	if hm := e.LocalEntity.HeartbeatManager(); hm != nil {
+		hm.StopHeartbeat()
+	}
+}
+
 func (e *LPC) IsHeartbeatWithinDuration() bool {
 	if e.heartbeatDiag == nil {
 		return false

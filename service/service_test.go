@@ -31,6 +31,7 @@ type ServiceSuite struct {
 
 	serviceReader *mocks.ServiceReaderInterface
 	conHub        *shipmocks.HubInterface
+	mdns          *shipmocks.MdnsInterface
 	logging       *shipmocks.LoggingInterface
 	localDevice   *spinemocks.DeviceLocalInterface
 }
@@ -42,6 +43,8 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 
 	s.conHub = shipmocks.NewHubInterface(s.T())
 
+	s.mdns = shipmocks.NewMdnsInterface(s.T())
+
 	s.logging = shipmocks.NewLoggingInterface(s.T())
 
 	s.localDevice = spinemocks.NewDeviceLocalInterface(s.T())
@@ -49,7 +52,9 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 	certificate := tls.Certificate{}
 	var err error
 	s.config, err = api.NewConfiguration(
-		"vendor", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
+		"vendor", "brand", "model", "serial",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
+		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, time.Second*4)
 	assert.Nil(s.T(), nil, err)
 
@@ -106,6 +111,7 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 	testSki := "test"
 
 	s.sut.connectionsHub = s.conHub
+	s.sut.mdns = s.mdns
 	s.sut.spineLocalDevice = s.localDevice
 	s.sut.localService = shipapi.NewServiceDetails(testSki)
 
@@ -122,6 +128,9 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 	s.conHub.EXPECT().SetAutoAccept(mock.Anything).Return()
 	s.sut.SetAutoAccept(true)
 	assert.True(s.T(), s.sut.IsAutoAcceptEnabled())
+
+	s.mdns.EXPECT().QRCodeText().Return("text")
+	assert.Equal(s.T(), "text", s.sut.QRCodeText())
 
 	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything).Return()
 	s.sut.RegisterRemoteSKI(testSki)
@@ -178,7 +187,9 @@ func (s *ServiceSuite) Test_Setup_IANA() {
 	var err error
 	certificate := tls.Certificate{}
 	s.config, err = api.NewConfiguration(
-		"12345", "brand", "model", "serial", model.DeviceTypeTypeEnergyManagementSystem,
+		"12345", "brand", "model", "serial",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
+		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, time.Second*4)
 	assert.Nil(s.T(), nil, err)
 
@@ -218,6 +229,7 @@ func (s *ServiceSuite) Test_Setup_Error_DeviceName() {
 		"brand",
 		"modelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodelmodel",
 		"serialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserialserial",
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM}, 4729, certificate, time.Second*4)
 	assert.Nil(s.T(), nil, err)

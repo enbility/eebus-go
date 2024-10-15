@@ -102,7 +102,6 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 
 	s.sut.loadControlWriteCB(msg4)
 	assert.True(s.T(), s.eventCalled)
-	s.eventCalled = false
 
 	msg5 := &spineapi.Message{
 		RequestHeader: &model.HeaderType{
@@ -125,7 +124,8 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Hour * 3),
 					},
 				},
-			}},
+			},
+		},
 		DeviceRemote: s.remoteDevice,
 		EntityRemote: s.monitoredEntity,
 	}
