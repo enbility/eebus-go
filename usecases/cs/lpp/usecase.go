@@ -187,12 +187,17 @@ func (e *LPP) AddFeatures() {
 	if lc, err := server.NewLoadControl(e.LocalEntity); err == nil {
 		limitId := lc.AddLimitDescription(newLimitDesc)
 
-		newLimiData := model.LoadControlLimitDataType{
-			Value:             model.NewScaledNumberType(0),
-			IsLimitChangeable: util.Ptr(true),
-			IsLimitActive:     util.Ptr(false),
+		newLimiData := []api.LoadControlLimitDataForID{
+			{
+				Data: model.LoadControlLimitDataType{
+					Value:             model.NewScaledNumberType(0),
+					IsLimitChangeable: util.Ptr(true),
+					IsLimitActive:     util.Ptr(false),
+				},
+				Id: *limitId,
+			},
 		}
-		_ = lc.UpdateLimitDataForId(newLimiData, nil, *limitId)
+		_ = lc.UpdateLimitDataForIds(newLimiData)
 	}
 
 	f = e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)

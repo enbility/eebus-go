@@ -3,6 +3,7 @@ package server
 import (
 	"errors"
 
+	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -178,6 +179,79 @@ func (e *ElectricalConnection) UpdateCharacteristic(
 	}
 
 	if err := e.featureLocal.UpdateData(model.FunctionTypeElectricalConnectionCharacteristicListData, datalist, partial, deleteFilter); err != nil {
+		return errors.New(err.String())
+	}
+
+	return nil
+}
+
+// Set or update data set for a electricalConnectiontId
+// Id provided in deleteId will trigger removal of matching items from the data set before the update
+// Elements provided in deleteElement will limit the fields to be removed using Id
+//
+// Will return an error if the data set could not be updated
+func (e *ElectricalConnection) UpdatePermittedValueSetForIds(
+	data []api.ElectricalConnectionPermittedValueSetForID,
+) (resultErr error) {
+	var filterData []api.ElectricalConnectionPermittedValueSetForFilter
+	for index, item := range data {
+		filterData = append(filterData, api.ElectricalConnectionPermittedValueSetForFilter{
+			Data: item.Data,
+			Filter: model.ElectricalConnectionParameterDescriptionDataType{
+				ElectricalConnectionId: &data[index].ElectricalConnectionId,
+				ParameterId:            &data[index].ParameterId,
+			},
+		})
+	}
+
+	return e.UpdatePermittedValueSetForFilters(filterData, nil, nil)
+}
+
+// Set or update data set for a filter
+// deleteSelector will trigger removal of matching items from the data set before the update
+// deleteElement will limit the fields to be removed using Id
+//
+// Will return an error if the data set could not be updated
+func (e *ElectricalConnection) UpdatePermittedValueSetForFilters(
+	data []api.ElectricalConnectionPermittedValueSetForFilter,
+	deleteSelector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType,
+	deleteElements *model.ElectricalConnectionPermittedValueSetDataElementsType,
+) (resultErr error) {
+	resultErr = api.ErrDataNotAvailable
+
+	var permittedData []model.ElectricalConnectionPermittedValueSetDataType
+
+	for _, item := range data {
+		descriptions, err := e.GetParameterDescriptionsForFilter(item.Filter)
+		if err != nil || descriptions == nil || len(descriptions) != 1 {
+			return
+		}
+
+		description := descriptions[0]
+		item.Data.ElectricalConnectionId = description.ElectricalConnectionId
+		item.Data.ParameterId = description.ParameterId
+
+		permittedData = append(permittedData, item.Data)
+	}
+
+	partial := model.NewFilterTypePartial()
+
+	datalist := &model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: permittedData,
+	}
+
+	var deleteFilter *model.FilterType
+	if deleteSelector != nil {
+		deleteFilter = &model.FilterType{
+			ElectricalConnectionPermittedValueSetListDataSelectors: deleteSelector,
+		}
+
+		if deleteElements != nil {
+			deleteFilter.ElectricalConnectionPermittedValueSetDataElements = deleteElements
+		}
+	}
+
+	if err := e.featureLocal.UpdateData(model.FunctionTypeElectricalConnectionPermittedValueSetListData, datalist, partial, deleteFilter); err != nil {
 		return errors.New(err.String())
 	}
 

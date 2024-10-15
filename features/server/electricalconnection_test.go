@@ -256,3 +256,119 @@ func (s *ElectricalConnectionSuite) Test_UpdateCharacteristic() {
 	assert.Equal(s.T(), 1, len(data))
 	assert.Nil(s.T(), data[0].Value)
 }
+
+func (s *ElectricalConnectionSuite) Test_PermittedData() {
+	ids := []api.ElectricalConnectionPermittedValueSetForID{
+		{
+			ElectricalConnectionId: model.ElectricalConnectionIdType(0),
+			ParameterId:            model.ElectricalConnectionParameterIdType(0),
+			Data: model.ElectricalConnectionPermittedValueSetDataType{
+				PermittedValueSet: []model.ScaledNumberSetType{
+					{
+						Value: []model.ScaledNumberType{
+							*model.NewScaledNumberType(10),
+						},
+						Range: []model.ScaledNumberRangeType{
+							{
+								Min: model.NewScaledNumberType(0),
+								Max: model.NewScaledNumberType(100),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	err := s.sut.UpdatePermittedValueSetForIds(ids)
+	assert.NotNil(s.T(), err)
+
+	filter := model.ElectricalConnectionParameterDescriptionDataType{
+		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+		MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+		ScopeType:              util.Ptr(model.ScopeTypeTypeACPowerTotal),
+	}
+
+	data := []api.ElectricalConnectionPermittedValueSetForFilter{
+		{
+			Filter: filter,
+		},
+	}
+	err = s.sut.UpdatePermittedValueSetForFilters(data, nil, nil)
+	assert.NotNil(s.T(), err)
+
+	data = []api.ElectricalConnectionPermittedValueSetForFilter{
+		{
+			Data: model.ElectricalConnectionPermittedValueSetDataType{
+				ParameterId: util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+			},
+			Filter: filter,
+		},
+	}
+	err = s.sut.UpdatePermittedValueSetForFilters(data, nil, nil)
+	assert.NotNil(s.T(), err)
+
+	pdId := s.sut.AddParameterDescription(filter)
+	assert.NotNil(s.T(), pdId)
+
+	filter.ParameterId = pdId
+
+	vsFilter := model.ElectricalConnectionPermittedValueSetDataType{
+		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+		ParameterId:            pdId,
+	}
+	result, err := s.sut.GetPermittedValueSetForFilter(vsFilter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), result)
+
+	data = []api.ElectricalConnectionPermittedValueSetForFilter{
+		{
+			Data: model.ElectricalConnectionPermittedValueSetDataType{
+				PermittedValueSet: []model.ScaledNumberSetType{
+					{
+						Value: []model.ScaledNumberType{
+							*model.NewScaledNumberType(10),
+						},
+						Range: []model.ScaledNumberRangeType{
+							{
+								Min: model.NewScaledNumberType(0),
+								Max: model.NewScaledNumberType(100),
+							},
+						},
+					},
+				},
+			},
+			Filter: filter,
+		},
+	}
+	err = s.sut.UpdatePermittedValueSetForFilters(data, nil, nil)
+	assert.Nil(s.T(), err)
+
+	result, err = s.sut.GetPermittedValueSetForFilter(vsFilter)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), result)
+
+	vsFilter2 := model.ElectricalConnectionPermittedValueSetDataType{
+		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(101)),
+		ParameterId:            pdId,
+	}
+	result, err = s.sut.GetPermittedValueSetForFilter(vsFilter2)
+	assert.Nil(s.T(), err)
+	assert.Nil(s.T(), result)
+
+	dataFilter := []api.ElectricalConnectionPermittedValueSetForFilter{}
+	deleteSelectors := &model.ElectricalConnectionPermittedValueSetListDataSelectorsType{
+		ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+		ParameterId:            pdId,
+	}
+	deleteElements := &model.ElectricalConnectionPermittedValueSetDataElementsType{
+		PermittedValueSet: &model.ElementTagType{},
+	}
+	err = s.sut.UpdatePermittedValueSetForFilters(dataFilter, deleteSelectors, deleteElements)
+	assert.Nil(s.T(), err)
+
+	result, err = s.sut.GetPermittedValueSetForFilter(vsFilter)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), result)
+	assert.Nil(s.T(), result[0].PermittedValueSet)
+}

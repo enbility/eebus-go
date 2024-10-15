@@ -44,6 +44,7 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 	}
 
 	s.sut.loadControlWriteCB(msg1)
+	assert.False(s.T(), s.eventCalled)
 
 	msg2 := &spineapi.Message{
 		RequestHeader: &model.HeaderType{
@@ -131,6 +132,7 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 
 	s.sut.loadControlWriteCB(msg5)
 	assert.True(s.T(), s.eventCalled)
+	s.eventCalled = false
 }
 
 func (s *CsLPCSuite) Test_UpdateUseCaseAvailability() {
