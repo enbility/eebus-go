@@ -16,6 +16,7 @@ Actors:
   - `oscev`: Optimization of Self-Consumption During EV Charging
   - `vabd`: Visualization of Aggregated Battery Data
   - `vapd`: Visualization of Aggregated Photovoltaic Data
+  - `ohpcf`: Optiziation of Heatpump Compressor Flexibility
 
 - `cs`: Controllable System
 
