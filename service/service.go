@@ -164,6 +164,8 @@ func (s *Service) Start() {
 	}
 
 	s.connectionsHub.Start()
+
+	s.isRunning = true
 }
 
 // Shutdown all services and stop the server.
