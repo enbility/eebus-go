@@ -13,6 +13,13 @@ import (
 type MGCP struct {
 	*usecase.UseCaseBase
 
+	limitationConfig *MonitorPvFeedInPowerLimitationFactorConfig
+	powerConfig      *MonitorPowerConfig
+	energyConfig     *MonitorEnergyConfig
+	currentConfig    *MonitorCurrentConfig
+	voltageConfig    *MonitorVoltageConfig
+	frequencyConfig  *MonitorFrequencyConfig
+
 	pvFeedInLimitationFactor *model.DeviceConfigurationKeyIdType
 	acPowerTotal             *model.MeasurementIdType
 	gridFeedIn               *model.MeasurementIdType
@@ -23,7 +30,16 @@ type MGCP struct {
 }
 
 // At the moment the MGCP use case configures itself as a 3-phase meter by default (ABC).
-func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
+func NewMGCP(
+	localEntity spineapi.EntityLocalInterface,
+	eventCB api.EntityEventCallback,
+	monitorFeedInLimitationConfig *MonitorPvFeedInPowerLimitationFactorConfig,
+	monitorPowerConfig *MonitorPowerConfig,
+	monitorEnergyConfig *MonitorEnergyConfig,
+	monitorCurrentConfig *MonitorCurrentConfig,
+	monitorVoltageConfig *MonitorVoltageConfig,
+	monitorFrequencyConfig *MonitorFrequencyConfig,
+) *MGCP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
 	useCaseScenarios := []api.UseCaseScenario{
 		{
@@ -97,6 +113,13 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 
 	uc := &MGCP{
 		UseCaseBase: usecase,
+
+		limitationConfig: monitorFeedInLimitationConfig,
+		powerConfig:      monitorPowerConfig,
+		energyConfig:     monitorEnergyConfig,
+		currentConfig:    monitorCurrentConfig,
+		voltageConfig:    monitorVoltageConfig,
+		frequencyConfig:  monitorFrequencyConfig,
 	}
 
 	_ = spine.Events.Subscribe(uc)
@@ -296,18 +319,26 @@ func (m *MGCP) AddFeatures() {
 		idP52 == nil || idP53 == nil || idP6 == nil {
 		panic("failed to add electrical connection parameter description")
 	}
+}
 
-	m.Update( // TODO: optional?
-		m.ConfigurationPvFeedInLimitationFactor(0.0),
-		m.MeasurementAcPowerTotal(0.0),
-		m.MeasurementAcEnergyFeedIn(0.0),
-		m.MeasurementAcEnergyConsumed(0.0),
-		m.MeasurementAcCurrentPhaseA(0.0),
-		m.MeasurementAcCurrentPhaseB(0.0),
-		m.MeasurementAcCurrentPhaseC(0.0),
-		m.MeasurementAcVoltagePhaseA(0.0),
-		m.MeasurementAcVoltagePhaseB(0.0),
-		m.MeasurementAcVoltagePhaseC(0.0),
-		m.MeasurementAcFrequency(0.0),
-	)
+func (m *MGCP) getMeasurementDataForId(id *model.MeasurementIdType) (float64, error) {
+	if id == nil {
+		return 0, api.ErrMissingData
+	}
+
+	measurements, err := server.NewMeasurement(m.LocalEntity)
+	if err != nil {
+		return 0, err
+	}
+
+	data, err := measurements.GetDataForId(*id)
+	if err != nil {
+		return 0, err
+	}
+
+	if data == nil {
+		return 0, api.ErrDataNotAvailable
+	}
+
+	return data.Value.GetValue(), nil
 }
