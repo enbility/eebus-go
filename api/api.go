@@ -24,6 +24,9 @@ type ServiceInterface interface {
 	// shutdown the service
 	Shutdown()
 
+	// return if the service is running
+	IsRunning() bool
+
 	// add a use case to the service
 	AddUseCase(useCase UseCaseInterface)
 

@@ -171,12 +171,21 @@ func (s *ServiceSuite) Test_Setup() {
 	assert.Equal(s.T(), "d:_n:vendor_model-serial", string(*address))
 
 	s.sut.connectionsHub = s.conHub
-	s.conHub.EXPECT().Start()
+	s.conHub.EXPECT().Start().Once()
 	s.sut.Start()
 
 	time.Sleep(time.Millisecond * 200)
 
-	s.conHub.EXPECT().Shutdown()
+	isRunning := s.sut.IsRunning()
+	assert.True(s.T(), isRunning)
+
+	// nothing should happen
+	s.sut.Start()
+
+	s.conHub.EXPECT().Shutdown().Once()
+	s.sut.Shutdown()
+
+	// nothing should happen
 	s.sut.Shutdown()
 
 	device := s.sut.LocalDevice()
