@@ -73,48 +73,62 @@ func (m *Measurement) AddDescription(
 }
 
 // Set or update data set for a measurementId
-// Elements provided in deleteElements will be removed from the data set before the update
 //
 // Will return an error if the data set could not be updated
-func (m *Measurement) UpdateDataForId(
-	data model.MeasurementDataType,
-	deleteElements *model.MeasurementDataElementsType,
-	measurementId model.MeasurementIdType,
+func (m *Measurement) UpdateDataForIds(
+	data []api.MeasurementDataForID,
 ) (resultErr error) {
-	return m.UpdateDataForFilter(data, deleteElements, model.MeasurementDescriptionDataType{MeasurementId: &measurementId})
+	var filterData []api.MeasurementDataForFilter
+	for index, item := range data {
+		filterData = append(filterData, api.MeasurementDataForFilter{
+			Data:   item.Data,
+			Filter: model.MeasurementDescriptionDataType{MeasurementId: &data[index].Id},
+		})
+	}
+
+	return m.UpdateDataForFilters(filterData, nil, nil)
 }
 
 // Set or update data set for a filter
-// Elements provided in deleteElements will be removed from the data set before the update
+// deleteSelector will trigger removal of matching items from the data set before the update
+// deleteElement will limit the fields to be removed using Id
 //
 // Will return an error if the data set could not be updated
-func (m *Measurement) UpdateDataForFilter(
-	data model.MeasurementDataType,
+func (m *Measurement) UpdateDataForFilters(
+	data []api.MeasurementDataForFilter,
+	deleteSelector *model.MeasurementListDataSelectorsType,
 	deleteElements *model.MeasurementDataElementsType,
-	filter model.MeasurementDescriptionDataType,
 ) (resultErr error) {
 	resultErr = api.ErrDataNotAvailable
 
-	descriptions, err := m.GetDescriptionsForFilter(filter)
-	if err != nil || descriptions == nil || len(descriptions) != 1 {
-		return
-	}
+	var measurementData []model.MeasurementDataType
 
-	description := descriptions[0]
-	data.MeasurementId = description.MeasurementId
+	for _, item := range data {
+		descriptions, err := m.GetDescriptionsForFilter(item.Filter)
+		if err != nil || descriptions == nil || len(descriptions) != 1 {
+			return
+		}
 
-	datalist := &model.MeasurementListDataType{
-		MeasurementData: []model.MeasurementDataType{data},
+		description := descriptions[0]
+		item.Data.MeasurementId = description.MeasurementId
+
+		measurementData = append(measurementData, item.Data)
 	}
 
 	partial := model.NewFilterTypePartial()
+
+	datalist := &model.MeasurementListDataType{
+		MeasurementData: measurementData,
+	}
+
 	var deleteFilter *model.FilterType
-	if deleteElements != nil {
+	if deleteSelector != nil {
 		deleteFilter = &model.FilterType{
-			MeasurementListDataSelectors: &model.MeasurementListDataSelectorsType{
-				MeasurementId: description.MeasurementId,
-			},
-			MeasurementDataElements: deleteElements,
+			MeasurementListDataSelectors: deleteSelector,
+		}
+
+		if deleteElements != nil {
+			deleteFilter.MeasurementDataElements = deleteElements
 		}
 	}
 

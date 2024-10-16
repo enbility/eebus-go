@@ -149,21 +149,42 @@ func (s *MeasurementSuite) Test_GetDescriptionsForFilter() {
 	assert.Equal(s.T(), 0, len(data))
 }
 
-func (s *MeasurementSuite) Test_GetLimitData() {
+func (s *MeasurementSuite) Test_GetData() {
+	ids := []api.MeasurementDataForID{
+		{
+			Id: model.MeasurementIdType(100),
+			Data: model.MeasurementDataType{
+				Value: model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	err := s.sut.UpdateDataForIds(ids)
+	assert.NotNil(s.T(), err)
+
 	filter := model.MeasurementDescriptionDataType{
 		MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeStateOfCharge),
 	}
 
-	data := model.MeasurementDataType{}
-	err := s.sut.UpdateDataForFilter(data, nil, filter)
+	data := []api.MeasurementDataForFilter{
+		{
+			Filter: filter,
+		},
+	}
+	err = s.sut.UpdateDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
-	data = model.MeasurementDataType{
-		MeasurementId: util.Ptr(model.MeasurementIdType(100)),
+	data = []api.MeasurementDataForFilter{
+		{
+			Data: model.MeasurementDataType{
+				MeasurementId: util.Ptr(model.MeasurementIdType(100)),
+			},
+			Filter: filter,
+		},
 	}
-	err = s.sut.UpdateDataForFilter(data, nil, filter)
+	err = s.sut.UpdateDataForFilters(data, nil, nil)
 	assert.NotNil(s.T(), err)
 
 	mId := s.sut.AddDescription(filter)
@@ -177,12 +198,17 @@ func (s *MeasurementSuite) Test_GetLimitData() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	data = model.MeasurementDataType{
-		MeasurementId: mId,
-		ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-		Value:         model.NewScaledNumberType(16),
+	data = []api.MeasurementDataForFilter{
+		{
+			Data: model.MeasurementDataType{
+				MeasurementId: mId,
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(16),
+			},
+			Filter: filter,
+		},
 	}
-	err = s.sut.UpdateDataForFilter(data, nil, filter)
+	err = s.sut.UpdateDataForFilters(data, nil, nil)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetDataForId(*mId)
@@ -193,11 +219,14 @@ func (s *MeasurementSuite) Test_GetLimitData() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), result)
 
-	data = model.MeasurementDataType{}
+	dataIds := []api.MeasurementDataForFilter{}
+	deleteSelectors := &model.MeasurementListDataSelectorsType{
+		MeasurementId: mId,
+	}
 	deleteElements := &model.MeasurementDataElementsType{
 		Value: util.Ptr(model.ElementTagType{}),
 	}
-	err = s.sut.UpdateDataForId(data, deleteElements, *mId)
+	err = s.sut.UpdateDataForFilters(dataIds, deleteSelectors, deleteElements)
 	assert.Nil(s.T(), err)
 
 	result, err = s.sut.GetDataForId(*mId)
