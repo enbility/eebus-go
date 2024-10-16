@@ -42,6 +42,17 @@ type DeviceDiagnosisServerInterface interface {
 	SetLocalOperatingState(operatingState model.DeviceDiagnosisOperatingStateType)
 }
 
+type ElectricalConnectionPermittedValueSetForID struct {
+	Data                   model.ElectricalConnectionPermittedValueSetDataType
+	ElectricalConnectionId model.ElectricalConnectionIdType
+	ParameterId            model.ElectricalConnectionParameterIdType
+}
+
+type ElectricalConnectionPermittedValueSetForFilter struct {
+	Data   model.ElectricalConnectionPermittedValueSetDataType
+	Filter model.ElectricalConnectionParameterDescriptionDataType
+}
+
 type ElectricalConnectionServerInterface interface {
 	ElectricalConnectionCommonInterface
 
@@ -80,6 +91,34 @@ type ElectricalConnectionServerInterface interface {
 		data model.ElectricalConnectionCharacteristicDataType,
 		deleteElements *model.ElectricalConnectionCharacteristicDataElementsType,
 	) error
+
+	// Set or update data set for a parameterId
+	//
+	// Will return an error if the data set could not be updated
+	UpdatePermittedValueSetForIds(
+		data []ElectricalConnectionPermittedValueSetForID,
+	) error
+
+	// Set or update data set for a filter
+	// deleteSelector will trigger removal of matching items from the data set before the update
+	// deleteElement will limit the fields to be removed using Id
+	//
+	// Will return an error if the data set could not be updated
+	UpdatePermittedValueSetForFilters(
+		data []ElectricalConnectionPermittedValueSetForFilter,
+		deleteSelector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType,
+		deleteElements *model.ElectricalConnectionPermittedValueSetDataElementsType,
+	) error
+}
+
+type LoadControlLimitDataForID struct {
+	Data model.LoadControlLimitDataType
+	Id   model.LoadControlLimitIdType
+}
+
+type LoadControlLimitDataForFilter struct {
+	Data   model.LoadControlLimitDataType
+	Filter model.LoadControlLimitDescriptionDataType
 }
 
 type LoadControlServerInterface interface {
@@ -93,24 +132,32 @@ type LoadControlServerInterface interface {
 	) *model.LoadControlLimitIdType
 
 	// Set or update data set for a limitId
-	// Elements provided in deleteElements will be removed from the data set before the update
 	//
 	// Will return an error if the data set could not be updated
-	UpdateLimitDataForId(
-		data model.LoadControlLimitDataType,
-		deleteElements *model.LoadControlLimitDataElementsType,
-		limitId model.LoadControlLimitIdType,
+	UpdateLimitDataForIds(
+		data []LoadControlLimitDataForID,
 	) error
 
 	// Set or update data set for a filter
-	// Elements provided in deleteElements will be removed from the data set before the update
+	// deleteSelector will trigger removal of matching items from the data set before the update
+	// deleteElement will limit the fields to be removed using Id
 	//
 	// Will return an error if the data set could not be updated
 	UpdateLimitDataForFilter(
-		data model.LoadControlLimitDataType,
+		data []LoadControlLimitDataForFilter,
+		deleteSelector *model.LoadControlLimitListDataSelectorsType,
 		deleteElements *model.LoadControlLimitDataElementsType,
-		filter model.LoadControlLimitDescriptionDataType,
 	) error
+}
+
+type MeasurementDataForID struct {
+	Data model.MeasurementDataType
+	Id   model.MeasurementIdType
+}
+
+type MeasurementDataForFilter struct {
+	Data   model.MeasurementDataType
+	Filter model.MeasurementDescriptionDataType
 }
 
 type MeasurementServerInterface interface {
@@ -124,23 +171,21 @@ type MeasurementServerInterface interface {
 	) *model.MeasurementIdType
 
 	// Set or update data set for a measurementId
-	// Elements provided in deleteElements will be removed from the data set before the update
 	//
 	// Will return an error if the data set could not be updated
-	UpdateDataForId(
-		data model.MeasurementDataType,
-		deleteElements *model.MeasurementDataElementsType,
-		measurementId model.MeasurementIdType,
+	UpdateDataForIds(
+		data []MeasurementDataForID,
 	) error
 
 	// Set or update data set for a filter
-	// Elements provided in deleteElements will be removed from the data set before the update
+	// deleteSelector will trigger removal of matching items from the data set before the update
+	// deleteElement will limit the fields to be removed using Id
 	//
 	// Will return an error if the data set could not be updated
-	UpdateDataForFilter(
-		data model.MeasurementDataType,
+	UpdateDataForFilters(
+		data []MeasurementDataForFilter,
+		deleteSelector *model.MeasurementListDataSelectorsType,
 		deleteElements *model.MeasurementDataElementsType,
-		filter model.MeasurementDescriptionDataType,
 	) error
 }
 
