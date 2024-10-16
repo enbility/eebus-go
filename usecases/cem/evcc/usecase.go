@@ -76,6 +76,7 @@ func NewEVCC(
 		UseCaseSupportUpdate,
 		validActorTypes,
 		validEntityTypes,
+		false,
 	)
 
 	uc := &EVCC{

@@ -87,7 +87,9 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		eventCB,
 		UseCaseSupportUpdate,
 		validActorTypes,
-		validEntityTypes)
+		validEntityTypes,
+		false,
+	)
 
 	uc := &MGCP{
 		UseCaseBase: usecase,

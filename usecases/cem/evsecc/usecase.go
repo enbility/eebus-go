@@ -45,7 +45,9 @@ func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEven
 		eventCB,
 		UseCaseSupportUpdate,
 		validActorTypes,
-		validEntityTypes)
+		validEntityTypes,
+		false,
+	)
 
 	uc := &EVSECC{
 		UseCaseBase: usecase,

@@ -66,6 +66,7 @@ func NewVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		UseCaseSupportUpdate,
 		validActorTypes,
 		validEntityTypes,
+		false,
 	)
 
 	uc := &VABD{
