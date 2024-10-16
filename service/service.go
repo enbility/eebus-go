@@ -42,9 +42,11 @@ type Service struct {
 	// defines wether a user interaction to accept pairing is possible
 	isPairingPossible bool
 
-	startOnce sync.Once
+	// return if the service is running
+	isRunning bool
 
-	mux sync.Mutex
+	mux        sync.Mutex
+	muxRunning sync.Mutex
 }
 
 // creates a new EEBUS service
@@ -153,15 +155,39 @@ func (s *Service) Setup() error {
 
 // Starts the service
 func (s *Service) Start() {
-	s.startOnce.Do(func() {
-		s.connectionsHub.Start()
-	})
+	s.muxRunning.Lock()
+	defer s.muxRunning.Unlock()
+
+	// make sure we do not start twice while the service is already running
+	if s.isRunning {
+		return
+	}
+
+	s.connectionsHub.Start()
 }
 
 // Shutdown all services and stop the server.
 func (s *Service) Shutdown() {
+	s.muxRunning.Lock()
+	defer s.muxRunning.Unlock()
+
+	// if the service is not running, we do not need to shut it down
+	if !s.isRunning {
+		return
+	}
+
 	// Shut down all running connections
 	s.connectionsHub.Shutdown()
+
+	s.isRunning = false
+}
+
+// return if the service is running
+func (s *Service) IsRunning() bool {
+	s.muxRunning.Lock()
+	defer s.muxRunning.Unlock()
+
+	return s.isRunning
 }
 
 // add a use case to the service
