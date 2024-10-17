@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/usecases/gcp/mgcp"
 	"github.com/enbility/spine-go/model"
 	"time"
 )
@@ -95,7 +94,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	Update(updateValueTypes ...mgcp.UpdateValueType) error
+	Update(updateValueTypes ...GcpMGCPUpdateValueTypeInterface) error
 
 	// Scenario 1
 

@@ -147,17 +147,18 @@ func (m *MGCP) GetFrequency() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) Update(updateValueType ...UpdateValueType) error {
+func (m *MGCP) Update(updateValueType ...usecaseapi.GcpMGCPUpdateValueTypeInterface) error {
 	measurements := make([]api.MeasurementDataForID, 0)
 	configurations := make([]model.DeviceConfigurationKeyValueDataType, 0)
 
 	for _, update := range updateValueType {
-		if update.updateValueTypeType == usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement {
-			measurements = append(measurements, update.updateTypeMeasurement)
-		} else if update.updateValueTypeType == usecaseapi.GcpMGCPUpdateValueTypeTypeConfiguration {
-			configurations = append(configurations, update.updateTypeConfiguration)
+		updateValueTypeType := update.GetUpdateValueTypeType()
+		if updateValueTypeType == usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement {
+			measurements = append(measurements, update.GetUpdateValueTypeMeasurement())
+		} else if updateValueTypeType == usecaseapi.GcpMGCPUpdateValueTypeTypeConfiguration {
+			configurations = append(configurations, update.GetUpdateValueTypeConfiguration())
 		} else {
-			return errors.New("unknown UpdateValueTypeType: " + string(rune(update.updateValueTypeType)))
+			return errors.New("unknown UpdateValueTypeType: " + string(rune(updateValueTypeType)))
 		}
 	}
 
