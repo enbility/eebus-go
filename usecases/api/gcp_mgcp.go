@@ -100,7 +100,7 @@ type GcpMGCPInterface interface {
 	// Scenario 1
 
 	// Use PowerLimitationFactor in Update to set the current power limitation factor
-	PowerLimitationFactor(value float64) mgcp.UpdateValueType
+	PowerLimitationFactor(value float64) GcpMGCPUpdateValueTypeInterface
 
 	// Scenario 2
 
@@ -111,7 +111,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Scenario 3
 
@@ -125,7 +125,7 @@ type GcpMGCPInterface interface {
 		valueState *model.MeasurementValueStateType,
 		evaluationPeriodStart *time.Time,
 		evaluationPeriodEnd *time.Time,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Scenario 4
 
@@ -139,7 +139,7 @@ type GcpMGCPInterface interface {
 		valueState *model.MeasurementValueStateType,
 		evaluationPeriodStart *time.Time,
 		evaluationPeriodEnd *time.Time,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Scenario 5
 
@@ -150,7 +150,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Use MeasurementAcCurrentPhaseB in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
@@ -159,7 +159,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Use MeasurementAcCurrentPhaseC in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
@@ -168,7 +168,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Scenario 6
 
@@ -179,7 +179,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Use MeasurementAcVoltagePhaseB in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
@@ -188,7 +188,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Use MeasurementAcVoltagePhaseC in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
@@ -197,7 +197,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Use MeasurementAcVoltagePhaseAToB in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
@@ -206,7 +206,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Use MeasurementAcVoltagePhaseBToC in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
@@ -215,7 +215,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Use MeasurementAcVoltagePhaseCToA in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
@@ -224,7 +224,7 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
 
 	// Scenario 7
 
@@ -235,5 +235,18 @@ type GcpMGCPInterface interface {
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
-	) mgcp.UpdateValueType
+	) GcpMGCPUpdateValueTypeInterface
+}
+
+type GcpMGCPUpdateValueTypeType int
+
+const (
+	GcpMGCPUpdateValueTypeTypeMeasurement   GcpMGCPUpdateValueTypeType = 0
+	GcpMGCPUpdateValueTypeTypeConfiguration GcpMGCPUpdateValueTypeType = 1
+)
+
+type GcpMGCPUpdateValueTypeInterface interface {
+	GetUpdateValueTypeType() GcpMGCPUpdateValueTypeType
+	GetUpdateValueTypeMeasurement() api.MeasurementDataForID
+	GetUpdateValueTypeConfiguration() model.DeviceConfigurationKeyValueDataType
 }

@@ -3,23 +3,31 @@ package mgcp
 import (
 	"fmt"
 	"github.com/enbility/eebus-go/api"
+	usecaseapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"time"
 )
 
-type SupportedUpdateValueType int
-
-const (
-	SupportedUpdateValueTypeMeasurement   SupportedUpdateValueType = 0
-	SupportedUpdateValueTypeConfiguration SupportedUpdateValueType = 1
-)
-
 type UpdateValueType struct {
-	updateValueType         SupportedUpdateValueType
+	updateValueTypeType     usecaseapi.GcpMGCPUpdateValueTypeType
 	updateTypeMeasurement   api.MeasurementDataForID
 	updateTypeConfiguration model.DeviceConfigurationKeyValueDataType
 }
+
+func (u UpdateValueType) GetUpdateValueTypeType() usecaseapi.GcpMGCPUpdateValueTypeType {
+	return u.updateValueTypeType
+}
+
+func (u UpdateValueType) GetUpdateValueTypeMeasurement() api.MeasurementDataForID {
+	return u.updateTypeMeasurement
+}
+
+func (u UpdateValueType) GetUpdateValueTypeConfiguration() model.DeviceConfigurationKeyValueDataType {
+	return u.updateTypeConfiguration
+}
+
+var _ usecaseapi.GcpMGCPUpdateValueTypeInterface = (*UpdateValueType)(nil)
 
 func measurementUpdateValueType(
 	errorName string,
@@ -36,7 +44,7 @@ func measurementUpdateValueType(
 	}
 
 	updateValueType := UpdateValueType{
-		updateValueType: SupportedUpdateValueTypeMeasurement,
+		updateValueTypeType: usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement,
 		updateTypeMeasurement: api.MeasurementDataForID{
 			Id: *id,
 			Data: model.MeasurementDataType{

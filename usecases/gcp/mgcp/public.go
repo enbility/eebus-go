@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
+	usecaseapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"time"
 )
@@ -151,10 +152,12 @@ func (m *MGCP) Update(updateValueType ...UpdateValueType) error {
 	configurations := make([]model.DeviceConfigurationKeyValueDataType, 0)
 
 	for _, update := range updateValueType {
-		if update.updateValueType == SupportedUpdateValueTypeMeasurement {
+		if update.updateValueTypeType == usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement {
 			measurements = append(measurements, update.updateTypeMeasurement)
-		} else {
+		} else if update.updateValueTypeType == usecaseapi.GcpMGCPUpdateValueTypeTypeConfiguration {
 			configurations = append(configurations, update.updateTypeConfiguration)
+		} else {
+			return errors.New("unknown UpdateValueTypeType: " + string(rune(update.updateValueTypeType)))
 		}
 	}
 
@@ -192,9 +195,9 @@ func (m *MGCP) Update(updateValueType ...UpdateValueType) error {
 // Scenario 1
 
 // Use MGCP.PowerLimitationFactor in MGCP.Update to set the current power limitation factor
-func (m *MGCP) PowerLimitationFactor(pvFeedInLimitationFactor float64) UpdateValueType {
+func (m *MGCP) PowerLimitationFactor(pvFeedInLimitationFactor float64) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return UpdateValueType{
-		updateValueType: SupportedUpdateValueTypeConfiguration,
+		updateValueTypeType: usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement,
 		updateTypeConfiguration: model.DeviceConfigurationKeyValueDataType{
 			KeyId: m.pvFeedInLimitationFactor,
 			Value: &model.DeviceConfigurationKeyValueValueType{
@@ -213,7 +216,7 @@ func (m *MGCP) MeasurementAcPowerTotal(
 	acPowerTotal float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcPowerTotal",
 		m.acPowerTotal,
@@ -238,7 +241,7 @@ func (m *MGCP) MeasurementAcEnergyFeedIn(
 	valueState *model.MeasurementValueStateType,
 	evaluationPeriodStart *time.Time,
 	evaluationPeriodEnd *time.Time,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcEnergyFeedIn",
 		m.gridFeedIn,
@@ -263,7 +266,7 @@ func (m *MGCP) MeasurementAcEnergyConsumed(
 	valueState *model.MeasurementValueStateType,
 	evaluationPeriodStart *time.Time,
 	evaluationPeriodEnd *time.Time,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcEnergyConsumed",
 		m.gridConsumption,
@@ -285,7 +288,7 @@ func (m *MGCP) MeasurementAcCurrentPhaseA(
 	current float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcCurrentPhaseA",
 		m.acCurrent[0],
@@ -305,7 +308,7 @@ func (m *MGCP) MeasurementAcCurrentPhaseB(
 	current float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcCurrentPhaseB",
 		m.acCurrent[1],
@@ -325,7 +328,7 @@ func (m *MGCP) MeasurementAcCurrentPhaseC(
 	current float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcCurrentPhaseC",
 		m.acCurrent[2],
@@ -347,7 +350,7 @@ func (m *MGCP) MeasurementAcVoltagePhaseA(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcVoltagePhaseA",
 		m.acVoltage[0],
@@ -367,7 +370,7 @@ func (m *MGCP) MeasurementAcVoltagePhaseB(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcVoltagePhaseB",
 		m.acVoltage[1],
@@ -387,7 +390,7 @@ func (m *MGCP) MeasurementAcVoltagePhaseC(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcVoltagePhaseC",
 		m.acVoltage[2],
@@ -407,7 +410,7 @@ func (m *MGCP) MeasurementAcVoltagePhaseAToB(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcVoltagePhaseAToB",
 		m.acVoltage[3],
@@ -427,7 +430,7 @@ func (m *MGCP) MeasurementAcVoltagePhaseBToC(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcVoltagePhaseBToC",
 		m.acVoltage[4],
@@ -447,7 +450,7 @@ func (m *MGCP) MeasurementAcVoltagePhaseCToA(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcVoltagePhaseCToA",
 		m.acVoltage[5],
@@ -469,7 +472,7 @@ func (m *MGCP) MeasurementAcFrequency(
 	frequency float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) UpdateValueType {
+) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
 		"MeasurementAcFrequency",
 		m.acFrequency,
