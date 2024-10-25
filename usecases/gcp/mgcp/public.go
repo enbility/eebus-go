@@ -18,7 +18,7 @@ import (
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) GetPowerLimitationFactor() (float64, error) {
+func (m *MGCP) PowerLimitationFactor() (float64, error) {
 	_configurations, err := server.NewDeviceConfiguration(m.LocalEntity)
 	if err != nil {
 		return 0, err
@@ -40,7 +40,7 @@ func (m *MGCP) GetPowerLimitationFactor() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) GetPowerTotal() (float64, error) {
+func (m *MGCP) PowerTotal() (float64, error) {
 	return m.getMeasurementDataForId(m.acPowerTotal)
 }
 
@@ -51,7 +51,7 @@ func (m *MGCP) GetPowerTotal() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) GetEnergyFeedIn() (float64, error) {
+func (m *MGCP) EnergyFeedIn() (float64, error) {
 	return m.getMeasurementDataForId(m.gridFeedIn)
 }
 
@@ -62,7 +62,7 @@ func (m *MGCP) GetEnergyFeedIn() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) GetEnergyConsumed() (float64, error) {
+func (m *MGCP) EnergyConsumed() (float64, error) {
 	return m.getMeasurementDataForId(m.gridConsumption)
 }
 
@@ -73,7 +73,7 @@ func (m *MGCP) GetEnergyConsumed() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) GetCurrentPerPhase() ([]float64, error) {
+func (m *MGCP) CurrentPerPhase() ([]float64, error) {
 	acCurrent := make([]float64, 0)
 
 	for _, id := range m.acCurrent {
@@ -100,7 +100,7 @@ func (m *MGCP) GetCurrentPerPhase() ([]float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) GetVoltagePerPhase() ([]float64, error) {
+func (m *MGCP) VoltagePerPhase() ([]float64, error) {
 	acVoltage := make([]float64, 0)
 
 	for _, id := range m.acVoltage {
@@ -127,7 +127,7 @@ func (m *MGCP) GetVoltagePerPhase() ([]float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (m *MGCP) GetFrequency() (float64, error) {
+func (m *MGCP) Frequency() (float64, error) {
 	return m.getMeasurementDataForId(m.acFrequency)
 }
 
@@ -195,8 +195,8 @@ func (m *MGCP) Update(updateValueType ...usecaseapi.GcpMGCPUpdateValueTypeInterf
 
 // Scenario 1
 
-// Use MGCP.PowerLimitationFactor in MGCP.Update to set the current power limitation factor
-func (m *MGCP) PowerLimitationFactor(pvFeedInLimitationFactor float64) usecaseapi.GcpMGCPUpdateValueTypeInterface {
+// Use MGCP.UpdateDataPowerLimitationFactor in MGCP.Update to set the current power limitation factor
+func (m *MGCP) UpdateDataPowerLimitationFactor(pvFeedInLimitationFactor float64) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return UpdateValueType{
 		updateValueTypeType: usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement,
 		updateTypeConfiguration: model.DeviceConfigurationKeyValueDataType{
@@ -210,16 +210,16 @@ func (m *MGCP) PowerLimitationFactor(pvFeedInLimitationFactor float64) usecaseap
 
 // Scenario 2
 
-// Use MGCP.MeasurementAcPowerTotal in MGCP.Update to set the current total power
+// Use MGCP.UpdateDataPowerTotal in MGCP.Update to set the current total power
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcPowerTotal(
+func (m *MGCP) UpdateDataPowerTotal(
 	acPowerTotal float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcPowerTotal",
+		"UpdateDataPowerTotal",
 		m.acPowerTotal,
 		m.powerConfig.ValueSource,
 		acPowerTotal,
@@ -232,11 +232,11 @@ func (m *MGCP) MeasurementAcPowerTotal(
 
 // Scenario 3
 
-// Use MGCP.MeasurementAcEnergyFeedIn in MGCP.Update to set the total feed in energy
+// Use MGCP.UpdateDataEnergyFeedIn in MGCP.Update to set the total feed in energy
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
 // The evaluationPeriodStart and evaluationPeriodEnd are optional and can be nil (both must be set to be used)
-func (m *MGCP) MeasurementAcEnergyFeedIn(
+func (m *MGCP) UpdateDataEnergyFeedIn(
 	energy float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
@@ -244,7 +244,7 @@ func (m *MGCP) MeasurementAcEnergyFeedIn(
 	evaluationPeriodEnd *time.Time,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcEnergyFeedIn",
+		"UpdateDataEnergyFeedIn",
 		m.gridFeedIn,
 		m.energyConfig.ValueSourceProduction,
 		energy,
@@ -257,11 +257,11 @@ func (m *MGCP) MeasurementAcEnergyFeedIn(
 
 // Scenario 4
 
-// Use MGCP.MeasurementAcEnergyConsumed in MGCP.Update to set the total feed in energy
+// Use MGCP.UpdateDataEnergyConsumed in MGCP.Update to set the total feed in energy
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
 // The evaluationPeriodStart and evaluationPeriodEnd are optional and can be nil (both must be set to be used)
-func (m *MGCP) MeasurementAcEnergyConsumed(
+func (m *MGCP) UpdateDataEnergyConsumed(
 	energy float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
@@ -269,7 +269,7 @@ func (m *MGCP) MeasurementAcEnergyConsumed(
 	evaluationPeriodEnd *time.Time,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcEnergyConsumed",
+		"UpdateDataEnergyConsumed",
 		m.gridConsumption,
 		m.energyConfig.ValueSourceConsumption,
 		energy,
@@ -282,16 +282,16 @@ func (m *MGCP) MeasurementAcEnergyConsumed(
 
 // Scenario 5
 
-// Use MGCP.MeasurementAcCurrentPhaseA in MGCP.Update to set the current of phase A
+// Use MGCP.UpdateDataCurrentPhaseA in MGCP.Update to set the current of phase A
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcCurrentPhaseA(
+func (m *MGCP) UpdateDataCurrentPhaseA(
 	current float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcCurrentPhaseA",
+		"UpdateDataCurrentPhaseA",
 		m.acCurrent[0],
 		m.currentConfig.ValueSourcePhaseA,
 		current,
@@ -302,16 +302,16 @@ func (m *MGCP) MeasurementAcCurrentPhaseA(
 	)
 }
 
-// Use MGCP.MeasurementAcCurrentPhaseB in MGCP.Update to set the current of phase B
+// Use MGCP.UpdateDataCurrentPhaseB in MGCP.Update to set the current of phase B
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcCurrentPhaseB(
+func (m *MGCP) UpdateDataCurrentPhaseB(
 	current float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcCurrentPhaseB",
+		"UpdateDataCurrentPhaseB",
 		m.acCurrent[1],
 		m.currentConfig.ValueSourcePhaseB,
 		current,
@@ -322,16 +322,16 @@ func (m *MGCP) MeasurementAcCurrentPhaseB(
 	)
 }
 
-// Use MGCP.MeasurementAcCurrentPhaseC in MGCP.Update to set the current of phase C
+// Use MGCP.UpdateDataCurrentPhaseC in MGCP.Update to set the current of phase C
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcCurrentPhaseC(
+func (m *MGCP) UpdateDataCurrentPhaseC(
 	current float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcCurrentPhaseC",
+		"UpdateDataCurrentPhaseC",
 		m.acCurrent[2],
 		m.currentConfig.ValueSourcePhaseC,
 		current,
@@ -344,16 +344,16 @@ func (m *MGCP) MeasurementAcCurrentPhaseC(
 
 // Scenario 6
 
-// Use MGCP.MeasurementAcVoltagePhaseA in MGCP.Update to set the voltage of phase A
+// Use MGCP.UpdateDataVoltagePhaseA in MGCP.Update to set the voltage of phase A
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcVoltagePhaseA(
+func (m *MGCP) UpdateDataVoltagePhaseA(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcVoltagePhaseA",
+		"UpdateDataVoltagePhaseA",
 		m.acVoltage[0],
 		m.voltageConfig.ValueSourcePhaseA,
 		voltage,
@@ -364,16 +364,16 @@ func (m *MGCP) MeasurementAcVoltagePhaseA(
 	)
 }
 
-// Use MGCP.MeasurementAcVoltagePhaseB in MGCP.Update to set the voltage of phase B
+// Use MGCP.UpdateDataVoltagePhaseB in MGCP.Update to set the voltage of phase B
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcVoltagePhaseB(
+func (m *MGCP) UpdateDataVoltagePhaseB(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcVoltagePhaseB",
+		"UpdateDataVoltagePhaseB",
 		m.acVoltage[1],
 		m.voltageConfig.ValueSourcePhaseB,
 		voltage,
@@ -384,16 +384,16 @@ func (m *MGCP) MeasurementAcVoltagePhaseB(
 	)
 }
 
-// Use MGCP.MeasurementAcVoltagePhaseC in MGCP.Update to set the voltage of phase C
+// Use MGCP.UpdateDataVoltagePhaseC in MGCP.Update to set the voltage of phase C
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcVoltagePhaseC(
+func (m *MGCP) UpdateDataVoltagePhaseC(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcVoltagePhaseC",
+		"UpdateDataVoltagePhaseC",
 		m.acVoltage[2],
 		m.voltageConfig.ValueSourcePhaseC,
 		voltage,
@@ -404,16 +404,16 @@ func (m *MGCP) MeasurementAcVoltagePhaseC(
 	)
 }
 
-// Use MGCP.MeasurementAcVoltagePhaseAToB in MGCP.Update to set the voltage between phase A and B
+// Use MGCP.UpdateDataVoltagePhaseAToB in MGCP.Update to set the voltage between phase A and B
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcVoltagePhaseAToB(
+func (m *MGCP) UpdateDataVoltagePhaseAToB(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcVoltagePhaseAToB",
+		"UpdateDataVoltagePhaseAToB",
 		m.acVoltage[3],
 		m.voltageConfig.ValueSourcePhaseAToB,
 		voltage,
@@ -424,16 +424,16 @@ func (m *MGCP) MeasurementAcVoltagePhaseAToB(
 	)
 }
 
-// Use MGCP.MeasurementAcVoltagePhaseBToC in MGCP.Update to set the voltage between phase B and C
+// Use MGCP.UpdateDataVoltagePhaseBToC in MGCP.Update to set the voltage between phase B and C
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcVoltagePhaseBToC(
+func (m *MGCP) UpdateDataVoltagePhaseBToC(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcVoltagePhaseBToC",
+		"UpdateDataVoltagePhaseBToC",
 		m.acVoltage[4],
 		m.voltageConfig.ValueSourcePhaseBToC,
 		voltage,
@@ -444,16 +444,16 @@ func (m *MGCP) MeasurementAcVoltagePhaseBToC(
 	)
 }
 
-// Use MGCP.MeasurementAcVoltagePhaseCToA in MGCP.Update to set the voltage between phase C and A
+// Use MGCP.UpdateDataVoltagePhaseCToA in MGCP.Update to set the voltage between phase C and A
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcVoltagePhaseCToA(
+func (m *MGCP) UpdateDataVoltagePhaseCToA(
 	voltage float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcVoltagePhaseCToA",
+		"UpdateDataVoltagePhaseCToA",
 		m.acVoltage[5],
 		m.voltageConfig.ValueSourcePhaseCToA,
 		voltage,
@@ -466,16 +466,16 @@ func (m *MGCP) MeasurementAcVoltagePhaseCToA(
 
 // Scenario 7
 
-// Use MGCP.MeasurementAcFrequency in MGCP.Update to set the frequency
+// Use MGCP.UpdateDataFrequency in MGCP.Update to set the frequency
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (m *MGCP) MeasurementAcFrequency(
+func (m *MGCP) UpdateDataFrequency(
 	frequency float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return measurementUpdateValueType(
-		"MeasurementAcFrequency",
+		"UpdateDataFrequency",
 		m.acFrequency,
 		m.frequencyConfig.ValueSource,
 		frequency,

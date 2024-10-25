@@ -18,7 +18,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrDataNotAvailable if no such limit is (yet) available
 	//   - and others
-	GetPowerLimitationFactor() (float64, error)
+	PowerLimitationFactor() (float64, error)
 
 	// Scenario 2
 
@@ -31,7 +31,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrDataNotAvailable if no such limit is (yet) available
 	//   - and others
-	GetPowerTotal() (float64, error)
+	PowerTotal() (float64, error)
 
 	// Scenario 3
 
@@ -40,7 +40,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrDataNotAvailable if no such limit is (yet) available
 	//   - and others
-	GetEnergyFeedIn() (float64, error)
+	EnergyFeedIn() (float64, error)
 
 	// Scenario 4
 
@@ -49,7 +49,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrDataNotAvailable if no such limit is (yet) available
 	//   - and others
-	GetEnergyConsumed() (float64, error)
+	EnergyConsumed() (float64, error)
 
 	// Scenario 5
 
@@ -58,7 +58,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	GetCurrentPerPhase() ([]float64, error)
+	CurrentPerPhase() ([]float64, error)
 
 	// Scenario 6
 
@@ -67,7 +67,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	GetVoltagePerPhase() ([]float64, error)
+	VoltagePerPhase() ([]float64, error)
 
 	// Scenario 7
 
@@ -76,7 +76,7 @@ type GcpMGCPInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	GetFrequency() (float64, error)
+	Frequency() (float64, error)
 
 	// ------------------------- Setters ------------------------- //
 
@@ -98,15 +98,15 @@ type GcpMGCPInterface interface {
 
 	// Scenario 1
 
-	// Use PowerLimitationFactor in Update to set the current power limitation factor
-	PowerLimitationFactor(value float64) GcpMGCPUpdateValueTypeInterface
+	// Use UpdateDataPowerLimitationFactor in Update to set the current power limitation factor
+	UpdateDataPowerLimitationFactor(value float64) GcpMGCPUpdateValueTypeInterface
 
 	// Scenario 2
 
-	// Use MeasurementAcPowerTotal in Update to set the momentary power consumption or production at the grid connection point
+	// Use UpdateDataPowerTotal in Update to set the momentary power consumption or production at the grid connection point
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcPowerTotal(
+	UpdateDataPowerTotal(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
@@ -118,7 +118,7 @@ type GcpMGCPInterface interface {
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
 	// The evaluationPeriodStart and evaluationPeriodEnd are optional and can be nil (both must be set to be used)
-	MeasurementAcEnergyFeedIn(
+	UpdateDataEnergyFeedIn(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
@@ -132,7 +132,7 @@ type GcpMGCPInterface interface {
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
 	// The evaluationPeriodStart and evaluationPeriodEnd are optional and can be nil (both must be set to be used)
-	MeasurementAcEnergyConsumed(
+	UpdateDataEnergyConsumed(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
@@ -142,28 +142,28 @@ type GcpMGCPInterface interface {
 
 	// Scenario 5
 
-	// Use MeasurementAcCurrentPhaseA in Update to set the momentary phase specific current consumption or production
+	// Use UpdateDataCurrentPhaseA in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcCurrentPhaseA(
+	UpdateDataCurrentPhaseA(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
 	) GcpMGCPUpdateValueTypeInterface
 
-	// Use MeasurementAcCurrentPhaseB in Update to set the momentary phase specific current consumption or production
+	// Use UpdateDataCurrentPhaseB in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcCurrentPhaseB(
+	UpdateDataCurrentPhaseB(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
 	) GcpMGCPUpdateValueTypeInterface
 
-	// Use MeasurementAcCurrentPhaseC in Update to set the momentary phase specific current consumption or production
+	// Use UpdateDataCurrentPhaseC in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcCurrentPhaseC(
+	UpdateDataCurrentPhaseC(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
@@ -171,55 +171,55 @@ type GcpMGCPInterface interface {
 
 	// Scenario 6
 
-	// Use MeasurementAcVoltagePhaseA in Update to set the phase specific voltage details
+	// Use UpdateDataVoltagePhaseA in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcVoltagePhaseA(
+	UpdateDataVoltagePhaseA(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
 	) GcpMGCPUpdateValueTypeInterface
 
-	// Use MeasurementAcVoltagePhaseB in Update to set the phase specific voltage details
+	// Use UpdateDataVoltagePhaseB in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcVoltagePhaseB(
+	UpdateDataVoltagePhaseB(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
 	) GcpMGCPUpdateValueTypeInterface
 
-	// Use MeasurementAcVoltagePhaseC in Update to set the phase specific voltage details
+	// Use UpdateDataVoltagePhaseC in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcVoltagePhaseC(
+	UpdateDataVoltagePhaseC(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
 	) GcpMGCPUpdateValueTypeInterface
 
-	// Use MeasurementAcVoltagePhaseAToB in Update to set the phase specific voltage details
+	// Use UpdateDataVoltagePhaseAToB in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcVoltagePhaseAToB(
+	UpdateDataVoltagePhaseAToB(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
 	) GcpMGCPUpdateValueTypeInterface
 
-	// Use MeasurementAcVoltagePhaseBToC in Update to set the phase specific voltage details
+	// Use UpdateDataVoltagePhaseBToC in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcVoltagePhaseBToC(
+	UpdateDataVoltagePhaseBToC(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
 	) GcpMGCPUpdateValueTypeInterface
 
-	// Use MeasurementAcVoltagePhaseCToA in Update to set the phase specific voltage details
+	// Use UpdateDataVoltagePhaseCToA in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcVoltagePhaseCToA(
+	UpdateDataVoltagePhaseCToA(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
@@ -227,10 +227,10 @@ type GcpMGCPInterface interface {
 
 	// Scenario 7
 
-	// Use MeasurementAcFrequency in Update to set the frequency
+	// Use UpdateDataFrequency in Update to set the frequency
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	MeasurementAcFrequency(
+	UpdateDataFrequency(
 		value float64,
 		timestamp *time.Time,
 		valueState *model.MeasurementValueStateType,
