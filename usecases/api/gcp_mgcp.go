@@ -114,7 +114,7 @@ type GcpMGCPInterface interface {
 
 	// Scenario 3
 
-	// Use MeasurementEnergyFeedIn in Update to set the total feed in energy at the grid connection point
+	// Use UpdateDataEnergyFeedIn in Update to set the total feed in energy at the grid connection point
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
 	// The evaluationPeriodStart and evaluationPeriodEnd are optional and can be nil (both must be set to be used)
@@ -128,7 +128,7 @@ type GcpMGCPInterface interface {
 
 	// Scenario 4
 
-	// Use MeasurementEnergyConsumed in Update to set the total consumption energy at the grid connection point
+	// Use UpdateDataEnergyConsumed in Update to set the total consumption energy at the grid connection point
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
 	// The evaluationPeriodStart and evaluationPeriodEnd are optional and can be nil (both must be set to be used)

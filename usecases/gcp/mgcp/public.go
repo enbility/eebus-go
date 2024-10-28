@@ -198,7 +198,7 @@ func (m *MGCP) Update(updateValueType ...usecaseapi.GcpMGCPUpdateValueTypeInterf
 // Use MGCP.UpdateDataPowerLimitationFactor in MGCP.Update to set the current power limitation factor
 func (m *MGCP) UpdateDataPowerLimitationFactor(pvFeedInLimitationFactor float64) usecaseapi.GcpMGCPUpdateValueTypeInterface {
 	return UpdateValueType{
-		updateValueTypeType: usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement,
+		updateValueTypeType: usecaseapi.GcpMGCPUpdateValueTypeTypeConfiguration,
 		updateTypeConfiguration: model.DeviceConfigurationKeyValueDataType{
 			KeyId: m.pvFeedInLimitationFactor,
 			Value: &model.DeviceConfigurationKeyValueValueType{
