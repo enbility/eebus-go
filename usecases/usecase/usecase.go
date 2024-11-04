@@ -114,7 +114,6 @@ func (u *UseCaseBase) UpdateUseCaseAvailability(available bool) {
 
 func (u *UseCaseBase) IsCompatibleEntityType(entity spineapi.EntityRemoteInterface) bool {
 	if entity == nil {
-
 		return false
 	}
 
