@@ -31,6 +31,19 @@ type MPC struct {
 	acFrequency      *model.MeasurementIdType
 }
 
+// creates a new MPC usecase instance for a MonitoredUnit entity
+//
+// parameters:
+//   - localEntity: the local entity for which to construct an MPC instance
+//   - eventCB: the callback to notify about events for this usecase
+//   - monitorPowerConfig: (required) configuration parameters for MPC scenario 1
+//   - monitorEnergyConfig: (optional) configuration parameters for MPC scenario 2, nil if not supported
+//   - monitorCurrentConfig: (optional) configuration parameters for MPC scenario 3, nil if not supported
+//   - monitorVoltageConfig: (optional) configuration parameters for MPC scenario 4, nil if not supported
+//   - monitorFrequencyConfig: (optional) configuration parameters for MPC scenario, nil if not supported
+//
+// possible errors:
+//   - if required fields in parameters are unset
 func NewMPC(
 	localEntity spineapi.EntityLocalInterface,
 	eventCB api.EntityEventCallback,
@@ -54,38 +67,50 @@ func NewMPC(
 				model.FeatureTypeTypeMeasurement,
 			},
 		},
-		{
+	}
+
+	if monitorEnergyConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:  model.UseCaseScenarioSupportType(2),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
 				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
 			},
-		},
-		{
+		})
+	}
+
+	if monitorCurrentConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:  model.UseCaseScenarioSupportType(3),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
 				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
 			},
-		},
-		{
+		})
+	}
+
+	if monitorVoltageConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:  model.UseCaseScenarioSupportType(4),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
 				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
 			},
-		},
-		{
+		})
+	}
+
+	if monitorFrequencyConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:  model.UseCaseScenarioSupportType(5),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
 				model.FeatureTypeTypeElectricalConnection,
 				model.FeatureTypeTypeMeasurement,
 			},
-		},
+		})
 	}
 
 	u := usecase.NewUseCaseBase(
@@ -175,74 +200,80 @@ func (e *MPC) AddFeatures() {
 		}
 	}
 
-	if e.energyConfig.ValueSourceConsumption != nil {
-		e.acEnergyConsumed = measurements.AddDescription(model.MeasurementDescriptionDataType{
-			MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
-			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-			Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
-			ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
-		})
-		if e.energyConfig.ValueConstraintsConsumption != nil {
-			e.energyConfig.ValueConstraintsConsumption.MeasurementId = e.acEnergyConsumed
-			constraints = append(constraints, *e.energyConfig.ValueConstraintsConsumption)
-		}
-	}
-
-	if e.energyConfig.ValueSourceProduction != nil {
-		e.acEnergyProduced = measurements.AddDescription(model.MeasurementDescriptionDataType{
-			MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
-			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-			Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
-			ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
-		})
-		if e.energyConfig.ValueConstraintsProduction != nil {
-			e.energyConfig.ValueConstraintsProduction.MeasurementId = e.acEnergyProduced
-			constraints = append(constraints, *e.energyConfig.ValueConstraintsProduction)
-		}
-	}
-
-	acCurrentConstraints := []*model.MeasurementConstraintsDataType{
-		e.currentConfig.ValueConstraintsPhaseA,
-		e.currentConfig.ValueConstraintsPhaseB,
-		e.currentConfig.ValueConstraintsPhaseC,
-	}
-	for id := 0; id < len(e.acCurrent); id++ {
-		if e.powerConfig.SupportsPhases(phases[id]) {
-			e.acCurrent[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+	if e.energyConfig != nil {
+		if e.energyConfig.ValueSourceConsumption != nil {
+			e.acEnergyConsumed = measurements.AddDescription(model.MeasurementDescriptionDataType{
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
 				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
 			})
-			if acCurrentConstraints[id] != nil {
-				acCurrentConstraints[id].MeasurementId = e.acCurrent[id]
-				constraints = append(constraints, *acCurrentConstraints[id])
+			if e.energyConfig.ValueConstraintsConsumption != nil {
+				e.energyConfig.ValueConstraintsConsumption.MeasurementId = e.acEnergyConsumed
+				constraints = append(constraints, *e.energyConfig.ValueConstraintsConsumption)
+			}
+		}
+
+		if e.energyConfig.ValueSourceProduction != nil {
+			e.acEnergyProduced = measurements.AddDescription(model.MeasurementDescriptionDataType{
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
+			})
+			if e.energyConfig.ValueConstraintsProduction != nil {
+				e.energyConfig.ValueConstraintsProduction.MeasurementId = e.acEnergyProduced
+				constraints = append(constraints, *e.energyConfig.ValueConstraintsProduction)
 			}
 		}
 	}
 
-	acVoltageConstraints := []*model.MeasurementConstraintsDataType{
-		e.voltageConfig.ValueConstraintsPhaseA,
-		e.voltageConfig.ValueConstraintsPhaseB,
-		e.voltageConfig.ValueConstraintsPhaseC,
-		e.voltageConfig.ValueConstraintsPhaseAToB,
-		e.voltageConfig.ValueConstraintsPhaseBToC,
-		e.voltageConfig.ValueConstraintsPhaseCToA,
-	}
-	for id := 0; id < len(e.acVoltage); id++ {
-		if e.powerConfig.SupportsPhases(phases[id]) {
-			if len(phases[id]) == 2 && !e.voltageConfig.SupportPhaseToPhase {
-				continue
+	if e.currentConfig != nil {
+		acCurrentConstraints := []*model.MeasurementConstraintsDataType{
+			e.currentConfig.ValueConstraintsPhaseA,
+			e.currentConfig.ValueConstraintsPhaseB,
+			e.currentConfig.ValueConstraintsPhaseC,
+		}
+		for id := 0; id < len(e.acCurrent); id++ {
+			if e.powerConfig.SupportsPhases(phases[id]) {
+				e.acCurrent[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+					MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+					CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+					Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+					ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				})
+				if acCurrentConstraints[id] != nil {
+					acCurrentConstraints[id].MeasurementId = e.acCurrent[id]
+					constraints = append(constraints, *acCurrentConstraints[id])
+				}
 			}
-			e.acVoltage[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeV),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
-			})
-			if acVoltageConstraints[id] != nil {
-				acVoltageConstraints[id].MeasurementId = e.acVoltage[id]
-				constraints = append(constraints, *acVoltageConstraints[id])
+		}
+	}
+
+	if e.voltageConfig != nil {
+		acVoltageConstraints := []*model.MeasurementConstraintsDataType{
+			e.voltageConfig.ValueConstraintsPhaseA,
+			e.voltageConfig.ValueConstraintsPhaseB,
+			e.voltageConfig.ValueConstraintsPhaseC,
+			e.voltageConfig.ValueConstraintsPhaseAToB,
+			e.voltageConfig.ValueConstraintsPhaseBToC,
+			e.voltageConfig.ValueConstraintsPhaseCToA,
+		}
+		for id := 0; id < len(e.acVoltage); id++ {
+			if e.powerConfig.SupportsPhases(phases[id]) {
+				if len(phases[id]) == 2 && !e.voltageConfig.SupportPhaseToPhase {
+					continue
+				}
+				e.acVoltage[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+					MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
+					CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+					Unit:            util.Ptr(model.UnitOfMeasurementTypeV),
+					ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
+				})
+				if acVoltageConstraints[id] != nil {
+					acVoltageConstraints[id].MeasurementId = e.acVoltage[id]
+					constraints = append(constraints, *acVoltageConstraints[id])
+				}
 			}
 		}
 	}
