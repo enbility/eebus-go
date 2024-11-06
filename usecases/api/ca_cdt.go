@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/enbility/eebus-go/api"
 	spineapi "github.com/enbility/spine-go/api"
-	"github.com/enbility/spine-go/model"
 )
 
 type CaCDTInterface interface {
@@ -43,5 +42,5 @@ type CaCDTInterface interface {
 	//   - entity: the entity to write the setpoint to
 	//   - mode: the mode to write the setpoint for
 	//   - degC: the temperature setpoint value to write
-	WriteSetpoint(entity spineapi.EntityRemoteInterface, mode model.HvacOperationModeTypeType, degC float64) error
+	WriteSetpoint(entity spineapi.EntityRemoteInterface, mode HvacOperationModeType, degC float64) error
 }

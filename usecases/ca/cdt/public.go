@@ -194,10 +194,10 @@ func (e *CDT) mapSetpointsToModes(entity spineapi.EntityRemoteInterface) error {
 //   - Other errors: Any other errors encountered during the process.
 func (e *CDT) WriteSetpoint(
 	entity spineapi.EntityRemoteInterface,
-	mode model.HvacOperationModeTypeType,
+	mode usecasesapi.HvacOperationModeType,
 	temperature float64,
 ) error {
-	if mode == model.HvacOperationModeTypeTypeAuto {
+	if model.HvacOperationModeTypeType(mode) == model.HvacOperationModeTypeTypeAuto {
 		// 'Auto' mode is controlled by a timetable, meaning the current setpoint
 		// for the HVAC system function changes according to the timetable.
 		// Only the 'Off', 'On', and 'Eco' modes can be directly controlled by a setpoint.
@@ -208,7 +208,7 @@ func (e *CDT) WriteSetpoint(
 		return api.ErrDataNotAvailable
 	}
 
-	setpointId, found := e.modes[mode]
+	setpointId, found := e.modes[model.HvacOperationModeTypeType(mode)]
 	if !found {
 		return api.ErrDataNotAvailable
 	}
