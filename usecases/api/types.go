@@ -17,6 +17,15 @@ const (
 	EVChargeStateTypeFinished  EVChargeStateType = "finished"
 )
 
+type HvacOperationModeType string
+
+const (
+	HvacOperationModeTypeAuto HvacOperationModeType = "auto"
+	HvacOperationModeTypeOn   HvacOperationModeType = "on"
+	HvacOperationModeTypeOff  HvacOperationModeType = "off"
+	HvacOperationModeTypeEco  HvacOperationModeType = "eco"
+)
+
 // Defines a phase specific limit data set
 type LoadLimitsPhase struct {
 	Phase        model.ElectricalConnectionPhaseNameType // the phase
@@ -149,4 +158,51 @@ type IncentiveTariffDescription struct {
 type DurationSlotValue struct {
 	Duration time.Duration // Duration of this slot
 	Value    float64       // Energy Cost or Power Limit
+}
+
+// Contains details about the setpoint.
+// Note: At least one of the following elements must be set (combinations may be used): Value, Min, Max
+type Setpoint struct {
+	// The ID of the setpoint.
+	Id uint
+
+	// The setpoint value, 0 if not set.
+	Value float64
+
+	// Lower limit of the value range, 0 if not set.
+	MinValue float64
+
+	// Upper limit of the value range, 0 if not set.
+	MaxValue float64
+
+	// Maximum absolute variation allowed around the setpoint, 0 if not set.
+	AbsoluteValueTolerance float64
+
+	// Maximum percentage variation allowed around the setpoint, 0 if not set.
+	PercentageValueTolerance float64
+
+	// Indicates if the setpoint is changeable by a client.
+	IsChangeable bool
+
+	// Indicates if the setpoint is currently active.
+	IsActive bool
+
+	// The period during which the setpoint is active, 0 if not set.
+	TimePeriod model.TimePeriodType
+}
+
+// Contains details about the setpoint constraints.
+// Constraints that shall be held when trying to change a setpoint.
+type SetpointConstraints struct {
+	// the ID of the setpoint
+	Id uint
+
+	// Minimum value, the setpoint can be set to, 0 if not set.
+	MinValue float64
+
+	// Maximum value, the setpoint can be set to, 0 if not set.
+	MaxValue float64
+
+	// Minimum step size between two different values, 0 if not set.
+	StepSize float64
 }
