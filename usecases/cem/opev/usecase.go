@@ -15,6 +15,12 @@ type OPEV struct {
 
 var _ ucapi.CemOPEVInterface = (*OPEV)(nil)
 
+// Add support for the Overload Protection by EV Charging Current Curtailment (OPEV) use case
+// as a CEM actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewOPEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *OPEV {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypeEV,

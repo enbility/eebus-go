@@ -17,7 +17,18 @@ type EVCEM struct {
 
 var _ ucapi.CemEVCEMInterface = (*EVCEM)(nil)
 
-func NewEVCEM(service api.ServiceInterface, localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVCEM {
+// Add support for the Measurement of Electricity during EV Charging (EVCEM) use case
+// as a CEM actor
+//
+// Parameters:
+//   - service: The service implementation
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
+func NewEVCEM(
+	service api.ServiceInterface,
+	localEntity spineapi.EntityLocalInterface,
+	eventCB api.EntityEventCallback,
+) *EVCEM {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypeEV,
 	}

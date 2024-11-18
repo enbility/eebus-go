@@ -193,11 +193,11 @@ func (e *EVCC) Identifications(entity spineapi.EntityRemoteInterface) ([]ucapi.I
 func (e *EVCC) ManufacturerData(
 	entity spineapi.EntityRemoteInterface,
 ) (
-	api.ManufacturerData,
+	ucapi.ManufacturerData,
 	error,
 ) {
 	if !e.IsCompatibleEntityType(entity) {
-		return api.ManufacturerData{}, api.ErrNoCompatibleEntity
+		return ucapi.ManufacturerData{}, api.ErrNoCompatibleEntity
 	}
 
 	return internal.ManufacturerData(e.LocalEntity, entity)

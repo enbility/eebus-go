@@ -54,8 +54,12 @@ func (e *OPEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64, 
 //   - limits: per phase data
 //
 // possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
+//   - ErrDataNotAvailable if none such limit is (yet) available
 //   - and others
+//
+// Notes:
+//   - If a limit of phase is not active, the value returned is set to the maximum permitted value (if available), otherwise the phase value is not returned
+//   - If at least one phase value is available, no error is returned
 func (e *OPEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 	limits []ucapi.LoadLimitsPhase, resultErr error) {
 	if !e.IsCompatibleEntityType(entity) {

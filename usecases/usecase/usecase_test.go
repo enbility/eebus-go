@@ -23,19 +23,23 @@ func (s *UseCaseSuite) Test() {
 	result = s.uc.IsCompatibleEntityType(payload.Entity)
 	assert.True(s.T(), result)
 
-	result = s.localEntity.HasUseCaseSupport(useCaseActor, useCaseName)
+	usecaseFilter := model.UseCaseFilterType{
+		Actor:       useCaseActor,
+		UseCaseName: useCaseName,
+	}
+	result = s.localEntity.HasUseCaseSupport(usecaseFilter)
 	assert.False(s.T(), result)
 
 	s.uc.AddUseCase()
-	result = s.localEntity.HasUseCaseSupport(useCaseActor, useCaseName)
+	result = s.localEntity.HasUseCaseSupport(usecaseFilter)
 	assert.True(s.T(), result)
 
 	s.uc.UpdateUseCaseAvailability(false)
-	result = s.localEntity.HasUseCaseSupport(useCaseActor, useCaseName)
+	result = s.localEntity.HasUseCaseSupport(usecaseFilter)
 	assert.True(s.T(), result)
 
 	s.uc.RemoveUseCase()
-	result = s.localEntity.HasUseCaseSupport(useCaseActor, useCaseName)
+	result = s.localEntity.HasUseCaseSupport(usecaseFilter)
 	assert.False(s.T(), result)
 }
 

@@ -15,6 +15,12 @@ type LPP struct {
 
 var _ ucapi.EgLPPInterface = (*LPP)(nil)
 
+// Add support for the Limitation of Power Production (LPC) use case
+// as a Energy Guard actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeControllableSystem}
 	validEntityTypes := []model.EntityTypeType{
@@ -86,5 +92,8 @@ func (e *LPP) AddFeatures() {
 }
 
 func (e *LPP) UpdateUseCaseAvailability(available bool) {
-	e.LocalEntity.SetUseCaseAvailability(model.UseCaseActorTypeEnergyGuard, e.UseCaseName, available)
+	e.LocalEntity.SetUseCaseAvailability(model.UseCaseFilterType{
+		Actor:       model.UseCaseActorTypeEnergyGuard,
+		UseCaseName: e.UseCaseName,
+	}, available)
 }

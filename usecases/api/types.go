@@ -17,6 +17,22 @@ const (
 	EVChargeStateTypeFinished  EVChargeStateType = "finished"
 )
 
+// manufacturer data type
+type ManufacturerData struct {
+	DeviceName                     string
+	DeviceCode                     string
+	SerialNumber                   string
+	SoftwareRevision               string
+	HardwareRevision               string
+	VendorName                     string
+	VendorCode                     string
+	BrandName                      string
+	PowerSource                    string
+	ManufacturerNodeIdentification string
+	ManufacturerLabel              string
+	ManufacturerDescription        string
+}
+
 // Defines a phase specific limit data set
 type LoadLimitsPhase struct {
 	Phase        model.ElectricalConnectionPhaseNameType // the phase

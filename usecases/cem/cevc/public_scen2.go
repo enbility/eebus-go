@@ -104,8 +104,9 @@ func (e *CEVC) WritePowerLimits(entity spineapi.EntityRemoteInterface, data []uc
 	for index, slot := range data {
 		relativeStart := totalDuration
 
+		slotid := uint(index) //nolint:gosec // disable G115
 		timeSeriesSlot := model.TimeSeriesSlotType{
-			TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(index)),
+			TimeSeriesSlotId: util.Ptr(model.TimeSeriesSlotIdType(slotid)),
 			TimePeriod: &model.TimePeriodType{
 				StartTime: model.NewAbsoluteOrRelativeTimeTypeFromDuration(relativeStart),
 			},

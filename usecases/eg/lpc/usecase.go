@@ -15,6 +15,12 @@ type LPC struct {
 
 var _ ucapi.EgLPCInterface = (*LPC)(nil)
 
+// Add support for the Limitation of Power Consumption (LPC) use case
+// as a Energy Guard actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPC {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeControllableSystem}
 	validEntityTypes := []model.EntityTypeType{

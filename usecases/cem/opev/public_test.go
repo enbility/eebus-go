@@ -8,7 +8,7 @@ import (
 )
 
 func (s *CemOPEVSuite) Test_Public() {
-	// The actual tests of the functionality is located in the util package
+	// The actual tests of the functionality is located in the internal package
 
 	_, _, _, err := s.sut.CurrentLimits(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)

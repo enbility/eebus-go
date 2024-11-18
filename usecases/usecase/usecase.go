@@ -33,6 +33,19 @@ type UseCaseBase struct {
 
 var _ api.UseCaseBaseInterface = (*UseCaseBase)(nil)
 
+// Adds a new use case to an entity
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - usecaseActor: The actor type of the use case
+//   - usecaseName: The name of the use case
+//   - useCaseVersion: The version of the use case
+//   - useCaseDocumentSubVersion: The sub version of the use case document
+//   - useCaseScenarios: The supported scenarios of the use case
+//   - eventCB: The callback to be called when an usecase update event of a remote entity is triggered (optional, can be nil)
+//   - useCaseUpdateEvent: The event type of the use case update event for the eventCB
+//   - validActorTypes: The valid actor types for the use case in a remote entity
+//   - validEntityTypes: The valid entity types for the use case in a remote entity
 func NewUseCaseBase(
 	localEntity spineapi.EntityLocalInterface,
 	usecaseActor model.UseCaseActorType,
@@ -79,11 +92,21 @@ func (u *UseCaseBase) AddUseCase() {
 }
 
 func (u *UseCaseBase) RemoveUseCase() {
-	u.LocalEntity.RemoveUseCaseSupport(u.UseCaseActor, u.UseCaseName)
+	u.LocalEntity.RemoveUseCaseSupports(
+		[]model.UseCaseFilterType{
+			{
+				Actor:       u.UseCaseActor,
+				UseCaseName: u.UseCaseName,
+			},
+		})
 }
 
 func (u *UseCaseBase) UpdateUseCaseAvailability(available bool) {
-	u.LocalEntity.SetUseCaseAvailability(u.UseCaseActor, u.UseCaseName, available)
+	u.LocalEntity.SetUseCaseAvailability(
+		model.UseCaseFilterType{
+			Actor:       u.UseCaseActor,
+			UseCaseName: u.UseCaseName,
+		}, available)
 }
 
 func (u *UseCaseBase) IsCompatibleEntityType(entity spineapi.EntityRemoteInterface) bool {

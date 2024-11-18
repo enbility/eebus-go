@@ -66,7 +66,7 @@ func (s *InternalSuite) Test_LoadControlLimits() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))
 
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
@@ -210,7 +210,7 @@ func (s *InternalSuite) Test_LoadControlLimits_AudiMobileConnect_1Phase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))
 
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
@@ -283,7 +283,7 @@ func (s *InternalSuite) Test_LoadControlLimits_AudiMobileConnect_1Phase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))
 
 	permData := &model.ElectricalConnectionPermittedValueSetListDataType{
@@ -393,7 +393,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
@@ -480,7 +480,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Bender_1Phase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	// according to OpEV Spec 1.0.1b, page 30: "At least one set of permitted values SHALL be stated."
@@ -622,7 +622,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
@@ -718,7 +718,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
 	// according to OpEV Spec 1.0.1b, page 30: "At least one set of permitted values SHALL be stated."
@@ -749,7 +749,7 @@ func (s *InternalSuite) Test_LoadControlLimits_Elli_1Phase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
-	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 }
 

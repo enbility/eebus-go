@@ -15,6 +15,12 @@ type OSCEV struct {
 
 var _ ucapi.CemOSCEVInterface = (*OSCEV)(nil)
 
+// Add support for the Optimization of Self-Consumption during EV Charging (OSCEV) use case
+// as a CEM actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewOSCEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *OSCEV {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypeEV,

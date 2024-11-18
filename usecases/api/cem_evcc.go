@@ -57,7 +57,7 @@ type CemEVCCInterface interface {
 	//
 	// parameters:
 	//   - entity: the entity of the EV
-	ManufacturerData(entity spineapi.EntityRemoteInterface) (api.ManufacturerData, error)
+	ManufacturerData(entity spineapi.EntityRemoteInterface) (ManufacturerData, error)
 
 	// Scenario 6
 

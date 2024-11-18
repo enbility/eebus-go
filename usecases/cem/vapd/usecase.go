@@ -15,6 +15,12 @@ type VAPD struct {
 
 var _ ucapi.CemVAPDInterface = (*VAPD)(nil)
 
+// Add support for the Visualization of Aggregated Photovoltaic Data (VAPD) use case
+// as a CEM actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewVAPD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *VAPD {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypePVSystem,

@@ -15,6 +15,12 @@ type MPC struct {
 
 var _ ucapi.MaMPCInterface = (*MPC)(nil)
 
+// Add support for the Monitoring of Monitoring Power Consumption (MPC) use case
+// as a Monitoring Appliance actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MPC {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeMonitoredUnit}
 	validEntityTypes := []model.EntityTypeType{

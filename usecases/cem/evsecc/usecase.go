@@ -15,6 +15,12 @@ type EVSECC struct {
 
 var _ ucapi.CemEVSECCInterface = (*EVSECC)(nil)
 
+// Add support for the EVSE Commmissioning and Configuration (EVSECC) use case
+// as a CEM actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVSECC {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypeEVSE,

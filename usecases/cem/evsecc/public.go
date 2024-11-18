@@ -3,6 +3,7 @@ package evsecc
 import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -13,11 +14,11 @@ import (
 func (e *EVSECC) ManufacturerData(
 	entity spineapi.EntityRemoteInterface,
 ) (
-	api.ManufacturerData,
+	ucapi.ManufacturerData,
 	error,
 ) {
 	if !e.IsCompatibleEntityType(entity) {
-		return api.ManufacturerData{}, api.ErrNoCompatibleEntity
+		return ucapi.ManufacturerData{}, api.ErrNoCompatibleEntity
 	}
 
 	return internal.ManufacturerData(e.LocalEntity, entity)

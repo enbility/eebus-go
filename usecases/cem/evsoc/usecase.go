@@ -15,6 +15,12 @@ type EVSOC struct {
 
 var _ ucapi.CemEVSOCInterface = (*EVSOC)(nil)
 
+// Add support for the EV State of Charge (EVSOC) use case
+// as a CEM actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewEVSOC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *EVSOC {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypeEV,
@@ -64,5 +70,8 @@ func (e *EVSOC) AddFeatures() {
 }
 
 func (e *EVSOC) UpdateUseCaseAvailability(available bool) {
-	e.LocalEntity.SetUseCaseAvailability(model.UseCaseActorTypeCEM, e.UseCaseName, available)
+	e.LocalEntity.SetUseCaseAvailability(model.UseCaseFilterType{
+		Actor:       model.UseCaseActorTypeCEM,
+		UseCaseName: e.UseCaseName,
+	}, available)
 }

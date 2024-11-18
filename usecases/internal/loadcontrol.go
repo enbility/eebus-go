@@ -15,6 +15,10 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
+//
+// Notes:
+//   - If a limit of phase is not active, the value returned is set to the maximum permitted value (if available), otherwise the phase value is not returned
+//   - If at least one phase value is available, no error is returned
 func LoadControlLimits(
 	localEntity spineapi.EntityLocalInterface,
 	remoteEntity spineapi.EntityRemoteInterface,
@@ -86,7 +90,7 @@ func LoadControlLimits(
 				// which is not the case for all elements for this EVSE setup
 				// but we have to ignore this case and continue with the next phase
 
-				// In addition Elli Conenct/Pro (Gen1) returns no or empty PermittedValueSet data
+				// In addition Elli Connect/Pro (Gen1) returns no or empty PermittedValueSet data
 				continue
 			}
 
@@ -103,6 +107,10 @@ func LoadControlLimits(
 		}
 
 		result = append(result, newLimit)
+	}
+
+	if len(result) == 0 {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil

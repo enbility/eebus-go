@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	spineapi "github.com/enbility/spine-go/api"
 )
 
@@ -11,18 +11,18 @@ import (
 // possible errors:
 //   - ErrNoCompatibleEntity if entity is not compatible
 //   - and others
-func ManufacturerData(localEntity spineapi.EntityLocalInterface, entity spineapi.EntityRemoteInterface) (api.ManufacturerData, error) {
+func ManufacturerData(localEntity spineapi.EntityLocalInterface, entity spineapi.EntityRemoteInterface) (ucapi.ManufacturerData, error) {
 	deviceClassification, err := client.NewDeviceClassification(localEntity, entity)
 	if err != nil {
-		return api.ManufacturerData{}, err
+		return ucapi.ManufacturerData{}, err
 	}
 
 	data, err := deviceClassification.GetManufacturerDetails()
 	if err != nil {
-		return api.ManufacturerData{}, err
+		return ucapi.ManufacturerData{}, err
 	}
 
-	ret := api.ManufacturerData{
+	ret := ucapi.ManufacturerData{
 		DeviceName:                     Deref((*string)(data.DeviceName)),
 		DeviceCode:                     Deref((*string)(data.DeviceCode)),
 		SerialNumber:                   Deref((*string)(data.SerialNumber)),

@@ -15,6 +15,12 @@ type VABD struct {
 
 var _ ucapi.CemVABDInterface = (*VABD)(nil)
 
+// Add support for the Visualization of Aggregated Battery Data (VABD) use case
+// as a CEM actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *VABD {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypeBatterySystem,

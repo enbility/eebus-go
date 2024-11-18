@@ -15,6 +15,12 @@ type CEVC struct {
 
 var _ ucapi.CemCEVCInterface = (*CEVC)(nil)
 
+// Add support for the Coordinated EV Charging (CEVC) use case
+// as a CEM actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewCEVC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *CEVC {
 	validActorTypes := []model.UseCaseActorType{
 		model.UseCaseActorTypeEV,

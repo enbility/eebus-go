@@ -35,5 +35,5 @@ const (
 	// E.g. going into or out of the Failsafe state
 	//
 	// Use Case LPC, Scenario 3
-	DataUpdateHeartbeat api.EventType = "cs-lpc-DataUpdateHeartbeat"
+	DataUpdateHeartbeat api.EventType = "eg-lpc-DataUpdateHeartbeat"
 )

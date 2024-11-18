@@ -39,6 +39,13 @@ func (e *OPEV) HandleEvent(payload spineapi.EventPayload) {
 	}
 }
 
+// TODOS:
+//   - wie gehen wir damit um, wenn subscriptions nicht erfolgreich sind
+//   - wie gehen wir damit um, wenn bindings nicht erfolgreich sind, z.b. write implementierungen müssen prüfen ob ein binding exisiteirt
+//     könnte prüfen ob ein binding exisitert, wenn nicht gleich einen fehler zurückliefern
+//   - wie gehen wir damit um, wenn descriptions nicht abgefragt werden können
+//   - wie, wenn die einen Fehler zurückgeben
+
 // an EV was connected
 func (e *OPEV) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions

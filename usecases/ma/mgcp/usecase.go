@@ -15,6 +15,12 @@ type MGCP struct {
 
 var _ ucapi.MaMGCPInterface = (*MGCP)(nil)
 
+// Add support for the Monitoring of Grid Connection Point (MGCP) use case
+// as a Monitoring Appliance actor
+//
+// Parameters:
+//   - localEntity: The local entity which should support the use case
+//   - eventCB: The callback to be called when an event is triggered (optional, can be nil)
 func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *MGCP {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
 	validEntityTypes := []model.EntityTypeType{

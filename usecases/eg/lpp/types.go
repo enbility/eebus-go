@@ -12,7 +12,7 @@ const (
 	//
 	// Use `ProductionLimit` to get the current data
 	//
-	// Use Case LPC, Scenario 1
+	// Use Case LPP, Scenario 1
 	DataUpdateLimit api.EventType = "eg-lpp-DataUpdateLimit"
 
 	// Failsafe limit for the produced active (real) power of the
@@ -20,7 +20,7 @@ const (
 	//
 	// Use `FailsafeProductionActivePowerLimit` to get the current data
 	//
-	// Use Case LPC, Scenario 2
+	// Use Case LPP, Scenario 2
 	DataUpdateFailsafeProductionActivePowerLimit api.EventType = "eg-lpp-DataUpdateFailsafeProductionActivePowerLimit"
 
 	// Minimum time the Controllable System remains in "failsafe state" unless conditions
@@ -28,12 +28,12 @@ const (
 	//
 	// Use `FailsafeDurationMinimum` to get the current data
 	//
-	// Use Case LPC, Scenario 2
+	// Use Case LPP, Scenario 2
 	DataUpdateFailsafeDurationMinimum api.EventType = "eg-lpp-DataUpdateFailsafeDurationMinimum"
 
 	// Indicates a notify heartbeat event the application should care of.
 	// E.g. going into or out of the Failsafe state
 	//
-	// Use Case LPC, Scenario 3
-	DataUpdateHeartbeat api.EventType = "cs-lpc-DataUpdateHeartbeat"
+	// Use Case LPP, Scenario 3
+	DataUpdateHeartbeat api.EventType = "eg-lpp-DataUpdateHeartbeat"
 )
