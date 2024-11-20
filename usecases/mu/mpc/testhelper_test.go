@@ -1,7 +1,6 @@
 package mpc
 
 import (
-	"testing"
 	"time"
 
 	"github.com/enbility/eebus-go/api"
@@ -12,21 +11,21 @@ import (
 	spineapi "github.com/enbility/spine-go/api"
 	spinemocks "github.com/enbility/spine-go/mocks"
 	"github.com/enbility/spine-go/model"
-	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
 const remoteSki string = "testremoteski"
 
-func TestMuMPCSuite(t *testing.T) {
-	suite.Run(t, new(MuMPCSuite))
-}
-
 type MuMPCSuite struct {
-	suite.Suite
+	*suite.Suite
 
-	sut *MPC
+	powerConfig     *MonitorPowerConfig
+	energyConfig    *MonitorEnergyConfig
+	currentConfig   *MonitorCurrentConfig
+	voltageConfig   *MonitorVoltageConfig
+	frequencyConfig *MonitorFrequencyConfig
+	sut             *MPC
 
 	service api.ServiceInterface
 
@@ -38,6 +37,24 @@ type MuMPCSuite struct {
 	deviceConfigurationFeature spineapi.FeatureLocalInterface
 
 	eventCalled bool
+}
+
+func NewMuMPCSuite(
+	suite *suite.Suite,
+	powerConfig *MonitorPowerConfig,
+	energyConfig *MonitorEnergyConfig,
+	currentConfig *MonitorCurrentConfig,
+	voltageConfig *MonitorVoltageConfig,
+	frequencyConfig *MonitorFrequencyConfig,
+) *MuMPCSuite {
+	return &MuMPCSuite{
+		Suite:           suite,
+		powerConfig:     powerConfig,
+		energyConfig:    energyConfig,
+		currentConfig:   currentConfig,
+		voltageConfig:   voltageConfig,
+		frequencyConfig: frequencyConfig,
+	}
 }
 
 func (s *MuMPCSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
@@ -77,39 +94,11 @@ func (s *MuMPCSuite) BeforeTest(suiteName, testName string) {
 	s.sut, _ = NewMPC(
 		localEntity,
 		s.Event,
-		&MonitorPowerConfig{
-			ConnectedPhases:   ConnectedPhasesABC,
-			ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-		},
-		&MonitorEnergyConfig{
-			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-		},
-		&MonitorCurrentConfig{
-			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-		},
-		&MonitorVoltageConfig{
-			SupportPhaseToPhase:  true,
-			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-		},
-		&MonitorFrequencyConfig{
-			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
-				ValueRangeMin: model.NewScaledNumberType(0),
-				ValueRangeMax: model.NewScaledNumberType(100),
-				ValueStepSize: model.NewScaledNumberType(1),
-			}),
-		},
+		s.powerConfig,
+		s.energyConfig,
+		s.currentConfig,
+		s.voltageConfig,
+		s.frequencyConfig,
 	)
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
