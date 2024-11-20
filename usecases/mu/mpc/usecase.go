@@ -154,396 +154,44 @@ func (e *MPC) AddFeatures() {
 
 	measurements, err := server.NewMeasurement(e.LocalEntity)
 	if err != nil {
-		panic(err)
-	}
-
-	var phases = [][]string{
-		{"a"},
-		{"b"},
-		{"c"},
-		{"a", "b"},
-		{"b", "c"},
-		{"c", "a"},
-	}
-
-	var constraints = make([]model.MeasurementConstraintsDataType, 0)
-
-	e.acPowerTotal = measurements.AddDescription(model.MeasurementDescriptionDataType{
-		MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
-		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-		Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
-		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
-	})
-
-	if e.powerConfig.ValueConstraintsTotal != nil {
-		e.powerConfig.ValueConstraintsTotal.MeasurementId = e.acPowerTotal
-		constraints = append(constraints, *e.powerConfig.ValueConstraintsTotal)
-	}
-
-	acPowerConstraints := []*model.MeasurementConstraintsDataType{
-		e.powerConfig.ValueConstraintsPhaseA,
-		e.powerConfig.ValueConstraintsPhaseB,
-		e.powerConfig.ValueConstraintsPhaseC,
-	}
-	for id := 0; id < len(e.acPower); id++ {
-		if e.powerConfig.SupportsPhases(phases[id]) {
-			e.acPower[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
-			})
-			if acPowerConstraints[id] != nil {
-				acPowerConstraints[id].MeasurementId = e.acPower[id]
-				constraints = append(constraints, *acPowerConstraints[id])
-			}
-		}
-	}
-
-	if e.energyConfig != nil {
-		if e.energyConfig.ValueSourceConsumption != nil {
-			e.acEnergyConsumed = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
-			})
-			if e.energyConfig.ValueConstraintsConsumption != nil {
-				e.energyConfig.ValueConstraintsConsumption.MeasurementId = e.acEnergyConsumed
-				constraints = append(constraints, *e.energyConfig.ValueConstraintsConsumption)
-			}
-		}
-
-		if e.energyConfig.ValueSourceProduction != nil {
-			e.acEnergyProduced = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
-			})
-			if e.energyConfig.ValueConstraintsProduction != nil {
-				e.energyConfig.ValueConstraintsProduction.MeasurementId = e.acEnergyProduced
-				constraints = append(constraints, *e.energyConfig.ValueConstraintsProduction)
-			}
-		}
-	}
-
-	if e.currentConfig != nil {
-		acCurrentConstraints := []*model.MeasurementConstraintsDataType{
-			e.currentConfig.ValueConstraintsPhaseA,
-			e.currentConfig.ValueConstraintsPhaseB,
-			e.currentConfig.ValueConstraintsPhaseC,
-		}
-		for id := 0; id < len(e.acCurrent); id++ {
-			if e.powerConfig.SupportsPhases(phases[id]) {
-				e.acCurrent[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-					MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
-					CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-					Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-					ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
-				})
-				if acCurrentConstraints[id] != nil {
-					acCurrentConstraints[id].MeasurementId = e.acCurrent[id]
-					constraints = append(constraints, *acCurrentConstraints[id])
-				}
-			}
-		}
-	}
-
-	if e.voltageConfig != nil {
-		acVoltageConstraints := []*model.MeasurementConstraintsDataType{
-			e.voltageConfig.ValueConstraintsPhaseA,
-			e.voltageConfig.ValueConstraintsPhaseB,
-			e.voltageConfig.ValueConstraintsPhaseC,
-			e.voltageConfig.ValueConstraintsPhaseAToB,
-			e.voltageConfig.ValueConstraintsPhaseBToC,
-			e.voltageConfig.ValueConstraintsPhaseCToA,
-		}
-		for id := 0; id < len(e.acVoltage); id++ {
-			if e.powerConfig.SupportsPhases(phases[id]) {
-				if len(phases[id]) == 2 && !e.voltageConfig.SupportPhaseToPhase {
-					continue
-				}
-				e.acVoltage[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-					MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
-					CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-					Unit:            util.Ptr(model.UnitOfMeasurementTypeV),
-					ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
-				})
-				if acVoltageConstraints[id] != nil {
-					acVoltageConstraints[id].MeasurementId = e.acVoltage[id]
-					constraints = append(constraints, *acVoltageConstraints[id])
-				}
-			}
-		}
-	}
-
-	if e.frequencyConfig != nil {
-		e.acFrequency = measurements.AddDescription(model.MeasurementDescriptionDataType{
-			MeasurementType: util.Ptr(model.MeasurementTypeTypeFrequency),
-			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-			Unit:            util.Ptr(model.UnitOfMeasurementTypeHz),
-			ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
-		})
-		if e.frequencyConfig.ValueConstraints != nil {
-			e.frequencyConfig.ValueConstraints.MeasurementId = e.acFrequency
-			constraints = append(constraints, *e.frequencyConfig.ValueConstraints)
-		}
+		// TODO fix AddFeatures()?
 	}
 
 	electricalConnection, err := server.NewElectricalConnection(e.LocalEntity)
 	if err != nil {
-		panic(err)
+		// TODO fix AddFeatures()?
 	}
 
-	idEc1 := model.ElectricalConnectionIdType(0)
-	ec1 := model.ElectricalConnectionDescriptionDataType{
-		ElectricalConnectionId:  util.Ptr(idEc1),
+	electricalConnectionId := model.ElectricalConnectionIdType(0)
+
+	electricalConnectionDescription := model.ElectricalConnectionDescriptionDataType{
+		ElectricalConnectionId:  &electricalConnectionId,
 		PowerSupplyType:         util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
 		PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
 	}
-	if err := electricalConnection.AddDescription(ec1); err != nil {
-		panic(err)
+
+	if err := electricalConnection.AddDescription(electricalConnectionDescription); err != nil {
+		// TODO return error
 	}
 
-	p1 := model.ElectricalConnectionParameterDescriptionDataType{
-		ElectricalConnectionId:  util.Ptr(idEc1),
-		MeasurementId:           e.acPowerTotal,
-		VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-		AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameType(e.powerConfig.ConnectedPhases)),
-		AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-		AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-		AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-	}
-	idP1 := electricalConnection.AddParameterDescription(p1)
-	if idP1 == nil {
-		panic("error adding parameter description")
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	configMethods := []func(
+		measurements *server.Measurement,
+		electricalConnection *server.ElectricalConnection,
+		electricalConnectionId *model.ElectricalConnectionIdType,
+		measurementsConstraintData *[]model.MeasurementConstraintsDataType,
+	) error{
+		e.configureMonitorPower,
+		e.configureMonitorEnergy,
+		e.configureMonitorCurrent,
+		e.configureMonitorVoltage,
+		e.configureMonitorFrequency,
 	}
 
-	if e.acPower[0] != nil {
-		p21 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acPower[0],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP21 := electricalConnection.AddParameterDescription(p21)
-		if idP21 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acPower[1] != nil {
-		p22 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acPower[1],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP22 := electricalConnection.AddParameterDescription(p22)
-		if idP22 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acPower[2] != nil {
-		p23 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acPower[2],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP23 := electricalConnection.AddParameterDescription(p23)
-		if idP23 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acEnergyConsumed != nil {
-		p3 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId: util.Ptr(idEc1),
-			MeasurementId:          e.acEnergyConsumed,
-			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-		}
-		idP3 := electricalConnection.AddParameterDescription(p3)
-		if idP3 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acEnergyProduced != nil {
-		p4 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId: util.Ptr(idEc1),
-			MeasurementId:          e.acEnergyProduced,
-			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-		}
-		idP4 := electricalConnection.AddParameterDescription(p4)
-		if idP4 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acCurrent[0] != nil {
-		p51 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId: util.Ptr(idEc1),
-			MeasurementId:          e.acCurrent[0],
-			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-			AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP51 := electricalConnection.AddParameterDescription(p51)
-		if idP51 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acCurrent[1] != nil {
-		p52 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId: util.Ptr(idEc1),
-			MeasurementId:          e.acCurrent[1],
-			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-			AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP52 := electricalConnection.AddParameterDescription(p52)
-		if idP52 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acCurrent[2] != nil {
-		p53 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId: util.Ptr(idEc1),
-			MeasurementId:          e.acCurrent[2],
-			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-			AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP53 := electricalConnection.AddParameterDescription(p53)
-		if idP53 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acVoltage[0] != nil {
-		p61 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acVoltage[0],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP61 := electricalConnection.AddParameterDescription(p61)
-		if idP61 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acVoltage[1] != nil {
-		p62 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acVoltage[1],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP62 := electricalConnection.AddParameterDescription(p62)
-		if idP62 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acVoltage[2] != nil {
-		p63 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acVoltage[2],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP63 := electricalConnection.AddParameterDescription(p63)
-		if idP63 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acVoltage[3] != nil {
-		p64 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acVoltage[3],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP64 := electricalConnection.AddParameterDescription(p64)
-		if idP64 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acVoltage[4] != nil {
-		p65 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acVoltage[4],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP65 := electricalConnection.AddParameterDescription(p65)
-		if idP65 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acVoltage[5] != nil {
-		p66 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId:  util.Ptr(idEc1),
-			MeasurementId:           e.acVoltage[5],
-			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-			AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
-			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-		}
-		idP66 := electricalConnection.AddParameterDescription(p66)
-		if idP66 == nil {
-			panic("error adding parameter description")
-		}
-	}
-
-	if e.acFrequency != nil {
-		p7 := model.ElectricalConnectionParameterDescriptionDataType{
-			ElectricalConnectionId: util.Ptr(idEc1),
-			MeasurementId:          e.acFrequency,
-			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-		}
-		idP7 := electricalConnection.AddParameterDescription(p7)
-		if idP7 == nil {
-			panic("error adding parameter description")
+	for _, configMethod := range configMethods {
+		if err := configMethod(measurements, electricalConnection, &electricalConnectionId, &constraints); err != nil {
+			// TODO return error
 		}
 	}
 
@@ -555,6 +203,318 @@ func (e *MPC) AddFeatures() {
 			}, nil, nil,
 		)
 	}
+}
+
+func (e *MPC) configureMonitorPower(
+	measurements *server.Measurement,
+	electricalConnection *server.ElectricalConnection,
+	electricalConnectionId *model.ElectricalConnectionIdType,
+	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
+) error {
+	if e.powerConfig == nil {
+		return nil // TODO return error if not optional
+	}
+
+	e.acPowerTotal = measurements.AddDescription(model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+	})
+
+	if e.powerConfig.ValueConstraintsTotal != nil {
+		e.powerConfig.ValueConstraintsTotal.MeasurementId = e.acPowerTotal
+		*measurementsConstraintData = append(*measurementsConstraintData, *e.powerConfig.ValueConstraintsTotal)
+	}
+
+	parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+		ElectricalConnectionId:  electricalConnectionId,
+		MeasurementId:           e.acPowerTotal,
+		VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+		AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameType(e.powerConfig.ConnectedPhases)),
+		AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+		AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+		AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+	}
+
+	parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+	if parameterDescriptionId == nil {
+		// TODO return error
+	}
+
+	acPowerConstraints := []*model.MeasurementConstraintsDataType{
+		e.powerConfig.ValueConstraintsPhaseA,
+		e.powerConfig.ValueConstraintsPhaseB,
+		e.powerConfig.ValueConstraintsPhaseC,
+	}
+
+	acMeasuredPhases := []*model.ElectricalConnectionPhaseNameType{
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+	}
+
+	for id := 0; id < len(e.acPower); id++ {
+		if e.powerConfig.SupportsPhases(phases[id]) {
+			e.acPower[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+			})
+
+			if acPowerConstraints[id] != nil {
+				acPowerConstraints[id].MeasurementId = e.acPower[id]
+				*measurementsConstraintData = append(*measurementsConstraintData, *acPowerConstraints[id])
+			}
+
+			parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+				ElectricalConnectionId:  electricalConnectionId,
+				MeasurementId:           e.acPower[id],
+				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:        acMeasuredPhases[id],
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			}
+
+			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+			if parameterDescriptionId == nil {
+				// TODO return error
+			}
+		}
+	}
+
+	return nil
+}
+
+func (e *MPC) configureMonitorEnergy(
+	measurements *server.Measurement,
+	electricalConnection *server.ElectricalConnection,
+	electricalConnectionId *model.ElectricalConnectionIdType,
+	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
+) error {
+	if e.energyConfig == nil {
+		return nil
+	}
+
+	if e.energyConfig.ValueSourceConsumption != nil {
+		e.acEnergyConsumed = measurements.AddDescription(model.MeasurementDescriptionDataType{
+			MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+			Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
+			ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
+		})
+		if e.energyConfig.ValueConstraintsConsumption != nil {
+			e.energyConfig.ValueConstraintsConsumption.MeasurementId = e.acEnergyConsumed
+			*measurementsConstraintData = append(*measurementsConstraintData, *e.energyConfig.ValueConstraintsConsumption)
+		}
+
+		parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+			ElectricalConnectionId: electricalConnectionId,
+			MeasurementId:          e.acEnergyConsumed,
+			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+		}
+
+		parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+		if parameterDescriptionId == nil {
+			// TODO return error
+		}
+	}
+
+	if e.energyConfig.ValueSourceProduction != nil {
+		e.acEnergyProduced = measurements.AddDescription(model.MeasurementDescriptionDataType{
+			MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+			Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
+			ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
+		})
+
+		if e.energyConfig.ValueConstraintsProduction != nil {
+			e.energyConfig.ValueConstraintsProduction.MeasurementId = e.acEnergyProduced
+			*measurementsConstraintData = append(*measurementsConstraintData, *e.energyConfig.ValueConstraintsProduction)
+		}
+
+		p4 := model.ElectricalConnectionParameterDescriptionDataType{
+			ElectricalConnectionId: electricalConnectionId,
+			MeasurementId:          e.acEnergyProduced,
+			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+		}
+		idP4 := electricalConnection.AddParameterDescription(p4)
+		if idP4 == nil {
+			// TODO return error
+		}
+	}
+
+	return nil
+}
+
+func (e *MPC) configureMonitorCurrent(
+	measurements *server.Measurement,
+	electricalConnection *server.ElectricalConnection,
+	electricalConnectionId *model.ElectricalConnectionIdType,
+	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
+) error {
+	if e.currentConfig == nil {
+		return nil // TODO?
+	}
+
+	acCurrentConstraints := []*model.MeasurementConstraintsDataType{
+		e.currentConfig.ValueConstraintsPhaseA,
+		e.currentConfig.ValueConstraintsPhaseB,
+		e.currentConfig.ValueConstraintsPhaseC,
+	}
+
+	acMeasuredPhases := []*model.ElectricalConnectionPhaseNameType{
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+	}
+
+	for id := 0; id < len(e.acCurrent); id++ {
+		if e.powerConfig.SupportsPhases(phases[id]) {
+			e.acCurrent[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+			})
+
+			if acCurrentConstraints[id] != nil {
+				acCurrentConstraints[id].MeasurementId = e.acCurrent[id]
+				*measurementsConstraintData = append(*measurementsConstraintData, *acCurrentConstraints[id])
+			}
+
+			parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+				ElectricalConnectionId: electricalConnectionId,
+				MeasurementId:          e.acCurrent[id],
+				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:       acMeasuredPhases[id],
+				AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			}
+
+			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+			if parameterDescriptionId == nil {
+				// TODO return error
+			}
+		}
+	}
+
+	return nil
+}
+
+func (e *MPC) configureMonitorVoltage(
+	measurements *server.Measurement,
+	electricalConnection *server.ElectricalConnection,
+	electricalConnectionId *model.ElectricalConnectionIdType,
+	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
+) error {
+	if e.voltageConfig == nil {
+		return nil
+	}
+
+	acVoltagePhasesFrom := []*model.ElectricalConnectionPhaseNameType{
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+	}
+
+	acVoltagePhasesTo := []*model.ElectricalConnectionPhaseNameType{
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+	}
+
+	acVoltageConstraints := []*model.MeasurementConstraintsDataType{
+		e.voltageConfig.ValueConstraintsPhaseA,
+		e.voltageConfig.ValueConstraintsPhaseB,
+		e.voltageConfig.ValueConstraintsPhaseC,
+		e.voltageConfig.ValueConstraintsPhaseAToB,
+		e.voltageConfig.ValueConstraintsPhaseBToC,
+		e.voltageConfig.ValueConstraintsPhaseCToA,
+	}
+
+	for id := 0; id < len(e.acVoltage); id++ {
+		if e.powerConfig.SupportsPhases(phases[id]) {
+			if len(phases[id]) == 2 && !e.voltageConfig.SupportPhaseToPhase {
+				continue
+			}
+
+			e.acVoltage[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeV),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
+			})
+
+			if acVoltageConstraints[id] != nil {
+				acVoltageConstraints[id].MeasurementId = e.acVoltage[id]
+				*measurementsConstraintData = append(*measurementsConstraintData, *acVoltageConstraints[id])
+			}
+
+			parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+				ElectricalConnectionId:  electricalConnectionId,
+				MeasurementId:           e.acVoltage[id],
+				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:        acVoltagePhasesFrom[id],
+				AcMeasuredInReferenceTo: acVoltagePhasesTo[id],
+				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
+				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+			}
+
+			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+			if parameterDescriptionId == nil {
+				// TODO return error
+			}
+		}
+	}
+
+	return nil
+}
+
+func (e *MPC) configureMonitorFrequency(
+	measurements *server.Measurement,
+	electricalConnection *server.ElectricalConnection,
+	electricalConnectionId *model.ElectricalConnectionIdType,
+	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
+) error {
+	if e.frequencyConfig == nil {
+		return nil
+	}
+
+	e.acFrequency = measurements.AddDescription(model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeFrequency),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		Unit:            util.Ptr(model.UnitOfMeasurementTypeHz),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
+	})
+
+	if e.frequencyConfig.ValueConstraints != nil {
+		e.frequencyConfig.ValueConstraints.MeasurementId = e.acFrequency
+		*measurementsConstraintData = append(*measurementsConstraintData, *e.frequencyConfig.ValueConstraints)
+	}
+
+	parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+		ElectricalConnectionId: electricalConnectionId,
+		MeasurementId:          e.acFrequency,
+		VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+	}
+
+	parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+	if parameterDescriptionId == nil {
+		// TODO return error
+	}
+
+	return nil
 }
 
 func (e *MPC) getMeasurementDataForId(id *model.MeasurementIdType) (float64, error) {
@@ -602,4 +562,13 @@ func measurementData(
 	}
 
 	return measurement
+}
+
+var phases = [][]string{
+	{"a"},
+	{"b"},
+	{"c"},
+	{"a", "b"},
+	{"b", "c"},
+	{"c", "a"},
 }
