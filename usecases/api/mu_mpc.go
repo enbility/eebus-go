@@ -91,29 +91,29 @@ type MuMPCInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	Update(data ...api.MeasurementDataForID) error
+	Update(data ...UpdateData) error
 
 	// Scenario 1
 
 	// use UpdateDataPowerTotal in Update to set the momentary active power consumption or production
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataPowerTotal(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataPowerTotal(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataPowerPhaseA in Update to set the momentary active power consumption or production per phase
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataPowerPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataPowerPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataPowerPhaseB in Update to set the momentary active power consumption or production per phase
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataPowerPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataPowerPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataPowerPhaseC in Update to set the momentary active power consumption or production per phase
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataPowerPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataPowerPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// Scenario 2
 
@@ -127,7 +127,7 @@ type MuMPCInterface interface {
 		valueState *model.MeasurementValueStateType,
 		evaluationStart *time.Time,
 		evaluationEnd *time.Time,
-	) api.MeasurementDataForID
+	) UpdateData
 
 	// use UpdateDataEnergyProduced in Update to set the total feed in energy
 	// The timestamp is optional and can be nil
@@ -139,61 +139,67 @@ type MuMPCInterface interface {
 		valueState *model.MeasurementValueStateType,
 		evaluationStart *time.Time,
 		evaluationEnd *time.Time,
-	) api.MeasurementDataForID
+	) UpdateData
 
 	// Scenario 3
 
 	// use UpdateDataCurrentPhaseA in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataCurrentPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataCurrentPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataCurrentPhaseB in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataCurrentPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataCurrentPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataCurrentPhaseC in Update to set the momentary phase specific current consumption or production
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataCurrentPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataCurrentPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// Scenario 4
 
 	// use UpdateDataVoltagePhaseA in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataVoltagePhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataVoltagePhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataVoltagePhaseB in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataVoltagePhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataVoltagePhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataVoltagePhaseC in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataVoltagePhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataVoltagePhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataVoltagePhaseAToB in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataVoltagePhaseAToB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataVoltagePhaseAToB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataVoltagePhaseBToC in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataVoltagePhaseBToC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataVoltagePhaseBToC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// use UpdateDataVoltagePhaseCToA in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataVoltagePhaseCToA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataVoltagePhaseCToA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
 
 	// Scenario 5
 
 	// use AcFrequency in Update to set the frequency
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataFrequency(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.MeasurementDataForID
+	UpdateDataFrequency(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateData
+}
+
+type UpdateData interface {
+	Supported() bool
+	NotSupportedError() error
+	MeasurementData() api.MeasurementDataForID
 }

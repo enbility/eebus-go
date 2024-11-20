@@ -75,11 +75,10 @@ func (s *MuMpcBcSuite) Test_PowerPerPhase() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{6.0, 7.0}, powerPerPhases)
 
-	assert.Panics(s.T(), func() {
-		err = s.sut.Update(
-			s.sut.UpdateDataPowerPhaseA(5.0, util.Ptr(time.Now()), nil),
-		)
-	})
+	err = s.sut.Update(
+		s.sut.UpdateDataPowerPhaseA(5.0, util.Ptr(time.Now()), nil),
+	)
+	assert.NotNil(s.T(), err)
 }
 
 func (s *MuMpcBcSuite) Test_EnergyConsumed() {
@@ -115,11 +114,10 @@ func (s *MuMpcBcSuite) Test_CurrentPerPhase() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{3.0, 1.0}, currentPerPhases)
 
-	assert.Panics(s.T(), func() {
-		err = s.sut.Update(
-			s.sut.UpdateDataCurrentPhaseA(5.0, nil, nil),
-		)
-	})
+	err = s.sut.Update(
+		s.sut.UpdateDataCurrentPhaseA(5.0, nil, nil),
+	)
+	assert.NotNil(s.T(), err)
 }
 
 func (s *MuMpcBcSuite) Test_VoltagePerPhase() {
@@ -134,23 +132,20 @@ func (s *MuMpcBcSuite) Test_VoltagePerPhase() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{6.0, 7.0, 9.0}, voltagePerPhases)
 
-	assert.Panics(s.T(), func() {
-		_ = s.sut.Update(
-			s.sut.UpdateDataVoltagePhaseA(5.0, nil, nil),
-		)
-	})
+	err = s.sut.Update(
+		s.sut.UpdateDataVoltagePhaseA(5.0, nil, nil),
+	)
+	assert.NotNil(s.T(), err)
 
-	assert.Panics(s.T(), func() {
-		_ = s.sut.Update(
-			s.sut.UpdateDataVoltagePhaseAToB(8.0, nil, nil),
-		)
-	})
+	err = s.sut.Update(
+		s.sut.UpdateDataVoltagePhaseAToB(5.0, nil, nil),
+	)
+	assert.NotNil(s.T(), err)
 
-	assert.Panics(s.T(), func() {
-		_ = s.sut.Update(
-			s.sut.UpdateDataVoltagePhaseCToA(10.0, nil, nil),
-		)
-	})
+	err = s.sut.Update(
+		s.sut.UpdateDataVoltagePhaseCToA(5.0, nil, nil),
+	)
+	assert.NotNil(s.T(), err)
 }
 
 func (s *MuMpcBcSuite) Test_Frequency() {

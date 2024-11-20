@@ -2,8 +2,6 @@ package mpc
 
 import (
 	"errors"
-	"time"
-
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -533,35 +531,6 @@ func (e *MPC) getMeasurementDataForId(id *model.MeasurementIdType) (float64, err
 	}
 
 	return data.Value.GetValue(), nil
-}
-
-func measurementData(
-	value float64,
-	timestamp *time.Time,
-	valueSource *model.MeasurementValueSourceType,
-	valueState *model.MeasurementValueStateType,
-	evaluationStart *time.Time,
-	evaluationEnd *time.Time,
-) model.MeasurementDataType {
-	measurement := model.MeasurementDataType{
-		ValueType:   util.Ptr(model.MeasurementValueTypeTypeValue),
-		Value:       model.NewScaledNumberType(value),
-		ValueSource: valueSource,
-		ValueState:  valueState,
-	}
-
-	if timestamp != nil {
-		measurement.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(*timestamp)
-	}
-
-	if evaluationStart != nil && evaluationEnd != nil {
-		measurement.EvaluationPeriod = &model.TimePeriodType{
-			StartTime: model.NewAbsoluteOrRelativeTimeTypeFromTime(*evaluationStart),
-			EndTime:   model.NewAbsoluteOrRelativeTimeTypeFromTime(*evaluationEnd),
-		}
-	}
-
-	return measurement
 }
 
 var phases = [][]string{

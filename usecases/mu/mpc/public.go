@@ -3,6 +3,7 @@ package mpc
 import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
+	usecaseapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"time"
 )
@@ -155,10 +156,20 @@ func (e *MPC) Frequency() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (e *MPC) Update(measurementDataForIds ...api.MeasurementDataForID) error {
+func (e *MPC) Update(updateData ...usecaseapi.UpdateData) error {
 	measurements, err := server.NewMeasurement(e.LocalEntity)
 	if err != nil {
 		return err
+	}
+
+	measurementDataForIds := make([]api.MeasurementDataForID, 0)
+
+	for _, measurementDataForId := range updateData {
+		if !measurementDataForId.Supported() {
+			return measurementDataForId.NotSupportedError()
+		} else {
+			measurementDataForIds = append(measurementDataForIds, measurementDataForId.MeasurementData())
+		}
 	}
 
 	return measurements.UpdateDataForIds(measurementDataForIds)
@@ -173,9 +184,11 @@ func (e *MPC) UpdateDataPowerTotal(
 	acPowerTotal float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acPowerTotal is not supported, please check the configuration",
+		e.acPowerTotal,
+		measurementData(
 			acPowerTotal,
 			timestamp,
 			e.powerConfig.ValueSourceTotal,
@@ -183,8 +196,7 @@ func (e *MPC) UpdateDataPowerTotal(
 			nil,
 			nil,
 		),
-		Id: *e.acPowerTotal,
-	}
+	)
 }
 
 // use MPC.UpdateDataPowerPhaseA in MPC.Update to set the momentary active power consumption or production per phase
@@ -194,12 +206,11 @@ func (e *MPC) UpdateDataPowerPhaseA(
 	acPowerPhaseA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acPower[0] == nil {
-		panic("acPowerPhaseA is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acPowerPhaseA is not supported, please check the configuration",
+		e.acPower[0],
+		measurementData(
 			acPowerPhaseA,
 			timestamp,
 			e.powerConfig.ValueSourcePhaseA,
@@ -207,8 +218,7 @@ func (e *MPC) UpdateDataPowerPhaseA(
 			nil,
 			nil,
 		),
-		Id: *e.acPower[0],
-	}
+	)
 }
 
 // use MPC.UpdateDataPowerPhaseB in MPC.Update to set the momentary active power consumption or production per phase
@@ -218,12 +228,11 @@ func (e *MPC) UpdateDataPowerPhaseB(
 	acPowerPhaseB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acPower[1] == nil {
-		panic("acPowerPhaseB is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acPowerPhaseB is not supported, please check the configuration",
+		e.acPower[1],
+		measurementData(
 			acPowerPhaseB,
 			timestamp,
 			e.powerConfig.ValueSourcePhaseB,
@@ -231,8 +240,7 @@ func (e *MPC) UpdateDataPowerPhaseB(
 			nil,
 			nil,
 		),
-		Id: *e.acPower[1],
-	}
+	)
 }
 
 // use MPC.UpdateDataPowerPhaseC in MPC.Update to set the momentary active power consumption or production per phase
@@ -242,12 +250,11 @@ func (e *MPC) UpdateDataPowerPhaseC(
 	acPowerPhaseC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acPower[2] == nil {
-		panic("acPowerPhaseC is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acPowerPhaseC is not supported, please check the configuration",
+		e.acPower[2],
+		measurementData(
 			acPowerPhaseC,
 			timestamp,
 			e.powerConfig.ValueSourcePhaseC,
@@ -255,8 +262,7 @@ func (e *MPC) UpdateDataPowerPhaseC(
 			nil,
 			nil,
 		),
-		Id: *e.acPower[2],
-	}
+	)
 }
 
 // Scenario 2
@@ -271,12 +277,11 @@ func (e *MPC) UpdateDataEnergyConsumed(
 	valueState *model.MeasurementValueStateType,
 	evaluationStart *time.Time,
 	evaluationEnd *time.Time,
-) api.MeasurementDataForID {
-	if e.acEnergyConsumed == nil {
-		panic("acEnergyConsumed is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acEnergyConsumed is not supported, please check the configuration",
+		e.acEnergyConsumed,
+		measurementData(
 			energyConsumed,
 			timestamp,
 			e.energyConfig.ValueSourceConsumption,
@@ -284,8 +289,7 @@ func (e *MPC) UpdateDataEnergyConsumed(
 			evaluationStart,
 			evaluationEnd,
 		),
-		Id: *e.acEnergyConsumed,
-	}
+	)
 }
 
 // use MPC.MeasuredUpdateDataEnergyProduced in MPC.Update to set the total feed in energy
@@ -298,12 +302,11 @@ func (e *MPC) UpdateDataEnergyProduced(
 	valueState *model.MeasurementValueStateType,
 	evaluationStart *time.Time,
 	evaluationEnd *time.Time,
-) api.MeasurementDataForID {
-	if e.acEnergyProduced == nil {
-		panic("acEnergyProduced is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acEnergyProduced is not supported, please check the configuration",
+		e.acEnergyProduced,
+		measurementData(
 			energyProduced,
 			timestamp,
 			e.energyConfig.ValueSourceProduction,
@@ -311,8 +314,7 @@ func (e *MPC) UpdateDataEnergyProduced(
 			evaluationStart,
 			evaluationEnd,
 		),
-		Id: *e.acEnergyProduced,
-	}
+	)
 }
 
 // Scenario 3
@@ -324,12 +326,11 @@ func (e *MPC) UpdateDataCurrentPhaseA(
 	acCurrentPhaseA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acCurrent[0] == nil {
-		panic("acCurrentPhaseA is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acCurrentPhaseA is not supported, please check the configuration",
+		e.acCurrent[0],
+		measurementData(
 			acCurrentPhaseA,
 			timestamp,
 			e.currentConfig.ValueSourcePhaseA,
@@ -337,8 +338,7 @@ func (e *MPC) UpdateDataCurrentPhaseA(
 			nil,
 			nil,
 		),
-		Id: *e.acCurrent[0],
-	}
+	)
 }
 
 // use MPC.UpdateDataCurrentPhaseB in MPC.Update to set the momentary phase specific current consumption or production
@@ -348,12 +348,11 @@ func (e *MPC) UpdateDataCurrentPhaseB(
 	acCurrentPhaseB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acCurrent[1] == nil {
-		panic("acCurrentPhaseB is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acCurrentPhaseB is not supported, please check the configuration",
+		e.acCurrent[1],
+		measurementData(
 			acCurrentPhaseB,
 			timestamp,
 			e.currentConfig.ValueSourcePhaseB,
@@ -361,8 +360,7 @@ func (e *MPC) UpdateDataCurrentPhaseB(
 			nil,
 			nil,
 		),
-		Id: *e.acCurrent[1],
-	}
+	)
 }
 
 // use MPC.UpdateDataCurrentPhaseC in MPC.Update to set the momentary phase specific current consumption or production
@@ -372,12 +370,11 @@ func (e *MPC) UpdateDataCurrentPhaseC(
 	acCurrentPhaseC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acCurrent[2] == nil {
-		panic("acCurrentPhaseC is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acCurrentPhaseC is not supported, please check the configuration",
+		e.acCurrent[2],
+		measurementData(
 			acCurrentPhaseC,
 			timestamp,
 			e.currentConfig.ValueSourcePhaseC,
@@ -385,8 +382,7 @@ func (e *MPC) UpdateDataCurrentPhaseC(
 			nil,
 			nil,
 		),
-		Id: *e.acCurrent[2],
-	}
+	)
 }
 
 // Scenario 4
@@ -398,12 +394,11 @@ func (e *MPC) UpdateDataVoltagePhaseA(
 	voltagePhaseA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acVoltage[0] == nil {
-		panic("acVoltagePhaseA is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acVoltagePhaseA is not supported, please check the configuration",
+		e.acVoltage[0],
+		measurementData(
 			voltagePhaseA,
 			timestamp,
 			e.voltageConfig.ValueSourcePhaseA,
@@ -411,8 +406,7 @@ func (e *MPC) UpdateDataVoltagePhaseA(
 			nil,
 			nil,
 		),
-		Id: *e.acVoltage[0],
-	}
+	)
 }
 
 // use MPC.UpdateDataVoltagePhaseB in MPC.Update to set the phase specific voltage details
@@ -422,12 +416,11 @@ func (e *MPC) UpdateDataVoltagePhaseB(
 	voltagePhaseB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acVoltage[1] == nil {
-		panic("acVoltagePhaseB is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acVoltagePhaseB is not supported, please check the configuration",
+		e.acVoltage[1],
+		measurementData(
 			voltagePhaseB,
 			timestamp,
 			e.voltageConfig.ValueSourcePhaseB,
@@ -435,8 +428,7 @@ func (e *MPC) UpdateDataVoltagePhaseB(
 			nil,
 			nil,
 		),
-		Id: *e.acVoltage[1],
-	}
+	)
 }
 
 // use MPC.UpdateDataVoltagePhaseC in MPC.Update to set the phase specific voltage details
@@ -446,12 +438,11 @@ func (e *MPC) UpdateDataVoltagePhaseC(
 	voltagePhaseC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acVoltage[2] == nil {
-		panic("acVoltagePhaseC is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acVoltagePhaseC is not supported, please check the configuration",
+		e.acVoltage[2],
+		measurementData(
 			voltagePhaseC,
 			timestamp,
 			e.voltageConfig.ValueSourcePhaseC,
@@ -459,8 +450,7 @@ func (e *MPC) UpdateDataVoltagePhaseC(
 			nil,
 			nil,
 		),
-		Id: *e.acVoltage[2],
-	}
+	)
 }
 
 // use MPC.UpdateDataVoltagePhaseAToB in MPC.Update to set the phase specific voltage details
@@ -470,12 +460,11 @@ func (e *MPC) UpdateDataVoltagePhaseAToB(
 	voltagePhaseAToB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acVoltage[3] == nil {
-		panic("acVoltagePhaseAToB is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acVoltagePhaseAToB is not supported, please check the configuration",
+		e.acVoltage[3],
+		measurementData(
 			voltagePhaseAToB,
 			timestamp,
 			e.voltageConfig.ValueSourcePhaseAToB,
@@ -483,8 +472,7 @@ func (e *MPC) UpdateDataVoltagePhaseAToB(
 			nil,
 			nil,
 		),
-		Id: *e.acVoltage[3],
-	}
+	)
 }
 
 // use MPC.UpdateDataVoltagePhaseBToC in MPC.Update to set the phase specific voltage details
@@ -494,12 +482,11 @@ func (e *MPC) UpdateDataVoltagePhaseBToC(
 	voltagePhaseBToC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acVoltage[4] == nil {
-		panic("acVoltagePhaseBToC is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acVoltagePhaseBToC is not supported, please check the configuration",
+		e.acVoltage[4],
+		measurementData(
 			voltagePhaseBToC,
 			timestamp,
 			e.voltageConfig.ValueSourcePhaseBToC,
@@ -507,8 +494,7 @@ func (e *MPC) UpdateDataVoltagePhaseBToC(
 			nil,
 			nil,
 		),
-		Id: *e.acVoltage[4],
-	}
+	)
 }
 
 // use MPC.UpdateDataVoltagePhaseCToA in MPC.Update to set the phase specific voltage details
@@ -518,12 +504,11 @@ func (e *MPC) UpdateDataVoltagePhaseCToA(
 	voltagePhaseCToA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acVoltage[5] == nil {
-		panic("acVoltagePhaseCToA is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acVoltagePhaseCToA is not supported, please check the configuration",
+		e.acVoltage[5],
+		measurementData(
 			voltagePhaseCToA,
 			timestamp,
 			e.voltageConfig.ValueSourcePhaseCToA,
@@ -531,8 +516,7 @@ func (e *MPC) UpdateDataVoltagePhaseCToA(
 			nil,
 			nil,
 		),
-		Id: *e.acVoltage[5],
-	}
+	)
 }
 
 // Scenario 5
@@ -544,12 +528,11 @@ func (e *MPC) UpdateDataFrequency(
 	frequency float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) api.MeasurementDataForID {
-	if e.acFrequency == nil {
-		panic("acFrequency is not supported, please check the configuration")
-	}
-	return api.MeasurementDataForID{
-		Data: measurementData(
+) usecaseapi.UpdateData {
+	return newUpdateData(
+		"acFrequency is not supported, please check the configuration",
+		e.acFrequency,
+		measurementData(
 			frequency,
 			timestamp,
 			e.frequencyConfig.ValueSource,
@@ -557,6 +540,5 @@ func (e *MPC) UpdateDataFrequency(
 			nil,
 			nil,
 		),
-		Id: *e.acFrequency,
-	}
+	)
 }
