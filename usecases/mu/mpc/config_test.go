@@ -8,11 +8,11 @@ func (s *MuMPCSuite) Test_SupportsPhases() {
 	allowedConstellations := map[ConnectedPhases][][]string{
 		ConnectedPhasesA:   {{"a"}},
 		ConnectedPhasesB:   {{"b"}},
-		ConnectedPhasesC:   {{"c"}},
+		ConnectedPhasesC:   {{"C"}},
 		ConnectedPhasesAB:  {{"a"}, {"b"}, {"a", "b"}},
-		ConnectedPhasesBC:  {{"b"}, {"c"}, {"b", "c"}},
-		ConnectedPhasesCA:  {{"a"}, {"c"}, {"a", "c"}},
-		ConnectedPhasesABC: {{"a"}, {"b"}, {"c"}, {"a", "b"}, {"b", "c"}, {"a", "c"}, {"a", "b", "c"}},
+		ConnectedPhasesBC:  {{"b"}, {"c"}, {"B", "c"}},
+		ConnectedPhasesCA:  {{"a"}, {"c"}, {"A", "C"}},
+		ConnectedPhasesABC: {{"a"}, {"b"}, {"c"}, {"a", "b"}, {"b", "c"}, {"a", "c"}, {"A", "b", "c"}},
 	}
 
 	for constellation, phases := range allowedConstellations {

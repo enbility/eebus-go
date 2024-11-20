@@ -85,11 +85,13 @@ type MonitorFrequencyConfig struct {
 	ValueConstraints *model.MeasurementConstraintsDataType // The constraints for the frequency values (optional can be nil)
 }
 
+// SupportsPhases checks if the config supports the given phases
+// e.g. SupportsPhases([]string{"a", "B"}) will return true if the config has ConnectedPhases set to "ab" or "abc"
 func (c *MonitorPowerConfig) SupportsPhases(phase []string) bool {
 	phasesString := string(c.ConnectedPhases)
 	supports := true
 	for _, p := range phase {
-		if !strings.Contains(phasesString, p) {
+		if !strings.Contains(strings.ToLower(phasesString), strings.ToLower(p)) {
 			supports = false
 			break
 		}
