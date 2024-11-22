@@ -193,11 +193,16 @@ func (s *Service) IsRunning() bool {
 }
 
 // add a use case to the service
-func (s *Service) AddUseCase(useCase api.UseCaseInterface) {
+func (s *Service) AddUseCase(useCase api.UseCaseInterface) error {
 	s.usecases = append(s.usecases, useCase)
 
-	useCase.AddFeatures()
+	err := useCase.AddFeatures()
+	if err != nil {
+		return err
+	}
 	useCase.AddUseCase()
+
+	return nil
 }
 
 func (s *Service) Configuration() *api.Configuration {

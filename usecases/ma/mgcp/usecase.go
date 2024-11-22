@@ -106,7 +106,7 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 	return uc
 }
 
-func (e *MGCP) AddFeatures() {
+func (e *MGCP) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceConfiguration,
@@ -116,4 +116,6 @@ func (e *MGCP) AddFeatures() {
 	for _, feature := range clientFeatures {
 		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 	}
+
+	return nil
 }

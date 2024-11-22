@@ -78,7 +78,7 @@ func (s *MuMPCSuite) BeforeTest(_, _ string) {
 		s.frequencyConfig,
 	)
 
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 }
 

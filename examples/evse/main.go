@@ -92,7 +92,10 @@ func (h *evse) run() {
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeEVSE)
 	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
-	h.myService.AddUseCase(h.uclpc)
+	err = h.myService.AddUseCase(h.uclpc)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Initialize local server data
 	_ = h.uclpc.SetConsumptionNominalMax(32000)

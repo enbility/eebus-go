@@ -57,5 +57,5 @@ type UseCaseInterface interface {
 	UseCaseBaseInterface
 
 	// add the features
-	AddFeatures()
+	AddFeatures() error
 }

@@ -98,7 +98,7 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 	return uc
 }
 
-func (e *MPC) AddFeatures() {
+func (e *MPC) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeElectricalConnection,
@@ -107,4 +107,6 @@ func (e *MPC) AddFeatures() {
 	for _, feature := range clientFeatures {
 		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 	}
+
+	return nil
 }

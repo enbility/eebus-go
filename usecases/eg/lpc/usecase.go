@@ -78,7 +78,7 @@ func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 	return uc
 }
 
-func (e *LPC) AddFeatures() {
+func (e *LPC) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceDiagnosis,
@@ -93,4 +93,6 @@ func (e *LPC) AddFeatures() {
 	// server features
 	f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
+
+	return nil
 }

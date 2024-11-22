@@ -139,7 +139,7 @@ func NewMPC(
 	return uc, nil
 }
 
-func (e *MPC) AddFeatures() {
+func (e *MPC) AddFeatures() error {
 	// server features
 	electricalConnectionFeature := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
 	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionDescriptionListData, true, false)
@@ -152,12 +152,12 @@ func (e *MPC) AddFeatures() {
 
 	measurements, err := server.NewMeasurement(e.LocalEntity)
 	if err != nil {
-		// TODO fix AddFeatures()?
+		return err
 	}
 
 	electricalConnection, err := server.NewElectricalConnection(e.LocalEntity)
 	if err != nil {
-		// TODO fix AddFeatures()?
+		return err
 	}
 
 	electricalConnectionId := model.ElectricalConnectionIdType(0)
@@ -169,7 +169,7 @@ func (e *MPC) AddFeatures() {
 	}
 
 	if err := electricalConnection.AddDescription(electricalConnectionDescription); err != nil {
-		// TODO return error
+		return err
 	}
 
 	constraints := make([]model.MeasurementConstraintsDataType, 0)
@@ -189,7 +189,7 @@ func (e *MPC) AddFeatures() {
 
 	for _, configMethod := range configMethods {
 		if err := configMethod(measurements, electricalConnection, &electricalConnectionId, &constraints); err != nil {
-			// TODO return error
+			return err
 		}
 	}
 
@@ -201,6 +201,8 @@ func (e *MPC) AddFeatures() {
 			}, nil, nil,
 		)
 	}
+
+	return nil
 }
 
 func (e *MPC) configureMonitorPower(

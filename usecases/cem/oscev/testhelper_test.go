@@ -72,7 +72,7 @@ func (s *CemOSCEVSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewOSCEV(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	var clientFeatures = []model.FeatureTypeType{

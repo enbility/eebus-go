@@ -82,7 +82,7 @@ func NewCEVC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 	return uc
 }
 
-func (e *CEVC) AddFeatures() {
+func (e *CEVC) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceConfiguration,
@@ -98,4 +98,6 @@ func (e *CEVC) AddFeatures() {
 	f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
 	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisStateData, true, false)
 	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
+
+	return nil
 }

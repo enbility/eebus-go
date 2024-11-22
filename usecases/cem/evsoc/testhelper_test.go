@@ -73,7 +73,7 @@ func (s *CemEVSOCSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewEVSOC(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	var entities []spineapi.EntityRemoteInterface

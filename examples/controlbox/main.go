@@ -95,10 +95,16 @@ func (h *controlbox) run() {
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
 	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
-	h.myService.AddUseCase(h.uclpc)
+	err = h.myService.AddUseCase(h.uclpc)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	h.uclpp = lpp.NewLPP(localEntity, h.OnLPPEvent)
-	h.myService.AddUseCase(h.uclpp)
+	err = h.myService.AddUseCase(h.uclpp)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if len(remoteSki) == 0 {
 		os.Exit(0)

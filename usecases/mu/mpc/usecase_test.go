@@ -145,7 +145,8 @@ func (s *BasicSuite) Test_MpcOptionalParameters() {
 
 		assert.Nil(s.T(), err)
 
-		mpc.AddFeatures()
+		err = mpc.AddFeatures()
+		assert.Nil(s.T(), err)
 		mpc.AddUseCase()
 	}
 }

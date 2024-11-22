@@ -76,7 +76,7 @@ func (s *CsLPPSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewLPP(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	s.loadControlFeature = localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)

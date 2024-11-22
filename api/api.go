@@ -28,7 +28,7 @@ type ServiceInterface interface {
 	IsRunning() bool
 
 	// add a use case to the service
-	AddUseCase(useCase UseCaseInterface)
+	AddUseCase(useCase UseCaseInterface) error
 
 	// set logging interface
 	SetLogging(logger logging.LoggingInterface)

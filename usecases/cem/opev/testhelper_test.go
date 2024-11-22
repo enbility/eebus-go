@@ -73,7 +73,7 @@ func (s *CemOPEVSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewOPEV(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	var clientFeatures = []model.FeatureTypeType{

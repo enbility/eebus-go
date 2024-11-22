@@ -75,7 +75,7 @@ func (s *CemCEVCSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewCEVC(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	var entities []spineapi.EntityRemoteInterface

@@ -64,7 +64,7 @@ func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEven
 	return uc
 }
 
-func (e *EVSECC) AddFeatures() {
+func (e *EVSECC) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceClassification,
@@ -74,4 +74,6 @@ func (e *EVSECC) AddFeatures() {
 	for _, feature := range clientFeatures {
 		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
 	}
+
+	return nil
 }

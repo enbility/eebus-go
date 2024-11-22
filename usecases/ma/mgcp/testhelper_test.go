@@ -73,7 +73,7 @@ func (s *GcpMGCPSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewMGCP(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	s.remoteDevice, s.smgwEntity = setupDevices(s.service, s.T())

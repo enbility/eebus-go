@@ -73,7 +73,7 @@ func (s *CemVAPDSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewVAPD(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	s.remoteDevice, s.pvEntity = setupDevices(s.service, s.T())

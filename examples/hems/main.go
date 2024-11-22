@@ -102,19 +102,46 @@ func (h *hems) run() {
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	h.uccslpc = cslpc.NewLPC(localEntity, h.OnLPCEvent)
-	h.myService.AddUseCase(h.uccslpc)
+	err = h.myService.AddUseCase(h.uccslpc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	h.uccslpp = cslpp.NewLPP(localEntity, h.OnLPPEvent)
-	h.myService.AddUseCase(h.uccslpp)
+	err = h.myService.AddUseCase(h.uccslpp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	h.uceglpc = eglpc.NewLPC(localEntity, nil)
-	h.myService.AddUseCase(h.uceglpc)
+	err = h.myService.AddUseCase(h.uceglpc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	h.uceglpp = eglpp.NewLPP(localEntity, nil)
-	h.myService.AddUseCase(h.uceglpp)
+	err = h.myService.AddUseCase(h.uceglpp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	h.ucmamgcp = mgcp.NewMGCP(localEntity, h.OnMGCPEvent)
-	h.myService.AddUseCase(h.ucmamgcp)
+	err = h.myService.AddUseCase(h.ucmamgcp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	h.uccemvabd = vabd.NewVABD(localEntity, h.OnVABDEvent)
-	h.myService.AddUseCase(h.uccemvabd)
+	err = h.myService.AddUseCase(h.uccemvabd)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	h.uccemvapd = vapd.NewVAPD(localEntity, h.OnVAPDEvent)
-	h.myService.AddUseCase(h.uccemvapd)
+	err = h.myService.AddUseCase(h.uccemvapd)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Initialize local server data
 	_ = h.uccslpc.SetConsumptionNominalMax(32000)

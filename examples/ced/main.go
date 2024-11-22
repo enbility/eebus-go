@@ -99,12 +99,18 @@ func (h *controlbox) run() {
 
 	localEntity := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeHeatPumpAppliance)
 	h.uclpc = lpc.NewLPC(localEntity, h.OnLPCEvent)
-	h.myService.AddUseCase(h.uclpc)
+	err = h.myService.AddUseCase(h.uclpc)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// h.uclpp = lpp.NewLPP(localEntity, h.OnLPPEvent)
 	// h.myService.AddUseCase(h.uclpp)
 
 	h.ucmpc = mpc.NewMPC(localEntity, h.OnMPCEvent)
-	h.myService.AddUseCase(h.ucmpc)
+	err = h.myService.AddUseCase(h.ucmpc)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if len(remoteSki) == 0 {
 		os.Exit(0)

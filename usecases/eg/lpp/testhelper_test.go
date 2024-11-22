@@ -73,7 +73,7 @@ func (s *EgLPPSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewLPP(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	s.remoteDevice, s.monitoredEntity = setupDevices(s.service, s.T())
