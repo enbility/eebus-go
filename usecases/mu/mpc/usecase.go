@@ -141,9 +141,9 @@ func NewMPC(
 
 func (e *MPC) AddFeatures() {
 	// server features
-	electricalConnectionFeatrue := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
-	electricalConnectionFeatrue.AddFunctionType(model.FunctionTypeElectricalConnectionDescriptionListData, true, false)
-	electricalConnectionFeatrue.AddFunctionType(model.FunctionTypeElectricalConnectionParameterDescriptionListData, true, false)
+	electricalConnectionFeature := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionDescriptionListData, true, false)
+	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionParameterDescriptionListData, true, false)
 
 	measurementFeature := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementDescriptionListData, true, false)
