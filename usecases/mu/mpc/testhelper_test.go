@@ -1,6 +1,8 @@
 package mpc
 
 import (
+	"github.com/enbility/eebus-go/features/server"
+	"slices"
 	"time"
 
 	"github.com/enbility/eebus-go/api"
@@ -78,4 +80,66 @@ func (s *MuMPCSuite) BeforeTest(_, _ string) {
 
 	s.sut.AddFeatures()
 	s.sut.AddUseCase()
+}
+
+func (s *MuMPCSuite) measurementPhaseSpecificDataForFilter(
+	measurementFilter model.MeasurementDescriptionDataType,
+	energyDirection model.EnergyDirectionType,
+	validPhaseNameTypes []model.ElectricalConnectionPhaseNameType,
+) ([]float64, error) {
+	measurements, err := server.NewMeasurement(s.sut.LocalEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	electricalConnection, err := server.NewElectricalConnection(s.sut.LocalEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := measurements.GetDataForFilter(measurementFilter)
+	if err != nil || len(data) == 0 {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	var result []float64
+
+	for _, item := range data {
+		if item.Value == nil || item.MeasurementId == nil {
+			continue
+		}
+
+		if validPhaseNameTypes != nil {
+			filter := model.ElectricalConnectionParameterDescriptionDataType{
+				MeasurementId: item.MeasurementId,
+			}
+			param, err := electricalConnection.GetParameterDescriptionsForFilter(filter)
+			if err != nil || len(param) == 0 ||
+				param[0].AcMeasuredPhases == nil ||
+				!slices.Contains(validPhaseNameTypes, *param[0].AcMeasuredPhases) {
+				continue
+			}
+		}
+
+		if energyDirection != "" {
+			filter := model.ElectricalConnectionParameterDescriptionDataType{
+				MeasurementId: item.MeasurementId,
+			}
+			desc, err := electricalConnection.GetDescriptionForParameterDescriptionFilter(filter)
+			if err != nil || desc == nil {
+				continue
+			}
+
+			// if energy direction is not consume
+			if desc.PositiveEnergyDirection == nil || *desc.PositiveEnergyDirection != energyDirection {
+				return nil, err
+			}
+		}
+
+		value := item.Value.GetValue()
+
+		result = append(result, value)
+	}
+
+	return result, nil
 }

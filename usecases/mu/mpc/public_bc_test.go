@@ -1,6 +1,7 @@
 package mpc
 
 import (
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -79,6 +80,16 @@ func (s *MuMpcBcSuite) Test_PowerPerPhase() {
 		s.sut.UpdateDataPowerPhaseA(5.0, util.Ptr(time.Now()), nil),
 	)
 	assert.NotNil(s.T(), err)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+	}
+	values, err := s.measurementPhaseSpecificDataForFilter(filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{6.0, 7.0}, values)
 }
 
 func (s *MuMpcBcSuite) Test_EnergyConsumed() {
@@ -146,6 +157,16 @@ func (s *MuMpcBcSuite) Test_VoltagePerPhase() {
 		s.sut.UpdateDataVoltagePhaseCToA(5.0, nil, nil),
 	)
 	assert.NotNil(s.T(), err)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
+	}
+	values, err := s.measurementPhaseSpecificDataForFilter(filter, "", ucapi.PhaseNameMapping)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{6.0, 7.0, 9.0}, values)
 }
 
 func (s *MuMpcBcSuite) Test_Frequency() {

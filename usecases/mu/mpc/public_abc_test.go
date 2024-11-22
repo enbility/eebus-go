@@ -1,6 +1,8 @@
 package mpc
 
 import (
+	"github.com/enbility/eebus-go/features/server"
+	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -67,6 +69,16 @@ func (s *MuMpcAbcSuite) Test_Power() {
 	power, err := s.sut.Power()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 5.0, power)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+	}
+	values, err := s.measurementPhaseSpecificDataForFilter(filter, model.EnergyDirectionTypeConsume, nil)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{5.0}, values)
 }
 
 func (s *MuMpcAbcSuite) Test_PowerPerPhase() {
@@ -80,6 +92,16 @@ func (s *MuMpcAbcSuite) Test_PowerPerPhase() {
 	powerPerPhases, err := s.sut.PowerPerPhase()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{5.0, 6.0, 7.0}, powerPerPhases)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+	}
+	values, err := s.measurementPhaseSpecificDataForFilter(filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{5.0, 6.0, 7.0}, values)
 }
 
 func (s *MuMpcAbcSuite) Test_EnergyConsumed() {
@@ -91,6 +113,19 @@ func (s *MuMpcAbcSuite) Test_EnergyConsumed() {
 	energyConsumed, err := s.sut.EnergyConsumed()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 5.0, energyConsumed)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
+	}
+	measurement, err := server.NewMeasurement(s.sut.LocalEntity)
+	assert.Nil(s.T(), err)
+	values, err := measurement.GetDataForFilter(filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(values))
+	assert.Equal(s.T(), 5.0, (*values[0].Value).GetValue())
 }
 
 func (s *MuMpcAbcSuite) Test_EnergyProduced() {
@@ -102,6 +137,19 @@ func (s *MuMpcAbcSuite) Test_EnergyProduced() {
 	energyProduced, err := s.sut.EnergyProduced()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 5.0, energyProduced)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
+	}
+	measurement, err := server.NewMeasurement(s.sut.LocalEntity)
+	assert.Nil(s.T(), err)
+	values, err := measurement.GetDataForFilter(filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(values))
+	assert.Equal(s.T(), 5.0, (*values[0].Value).GetValue())
 }
 
 func (s *MuMpcAbcSuite) Test_CurrentPerPhase() {
@@ -115,6 +163,16 @@ func (s *MuMpcAbcSuite) Test_CurrentPerPhase() {
 	currentPerPhases, err := s.sut.CurrentPerPhase()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{5.0, 3.0, 1.0}, currentPerPhases)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+	}
+	values, err := s.measurementPhaseSpecificDataForFilter(filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{5.0, 3.0, 1.0}, values)
 }
 
 func (s *MuMpcAbcSuite) Test_VoltagePerPhase() {
@@ -131,6 +189,16 @@ func (s *MuMpcAbcSuite) Test_VoltagePerPhase() {
 	voltagePerPhases, err := s.sut.VoltagePerPhase()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, voltagePerPhases)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
+	}
+	values, err := s.measurementPhaseSpecificDataForFilter(filter, "", ucapi.PhaseNameMapping)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, values)
 }
 
 func (s *MuMpcAbcSuite) Test_Frequency() {
@@ -142,4 +210,17 @@ func (s *MuMpcAbcSuite) Test_Frequency() {
 	frequency, err := s.sut.Frequency()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 5.0, frequency)
+
+	// Check if the client filter works
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: util.Ptr(model.MeasurementTypeTypeFrequency),
+		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
+	}
+	measurements, err := server.NewMeasurement(s.sut.LocalEntity)
+	assert.Nil(s.T(), err)
+	values, err := measurements.GetDataForFilter(filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(values))
+	assert.Equal(s.T(), 5.0, (*values[0].Value).GetValue())
 }
