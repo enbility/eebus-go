@@ -66,33 +66,6 @@ func (s *CemOSCEVSuite) Test_Public() {
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
 	assert.NotNil(s.T(), err)
 
-	mData := &model.MeasurementDescriptionListDataType{
-		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
-		},
-	}
-	_, errT = meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
-	assert.Nil(s.T(), errT)
-
-	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
-	assert.NotNil(s.T(), err)
-
-	mData = &model.MeasurementDescriptionListDataType{
-		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
-			{
-				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
-			},
-		},
-	}
-	_, errT = meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
-	assert.Nil(s.T(), errT)
-
-	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
-	assert.NotNil(s.T(), err)
-
 	_, err = s.sut.LoadControlLimits(s.mockRemoteEntity)
 	assert.NotNil(s.T(), err)
 

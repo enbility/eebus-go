@@ -31,11 +31,6 @@ func (e *OSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64,
 		return nil, nil, nil, err
 	}
 
-	meas, err := client.NewMeasurement(e.LocalEntity, entity)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
 	filter := model.LoadControlLimitDescriptionDataType {
 		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
 		LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
@@ -60,14 +55,7 @@ func (e *OSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64,
 		filter := model.MeasurementDescriptionDataType{
 			MeasurementId: measId,
 		}
-		mds, err := meas.GetDescriptionsForFilter(filter)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-		if len(mds) != 1 {
-			return nil, nil, nil, api.ErrDataNotAvailable
-		}
-		measDescs = append(measDescs, mds[0])
+		measDescs = append(measDescs, filter)
 	}
 	return ec.GetPhaseCurrentLimits(measDescs)
 }
