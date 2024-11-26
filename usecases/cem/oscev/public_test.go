@@ -24,14 +24,6 @@ func (s *CemOSCEVSuite) Test_Public() {
 
 	lData := &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
-			{
-				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
-				LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
-				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
-				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType: util.Ptr(model.ScopeTypeTypeSelfConsumption),
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-			},
 		},
 	}
 
@@ -44,20 +36,26 @@ func (s *CemOSCEVSuite) Test_Public() {
 	lData = &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
-				LimitId: util.Ptr(model.LoadControlLimitIdType(1)),
+				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
 				LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
 				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
 				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
 				ScopeType: util.Ptr(model.ScopeTypeTypeSelfConsumption),
-				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			},
+		},
+	}
+
+	_,errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
+	assert.Nil(s.T(), errT)
+
+	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
+	assert.NotNil(s.T(), err)
+
+	lData = &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
-				LimitId: util.Ptr(model.LoadControlLimitIdType(2)),
-				LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
-				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
-				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType: util.Ptr(model.ScopeTypeTypeSelfConsumption),
-				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 			},
 		},
 	}
@@ -70,13 +68,6 @@ func (s *CemOSCEVSuite) Test_Public() {
 
 	mData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
-			{
-				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
-			},
 		},
 	}
 	_, errT = meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
@@ -88,14 +79,7 @@ func (s *CemOSCEVSuite) Test_Public() {
 	mData = &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
 			{
-				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
-			},
-			{
-				MeasurementId:   util.Ptr(model.MeasurementIdType(2)),
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
 				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
 				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
@@ -103,7 +87,7 @@ func (s *CemOSCEVSuite) Test_Public() {
 			},
 		},
 	}
-	_, errT = meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, &model.FilterType{}, nil)
+	_, errT = meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
 	assert.Nil(s.T(), errT)
 
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)

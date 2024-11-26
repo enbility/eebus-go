@@ -47,14 +47,18 @@ func (e *OSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64,
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	if len(limitDescs) != 3 {
+	if len(limitDescs) == 0 {
 		return nil, nil, nil, api.ErrDataNotAvailable
 	}
 
 	measDescs := make([]model.MeasurementDescriptionDataType, 0)
 	for _, ld := range limitDescs {
+		measId := ld.MeasurementId
+		if measId == nil {
+			return nil, nil, nil, api.ErrDataNotAvailable
+		}
 		filter := model.MeasurementDescriptionDataType{
-			MeasurementId: ld.MeasurementId,
+			MeasurementId: measId,
 		}
 		mds, err := meas.GetDescriptionsForFilter(filter)
 		if err != nil {
