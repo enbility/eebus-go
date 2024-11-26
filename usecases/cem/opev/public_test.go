@@ -16,8 +16,57 @@ func (s *CemOPEVSuite) Test_Public() {
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
 	assert.NotNil(s.T(), err)
 
+	lc := s.evEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	assert.NotNil(s.T(), lc)
+
 	meas := s.evEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
 	assert.NotNil(s.T(), meas)
+
+	lData := &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType: util.Ptr(model.ScopeTypeTypeOverloadProtection),
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_,errT := lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
+	assert.Nil(s.T(), errT)
+
+	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
+	assert.NotNil(s.T(), err)
+
+	lData = &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(1)),
+				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType: util.Ptr(model.ScopeTypeTypeOverloadProtection),
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+			},
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(2)),
+				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType: util.Ptr(model.ScopeTypeTypeOverloadProtection),
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+			},
+		},
+	}
+
+	_,errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, &model.FilterType{}, nil)
+	assert.Nil(s.T(), errT)
+
+	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
+	assert.NotNil(s.T(), err)
 
 	mData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -30,7 +79,31 @@ func (s *CemOPEVSuite) Test_Public() {
 			},
 		},
 	}
-	_, errT := meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
+	_, errT = meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
+	assert.Nil(s.T(), errT)
+
+	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
+	assert.NotNil(s.T(), err)
+
+	mData = &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(2)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+			},
+		},
+	}
+	_, errT = meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, &model.FilterType{}, nil)
 	assert.Nil(s.T(), errT)
 
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
