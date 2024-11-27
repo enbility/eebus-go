@@ -160,15 +160,11 @@ func (e *MPC) AddFeatures() error {
 		return err
 	}
 
-	electricalConnectionId := model.ElectricalConnectionIdType(0)
-
-	electricalConnectionDescription := model.ElectricalConnectionDescriptionDataType{
-		ElectricalConnectionId:  &electricalConnectionId,
+	electricalConnectionId, err := electricalConnection.GetOrAddIdForDescription(model.ElectricalConnectionDescriptionDataType{
 		PowerSupplyType:         util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
 		PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
-	}
-
-	if err := electricalConnection.AddDescription(electricalConnectionDescription); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -188,7 +184,7 @@ func (e *MPC) AddFeatures() error {
 	}
 
 	for _, configMethod := range configMethods {
-		if err := configMethod(measurements, electricalConnection, &electricalConnectionId, &constraints); err != nil {
+		if err := configMethod(measurements, electricalConnection, electricalConnectionId, &constraints); err != nil {
 			return err
 		}
 	}
@@ -212,7 +208,7 @@ func (e *MPC) configureMonitorPower(
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
 	if e.powerConfig == nil {
-		return nil // TODO return error if not optional
+		return errors.New("mpc monitoring power must be configured")
 	}
 
 	e.acPowerTotal = measurements.AddDescription(model.MeasurementDescriptionDataType{
@@ -239,7 +235,7 @@ func (e *MPC) configureMonitorPower(
 
 	parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
 	if parameterDescriptionId == nil {
-		// TODO return error
+		return errors.New("could not add parameter description")
 	}
 
 	acPowerConstraints := []*model.MeasurementConstraintsDataType{
@@ -280,7 +276,7 @@ func (e *MPC) configureMonitorPower(
 
 			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
 			if parameterDescriptionId == nil {
-				// TODO return error
+				return errors.New("could not add parameter description")
 			}
 		}
 	}
@@ -319,7 +315,7 @@ func (e *MPC) configureMonitorEnergy(
 
 		parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
 		if parameterDescriptionId == nil {
-			// TODO return error
+			return errors.New("could not add parameter description")
 		}
 	}
 
@@ -344,7 +340,7 @@ func (e *MPC) configureMonitorEnergy(
 		}
 		idP4 := electricalConnection.AddParameterDescription(p4)
 		if idP4 == nil {
-			// TODO return error
+			return errors.New("could not add parameter description")
 		}
 	}
 
@@ -358,7 +354,7 @@ func (e *MPC) configureMonitorCurrent(
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
 	if e.currentConfig == nil {
-		return nil // TODO?
+		return nil
 	}
 
 	acCurrentConstraints := []*model.MeasurementConstraintsDataType{
@@ -398,7 +394,7 @@ func (e *MPC) configureMonitorCurrent(
 
 			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
 			if parameterDescriptionId == nil {
-				// TODO return error
+				return errors.New("could not add parameter description")
 			}
 		}
 	}
@@ -473,7 +469,7 @@ func (e *MPC) configureMonitorVoltage(
 
 			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
 			if parameterDescriptionId == nil {
-				// TODO return error
+				return errors.New("could not add parameter description")
 			}
 		}
 	}
@@ -511,7 +507,7 @@ func (e *MPC) configureMonitorFrequency(
 
 	parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
 	if parameterDescriptionId == nil {
-		// TODO return error
+		return errors.New("could not add parameter description")
 	}
 
 	return nil

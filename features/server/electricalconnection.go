@@ -31,6 +31,48 @@ func NewElectricalConnection(localEntity spineapi.EntityLocalInterface) (*Electr
 	return ec, nil
 }
 
+func (e *ElectricalConnection) GetOrAddIdForDescription(
+	electricalConnectionDescription model.ElectricalConnectionDescriptionDataType,
+) (*model.ElectricalConnectionIdType, error) {
+	electricalConnectionId := (*model.ElectricalConnectionIdType)(nil)
+	highestExistingElectricalConnectionId := model.ElectricalConnectionIdType(0)
+
+	descriptionData := e.featureLocal.DataCopy(model.FunctionTypeElectricalConnectionDescriptionListData).(*model.ElectricalConnectionDescriptionListDataType)
+
+	if descriptionData != nil && descriptionData.ElectricalConnectionDescriptionData != nil {
+		for _, description := range descriptionData.ElectricalConnectionDescriptionData {
+			if description.ElectricalConnectionId != nil &&
+				description.PowerSupplyType == electricalConnectionDescription.PowerSupplyType &&
+				description.AcConnectedPhases == electricalConnectionDescription.AcConnectedPhases &&
+				description.AcRmsPeriodDuration == electricalConnectionDescription.AcRmsPeriodDuration &&
+				description.PositiveEnergyDirection == electricalConnectionDescription.PositiveEnergyDirection &&
+				description.ScopeType == electricalConnectionDescription.ScopeType &&
+				description.Label == electricalConnectionDescription.Label &&
+				description.Description == electricalConnectionDescription.Description {
+				electricalConnectionId = description.ElectricalConnectionId
+				break
+			} else if description.ElectricalConnectionId != nil {
+				if *description.ElectricalConnectionId > highestExistingElectricalConnectionId {
+					highestExistingElectricalConnectionId = *description.ElectricalConnectionId
+				}
+			}
+		}
+	}
+
+	if electricalConnectionId == nil {
+		electricalConnectionId = util.Ptr(highestExistingElectricalConnectionId + 1)
+		description := electricalConnectionDescription
+		description.ElectricalConnectionId = electricalConnectionId
+		if errType := e.featureLocal.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionListDataType{
+			ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{description},
+		}, model.NewFilterTypePartial(), nil); errType != nil {
+			return nil, errors.New("could not add description data")
+		}
+	}
+
+	return electricalConnectionId, nil
+}
+
 // Add a new description data set
 //
 // NOTE: the electricalConnectionId has to be provided
