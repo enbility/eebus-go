@@ -2,6 +2,7 @@ package mgcp
 
 import (
 	"github.com/enbility/eebus-go/api"
+	"github.com/enbility/eebus-go/features/server"
 	"github.com/enbility/eebus-go/mocks"
 	"github.com/enbility/eebus-go/service"
 	shipapi "github.com/enbility/ship-go/api"
@@ -12,13 +13,14 @@ import (
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"slices"
 	"testing"
 	"time"
 )
 
 const remoteSki string = "testremoteski"
 
-func TestMuMPCSuite(t *testing.T) {
+func TestMuMPCPublicSuite(t *testing.T) {
 	suite.Run(t, new(GcpMpcgSuite))
 }
 
@@ -37,6 +39,7 @@ type GcpMpcgSuite struct {
 	deviceConfigurationFeature spineapi.FeatureLocalInterface
 
 	eventCalled bool
+	localEntity spineapi.EntityLocalInterface
 }
 
 func (s *GcpMpcgSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
@@ -59,26 +62,18 @@ func (s *GcpMpcgSuite) BeforeTest(suiteName, testName string) {
 	s.service = service.NewService(configuration, serviceHandler)
 	_ = s.service.Setup()
 
-	mockRemoteDevice := spinemocks.NewDeviceRemoteInterface(s.T())
-	s.mockRemoteEntity = spinemocks.NewEntityRemoteInterface(s.T())
-	mockRemoteFeature := spinemocks.NewFeatureRemoteInterface(s.T())
-	mockRemoteDevice.EXPECT().FeatureByEntityTypeAndRole(mock.Anything, mock.Anything, mock.Anything).Return(mockRemoteFeature).Maybe()
-	mockRemoteDevice.EXPECT().Ski().Return(remoteSki).Maybe()
-	s.mockRemoteEntity.EXPECT().Device().Return(mockRemoteDevice).Maybe()
-	s.mockRemoteEntity.EXPECT().EntityType().Return(mock.Anything).Maybe()
-	entityAddress := &model.EntityAddressType{}
-	s.mockRemoteEntity.EXPECT().Address().Return(entityAddress).Maybe()
-	mockRemoteFeature.EXPECT().DataCopy(mock.Anything).Return(mock.Anything).Maybe()
-	mockRemoteFeature.EXPECT().Address().Return(&model.FeatureAddressType{}).Maybe()
-	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
-
-	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
-	s.sut = NewMGCP(
-		localEntity,
+	s.localEntity = s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+	s.sut, _ = NewMGCP(
+		s.localEntity,
 		s.Event,
 		&MonitorPvFeedInPowerLimitationFactorConfig{},
 		&MonitorPowerConfig{
 			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
 		},
 		&MonitorEnergyConfig{
 			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
@@ -102,8 +97,68 @@ func (s *GcpMpcgSuite) BeforeTest(suiteName, testName string) {
 		},
 	)
 
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
+}
 
-	//s.remoteDevice, s.monitoredEntity = setupDevices(s.service, s.T())
+func (s *GcpMpcgSuite) measurementPhaseSpecificDataForFilter(
+	measurementFilter model.MeasurementDescriptionDataType,
+	energyDirection model.EnergyDirectionType,
+	validPhaseNameTypes []model.ElectricalConnectionPhaseNameType,
+) ([]float64, error) {
+	measurements, err := server.NewMeasurement(s.sut.LocalEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	electricalConnection, err := server.NewElectricalConnection(s.sut.LocalEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := measurements.GetDataForFilter(measurementFilter)
+	if err != nil || len(data) == 0 {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	var result []float64
+
+	for _, item := range data {
+		if item.Value == nil || item.MeasurementId == nil {
+			continue
+		}
+
+		if validPhaseNameTypes != nil {
+			filter := model.ElectricalConnectionParameterDescriptionDataType{
+				MeasurementId: item.MeasurementId,
+			}
+			param, err := electricalConnection.GetParameterDescriptionsForFilter(filter)
+			if err != nil || len(param) == 0 ||
+				param[0].AcMeasuredPhases == nil ||
+				!slices.Contains(validPhaseNameTypes, *param[0].AcMeasuredPhases) {
+				continue
+			}
+		}
+
+		if energyDirection != "" {
+			filter := model.ElectricalConnectionParameterDescriptionDataType{
+				MeasurementId: item.MeasurementId,
+			}
+			desc, err := electricalConnection.GetDescriptionForParameterDescriptionFilter(filter)
+			if err != nil || desc == nil {
+				continue
+			}
+
+			// if energy direction is not consume
+			if desc.PositiveEnergyDirection == nil || *desc.PositiveEnergyDirection != energyDirection {
+				return nil, err
+			}
+		}
+
+		value := item.Value.GetValue()
+
+		result = append(result, value)
+	}
+
+	return result, nil
 }
