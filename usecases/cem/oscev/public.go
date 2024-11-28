@@ -52,10 +52,10 @@ func (e *OSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64,
 		if measId == nil {
 			return nil, nil, nil, api.ErrDataNotAvailable
 		}
-		filter := model.MeasurementDescriptionDataType{
+		md := model.MeasurementDescriptionDataType{
 			MeasurementId: measId,
 		}
-		measDescs = append(measDescs, filter)
+		measDescs = append(measDescs, md)
 	}
 	return ec.GetPhaseCurrentLimits(measDescs)
 }
