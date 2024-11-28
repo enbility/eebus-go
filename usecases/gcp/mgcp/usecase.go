@@ -65,60 +65,74 @@ func NewMGCP(
 	}
 
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeGridConnectionPoint}
-	useCaseScenarios := []api.UseCaseScenario{
-		{
+	useCaseScenarios := make([]api.UseCaseScenario, 0)
+
+	if monitorFeedInLimitationConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:       model.UseCaseScenarioSupportType(1),
 			Mandatory:      false,
 			ServerFeatures: []model.FeatureTypeType{model.FeatureTypeTypeDeviceConfiguration},
+		})
+	}
+
+	useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
+		Scenario:  model.UseCaseScenarioSupportType(2),
+		Mandatory: true,
+		ServerFeatures: []model.FeatureTypeType{
+			model.FeatureTypeTypeMeasurement,
+			model.FeatureTypeTypeElectricalConnection,
 		},
-		{
-			Scenario:  model.UseCaseScenarioSupportType(2),
-			Mandatory: true,
-			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeMeasurement,
-				model.FeatureTypeTypeElectricalConnection,
-			},
+	})
+
+	useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
+		Scenario:  model.UseCaseScenarioSupportType(3),
+		Mandatory: true,
+		ServerFeatures: []model.FeatureTypeType{
+			model.FeatureTypeTypeMeasurement,
+			model.FeatureTypeTypeElectricalConnection,
 		},
-		{
-			Scenario:  model.UseCaseScenarioSupportType(3),
-			Mandatory: true,
-			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeMeasurement,
-				model.FeatureTypeTypeElectricalConnection,
-			},
+	})
+
+	useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
+		Scenario:  model.UseCaseScenarioSupportType(4),
+		Mandatory: false,
+		ServerFeatures: []model.FeatureTypeType{
+			model.FeatureTypeTypeMeasurement,
+			model.FeatureTypeTypeElectricalConnection,
 		},
-		{
-			Scenario:  model.UseCaseScenarioSupportType(4),
-			Mandatory: true,
-			ServerFeatures: []model.FeatureTypeType{
-				model.FeatureTypeTypeMeasurement,
-				model.FeatureTypeTypeElectricalConnection,
-			},
-		},
-		{
+	})
+
+	if monitorCurrentConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:  model.UseCaseScenarioSupportType(5),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
 				model.FeatureTypeTypeMeasurement,
 				model.FeatureTypeTypeElectricalConnection,
 			},
-		},
-		{
+		})
+	}
+
+	if monitorVoltageConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:  model.UseCaseScenarioSupportType(6),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
 				model.FeatureTypeTypeMeasurement,
 				model.FeatureTypeTypeElectricalConnection,
 			},
-		},
-		{
+		})
+	}
+
+	if monitorFrequencyConfig != nil {
+		useCaseScenarios = append(useCaseScenarios, api.UseCaseScenario{
 			Scenario:  model.UseCaseScenarioSupportType(7),
 			Mandatory: false,
 			ServerFeatures: []model.FeatureTypeType{
 				model.FeatureTypeTypeMeasurement,
 				model.FeatureTypeTypeElectricalConnection,
 			},
-		},
+		})
 	}
 
 	usecase := usecase.NewUseCaseBase(
