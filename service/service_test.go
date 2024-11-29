@@ -63,7 +63,7 @@ func (s *ServiceSuite) BeforeTest(suiteName, testName string) {
 
 func (s *ServiceSuite) Test_AddUseCase() {
 	ucMock := mocks.NewUseCaseInterface(s.T())
-	ucMock.EXPECT().AddFeatures().Return().Once()
+	ucMock.EXPECT().AddFeatures().Return(nil).Once()
 	ucMock.EXPECT().AddUseCase().Return().Once()
 
 	s.sut.AddUseCase(ucMock)

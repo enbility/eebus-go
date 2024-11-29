@@ -42,9 +42,20 @@ func (_m *CsLPCInterface) EXPECT() *CsLPCInterface_Expecter {
 }
 
 // AddFeatures provides a mock function for the type CsLPCInterface
-func (_mock *CsLPCInterface) AddFeatures() {
-	_mock.Called()
-	return
+func (_mock *CsLPCInterface) AddFeatures() error {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddFeatures")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func() error); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // CsLPCInterface_AddFeatures_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddFeatures'
@@ -64,13 +75,13 @@ func (_c *CsLPCInterface_AddFeatures_Call) Run(run func()) *CsLPCInterface_AddFe
 	return _c
 }
 
-func (_c *CsLPCInterface_AddFeatures_Call) Return() *CsLPCInterface_AddFeatures_Call {
-	_c.Call.Return()
+func (_c *CsLPCInterface_AddFeatures_Call) Return(err error) *CsLPCInterface_AddFeatures_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *CsLPCInterface_AddFeatures_Call) RunAndReturn(run func()) *CsLPCInterface_AddFeatures_Call {
-	_c.Run(run)
+func (_c *CsLPCInterface_AddFeatures_Call) RunAndReturn(run func() error) *CsLPCInterface_AddFeatures_Call {
+	_c.Call.Return(run)
 	return _c
 }
 

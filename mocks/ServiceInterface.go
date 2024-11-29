@@ -40,9 +40,20 @@ func (_m *ServiceInterface) EXPECT() *ServiceInterface_Expecter {
 }
 
 // AddUseCase provides a mock function for the type ServiceInterface
-func (_mock *ServiceInterface) AddUseCase(useCase api.UseCaseInterface) {
-	_mock.Called(useCase)
-	return
+func (_mock *ServiceInterface) AddUseCase(useCase api.UseCaseInterface) error {
+	ret := _mock.Called(useCase)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddUseCase")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(api.UseCaseInterface) error); ok {
+		r0 = returnFunc(useCase)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // ServiceInterface_AddUseCase_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddUseCase'
@@ -69,13 +80,13 @@ func (_c *ServiceInterface_AddUseCase_Call) Run(run func(useCase api.UseCaseInte
 	return _c
 }
 
-func (_c *ServiceInterface_AddUseCase_Call) Return() *ServiceInterface_AddUseCase_Call {
-	_c.Call.Return()
+func (_c *ServiceInterface_AddUseCase_Call) Return(err error) *ServiceInterface_AddUseCase_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *ServiceInterface_AddUseCase_Call) RunAndReturn(run func(useCase api.UseCaseInterface)) *ServiceInterface_AddUseCase_Call {
-	_c.Run(run)
+func (_c *ServiceInterface_AddUseCase_Call) RunAndReturn(run func(useCase api.UseCaseInterface) error) *ServiceInterface_AddUseCase_Call {
+	_c.Call.Return(run)
 	return _c
 }
 
