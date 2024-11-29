@@ -1,14 +1,15 @@
 package mpc
 
 import (
+	"testing"
+	"time"
+
 	"github.com/enbility/eebus-go/features/server"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type MuMpcAbcSuite struct {
@@ -16,6 +17,7 @@ type MuMpcAbcSuite struct {
 	*MuMPCSuite
 }
 
+// Test suite testing an MPC MonitoredUnit that supports 3-phase metering (phases ABC)
 func TestMuMpcAbcSuite(t *testing.T) {
 	suite.Run(t, new(MuMpcAbcSuite))
 }
@@ -31,7 +33,11 @@ func (s *MuMpcAbcSuite) BeforeTest(suiteName, testName string) {
 			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 		},
 		&MonitorEnergyConfig{
-			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourceProduction: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueConstraintsProduction: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueStepSize: model.NewScaledNumberType(0.001),
+			}),
 			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 		},
 		&MonitorCurrentConfig{

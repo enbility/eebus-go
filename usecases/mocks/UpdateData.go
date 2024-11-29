@@ -5,7 +5,6 @@
 package mocks
 
 import (
-	"github.com/enbility/eebus-go/api"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -34,50 +33,6 @@ type UpdateData_Expecter struct {
 
 func (_m *UpdateData) EXPECT() *UpdateData_Expecter {
 	return &UpdateData_Expecter{mock: &_m.Mock}
-}
-
-// MeasurementData provides a mock function for the type UpdateData
-func (_mock *UpdateData) MeasurementData() api.MeasurementDataForID {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for MeasurementData")
-	}
-
-	var r0 api.MeasurementDataForID
-	if returnFunc, ok := ret.Get(0).(func() api.MeasurementDataForID); ok {
-		r0 = returnFunc()
-	} else {
-		r0 = ret.Get(0).(api.MeasurementDataForID)
-	}
-	return r0
-}
-
-// UpdateData_MeasurementData_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MeasurementData'
-type UpdateData_MeasurementData_Call struct {
-	*mock.Call
-}
-
-// MeasurementData is a helper method to define mock.On call
-func (_e *UpdateData_Expecter) MeasurementData() *UpdateData_MeasurementData_Call {
-	return &UpdateData_MeasurementData_Call{Call: _e.mock.On("MeasurementData")}
-}
-
-func (_c *UpdateData_MeasurementData_Call) Run(run func()) *UpdateData_MeasurementData_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *UpdateData_MeasurementData_Call) Return(measurementDataForID api.MeasurementDataForID) *UpdateData_MeasurementData_Call {
-	_c.Call.Return(measurementDataForID)
-	return _c
-}
-
-func (_c *UpdateData_MeasurementData_Call) RunAndReturn(run func() api.MeasurementDataForID) *UpdateData_MeasurementData_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // NotSupportedError provides a mock function for the type UpdateData

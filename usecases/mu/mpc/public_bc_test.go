@@ -1,13 +1,14 @@
 package mpc
 
 import (
+	"testing"
+	"time"
+
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type MuMpcBcSuite struct {
@@ -15,6 +16,7 @@ type MuMpcBcSuite struct {
 	*MuMPCSuite
 }
 
+// Test suite testing an MPC MonitoredUnit that supports metering for 2 phases (phases AB)
 func TestMuMpcAbSuite(t *testing.T) {
 	suite.Run(t, new(MuMpcBcSuite))
 }

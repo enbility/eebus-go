@@ -17,6 +17,7 @@ type MuMpcConstraintSuite struct {
 	*MuMPCSuite
 }
 
+// Test suite testing an MPC MonitoredUnit that uses ValueConstraints on its measurements
 func TestMuMpcConstraintSuite(t *testing.T) {
 	suite.Run(t, new(MuMpcConstraintSuite))
 }

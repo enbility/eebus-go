@@ -2,6 +2,7 @@ package mpc
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -189,6 +190,8 @@ func (e *MPC) AddFeatures() error {
 		}
 	}
 
+	// if any of the configured measurements set constraints, update the
+	// measurementFeature with those accumulated constraints
 	if len(constraints) > 0 {
 		measurementFeature.UpdateData(
 			model.FunctionTypeMeasurementConstraintsListData,
@@ -218,6 +221,8 @@ func (e *MPC) configureMonitorPower(
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
 	})
 
+	// if constraints are configured for acPowerTotal, set the
+	// constraint id and update measurementsConstraintData
 	if e.powerConfig.ValueConstraintsTotal != nil {
 		e.powerConfig.ValueConstraintsTotal.MeasurementId = e.acPowerTotal
 		*measurementsConstraintData = append(*measurementsConstraintData, *e.powerConfig.ValueConstraintsTotal)
@@ -259,6 +264,8 @@ func (e *MPC) configureMonitorPower(
 				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
 			})
 
+			// if constraints are configured for acPower[id], set the
+			// constraint id and update measurementsConstraintData
 			if acPowerConstraints[id] != nil {
 				acPowerConstraints[id].MeasurementId = e.acPower[id]
 				*measurementsConstraintData = append(*measurementsConstraintData, *acPowerConstraints[id])
@@ -301,6 +308,9 @@ func (e *MPC) configureMonitorEnergy(
 			Unit:            util.Ptr(model.UnitOfMeasurementTypeWh),
 			ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
 		})
+
+		// if constraints are configured for acEnergyConsumed, set the
+		// constraint id and update measurementsConstraintData
 		if e.energyConfig.ValueConstraintsConsumption != nil {
 			e.energyConfig.ValueConstraintsConsumption.MeasurementId = e.acEnergyConsumed
 			*measurementsConstraintData = append(*measurementsConstraintData, *e.energyConfig.ValueConstraintsConsumption)
@@ -327,6 +337,8 @@ func (e *MPC) configureMonitorEnergy(
 			ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
 		})
 
+		// if constraints are configured for acEnergyProduced, set the
+		// constraint id and update measurementsConstraintData
 		if e.energyConfig.ValueConstraintsProduction != nil {
 			e.energyConfig.ValueConstraintsProduction.MeasurementId = e.acEnergyProduced
 			*measurementsConstraintData = append(*measurementsConstraintData, *e.energyConfig.ValueConstraintsProduction)
@@ -378,6 +390,8 @@ func (e *MPC) configureMonitorCurrent(
 				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
 			})
 
+			// if constraints are configured for acCurrent[id], set the
+			// constraint id and update measurementsConstraintData
 			if acCurrentConstraints[id] != nil {
 				acCurrentConstraints[id].MeasurementId = e.acCurrent[id]
 				*measurementsConstraintData = append(*measurementsConstraintData, *acCurrentConstraints[id])
@@ -441,6 +455,7 @@ func (e *MPC) configureMonitorVoltage(
 
 	for id := 0; id < len(e.acVoltage); id++ {
 		if e.powerConfig.SupportsPhases(phases[id]) {
+			// skip PhaseToPhase voltages if they're not supported
 			if len(phases[id]) == 2 && !e.voltageConfig.SupportPhaseToPhase {
 				continue
 			}
@@ -452,6 +467,8 @@ func (e *MPC) configureMonitorVoltage(
 				ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 			})
 
+			// if constraints are configured for acVoltage[id], set the
+			// constraint id and update measurementsConstraintData
 			if acVoltageConstraints[id] != nil {
 				acVoltageConstraints[id].MeasurementId = e.acVoltage[id]
 				*measurementsConstraintData = append(*measurementsConstraintData, *acVoltageConstraints[id])
@@ -494,6 +511,8 @@ func (e *MPC) configureMonitorFrequency(
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
 	})
 
+	// if constraints are configured for acFrequency, set the
+	// constraint id and update measurementsConstraintData
 	if e.frequencyConfig.ValueConstraints != nil {
 		e.frequencyConfig.ValueConstraints.MeasurementId = e.acFrequency
 		*measurementsConstraintData = append(*measurementsConstraintData, *e.frequencyConfig.ValueConstraints)

@@ -56,6 +56,15 @@ type UseCaseBaseInterface interface {
 type UseCaseInterface interface {
 	UseCaseBaseInterface
 
-	// add the features
+	// add the features described by the Use Case
+	//
+	// returns an error if any Feature could not be added
+	// - errors should not occur during normal usage of eebus-go, and should
+	//   generally be considered fatal implementation errors
+	// - if an error occurs while adding features to a new Entity, that Entity
+	//   will be in an incomplete state and should not be added to the service
+	//
+	// No cleanup occurs on error, some features may end up partially
+	// configured and unused
 	AddFeatures() error
 }

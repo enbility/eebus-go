@@ -362,7 +362,7 @@ func (_c *MuMPCInterface_PowerPerPhase_Call) RunAndReturn(run func() ([]float64,
 }
 
 // Update provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) Update(data ...api.UpdateData) error {
+func (_mock *MuMPCInterface) Update(data ...api.UpdateMeasurementData) error {
 	var tmpRet mock.Arguments
 	if len(data) > 0 {
 		tmpRet = _mock.Called(data)
@@ -376,7 +376,7 @@ func (_mock *MuMPCInterface) Update(data ...api.UpdateData) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(...api.UpdateData) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(...api.UpdateMeasurementData) error); ok {
 		r0 = returnFunc(data...)
 	} else {
 		r0 = ret.Error(0)
@@ -390,18 +390,18 @@ type MuMPCInterface_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - data ...api.UpdateData
+//   - data ...api.UpdateMeasurementData
 func (_e *MuMPCInterface_Expecter) Update(data ...interface{}) *MuMPCInterface_Update_Call {
 	return &MuMPCInterface_Update_Call{Call: _e.mock.On("Update",
 		append([]interface{}{}, data...)...)}
 }
 
-func (_c *MuMPCInterface_Update_Call) Run(run func(data ...api.UpdateData)) *MuMPCInterface_Update_Call {
+func (_c *MuMPCInterface_Update_Call) Run(run func(data ...api.UpdateMeasurementData)) *MuMPCInterface_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []api.UpdateData
-		var variadicArgs []api.UpdateData
+		var arg0 []api.UpdateMeasurementData
+		var variadicArgs []api.UpdateMeasurementData
 		if len(args) > 0 {
-			variadicArgs = args[0].([]api.UpdateData)
+			variadicArgs = args[0].([]api.UpdateMeasurementData)
 		}
 		arg0 = variadicArgs
 		run(
@@ -416,25 +416,25 @@ func (_c *MuMPCInterface_Update_Call) Return(err error) *MuMPCInterface_Update_C
 	return _c
 }
 
-func (_c *MuMPCInterface_Update_Call) RunAndReturn(run func(data ...api.UpdateData) error) *MuMPCInterface_Update_Call {
+func (_c *MuMPCInterface_Update_Call) RunAndReturn(run func(data ...api.UpdateMeasurementData) error) *MuMPCInterface_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataCurrentPhaseA provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataCurrentPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataCurrentPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataCurrentPhaseA")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -476,30 +476,30 @@ func (_c *MuMPCInterface_UpdateDataCurrentPhaseA_Call) Run(run func(value float6
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataCurrentPhaseA_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataCurrentPhaseA_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataCurrentPhaseA_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataCurrentPhaseA_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataCurrentPhaseA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataCurrentPhaseA_Call {
+func (_c *MuMPCInterface_UpdateDataCurrentPhaseA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataCurrentPhaseA_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataCurrentPhaseB provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataCurrentPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataCurrentPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataCurrentPhaseB")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -541,30 +541,30 @@ func (_c *MuMPCInterface_UpdateDataCurrentPhaseB_Call) Run(run func(value float6
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataCurrentPhaseB_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataCurrentPhaseB_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataCurrentPhaseB_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataCurrentPhaseB_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataCurrentPhaseB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataCurrentPhaseB_Call {
+func (_c *MuMPCInterface_UpdateDataCurrentPhaseB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataCurrentPhaseB_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataCurrentPhaseC provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataCurrentPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataCurrentPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataCurrentPhaseC")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -606,30 +606,30 @@ func (_c *MuMPCInterface_UpdateDataCurrentPhaseC_Call) Run(run func(value float6
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataCurrentPhaseC_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataCurrentPhaseC_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataCurrentPhaseC_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataCurrentPhaseC_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataCurrentPhaseC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataCurrentPhaseC_Call {
+func (_c *MuMPCInterface_UpdateDataCurrentPhaseC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataCurrentPhaseC_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataEnergyConsumed provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataEnergyConsumed(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataEnergyConsumed(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState, evaluationStart, evaluationEnd)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataEnergyConsumed")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType, *time.Time, *time.Time) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType, *time.Time, *time.Time) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState, evaluationStart, evaluationEnd)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -683,30 +683,30 @@ func (_c *MuMPCInterface_UpdateDataEnergyConsumed_Call) Run(run func(value float
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataEnergyConsumed_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataEnergyConsumed_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataEnergyConsumed_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataEnergyConsumed_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataEnergyConsumed_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateData) *MuMPCInterface_UpdateDataEnergyConsumed_Call {
+func (_c *MuMPCInterface_UpdateDataEnergyConsumed_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataEnergyConsumed_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataEnergyProduced provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataEnergyProduced(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataEnergyProduced(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState, evaluationStart, evaluationEnd)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataEnergyProduced")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType, *time.Time, *time.Time) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType, *time.Time, *time.Time) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState, evaluationStart, evaluationEnd)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -760,30 +760,30 @@ func (_c *MuMPCInterface_UpdateDataEnergyProduced_Call) Run(run func(value float
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataEnergyProduced_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataEnergyProduced_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataEnergyProduced_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataEnergyProduced_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataEnergyProduced_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateData) *MuMPCInterface_UpdateDataEnergyProduced_Call {
+func (_c *MuMPCInterface_UpdateDataEnergyProduced_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType, evaluationStart *time.Time, evaluationEnd *time.Time) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataEnergyProduced_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataFrequency provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataFrequency(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataFrequency(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataFrequency")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -825,30 +825,30 @@ func (_c *MuMPCInterface_UpdateDataFrequency_Call) Run(run func(value float64, t
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataFrequency_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataFrequency_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataFrequency_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataFrequency_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataFrequency_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataFrequency_Call {
+func (_c *MuMPCInterface_UpdateDataFrequency_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataFrequency_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataPowerPhaseA provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataPowerPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataPowerPhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataPowerPhaseA")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -890,30 +890,30 @@ func (_c *MuMPCInterface_UpdateDataPowerPhaseA_Call) Run(run func(value float64,
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerPhaseA_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataPowerPhaseA_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataPowerPhaseA_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerPhaseA_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerPhaseA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataPowerPhaseA_Call {
+func (_c *MuMPCInterface_UpdateDataPowerPhaseA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerPhaseA_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataPowerPhaseB provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataPowerPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataPowerPhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataPowerPhaseB")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -955,30 +955,30 @@ func (_c *MuMPCInterface_UpdateDataPowerPhaseB_Call) Run(run func(value float64,
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerPhaseB_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataPowerPhaseB_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataPowerPhaseB_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerPhaseB_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerPhaseB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataPowerPhaseB_Call {
+func (_c *MuMPCInterface_UpdateDataPowerPhaseB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerPhaseB_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataPowerPhaseC provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataPowerPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataPowerPhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataPowerPhaseC")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1020,30 +1020,30 @@ func (_c *MuMPCInterface_UpdateDataPowerPhaseC_Call) Run(run func(value float64,
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerPhaseC_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataPowerPhaseC_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataPowerPhaseC_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerPhaseC_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerPhaseC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataPowerPhaseC_Call {
+func (_c *MuMPCInterface_UpdateDataPowerPhaseC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerPhaseC_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataPowerTotal provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataPowerTotal(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataPowerTotal(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataPowerTotal")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1085,30 +1085,30 @@ func (_c *MuMPCInterface_UpdateDataPowerTotal_Call) Run(run func(value float64, 
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerTotal_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataPowerTotal_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataPowerTotal_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerTotal_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataPowerTotal_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataPowerTotal_Call {
+func (_c *MuMPCInterface_UpdateDataPowerTotal_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataPowerTotal_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataVoltagePhaseA provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataVoltagePhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataVoltagePhaseA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataVoltagePhaseA")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1150,30 +1150,30 @@ func (_c *MuMPCInterface_UpdateDataVoltagePhaseA_Call) Run(run func(value float6
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseA_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseA_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseA_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseA_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseA_Call {
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseA_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataVoltagePhaseAToB provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataVoltagePhaseAToB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataVoltagePhaseAToB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataVoltagePhaseAToB")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1215,30 +1215,30 @@ func (_c *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call) Run(run func(value flo
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call {
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseAToB_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataVoltagePhaseB provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataVoltagePhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataVoltagePhaseB(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataVoltagePhaseB")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1280,30 +1280,30 @@ func (_c *MuMPCInterface_UpdateDataVoltagePhaseB_Call) Run(run func(value float6
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseB_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseB_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseB_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseB_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseB_Call {
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseB_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseB_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataVoltagePhaseBToC provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataVoltagePhaseBToC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataVoltagePhaseBToC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataVoltagePhaseBToC")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1345,30 +1345,30 @@ func (_c *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call) Run(run func(value flo
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call {
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseBToC_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataVoltagePhaseC provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataVoltagePhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataVoltagePhaseC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataVoltagePhaseC")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1410,30 +1410,30 @@ func (_c *MuMPCInterface_UpdateDataVoltagePhaseC_Call) Run(run func(value float6
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseC_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseC_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseC_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseC_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseC_Call {
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseC_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseC_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateDataVoltagePhaseCToA provides a mock function for the type MuMPCInterface
-func (_mock *MuMPCInterface) UpdateDataVoltagePhaseCToA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData {
+func (_mock *MuMPCInterface) UpdateDataVoltagePhaseCToA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData {
 	ret := _mock.Called(value, timestamp, valueState)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDataVoltagePhaseCToA")
 	}
 
-	var r0 api.UpdateData
-	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateData); ok {
+	var r0 api.UpdateMeasurementData
+	if returnFunc, ok := ret.Get(0).(func(float64, *time.Time, *model.MeasurementValueStateType) api.UpdateMeasurementData); ok {
 		r0 = returnFunc(value, timestamp, valueState)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(api.UpdateData)
+			r0 = ret.Get(0).(api.UpdateMeasurementData)
 		}
 	}
 	return r0
@@ -1475,12 +1475,12 @@ func (_c *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call) Run(run func(value flo
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call) Return(updateData api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call {
-	_c.Call.Return(updateData)
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call) Return(updateMeasurementData api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call {
+	_c.Call.Return(updateMeasurementData)
 	return _c
 }
 
-func (_c *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateData) *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call {
+func (_c *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call) RunAndReturn(run func(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) api.UpdateMeasurementData) *MuMPCInterface_UpdateDataVoltagePhaseCToA_Call {
 	_c.Call.Return(run)
 	return _c
 }

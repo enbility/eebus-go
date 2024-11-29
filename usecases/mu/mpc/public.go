@@ -1,11 +1,12 @@
 package mpc
 
 import (
+	"time"
+
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
 	usecaseapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
-	"time"
 )
 
 // ------------------------- Getters ------------------------- //
@@ -156,7 +157,7 @@ func (e *MPC) Frequency() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (e *MPC) Update(updateData ...usecaseapi.UpdateData) error {
+func (e *MPC) Update(updateData ...usecaseapi.UpdateMeasurementData) error {
 	measurements, err := server.NewMeasurement(e.LocalEntity)
 	if err != nil {
 		return err
@@ -184,7 +185,7 @@ func (e *MPC) UpdateDataPowerTotal(
 	acPowerTotal float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acPowerTotal is not supported, please check the configuration",
 		e.acPowerTotal,
@@ -206,7 +207,7 @@ func (e *MPC) UpdateDataPowerPhaseA(
 	acPowerPhaseA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acPowerPhaseA is not supported, please check the configuration",
 		e.acPower[0],
@@ -228,7 +229,7 @@ func (e *MPC) UpdateDataPowerPhaseB(
 	acPowerPhaseB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acPowerPhaseB is not supported, please check the configuration",
 		e.acPower[1],
@@ -250,7 +251,7 @@ func (e *MPC) UpdateDataPowerPhaseC(
 	acPowerPhaseC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acPowerPhaseC is not supported, please check the configuration",
 		e.acPower[2],
@@ -277,7 +278,7 @@ func (e *MPC) UpdateDataEnergyConsumed(
 	valueState *model.MeasurementValueStateType,
 	evaluationStart *time.Time,
 	evaluationEnd *time.Time,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acEnergyConsumed is not supported, please check the configuration",
 		e.acEnergyConsumed,
@@ -302,7 +303,7 @@ func (e *MPC) UpdateDataEnergyProduced(
 	valueState *model.MeasurementValueStateType,
 	evaluationStart *time.Time,
 	evaluationEnd *time.Time,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acEnergyProduced is not supported, please check the configuration",
 		e.acEnergyProduced,
@@ -326,7 +327,7 @@ func (e *MPC) UpdateDataCurrentPhaseA(
 	acCurrentPhaseA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acCurrentPhaseA is not supported, please check the configuration",
 		e.acCurrent[0],
@@ -348,7 +349,7 @@ func (e *MPC) UpdateDataCurrentPhaseB(
 	acCurrentPhaseB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acCurrentPhaseB is not supported, please check the configuration",
 		e.acCurrent[1],
@@ -370,7 +371,7 @@ func (e *MPC) UpdateDataCurrentPhaseC(
 	acCurrentPhaseC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acCurrentPhaseC is not supported, please check the configuration",
 		e.acCurrent[2],
@@ -394,7 +395,7 @@ func (e *MPC) UpdateDataVoltagePhaseA(
 	voltagePhaseA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acVoltagePhaseA is not supported, please check the configuration",
 		e.acVoltage[0],
@@ -416,7 +417,7 @@ func (e *MPC) UpdateDataVoltagePhaseB(
 	voltagePhaseB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acVoltagePhaseB is not supported, please check the configuration",
 		e.acVoltage[1],
@@ -438,7 +439,7 @@ func (e *MPC) UpdateDataVoltagePhaseC(
 	voltagePhaseC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acVoltagePhaseC is not supported, please check the configuration",
 		e.acVoltage[2],
@@ -460,7 +461,7 @@ func (e *MPC) UpdateDataVoltagePhaseAToB(
 	voltagePhaseAToB float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acVoltagePhaseAToB is not supported, please check the configuration",
 		e.acVoltage[3],
@@ -482,7 +483,7 @@ func (e *MPC) UpdateDataVoltagePhaseBToC(
 	voltagePhaseBToC float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acVoltagePhaseBToC is not supported, please check the configuration",
 		e.acVoltage[4],
@@ -504,7 +505,7 @@ func (e *MPC) UpdateDataVoltagePhaseCToA(
 	voltagePhaseCToA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acVoltagePhaseCToA is not supported, please check the configuration",
 		e.acVoltage[5],
@@ -528,7 +529,7 @@ func (e *MPC) UpdateDataFrequency(
 	frequency float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
-) usecaseapi.UpdateData {
+) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acFrequency is not supported, please check the configuration",
 		e.acFrequency,
