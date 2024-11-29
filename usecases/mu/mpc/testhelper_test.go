@@ -1,9 +1,10 @@
 package mpc
 
 import (
-	"github.com/enbility/eebus-go/features/server"
 	"slices"
 	"time"
+
+	"github.com/enbility/eebus-go/features/server"
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/mocks"
@@ -12,6 +13,7 @@ import (
 	"github.com/enbility/ship-go/cert"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -78,7 +80,7 @@ func (s *MuMPCSuite) BeforeTest(_, _ string) {
 		s.frequencyConfig,
 	)
 
-	_ = s.sut.AddFeatures()
+	assert.Nil(s.T(), s.sut.AddFeatures())
 	s.sut.AddUseCase()
 }
 

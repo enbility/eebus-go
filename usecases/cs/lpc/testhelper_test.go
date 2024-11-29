@@ -16,6 +16,7 @@ import (
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 	"github.com/enbility/spine-go/util"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -76,7 +77,7 @@ func (s *CsLPCSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewLPC(localEntity, s.Event)
-	_ = s.sut.AddFeatures()
+	assert.Nil(s.T(), s.sut.AddFeatures())
 	s.sut.AddUseCase()
 
 	s.loadControlFeature = localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
