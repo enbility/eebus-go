@@ -11,12 +11,12 @@ func IsDeviceConnected(payload spineapi.EventPayload) bool {
 }
 
 func IsDeviceDisconnected(payload spineapi.EventPayload) bool {
-	return payload.Device != nil &&
+	return len(payload.Ski) > 0 &&
 		payload.EventType == spineapi.EventTypeDeviceChange &&
 		payload.ChangeType == spineapi.ElementChangeRemove
 }
 
-func IsEntityConnected(payload spineapi.EventPayload) bool {
+func IsEntityAdded(payload spineapi.EventPayload) bool {
 	if payload.Entity != nil &&
 		payload.EventType == spineapi.EventTypeEntityChange &&
 		payload.ChangeType == spineapi.ElementChangeAdd {
@@ -26,7 +26,7 @@ func IsEntityConnected(payload spineapi.EventPayload) bool {
 	return false
 }
 
-func IsEntityDisconnected(payload spineapi.EventPayload) bool {
+func IsEntityRemoved(payload spineapi.EventPayload) bool {
 	if payload.Entity != nil &&
 		payload.EventType == spineapi.EventTypeEntityChange &&
 		payload.ChangeType == spineapi.ElementChangeRemove {

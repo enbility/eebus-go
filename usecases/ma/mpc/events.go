@@ -17,7 +17,7 @@ func (e *MPC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityConnected(payload) {
+	if internal.IsEntityAdded(payload) {
 		e.deviceConnected(payload.Entity)
 		return
 	}

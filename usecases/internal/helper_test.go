@@ -28,6 +28,7 @@ func (s *InternalSuite) Test_IsDeviceDisconnected() {
 
 	device := mocks.NewDeviceRemoteInterface(s.T())
 	payload = spineapi.EventPayload{
+		Ski:        "12345",
 		Device:     device,
 		EventType:  spineapi.EventTypeDeviceChange,
 		ChangeType: spineapi.ElementChangeRemove,
@@ -36,9 +37,9 @@ func (s *InternalSuite) Test_IsDeviceDisconnected() {
 	assert.Equal(s.T(), true, result)
 }
 
-func (s *InternalSuite) Test_IsEntityConnected() {
+func (s *InternalSuite) Test_IsEntityAdded() {
 	payload := spineapi.EventPayload{}
-	result := IsEntityConnected(payload)
+	result := IsEntityAdded(payload)
 	assert.Equal(s.T(), false, result)
 
 	payload = spineapi.EventPayload{
@@ -46,13 +47,13 @@ func (s *InternalSuite) Test_IsEntityConnected() {
 		EventType:  spineapi.EventTypeEntityChange,
 		ChangeType: spineapi.ElementChangeAdd,
 	}
-	result = IsEntityConnected(payload)
+	result = IsEntityAdded(payload)
 	assert.Equal(s.T(), true, result)
 }
 
-func (s *InternalSuite) Test_IsEntityDisconnected() {
+func (s *InternalSuite) Test_IsEntityRemoved() {
 	payload := spineapi.EventPayload{}
-	result := IsEntityDisconnected(payload)
+	result := IsEntityRemoved(payload)
 	assert.Equal(s.T(), false, result)
 
 	payload = spineapi.EventPayload{
@@ -60,6 +61,6 @@ func (s *InternalSuite) Test_IsEntityDisconnected() {
 		EventType:  spineapi.EventTypeEntityChange,
 		ChangeType: spineapi.ElementChangeRemove,
 	}
-	result = IsEntityDisconnected(payload)
+	result = IsEntityRemoved(payload)
 	assert.Equal(s.T(), true, result)
 }

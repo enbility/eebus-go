@@ -76,6 +76,16 @@ func (s *UseCaseSuite) Test_AvailableScenarios() {
 
 	result = s.uc.RemoteEntitiesScenarios()
 	assert.Equal(s.T(), 0, len(result))
+
+	s.uc.updateRemoteEntityScenarios(s.monitoredEntity, []model.UseCaseScenarioSupportType{1, 2, 3})
+
+	result = s.uc.RemoteEntitiesScenarios()
+	assert.Equal(s.T(), 1, len(result))
+
+	s.uc.removeDeviceFromAvailableEntityScenarios(s.monitoredEntity.Device().Ski())
+
+	result = s.uc.RemoteEntitiesScenarios()
+	assert.Equal(s.T(), 0, len(result))
 }
 
 func (s *UseCaseSuite) Test_RequiredServerFeatures() {

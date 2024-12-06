@@ -11,12 +11,16 @@ func (s *UseCaseSuite) Test_HandleEvent() {
 	payload := spineapi.EventPayload{}
 	s.uc.HandleEvent(payload)
 
+	payload.Ski = "test"
 	payload.Device = s.remoteDevice
 	payload.EventType = spineapi.EventTypeDeviceChange
 	payload.ChangeType = spineapi.ElementChangeRemove
 	s.uc.HandleEvent(payload)
 
+	payload.EventType = spineapi.EventTypeEntityChange
 	payload.Entity = s.remoteDevice.Entities()[0]
+	s.uc.HandleEvent(payload)
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.Data = &model.NodeManagementUseCaseDataType{}
