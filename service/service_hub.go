@@ -7,11 +7,18 @@ import (
 var _ shipapi.HubReaderInterface = (*Service)(nil)
 
 // report a connection to a SKI
+//
+// is triggered whenever a SHIP connected was successful completed
 func (s *Service) RemoteSKIConnected(ski string) {
 	s.serviceHandler.RemoteSKIConnected(s, ski)
 }
 
 // report a disconnection to a SKI
+//
+// is triggered whenever a SHIP connect was closed, is also triggered when the SHIP
+// process wasn't successfully completed
+//
+// NOTE: The connection may not have been reported as connected before!
 func (s *Service) RemoteSKIDisconnected(ski string) {
 	if s.spineLocalDevice != nil {
 		s.spineLocalDevice.RemoveRemoteDeviceConnection(ski)
