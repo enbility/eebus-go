@@ -26,9 +26,10 @@ func (u *UseCaseBase) HandleEvent(payload spineapi.EventPayload) {
 func (u *UseCaseBase) deviceOrEntityRemoved(payload spineapi.EventPayload) bool {
 	if payload.EventType == spineapi.EventTypeDeviceChange &&
 		payload.ChangeType == spineapi.ElementChangeRemove &&
+		payload.Device != nil &&
 		payload.Entity == nil {
 		// device was disconnected, remove all usecases related to this device
-		u.removeDeviceFromAvailableEntityScenarios(payload.Ski)
+		u.removeDeviceFromAvailableEntityScenarios(payload.Device)
 		return true
 	}
 

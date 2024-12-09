@@ -145,16 +145,18 @@ func (u *UseCaseBase) IsScenarioAvailableAtEntity(
 }
 
 // return the indices of all entities of the device in the available entity scenarios
-func (u *UseCaseBase) entityScenarioIndicesOfSki(ski string) []int {
+func (u *UseCaseBase) entityScenarioIndicesOfDevice(device spineapi.DeviceRemoteInterface) []int {
 	u.mux.Lock()
 	defer u.mux.Unlock()
 
 	indices := []int{}
 
 	for i, remoteEntityScenarios := range u.availableEntityScenarios {
-		if remoteEntityScenarios.Entity != nil &&
+		if device != nil && device.Address() != nil &&
+			remoteEntityScenarios.Entity != nil &&
 			remoteEntityScenarios.Entity.Device() != nil &&
-			remoteEntityScenarios.Entity.Device().Ski() == ski {
+			remoteEntityScenarios.Entity.Device().Address() != nil &&
+			reflect.DeepEqual(device.Address(), remoteEntityScenarios.Entity.Device().Address()) {
 			indices = append(indices, i)
 		}
 	}
@@ -169,7 +171,8 @@ func (u *UseCaseBase) entitiyScenarioIndexOfEntity(entity spineapi.EntityRemoteI
 	defer u.mux.Unlock()
 
 	for i, remoteEntityScenarios := range u.availableEntityScenarios {
-		if entity != nil && entity.Address() != nil && remoteEntityScenarios.Entity.Address() != nil &&
+		if entity != nil && entity.Address() != nil &&
+			remoteEntityScenarios.Entity != nil && remoteEntityScenarios.Entity.Address() != nil &&
 			reflect.DeepEqual(entity.Address().Device, remoteEntityScenarios.Entity.Address().Device) &&
 			reflect.DeepEqual(entity.Address().Entity, remoteEntityScenarios.Entity.Address().Entity) {
 			return i, remoteEntityScenarios.Scenarios
@@ -217,17 +220,15 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 }
 
 // remove all remote entities of a device from the use case
-func (u *UseCaseBase) removeDeviceFromAvailableEntityScenarios(ski string) {
-	remoteDevice := u.LocalEntity.Device().RemoteDeviceForSki(ski)
-
-	indicies := u.entityScenarioIndicesOfSki(ski)
+func (u *UseCaseBase) removeDeviceFromAvailableEntityScenarios(device spineapi.DeviceRemoteInterface) {
+	indicies := u.entityScenarioIndicesOfDevice(device)
 
 	for i := range indicies {
 		u.removeEntityIndexFromAvailableEntityScenarios(i)
 	}
 
 	if u.EventCB != nil && len(indicies) > 0 {
-		u.EventCB(ski, remoteDevice, nil, u.useCaseUpdateEvent)
+		u.EventCB(device.Ski(), device, nil, u.useCaseUpdateEvent)
 	}
 }
 
