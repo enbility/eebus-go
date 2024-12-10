@@ -43,6 +43,33 @@ func (s *UseCaseSuite) Test() {
 	assert.False(s.T(), result)
 }
 
+func (s *UseCaseSuite) Test_RemoveDeviceScenarios() {
+	result := s.uc.RemoteEntitiesScenarios()
+	assert.Equal(s.T(), 0, len(result))
+
+	scenarios := s.uc.AvailableScenariosForEntity(s.monitoredEntity)
+	assert.Equal(s.T(), 0, len(scenarios))
+
+	ok := s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1)
+	assert.False(s.T(), ok)
+
+	s.uc.updateRemoteEntityScenarios(s.monitoredEntity, []model.UseCaseScenarioSupportType{1, 2, 3})
+
+	result = s.uc.RemoteEntitiesScenarios()
+	assert.Equal(s.T(), 1, len(result))
+
+	scenarios = s.uc.AvailableScenariosForEntity(s.monitoredEntity)
+	assert.Equal(s.T(), 3, len(scenarios))
+
+	s.uc.removeDeviceFromAvailableEntityScenarios(s.monitoredEntity.Device())
+
+	result = s.uc.RemoteEntitiesScenarios()
+	assert.Equal(s.T(), 0, len(result))
+
+	scenarios = s.uc.AvailableScenariosForEntity(s.monitoredEntity)
+	assert.Equal(s.T(), 0, len(scenarios))
+}
+
 func (s *UseCaseSuite) Test_AvailableScenarios() {
 	result := s.uc.RemoteEntitiesScenarios()
 	assert.Equal(s.T(), 0, len(result))

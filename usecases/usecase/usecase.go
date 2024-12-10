@@ -223,7 +223,7 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 func (u *UseCaseBase) removeDeviceFromAvailableEntityScenarios(device spineapi.DeviceRemoteInterface) {
 	indicies := u.entityScenarioIndicesOfDevice(device)
 
-	for i := range indicies {
+	for _, i := range indicies {
 		u.removeEntityIndexFromAvailableEntityScenarios(i)
 	}
 
