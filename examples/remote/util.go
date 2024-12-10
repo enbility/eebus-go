@@ -25,11 +25,23 @@ func isExportedOrBuiltinType(t reflect.Type) bool {
 	return token.IsExported(t.Name()) || t.PkgPath() == ""
 }
 
+// json.Marshall won't marshall error types, marshall as string
+func errorAsJson(v reflect.Value) interface{} {
+	if v.IsNil() {
+		// passthrough nil as nil, otherwise nil.(error) will panic
+		return nil
+	} else {
+		return v.Interface().(error).Error()
+	}
+}
+
 func transformReturnValues(values []reflect.Value) []interface{} {
 	result := make([]interface{}, len(values))
 
 	for i, e := range values {
-		switch e.Type() {
+		valueType := e.Type()
+
+		switch valueType {
 		case reflect.TypeFor[spineapi.DeviceRemoteInterface]():
 			result[i] = e.Interface().(spineapi.DeviceRemoteInterface).Address()
 		case reflect.TypeFor[[]spineapi.DeviceRemoteInterface]():
@@ -51,12 +63,18 @@ func transformReturnValues(values []reflect.Value) []interface{} {
 			}
 			result[i] = transformedValues
 		default:
-			result[i] = e.Interface()
+			switch {
+			case valueType.Implements(reflect.TypeFor[error]()):
+				result[i] = errorAsJson(e)
+			default:
+				result[i] = e.Interface()
+			}
 		}
 	}
 
 	return result
 }
+
 func WriteKey(cert tls.Certificate, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
