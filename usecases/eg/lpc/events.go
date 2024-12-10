@@ -14,7 +14,7 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
-	if internal.IsEntityConnected(payload) {
+	if internal.IsEntityAdded(payload) {
 		e.connected(payload.Entity)
 		return
 	}

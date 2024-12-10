@@ -127,7 +127,7 @@ func (u *UseCaseBase) RemoteEntitiesScenarios() []api.RemoteEntityScenarios {
 
 // return the currently available scenarios for the use case for a remote entity
 func (u *UseCaseBase) AvailableScenariosForEntity(entity spineapi.EntityRemoteInterface) []uint {
-	_, scenarios := u.indexAndScenariosOfEntity(entity)
+	_, scenarios := u.entitiyScenarioIndexOfEntity(entity)
 
 	return scenarios
 }
@@ -137,24 +137,45 @@ func (u *UseCaseBase) IsScenarioAvailableAtEntity(
 	entity spineapi.EntityRemoteInterface,
 	scenario uint,
 ) bool {
-	if _, scenarios := u.indexAndScenariosOfEntity(entity); scenarios != nil {
+	if _, scenarios := u.entitiyScenarioIndexOfEntity(entity); scenarios != nil {
 		return slices.Contains(scenarios, scenario)
 	}
 
 	return false
 }
 
-// return the index and the scenarios of the entity in the available entity scenarios
-// and return -1 and nil if not found
-func (u *UseCaseBase) indexAndScenariosOfEntity(entity spineapi.EntityRemoteInterface) (int, []uint) {
+// return the indices of all entities of the device in the available entity scenarios
+func (u *UseCaseBase) entityScenarioIndicesOfDevice(device spineapi.DeviceRemoteInterface) []int {
 	u.mux.Lock()
 	defer u.mux.Unlock()
 
-	for i, remoteEntity := range u.availableEntityScenarios {
-		if entity != nil && entity.Address() != nil && remoteEntity.Entity.Address() != nil &&
-			reflect.DeepEqual(entity.Address().Device, remoteEntity.Entity.Address().Device) &&
-			reflect.DeepEqual(entity.Address().Entity, remoteEntity.Entity.Address().Entity) {
-			return i, remoteEntity.Scenarios
+	indices := []int{}
+
+	for i, remoteEntityScenarios := range u.availableEntityScenarios {
+		if device != nil && device.Address() != nil &&
+			remoteEntityScenarios.Entity != nil &&
+			remoteEntityScenarios.Entity.Device() != nil &&
+			remoteEntityScenarios.Entity.Device().Address() != nil &&
+			reflect.DeepEqual(device.Address(), remoteEntityScenarios.Entity.Device().Address()) {
+			indices = append(indices, i)
+		}
+	}
+
+	return indices
+}
+
+// return the index and the scenarios of the entity in the available entity scenarios
+// and return -1 and nil if not found
+func (u *UseCaseBase) entitiyScenarioIndexOfEntity(entity spineapi.EntityRemoteInterface) (int, []uint) {
+	u.mux.Lock()
+	defer u.mux.Unlock()
+
+	for i, remoteEntityScenarios := range u.availableEntityScenarios {
+		if entity != nil && entity.Address() != nil &&
+			remoteEntityScenarios.Entity != nil && remoteEntityScenarios.Entity.Address() != nil &&
+			reflect.DeepEqual(entity.Address().Device, remoteEntityScenarios.Entity.Address().Device) &&
+			reflect.DeepEqual(entity.Address().Entity, remoteEntityScenarios.Entity.Address().Entity) {
+			return i, remoteEntityScenarios.Scenarios
 		}
 	}
 
@@ -173,7 +194,7 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 		scenarioValues = append(scenarioValues, uint(scenario))
 	}
 
-	i, _ := u.indexAndScenariosOfEntity(entity)
+	i, _ := u.entitiyScenarioIndexOfEntity(entity)
 	if i == -1 {
 		newItem := api.RemoteEntityScenarios{
 			Entity:    entity,
@@ -198,17 +219,36 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 	}
 }
 
+// remove all remote entities of a device from the use case
+func (u *UseCaseBase) removeDeviceFromAvailableEntityScenarios(device spineapi.DeviceRemoteInterface) {
+	indicies := u.entityScenarioIndicesOfDevice(device)
+
+	for _, i := range indicies {
+		u.removeEntityIndexFromAvailableEntityScenarios(i)
+	}
+
+	if u.EventCB != nil && len(indicies) > 0 {
+		u.EventCB(device.Ski(), device, nil, u.useCaseUpdateEvent)
+	}
+}
+
 // remove a remote entity from the use case
 func (u *UseCaseBase) removeEntityFromAvailableEntityScenarios(entity spineapi.EntityRemoteInterface) {
-	if i, _ := u.indexAndScenariosOfEntity(entity); i >= 0 {
-		u.mux.Lock()
-		u.availableEntityScenarios = append(u.availableEntityScenarios[:i], u.availableEntityScenarios[i+1:]...)
-		u.mux.Unlock()
+	if i, _ := u.entitiyScenarioIndexOfEntity(entity); i >= 0 {
+		u.removeEntityIndexFromAvailableEntityScenarios(i)
 
 		if u.EventCB != nil {
-			u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
+			remoteDevice := entity.Device()
+			u.EventCB(remoteDevice.Ski(), remoteDevice, entity, u.useCaseUpdateEvent)
 		}
 	}
+}
+
+// do the actual removal of the entity from the available entity scenarios
+func (u *UseCaseBase) removeEntityIndexFromAvailableEntityScenarios(index int) {
+	u.mux.Lock()
+	u.availableEntityScenarios = append(u.availableEntityScenarios[:index], u.availableEntityScenarios[index+1:]...)
+	u.mux.Unlock()
 }
 
 // return the required server features for a use case scenario

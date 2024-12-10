@@ -173,6 +173,23 @@ func (s *GcpMGCPSuite) Test_EnergyFeedIn() {
 	data, err = s.sut.EnergyFeedIn(s.smgwEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 10.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyFeedIn(s.smgwEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
 }
 
 func (s *GcpMGCPSuite) Test_EnergyConsumed() {
@@ -218,6 +235,23 @@ func (s *GcpMGCPSuite) Test_EnergyConsumed() {
 	data, err = s.sut.EnergyConsumed(s.smgwEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 10.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyConsumed(s.smgwEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
 }
 
 func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
@@ -461,4 +495,21 @@ func (s *GcpMGCPSuite) Test_Frequency() {
 	data, err = s.sut.Frequency(s.smgwEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 50.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(50),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.smgwEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
 }

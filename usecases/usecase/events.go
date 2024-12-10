@@ -24,7 +24,17 @@ func (u *UseCaseBase) HandleEvent(payload spineapi.EventPayload) {
 }
 
 func (u *UseCaseBase) deviceOrEntityRemoved(payload spineapi.EventPayload) bool {
-	if internal.IsDeviceDisconnected(payload) || internal.IsEntityDisconnected(payload) {
+	if payload.EventType == spineapi.EventTypeDeviceChange &&
+		payload.ChangeType == spineapi.ElementChangeRemove &&
+		payload.Device != nil &&
+		payload.Entity == nil {
+		// device was disconnected, remove all usecases related to this device
+		u.removeDeviceFromAvailableEntityScenarios(payload.Device)
+		return true
+	}
+
+	if internal.IsEntityRemoved(payload) {
+		// entity was disconnected, remove all usecases related to this entity
 		u.removeEntityFromAvailableEntityScenarios(payload.Entity)
 		return true
 	}

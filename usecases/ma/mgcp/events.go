@@ -17,7 +17,7 @@ func (e *MGCP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityConnected(payload) {
+	if internal.IsEntityAdded(payload) {
 		e.gridConnected(payload.Entity)
 		return
 	}

@@ -16,7 +16,7 @@ func (e *EVSOC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityConnected(payload) {
+	if internal.IsEntityAdded(payload) {
 		e.evConnected(payload.Entity)
 		return
 	}

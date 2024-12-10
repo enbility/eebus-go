@@ -161,4 +161,38 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 	)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(10)),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Value:         model.NewScaledNumberType(10),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				Value:         model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = MeasurementPhaseSpecificDataForFilter(
+		s.localEntity,
+		s.monitoredEntity,
+		filter,
+		energyDirection,
+		ucapi.PhaseNameMapping,
+	)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
 }

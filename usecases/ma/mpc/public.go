@@ -15,7 +15,8 @@ import (
 // return the momentary active power consumption or production
 //
 // possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
 func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
@@ -34,13 +35,15 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if len(values) != 1 {
 		return 0, api.ErrDataNotAvailable
 	}
+
 	return values[0], nil
 }
 
 // return the momentary active phase specific power consumption or production per phase
 //
 // possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
 func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
@@ -60,6 +63,11 @@ func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, e
 // return the total consumption energy
 //
 //   - positive values are used for consumption
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
@@ -86,12 +94,23 @@ func (e *MPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, er
 		return 0, api.ErrDataNotAvailable
 	}
 
+	// if the value state is set and not normal, the value is not valid and should be ignored
+	// therefore we return an error
+	if values[0].ValueState != nil && *values[0].ValueState != model.MeasurementValueStateTypeNormal {
+		return 0, api.ErrDataInvalid
+	}
+
 	return value.GetValue(), nil
 }
 
 // return the total feed in energy
 //
 //   - negative values are used for production
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
@@ -118,6 +137,12 @@ func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, er
 		return 0, api.ErrDataNotAvailable
 	}
 
+	// if the value state is set and not normal, the value is not valid and should be ignored
+	// therefore we return an error
+	if values[0].ValueState != nil && *values[0].ValueState != model.MeasurementValueStateTypeNormal {
+		return 0, api.ErrDataInvalid
+	}
+
 	return value.GetValue(), nil
 }
 
@@ -127,6 +152,11 @@ func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, er
 //
 //   - positive values are used for consumption
 //   - negative values are used for production
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
@@ -143,6 +173,11 @@ func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 // Scenario 4
 
 // return the phase specific voltage details
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
@@ -159,6 +194,11 @@ func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 // Scenario 5
 
 // return frequency
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MPC) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
@@ -177,6 +217,12 @@ func (e *MPC) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) 
 	data, err := measurement.GetDataForFilter(filter)
 	if err != nil || len(data) == 0 || data[0].Value == nil {
 		return 0, api.ErrDataNotAvailable
+	}
+
+	// if the value state is set and not normal, the value is not valid and should be ignored
+	// therefore we return an error
+	if data[0].ValueState != nil && *data[0].ValueState != model.MeasurementValueStateTypeNormal {
+		return 0, api.ErrDataInvalid
 	}
 
 	// take the first item

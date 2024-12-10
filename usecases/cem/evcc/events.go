@@ -17,10 +17,10 @@ func (e *EVCC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityConnected(payload) {
+	if internal.IsEntityAdded(payload) {
 		e.evConnected(payload)
 		return
-	} else if internal.IsEntityDisconnected(payload) {
+	} else if internal.IsEntityRemoved(payload) {
 		e.evDisconnected(payload)
 		return
 	}

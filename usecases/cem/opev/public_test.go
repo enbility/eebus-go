@@ -16,21 +16,51 @@ func (s *CemOPEVSuite) Test_Public() {
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
 	assert.NotNil(s.T(), err)
 
+	lc := s.evEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	assert.NotNil(s.T(), lc)
+
 	meas := s.evEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
 	assert.NotNil(s.T(), meas)
 
-	mData := &model.MeasurementDescriptionListDataType{
-		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+	lData := &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+		},
+	}
+
+	_,errT := lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
+	assert.Nil(s.T(), errT)
+
+	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
+	assert.NotNil(s.T(), err)
+
+	lData = &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
-				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType: util.Ptr(model.ScopeTypeTypeOverloadProtection),
 			},
 		},
 	}
-	_, errT := meas.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, mData, nil, nil)
+
+	_,errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
+	assert.Nil(s.T(), errT)
+
+	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
+	assert.NotNil(s.T(), err)
+
+	lData = &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_,errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, &model.FilterType{}, nil)
 	assert.Nil(s.T(), errT)
 
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)

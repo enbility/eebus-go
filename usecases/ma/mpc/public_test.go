@@ -221,6 +221,21 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(10),
 			},
 		},
@@ -232,6 +247,23 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 10.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
 }
 
 func (s *MaMPCSuite) Test_EnergyProduced() {
@@ -266,6 +298,21 @@ func (s *MaMPCSuite) Test_EnergyProduced() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyProduced(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(10),
 			},
 		},
@@ -277,6 +324,23 @@ func (s *MaMPCSuite) Test_EnergyProduced() {
 	data, err = s.sut.EnergyProduced(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 10.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyProduced(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
 }
 
 func (s *MaMPCSuite) Test_CurrentPerPhase() {
@@ -509,6 +573,21 @@ func (s *MaMPCSuite) Test_Frequency() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(50),
 			},
 		},
@@ -520,4 +599,21 @@ func (s *MaMPCSuite) Test_Frequency() {
 	data, err = s.sut.Frequency(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 50.0, data)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(50),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
 }

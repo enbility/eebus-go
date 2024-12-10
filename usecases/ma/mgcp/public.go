@@ -15,16 +15,12 @@ import (
 // return the current power limitation factor
 //
 // possible errors:
-//   - ErrDataNotAvailable if no such limit is (yet) available
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
 func (e *MGCP) PowerLimitationFactor(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
-	}
-
-	measurement, err := client.NewMeasurement(e.LocalEntity, entity)
-	if err != nil || measurement == nil {
-		return 0, err
 	}
 
 	keyname := model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor
@@ -58,6 +54,11 @@ func (e *MGCP) PowerLimitationFactor(entity spineapi.EntityRemoteInterface) (flo
 //
 //   - positive values are used for consumption
 //   - negative values are used for production
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
@@ -69,7 +70,11 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
 	}
 	data, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil)
-	if err != nil || len(data) != 1 {
+	if err != nil {
+		return 0, err
+	}
+
+	if len(data) != 1 {
 		return 0, api.ErrDataNotAvailable
 	}
 
@@ -81,6 +86,11 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 // return the total feed in energy at the grid connection point
 //
 //   - negative values are used for production
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
@@ -100,6 +110,13 @@ func (e *MGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, err
 	if err != nil || len(result) == 0 || result[0].Value == nil {
 		return 0, api.ErrDataNotAvailable
 	}
+
+	// if the value state is set and not normal, the value is not valid and should be ignored
+	// therefore we return an error
+	if result[0].ValueState != nil && *result[0].ValueState != model.MeasurementValueStateTypeNormal {
+		return 0, api.ErrDataInvalid
+	}
+
 	return result[0].Value.GetValue(), nil
 }
 
@@ -108,6 +125,11 @@ func (e *MGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, err
 // return the total consumption energy at the grid connection point
 //
 //   - positive values are used for consumption
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
@@ -127,6 +149,13 @@ func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, e
 	if err != nil || len(result) == 0 || result[0].Value == nil {
 		return 0, api.ErrDataNotAvailable
 	}
+
+	// if the value state is set and not normal, the value is not valid and should be ignored
+	// therefore we return an error
+	if result[0].ValueState != nil && *result[0].ValueState != model.MeasurementValueStateTypeNormal {
+		return 0, api.ErrDataInvalid
+	}
+
 	return result[0].Value.GetValue(), nil
 }
 
@@ -136,6 +165,11 @@ func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, e
 //
 //   - positive values are used for consumption
 //   - negative values are used for production
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
@@ -152,6 +186,11 @@ func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 // Scenario 6
 
 // return the voltage phase details at the grid connection point
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
@@ -168,6 +207,11 @@ func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 // Scenario 7
 
 // return frequency at the grid connection point
+//
+// possible errors:
+//   - ErrDataNotAvailable if no such value is (yet) available
+//   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - and others
 func (e *MGCP) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return 0, api.ErrNoCompatibleEntity
@@ -187,5 +231,12 @@ func (e *MGCP) Frequency(entity spineapi.EntityRemoteInterface) (float64, error)
 	if err != nil || len(result) == 0 || result[0].Value == nil {
 		return 0, api.ErrDataNotAvailable
 	}
+
+	// if the value state is set and not normal, the value is not valid and should be ignored
+	// therefore we return an error
+	if result[0].ValueState != nil && *result[0].ValueState != model.MeasurementValueStateTypeNormal {
+		return 0, api.ErrDataInvalid
+	}
+
 	return result[0].Value.GetValue(), nil
 }

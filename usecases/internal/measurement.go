@@ -62,6 +62,12 @@ func MeasurementPhaseSpecificDataForFilter(
 			}
 		}
 
+		// if the value state is set and not normal, the value is not valid and should be ignored
+		// therefore we return an error
+		if item.ValueState != nil && *item.ValueState != model.MeasurementValueStateTypeNormal {
+			return nil, api.ErrDataInvalid
+		}
+
 		value := item.Value.GetValue()
 
 		result = append(result, value)

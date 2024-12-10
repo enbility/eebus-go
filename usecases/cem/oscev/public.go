@@ -26,23 +26,38 @@ func (e *OSCEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64,
 		return nil, nil, nil, err
 	}
 
-	meas, err := client.NewMeasurement(e.LocalEntity, entity)
+	lc, err := client.NewLoadControl(e.LocalEntity, entity)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	filter := model.MeasurementDescriptionDataType{
-		MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
-		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-		Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+	filter := model.LoadControlLimitDescriptionDataType {
+		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+		LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
+		Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+		ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
 	}
-	measDesc, err := meas.GetDescriptionsForFilter(filter)
+	
+	limitDescs, err := lc.GetLimitDescriptionsForFilter(filter)
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	if len(limitDescs) == 0 {
+		return nil, nil, nil, api.ErrDataNotAvailable
+	}
 
-	return ec.GetPhaseCurrentLimits(measDesc)
+	measDescs := make([]model.MeasurementDescriptionDataType, 0)
+	for _, ld := range limitDescs {
+		measId := ld.MeasurementId
+		if measId == nil {
+			return nil, nil, nil, api.ErrDataNotAvailable
+		}
+		md := model.MeasurementDescriptionDataType{
+			MeasurementId: measId,
+		}
+		measDescs = append(measDescs, md)
+	}
+	return ec.GetPhaseCurrentLimits(measDescs)
 }
 
 // return the current loadcontrol recommendation limits
@@ -65,6 +80,7 @@ func (e *OSCEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 	filter := model.LoadControlLimitDescriptionDataType{
 		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
 		LimitCategory: util.Ptr(model.LoadControlCategoryTypeRecommendation),
+		Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
 		ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
 	}
 	return internal.LoadControlLimits(e.LocalEntity, entity, filter)
