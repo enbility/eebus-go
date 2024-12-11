@@ -9,27 +9,40 @@ import (
 	"time"
 )
 
-type UpdateValueType struct {
-	updateValueTypeType     usecaseapi.GcpMGCPUpdateValueTypeType
-	updateTypeMeasurement   api.MeasurementDataForID
-	updateTypeConfiguration model.DeviceConfigurationKeyValueDataType
+type UpdateData struct {
+	supported         bool
+	notSupportedError error
 }
 
-func (u UpdateValueType) GetUpdateValueTypeType() usecaseapi.GcpMGCPUpdateValueTypeType {
-	return u.updateValueTypeType
+type UpdateMeasurementData struct {
+	UpdateData
+
+	measurementData api.MeasurementDataForID
 }
 
-func (u UpdateValueType) GetUpdateValueTypeMeasurement() api.MeasurementDataForID {
-	return u.updateTypeMeasurement
+type UpdateConfigurationData struct {
+	UpdateData
+
+	configurationData model.DeviceConfigurationKeyValueDataType
 }
 
-func (u UpdateValueType) GetUpdateValueTypeConfiguration() model.DeviceConfigurationKeyValueDataType {
-	return u.updateTypeConfiguration
+func (u *UpdateData) Supported() bool {
+	return u.supported
 }
 
-var _ usecaseapi.GcpMGCPUpdateValueTypeInterface = (*UpdateValueType)(nil)
+func (u *UpdateData) NotSupportedError() error {
+	return u.notSupportedError
+}
 
-func measurementUpdateValueType(
+func (u *UpdateMeasurementData) MeasurementData() api.MeasurementDataForID {
+	return u.measurementData
+}
+
+func (u UpdateConfigurationData) ConfigurationData() model.DeviceConfigurationKeyValueDataType {
+	return u.configurationData
+}
+
+func updateMeasurementData(
 	errorName string,
 	id *model.MeasurementIdType,
 	valueSource *model.MeasurementValueSourceType,
@@ -38,14 +51,19 @@ func measurementUpdateValueType(
 	valueState *model.MeasurementValueStateType,
 	evaluationStart *time.Time,
 	evaluationEnd *time.Time,
-) UpdateValueType {
+) usecaseapi.UpdateData {
 	if id == nil {
-		panic(fmt.Sprintf("%s is not supported by the use case MGCP, please check the MGCP configuration", errorName))
+		return &UpdateData{
+			supported:         false,
+			notSupportedError: fmt.Errorf("id is nil: %s, please check the mgcp configuration", errorName),
+		}
 	}
 
-	updateValueType := UpdateValueType{
-		updateValueTypeType: usecaseapi.GcpMGCPUpdateValueTypeTypeMeasurement,
-		updateTypeMeasurement: api.MeasurementDataForID{
+	updateValueType := UpdateMeasurementData{
+		UpdateData: UpdateData{
+			supported: true,
+		},
+		measurementData: api.MeasurementDataForID{
 			Id: *id,
 			Data: model.MeasurementDataType{
 				ValueType:   util.Ptr(model.MeasurementValueTypeTypeValue),
@@ -56,19 +74,19 @@ func measurementUpdateValueType(
 	}
 
 	if timestamp != nil {
-		updateValueType.updateTypeMeasurement.Data.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(*timestamp)
+		updateValueType.measurementData.Data.Timestamp = model.NewAbsoluteOrRelativeTimeTypeFromTime(*timestamp)
 	}
 
 	if valueState != nil {
-		updateValueType.updateTypeMeasurement.Data.ValueState = valueState
+		updateValueType.measurementData.Data.ValueState = valueState
 	}
 
 	if evaluationStart != nil && evaluationEnd != nil {
-		updateValueType.updateTypeMeasurement.Data.EvaluationPeriod = &model.TimePeriodType{
+		updateValueType.measurementData.Data.EvaluationPeriod = &model.TimePeriodType{
 			StartTime: model.NewAbsoluteOrRelativeTimeTypeFromTime(*evaluationStart),
 			EndTime:   model.NewAbsoluteOrRelativeTimeTypeFromTime(*evaluationEnd),
 		}
 	}
 
-	return updateValueType
+	return &updateValueType
 }

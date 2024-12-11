@@ -32,3 +32,13 @@ type UpdateMeasurementData interface {
 	UpdateData
 	MeasurementData() api.MeasurementDataForID
 }
+
+// used to enable batch data updates for ConfigurationData
+//
+// usecases can use this interface to provide batch update capabilities by
+// implementing a method that takes a list of this interface and updates the
+// configuration data
+type UpdateConfigurationData interface {
+	UpdateData
+	ConfigurationData() model.DeviceConfigurationKeyValueDataType
+}
