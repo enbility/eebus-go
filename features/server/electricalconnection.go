@@ -55,7 +55,7 @@ func (e *ElectricalConnection) GetOrAddIdForDescription(
 				description.Label == electricalConnectionDescription.Label &&
 				description.Description == electricalConnectionDescription.Description {
 				electricalConnectionId = description.ElectricalConnectionId
-				break
+				return electricalConnectionId, nil
 			} else if description.ElectricalConnectionId != nil {
 				if *description.ElectricalConnectionId > highestExistingElectricalConnectionId {
 					highestExistingElectricalConnectionId = *description.ElectricalConnectionId
@@ -64,15 +64,13 @@ func (e *ElectricalConnection) GetOrAddIdForDescription(
 		}
 	}
 
-	if electricalConnectionId == nil {
-		electricalConnectionId = util.Ptr(highestExistingElectricalConnectionId + 1)
-		description := electricalConnectionDescription
-		description.ElectricalConnectionId = electricalConnectionId
-		if errType := e.featureLocal.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionListDataType{
-			ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{description},
-		}, model.NewFilterTypePartial(), nil); errType != nil {
-			return nil, errors.New("could not add description data")
-		}
+	electricalConnectionId = util.Ptr(highestExistingElectricalConnectionId + 1)
+	description := electricalConnectionDescription
+	description.ElectricalConnectionId = electricalConnectionId
+	if errType := e.featureLocal.UpdateData(model.FunctionTypeElectricalConnectionDescriptionListData, &model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{description},
+	}, model.NewFilterTypePartial(), nil); errType != nil {
+		return nil, errors.New("could not add description data")
 	}
 
 	return electricalConnectionId, nil
