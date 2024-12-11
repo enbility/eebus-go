@@ -125,3 +125,45 @@ func (s *MuMpcUsecaseSuite) Test_MpcOptionalParameters() {
 		mpc.AddUseCase()
 	}
 }
+
+func (s *MuMpcUsecaseSuite) Test_getMeasurementDataForId() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	monitorPowerConfig := MonitorPowerConfig{
+		ConnectedPhases:   ConnectedPhasesABC,
+		ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	mpc, err := NewMPC(
+		localEntity,
+		s.Event,
+		&monitorPowerConfig,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+
+	_, err = mpc.getMeasurementDataForId(mpc.acPowerTotal)
+	assert.NotNil(s.T(), err)
+
+	err = mpc.AddFeatures()
+	assert.Nil(s.T(), err)
+	mpc.AddUseCase()
+
+	_, err = mpc.getMeasurementDataForId(mpc.acPowerTotal)
+	assert.NotNil(s.T(), err)
+
+	err = mpc.Update(
+		mpc.UpdateDataPowerTotal(5.0, util.Ptr(time.Now()), nil),
+	)
+	assert.Nil(s.T(), err)
+
+	measurementData, err := mpc.getMeasurementDataForId(mpc.acPowerTotal)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), measurementData)
+}
