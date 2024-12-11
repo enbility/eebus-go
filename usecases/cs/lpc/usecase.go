@@ -1,6 +1,7 @@
 package lpc
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/enbility/eebus-go/api"
@@ -178,14 +179,19 @@ func (e *LPC) loadControlWriteCB(msg *spineapi.Message) {
 
 func (e *LPC) AddFeatures() error {
 	// client features
-	_ = e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)
+	if f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient); f == nil {
+		return errors.New("feature not found: DeviceDiagnosis")
+	}
 
 	// server features
 	f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	if f == nil {
+		return errors.New("feature not found: LoadControl")
+	}
+
 	f.AddFunctionType(model.FunctionTypeLoadControlLimitDescriptionListData, true, false)
 	f.AddFunctionType(model.FunctionTypeLoadControlLimitListData, true, true)
-	err := f.AddWriteApprovalCallback(e.loadControlWriteCB)
-	if err != nil {
+	if err := f.AddWriteApprovalCallback(e.loadControlWriteCB); err != nil {
 		return err
 	}
 
@@ -198,21 +204,25 @@ func (e *LPC) AddFeatures() error {
 		Unit:           util.Ptr(model.UnitOfMeasurementTypeW),
 		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 	}
-	if lc, err := server.NewLoadControl(e.LocalEntity); err == nil {
-		limitId := lc.AddLimitDescription(newLimitDesc)
 
-		newLimiData := []api.LoadControlLimitDataForID{
-			{
-				Data: model.LoadControlLimitDataType{
-					Value:             model.NewScaledNumberType(0),
-					IsLimitChangeable: util.Ptr(true),
-					IsLimitActive:     util.Ptr(false),
-				},
-				Id: *limitId,
+	lc, err := server.NewLoadControl(e.LocalEntity)
+	if err != nil {
+		return err
+	}
+
+	limitId := lc.AddLimitDescription(newLimitDesc)
+
+	newLimiData := []api.LoadControlLimitDataForID{
+		{
+			Data: model.LoadControlLimitDataType{
+				Value:             model.NewScaledNumberType(0),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(false),
 			},
-		}
-		_ = lc.UpdateLimitDataForIds(newLimiData)
-	} else {
+			Id: *limitId,
+		},
+	}
+	if err := lc.UpdateLimitDataForIds(newLimiData); err != nil {
 		return err
 	}
 
@@ -220,62 +230,61 @@ func (e *LPC) AddFeatures() error {
 	f.AddFunctionType(model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, true, false)
 	f.AddFunctionType(model.FunctionTypeDeviceConfigurationKeyValueListData, true, true)
 
-	if dcs, err := server.NewDeviceConfiguration(e.LocalEntity); err == nil {
+	dcs, err := server.NewDeviceConfiguration(e.LocalEntity)
+	if err != nil {
+		return err
+	}
+
+	dcs.AddKeyValueDescription(
+		model.DeviceConfigurationKeyValueDescriptionDataType{
+			KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
+			ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
+			Unit:      util.Ptr(model.UnitOfMeasurementTypeW),
+		},
+	)
+
+	// only add if it doesn't exist yet
+	filter := model.DeviceConfigurationKeyValueDescriptionDataType{
+		KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+	}
+	if data, err := dcs.GetKeyValueDescriptionsForFilter(filter); err == nil && len(data) == 0 {
 		dcs.AddKeyValueDescription(
 			model.DeviceConfigurationKeyValueDescriptionDataType{
-				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
-				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
-				Unit:      util.Ptr(model.UnitOfMeasurementTypeW),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
 			},
 		)
+	}
 
-		// only add if it doesn't exist yet
-		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
+	value := &model.DeviceConfigurationKeyValueValueType{
+		ScaledNumber: model.NewScaledNumberType(0),
+	}
+	if err := dcs.UpdateKeyValueDataForFilter(
+		model.DeviceConfigurationKeyValueDataType{
+			Value:             value,
+			IsValueChangeable: util.Ptr(true),
+		},
+		nil,
+		model.DeviceConfigurationKeyValueDescriptionDataType{
+			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
+		},
+	); err != nil {
+		return err
+	}
+
+	value = &model.DeviceConfigurationKeyValueValueType{
+		Duration: model.NewDurationType(0),
+	}
+	if err := dcs.UpdateKeyValueDataForFilter(
+		model.DeviceConfigurationKeyValueDataType{
+			Value:             value,
+			IsValueChangeable: util.Ptr(true),
+		},
+		nil,
+		model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
-		}
-		if data, err := dcs.GetKeyValueDescriptionsForFilter(filter); err == nil && len(data) == 0 {
-			dcs.AddKeyValueDescription(
-				model.DeviceConfigurationKeyValueDescriptionDataType{
-					KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
-					ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
-				},
-			)
-		}
-
-		value := &model.DeviceConfigurationKeyValueValueType{
-			ScaledNumber: model.NewScaledNumberType(0),
-		}
-		err1 := dcs.UpdateKeyValueDataForFilter(
-			model.DeviceConfigurationKeyValueDataType{
-				Value:             value,
-				IsValueChangeable: util.Ptr(true),
-			},
-			nil,
-			model.DeviceConfigurationKeyValueDescriptionDataType{
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
-			},
-		)
-		if err1 != nil {
-			return err1
-		}
-
-		value = &model.DeviceConfigurationKeyValueValueType{
-			Duration: model.NewDurationType(0),
-		}
-		err1 = dcs.UpdateKeyValueDataForFilter(
-			model.DeviceConfigurationKeyValueDataType{
-				Value:             value,
-				IsValueChangeable: util.Ptr(true),
-			},
-			nil,
-			model.DeviceConfigurationKeyValueDescriptionDataType{
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
-			},
-		)
-		if err1 != nil {
-			return err1
-		}
-	} else {
+		},
+	); err != nil {
 		return err
 	}
 
@@ -285,18 +294,20 @@ func (e *LPC) AddFeatures() error {
 	f = e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
 	f.AddFunctionType(model.FunctionTypeElectricalConnectionCharacteristicListData, true, false)
 
-	if ec, err := server.NewElectricalConnection(e.LocalEntity); err == nil {
-		electricalConnectionId := internal.GetElectricalConnectionId(e.LocalEntity)
-		parameterId := internal.GetParameterIdForACPowerTotalMeasurement(e.LocalEntity, electricalConnectionId, measurementId)
-		newCharData := model.ElectricalConnectionCharacteristicDataType{
-			ElectricalConnectionId: util.Ptr(electricalConnectionId),
-			ParameterId:            util.Ptr(parameterId),
-			CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-			CharacteristicType:     util.Ptr(e.characteristicType()),
-			Unit:                   util.Ptr(model.UnitOfMeasurementTypeW),
-		}
-		_, _ = ec.AddCharacteristic(newCharData)
-	} else {
+	ec, err := server.NewElectricalConnection(e.LocalEntity)
+	if err != nil {
+		return err
+	}
+	electricalConnectionId := internal.GetElectricalConnectionId(e.LocalEntity)
+	parameterId := internal.GetParameterIdForACPowerTotalMeasurement(e.LocalEntity, electricalConnectionId, measurementId)
+	newCharData := model.ElectricalConnectionCharacteristicDataType{
+		ElectricalConnectionId: util.Ptr(electricalConnectionId),
+		ParameterId:            util.Ptr(parameterId),
+		CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+		CharacteristicType:     util.Ptr(e.characteristicType()),
+		Unit:                   util.Ptr(model.UnitOfMeasurementTypeW),
+	}
+	if _, err := ec.AddCharacteristic(newCharData); err != nil {
 		return err
 	}
 

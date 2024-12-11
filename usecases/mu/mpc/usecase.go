@@ -143,10 +143,16 @@ func NewMPC(
 func (e *MPC) AddFeatures() error {
 	// server features
 	electricalConnectionFeature := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	if electricalConnectionFeature == nil {
+		return errors.New("could not add feature: " + string(model.FeatureTypeTypeElectricalConnection))
+	}
 	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionDescriptionListData, true, false)
 	electricalConnectionFeature.AddFunctionType(model.FunctionTypeElectricalConnectionParameterDescriptionListData, true, false)
 
 	measurementFeature := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	if measurementFeature == nil {
+		return errors.New("could not add feature: " + string(model.FeatureTypeTypeMeasurement))
+	}
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementDescriptionListData, true, false)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementConstraintsListData, true, false)
 	measurementFeature.AddFunctionType(model.FunctionTypeMeasurementListData, true, false)

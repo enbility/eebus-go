@@ -1,6 +1,7 @@
 package lpp
 
 import (
+	"errors"
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -85,11 +86,16 @@ func (e *LPP) AddFeatures() error {
 		model.FeatureTypeTypeElectricalConnection,
 	}
 	for _, feature := range clientFeatures {
-		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
+		if f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient); f == nil {
+			return errors.New("could not add feature: " + string(feature))
+		}
 	}
 
 	// server features
 	f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
+	if f == nil {
+		return errors.New("could not add feature: " + string(model.FeatureTypeTypeDeviceDiagnosis))
+	}
 	f.AddFunctionType(model.FunctionTypeDeviceDiagnosisHeartbeatData, true, false)
 
 	return nil

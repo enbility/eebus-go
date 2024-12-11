@@ -1,6 +1,7 @@
 package mpc
 
 import (
+	"errors"
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	usecase "github.com/enbility/eebus-go/usecases/usecase"
@@ -105,7 +106,9 @@ func (e *MPC) AddFeatures() error {
 		model.FeatureTypeTypeMeasurement,
 	}
 	for _, feature := range clientFeatures {
-		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
+		if f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient); f == nil {
+			return errors.New("failed to add feature: " + string(feature))
+		}
 	}
 
 	return nil

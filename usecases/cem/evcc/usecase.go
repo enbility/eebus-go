@@ -1,6 +1,7 @@
 package evcc
 
 import (
+	"errors"
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -107,6 +108,9 @@ func (e *EVCC) AddFeatures() error {
 	}
 	for _, feature := range clientFeatures {
 		f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
+		if f == nil {
+			return errors.New("could not add feature: " + string(feature))
+		}
 		f.AddResultCallback(e.HandleResponse)
 	}
 
