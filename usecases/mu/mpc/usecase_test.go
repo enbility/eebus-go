@@ -10,7 +10,6 @@ import (
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	spineapi "github.com/enbility/spine-go/api"
-	spinemocks "github.com/enbility/spine-go/mocks"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -19,30 +18,19 @@ import (
 )
 
 func TestBasicSuite(t *testing.T) {
-	suite.Run(t, new(BasicSuite))
+	suite.Run(t, new(MuMpcUsecaseSuite))
 }
 
-type BasicSuite struct {
+type MuMpcUsecaseSuite struct {
 	suite.Suite
 
 	service api.ServiceInterface
-
-	remoteDevice     spineapi.DeviceRemoteInterface
-	mockRemoteEntity *spinemocks.EntityRemoteInterface
-	monitoredEntity  spineapi.EntityRemoteInterface
-	loadControlFeature,
-	deviceDiagnosisFeature,
-	deviceConfigurationFeature spineapi.FeatureLocalInterface
-
-	eventCalled bool
 }
 
-func (s *BasicSuite) Event(ski string, device spineapi.DeviceRemoteInterface, entity spineapi.EntityRemoteInterface, event api.EventType) {
-	s.eventCalled = true
+func (s *MuMpcUsecaseSuite) Event(_ string, _ spineapi.DeviceRemoteInterface, _ spineapi.EntityRemoteInterface, _ api.EventType) {
 }
 
-func (s *BasicSuite) BeforeTest(suiteName, testName string) {
-	s.eventCalled = false
+func (s *MuMpcUsecaseSuite) BeforeTest(_, _ string) {
 	cert, _ := cert.CreateCertificate("test", "test", "DE", "test")
 	configuration, _ := api.NewConfiguration(
 		"test", "test", "test", "test",
@@ -56,22 +44,9 @@ func (s *BasicSuite) BeforeTest(suiteName, testName string) {
 
 	s.service = service.NewService(configuration, serviceHandler)
 	_ = s.service.Setup()
-
-	mockRemoteDevice := spinemocks.NewDeviceRemoteInterface(s.T())
-	s.mockRemoteEntity = spinemocks.NewEntityRemoteInterface(s.T())
-	mockRemoteFeature := spinemocks.NewFeatureRemoteInterface(s.T())
-	mockRemoteDevice.EXPECT().FeatureByEntityTypeAndRole(mock.Anything, mock.Anything, mock.Anything).Return(mockRemoteFeature).Maybe()
-	mockRemoteDevice.EXPECT().Ski().Return(remoteSki).Maybe()
-	s.mockRemoteEntity.EXPECT().Device().Return(mockRemoteDevice).Maybe()
-	s.mockRemoteEntity.EXPECT().EntityType().Return(mock.Anything).Maybe()
-	entityAddress := &model.EntityAddressType{}
-	s.mockRemoteEntity.EXPECT().Address().Return(entityAddress).Maybe()
-	mockRemoteFeature.EXPECT().DataCopy(mock.Anything).Return(mock.Anything).Maybe()
-	mockRemoteFeature.EXPECT().Address().Return(&model.FeatureAddressType{}).Maybe()
-	mockRemoteFeature.EXPECT().Operations().Return(nil).Maybe()
 }
 
-func (s *BasicSuite) Test_MpcOptionalParameters() {
+func (s *MuMpcUsecaseSuite) Test_MpcOptionalParameters() {
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
 
 	// required
