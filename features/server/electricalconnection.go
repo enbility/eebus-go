@@ -31,6 +31,11 @@ func NewElectricalConnection(localEntity spineapi.EntityLocalInterface) (*Electr
 	return ec, nil
 }
 
+// Get or add the id for a electrical connection with a given electricalConnectionDescription
+//
+// NOTE: This can be used instead of AddDescription to be sure it exists only one id for the same description
+//
+// will return the id for the electrical connection with the given description
 func (e *ElectricalConnection) GetOrAddIdForDescription(
 	electricalConnectionDescription model.ElectricalConnectionDescriptionDataType,
 ) (*model.ElectricalConnectionIdType, error) {
