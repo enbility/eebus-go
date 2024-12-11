@@ -32,7 +32,7 @@ func (s *MgcpUsecaseSuite) BeforeTest(_, _ string) {
 		"test", "test", "test", "test",
 		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
-		[]model.EntityTypeType{model.EntityTypeTypeInverter},
+		[]model.EntityTypeType{model.EntityTypeTypeGridGuard},
 		9999, cert, time.Second*4)
 
 	serviceHandler := mocks.NewServiceReaderInterface(s.T())
@@ -43,7 +43,7 @@ func (s *MgcpUsecaseSuite) BeforeTest(_, _ string) {
 }
 
 func (s *MgcpUsecaseSuite) Test_RequiredParameters() {
-	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeEVSE)
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
 
 	var monitorPowerConfig = MonitorPowerConfig{
 		ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
@@ -60,7 +60,6 @@ func (s *MgcpUsecaseSuite) Test_RequiredParameters() {
 	for i := 0; i < (1<<numRequiredParams)-1; i++ {
 		var reqPowerConfig *MonitorPowerConfig
 		var reqEnergyConfig *MonitorEnergyConfig
-		var reqCurrentConfig *MonitorCurrentConfig
 
 		if i&1 != 0 {
 			reqPowerConfig = &monitorPowerConfig
@@ -76,7 +75,7 @@ func (s *MgcpUsecaseSuite) Test_RequiredParameters() {
 			nil,
 			reqPowerConfig,
 			reqEnergyConfig,
-			reqCurrentConfig,
+			nil,
 			nil,
 			nil,
 		)
@@ -87,6 +86,9 @@ func (s *MgcpUsecaseSuite) Test_RequiredParameters() {
 }
 
 func (s *MgcpUsecaseSuite) Test_OptionalParameters() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
+	assert.NotNil(s.T(), localEntity)
+
 	var monitorPowerLimitationFactor = MonitorPvFeedInPowerLimitationFactorConfig{}
 
 	var monitorPowerConfig = MonitorPowerConfig{
@@ -143,7 +145,7 @@ func (s *MgcpUsecaseSuite) Test_OptionalParameters() {
 		}
 
 		mpc, err := NewMGCP(
-			s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter),
+			localEntity,
 			s.Event,
 			optPowerLimitationFactor,
 			&monitorPowerConfig,
@@ -159,6 +161,48 @@ func (s *MgcpUsecaseSuite) Test_OptionalParameters() {
 		err = mpc.AddFeatures()
 		assert.Nil(s.T(), err)
 	}
+}
+
+func (s *MgcpUsecaseSuite) Test_getMeasurementForId() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
+
+	var monitorPowerConfig = MonitorPowerConfig{
+		ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	var monitorEnergyConfig = MonitorEnergyConfig{
+		ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		nil,
+		&monitorPowerConfig,
+		&monitorEnergyConfig,
+		nil,
+		nil,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), mgcp)
+
+	err = mgcp.AddFeatures()
+
+	// test with invalid id
+	m, err := mgcp.getMeasurementDataForId(nil)
+	assert.NotNil(s.T(), err)
+
+	id := mgcp.acPowerTotal
+	value := 43.0
+
+	err = mgcp.Update(mgcp.UpdateDataPowerTotal(value, nil, nil))
+	assert.Nil(s.T(), err)
+
+	m, err = mgcp.getMeasurementDataForId(id)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), value, m)
 }
 
 func (s *MgcpUsecaseSuite) Event(_ string, _ spineapi.DeviceRemoteInterface, _ spineapi.EntityRemoteInterface, _ api.EventType) {
