@@ -168,9 +168,9 @@ func (e *MPC) Update(updateData ...usecaseapi.UpdateMeasurementData) error {
 	for _, measurementDataForId := range updateData {
 		if !measurementDataForId.Supported() {
 			return measurementDataForId.NotSupportedError()
-		} else {
-			measurementDataForIds = append(measurementDataForIds, measurementDataForId.MeasurementData())
 		}
+
+		measurementDataForIds = append(measurementDataForIds, measurementDataForId.MeasurementData())
 	}
 
 	return measurements.UpdateDataForIds(measurementDataForIds)
