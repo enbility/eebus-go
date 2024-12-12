@@ -1,6 +1,8 @@
 package mpc
 
 import (
+	"github.com/enbility/eebus-go/features/server"
+	spinemocks "github.com/enbility/spine-go/mocks"
 	"testing"
 	"time"
 
@@ -166,4 +168,368 @@ func (s *MuMpcUsecaseSuite) Test_getMeasurementDataForId() {
 	measurementData, err := mpc.getMeasurementDataForId(mpc.acPowerTotal)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), measurementData)
+}
+
+func (s *MuMpcAbcSuite) Test_AddFeatures_ElectricalFeatureNilError() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	s.sut.LocalEntity = localEntity
+
+	localEntity.EXPECT().GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer).Return(nil)
+	err := s.sut.AddFeatures()
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MuMpcAbcSuite) Test_AddFeatures_MeasurementFeatureNilError() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	s.sut.LocalEntity = localEntity
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().AddFunctionType(mock.Anything, mock.Anything, mock.Anything).Return()
+
+	localEntity.EXPECT().GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer).Return(anyFeature)
+	localEntity.EXPECT().GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer).Return(nil)
+
+	err := s.sut.AddFeatures()
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MuMpcAbcSuite) Test_AddFeatures_NewMeasurementsError() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	s.sut.LocalEntity = localEntity
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().AddFunctionType(mock.Anything, mock.Anything, mock.Anything).Return()
+
+	localEntity.EXPECT().GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer).Return(anyFeature)
+	localEntity.EXPECT().GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer).Return(anyFeature)
+
+	localEntity.EXPECT().Device().Return(nil)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeServer).Return(nil)
+
+	err := s.sut.AddFeatures()
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MuMpcAbcSuite) Test_AddFeatures_NewElectricalConnectionError() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	s.sut.LocalEntity = localEntity
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().AddFunctionType(mock.Anything, mock.Anything, mock.Anything).Return()
+
+	localEntity.EXPECT().GetOrAddFeature(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer).Return(anyFeature)
+	localEntity.EXPECT().GetOrAddFeature(model.FeatureTypeTypeMeasurement, model.RoleTypeServer).Return(anyFeature)
+
+	localEntity.EXPECT().Device().Return(nil)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, model.RoleTypeServer).Return(anyFeature)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer).Return(nil)
+
+	err := s.sut.AddFeatures()
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MuMpcUsecaseSuite) Test_configureMonitorPower() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	localEntity.EXPECT().Device().Return(nil)
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().DataCopy(mock.Anything).Return(nil)
+	anyFeature.EXPECT().UpdateData(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	localEntity.EXPECT().FeatureOfTypeAndRole(mock.Anything, mock.Anything).Return(anyFeature)
+
+	monitorPowerConfig := MonitorPowerConfig{
+		ConnectedPhases:   ConnectedPhasesABC,
+		ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	mpc, err := NewMPC(
+		localEntity,
+		s.Event,
+		&monitorPowerConfig,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+
+	measurements, err := server.NewMeasurement(localEntity)
+	assert.Nil(s.T(), err)
+
+	var electricalConnection api.ElectricalConnectionServerInterface
+	electricalConnection, err = server.NewElectricalConnection(localEntity)
+	assert.Nil(s.T(), err)
+
+	electricalConnectionId := model.ElectricalConnectionIdType(111)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	mpc.powerConfig = nil
+	err = mpc.configureMonitorPower(
+		measurements,
+		electricalConnection,
+		&electricalConnectionId,
+		&constraints,
+	)
+	assert.NotNil(s.T(), err) // no monitorPowerConfig
+
+	mpc.powerConfig = &monitorPowerConfig
+	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	err = mpc.configureMonitorPower(
+		measurements,
+		electricalConnection,
+		&electricalConnectionId,
+		nil,
+	)
+
+	assert.NotNil(s.T(), err) // could not add parameter description TODO
+
+	electricalConnection, err = server.NewElectricalConnection(localEntity)
+	assert.Nil(s.T(), err)
+}
+
+func (s *MuMpcUsecaseSuite) Test_configureMonitorEnergy() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	localEntity.EXPECT().Device().Return(nil)
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().DataCopy(mock.Anything).Return(nil)
+	anyFeature.EXPECT().UpdateData(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	localEntity.EXPECT().FeatureOfTypeAndRole(mock.Anything, mock.Anything).Return(anyFeature)
+
+	monitorPowerConfig := MonitorPowerConfig{
+		ConnectedPhases:   ConnectedPhasesABC,
+		ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	monitorEnergyConfig := MonitorEnergyConfig{
+		ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	mpc, err := NewMPC(
+		localEntity,
+		s.Event,
+		&monitorPowerConfig,
+		&monitorEnergyConfig,
+		nil,
+		nil,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+
+	measurements, err := server.NewMeasurement(localEntity)
+	assert.Nil(s.T(), err)
+
+	var electricalConnection api.ElectricalConnectionServerInterface
+	electricalConnection, err = server.NewElectricalConnection(localEntity)
+	assert.Nil(s.T(), err)
+
+	electricalConnectionId := model.ElectricalConnectionIdType(111)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	err = mpc.configureMonitorEnergy(
+		measurements,
+		electricalConnection,
+		&electricalConnectionId,
+		&constraints,
+	)
+
+	assert.NotNil(s.T(), err) // could not add parameter description 1
+	mpc.energyConfig.ValueConstraintsConsumption = nil
+
+	err = mpc.configureMonitorEnergy(
+		measurements,
+		electricalConnection,
+		&electricalConnectionId,
+		&constraints,
+	)
+
+	assert.NotNil(s.T(), err) // could not add parameter description 2
+}
+
+func (s *MuMpcUsecaseSuite) Test_configureMonitorCurrent() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	localEntity.EXPECT().Device().Return(nil)
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().DataCopy(mock.Anything).Return(nil)
+	anyFeature.EXPECT().UpdateData(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	localEntity.EXPECT().FeatureOfTypeAndRole(mock.Anything, mock.Anything).Return(anyFeature)
+
+	monitorPowerConfig := MonitorPowerConfig{
+		ConnectedPhases:   ConnectedPhasesABC,
+		ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	monitorCurrentConfig := MonitorCurrentConfig{
+		ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	mpc, err := NewMPC(
+		localEntity,
+		s.Event,
+		&monitorPowerConfig,
+		nil,
+		&monitorCurrentConfig,
+		nil,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+
+	measurements, err := server.NewMeasurement(localEntity)
+	assert.Nil(s.T(), err)
+
+	var electricalConnection api.ElectricalConnectionServerInterface
+	electricalConnection, err = server.NewElectricalConnection(localEntity)
+	assert.Nil(s.T(), err)
+
+	electricalConnectionId := model.ElectricalConnectionIdType(111)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	err = mpc.configureMonitorCurrent(
+		measurements,
+		electricalConnection,
+		&electricalConnectionId,
+		&constraints,
+	)
+	assert.NotNil(s.T(), err) // could not add parameter description TODO
+}
+
+func (s *MuMpcUsecaseSuite) Test_configureMonitorVoltage() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	localEntity.EXPECT().Device().Return(nil)
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().DataCopy(mock.Anything).Return(nil)
+	anyFeature.EXPECT().UpdateData(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	localEntity.EXPECT().FeatureOfTypeAndRole(mock.Anything, mock.Anything).Return(anyFeature)
+
+	monitorPowerConfig := MonitorPowerConfig{
+		ConnectedPhases:   ConnectedPhasesABC,
+		ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	monitorVoltageConfig := MonitorVoltageConfig{
+		SupportPhaseToPhase:  true,
+		ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	mpc, err := NewMPC(
+		localEntity,
+		s.Event,
+		&monitorPowerConfig,
+		nil,
+		nil,
+		&monitorVoltageConfig,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+
+	measurements, err := server.NewMeasurement(localEntity)
+	assert.Nil(s.T(), err)
+
+	var electricalConnection api.ElectricalConnectionServerInterface
+	electricalConnection, err = server.NewElectricalConnection(localEntity)
+	assert.Nil(s.T(), err)
+
+	electricalConnectionId := model.ElectricalConnectionIdType(111)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	err = mpc.configureMonitorVoltage(
+		measurements,
+		electricalConnection,
+		&electricalConnectionId,
+		&constraints,
+	)
+	assert.NotNil(s.T(), err) // could not add parameter description TODO
+}
+
+func (s *MuMpcUsecaseSuite) Test_configureMonitorFrequency() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	localEntity.EXPECT().Device().Return(nil)
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().DataCopy(mock.Anything).Return(nil)
+	anyFeature.EXPECT().UpdateData(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	localEntity.EXPECT().FeatureOfTypeAndRole(mock.Anything, mock.Anything).Return(anyFeature)
+
+	monitorPowerConfig := MonitorPowerConfig{
+		ConnectedPhases:   ConnectedPhasesABC,
+		ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+	}
+
+	monitorFrequencyConfig := MonitorFrequencyConfig{
+		ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+			ValueRangeMin: model.NewScaledNumberType(0),
+			ValueRangeMax: model.NewScaledNumberType(100),
+			ValueStepSize: model.NewScaledNumberType(1),
+		}),
+	}
+
+	mpc, err := NewMPC(
+		localEntity,
+		s.Event,
+		&monitorPowerConfig,
+		nil,
+		nil,
+		nil,
+		&monitorFrequencyConfig,
+	)
+	assert.Nil(s.T(), err)
+
+	measurements, err := server.NewMeasurement(localEntity)
+	assert.Nil(s.T(), err)
+
+	var electricalConnection api.ElectricalConnectionServerInterface
+	electricalConnection, err = server.NewElectricalConnection(localEntity)
+	assert.Nil(s.T(), err)
+
+	electricalConnectionId := model.ElectricalConnectionIdType(111)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	err = mpc.configureMonitorFrequency(
+		measurements,
+		electricalConnection,
+		&electricalConnectionId,
+		&constraints,
+	)
+	assert.NotNil(s.T(), err) // could not add parameter description TODO
 }

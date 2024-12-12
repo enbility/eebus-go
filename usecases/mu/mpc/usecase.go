@@ -179,7 +179,7 @@ func (e *MPC) AddFeatures() error {
 
 	configMethods := []func(
 		measurements *server.Measurement,
-		electricalConnection *server.ElectricalConnection,
+		electricalConnection api.ElectricalConnectionServerInterface,
 		electricalConnectionId *model.ElectricalConnectionIdType,
 		measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 	) error{
@@ -212,7 +212,7 @@ func (e *MPC) AddFeatures() error {
 
 func (e *MPC) configureMonitorPower(
 	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -287,8 +287,7 @@ func (e *MPC) configureMonitorPower(
 				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
 			}
 
-			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
-			if parameterDescriptionId == nil {
+			if electricalConnection.AddParameterDescription(parameterDescription) == nil {
 				return errors.New("could not add parameter description")
 			}
 		}
@@ -299,7 +298,7 @@ func (e *MPC) configureMonitorPower(
 
 func (e *MPC) configureMonitorEnergy(
 	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -367,7 +366,7 @@ func (e *MPC) configureMonitorEnergy(
 
 func (e *MPC) configureMonitorCurrent(
 	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -424,7 +423,7 @@ func (e *MPC) configureMonitorCurrent(
 
 func (e *MPC) configureMonitorVoltage(
 	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -502,7 +501,7 @@ func (e *MPC) configureMonitorVoltage(
 
 func (e *MPC) configureMonitorFrequency(
 	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
