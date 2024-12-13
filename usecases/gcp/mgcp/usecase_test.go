@@ -7,6 +7,7 @@ import (
 	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/ship-go/cert"
 	spineapi "github.com/enbility/spine-go/api"
+	spinemocks "github.com/enbility/spine-go/mocks"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -206,4 +207,479 @@ func (s *MgcpUsecaseSuite) Test_getMeasurementForId() {
 	m, err = mgcp.getMeasurementDataForId(id)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), value, m)
+}
+
+func (s *GcpMpcgSuite) Test_AddFeaturesConfigurationNilError() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	s.sut.LocalEntity = localEntity
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().AddFunctionType(mock.Anything, mock.Anything, mock.Anything).Return()
+	localEntity.EXPECT().GetOrAddFeature(mock.Anything, mock.Anything).Return(anyFeature)
+
+	localEntity.EXPECT().Device().Return(nil)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceConfiguration, mock.Anything).Return(nil)
+
+	err := s.sut.AddFeatures()
+	assert.NotNil(s.T(), err) // NewDeviceConfiguration failed
+}
+
+func (s *GcpMpcgSuite) Test_AddFeaturesMeasurementNilError() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	s.sut.LocalEntity = localEntity
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().DataCopy(mock.Anything).Return(nil).Maybe()
+	anyFeature.EXPECT().UpdateData(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
+	anyFeature.EXPECT().AddFunctionType(mock.Anything, mock.Anything, mock.Anything).Return()
+	localEntity.EXPECT().GetOrAddFeature(mock.Anything, mock.Anything).Return(anyFeature)
+
+	localEntity.EXPECT().Device().Return(nil)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceConfiguration, mock.Anything).Return(anyFeature)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, mock.Anything).Return(nil)
+
+	err := s.sut.AddFeatures()
+	assert.NotNil(s.T(), err) // NewMeasurement failed
+}
+
+func (s *GcpMpcgSuite) Test_AddFeaturesElectricalConnectionNilError() {
+	localEntity := spinemocks.NewEntityLocalInterface(s.T())
+	s.sut.LocalEntity = localEntity
+
+	anyFeature := spinemocks.NewFeatureLocalInterface(s.T())
+	anyFeature.EXPECT().DataCopy(mock.Anything).Return(nil).Maybe()
+	anyFeature.EXPECT().UpdateData(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
+	anyFeature.EXPECT().AddFunctionType(mock.Anything, mock.Anything, mock.Anything).Return()
+	localEntity.EXPECT().GetOrAddFeature(mock.Anything, mock.Anything).Return(anyFeature)
+
+	localEntity.EXPECT().Device().Return(nil)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceConfiguration, mock.Anything).Return(anyFeature)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeMeasurement, mock.Anything).Return(anyFeature)
+	localEntity.EXPECT().FeatureOfTypeAndRole(model.FeatureTypeTypeElectricalConnection, mock.Anything).Return(nil)
+
+	err := s.sut.AddFeatures()
+	assert.NotNil(s.T(), err) // NewMeasurement failed
+}
+
+func (s *MgcpUsecaseSuite) Test_configurePvFeedInLimitationFactorError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		&MonitorPvFeedInPowerLimitationFactorConfig{},
+		&MonitorPowerConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	)
+	assert.Nil(s.T(), err)
+
+	deviceConfiguration := mocks.NewDeviceConfigurationServerInterface(s.T())
+	deviceConfiguration.EXPECT().AddKeyValueDescription(mock.Anything).Return(nil)
+
+	err = mgcp.configurePvFeedInLimitationFactor(deviceConfiguration)
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MgcpUsecaseSuite) Test_configureMonitorPowerError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		&MonitorPvFeedInPowerLimitationFactorConfig{},
+		&MonitorPowerConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	)
+	assert.Nil(s.T(), err)
+
+	measurements := mocks.NewMeasurementServerInterface(s.T())
+	electricalConnection := mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnectionId := model.ElectricalConnectionIdType(0)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	mgcp.powerConfig = nil
+	err = mgcp.configureMonitorPower(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+
+	mgcp.powerConfig = &MonitorPowerConfig{
+		ValueSource: nil,
+	}
+	err = mgcp.configureMonitorPower(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+
+	mgcp.powerConfig = &MonitorPowerConfig{
+		ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+	}
+
+	measurements.EXPECT().AddDescription(mock.Anything).Return(nil)
+	electricalConnection.EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+	err = mgcp.configureMonitorPower(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MgcpUsecaseSuite) Test_configureGridFeedInError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		&MonitorPvFeedInPowerLimitationFactorConfig{},
+		&MonitorPowerConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	)
+	assert.Nil(s.T(), err)
+
+	measurements := mocks.NewMeasurementServerInterface(s.T())
+	electricalConnection := mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnectionId := model.ElectricalConnectionIdType(0)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	mgcp.energyConfig = nil
+	err = mgcp.configureGridFeedIn(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+
+	mgcp.energyConfig = &MonitorEnergyConfig{
+		ValueSourceProduction: nil,
+	}
+	err = mgcp.configureGridFeedIn(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+
+	mgcp.energyConfig = &MonitorEnergyConfig{
+		ValueSourceProduction: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+	}
+
+	measurements.EXPECT().AddDescription(mock.Anything).Return(nil)
+	electricalConnection.EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+	err = mgcp.configureGridFeedIn(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MgcpUsecaseSuite) Test_configureGridConsumptionError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		&MonitorPvFeedInPowerLimitationFactorConfig{},
+		&MonitorPowerConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	)
+	assert.Nil(s.T(), err)
+
+	measurements := mocks.NewMeasurementServerInterface(s.T())
+	electricalConnection := mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnectionId := model.ElectricalConnectionIdType(0)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	mgcp.energyConfig = nil
+	err = mgcp.configureGridConsumption(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+
+	mgcp.energyConfig = &MonitorEnergyConfig{
+		ValueSourceConsumption: nil,
+	}
+	err = mgcp.configureGridConsumption(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+
+	mgcp.energyConfig = &MonitorEnergyConfig{
+		ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+	}
+
+	measurements.EXPECT().AddDescription(mock.Anything).Return(nil)
+	electricalConnection.EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+	err = mgcp.configureGridConsumption(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err)
+}
+
+func (s *MgcpUsecaseSuite) Test_configureMonitorCurrentError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		&MonitorPvFeedInPowerLimitationFactorConfig{},
+		&MonitorPowerConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	)
+	assert.Nil(s.T(), err)
+
+	measurements := mocks.NewMeasurementServerInterface(s.T())
+	electricalConnection := mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnectionId := model.ElectricalConnectionIdType(0)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	measurements.EXPECT().AddDescription(mock.Anything).Return(nil)
+	electricalConnection.EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	currentConfigurations := []MonitorCurrentConfig{
+		{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		{
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		{
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	}
+
+	for _, currentConfig := range currentConfigurations {
+		mgcp.currentConfig = &currentConfig
+		err = mgcp.configureMonitorCurrent(measurements, electricalConnection, &electricalConnectionId, &constraints)
+		assert.NotNil(s.T(), err) // failed to add parameter description
+	}
+}
+
+func (s *MgcpUsecaseSuite) Test_configureMonitorVoltageError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		&MonitorPvFeedInPowerLimitationFactorConfig{},
+		&MonitorPowerConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	)
+	assert.Nil(s.T(), err)
+
+	measurements := mocks.NewMeasurementServerInterface(s.T())
+	electricalConnection := mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnectionId := model.ElectricalConnectionIdType(0)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	measurements.EXPECT().AddDescription(mock.Anything).Return(nil)
+	electricalConnection.EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	voltageConfigurations := []MonitorVoltageConfig{
+		{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		{
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		{
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		{
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		{
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		{
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	}
+
+	for _, voltageConfig := range voltageConfigurations {
+		mgcp.voltageConfig = &voltageConfig
+		err = mgcp.configureMonitorVoltage(measurements, electricalConnection, &electricalConnectionId, &constraints)
+		assert.NotNil(s.T(), err) // failed to add parameter description
+	}
+}
+
+func (s *MgcpUsecaseSuite) Test_configureMonitorFrequencyError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		&MonitorPvFeedInPowerLimitationFactorConfig{},
+		&MonitorPowerConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueConstraints: util.Ptr(model.MeasurementConstraintsDataType{
+				ValueRangeMin: model.NewScaledNumberType(0),
+				ValueRangeMax: model.NewScaledNumberType(100),
+				ValueStepSize: model.NewScaledNumberType(1),
+			}),
+		},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeCalculatedValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorCurrentConfig{
+			ValueSourcePhaseA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorVoltageConfig{
+			ValueSourcePhaseA:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseAToB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePhaseCToA: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		&MonitorFrequencyConfig{
+			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+	)
+	assert.Nil(s.T(), err)
+
+	measurements := mocks.NewMeasurementServerInterface(s.T())
+	electricalConnection := mocks.NewElectricalConnectionServerInterface(s.T())
+	electricalConnectionId := model.ElectricalConnectionIdType(0)
+	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
+	measurements.EXPECT().AddDescription(mock.Anything).Return(nil)
+	electricalConnection.EXPECT().AddParameterDescription(mock.Anything).Return(nil)
+
+	err = mgcp.configureMonitorFrequency(measurements, electricalConnection, &electricalConnectionId, &constraints)
+	assert.NotNil(s.T(), err) // failed to add parameter description
 }

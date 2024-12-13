@@ -212,8 +212,8 @@ func (m *MGCP) AddFeatures() error {
 	constraints := make([]model.MeasurementConstraintsDataType, 0)
 
 	configMethods := []func(
-		measurements *server.Measurement,
-		electricalConnection *server.ElectricalConnection,
+		measurements api.MeasurementServerInterface,
+		electricalConnection api.ElectricalConnectionServerInterface,
 		electricalConnectionId *model.ElectricalConnectionIdType,
 		measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 	) error{
@@ -244,7 +244,7 @@ func (m *MGCP) AddFeatures() error {
 }
 
 func (m *MGCP) configurePvFeedInLimitationFactor(
-	configurations *server.DeviceConfiguration,
+	configurations api.DeviceConfigurationServerInterface,
 ) error {
 	if m.limitationConfig == nil {
 		return nil
@@ -264,8 +264,8 @@ func (m *MGCP) configurePvFeedInLimitationFactor(
 }
 
 func (m *MGCP) configureMonitorPower(
-	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	measurements api.MeasurementServerInterface,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -307,8 +307,8 @@ func (m *MGCP) configureMonitorPower(
 }
 
 func (m *MGCP) configureGridFeedIn(
-	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	measurements api.MeasurementServerInterface,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -346,8 +346,8 @@ func (m *MGCP) configureGridFeedIn(
 }
 
 func (m *MGCP) configureGridConsumption(
-	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	measurements api.MeasurementServerInterface,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -385,8 +385,8 @@ func (m *MGCP) configureGridConsumption(
 }
 
 func (m *MGCP) configureMonitorCurrent(
-	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	measurements api.MeasurementServerInterface,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -447,8 +447,8 @@ func (m *MGCP) configureMonitorCurrent(
 }
 
 func (m *MGCP) configureMonitorVoltage(
-	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	measurements api.MeasurementServerInterface,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
@@ -519,8 +519,8 @@ func (m *MGCP) configureMonitorVoltage(
 }
 
 func (m *MGCP) configureMonitorFrequency(
-	measurements *server.Measurement,
-	electricalConnection *server.ElectricalConnection,
+	measurements api.MeasurementServerInterface,
+	electricalConnection api.ElectricalConnectionServerInterface,
 	electricalConnectionId *model.ElectricalConnectionIdType,
 	measurementsConstraintData *[]model.MeasurementConstraintsDataType,
 ) error {
