@@ -42,6 +42,9 @@ func (s *MgcpUsecaseSuite) BeforeTest(_, _ string) {
 	_ = s.service.Setup()
 }
 
+func (s *MgcpUsecaseSuite) Event(_ string, _ spineapi.DeviceRemoteInterface, _ spineapi.EntityRemoteInterface, _ api.EventType) {
+}
+
 func (s *MgcpUsecaseSuite) Test_RequiredParameters() {
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
 
@@ -203,7 +206,4 @@ func (s *MgcpUsecaseSuite) Test_getMeasurementForId() {
 	m, err = mgcp.getMeasurementDataForId(id)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), value, m)
-}
-
-func (s *MgcpUsecaseSuite) Event(_ string, _ spineapi.DeviceRemoteInterface, _ spineapi.EntityRemoteInterface, _ api.EventType) {
 }
