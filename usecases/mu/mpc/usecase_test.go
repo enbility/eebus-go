@@ -128,6 +128,22 @@ func (s *MuMpcUsecaseSuite) Test_MpcOptionalParameters() {
 	}
 }
 
+func (s *MuMpcUsecaseSuite) Test_MpcRequredParametersError() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
+
+	_, err := NewMPC(
+		localEntity,
+		s.Event,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	assert.NotNil(s.T(), err)
+}
+
 func (s *MuMpcUsecaseSuite) Test_getMeasurementDataForId() {
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeInverter)
 
