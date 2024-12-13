@@ -280,17 +280,24 @@ func (s *MuMpcUsecaseSuite) Test_configureMonitorPower() {
 	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
 	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
 
-	err = mpc.configureMonitorPower(
-		measurements,
-		electricalConnection,
-		&electricalConnectionId,
-		nil,
-	)
+	constellationsToCheck := []*ConnectedPhases{
+		util.Ptr(ConnectedPhasesA),
+		util.Ptr(ConnectedPhasesB),
+		util.Ptr(ConnectedPhasesC),
+	}
 
-	assert.NotNil(s.T(), err) // could not add parameter description TODO
+	for _, phaseConstellation := range constellationsToCheck {
+		mpc.powerConfig.ConnectedPhases = *phaseConstellation
 
-	electricalConnection, err = server.NewElectricalConnection(localEntity)
-	assert.Nil(s.T(), err)
+		err = mpc.configureMonitorPower(
+			measurements,
+			electricalConnection,
+			&electricalConnectionId,
+			nil,
+		)
+
+		assert.NotNil(s.T(), err) // could not add parameter description
+	}
 }
 
 func (s *MuMpcUsecaseSuite) Test_configureMonitorEnergy() {
@@ -406,13 +413,24 @@ func (s *MuMpcUsecaseSuite) Test_configureMonitorCurrent() {
 	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
 	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
 
-	err = mpc.configureMonitorCurrent(
-		measurements,
-		electricalConnection,
-		&electricalConnectionId,
-		&constraints,
-	)
-	assert.NotNil(s.T(), err) // could not add parameter description TODO
+	constellationsToCheck := []*ConnectedPhases{
+		util.Ptr(ConnectedPhasesA),
+		util.Ptr(ConnectedPhasesB),
+		util.Ptr(ConnectedPhasesC),
+	}
+
+	for _, phaseConstellation := range constellationsToCheck {
+		mpc.powerConfig.ConnectedPhases = *phaseConstellation
+
+		err = mpc.configureMonitorCurrent(
+			measurements,
+			electricalConnection,
+			&electricalConnectionId,
+			&constraints,
+		)
+
+		assert.NotNil(s.T(), err) // could not add parameter description
+	}
 }
 
 func (s *MuMpcUsecaseSuite) Test_configureMonitorVoltage() {
@@ -463,16 +481,28 @@ func (s *MuMpcUsecaseSuite) Test_configureMonitorVoltage() {
 
 	electricalConnectionId := model.ElectricalConnectionIdType(111)
 	constraints := make([]model.MeasurementConstraintsDataType, 0)
+
 	electricalConnection = mocks.NewElectricalConnectionServerInterface(s.T())
 	electricalConnection.(*mocks.ElectricalConnectionServerInterface).EXPECT().AddParameterDescription(mock.Anything).Return(nil)
 
-	err = mpc.configureMonitorVoltage(
-		measurements,
-		electricalConnection,
-		&electricalConnectionId,
-		&constraints,
-	)
-	assert.NotNil(s.T(), err) // could not add parameter description TODO
+	constellationsToCheck := []*ConnectedPhases{
+		util.Ptr(ConnectedPhasesA),
+		util.Ptr(ConnectedPhasesB),
+		util.Ptr(ConnectedPhasesC),
+	}
+
+	for _, phaseConstellation := range constellationsToCheck {
+		mpc.powerConfig.ConnectedPhases = *phaseConstellation
+
+		err = mpc.configureMonitorVoltage(
+			measurements,
+			electricalConnection,
+			&electricalConnectionId,
+			&constraints,
+		)
+
+		assert.NotNil(s.T(), err) // could not add parameter description
+	}
 }
 
 func (s *MuMpcUsecaseSuite) Test_configureMonitorFrequency() {
@@ -531,5 +561,5 @@ func (s *MuMpcUsecaseSuite) Test_configureMonitorFrequency() {
 		&electricalConnectionId,
 		&constraints,
 	)
-	assert.NotNil(s.T(), err) // could not add parameter description TODO
+	assert.NotNil(s.T(), err) // could not add parameter description
 }
