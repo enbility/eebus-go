@@ -34,20 +34,31 @@ func MeasurementPhaseSpecificDataForFilter(
 	}
 
 	var result []float64
+	if validPhaseNameTypes != nil {
+		// pre-allocate result array for each possible phase so we can add phases to it in arbitrary order
+		result = make([]float64, len(validPhaseNameTypes))
+	}
 
 	for _, item := range data {
 		if item.Value == nil || item.MeasurementId == nil {
 			continue
 		}
 
+		phaseIndex := -1
 		if validPhaseNameTypes != nil {
 			filter := model.ElectricalConnectionParameterDescriptionDataType{
 				MeasurementId: item.MeasurementId,
 			}
 			param, err := electricalConnection.GetParameterDescriptionsForFilter(filter)
-			if err != nil || len(param) == 0 ||
-				param[0].AcMeasuredPhases == nil ||
-				!slices.Contains(validPhaseNameTypes, *param[0].AcMeasuredPhases) {
+			if err != nil || len(param) == 0 || param[0].AcMeasuredPhases == nil {
+				// error getting parameter description
+				continue
+			}
+
+			// calculate the offset into result for the measured phase
+			phaseIndex = slices.Index(validPhaseNameTypes, *param[0].AcMeasuredPhases)
+			if phaseIndex == -1 {
+				// ignore phase measurements not specified in validPhaseNameTypes
 				continue
 			}
 		}
@@ -75,7 +86,13 @@ func MeasurementPhaseSpecificDataForFilter(
 
 		value := item.Value.GetValue()
 
-		result = append(result, value)
+		if validPhaseNameTypes == nil {
+			// measurement is not for a specific phase
+			result = append(result, value)
+		} else {
+			// measurement is for a specific phase, store the value at the corresponding phaseIndex
+			result[phaseIndex] = value
+		}
 	}
 
 	return result, nil

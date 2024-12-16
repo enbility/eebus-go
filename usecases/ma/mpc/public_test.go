@@ -146,7 +146,7 @@ func (s *MaMPCSuite) Test_PowerPerPhase() {
 
 	data, err = s.sut.PowerPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.Equal(s.T(), []float64{0, 0, 0}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -405,7 +405,7 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 
 	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.Equal(s.T(), []float64{0, 0, 0}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -510,7 +510,7 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 
 	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.Equal(s.T(), []float64{0, 0, 0}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
