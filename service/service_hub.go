@@ -39,7 +39,7 @@ func (s *Service) VisibleRemoteServicesUpdated(entries []shipapi.RemoteService) 
 
 // Provides the SHIP ID the remote service reported during the handshake process
 // This needs to be persisted and passed on for future remote service connections
-// when using `PairRemoteService`
+// when using `RegisterRemoteSKI`
 func (s *Service) ServiceShipIDUpdate(ski string, shipdID string) {
 	s.serviceHandler.ServiceShipIDUpdate(ski, shipdID)
 }

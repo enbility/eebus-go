@@ -62,8 +62,17 @@ type ServiceInterface interface {
 	// Returns the Service detail of a remote SKI
 	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
 
-	// Sets the SKI as being paired
-	RegisterRemoteSKI(ski string)
+	// Pair a remote service based on the SKI
+	//
+	// Parameters:
+	// - ski: the SKI of the remote service (required)
+	// - shipID: the SHIP ID of the remote service (optional)
+	//
+	// Note: The SHIP ID is optional, but should be provided if available.
+	// if provided, it will be used to validate the remote service is
+	// providing this SHIP ID during the handshake process and will reject
+	// the connection if it does not match.
+	RegisterRemoteSKI(ski, shipID string)
 
 	// Sets the SKI as not being paired
 	UnregisterRemoteSKI(ski string)
@@ -105,7 +114,7 @@ type ServiceReaderInterface interface {
 
 	// Provides the SHIP ID the remote service reported during the handshake process
 	// This needs to be persisted and passed on for future remote service connections
-	// when using `PairRemoteService`
+	// when using `RegisterRemoteSKI`
 	ServiceShipIDUpdate(ski string, shipdID string)
 
 	// Provides the current pairing state for the remote service

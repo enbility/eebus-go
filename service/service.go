@@ -246,10 +246,18 @@ func (s *Service) QRCodeText() string {
 	return s.mdns.QRCodeText()
 }
 
-// Sets the SKI as being paired
-// and connect it if paired and not currently being connected
-func (s *Service) RegisterRemoteSKI(ski string) {
-	s.connectionsHub.RegisterRemoteSKI(ski)
+// Pair a remote service based on the SKI
+//
+// Parameters:
+// - ski: the SKI of the remote service (required)
+// - shipID: the SHIP ID of the remote service (optional)
+//
+// Note: The SHIP ID is optional, but should be provided if available.
+// if provided, it will be used to validate the remote service is
+// providing this SHIP ID during the handshake process and will reject
+// the connection if it does not match.
+func (s *Service) RegisterRemoteSKI(ski, shipID string) {
+	s.connectionsHub.RegisterRemoteSKI(ski, shipID)
 }
 
 // Sets the SKI as not being paired

@@ -94,7 +94,7 @@ func (h *heatpump) run() {
 	h.AddFeatures()
 	_ = spine.Events.Subscribe(h)
 
-	h.myService.RegisterRemoteSKI(remoteSki)
+	h.myService.RegisterRemoteSKI(remoteSki, "")
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()

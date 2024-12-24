@@ -104,7 +104,7 @@ func (h *controlbox) run() {
 		os.Exit(0)
 	}
 
-	h.myService.RegisterRemoteSKI(remoteSki)
+	h.myService.RegisterRemoteSKI(remoteSki, "")
 
 	h.myService.Start()
 	// defer h.myService.Shutdown()

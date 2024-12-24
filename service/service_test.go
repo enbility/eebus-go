@@ -132,8 +132,8 @@ func (s *ServiceSuite) Test_ConnectionsHub() {
 	s.mdns.EXPECT().QRCodeText().Return("text")
 	assert.Equal(s.T(), "text", s.sut.QRCodeText())
 
-	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything).Return()
-	s.sut.RegisterRemoteSKI(testSki)
+	s.conHub.EXPECT().RegisterRemoteSKI(mock.Anything, mock.Anything).Return()
+	s.sut.RegisterRemoteSKI(testSki, "")
 
 	s.conHub.EXPECT().UnregisterRemoteSKI(mock.Anything).Return()
 	s.sut.UnregisterRemoteSKI(testSki)
