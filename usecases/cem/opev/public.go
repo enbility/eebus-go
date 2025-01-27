@@ -31,13 +31,13 @@ func (e *OPEV) CurrentLimits(entity spineapi.EntityRemoteInterface) ([]float64, 
 		return nil, nil, nil, err
 	}
 
-	filter := model.LoadControlLimitDescriptionDataType {
+	filter := model.LoadControlLimitDescriptionDataType{
 		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
 		LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
 		Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
 		ScopeType:     util.Ptr(model.ScopeTypeTypeOverloadProtection),
 	}
-	
+
 	limitDescs, err := lc.GetLimitDescriptionsForFilter(filter)
 	if err != nil {
 		return nil, nil, nil, err

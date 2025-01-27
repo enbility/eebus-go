@@ -23,11 +23,10 @@ func (s *CemOPEVSuite) Test_Public() {
 	assert.NotNil(s.T(), meas)
 
 	lData := &model.LoadControlLimitDescriptionListDataType{
-		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
-		},
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{},
 	}
 
-	_,errT := lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
+	_, errT := lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
 	assert.Nil(s.T(), errT)
 
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
@@ -36,16 +35,16 @@ func (s *CemOPEVSuite) Test_Public() {
 	lData = &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
-				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
 				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
-				LimitType: util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
-				Unit: util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType: util.Ptr(model.ScopeTypeTypeOverloadProtection),
+				LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				Unit:          util.Ptr(model.UnitOfMeasurementTypeA),
+				ScopeType:     util.Ptr(model.ScopeTypeTypeOverloadProtection),
 			},
 		},
 	}
 
-	_,errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
+	_, errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, nil, nil)
 	assert.Nil(s.T(), errT)
 
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
@@ -54,13 +53,13 @@ func (s *CemOPEVSuite) Test_Public() {
 	lData = &model.LoadControlLimitDescriptionListDataType{
 		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
 			{
-				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 			},
 		},
 	}
 
-	_,errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, &model.FilterType{}, nil)
+	_, errT = lc.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, lData, &model.FilterType{}, nil)
 	assert.Nil(s.T(), errT)
 
 	_, _, _, err = s.sut.CurrentLimits(s.evEntity)
