@@ -1,17 +1,53 @@
 package mpc
 
 import (
+	"encoding/json"
 	"errors"
+	"time"
+
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
-	"time"
 )
 
 type UpdateData struct {
 	supported         bool
 	notSupportedError error
 	measurementData   api.MeasurementDataForID
+}
+
+type serUpdateData struct {
+	Supported         bool
+	NotSupportedError string
+	MeasurementData   api.MeasurementDataForID
+}
+
+func (r *UpdateData) UnmarshalJSON(data []byte) error {
+	aux := serUpdateData{}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	r.supported = aux.Supported
+	if aux.NotSupportedError != "" {
+		r.notSupportedError = errors.New(aux.NotSupportedError)
+	}
+	r.measurementData = aux.MeasurementData
+
+	return nil
+}
+
+func (r *UpdateData) MarshalJSON() ([]byte, error) {
+	aux := serUpdateData{
+		Supported:       r.supported,
+		MeasurementData: r.measurementData,
+	}
+	if r.notSupportedError != nil {
+		aux.NotSupportedError = r.notSupportedError.Error()
+	}
+
+	return json.Marshal(aux)
 }
 
 func (u *UpdateData) Supported() bool {
