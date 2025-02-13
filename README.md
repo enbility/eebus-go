@@ -31,9 +31,9 @@ The supported functionality contains:
 
 ## Examples
 
-The examples folder contains a few demo applications using this stack. These are **not** providing complete implementations of any use case, but are intended as usage guidelines for the eebus-go stack in general and to have a quick demo.
+The examples folder contains a few demo applications using this stack. These do **not** provide complete implementations of any use case, but are intended as usage guidelines for the eebus-go stack in general and to have a quick demo.
 
-Therefor please do not expect any of these examples to provide any meaningful functionality to be used with real end devices!
+Therefore, please do not expect any of these examples to provide any meaningful functionality on their own, but instead view them as rough guidelines on the functionality you could implement using the eebus-go stack.
 
 ### Controlbox
 
@@ -45,7 +45,7 @@ This includes example code for sending an LPC limit 5 seconds after connecting t
 go run cmd/controlbox/main.go 4713
 ```
 
-`4715` is the example server port that this process should use
+`4713` is the example server port that this process should listen on
 
 The certificate and key and the local SKI will be generated and printed. You should then save the certificate and the key to a file.
 
@@ -69,7 +69,7 @@ This includes example code for accepting LPC and LPP limits from a control box, 
 go run cmd/hems/main.go 4714
 ```
 
-`4715` is the example server port that this process should use
+`4714` is the example server port that this process should listen on
 
 The certificate and key and the local SKI will be generated and printed. You should then save the certificate and the key to a file.
 
@@ -93,7 +93,7 @@ This includes example code for accepting LPC from a control box.
 go run cmd/hems/main.go 4715
 ```
 
-`4715` is the example server port that this process should use
+`4715` is the example server port that this process should listen on
 
 The certificate and key and the local SKI will be generated and printed. You should then save the certificate and the key to a file.
 
