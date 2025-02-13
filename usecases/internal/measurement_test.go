@@ -315,3 +315,82 @@ func (s *InternalSuite) Test_GetPowerTotalMeasurementId() {
 	measurementId = GetPowerTotalMeasurementId(testEntity)
 	assert.Equal(s.T(), defaultPowerTotalMeasurementId, measurementId)
 }
+
+func (s *InternalSuite) Test_MeasurementSinglePhaseSpecificDataForFilter() {
+	measurementType := model.MeasurementTypeTypePower
+	commodityType := model.CommodityTypeTypeElectricity
+	scopeType := model.ScopeTypeTypeACPower
+	energyDirection := model.EnergyDirectionTypeConsume
+
+	filter := model.MeasurementDescriptionDataType{
+		MeasurementType: &measurementType,
+		CommodityType:   &commodityType,
+		ScopeType:       &scopeType,
+	}
+
+	// set up ElectricalConnection
+	elDescData := &model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+			},
+		},
+	}
+
+	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+			},
+		},
+	}
+
+	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+
+	_, fErr := rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	descData := &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	measData := &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err := MeasurementPhaseSpecificDataForFilter(
+		s.localEntity,
+		s.monitoredEntity,
+		filter,
+		energyDirection,
+		ucapi.PhaseNameMapping,
+	)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{0, 10, 0}, data)
+
+}
