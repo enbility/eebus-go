@@ -78,7 +78,13 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	return data[0], nil
+	for _, k := range data {
+		// If the Monitored Unit is connected to less than three phases, one of the other combinations like "a" or "ab" are allowed instead of "abc".
+		// The values "a", "b", and "c" are permitted if and only if only one
+		return k, nil
+	}
+	// unreachable
+	return 0, api.ErrDataNotAvailable
 }
 
 // Scenario 3
@@ -170,7 +176,7 @@ func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, e
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
-func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -191,7 +197,7 @@ func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
-func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}

@@ -118,6 +118,7 @@ func (s *GcpMGCPSuite) Test_Power() {
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
 			},
 		},
 	}
@@ -316,7 +317,7 @@ func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
 
 	data, err = s.sut.CurrentPerPhase(s.smgwEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{0, 0, 0}, data)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -356,7 +357,7 @@ func (s *GcpMGCPSuite) Test_CurrentPerPhase() {
 
 	data, err = s.sut.CurrentPerPhase(s.smgwEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{10, 10, 10}, data)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{"a": 10, "b": 10, "c": 10}, data)
 }
 
 func (s *GcpMGCPSuite) Test_VoltagePerPhase() {
@@ -421,7 +422,7 @@ func (s *GcpMGCPSuite) Test_VoltagePerPhase() {
 
 	data, err = s.sut.VoltagePerPhase(s.smgwEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{0, 0, 0}, data)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -449,7 +450,7 @@ func (s *GcpMGCPSuite) Test_VoltagePerPhase() {
 
 	data, err = s.sut.VoltagePerPhase(s.smgwEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{230, 230, 230}, data)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{"a": 230, "b": 230, "c": 230}, data)
 }
 
 func (s *GcpMGCPSuite) Test_Frequency() {
