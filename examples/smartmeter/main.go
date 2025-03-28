@@ -18,8 +18,6 @@ import (
 	"github.com/enbility/eebus-go/service"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 
-	// "github.com/enbility/eebus-go/usecases/cem/vabd"
-	// "github.com/enbility/eebus-go/usecases/cem/vapd"
 	gcpmgcp "github.com/enbility/eebus-go/usecases/gcp/mgcp"
 	mumpc "github.com/enbility/eebus-go/usecases/mu/mpc"
 	shipapi "github.com/enbility/ship-go/api"
@@ -35,9 +33,6 @@ type smartmeter struct {
 
 	ucgcpmgcp ucapi.GcpMGCPInterface
 	ucmumpc   ucapi.MuMPCInterface
-
-	// uccemvabd ucapi.CemVABDInterface
-	// uccemvapd ucapi.CemVAPDInterface
 
 	gridPowerLimitFactor float64
 	gridPower            float64
@@ -89,9 +84,9 @@ func (h *smartmeter) run() {
 
 	configuration, err := api.NewConfiguration(
 		"Demo", "Demo", "SmartMeter", "123456789",
-		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
-		model.DeviceTypeTypeEnergyManagementSystem,
-		[]model.EntityTypeType{model.EntityTypeTypeSubMeterElectricity},
+		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeMetering},
+		model.DeviceTypeTypeSubmeter,
+		[]model.EntityTypeType{model.EntityTypeTypeGridConnectionPointOfPremises, model.EntityTypeTypeSubMeterElectricity},
 		port, certificate, time.Second*4)
 	if err != nil {
 		log.Fatal(err)
@@ -106,19 +101,14 @@ func (h *smartmeter) run() {
 		return
 	}
 
-	localEntityCEM := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
-	h.ucgcpmgcp = gcpmgcp.NewMGCP(localEntityCEM, h.OnMGCPEvent)
+	localEntityGCPP := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeGridConnectionPointOfPremises)
+	h.ucgcpmgcp = gcpmgcp.NewMGCP(localEntityGCPP, h.OnMGCPEvent)
 	h.myService.AddUseCase(h.ucgcpmgcp)
-	// h.uccemvabd = vabd.NewVABD(localEntityCEM, h.OnVABDEvent)
-	// h.myService.AddUseCase(h.uccemvabd)
-	// h.uccemvapd = vapd.NewVAPD(localEntityCEM, h.OnVAPDEvent)
-	// h.myService.AddUseCase(h.uccemvapd)
 
 	localEntitySME := h.myService.LocalDevice().EntityForType(model.EntityTypeTypeSubMeterElectricity)
 	h.ucmumpc = mumpc.NewMPC(localEntitySME, h.OnMPCEvent)
 	h.myService.AddUseCase(h.ucmumpc)
 
-	//_ = h.ucmamgcp.
 	if len(remoteSki) == 0 {
 		os.Exit(0)
 	}
@@ -191,8 +181,6 @@ func (h *smartmeter) run() {
 		}
 	}()
 
-	h.myService.RegisterRemoteSKI(remoteSki)
-
 	h.myService.Start()
 	// defer h.myService.Shutdown()
 }
@@ -209,11 +197,21 @@ func (h *smartmeter) OnMPCEvent(ski string, device spineapi.DeviceRemoteInterfac
 
 // EEBUSServiceHandler
 
-func (h *smartmeter) RemoteSKIConnected(service api.ServiceInterface, ski string) {}
+func (h *smartmeter) RemoteSKIConnected(service api.ServiceInterface, ski string) {
+	time.AfterFunc(1*time.Second, func() {
+		_ = h.ucgcpmgcp.SetPowerLimitationFactor(h.gridPowerLimitFactor)
+	})
+}
 
 func (h *smartmeter) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {}
 
 func (h *smartmeter) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
+	for _, element := range entries {
+		if element.Ski == remoteSki {
+			service := h.myService.RemoteServiceForSKI(element.Ski)
+			service.SetTrusted(true)
+		}
+	}
 }
 
 func (h *smartmeter) ServiceShipIDUpdate(ski string, shipdID string) {}
