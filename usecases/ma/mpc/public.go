@@ -28,6 +28,7 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
 	}
+	// acMeasuredPhases is optional for total active power, therefore we pass nil for validPhaseNameTypes
 	values, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil)
 	if err != nil {
 		return 0, err
@@ -38,7 +39,7 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 
 	for _, k := range values {
 		// If the Monitored Unit is connected to less than three phases, one of the other combinations like "a" or "ab" are allowed instead of "abc".
-		// The values "a", "b", and "c" are permitted if and only if only one
+		// The values "a", "b", and "c" are permitted if and only if only one phase is connected
 		return k, nil
 	}
 	// unreachable

@@ -44,13 +44,22 @@ func MeasurementPhaseSpecificDataForFilter(
 			MeasurementId: item.MeasurementId,
 		}
 		param, err := electricalConnection.GetParameterDescriptionsForFilter(filter)
-		if err != nil || len(param) == 0 || param[0].AcMeasuredPhases == nil {
+		if err != nil || len(param) == 0 {
 			// error getting parameter description
 			continue
 		}
 
-		// calculate the offset into result for the measured phase
-		phaseName := *param[0].AcMeasuredPhases
+		var phaseName model.ElectricalConnectionPhaseNameType
+		if param[0].AcMeasuredPhases != nil {
+			phaseName = *param[0].AcMeasuredPhases
+		} else if validPhaseNameTypes == nil {
+			// if we're not filtering by valid phase names, allow acMeasuredPhases to be unset
+			phaseName = model.ElectricalConnectionPhaseNameTypeNone
+		} else {
+			// error getting parameter description
+			continue
+		}
+
 		if validPhaseNameTypes != nil &&
 			!slices.Contains(validPhaseNameTypes, phaseName) {
 			// ignore phase measurements not specified in validPhaseNameTypes
