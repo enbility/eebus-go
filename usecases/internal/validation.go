@@ -28,9 +28,15 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"github.com/enbility/spine-go/model"
 )
+
+// ErrSkipMeasurement indicates that a measurement should be skipped during validation
+// This is used for MGCP-003 compliance where measurements with "error" or "outOfRange" 
+// states should be ignored by the Monitoring Appliance
+var ErrSkipMeasurement = errors.New("measurement should be skipped")
 
 // ========================================
 // Generic Validation System

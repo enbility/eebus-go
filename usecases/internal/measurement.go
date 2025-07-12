@@ -22,7 +22,7 @@ func MeasurementPhaseSpecificDataForFilter(
 	measurementFilter model.MeasurementDescriptionDataType,
 	energyDirection model.EnergyDirectionType,
 	validPhaseNameTypes []model.ElectricalConnectionPhaseNameType,
-	validator *MeasurementValidator, // NEW: Required validator
+	validator *MeasurementValidator,
 ) ([]float64, error) {
 	measurement, err := client.NewMeasurement(localEntity, remoteEntity)
 	electricalConnection, err1 := client.NewElectricalConnection(localEntity, remoteEntity)
@@ -45,6 +45,8 @@ func MeasurementPhaseSpecificDataForFilter(
 	for _, item := range data {
 		// Use validator instead of basic nil checks
 		if err := validator.Validate(&item); err != nil {
+			// For MGCP-003 compliance, we explicitly handle ErrSkipMeasurement
+			// All other validation errors also result in skipping the measurement
 			continue // Skip invalid measurements, don't fail entire operation
 		}
 
@@ -84,6 +86,7 @@ func MeasurementPhaseSpecificDataForFilter(
 	}
 
 	// Handle case where no measurements passed validation
+	// Return error consistently for both MPC and MGCP when no valid data is found
 	if len(result) == 0 {
 		return nil, api.ErrDataNotAvailable
 	}
@@ -244,6 +247,28 @@ func RequireValueSource(allowed ...model.MeasurementValueSourceType) ValidationR
 	)
 }
 
+// RequireValueSourceMandatory ensures ValueSource is present and one of allowed types
+func RequireValueSourceMandatory(allowed ...model.MeasurementValueSourceType) ValidationRule[*model.MeasurementDataType] {
+	return func(m *model.MeasurementDataType) error {
+		if m.ValueSource == nil {
+			return fmt.Errorf("ValueSource is required")
+		}
+		
+		if len(allowed) == 0 {
+			return nil // Any value is acceptable if no restrictions
+		}
+		
+		// Validate against allowed values
+		for _, allowed := range allowed {
+			if *m.ValueSource == allowed {
+				return nil
+			}
+		}
+		
+		return fmt.Errorf("ValueSource must be one of %v, got %s", allowed, *m.ValueSource)
+	}
+}
+
 // ValidateValueState validates the value state with optional requirement
 func ValidateValueState(expected model.MeasurementValueStateType, required bool) ValidationRule[*model.MeasurementDataType] {
 	return func(m *model.MeasurementDataType) error {
@@ -271,21 +296,158 @@ func ValidateMeasurementRange(min, max float64) ValidationRule[*model.Measuremen
 	)
 }
 
-// Common measurement validators for reuse
+// ========================================
+// MGCP-003 Rule Implementation
+// ========================================
+
+// SkipValueState implements MGCP-003 rule: Values with state "outOfRange" or "error" 
+// SHALL be ignored by the Monitoring Appliance.
+//
+// This rule replaces the previous incorrect behavior of returning ErrDataInvalid
+// for non-normal states. Per MGCP specification, such values should be silently
+// ignored (skipped) rather than causing errors.
+//
+// Usage: Include this rule in MGCP validators to ensure compliance with MGCP-003.
+func SkipValueState() ValidationRule[*model.MeasurementDataType] {
+	return func(m *model.MeasurementDataType) error {
+		if m.ValueState == nil {
+			return nil // ValueState is optional, nil is acceptable
+		}
+		
+		// Per MGCP-003: ignore measurements with error or outOfRange states
+		if *m.ValueState == model.MeasurementValueStateTypeError ||
+		   *m.ValueState == model.MeasurementValueStateTypeOutofrange {
+			return fmt.Errorf("skipping measurement with ValueState: %s (MGCP-003)", *m.ValueState)
+		}
+		
+		return nil // Accept all other states (normal, unknown, etc.)
+	}
+}
+
+// ========================================
+// MGCP Specification-Compliant Validators
+// ========================================
+//
+// These validators implement the exact requirements from
+// EEBus_UC_TS_MonitoringOfGridConnectionPoint_V1.0.0_public.md
+
+// MGCPPowerValidator validates MGCP Scenario 2 (Power) measurements.
+//
+// MGCP Specification Requirements:
+// - measurementId: M (Mandatory)
+// - valueType: M (Mandatory) = "value"
+// - value: M (Mandatory)
+// - valueSource: R (Recommended) = "measuredValue"|"calculatedValue"|"empiricalValue"
+// - valueState: R (Recommended) with MGCP-003 rule
+//
+// MGCP-003 Rule: Values with state "outOfRange" or "error" SHALL be ignored
+var MGCPPowerValidator = NewMeasurementValidator().
+	WithName("MGCP Power (Scenario 2)").
+	WithRule(RequireMeasurementId()).                              // M: Mandatory
+	WithRule(RequireMeasurementValue()).                           // M: Mandatory
+	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)). // M: Mandatory = "value"
+	WithRule(RequireValueSource(                                   // R: Recommended
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+		model.MeasurementValueSourceTypeEmpiricalValue,
+	)).
+	WithRule(SkipValueState()) // R: Recommended with MGCP-003
+
+// MGCPEnergyValidator validates MGCP Scenarios 3&4 (Energy) measurements.
+//
+// MGCP Specification Requirements:
+// - measurementId: M (Mandatory)
+// - valueType: M (Mandatory) = "value"
+// - value: M (Mandatory)
+// - valueSource: M (Mandatory) = "measuredValue"|"calculatedValue"|"empiricalValue"
+// - valueState: R (Recommended) with MGCP-003 rule
+//
+// Note: ValueSource is MANDATORY for energy scenarios (3&4), unlike power (2)
+var MGCPEnergyValidator = NewMeasurementValidator().
+	WithName("MGCP Energy (Scenarios 3&4)").
+	WithRule(RequireMeasurementId()).                              // M: Mandatory
+	WithRule(RequireMeasurementValue()).                           // M: Mandatory
+	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)). // M: Mandatory = "value"
+	WithRule(RequireValueSourceMandatory(                          // M: Mandatory for energy
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+		model.MeasurementValueSourceTypeEmpiricalValue,
+	)).
+	WithRule(SkipValueState()) // R: Recommended with MGCP-003
+
+// MGCPCurrentValidator validates MGCP Scenario 5 (Current) measurements.
+//
+// MGCP Specification Requirements:
+// - measurementId: M (Mandatory)
+// - valueType: M (Mandatory) = "value"
+// - value: M (Mandatory)
+// - valueSource: R (Recommended) = "measuredValue"|"calculatedValue"|"empiricalValue"
+// - valueState: R (Recommended) with MGCP-003 rule
+var MGCPCurrentValidator = NewMeasurementValidator().
+	WithName("MGCP Current (Scenario 5)").
+	WithRule(RequireMeasurementId()).                              // M: Mandatory
+	WithRule(RequireMeasurementValue()).                           // M: Mandatory
+	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)). // M: Mandatory = "value"
+	WithRule(RequireValueSource(                                   // R: Recommended
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+		model.MeasurementValueSourceTypeEmpiricalValue,
+	)).
+	WithRule(SkipValueState()) // R: Recommended with MGCP-003
+
+// MGCPVoltageValidator validates MGCP Scenario 6 (Voltage) measurements.
+//
+// MGCP Specification Requirements:
+// - measurementId: M (Mandatory)
+// - valueType: M (Mandatory) = "value"
+// - value: M (Mandatory)
+// - valueSource: R (Recommended) = "measuredValue"|"calculatedValue"|"empiricalValue"
+// - valueState: R (Recommended) with MGCP-003 rule
+var MGCPVoltageValidator = NewMeasurementValidator().
+	WithName("MGCP Voltage (Scenario 6)").
+	WithRule(RequireMeasurementId()).                              // M: Mandatory
+	WithRule(RequireMeasurementValue()).                           // M: Mandatory
+	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)). // M: Mandatory = "value"
+	WithRule(RequireValueSource(                                   // R: Recommended
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+		model.MeasurementValueSourceTypeEmpiricalValue,
+	)).
+	WithRule(SkipValueState()) // R: Recommended with MGCP-003
+
+// MGCPFrequencyValidator validates MGCP Scenario 7 (Frequency) measurements.
+//
+// MGCP Specification Requirements:
+// - measurementId: M (Mandatory)
+// - valueType: M (Mandatory) = "value"
+// - value: M (Mandatory)
+// - valueSource: R (Recommended) = "measuredValue"|"calculatedValue"|"empiricalValue"
+// - valueState: R (Recommended) with MGCP-003 rule
+var MGCPFrequencyValidator = NewMeasurementValidator().
+	WithName("MGCP Frequency (Scenario 7)").
+	WithRule(RequireMeasurementId()).                              // M: Mandatory
+	WithRule(RequireMeasurementValue()).                           // M: Mandatory
+	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)). // M: Mandatory = "value"
+	WithRule(RequireValueSource(                                   // R: Recommended
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+		model.MeasurementValueSourceTypeEmpiricalValue,
+	)).
+	WithRule(SkipValueState()) // R: Recommended with MGCP-003
+
+// ========================================
+// Legacy Validators (for backward compatibility)
+// ========================================
+//
+// These validators maintain the previous behavior for non-MGCP use cases.
+// They should NOT be used for MGCP implementations.
 
 // PowerMeasurementValidator validates standard power measurements.
 //
-// Validates power measurements with standard requirements:
-// - MeasurementId and Value must be present
-// - ValueType must be "value"
-// - ValueSource must be measured, calculated, or empirical
-// - ValueState should be normal (but not required)
-//
-// Example:
-//
-//	value, err := GetMeasurementValue(measurements, PowerMeasurementValidator)
+// DEPRECATED: Use MGCPPowerValidator for MGCP implementations.
+// This validator maintains legacy behavior that does not comply with MGCP-003.
 var PowerMeasurementValidator = NewMeasurementValidator().
-	WithName("Power Measurement").
+	WithName("Power Measurement (Legacy)").
 	WithRule(RequireMeasurementId()).
 	WithRule(RequireMeasurementValue()).
 	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)).
@@ -298,14 +460,10 @@ var PowerMeasurementValidator = NewMeasurementValidator().
 
 // EnergyMeasurementValidator validates energy measurements.
 //
-// Similar to PowerMeasurementValidator but with stricter ValueSource requirements
-// (no empirical values allowed for energy measurements).
-//
-// Example:
-//
-//	energy, err := GetMeasurementValue(measurements, EnergyMeasurementValidator)
+// DEPRECATED: Use MGCPEnergyValidator for MGCP implementations.
+// This validator maintains legacy behavior that does not comply with MGCP-003.
 var EnergyMeasurementValidator = NewMeasurementValidator().
-	WithName("Energy Measurement").
+	WithName("Energy Measurement (Legacy)").
 	WithRule(RequireMeasurementId()).
 	WithRule(RequireMeasurementValue()).
 	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)).
@@ -316,24 +474,30 @@ var EnergyMeasurementValidator = NewMeasurementValidator().
 	WithRule(ValidateValueState(model.MeasurementValueStateTypeNormal, false))
 
 // CurrentMeasurementValidator validates current measurements
+//
+// DEPRECATED: Use MGCPCurrentValidator for MGCP implementations.
 var CurrentMeasurementValidator = NewMeasurementValidator().
-	WithName("Current Measurement").
+	WithName("Current Measurement (Legacy)").
 	WithRule(RequireMeasurementId()).
 	WithRule(RequireMeasurementValue()).
 	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)).
 	WithRule(ValidateValueState("", true)) // State required but any value OK
 
 // VoltageMeasurementValidator validates voltage measurements  
+//
+// DEPRECATED: Use MGCPVoltageValidator for MGCP implementations.
 var VoltageMeasurementValidator = NewMeasurementValidator().
-	WithName("Voltage Measurement").
+	WithName("Voltage Measurement (Legacy)").
 	WithRule(RequireMeasurementId()).
 	WithRule(RequireMeasurementValue()).
 	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)).
 	WithRule(ValidateMeasurementRange(0, 1000)) // 0-1000V reasonable range
 
 // FrequencyMeasurementValidator validates frequency measurements
+//
+// DEPRECATED: Use MGCPFrequencyValidator for MGCP implementations.
 var FrequencyMeasurementValidator = NewMeasurementValidator().
-	WithName("Frequency Measurement").
+	WithName("Frequency Measurement (Legacy)").
 	WithRule(RequireMeasurementId()).
 	WithRule(RequireMeasurementValue()).
 	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue))

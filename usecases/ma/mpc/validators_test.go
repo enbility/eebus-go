@@ -5,22 +5,18 @@ import (
 
 	internal "github.com/enbility/eebus-go/usecases/internal"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 )
-
-// Helper function for creating pointers
-func ptr[T any](v T) *T {
-	return &v
-}
 
 func TestMPCValidators(t *testing.T) {
 	t.Run("powerValidator accepts valid power measurement", func(t *testing.T) {
 		measurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(1000), // 1kW
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueState:    ptr(model.MeasurementValueStateTypeNormal),
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 		}
 
 		err := powerValidator.Validate(measurement)
@@ -29,11 +25,11 @@ func TestMPCValidators(t *testing.T) {
 
 	t.Run("powerValidator accepts empirical values", func(t *testing.T) {
 		measurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(1000),
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeEmpiricalValue), // Allowed for power
-			ValueState:    ptr(model.MeasurementValueStateTypeNormal),
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeEmpiricalValue), // Allowed for power
+			ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 		}
 
 		err := powerValidator.Validate(measurement)
@@ -42,11 +38,11 @@ func TestMPCValidators(t *testing.T) {
 
 	t.Run("energyValidator rejects empirical values", func(t *testing.T) {
 		measurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(1000),
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeEmpiricalValue), // NOT allowed for energy
-			ValueState:    ptr(model.MeasurementValueStateTypeNormal),
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeEmpiricalValue), // NOT allowed for energy
+			ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 		}
 
 		err := energyValidator.Validate(measurement)
@@ -56,11 +52,11 @@ func TestMPCValidators(t *testing.T) {
 
 	t.Run("currentValidator accepts any value state", func(t *testing.T) {
 		measurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(10), // 10A
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueState:    ptr(model.MeasurementValueStateTypeError), // Should be accepted
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueState:    util.Ptr(model.MeasurementValueStateTypeError), // Should be accepted
 		}
 
 		err := currentValidator.Validate(measurement)
@@ -69,10 +65,10 @@ func TestMPCValidators(t *testing.T) {
 
 	t.Run("currentValidator requires value state", func(t *testing.T) {
 		measurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(10),
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			ValueState:    nil, // Missing required field
 		}
 
@@ -84,10 +80,10 @@ func TestMPCValidators(t *testing.T) {
 	t.Run("voltageValidator validates range", func(t *testing.T) {
 		// Valid voltage
 		validMeasurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(230), // 230V - within range
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 		}
 
 		err := voltageValidator.Validate(validMeasurement)
@@ -95,10 +91,10 @@ func TestMPCValidators(t *testing.T) {
 
 		// Invalid voltage - out of range
 		invalidMeasurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(1500), // 1500V - out of range
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 		}
 
 		err = voltageValidator.Validate(invalidMeasurement)
@@ -119,10 +115,10 @@ func TestMPCValidators(t *testing.T) {
 
 		for _, freq := range testCases {
 			measurement := &model.MeasurementDataType{
-				MeasurementId: ptr(model.MeasurementIdType(1)),
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 				Value:         model.NewScaledNumberType(freq),
-				ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-				ValueSource:   ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			}
 
 			err := frequencyValidator.Validate(measurement)
@@ -134,10 +130,10 @@ func TestMPCValidators(t *testing.T) {
 		// FIXED: frequencyValidator should no longer use powerSourceTypes
 		// This test ensures empirical values are rejected for frequency
 		measurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(50),
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-			ValueSource:   ptr(model.MeasurementValueSourceTypeEmpiricalValue), // Should be rejected
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+			ValueSource:   util.Ptr(model.MeasurementValueSourceTypeEmpiricalValue), // Should be rejected
 		}
 
 		err := frequencyValidator.Validate(measurement)
@@ -157,7 +153,7 @@ func TestMPCValidators(t *testing.T) {
 		invalidMeasurement := &model.MeasurementDataType{
 			MeasurementId: nil, // Missing required field
 			Value:         model.NewScaledNumberType(100),
-			ValueType:     ptr(model.MeasurementValueTypeTypeValue),
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 		}
 
 		for _, validator := range validators {
@@ -177,9 +173,9 @@ func TestMPCValidators(t *testing.T) {
 		}
 
 		invalidMeasurement := &model.MeasurementDataType{
-			MeasurementId: ptr(model.MeasurementIdType(1)),
+			MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 			Value:         model.NewScaledNumberType(100),
-			ValueType:     ptr(model.MeasurementValueTypeTypeAverageValue), // Wrong type
+			ValueType:     util.Ptr(model.MeasurementValueTypeTypeAverageValue), // Wrong type
 		}
 
 		for _, validator := range validators {
@@ -194,11 +190,11 @@ func TestGetMeasurementValue(t *testing.T) {
 	t.Run("extracts value from valid measurement", func(t *testing.T) {
 		measurements := []model.MeasurementDataType{
 			{
-				MeasurementId: ptr(model.MeasurementIdType(1)),
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 				Value:         model.NewScaledNumberType(42),
-				ValueType:     ptr(model.MeasurementValueTypeTypeValue),
-				ValueSource:   ptr(model.MeasurementValueSourceTypeMeasuredValue),
-				ValueState:    ptr(model.MeasurementValueStateTypeNormal),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 			},
 		}
 
@@ -212,7 +208,7 @@ func TestGetMeasurementValue(t *testing.T) {
 			{
 				MeasurementId: nil, // Invalid
 				Value:         model.NewScaledNumberType(42),
-				ValueType:     ptr(model.MeasurementValueTypeTypeValue),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 			},
 		}
 
