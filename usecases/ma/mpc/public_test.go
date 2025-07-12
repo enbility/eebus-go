@@ -236,7 +236,9 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
@@ -252,7 +254,9 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
 			},
 		},
@@ -313,7 +317,9 @@ func (s *MaMPCSuite) Test_EnergyProduced() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
@@ -329,7 +335,9 @@ func (s *MaMPCSuite) Test_EnergyProduced() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
 			},
 		},
@@ -588,7 +596,9 @@ func (s *MaMPCSuite) Test_Frequency() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(50),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
@@ -604,7 +614,9 @@ func (s *MaMPCSuite) Test_Frequency() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(50),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
 			},
 		},

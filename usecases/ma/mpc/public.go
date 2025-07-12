@@ -83,24 +83,17 @@ func (e *MPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, er
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
 	}
-	values, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(values) == 0 {
+	results, err := measurement.GetDataForFilter(filter)
+	if err != nil || len(results) == 0 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// we assume thre is only one result
-	value := values[0].Value
-	if value == nil {
+	value, err := getMeasurementValue(results, energyValidator)
+	if err != nil {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if values[0].ValueState != nil && *values[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	return value.GetValue(), nil
+	return value, nil
 }
 
 // return the total feed in energy
@@ -126,24 +119,17 @@ func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, er
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
 	}
-	values, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(values) == 0 {
+	results, err := measurement.GetDataForFilter(filter)
+	if err != nil || len(results) == 0 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// we assume thre is only one result
-	value := values[0].Value
-	if value == nil {
+	value, err := getMeasurementValue(results, energyValidator)
+	if err != nil {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if values[0].ValueState != nil && *values[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	return value.GetValue(), nil
+	return value, nil
 }
 
 // Scenario 3
@@ -214,19 +200,15 @@ func (e *MPC) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) 
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
 	}
-	data, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(data) == 0 || data[0].Value == nil {
+	results, err := measurement.GetDataForFilter(filter)
+	if err != nil || len(results) == 0 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if data[0].ValueState != nil && *data[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
+	value, err := getMeasurementValue(results, frequencyValidator)
+	if err != nil {
+		return 0, api.ErrDataNotAvailable
 	}
 
-	// take the first item
-	value := data[0].Value
-
-	return value.GetValue(), nil
+	return value, nil
 }
