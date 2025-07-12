@@ -20,11 +20,12 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		ScopeType:       &scopeType,
 	}
 
-	// Create a simple test validator
+	// Create a simple test validator that includes ValueState validation
 	testValidator := NewMeasurementValidator().
 		WithName("Test").
 		WithRule(RequireMeasurementId()).
-		WithRule(RequireMeasurementValue())
+		WithRule(RequireMeasurementValue()).
+		WithRule(SkipValueState()) // Skip measurements with error or out-of-range states
 
 	data, err := MeasurementPhaseSpecificDataForFilter(nil, nil, filter, energyDirection, ucapi.PhaseNameMapping, testValidator)
 	assert.NotNil(s.T(), err)
@@ -124,8 +125,8 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		ucapi.PhaseNameMapping,
 		testValidator,
 	)
-	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.NotNil(s.T(), err) // Should get "data not available" because no electrical connection parameters are set up yet
+	assert.Nil(s.T(), data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -172,7 +173,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		testValidator,
 	)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{10, 10, 10}, data)
+	assert.Equal(s.T(), []float64{10, 10, 10}, data) // 3 values: id=0, id=1, id=2 (id=10 has no value)
 
 	measData = &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
@@ -206,8 +207,8 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		ucapi.PhaseNameMapping,
 		testValidator,
 	)
-	assert.NotNil(s.T(), err)
-	assert.Nil(s.T(), data)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{10, 10}, data) // 2 values: id=1 and id=2 (id=10 has no value, id=0 has error state)
 }
 
 func (s *InternalSuite) Test_GetPowerTotalMeasurementId() {
