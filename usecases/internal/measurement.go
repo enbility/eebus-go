@@ -288,10 +288,10 @@ func ValidateValueState(expected model.MeasurementValueStateType, required bool)
 }
 
 // ValidateMeasurementRange ensures measurement value is within range
-func ValidateMeasurementRange(min, max float64) ValidationRule[*model.MeasurementDataType] {
+func ValidateMeasurementRange(minVal, maxVal float64) ValidationRule[*model.MeasurementDataType] {
 	return ValidateRange(
 		func(m *model.MeasurementDataType) *model.ScaledNumberType { return m.Value },
-		min, max,
+		minVal, maxVal,
 		"Measurement value",
 	)
 }

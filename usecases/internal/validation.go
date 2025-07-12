@@ -235,7 +235,7 @@ func RequireScaledNumber[T any](getter func(T) *model.ScaledNumberType, fieldNam
 //	}, 0, 50000, "Power"))
 func ValidateRange[T any](
 	getter func(T) *model.ScaledNumberType,
-	min, max float64,
+	minVal, maxVal float64,
 	fieldName string,
 ) ValidationRule[T] {
 	return func(item T) error {
@@ -244,8 +244,8 @@ func ValidateRange[T any](
 			return nil // Skip if nil, use RequireScaledNumber to make it required
 		}
 		val := value.GetValue()
-		if val < min || val > max {
-			return fmt.Errorf("%s must be between %.2f and %.2f, got %.2f", fieldName, min, max, val)
+		if val < minVal || val > maxVal {
+			return fmt.Errorf("%s must be between %.2f and %.2f, got %.2f", fieldName, minVal, maxVal, val)
 		}
 		return nil
 	}
@@ -266,12 +266,12 @@ func ValidateMinMax[T any](
 		
 		val := value.GetValue()
 		
-		if min := minGetter(item); min != nil && val < min.GetValue() {
-			return fmt.Errorf("%s %.2f is below minimum %.2f", fieldName, val, min.GetValue())
+		if minVal := minGetter(item); minVal != nil && val < minVal.GetValue() {
+			return fmt.Errorf("%s %.2f is below minimum %.2f", fieldName, val, minVal.GetValue())
 		}
 		
-		if max := maxGetter(item); max != nil && val > max.GetValue() {
-			return fmt.Errorf("%s %.2f is above maximum %.2f", fieldName, val, max.GetValue())
+		if maxVal := maxGetter(item); maxVal != nil && val > maxVal.GetValue() {
+			return fmt.Errorf("%s %.2f is above maximum %.2f", fieldName, val, maxVal.GetValue())
 		}
 		
 		return nil
