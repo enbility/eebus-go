@@ -20,6 +20,24 @@ var (
 		model.MeasurementValueSourceTypeMeasuredValue,
 		model.MeasurementValueSourceTypeCalculatedValue,
 	}
+
+	// currentSourceTypes are the allowed value sources for current measurements
+	currentSourceTypes = []model.MeasurementValueSourceType{
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+	}
+
+	// voltageSourceTypes are the allowed value sources for voltage measurements
+	voltageSourceTypes = []model.MeasurementValueSourceType{
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+	}
+
+	// frequencySourceTypes are the allowed value sources for frequency measurements
+	frequencySourceTypes = []model.MeasurementValueSourceType{
+		model.MeasurementValueSourceTypeMeasuredValue,
+		model.MeasurementValueSourceTypeCalculatedValue,
+	}
 )
 
 // powerValidator validates power measurements
@@ -40,16 +58,35 @@ var energyValidator = internal.NewMeasurementValidator().
 	WithRule(internal.RequireValueSource(energySourceTypes...)).
 	WithRule(internal.ValidateValueState(model.MeasurementValueStateTypeNormal, false))
 
+// currentValidator validates current measurements
+var currentValidator = internal.NewMeasurementValidator().
+	WithName("MPC Current").
+	WithRule(internal.RequireMeasurementId()).
+	WithRule(internal.RequireMeasurementValue()).
+	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
+	WithRule(internal.RequireValueSource(currentSourceTypes...)).
+	WithRule(internal.ValidateValueState("", true)) // Any state required per spec
+
+// voltageValidator validates voltage measurements
+var voltageValidator = internal.NewMeasurementValidator().
+	WithName("MPC Voltage").
+	WithRule(internal.RequireMeasurementId()).
+	WithRule(internal.RequireMeasurementValue()).
+	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
+	WithRule(internal.RequireValueSource(voltageSourceTypes...)).
+	WithRule(internal.ValidateMeasurementRange(0, 1000)) // 0-1000V per spec
+
 // frequencyValidator validates frequency measurements
 var frequencyValidator = internal.NewMeasurementValidator().
 	WithName("MPC Frequency").
 	WithRule(internal.RequireMeasurementId()).
 	WithRule(internal.RequireMeasurementValue()).
 	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
-	WithRule(internal.RequireValueSource(powerSourceTypes...)).
-	WithRule(internal.ValidateValueState(model.MeasurementValueStateTypeNormal, false))
+	WithRule(internal.RequireValueSource(frequencySourceTypes...)).
+	WithRule(internal.ValidateValueState(model.MeasurementValueStateTypeNormal, false)) // Reject error states
 
 // getMeasurementValue is a helper that validates and extracts the value from measurements
+// DEPRECATED: Use MeasurementPhaseSpecificDataForFilter with validators instead
 func getMeasurementValue(measurements []model.MeasurementDataType, validator *internal.MeasurementValidator) (float64, error) {
 	return internal.GetMeasurementValue(measurements, validator)
 }

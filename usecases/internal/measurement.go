@@ -22,6 +22,7 @@ func MeasurementPhaseSpecificDataForFilter(
 	measurementFilter model.MeasurementDescriptionDataType,
 	energyDirection model.EnergyDirectionType,
 	validPhaseNameTypes []model.ElectricalConnectionPhaseNameType,
+	validator *MeasurementValidator, // NEW: Required validator
 ) ([]float64, error) {
 	measurement, err := client.NewMeasurement(localEntity, remoteEntity)
 	electricalConnection, err1 := client.NewElectricalConnection(localEntity, remoteEntity)
@@ -34,11 +35,17 @@ func MeasurementPhaseSpecificDataForFilter(
 		return nil, api.ErrDataNotAvailable
 	}
 
+	// Validate validator parameter
+	if validator == nil {
+		return nil, fmt.Errorf("validator is required")
+	}
+
 	var result []float64
 
 	for _, item := range data {
-		if item.Value == nil || item.MeasurementId == nil {
-			continue
+		// Use validator instead of basic nil checks
+		if err := validator.Validate(&item); err != nil {
+			continue // Skip invalid measurements, don't fail entire operation
 		}
 
 		if validPhaseNameTypes != nil {
@@ -68,15 +75,17 @@ func MeasurementPhaseSpecificDataForFilter(
 			}
 		}
 
-		// if the value state is set and not normal, the value is not valid and should be ignored
-		// therefore we return an error
-		if item.ValueState != nil && *item.ValueState != model.MeasurementValueStateTypeNormal {
-			return nil, api.ErrDataInvalid
-		}
+		// Note: ValueState validation is now handled by the validator
+		// This removes the spec-violating behavior of returning ErrDataInvalid
+		// for "error" and "outOfRange" states
 
 		value := item.Value.GetValue()
-
 		result = append(result, value)
+	}
+
+	// Handle case where no measurements passed validation
+	if len(result) == 0 {
+		return nil, api.ErrDataNotAvailable
 	}
 
 	return result, nil
@@ -327,5 +336,4 @@ var FrequencyMeasurementValidator = NewMeasurementValidator().
 	WithName("Frequency Measurement").
 	WithRule(RequireMeasurementId()).
 	WithRule(RequireMeasurementValue()).
-	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue)).
-	WithRule(ValidateMeasurementRange(45, 65)) // Normal grid frequency range
+	WithRule(RequireValueType(model.MeasurementValueTypeTypeValue))

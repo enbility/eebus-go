@@ -20,7 +20,13 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		ScopeType:       &scopeType,
 	}
 
-	data, err := MeasurementPhaseSpecificDataForFilter(nil, nil, filter, energyDirection, ucapi.PhaseNameMapping)
+	// Create a simple test validator
+	testValidator := NewMeasurementValidator().
+		WithName("Test").
+		WithRule(RequireMeasurementId()).
+		WithRule(RequireMeasurementValue())
+
+	data, err := MeasurementPhaseSpecificDataForFilter(nil, nil, filter, energyDirection, ucapi.PhaseNameMapping, testValidator)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
@@ -30,6 +36,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		filter,
 		energyDirection,
 		ucapi.PhaseNameMapping,
+		testValidator,
 	)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -40,6 +47,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		filter,
 		energyDirection,
 		ucapi.PhaseNameMapping,
+		testValidator,
 	)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -80,6 +88,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		filter,
 		energyDirection,
 		ucapi.PhaseNameMapping,
+		testValidator,
 	)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
@@ -113,6 +122,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		filter,
 		energyDirection,
 		ucapi.PhaseNameMapping,
+		testValidator,
 	)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 0, len(data))
@@ -159,6 +169,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		filter,
 		energyDirection,
 		ucapi.PhaseNameMapping,
+		testValidator,
 	)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)
@@ -193,6 +204,7 @@ func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 		filter,
 		energyDirection,
 		ucapi.PhaseNameMapping,
+		testValidator,
 	)
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)

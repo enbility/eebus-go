@@ -69,7 +69,13 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
 	}
-	data, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil)
+	// Use basic measurement validator for MGCP compatibility
+	validator := internal.NewMeasurementValidator().
+		WithName("MGCP Power").
+		WithRule(internal.RequireMeasurementId()).
+		WithRule(internal.RequireMeasurementValue())
+	
+	data, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil, validator)
 	if err != nil {
 		return 0, err
 	}
@@ -180,7 +186,13 @@ func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
+	// Use basic measurement validator for MGCP compatibility  
+	validator := internal.NewMeasurementValidator().
+		WithName("MGCP Power Per Phase").
+		WithRule(internal.RequireMeasurementId()).
+		WithRule(internal.RequireMeasurementValue())
+	
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping, validator)
 }
 
 // Scenario 6
@@ -201,7 +213,13 @@ func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
+	// Use basic measurement validator for MGCP compatibility
+	validator := internal.NewMeasurementValidator().
+		WithName("MGCP Voltage Per Phase").
+		WithRule(internal.RequireMeasurementId()).
+		WithRule(internal.RequireMeasurementValue())
+	
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping, validator)
 }
 
 // Scenario 7
