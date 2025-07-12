@@ -1,6 +1,7 @@
 package mgcp
 
 import (
+	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -131,6 +132,91 @@ func (s *GcpMGCPSuite) Test_Power() {
 	data, err = s.sut.Power(s.smgwEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 10.0, data)
+}
+
+func (s *GcpMGCPSuite) Test_Power_ErrorCases() {
+	// Test case where multiple measurement data entries are returned (len(data) != 1)
+	// This should trigger the missing coverage on line 77-79 in Power()
+	
+	descData := &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// Add measurement data for both descriptions
+	measData := &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				Value:         model.NewScaledNumberType(10),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				Value:         model.NewScaledNumberType(20),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// Add electrical connection data to enable both measurements
+	elDescData := &model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+			},
+		},
+	}
+
+	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// This should now return multiple data points and trigger the len(data) != 1 condition
+	data, err := s.sut.Power(s.smgwEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
 }
 
 func (s *GcpMGCPSuite) Test_EnergyFeedIn() {

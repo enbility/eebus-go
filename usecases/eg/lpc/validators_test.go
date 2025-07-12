@@ -226,3 +226,141 @@ func testHelperFunctions(t *testing.T) {
 	err = ValidateElectricalConnectionCharacteristic(invalidCharacteristic)
 	assert.Error(t, err, "ValidateElectricalConnectionCharacteristic helper should fail for invalid data")
 }
+
+// Test ValidateConfigurationValue function (77.8% coverage)
+func TestValidateConfigurationValue(t *testing.T) {
+	validator := ValidateConfigurationValue()
+	
+	t.Run("accepts nil value", func(t *testing.T) {
+		data := &model.DeviceConfigurationKeyValueDataType{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(1)),
+			Value: nil,
+		}
+		
+		err := validator(data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("accepts ScaledNumber value", func(t *testing.T) {
+		data := &model.DeviceConfigurationKeyValueDataType{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(1)),
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				ScaledNumber: model.NewScaledNumberType(5000),
+			},
+		}
+		
+		err := validator(data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("accepts Duration value", func(t *testing.T) {
+		data := &model.DeviceConfigurationKeyValueDataType{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(2)),
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				Duration: model.NewDurationType(4 * time.Hour),
+			},
+		}
+		
+		err := validator(data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("rejects String value", func(t *testing.T) {
+		stringValue := model.DeviceConfigurationKeyValueStringType("invalid")
+		data := &model.DeviceConfigurationKeyValueDataType{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(3)),
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				String: &stringValue,
+			},
+		}
+		
+		err := validator(data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "must be a ScaledNumber or Duration")
+	})
+	
+	t.Run("rejects Boolean value", func(t *testing.T) {
+		boolValue := true
+		data := &model.DeviceConfigurationKeyValueDataType{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(4)),
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				Boolean: &boolValue,
+			},
+		}
+		
+		err := validator(data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "must be a ScaledNumber or Duration")
+	})
+	
+	t.Run("rejects DateTime value", func(t *testing.T) {
+		dateTime := model.DateTimeType("2023-01-01T12:00:00Z")
+		data := &model.DeviceConfigurationKeyValueDataType{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(5)),
+			Value: &model.DeviceConfigurationKeyValueValueType{
+				DateTime: &dateTime,
+			},
+		}
+		
+		err := validator(data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "must be a ScaledNumber or Duration")
+	})
+	
+	t.Run("returns ErrSkipMeasurement for empty value", func(t *testing.T) {
+		data := &model.DeviceConfigurationKeyValueDataType{
+			KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(6)),
+			Value: &model.DeviceConfigurationKeyValueValueType{},
+		}
+		
+		err := validator(data)
+		assert.Error(t, err)
+		// Should return ErrSkipMeasurement which will be caught by internal package
+	})
+}
+
+// Test RequireConsumptionCharacteristics function (83.3% coverage)
+func TestRequireConsumptionCharacteristics(t *testing.T) {
+	validator := RequireConsumptionCharacteristics()
+	
+	t.Run("accepts nil CharacteristicType", func(t *testing.T) {
+		data := &model.ElectricalConnectionCharacteristicDataType{
+			CharacteristicId: util.Ptr(model.ElectricalConnectionCharacteristicIdType(1)),
+			CharacteristicType: nil,
+		}
+		
+		err := validator(data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("accepts PowerConsumptionNominalMax", func(t *testing.T) {
+		data := &model.ElectricalConnectionCharacteristicDataType{
+			CharacteristicId: util.Ptr(model.ElectricalConnectionCharacteristicIdType(1)),
+			CharacteristicType: util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
+		}
+		
+		err := validator(data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("accepts ContractualConsumptionNominalMax", func(t *testing.T) {
+		data := &model.ElectricalConnectionCharacteristicDataType{
+			CharacteristicId: util.Ptr(model.ElectricalConnectionCharacteristicIdType(2)),
+			CharacteristicType: util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax),
+		}
+		
+		err := validator(data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("rejects production characteristic type", func(t *testing.T) {
+		data := &model.ElectricalConnectionCharacteristicDataType{
+			CharacteristicId: util.Ptr(model.ElectricalConnectionCharacteristicIdType(3)),
+			CharacteristicType: util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerProductionNominalMax),
+		}
+		
+		err := validator(data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "must be a consumption characteristic type")
+	})
+}

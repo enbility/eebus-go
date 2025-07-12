@@ -6,6 +6,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	spinemocks "github.com/enbility/spine-go/mocks"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -945,4 +946,136 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ValidationErrors() {
 	data, err = s.sut.ConsumptionNominalMax(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 12000.0, data)
+}
+
+// Additional tests to improve coverage for low-coverage functions
+
+func (s *EgLPCSuite) Test_IsHeartbeatWithinDuration_ErrorCase() {
+	// Test with an incompatible entity that can't create DeviceDiagnosis
+	result := s.sut.IsHeartbeatWithinDuration(s.mockRemoteEntity)
+	assert.False(s.T(), result)
+}
+
+func (s *EgLPCSuite) Test_FailsafeConsumptionActivePowerLimit_ValidationError() {
+	// Setup device configuration description first
+	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
+		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
+			{
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeDeviceConfiguration, model.RoleTypeServer)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// Test with invalid data that has missing KeyId (won't match filter so ErrDataNotAvailable)
+	keyData := &model.DeviceConfigurationKeyValueListDataType{
+		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
+			{
+				// KeyId missing - GetKeyValueDataForFilter won't find matching data
+				Value: &model.DeviceConfigurationKeyValueValueType{
+					ScaledNumber: model.NewScaledNumberType(4000),
+				},
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, keyData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// Since the filter won't match, this should return ErrDataNotAvailable
+	data, err := s.sut.FailsafeConsumptionActivePowerLimit(s.monitoredEntity)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
+}
+
+func (s *EgLPCSuite) Test_characteristicType_EdgeCases() {
+	// Test characteristicType with nil entity
+	result := s.sut.characteristicType(nil)
+	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax, result)
+
+	// Test characteristicType with entity that has nil device
+	mockEntity1 := &spinemocks.EntityRemoteInterface{}
+	mockEntity1.EXPECT().Device().Return(nil).Times(2) // Called twice in the function
+	
+	result = s.sut.characteristicType(mockEntity1)
+	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax, result)
+
+	// Test characteristicType with EMS device type (should return contractual)
+	mockDevice1 := &spinemocks.DeviceRemoteInterface{}
+	emsDeviceType := model.DeviceTypeTypeEnergyManagementSystem
+	mockDevice1.EXPECT().DeviceType().Return(&emsDeviceType).Once()
+	mockEntity2 := &spinemocks.EntityRemoteInterface{}
+	mockEntity2.EXPECT().Device().Return(mockDevice1).Times(2) // Called twice in the function
+	
+	result = s.sut.characteristicType(mockEntity2)
+	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax, result)
+
+	// Test characteristicType with nil device type (should default to contractual)
+	mockDevice2 := &spinemocks.DeviceRemoteInterface{}
+	mockDevice2.EXPECT().DeviceType().Return(nil).Once()
+	mockEntity3 := &spinemocks.EntityRemoteInterface{}
+	mockEntity3.EXPECT().Device().Return(mockDevice2).Times(2) // Called twice in the function
+	
+	result = s.sut.characteristicType(mockEntity3)
+	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax, result)
+}
+
+func (s *EgLPCSuite) Test_ConsumptionNominalMax_ErrorCases() {
+	// Test with empty characteristics array
+	charData := &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err := s.sut.ConsumptionNominalMax(s.monitoredEntity)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with characteristic that has nil Value
+	charData = &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
+				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
+				Value:                  nil, // Nil value should trigger ErrDataNotAvailable
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.ConsumptionNominalMax(s.monitoredEntity)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with characteristic that fails validation (missing CharacteristicId)
+	charData = &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				// CharacteristicId missing - should trigger validation error
+				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
+				Value:                  model.NewScaledNumberType(8000),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.ConsumptionNominalMax(s.monitoredEntity)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err) // Filter won't match without ID
+	assert.Equal(s.T(), 0.0, data)
 }

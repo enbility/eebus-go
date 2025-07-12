@@ -168,3 +168,208 @@ func TestMeasurementPhaseSpecificDataForFilter_CurrentBehavior(t *testing.T) {
 func ptrTest[T any](v T) *T {
 	return &v
 }
+
+// Test GetMeasurementValue function (0% coverage)
+func TestGetMeasurementValue(t *testing.T) {
+	t.Run("extracts value from valid measurement", func(t *testing.T) {
+		measurements := []model.MeasurementDataType{
+			invalidMeasurementData(), // Invalid measurement first
+			validMeasurementData(),   // Valid measurement second
+		}
+		
+		validator := testValidator()
+		value, err := GetMeasurementValue(measurements, validator)
+		
+		assert.NoError(t, err)
+		assert.Equal(t, 100.0, value)
+	})
+	
+	t.Run("returns error for invalid measurement", func(t *testing.T) {
+		measurements := []model.MeasurementDataType{
+			invalidMeasurementData(), // Only invalid measurements
+		}
+		
+		validator := testValidator()
+		value, err := GetMeasurementValue(measurements, validator)
+		
+		assert.Error(t, err)
+		assert.Equal(t, 0.0, value)
+	})
+}
+
+// Test RequireValueSource function (40% coverage)
+func TestRequireValueSource(t *testing.T) {
+	t.Run("accepts allowed value source", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueSource = ptrTest(model.MeasurementValueSourceTypeMeasuredValue)
+		
+		rule := RequireValueSource(
+			model.MeasurementValueSourceTypeMeasuredValue,
+			model.MeasurementValueSourceTypeCalculatedValue,
+		)
+		
+		err := rule(&data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("rejects disallowed value source", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueSource = ptrTest(model.MeasurementValueSourceTypeEmpiricalValue)
+		
+		rule := RequireValueSource(model.MeasurementValueSourceTypeMeasuredValue)
+		
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ValueSource")
+	})
+	
+	t.Run("accepts nil value source when allowed", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueSource = nil
+		
+		rule := RequireValueSource(model.MeasurementValueSourceTypeMeasuredValue)
+		
+		err := rule(&data)
+		assert.NoError(t, err) // Should pass when ValueSource is nil
+	})
+}
+
+// Test RequireValueSourceMandatory function (11.1% coverage)
+func TestRequireValueSourceMandatory(t *testing.T) {
+	t.Run("accepts mandatory value source", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueSource = ptrTest(model.MeasurementValueSourceTypeMeasuredValue)
+		
+		rule := RequireValueSourceMandatory(model.MeasurementValueSourceTypeMeasuredValue)
+		
+		err := rule(&data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("rejects nil value source", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueSource = nil
+		
+		rule := RequireValueSourceMandatory(model.MeasurementValueSourceTypeMeasuredValue)
+		
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ValueSource is required")
+	})
+	
+	t.Run("rejects disallowed value source", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueSource = ptrTest(model.MeasurementValueSourceTypeEmpiricalValue)
+		
+		rule := RequireValueSourceMandatory(model.MeasurementValueSourceTypeMeasuredValue)
+		
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ValueSource")
+	})
+}
+
+// Test ValidateMeasurementRange function (50% coverage)
+func TestValidateMeasurementRange(t *testing.T) {
+	t.Run("accepts value in range", func(t *testing.T) {
+		data := validMeasurementData()
+		data.Value = model.NewScaledNumberType(50)
+		
+		rule := ValidateMeasurementRange(0, 100)
+		err := rule(&data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("rejects value below range", func(t *testing.T) {
+		data := validMeasurementData()
+		data.Value = model.NewScaledNumberType(-10)
+		
+		rule := ValidateMeasurementRange(0, 100)
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "must be between")
+	})
+	
+	t.Run("rejects value above range", func(t *testing.T) {
+		data := validMeasurementData()
+		data.Value = model.NewScaledNumberType(150)
+		
+		rule := ValidateMeasurementRange(0, 100)
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "must be between")
+	})
+}
+
+// Test RequireValueType function (62.5% coverage)
+func TestRequireValueType(t *testing.T) {
+	t.Run("accepts required value type", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueType = ptrTest(model.MeasurementValueTypeTypeValue)
+		
+		rule := RequireValueType(model.MeasurementValueTypeTypeValue)
+		err := rule(&data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("rejects wrong value type", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueType = ptrTest(model.MeasurementValueTypeTypeAverageValue)
+		
+		rule := RequireValueType(model.MeasurementValueTypeTypeValue)
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ValueType")
+	})
+	
+	t.Run("rejects nil value type", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueType = nil
+		
+		rule := RequireValueType(model.MeasurementValueTypeTypeValue)
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ValueType is required")
+	})
+}
+
+// Test ValidateValueState function (62.5% coverage)  
+func TestValidateValueState(t *testing.T) {
+	t.Run("accepts expected value state", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueState = ptrTest(model.MeasurementValueStateTypeNormal)
+		
+		rule := ValidateValueState(model.MeasurementValueStateTypeNormal, true)
+		err := rule(&data)
+		assert.NoError(t, err)
+	})
+	
+	t.Run("rejects unexpected value state when required", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueState = ptrTest(model.MeasurementValueStateTypeError)
+		
+		rule := ValidateValueState(model.MeasurementValueStateTypeNormal, true)
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ValueState")
+	})
+	
+	t.Run("rejects nil value state when required", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueState = nil
+		
+		rule := ValidateValueState(model.MeasurementValueStateTypeNormal, true)
+		err := rule(&data)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ValueState is required")
+	})
+	
+	t.Run("accepts nil value state when not required", func(t *testing.T) {
+		data := validMeasurementData()
+		data.ValueState = nil
+		
+		rule := ValidateValueState(model.MeasurementValueStateTypeNormal, false)
+		err := rule(&data)
+		assert.NoError(t, err)
+	})
+}

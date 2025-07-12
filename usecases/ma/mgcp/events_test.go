@@ -32,6 +32,9 @@ func (s *GcpMGCPSuite) Test_Events() {
 	payload.Data = util.Ptr(model.DeviceConfigurationKeyValueDescriptionListDataType{})
 	s.sut.HandleEvent(payload)
 
+	payload.Data = util.Ptr(model.DeviceConfigurationKeyValueListDataType{})
+	s.sut.HandleEvent(payload)
+
 	payload.Data = util.Ptr(model.MeasurementDescriptionListDataType{})
 	s.sut.HandleEvent(payload)
 
@@ -247,6 +250,112 @@ func (s *GcpMGCPSuite) Test_gridMeasurementDataUpdate() {
 	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, data, nil, nil)
 	assert.Nil(s.T(), fErr)
 
+	s.sut.gridMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
+}
+
+func (s *GcpMGCPSuite) Test_gridMeasurementDataUpdate_PhaseEventCallbacks() {
+	// Test missing event callback coverage for CurrentPerPhase and VoltagePerPhase
+	
+	// Setup measurement descriptions for current and voltage
+	descData := &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeMeasurement, model.RoleTypeServer)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// Setup electrical connection
+	elDescData := &model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+			},
+		},
+	}
+
+	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.smgwEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// Test CurrentPerPhase event callback
+	currentData := &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(15),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+		},
+	}
+
+	payload := spineapi.EventPayload{
+		Ski:    remoteSki,
+		Device: s.remoteDevice,
+		Entity: s.smgwEntity,
+		Data:   currentData,
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, currentData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	s.eventCalled = false
+	s.sut.gridMeasurementDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
+
+	// Test VoltagePerPhase event callback
+	voltageData := &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+		},
+	}
+
+	payload.Data = voltageData
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, voltageData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	s.eventCalled = false
 	s.sut.gridMeasurementDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
 }
