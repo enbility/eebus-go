@@ -3,12 +3,14 @@ package api
 import (
 	"time"
 
+	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/spine-go/model"
 )
 
 // Actor: Monitoring Unit
 // UseCase: Monitoring of Power Consumption
 type MuMPCInterface interface {
+	api.UseCaseInterface
 	// ------------------------- Getters ------------------------- //
 
 	// Scenario 1
