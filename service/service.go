@@ -203,8 +203,7 @@ func (s *Service) IsRunning() bool {
 func (s *Service) AddUseCase(useCase api.UseCaseInterface) error {
 	s.usecases = append(s.usecases, useCase)
 
-	err := useCase.AddFeatures()
-	if err != nil {
+	if err := useCase.AddFeatures(); err != nil {
 		return err
 	}
 	useCase.AddUseCase()

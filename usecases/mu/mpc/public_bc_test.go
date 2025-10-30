@@ -25,24 +25,29 @@ func (s *MuMpcBcSuite) BeforeTest(suiteName, testName string) {
 	s.MuMPCSuite = NewMuMPCSuite(
 		&s.Suite,
 		&MonitorPowerConfig{
-			ConnectedPhases:   ConnectedPhasesBC,
-			ValueSourceTotal:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ConnectedPhases:  model.ElectricalConnectionPhaseNameTypeBc,
+			ValueSourceTotal: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePerPhase: PhaseMeasurementSourceMap{
+				model.ElectricalConnectionPhaseNameTypeB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				model.ElectricalConnectionPhaseNameTypeC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
 		},
 		&MonitorEnergyConfig{
 			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 		},
 		&MonitorCurrentConfig{
-			ValueSourcePhaseB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePerPhase: PhaseMeasurementSourceMap{
+				model.ElectricalConnectionPhaseNameTypeB: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				model.ElectricalConnectionPhaseNameTypeC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
 		},
 		&MonitorVoltageConfig{
-			SupportPhaseToPhase:  true,
-			ValueSourcePhaseB:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseC:    util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
-			ValueSourcePhaseBToC: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourcePerPhase: PhaseMeasurementSourceMap{
+				model.ElectricalConnectionPhaseNameTypeB:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				model.ElectricalConnectionPhaseNameTypeC:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				model.ElectricalConnectionPhaseNameTypeBc: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
 		},
 		&MonitorFrequencyConfig{
 			ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
@@ -73,10 +78,14 @@ func (s *MuMpcBcSuite) Test_PowerPerPhase() {
 		s.sut.UpdateDataPowerPhaseC(7.0, util.Ptr(time.Now()), util.Ptr(model.MeasurementValueStateTypeError)),
 	)
 	assert.Nil(s.T(), err)
+	expectedPowerPerPhase := map[model.ElectricalConnectionPhaseNameType]float64{
+		model.ElectricalConnectionPhaseNameTypeB: 6.0,
+		model.ElectricalConnectionPhaseNameTypeC: 7.0,
+	}
 
 	powerPerPhases, err := s.sut.PowerPerPhase()
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{6.0, 7.0}, powerPerPhases)
+	assert.Equal(s.T(), expectedPowerPerPhase, powerPerPhases)
 
 	err = s.sut.Update(
 		s.sut.UpdateDataPowerPhaseA(5.0, util.Ptr(time.Now()), nil),
@@ -91,7 +100,7 @@ func (s *MuMpcBcSuite) Test_PowerPerPhase() {
 	}
 	values, err := s.measurementPhaseSpecificDataForFilter(filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{6.0, 7.0}, values)
+	assert.ElementsMatch(s.T(), []float64{6.0, 7.0}, values)
 }
 
 func (s *MuMpcBcSuite) Test_EnergyConsumed() {
@@ -122,10 +131,14 @@ func (s *MuMpcBcSuite) Test_CurrentPerPhase() {
 		s.sut.UpdateDataCurrentPhaseC(1.0, nil, nil),
 	)
 	assert.Nil(s.T(), err)
+	expectedCurrentPerPhases := map[model.ElectricalConnectionPhaseNameType]float64{
+		model.ElectricalConnectionPhaseNameTypeB: 3.0,
+		model.ElectricalConnectionPhaseNameTypeC: 1.0,
+	}
 
 	currentPerPhases, err := s.sut.CurrentPerPhase()
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{3.0, 1.0}, currentPerPhases)
+	assert.Equal(s.T(), expectedCurrentPerPhases, currentPerPhases)
 
 	err = s.sut.Update(
 		s.sut.UpdateDataCurrentPhaseA(5.0, nil, nil),
@@ -140,10 +153,15 @@ func (s *MuMpcBcSuite) Test_VoltagePerPhase() {
 		s.sut.UpdateDataVoltagePhaseBToC(9.0, nil, nil),
 	)
 	assert.Nil(s.T(), err)
+	expectedVoltagePerPhases := map[model.ElectricalConnectionPhaseNameType]float64{
+		model.ElectricalConnectionPhaseNameTypeB: 6.0,
+		model.ElectricalConnectionPhaseNameTypeC: 7.0,
+		model.ElectricalConnectionPhaseNameTypeBc: 9.0,
+	}
 
 	voltagePerPhases, err := s.sut.VoltagePerPhase()
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{6.0, 7.0, 9.0}, voltagePerPhases)
+	assert.Equal(s.T(), expectedVoltagePerPhases, voltagePerPhases)
 
 	err = s.sut.Update(
 		s.sut.UpdateDataVoltagePhaseA(5.0, nil, nil),
@@ -156,7 +174,7 @@ func (s *MuMpcBcSuite) Test_VoltagePerPhase() {
 	assert.NotNil(s.T(), err)
 
 	err = s.sut.Update(
-		s.sut.UpdateDataVoltagePhaseCToA(5.0, nil, nil),
+		s.sut.UpdateDataVoltagePhaseAToC(5.0, nil, nil),
 	)
 	assert.NotNil(s.T(), err)
 
@@ -168,7 +186,7 @@ func (s *MuMpcBcSuite) Test_VoltagePerPhase() {
 	}
 	values, err := s.measurementPhaseSpecificDataForFilter(filter, "", ucapi.PhaseNameMapping)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{6.0, 7.0, 9.0}, values)
+	assert.ElementsMatch(s.T(), []float64{6.0, 7.0, 9.0}, values)
 }
 
 func (s *MuMpcBcSuite) Test_Frequency() {

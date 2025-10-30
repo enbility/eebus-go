@@ -2,6 +2,7 @@ package mpc
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/server"
@@ -12,6 +13,8 @@ import (
 	"github.com/enbility/spine-go/util"
 )
 
+type PhaseMeasurementIdMap map[model.ElectricalConnectionPhaseNameType]*model.MeasurementIdType
+
 type MPC struct {
 	*usecase.UseCaseBase
 
@@ -21,13 +24,13 @@ type MPC struct {
 	voltageConfig   *MonitorVoltageConfig
 	frequencyConfig *MonitorFrequencyConfig
 
-	acPowerTotal     *model.MeasurementIdType
-	acPower          [3]*model.MeasurementIdType
-	acEnergyConsumed *model.MeasurementIdType
-	acEnergyProduced *model.MeasurementIdType
-	acCurrent        [3]*model.MeasurementIdType
-	acVoltage        [6]*model.MeasurementIdType // Phase to phase voltages are not supported (yet)
-	acFrequency      *model.MeasurementIdType
+	acPowerTotal      *model.MeasurementIdType
+	acPowerPerPhase   PhaseMeasurementIdMap
+	acEnergyConsumed  *model.MeasurementIdType
+	acEnergyProduced  *model.MeasurementIdType
+	acCurrentPerPhase PhaseMeasurementIdMap
+	acVoltagePerPhase PhaseMeasurementIdMap
+	acFrequency       *model.MeasurementIdType
 }
 
 // creates a new MPC usecase instance for a MonitoredUnit entity
@@ -134,6 +137,9 @@ func NewMPC(
 		voltageConfig:   monitorVoltageConfig,
 		frequencyConfig: monitorFrequencyConfig,
 	}
+	uc.acPowerPerPhase = PhaseMeasurementIdMap{}
+	uc.acCurrentPerPhase = PhaseMeasurementIdMap{}
+	uc.acVoltagePerPhase = PhaseMeasurementIdMap{}
 
 	_ = spine.Events.Subscribe(uc)
 
@@ -249,48 +255,38 @@ func (e *MPC) configureMonitorPower(
 		return errors.New("could not add parameter description")
 	}
 
-	acPowerConstraints := []*model.MeasurementConstraintsDataType{
-		e.powerConfig.ValueConstraintsPhaseA,
-		e.powerConfig.ValueConstraintsPhaseB,
-		e.powerConfig.ValueConstraintsPhaseC,
-	}
-
-	acMeasuredPhases := []*model.ElectricalConnectionPhaseNameType{
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-	}
-
-	for id := 0; id < len(e.acPower); id++ {
-		if e.powerConfig.SupportsPhases(phases[id]) {
-			e.acPower[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
-			})
-
-			// if constraints are configured for acPower[id], set the
-			// constraint id and update measurementsConstraintData
-			if acPowerConstraints[id] != nil {
-				acPowerConstraints[id].MeasurementId = e.acPower[id]
-				*measurementsConstraintData = append(*measurementsConstraintData, *acPowerConstraints[id])
-			}
-
-			parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
-				ElectricalConnectionId:  electricalConnectionId,
-				MeasurementId:           e.acPower[id],
-				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-				AcMeasuredPhases:        acMeasuredPhases[id],
-				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-			}
-
-			if electricalConnection.AddParameterDescription(parameterDescription) == nil {
-				return errors.New("could not add parameter description")
-			}
+	for phase := range e.powerConfig.ValueSourcePerPhase {
+		if !e.powerConfig.SupportsPhases([]string{string(phase)}) {
+			errStr := fmt.Sprintf("power configuration for phase %s is not supported, please check the configuration", phase)
+			return errors.New(errStr)
 		}
+		e.acPowerPerPhase[phase] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+			MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+			Unit:            util.Ptr(model.UnitOfMeasurementTypeW),
+			ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
+		})
+
+		parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+			ElectricalConnectionId:  electricalConnectionId,
+			MeasurementId:           e.acPowerPerPhase[phase],
+			VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			AcMeasuredPhases:        util.Ptr(phase),
+			AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+			AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+			AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+		}
+		parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+		if parameterDescriptionId == nil {
+			return errors.New("could not add parameter description")
+		}
+
+		if e.powerConfig.ValueConstraintsPerPhase[phase] == nil {
+			continue
+		}
+		e.powerConfig.ValueConstraintsPerPhase[phase].MeasurementId = e.acPowerPerPhase[phase]
+		*measurementsConstraintData = append(*measurementsConstraintData, *e.powerConfig.ValueConstraintsPerPhase[phase])
+
 	}
 
 	return nil
@@ -374,48 +370,38 @@ func (e *MPC) configureMonitorCurrent(
 		return nil
 	}
 
-	acCurrentConstraints := []*model.MeasurementConstraintsDataType{
-		e.currentConfig.ValueConstraintsPhaseA,
-		e.currentConfig.ValueConstraintsPhaseB,
-		e.currentConfig.ValueConstraintsPhaseC,
-	}
-
-	acMeasuredPhases := []*model.ElectricalConnectionPhaseNameType{
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-	}
-
-	for id := 0; id < len(e.acCurrent); id++ {
-		if e.powerConfig.SupportsPhases(phases[id]) {
-			e.acCurrent[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
-			})
-
-			// if constraints are configured for acCurrent[id], set the
-			// constraint id and update measurementsConstraintData
-			if acCurrentConstraints[id] != nil {
-				acCurrentConstraints[id].MeasurementId = e.acCurrent[id]
-				*measurementsConstraintData = append(*measurementsConstraintData, *acCurrentConstraints[id])
-			}
-
-			parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
-				ElectricalConnectionId: electricalConnectionId,
-				MeasurementId:          e.acCurrent[id],
-				VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-				AcMeasuredPhases:       acMeasuredPhases[id],
-				AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
-				AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
-			}
-
-			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
-			if parameterDescriptionId == nil {
-				return errors.New("could not add parameter description")
-			}
+	for phase := range e.currentConfig.ValueSourcePerPhase {
+		if !e.powerConfig.SupportsPhases([]string{string(phase)}) {
+			errStr := fmt.Sprintf("power configuration for phase %s is not supported, please check the configuration", phase)
+			return errors.New(errStr)
 		}
+		e.acCurrentPerPhase[phase] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+			MeasurementType: util.Ptr(model.MeasurementTypeTypeCurrent),
+			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+			Unit:            util.Ptr(model.UnitOfMeasurementTypeA),
+			ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
+		})
+
+		parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+			ElectricalConnectionId: electricalConnectionId,
+			MeasurementId:          e.acCurrentPerPhase[phase],
+			VoltageType:            util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+			AcMeasuredPhases:       util.Ptr(phase),
+			AcMeasurementType:      util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeReal),
+			AcMeasurementVariant:   util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
+		}
+
+		parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+		if parameterDescriptionId == nil {
+			return errors.New("could not add parameter description")
+		}
+
+		if e.currentConfig.ValueConstraintsPerPhase[phase] == nil {
+			continue
+		}
+		e.currentConfig.ValueConstraintsPerPhase[phase].MeasurementId = e.acCurrentPerPhase[phase]
+		*measurementsConstraintData = append(*measurementsConstraintData, *e.currentConfig.ValueConstraintsPerPhase[phase])
+
 	}
 
 	return nil
@@ -431,68 +417,56 @@ func (e *MPC) configureMonitorVoltage(
 		return nil
 	}
 
-	acVoltagePhasesFrom := []*model.ElectricalConnectionPhaseNameType{
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-	}
-
-	acVoltagePhasesTo := []*model.ElectricalConnectionPhaseNameType{
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
-		util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
-	}
-
-	acVoltageConstraints := []*model.MeasurementConstraintsDataType{
-		e.voltageConfig.ValueConstraintsPhaseA,
-		e.voltageConfig.ValueConstraintsPhaseB,
-		e.voltageConfig.ValueConstraintsPhaseC,
-		e.voltageConfig.ValueConstraintsPhaseAToB,
-		e.voltageConfig.ValueConstraintsPhaseBToC,
-		e.voltageConfig.ValueConstraintsPhaseCToA,
-	}
-
-	for id := 0; id < len(e.acVoltage); id++ {
-		if e.powerConfig.SupportsPhases(phases[id]) {
-			// skip PhaseToPhase voltages if they're not supported
-			if len(phases[id]) == 2 && !e.voltageConfig.SupportPhaseToPhase {
-				continue
+	for phase := range e.voltageConfig.ValueSourcePerPhase {
+		switch len(string(phase)) {
+		case 1:
+			if !e.powerConfig.SupportsPhases([]string{string(phase)}) {
+				errStr := fmt.Sprintf("power configuration for phase %s is not supported, please check the configuration", phase)
+				return errors.New(errStr)
 			}
-
-			e.acVoltage[id] = measurements.AddDescription(model.MeasurementDescriptionDataType{
-				MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
-				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
-				Unit:            util.Ptr(model.UnitOfMeasurementTypeV),
-				ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
-			})
-
-			// if constraints are configured for acVoltage[id], set the
-			// constraint id and update measurementsConstraintData
-			if acVoltageConstraints[id] != nil {
-				acVoltageConstraints[id].MeasurementId = e.acVoltage[id]
-				*measurementsConstraintData = append(*measurementsConstraintData, *acVoltageConstraints[id])
+		case 2:
+			fromPhase := string(string(phase)[0])
+			toPhase := string(string(phase)[1])
+			if !e.powerConfig.SupportsPhases([]string{fromPhase, toPhase}) {
+				errStr := fmt.Sprintf("power configuration for phase %s is not supported, please check the configuration", phase)
+				return errors.New(errStr)
 			}
+		}
+		e.acVoltagePerPhase[phase] = measurements.AddDescription(model.MeasurementDescriptionDataType{
+			MeasurementType: util.Ptr(model.MeasurementTypeTypeVoltage),
+			CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+			Unit:            util.Ptr(model.UnitOfMeasurementTypeV),
+			ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
+		})
+		parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{}
 
-			parameterDescription := model.ElectricalConnectionParameterDescriptionDataType{
+		switch len(string(phase)) {
+		case 1:
+			parameterDescription = model.ElectricalConnectionParameterDescriptionDataType{
 				ElectricalConnectionId:  electricalConnectionId,
-				MeasurementId:           e.acVoltage[id],
+				MeasurementId:           e.acVoltagePerPhase[phase],
 				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
-				AcMeasuredPhases:        acVoltagePhasesFrom[id],
-				AcMeasuredInReferenceTo: acVoltagePhasesTo[id],
+				AcMeasuredPhases:        util.Ptr(phase),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
 				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
 				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
 			}
-
-			parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
-			if parameterDescriptionId == nil {
-				return errors.New("could not add parameter description")
+		case 2:
+			fromPhase := string(string(phase)[0])
+			toPhase := string(string(phase)[1])
+			parameterDescription = model.ElectricalConnectionParameterDescriptionDataType{
+				ElectricalConnectionId:  electricalConnectionId,
+				MeasurementId:           e.acVoltagePerPhase[phase],
+				VoltageType:             util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameType(fromPhase)),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameType(toPhase)),
+				AcMeasurementType:       util.Ptr(model.ElectricalConnectionAcMeasurementTypeTypeApparent),
+				AcMeasurementVariant:    util.Ptr(model.ElectricalConnectionMeasurandVariantTypeRms),
 			}
+		}
+		parameterDescriptionId := electricalConnection.AddParameterDescription(parameterDescription)
+		if parameterDescriptionId == nil {
+			return errors.New("could not add parameter description")
 		}
 	}
 
@@ -553,13 +527,4 @@ func (e *MPC) getMeasurementDataForId(id *model.MeasurementIdType) (float64, err
 	}
 
 	return data.Value.GetValue(), nil
-}
-
-var phases = [][]string{
-	{"a"},
-	{"b"},
-	{"c"},
-	{"a", "b"},
-	{"b", "c"},
-	{"c", "a"},
 }

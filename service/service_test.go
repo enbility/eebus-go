@@ -69,6 +69,14 @@ func (s *ServiceSuite) Test_AddUseCase() {
 	s.sut.AddUseCase(ucMock)
 }
 
+func (s *ServiceSuite) Test_AddUseCase_Error() {
+	ucMock := mocks.NewUseCaseInterface(s.T())
+	ucMock.EXPECT().AddFeatures().Return(assert.AnError).Once()
+
+	err := s.sut.AddUseCase(ucMock)
+	assert.Equal(s.T(), assert.AnError, err)
+}
+
 func (s *ServiceSuite) Test_EEBUSHandler() {
 	testSki := "test"
 

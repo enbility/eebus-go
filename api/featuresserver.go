@@ -109,6 +109,13 @@ type ElectricalConnectionServerInterface interface {
 		deleteSelector *model.ElectricalConnectionPermittedValueSetListDataSelectorsType,
 		deleteElements *model.ElectricalConnectionPermittedValueSetDataElementsType,
 	) error
+
+	// either returns the given description id or creates a new one for the given description
+	//
+	// will return error if could not add the new description
+	GetOrAddIdForDescription(
+		electricalConnectionDescription model.ElectricalConnectionDescriptionDataType,
+	) (*model.ElectricalConnectionIdType, error)
 }
 
 type LoadControlLimitDataForID struct {

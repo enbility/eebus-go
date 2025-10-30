@@ -31,16 +31,16 @@ func (e *MPC) Power() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (e *MPC) PowerPerPhase() ([]float64, error) {
-	powerPerPhase := make([]float64, 0)
+func (e *MPC) PowerPerPhase() (map[model.ElectricalConnectionPhaseNameType]float64, error) {
+	powerPerPhase := make(map[model.ElectricalConnectionPhaseNameType]float64)
 
-	for _, id := range e.acPower {
+	for phase, id := range e.acPowerPerPhase {
 		if id != nil {
 			power, err := e.getMeasurementDataForId(id)
 			if err != nil {
 				return nil, err
 			}
-			powerPerPhase = append(powerPerPhase, power)
+			powerPerPhase[phase] = power
 		}
 	}
 
@@ -89,16 +89,16 @@ func (e *MPC) EnergyProduced() (float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (e *MPC) CurrentPerPhase() ([]float64, error) {
-	currentPerPhase := make([]float64, 0)
+func (e *MPC) CurrentPerPhase() (map[model.ElectricalConnectionPhaseNameType]float64, error) {
+	currentPerPhase := make(map[model.ElectricalConnectionPhaseNameType]float64)
 
-	for _, id := range e.acCurrent {
+	for phase, id := range e.acCurrentPerPhase {
 		if id != nil {
 			current, err := e.getMeasurementDataForId(id)
 			if err != nil {
 				return nil, err
 			}
-			currentPerPhase = append(currentPerPhase, current)
+			currentPerPhase[phase] = current
 		}
 	}
 
@@ -112,16 +112,16 @@ func (e *MPC) CurrentPerPhase() ([]float64, error) {
 // possible errors:
 //   - ErrMissingData if the id is not available
 //   - and others
-func (e *MPC) VoltagePerPhase() ([]float64, error) {
-	voltagePerPhase := make([]float64, 0)
+func (e *MPC) VoltagePerPhase() (map[model.ElectricalConnectionPhaseNameType]float64, error) {
+	voltagePerPhase := make(map[model.ElectricalConnectionPhaseNameType]float64)
 
-	for _, id := range e.acVoltage {
+	for phase, id := range e.acVoltagePerPhase {
 		if id != nil {
 			voltage, err := e.getMeasurementDataForId(id)
 			if err != nil {
 				return nil, err
 			}
-			voltagePerPhase = append(voltagePerPhase, voltage)
+			voltagePerPhase[phase] = voltage
 		}
 	}
 
@@ -210,11 +210,11 @@ func (e *MPC) UpdateDataPowerPhaseA(
 ) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acPowerPhaseA is not supported, please check the configuration",
-		e.acPower[0],
+		e.acPowerPerPhase[model.ElectricalConnectionPhaseNameTypeA],
 		measurementData(
 			acPowerPhaseA,
 			timestamp,
-			e.powerConfig.ValueSourcePhaseA,
+			e.powerConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeA],
 			valueState,
 			nil,
 			nil,
@@ -232,11 +232,11 @@ func (e *MPC) UpdateDataPowerPhaseB(
 ) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acPowerPhaseB is not supported, please check the configuration",
-		e.acPower[1],
+		e.acPowerPerPhase[model.ElectricalConnectionPhaseNameTypeB],
 		measurementData(
 			acPowerPhaseB,
 			timestamp,
-			e.powerConfig.ValueSourcePhaseB,
+			e.powerConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeB],
 			valueState,
 			nil,
 			nil,
@@ -254,11 +254,11 @@ func (e *MPC) UpdateDataPowerPhaseC(
 ) usecaseapi.UpdateMeasurementData {
 	return newUpdateData(
 		"acPowerPhaseC is not supported, please check the configuration",
-		e.acPower[2],
+		e.acPowerPerPhase[model.ElectricalConnectionPhaseNameTypeC],
 		measurementData(
 			acPowerPhaseC,
 			timestamp,
-			e.powerConfig.ValueSourcePhaseC,
+			e.powerConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeC],
 			valueState,
 			nil,
 			nil,
@@ -279,6 +279,13 @@ func (e *MPC) UpdateDataEnergyConsumed(
 	evaluationStart *time.Time,
 	evaluationEnd *time.Time,
 ) usecaseapi.UpdateMeasurementData {
+	if e.acEnergyConsumed == nil {
+		return newUpdateData(
+			"acEnergyConsumed is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acEnergyConsumed is not supported, please check the configuration",
 		e.acEnergyConsumed,
@@ -304,6 +311,13 @@ func (e *MPC) UpdateDataEnergyProduced(
 	evaluationStart *time.Time,
 	evaluationEnd *time.Time,
 ) usecaseapi.UpdateMeasurementData {
+	if e.acEnergyProduced == nil {
+		return newUpdateData(
+			"acEnergyProduced is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acEnergyProduced is not supported, please check the configuration",
 		e.acEnergyProduced,
@@ -328,13 +342,21 @@ func (e *MPC) UpdateDataCurrentPhaseA(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if current is supported
+	if e.currentConfig == nil {
+		return newUpdateData(
+			"acCurrent is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acCurrentPhaseA is not supported, please check the configuration",
-		e.acCurrent[0],
+		e.acCurrentPerPhase[model.ElectricalConnectionPhaseNameTypeA],
 		measurementData(
 			acCurrentPhaseA,
 			timestamp,
-			e.currentConfig.ValueSourcePhaseA,
+			e.currentConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeA],
 			valueState,
 			nil,
 			nil,
@@ -350,13 +372,21 @@ func (e *MPC) UpdateDataCurrentPhaseB(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if current is supported
+	if e.currentConfig == nil {
+		return newUpdateData(
+			"acCurrent is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acCurrentPhaseB is not supported, please check the configuration",
-		e.acCurrent[1],
+		e.acCurrentPerPhase[model.ElectricalConnectionPhaseNameTypeB],
 		measurementData(
 			acCurrentPhaseB,
 			timestamp,
-			e.currentConfig.ValueSourcePhaseB,
+			e.currentConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeB],
 			valueState,
 			nil,
 			nil,
@@ -372,13 +402,21 @@ func (e *MPC) UpdateDataCurrentPhaseC(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if current is supported
+	if e.currentConfig == nil {
+		return newUpdateData(
+			"acCurrent is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acCurrentPhaseC is not supported, please check the configuration",
-		e.acCurrent[2],
+		e.acCurrentPerPhase[model.ElectricalConnectionPhaseNameTypeC],
 		measurementData(
 			acCurrentPhaseC,
 			timestamp,
-			e.currentConfig.ValueSourcePhaseC,
+			e.currentConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeC],
 			valueState,
 			nil,
 			nil,
@@ -396,13 +434,21 @@ func (e *MPC) UpdateDataVoltagePhaseA(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if voltage is supported
+	if e.voltageConfig == nil {
+		return newUpdateData(
+			"acVoltage is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acVoltagePhaseA is not supported, please check the configuration",
-		e.acVoltage[0],
+		e.acVoltagePerPhase[model.ElectricalConnectionPhaseNameTypeA],
 		measurementData(
 			voltagePhaseA,
 			timestamp,
-			e.voltageConfig.ValueSourcePhaseA,
+			e.voltageConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeA],
 			valueState,
 			nil,
 			nil,
@@ -418,13 +464,21 @@ func (e *MPC) UpdateDataVoltagePhaseB(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if voltage is supported
+	if e.voltageConfig == nil {
+		return newUpdateData(
+			"acVoltage is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acVoltagePhaseB is not supported, please check the configuration",
-		e.acVoltage[1],
+		e.acVoltagePerPhase[model.ElectricalConnectionPhaseNameTypeB],
 		measurementData(
 			voltagePhaseB,
 			timestamp,
-			e.voltageConfig.ValueSourcePhaseB,
+			e.voltageConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeB],
 			valueState,
 			nil,
 			nil,
@@ -440,13 +494,21 @@ func (e *MPC) UpdateDataVoltagePhaseC(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if voltage is supported
+	if e.voltageConfig == nil {
+		return newUpdateData(
+			"acVoltage is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acVoltagePhaseC is not supported, please check the configuration",
-		e.acVoltage[2],
+		e.acVoltagePerPhase[model.ElectricalConnectionPhaseNameTypeC],
 		measurementData(
 			voltagePhaseC,
 			timestamp,
-			e.voltageConfig.ValueSourcePhaseC,
+			e.voltageConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeC],
 			valueState,
 			nil,
 			nil,
@@ -462,13 +524,21 @@ func (e *MPC) UpdateDataVoltagePhaseAToB(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if voltage is supported
+	if e.voltageConfig == nil {
+		return newUpdateData(
+			"acVoltage is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acVoltagePhaseAToB is not supported, please check the configuration",
-		e.acVoltage[3],
+		e.acVoltagePerPhase[model.ElectricalConnectionPhaseNameTypeAb],
 		measurementData(
 			voltagePhaseAToB,
 			timestamp,
-			e.voltageConfig.ValueSourcePhaseAToB,
+			e.voltageConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeAb],
 			valueState,
 			nil,
 			nil,
@@ -484,13 +554,21 @@ func (e *MPC) UpdateDataVoltagePhaseBToC(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if voltage is supported
+	if e.voltageConfig == nil {
+		return newUpdateData(
+			"acVoltage is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acVoltagePhaseBToC is not supported, please check the configuration",
-		e.acVoltage[4],
+		e.acVoltagePerPhase[model.ElectricalConnectionPhaseNameTypeBc],
 		measurementData(
 			voltagePhaseBToC,
 			timestamp,
-			e.voltageConfig.ValueSourcePhaseBToC,
+			e.voltageConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeBc],
 			valueState,
 			nil,
 			nil,
@@ -501,18 +579,26 @@ func (e *MPC) UpdateDataVoltagePhaseBToC(
 // use MPC.UpdateDataVoltagePhaseCToA in MPC.Update to set the phase specific voltage details
 // The timestamp is optional and can be nil
 // The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-func (e *MPC) UpdateDataVoltagePhaseCToA(
+func (e *MPC) UpdateDataVoltagePhaseAToC(
 	voltagePhaseCToA float64,
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// validate first if voltage is supported
+	if e.voltageConfig == nil {
+		return newUpdateData(
+			"acVoltage is not supported, please check the configuration",
+			nil,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acVoltagePhaseCToA is not supported, please check the configuration",
-		e.acVoltage[5],
+		e.acVoltagePerPhase[model.ElectricalConnectionPhaseNameTypeAc],
 		measurementData(
 			voltagePhaseCToA,
 			timestamp,
-			e.voltageConfig.ValueSourcePhaseCToA,
+			e.voltageConfig.ValueSourcePerPhase[model.ElectricalConnectionPhaseNameTypeAc],
 			valueState,
 			nil,
 			nil,
@@ -530,6 +616,14 @@ func (e *MPC) UpdateDataFrequency(
 	timestamp *time.Time,
 	valueState *model.MeasurementValueStateType,
 ) usecaseapi.UpdateMeasurementData {
+	// Validate first if frequency is supported
+	if e.frequencyConfig == nil {
+		return newUpdateData(
+			"acFrequency is not supported, please check the configuration",
+			e.acFrequency,
+			nil,
+		)
+	}
 	return newUpdateData(
 		"acFrequency is not supported, please check the configuration",
 		e.acFrequency,

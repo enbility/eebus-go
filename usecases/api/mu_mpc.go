@@ -27,7 +27,7 @@ type MuMPCInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	PowerPerPhase() ([]float64, error)
+	PowerPerPhase() (map[model.ElectricalConnectionPhaseNameType]float64, error)
 
 	// Scenario 2
 
@@ -59,7 +59,7 @@ type MuMPCInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	CurrentPerPhase() ([]float64, error)
+	CurrentPerPhase() (map[model.ElectricalConnectionPhaseNameType]float64, error)
 
 	// Scenario 4
 
@@ -68,7 +68,7 @@ type MuMPCInterface interface {
 	// possible errors:
 	//   - ErrMissingData if the id is not available
 	//   - and others
-	VoltagePerPhase() ([]float64, error)
+	VoltagePerPhase() (map[model.ElectricalConnectionPhaseNameType]float64, error)
 
 	// Scenario 5
 
@@ -187,10 +187,10 @@ type MuMPCInterface interface {
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
 	UpdateDataVoltagePhaseBToC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateMeasurementData
 
-	// use UpdateDataVoltagePhaseCToA in Update to set the phase specific voltage details
+	// use UpdateDataVoltagePhaseAToC in Update to set the phase specific voltage details
 	// The timestamp is optional and can be nil
 	// The valueState shall be set if it differs from the normal valueState otherwise it can be nil
-	UpdateDataVoltagePhaseCToA(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateMeasurementData
+	UpdateDataVoltagePhaseAToC(value float64, timestamp *time.Time, valueState *model.MeasurementValueStateType) UpdateMeasurementData
 
 	// Scenario 5
 

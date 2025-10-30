@@ -1,18 +1,19 @@
 package mpc
 
 import (
+	"github.com/enbility/spine-go/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func (s *MuMPCSuite) Test_SupportsPhases() {
-	allowedConstellations := map[ConnectedPhases][][]string{
-		ConnectedPhasesA:   {{"a"}},
-		ConnectedPhasesB:   {{"b"}},
-		ConnectedPhasesC:   {{"C"}},
-		ConnectedPhasesAB:  {{"a"}, {"b"}, {"a", "b"}},
-		ConnectedPhasesBC:  {{"b"}, {"c"}, {"B", "c"}},
-		ConnectedPhasesCA:  {{"a"}, {"c"}, {"A", "C"}},
-		ConnectedPhasesABC: {{"a"}, {"b"}, {"c"}, {"a", "b"}, {"b", "c"}, {"a", "c"}, {"A", "b", "c"}},
+	allowedConstellations := map[model.ElectricalConnectionPhaseNameType][][]string{
+		model.ElectricalConnectionPhaseNameTypeA:   {{"a"}},
+		model.ElectricalConnectionPhaseNameTypeB:   {{"b"}},
+		model.ElectricalConnectionPhaseNameTypeC:   {{"C"}},
+		model.ElectricalConnectionPhaseNameTypeAb:  {{"a"}, {"b"}, {"a", "b"}},
+		model.ElectricalConnectionPhaseNameTypeBc:  {{"b"}, {"c"}, {"B", "c"}},
+		model.ElectricalConnectionPhaseNameTypeAc:  {{"a"}, {"c"}, {"A", "C"}},
+		model.ElectricalConnectionPhaseNameTypeAbc: {{"a"}, {"b"}, {"c"}, {"a", "b"}, {"b", "c"}, {"a", "c"}, {"A", "b", "c"}},
 	}
 
 	for constellation, phases := range allowedConstellations {
@@ -25,13 +26,13 @@ func (s *MuMPCSuite) Test_SupportsPhases() {
 		}
 	}
 
-	notAllowedConstellations := map[ConnectedPhases][]string{
-		ConnectedPhasesA:  {"b", "c", "ab", "bc", "ac", "abc"},
-		ConnectedPhasesB:  {"a", "c", "ab", "bc", "ac", "abc"},
-		ConnectedPhasesC:  {"a", "b", "ab", "bc", "ac", "abc"},
-		ConnectedPhasesAB: {"c", "ac", "abc"},
-		ConnectedPhasesBC: {"a", "ab", "abc"},
-		ConnectedPhasesCA: {"b", "bc", "abc"},
+	notAllowedConstellations := map[model.ElectricalConnectionPhaseNameType][]string{
+		model.ElectricalConnectionPhaseNameTypeA:  {"b", "c", "ab", "bc", "ac", "abc"},
+		model.ElectricalConnectionPhaseNameTypeB:  {"a", "c", "ab", "bc", "ac", "abc"},
+		model.ElectricalConnectionPhaseNameTypeC:  {"a", "b", "ab", "bc", "ac", "abc"},
+		model.ElectricalConnectionPhaseNameTypeAb: {"c", "ac", "abc"},
+		model.ElectricalConnectionPhaseNameTypeBc: {"a", "ab", "abc"},
+		model.ElectricalConnectionPhaseNameTypeAc: {"b", "bc", "abc"},
 	}
 
 	for constellation, notSupportedPhases := range notAllowedConstellations {
