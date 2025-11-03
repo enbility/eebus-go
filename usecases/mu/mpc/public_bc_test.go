@@ -154,8 +154,8 @@ func (s *MuMpcBcSuite) Test_VoltagePerPhase() {
 	)
 	assert.Nil(s.T(), err)
 	expectedVoltagePerPhases := map[model.ElectricalConnectionPhaseNameType]float64{
-		model.ElectricalConnectionPhaseNameTypeB: 6.0,
-		model.ElectricalConnectionPhaseNameTypeC: 7.0,
+		model.ElectricalConnectionPhaseNameTypeB:  6.0,
+		model.ElectricalConnectionPhaseNameTypeC:  7.0,
 		model.ElectricalConnectionPhaseNameTypeBc: 9.0,
 	}
 
