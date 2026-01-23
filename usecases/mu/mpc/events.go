@@ -6,5 +6,5 @@ import (
 
 // handle SPINE events
 func (e *MPC) HandleEvent(payload spineapi.EventPayload) {
-	// No events supported
+	// No events expected as remote Monitoring Appliance has no server data, and writes are not supported by the Monitored Unit
 }
