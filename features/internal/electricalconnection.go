@@ -60,6 +60,35 @@ func (e *ElectricalConnectionCommon) CheckEventPayloadDataForFilter(payloadData 
 	return false
 }
 
+func (e *ElectricalConnectionCommon) CheckEventPayloadDataForFilterDescriptionList(payloadData any, filter any) bool {
+	if payloadData == nil {
+		return false
+	}
+
+	data, ok := payloadData.(*model.ElectricalConnectionCharacteristicListDataType)
+	filterData, ok2 := filter.(model.ElectricalConnectionCharacteristicDataType)
+	if !ok || !ok2 {
+		return false
+	}
+
+	descs, err := e.GetCharacteristicsForFilter(filterData)
+	if err != nil {
+		return false
+	}
+
+	for _, desc := range descs {
+		for _, item := range data.ElectricalConnectionCharacteristicData {
+			if item.ParameterId != nil &&
+				desc.ParameterId != nil &&
+				*item.ParameterId == *desc.ParameterId {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // Get the description for a given filter
 //
 // Returns an error if no matching description is found

@@ -36,4 +36,11 @@ const (
 	//
 	// Use Case LPC, Scenario 3
 	DataUpdateHeartbeat api.EventType = "eg-lpc-DataUpdateHeartbeat"
+
+	//Electrical connection power consumption nominal max updated
+	//
+	//Use 'ProductionNominalMax' to get the current data
+	//
+	// Use Case LPP, Scenario 4
+	DataUpdatePowerConsumptionNominalMax api.EventType = "eg-lpc-DataUpdatePowerConsumptionNominalMax"
 )
