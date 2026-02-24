@@ -57,6 +57,10 @@ func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEven
 		UseCaseBase: usecase,
 	}
 
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.evseConnected(entity)
+	}
+
 	_ = spine.Events.Subscribe(uc)
 
 	return uc

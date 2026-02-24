@@ -12,23 +12,18 @@ import (
 
 // handle SPINE events
 func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
-	if internal.IsDeviceConnected(payload) {
-		e.deviceConnected(payload)
-		return
-	}
-
 	if !e.IsCompatibleEntityType(payload.Entity) {
 		return
 	}
 
-	// did we receive a binding to the loadControl server and the
-	// heartbeatWorkaround is required?
+	// subscribe to heartbeat when a remote entity binds to our loadControl server
 	if payload.EventType == spineapi.EventTypeBindingChange &&
 		payload.ChangeType == spineapi.ElementChangeAdd &&
 		payload.LocalFeature != nil &&
 		payload.LocalFeature.Type() == model.FeatureTypeTypeLoadControl &&
-		payload.LocalFeature.Role() == model.RoleTypeServer {
-		e.subscribeHeartbeatWorkaround(payload)
+		payload.LocalFeature.Role() == model.RoleTypeServer &&
+		e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
+		e.subscribeHeartbeat(payload.Entity)
 		return
 	}
 
@@ -41,6 +36,10 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 		payload.ChangeType != spineapi.ElementChangeUpdate ||
 		payload.CmdClassifier == nil ||
 		*payload.CmdClassifier != model.CmdClassifierTypeWrite {
+		return
+	}
+
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
 		return
 	}
 
@@ -66,77 +65,18 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 	}
 }
 
-// a remote device was connected and we know its entities
-func (e *LPC) deviceConnected(payload spineapi.EventPayload) {
-	if payload.Device == nil {
-		return
-	}
-
-	// check if there is a DeviceDiagnosis server on one or more entities
-	remoteDevice := payload.Device
-
-	var deviceDiagEntities []spineapi.EntityRemoteInterface
-
-	entities := remoteDevice.Entities()
-	for _, entity := range entities {
-		if !e.IsCompatibleEntityType(entity) {
-			continue
-		}
-
-		deviceDiagF := entity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
-		if deviceDiagF == nil {
-			continue
-		}
-
-		deviceDiagEntities = append(deviceDiagEntities, entity)
-	}
-
-	logging.Log().Debug("cs-lpc:", len(deviceDiagEntities), "DeviceDiagnosis Server found")
-
-	// the remote device does not have a DeviceDiagnosis Server, which it should
-	if len(deviceDiagEntities) == 0 {
-		return
-	}
-
-	// we only found one matching entity, as it should be, subscribe
-	if len(deviceDiagEntities) == 1 {
-		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, deviceDiagEntities[0]); err == nil {
-			e.heartbeatDiag = localDeviceDiag
-			if !localDeviceDiag.HasSubscription() {
-				if _, err := localDeviceDiag.Subscribe(); err != nil {
-					logging.Log().Debug(err)
-				}
-			}
-
-			if _, err := localDeviceDiag.RequestHeartbeat(); err != nil {
+// subscribe to the DeviceDiagnosis of the entity that created a binding
+func (e *LPC) subscribeHeartbeat(entity spineapi.EntityRemoteInterface) {
+	if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err == nil {
+		e.heartbeatDiag = localDeviceDiag
+		if !localDeviceDiag.HasSubscription() {
+			if _, err := localDeviceDiag.Subscribe(); err != nil {
 				logging.Log().Debug(err)
 			}
 		}
 
-		return
-	}
-
-	// we found more than one matching entity, this is not good
-	// according to KEO the subscription should be done on the entity that requests a binding to
-	// the local loadControlLimit server feature
-	e.heartbeatKeoWorkaround = true
-}
-
-// subscribe to the DeviceDiagnosis Server of the entity that created a binding
-func (e *LPC) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
-	// is the workaround is needed?
-	if e.heartbeatKeoWorkaround {
-		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
-			e.heartbeatDiag = localDeviceDiag
-			if !localDeviceDiag.HasSubscription() {
-				if _, err := localDeviceDiag.Subscribe(); err != nil {
-					logging.Log().Debug(err)
-				}
-			}
-
-			if _, err := localDeviceDiag.RequestHeartbeat(); err != nil {
-				logging.Log().Debug(err)
-			}
+		if _, err := localDeviceDiag.RequestHeartbeat(); err != nil {
+			logging.Log().Debug(err)
 		}
 	}
 }

@@ -76,6 +76,10 @@ func NewCEVC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		UseCaseBase: usecase,
 	}
 
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.evConnected(entity)
+	}
+
 	_ = spine.Events.Subscribe(uc)
 
 	return uc

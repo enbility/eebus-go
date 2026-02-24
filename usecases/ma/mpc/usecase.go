@@ -91,6 +91,10 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 		UseCaseBase: usecase,
 	}
 
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.deviceConnected(entity)
+	}
+
 	_ = spine.Events.Subscribe(uc)
 
 	return uc

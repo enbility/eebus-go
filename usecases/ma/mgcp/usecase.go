@@ -99,6 +99,10 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		UseCaseBase: usecase,
 	}
 
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.gridConnected(entity)
+	}
+
 	_ = spine.Events.Subscribe(uc)
 
 	return uc

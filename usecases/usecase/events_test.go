@@ -149,6 +149,211 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 	assert.False(s.T(), result)
 }
 
+func (s *UseCaseSuite) Test_OnScenariosChanged() {
+	// Track callback invocations
+	var callbackEntity spineapi.EntityRemoteInterface
+	var callbackScenarios []uint
+	callbackCount := 0
+
+	s.uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		callbackEntity = entity
+		callbackScenarios = scenarios
+		callbackCount++
+	}
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.remoteDevice.Entities()[0],
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+
+	// Set up use case data with valid scenarios
+	address := &model.FeatureAddressType{
+		Device:  s.monitoredEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		useCaseName,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	s.uc.useCaseDataUpdate(payload)
+
+	// Callback should have been called with non-empty scenarios
+	assert.Equal(s.T(), 1, callbackCount)
+	assert.NotNil(s.T(), callbackEntity)
+	assert.NotEmpty(s.T(), callbackScenarios)
+
+	// Update with same scenarios should not trigger callback again
+	s.uc.useCaseDataUpdate(payload)
+	assert.Equal(s.T(), 1, callbackCount)
+
+	// Update with different scenarios should trigger callback
+	data = &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		useCaseName,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	s.uc.useCaseDataUpdate(payload)
+	assert.Equal(s.T(), 2, callbackCount)
+}
+
+func (s *UseCaseSuite) Test_OnScenariosChanged_EmptyScenarios() {
+	callbackCount := 0
+	s.uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		callbackCount++
+	}
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.remoteDevice.Entities()[0],
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+
+	// Set up use case data with wrong actor type (results in empty scenarios)
+	address := &model.FeatureAddressType{
+		Device:  s.monitoredEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeHeatPump, // wrong actor type
+		useCaseName,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	s.uc.useCaseDataUpdate(payload)
+
+	// Callback should NOT have been called because no scenarios matched
+	assert.Equal(s.T(), 0, callbackCount)
+}
+
+func (s *UseCaseSuite) Test_useCaseDataUpdate_UseCaseRemoved() {
+	// First, set up valid scenarios
+	address := &model.FeatureAddressType{
+		Device:  s.monitoredEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		useCaseName,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.remoteDevice.Entities()[0],
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+	s.uc.useCaseDataUpdate(payload)
+
+	// Scenarios should be available
+	assert.True(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
+
+	// Now replace with a completely different use case
+	data = &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		model.UseCaseNameTypeCoordinatedEVCharging, // different use case
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	s.uc.useCaseDataUpdate(payload)
+
+	// Scenarios should now be cleared
+	assert.False(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
+	assert.False(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 2))
+}
+
+func (s *UseCaseSuite) Test_useCaseDataUpdate_UseCaseUnavailable() {
+	// First, set up valid scenarios
+	address := &model.FeatureAddressType{
+		Device:  s.monitoredEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		useCaseName,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.remoteDevice.Entities()[0],
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+	s.uc.useCaseDataUpdate(payload)
+
+	assert.True(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
+
+	// Now set the use case as unavailable
+	data = &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		useCaseName,
+		"1.0.0",
+		"release",
+		false, // unavailable
+		[]model.UseCaseScenarioSupportType{1, 2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	s.uc.useCaseDataUpdate(payload)
+
+	// Scenarios should be cleared
+	assert.False(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
+}
+
 func (s *UseCaseSuite) Test_useCaseDataUpdate_PMCP() {
 	payload := spineapi.EventPayload{
 		Device:     s.remoteDevice,
