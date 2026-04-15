@@ -2,7 +2,6 @@ package evsoc
 
 import (
 	"github.com/enbility/eebus-go/features/client"
-	internal "github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -16,13 +15,12 @@ func (e *EVSOC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityAdded(payload) {
-		e.evConnected(payload.Entity)
+	if payload.EventType != spineapi.EventTypeDataChange ||
+		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return
 	}
 
-	if payload.EventType != spineapi.EventTypeDataChange ||
-		payload.ChangeType != spineapi.ElementChangeUpdate {
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
 		return
 	}
 

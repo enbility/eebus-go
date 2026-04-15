@@ -35,6 +35,14 @@ func (s *CemEVCCSuite) Test_Events() {
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
 
+	// test scenario gate rejects data changes without scenarios
+	payload.EventType = spineapi.EventTypeDataChange
+	payload.ChangeType = spineapi.ElementChangeUpdate
+	payload.Data = &model.DeviceConfigurationKeyValueDescriptionListDataType{}
+	s.sut.HandleEvent(payload)
+
+	s.setUpUseCaseScenarios()
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.Data = util.Ptr(model.DeviceConfigurationKeyValueDescriptionListDataType{})
@@ -64,10 +72,7 @@ func (s *CemEVCCSuite) Test_Events() {
 }
 
 func (s *CemEVCCSuite) Test_Failures() {
-	payload := spineapi.EventPayload{
-		Entity: s.mockRemoteEntity,
-	}
-	s.sut.evConnected(payload)
+	s.sut.evConnected(s.mockRemoteEntity)
 
 	s.sut.evConfigurationDescriptionDataUpdate(s.mockRemoteEntity)
 
@@ -278,4 +283,37 @@ func (s *CemEVCCSuite) Test_evElectricalPermittedValuesUpdate() {
 	payload.Data = permData
 	s.sut.evElectricalPermittedValuesUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
+}
+
+func (s *CemEVCCSuite) Test_evConnected() {
+	s.sut.evConnected(s.evEntity)
+}
+
+func (s *CemEVCCSuite) setUpUseCaseScenarios() {
+	address := &model.FeatureAddressType{
+		Device:  s.evEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		model.UseCaseNameTypeEVCommissioningAndConfiguration,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3, 4, 5, 6, 7, 8})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.evEntity,
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+	s.sut.UseCaseBase.HandleEvent(payload)
 }

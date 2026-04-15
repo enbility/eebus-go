@@ -15,16 +15,17 @@ func (e *EVSECC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityAdded(payload) {
-		e.evseConnected(payload)
-		return
-	} else if internal.IsEntityRemoved(payload) {
+	if internal.IsEntityRemoved(payload) {
 		e.evseDisconnected(payload)
 		return
 	}
 
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
+		return
+	}
+
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
 		return
 	}
 
@@ -38,17 +39,17 @@ func (e *EVSECC) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // an EVSE was connected
-func (e *EVSECC) evseConnected(payload spineapi.EventPayload) {
-	if evseDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
+func (e *EVSECC) evseConnected(entity spineapi.EntityRemoteInterface) {
+	if evseDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, entity); err == nil {
 		_, _ = evseDeviceClassification.RequestManufacturerDetails()
 	}
 
-	if evseDeviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
+	if evseDeviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err == nil {
 		_, _ = evseDeviceDiagnosis.RequestState()
 	}
 
 	if e.EventCB != nil {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, EvseConnected)
+		e.EventCB(entity.Device().Ski(), entity.Device(), entity, EvseConnected)
 	}
 }
 

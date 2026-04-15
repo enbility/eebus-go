@@ -17,16 +17,17 @@ func (e *EVCC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityAdded(payload) {
-		e.evConnected(payload)
-		return
-	} else if internal.IsEntityRemoved(payload) {
+	if internal.IsEntityRemoved(payload) {
 		e.evDisconnected(payload)
 		return
 	}
 
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
+		return
+	}
+
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
 		return
 	}
 
@@ -55,9 +56,9 @@ func (e *EVCC) HandleEvent(payload spineapi.EventPayload) {
 }
 
 // an EV was connected
-func (e *EVCC) evConnected(payload spineapi.EventPayload) {
+func (e *EVCC) evConnected(entity spineapi.EntityRemoteInterface) {
 	// initialise features, e.g. subscriptions, descriptions
-	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, payload.Entity); err == nil {
+	if evDeviceClassification, err := client.NewDeviceClassification(e.LocalEntity, entity); err == nil {
 		if !evDeviceClassification.HasSubscription() {
 			if _, err := evDeviceClassification.Subscribe(); err != nil {
 				logging.Log().Debug(err)
@@ -70,7 +71,7 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 		}
 	}
 
-	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, payload.Entity); err == nil {
+	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		if !evDeviceConfiguration.HasSubscription() {
 			if _, err := evDeviceConfiguration.Subscribe(); err != nil {
 				logging.Log().Debug(err)
@@ -83,7 +84,7 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 		}
 	}
 
-	if evDeviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
+	if evDeviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err == nil {
 		if !evDeviceDiagnosis.HasSubscription() {
 			if _, err := evDeviceDiagnosis.Subscribe(); err != nil {
 				logging.Log().Debug(err)
@@ -96,7 +97,7 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 		}
 	}
 
-	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, payload.Entity); err == nil {
+	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
 		if !evElectricalConnection.HasSubscription() {
 			if _, err := evElectricalConnection.Subscribe(); err != nil {
 				logging.Log().Debug(err)
@@ -114,7 +115,7 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 		}
 	}
 
-	if evIdentification, err := client.NewIdentification(e.LocalEntity, payload.Entity); err == nil {
+	if evIdentification, err := client.NewIdentification(e.LocalEntity, entity); err == nil {
 		if !evIdentification.HasSubscription() {
 			if _, err := evIdentification.Subscribe(); err != nil {
 				logging.Log().Debug(err)
@@ -128,7 +129,7 @@ func (e *EVCC) evConnected(payload spineapi.EventPayload) {
 	}
 
 	if e.EventCB != nil {
-		e.EventCB(payload.Ski, payload.Device, payload.Entity, EvConnected)
+		e.EventCB(entity.Device().Ski(), entity.Device(), entity, EvConnected)
 	}
 }
 

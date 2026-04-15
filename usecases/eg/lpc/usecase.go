@@ -72,6 +72,10 @@ func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 		UseCaseBase: usecase,
 	}
 
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.connected(entity)
+	}
+
 	_ = spine.Events.Subscribe(uc)
 
 	return uc

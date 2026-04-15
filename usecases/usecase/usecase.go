@@ -23,6 +23,10 @@ type UseCaseBase struct {
 	EventCB            api.EntityEventCallback
 	useCaseUpdateEvent api.EventType
 
+	// Called when an entity's available scenarios change.
+	// Runs within the same goroutine as useCaseDataUpdate.
+	OnScenariosChanged func(entity spineapi.EntityRemoteInterface, scenarios []uint)
+
 	availableEntityScenarios []api.RemoteEntityScenarios // map of scenarios and their availability for each compatible remote entity
 
 	validActorTypes  []model.UseCaseActorType // valid remote actor types for this use case
@@ -214,8 +218,30 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 		updateEvent = true
 	}
 
-	if updateEvent && u.EventCB != nil {
-		u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
+	if updateEvent {
+		if u.OnScenariosChanged != nil && len(scenarioValues) > 0 {
+			u.OnScenariosChanged(entity, scenarioValues)
+		}
+		if u.EventCB != nil {
+			u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
+		}
+	}
+}
+
+// clear scenarios for entities of a device that were not updated during useCaseDataUpdate
+func (u *UseCaseBase) clearStaleEntityScenarios(
+	device spineapi.DeviceRemoteInterface,
+	updatedEntities map[spineapi.EntityRemoteInterface]bool,
+) {
+	indices := u.entityScenarioIndicesOfDevice(device)
+	for _, idx := range indices {
+		u.mux.Lock()
+		entity := u.availableEntityScenarios[idx].Entity
+		u.mux.Unlock()
+
+		if !updatedEntities[entity] {
+			u.updateRemoteEntityScenarios(entity, nil)
+		}
 	}
 }
 

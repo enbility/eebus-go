@@ -129,13 +129,6 @@ func setupDevices(
 				model.FunctionTypeLoadControlLimitListData,
 			},
 		},
-		{model.FeatureTypeTypeElectricalConnection,
-			model.RoleTypeServer,
-			[]model.FunctionType{
-				model.FunctionTypeElectricalConnectionParameterDescriptionListData,
-				model.FunctionTypeElectricalConnectionPermittedValueSetListData,
-			},
-		},
 		{model.FeatureTypeTypeDeviceDiagnosis,
 			model.RoleTypeClient,
 			[]model.FunctionType{},

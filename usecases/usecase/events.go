@@ -47,6 +47,9 @@ func (u *UseCaseBase) useCaseDataUpdate(
 ) {
 	remoteDevice := payload.Device
 
+	// track which entities get updated so we can clear stale scenarios afterwards
+	updatedEntities := map[spineapi.EntityRemoteInterface]bool{}
+
 	// go over the use cases and check which entity of the remote device supports the usecase
 	ucs := remoteDevice.UseCases()
 	for _, uc := range ucs {
@@ -126,8 +129,13 @@ func (u *UseCaseBase) useCaseDataUpdate(
 					supportedScenarios = append(supportedScenarios, scenario.Scenario)
 				}
 
+				updatedEntities[entity] = true
 				u.updateRemoteEntityScenarios(entity, supportedScenarios)
 			}
 		}
 	}
+
+	// clear scenarios for entities of this device that were not updated,
+	// e.g. because the use case was removed or set unavailable
+	u.clearStaleEntityScenarios(remoteDevice, updatedEntities)
 }

@@ -27,6 +27,14 @@ func (s *CemVABDSuite) Test_Events() {
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
 
+	// test scenario gate rejects data changes without scenarios
+	payload.EventType = spineapi.EventTypeDataChange
+	payload.ChangeType = spineapi.ElementChangeUpdate
+	payload.Data = &model.MeasurementDescriptionListDataType{}
+	s.sut.HandleEvent(payload)
+
+	s.setUpUseCaseScenarios()
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.Data = util.Ptr(model.DeviceConfigurationKeyValueDescriptionListDataType{})
@@ -113,4 +121,37 @@ func (s *CemVABDSuite) Test_inverterMeasurementDataUpdate() {
 
 	s.sut.inverterMeasurementDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
+}
+
+func (s *CemVABDSuite) setUpUseCaseScenarios() {
+	address := &model.FeatureAddressType{
+		Device:  s.batteryEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeBatterySystem,
+		model.UseCaseNameTypeVisualizationOfAggregatedBatteryData,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3, 4})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.batteryEntity,
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+	s.sut.UseCaseBase.HandleEvent(payload)
+}
+
+func (s *CemVABDSuite) Test_inverterConnected() {
+	s.sut.inverterConnected(s.batteryEntity)
 }

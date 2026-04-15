@@ -23,8 +23,6 @@ type LPP struct {
 	pendingLimits map[model.MsgCounterType]*spineapi.Message
 
 	heartbeatDiag *features.DeviceDiagnosis
-
-	heartbeatKeoWorkaround bool // required because KEO Stack uses multiple identical entities for the same functionality, and it is not clear which to use
 }
 
 var _ ucapi.CsLPPInterface = (*LPP)(nil)
