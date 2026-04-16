@@ -60,13 +60,6 @@ func (e *LPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 		return
 	}
 
-	// Validate LoadControlLimitData using EG LPC validator
-	// This ensures data integrity and compliance with EG LPC specification requirements
-	if err := EGLPCLoadControlLimitValidator.Validate(value); err != nil {
-		resultErr = api.ErrDataInvalid
-		return
-	}
-
 	limit.Value = value.Value.GetValue()
 	limit.IsChangeable = (value.IsLimitChangeable != nil && *value.IsLimitChangeable)
 	limit.IsActive = (value.IsLimitActive != nil && *value.IsLimitActive)
@@ -128,12 +121,6 @@ func (e *LPC) FailsafeConsumptionActivePowerLimit(entity spineapi.EntityRemoteIn
 	data, err := deviceConfiguration.GetKeyValueDataForFilter(filter)
 	if err != nil || data == nil || data.Value == nil || data.Value.ScaledNumber == nil {
 		return 0, api.ErrDataNotAvailable
-	}
-
-	// Validate DeviceConfigurationKeyValueData using EG LPC validator
-	// This ensures failsafe power limit values are within reasonable ranges and properly formatted
-	if err := EGLPCDeviceConfigurationValidator.Validate(data); err != nil {
-		return 0, api.ErrDataInvalid
 	}
 
 	return data.Value.ScaledNumber.GetValue(), nil
@@ -298,14 +285,8 @@ func (e *LPC) ConsumptionNominalMax(entity spineapi.EntityRemoteInterface) (floa
 	data, err := electricalConnection.GetCharacteristicsForFilter(filter)
 	if err != nil {
 		return 0, err
-	} else if len(data) == 0 || data[0].Value == nil {
+	} else if len(data) == 0 || data[0].CharacteristicId == nil || data[0].Value == nil {
 		return 0, api.ErrDataNotAvailable
-	}
-
-	// Validate ElectricalConnectionCharacteristicData using EG LPC validator
-	// This ensures nominal consumption values are positive and within reasonable ranges
-	if err := EGLPCElectricalConnectionCharacteristicValidator.Validate(&data[0]); err != nil {
-		return 0, api.ErrDataInvalid
 	}
 
 	return data[0].Value.GetValue(), nil

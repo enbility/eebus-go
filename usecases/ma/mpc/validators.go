@@ -5,88 +5,34 @@ import (
 	"github.com/enbility/spine-go/model"
 )
 
-// Validators for MPC (Monitoring Appliance Power Consumption) use case measurements
+// Validators for the MPC (Monitoring of Power Consumption) use case.
+// Per the MPC spec (MPC-001/002/003):
+//   - measurementId, value, valueType=value are Mandatory
+//   - valueSource is Mandatory and must be measuredValue/calculatedValue/empiricalValue
+//   - measurements with valueState=error or outOfRange SHALL be ignored (MPC-003)
+
+// mpcValueSources are the allowed value sources for MPC measurements.
+var mpcValueSources = []model.MeasurementValueSourceType{
+	model.MeasurementValueSourceTypeMeasuredValue,
+	model.MeasurementValueSourceTypeCalculatedValue,
+	model.MeasurementValueSourceTypeEmpiricalValue,
+}
+
+// scenarioValidator builds the common validator shape used by every MPC scenario.
+func scenarioValidator(name string) internal.MeasurementValidator {
+	return internal.NewMeasurementValidator().
+		WithName(name).
+		WithRule(internal.RequireMeasurementId()).
+		WithRule(internal.RequireMeasurementValue()).
+		WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
+		WithRule(internal.RequireValueSource(mpcValueSources...)).
+		WithRule(internal.SkipValueState())
+}
 
 var (
-	// powerSourceTypes are the allowed value sources for power measurements
-	powerSourceTypes = []model.MeasurementValueSourceType{
-		model.MeasurementValueSourceTypeMeasuredValue,
-		model.MeasurementValueSourceTypeCalculatedValue,
-		model.MeasurementValueSourceTypeEmpiricalValue,
-	}
-
-	// energySourceTypes are the allowed value sources for energy measurements
-	energySourceTypes = []model.MeasurementValueSourceType{
-		model.MeasurementValueSourceTypeMeasuredValue,
-		model.MeasurementValueSourceTypeCalculatedValue,
-	}
-
-	// currentSourceTypes are the allowed value sources for current measurements
-	currentSourceTypes = []model.MeasurementValueSourceType{
-		model.MeasurementValueSourceTypeMeasuredValue,
-		model.MeasurementValueSourceTypeCalculatedValue,
-	}
-
-	// voltageSourceTypes are the allowed value sources for voltage measurements
-	voltageSourceTypes = []model.MeasurementValueSourceType{
-		model.MeasurementValueSourceTypeMeasuredValue,
-		model.MeasurementValueSourceTypeCalculatedValue,
-	}
-
-	// frequencySourceTypes are the allowed value sources for frequency measurements
-	frequencySourceTypes = []model.MeasurementValueSourceType{
-		model.MeasurementValueSourceTypeMeasuredValue,
-		model.MeasurementValueSourceTypeCalculatedValue,
-	}
+	powerValidator     = scenarioValidator("MPC Power")
+	energyValidator    = scenarioValidator("MPC Energy")
+	currentValidator   = scenarioValidator("MPC Current")
+	voltageValidator   = scenarioValidator("MPC Voltage")
+	frequencyValidator = scenarioValidator("MPC Frequency")
 )
-
-// powerValidator validates power measurements
-var powerValidator = internal.NewMeasurementValidator().
-	WithName("MPC Power").
-	WithRule(internal.RequireMeasurementId()).
-	WithRule(internal.RequireMeasurementValue()).
-	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
-	WithRule(internal.RequireValueSource(powerSourceTypes...)).
-	WithRule(internal.ValidateValueState(model.MeasurementValueStateTypeNormal, false))
-
-// energyValidator validates energy measurements (consumption and production)
-var energyValidator = internal.NewMeasurementValidator().
-	WithName("MPC Energy").
-	WithRule(internal.RequireMeasurementId()).
-	WithRule(internal.RequireMeasurementValue()).
-	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
-	WithRule(internal.RequireValueSource(energySourceTypes...)).
-	WithRule(internal.ValidateValueState(model.MeasurementValueStateTypeNormal, false))
-
-// currentValidator validates current measurements
-var currentValidator = internal.NewMeasurementValidator().
-	WithName("MPC Current").
-	WithRule(internal.RequireMeasurementId()).
-	WithRule(internal.RequireMeasurementValue()).
-	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
-	WithRule(internal.RequireValueSource(currentSourceTypes...)).
-	WithRule(internal.ValidateValueState("", true)) // Any state required per spec
-
-// voltageValidator validates voltage measurements
-var voltageValidator = internal.NewMeasurementValidator().
-	WithName("MPC Voltage").
-	WithRule(internal.RequireMeasurementId()).
-	WithRule(internal.RequireMeasurementValue()).
-	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
-	WithRule(internal.RequireValueSource(voltageSourceTypes...)).
-	WithRule(internal.ValidateMeasurementRange(0, 1000)) // 0-1000V per spec
-
-// frequencyValidator validates frequency measurements
-var frequencyValidator = internal.NewMeasurementValidator().
-	WithName("MPC Frequency").
-	WithRule(internal.RequireMeasurementId()).
-	WithRule(internal.RequireMeasurementValue()).
-	WithRule(internal.RequireValueType(model.MeasurementValueTypeTypeValue)).
-	WithRule(internal.RequireValueSource(frequencySourceTypes...)).
-	WithRule(internal.ValidateValueState(model.MeasurementValueStateTypeNormal, false)) // Reject error states
-
-// getMeasurementValue is a helper that validates and extracts the value from measurements
-// DEPRECATED: Use MeasurementPhaseSpecificDataForFilter with validators instead
-func getMeasurementValue(measurements []model.MeasurementDataType, validator *internal.MeasurementValidator) (float64, error) {
-	return internal.GetMeasurementValue(measurements, validator)
-}

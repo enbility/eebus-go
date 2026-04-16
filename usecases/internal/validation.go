@@ -12,10 +12,6 @@
 //
 //	err := validator.Validate(measurement)
 //
-// For measurements, use predefined validators:
-//
-//	value, err := internal.GetMeasurementValue(measurements, internal.PowerMeasurementValidator)
-//
 // For custom data types, use generic rules:
 //
 //	validator := internal.NewValidator[*model.SetpointDataType]().
@@ -48,7 +44,7 @@ var ErrSkipMeasurement = errors.New("measurement should be skipped")
 // from a slice, or validate all items with detailed error reporting.
 type Validator[T any] interface {
 	Validate(item T) error
-	ValidateFirst(items []T) (T, error)
+	FindFirstValidItem(items []T) (T, error)
 	ValidateAll(items []T) ([]T, []error)
 	WithName(name string) Validator[T]
 }
@@ -125,19 +121,18 @@ func (v *BaseValidator[T]) Validate(item T) error {
 	return nil
 }
 
-// ValidateFirst returns the first valid item from a slice.
+// FindFirstValidItem returns the first item in the slice that passes all validation rules.
 //
 // This is useful when you have multiple items but only need one valid one.
-// Returns the first item that passes all validation rules.
 //
 // Example:
 //
 //	measurements := []model.MeasurementDataType{...}
-//	valid, err := validator.ValidateFirst(measurements)
+//	valid, err := validator.FindFirstValidItem(measurements)
 //	if err != nil {
 //		return api.ErrDataNotAvailable
 //	}
-func (v *BaseValidator[T]) ValidateFirst(items []T) (T, error) {
+func (v *BaseValidator[T]) FindFirstValidItem(items []T) (T, error) {
 	var zero T
 	for _, item := range items {
 		if err := v.Validate(item); err == nil {
@@ -149,7 +144,7 @@ func (v *BaseValidator[T]) ValidateFirst(items []T) (T, error) {
 
 // ValidateAll validates all items and returns valid ones with errors for invalid ones.
 //
-// Unlike ValidateFirst, this validates every item and returns both
+// Unlike FindFirstValidItem, this validates every item and returns both
 // the valid items and detailed errors for each invalid item.
 //
 // Example:
@@ -278,29 +273,27 @@ func ValidateMinMax[T any](
 	}
 }
 
-// ValidateEnum creates a rule that validates a value is one of allowed values
+// ValidateEnum creates a rule that validates a value is one of allowed values.
+// If the value pointer is nil the rule passes; combine with RequireField to reject nil.
+// Passing an empty allowed list panics: that is always a programming error.
 func ValidateEnum[T any, E comparable](
 	getter func(T) *E,
 	allowed []E,
 	fieldName string,
 ) ValidationRule[T] {
+	if len(allowed) == 0 {
+		panic(fmt.Sprintf("ValidateEnum for %s requires at least one allowed value", fieldName))
+	}
 	return func(item T) error {
 		value := getter(item)
 		if value == nil {
-			return nil // Skip if nil
+			return nil // combine with RequireField to reject nil
 		}
-
-		// Empty allowed list means "allow everything"
-		if len(allowed) == 0 {
-			return nil
-		}
-
 		for _, a := range allowed {
 			if *value == a {
 				return nil
 			}
 		}
-
 		return fmt.Errorf("%s must be one of allowed values", fieldName)
 	}
 }

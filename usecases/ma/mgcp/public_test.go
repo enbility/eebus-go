@@ -876,14 +876,14 @@ func (s *GcpMGCPSuite) Test_VoltageValidationCompliance() {
 	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
-	// Test voltage measurement without ValueSource (recommended for voltage per MGCP spec)
+	// Test voltage measurement with valid ValueSource (mandatory for MGCP)
 	measData := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(230),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				// ValueSource is recommended, not mandatory for voltage
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
@@ -892,7 +892,7 @@ func (s *GcpMGCPSuite) Test_VoltageValidationCompliance() {
 	assert.Nil(s.T(), fErr)
 
 	data, err := s.sut.VoltagePerPhase(s.smgwEntity)
-	assert.Nil(s.T(), err) // Should succeed even without ValueSource
+	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 1, len(data))
 	assert.Equal(s.T(), 230.0, data[0])
 }

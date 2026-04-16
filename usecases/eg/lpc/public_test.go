@@ -822,7 +822,7 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ValidationErrors() {
 	assert.Nil(s.T(), fErr)
 
 	data, err := s.sut.ConsumptionNominalMax(s.monitoredEntity)
-	assert.Equal(s.T(), api.ErrDataInvalid, err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err) // no CharacteristicId -> treated as not available
 	assert.Equal(s.T(), 0.0, data)
 
 	// Test 2: Wrong CharacteristicType - should return ErrDataNotAvailable (filtered out)
@@ -1064,6 +1064,6 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ErrorCases() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ConsumptionNominalMax(s.monitoredEntity)
-	assert.Equal(s.T(), api.ErrDataInvalid, err) // Validator rejects missing CharacteristicId
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err) // missing CharacteristicId -> not available
 	assert.Equal(s.T(), 0.0, data)
 }

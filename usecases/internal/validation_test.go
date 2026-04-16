@@ -77,7 +77,7 @@ func TestBaseValidator(t *testing.T) {
 		assert.Contains(t, err.Error(), "Custom Validator validation failed")
 	})
 
-	t.Run("ValidateFirst", func(t *testing.T) {
+	t.Run("FindFirstValidItem", func(t *testing.T) {
 		validator := NewValidator[*TestStruct]().
 			WithRule(RequireField(func(ts *TestStruct) *int { return ts.ID }, "ID"))
 
@@ -87,24 +87,24 @@ func TestBaseValidator(t *testing.T) {
 			{ID: ptr(2)}, // Also valid but shouldn't be returned
 		}
 
-		result, err := validator.ValidateFirst(items)
+		result, err := validator.FindFirstValidItem(items)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 1, *result.ID)
 
 		// No valid items
 		invalidItems := []*TestStruct{{}, {}}
-		_, err = validator.ValidateFirst(invalidItems)
+		_, err = validator.FindFirstValidItem(invalidItems)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "no valid item found")
 	})
 
-	t.Run("ValidateFirst with empty slice", func(t *testing.T) {
+	t.Run("FindFirstValidItem with empty slice", func(t *testing.T) {
 		validator := NewValidator[*TestStruct]().
 			WithRule(RequireField(func(ts *TestStruct) *int { return ts.ID }, "ID"))
 
 		items := []*TestStruct{}
-		_, err := validator.ValidateFirst(items)
+		_, err := validator.FindFirstValidItem(items)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "no valid item found")
 	})
@@ -362,15 +362,14 @@ func TestValidateEnum(t *testing.T) {
 		assert.Contains(t, err.Error(), "Status must be one of allowed values")
 	})
 
-	t.Run("empty allowed list passes any value", func(t *testing.T) {
-		emptyRule := ValidateEnum(
-			func(ts *TestStruct) *string { return ts.Status },
-			[]string{},
-			"Status",
-		)
-
-		err := emptyRule(&TestStruct{Status: ptr("anything")})
-		assert.NoError(t, err)
+	t.Run("panics on empty allowed list", func(t *testing.T) {
+		assert.Panics(t, func() {
+			ValidateEnum(
+				func(ts *TestStruct) *string { return ts.Status },
+				[]string{},
+				"Status",
+			)
+		})
 	})
 }
 

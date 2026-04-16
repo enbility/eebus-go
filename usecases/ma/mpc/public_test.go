@@ -530,14 +530,14 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
 	assert.Equal(s.T(), 0.0, data)
 
-	// Test with empirical value source (should be rejected for energy)
+	// Test with a disallowed ValueSource (should fail validation)
 	measData = &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
-				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeEmpiricalValue), // Not allowed for energy
+				ValueSource:   util.Ptr(model.MeasurementValueSourceType("simulatedValue")),
 			},
 		},
 	}
@@ -547,7 +547,7 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 
 	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
 	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), api.ErrDataNotAvailable, err) // Should fail validation
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
 	assert.Equal(s.T(), 0.0, data)
 }
 
@@ -831,26 +831,29 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 	assert.NotNil(s.T(), err) // Still missing ValueState
 	assert.Nil(s.T(), data)
 
-	// Add complete, valid current measurement data (with required ValueState)
+	// Add complete, valid current measurement data
 	measData = &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
-				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal), // Required for current
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
-				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal), // Required for current
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
-				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal), // Required for current
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 			},
 		},
 	}
@@ -862,26 +865,30 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)
 
-	// Test current with different ValueStates (should all be accepted per spec)
+	// Per MPC-003, measurements with state error/outOfRange SHALL be ignored.
+	// Only the one with valueState=normal should make it through.
 	measData = &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(15),
-				ValueState:    util.Ptr(model.MeasurementValueStateTypeError), // Should be accepted for current
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(20),
-				ValueState:    util.Ptr(model.MeasurementValueStateTypeOutofrange), // Should be accepted for current
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeOutofrange),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(25),
-				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal), // Normal state
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
 			},
 		},
 	}
@@ -891,7 +898,7 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 
 	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{15, 20, 25}, data) // All states accepted for current
+	assert.Equal(s.T(), []float64{25}, data)
 }
 
 func (s *MaMPCSuite) Test_VoltagePerPhase() {
@@ -986,23 +993,26 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 	assert.NotNil(s.T(), err) // Still invalid - missing ValueType
 	assert.Nil(s.T(), data)
 
-	// Add complete, valid voltage measurement data (within 0-1000V range)
+	// Add complete, valid voltage measurement data
 	measData = &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				Value:         model.NewScaledNumberType(230), // Within 0-1000V range
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				Value:         model.NewScaledNumberType(230), // Within 0-1000V range
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				Value:         model.NewScaledNumberType(230), // Within 0-1000V range
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
@@ -1014,23 +1024,26 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{230, 230, 230}, data)
 
-	// Test voltage out of range (> 1000V)
+	// MPC spec places no upper bound on voltage, so 1001 is valid just like 230.
 	measData = &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				Value:         model.NewScaledNumberType(1001), // Out of range
+				Value:         model.NewScaledNumberType(1001),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
 				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
@@ -1040,35 +1053,7 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 
 	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{230, 230}, data) // Only 2 valid voltages
-
-	// Test voltage at boundary (1000V - should be valid)
-	measData = &model.MeasurementListDataType{
-		MeasurementData: []model.MeasurementDataType{
-			{
-				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
-				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				Value:         model.NewScaledNumberType(1000), // At upper boundary
-			},
-			{
-				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
-				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				Value:         model.NewScaledNumberType(0), // At lower boundary
-			},
-			{
-				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
-				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
-				Value:         model.NewScaledNumberType(500), // In range
-			},
-		},
-	}
-
-	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
-	assert.Nil(s.T(), fErr)
-
-	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
-	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{1000, 0, 500}, data) // All valid at boundaries
+	assert.Equal(s.T(), []float64{1001, 230, 230}, data)
 }
 
 func (s *MaMPCSuite) Test_Frequency() {
