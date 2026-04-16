@@ -285,7 +285,7 @@ func (e *LPC) ConsumptionNominalMax(entity spineapi.EntityRemoteInterface) (floa
 	data, err := electricalConnection.GetCharacteristicsForFilter(filter)
 	if err != nil {
 		return 0, err
-	} else if len(data) == 0 || data[0].CharacteristicId == nil || data[0].Value == nil {
+	} else if len(data) != 1 || data[0].CharacteristicId == nil || data[0].Value == nil {
 		return 0, api.ErrDataNotAvailable
 	}
 
