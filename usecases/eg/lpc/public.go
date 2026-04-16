@@ -201,7 +201,6 @@ func (e *LPC) FailsafeDurationMinimum(entity spineapi.EntityRemoteInterface) (ti
 		return 0, api.ErrDataNotAvailable
 	}
 
-
 	return data.Value.Duration.GetTimeDuration()
 }
 

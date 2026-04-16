@@ -34,7 +34,7 @@ var EGLPCLoadControlLimitValidator = internal.NewValidator[*model.LoadControlLim
 
 // EG LPC-specific validation rules for DeviceConfigurationKeyValue
 
-// Note: The EEBus LPC specification requires that "The Active Power Consumption Limit and 
+// Note: The EEBus LPC specification requires that "The Active Power Consumption Limit and
 // the Failsafe Consumption Active Power Limit SHALL always be greater than or equal to zero."
 // This validation is handled by the CS when EG writes data. When EG reads data from CS,
 // we assume the CS has already validated its own data according to the spec.
@@ -52,19 +52,19 @@ func ValidateConfigurationValue() internal.ValidationRule[*model.DeviceConfigura
 		if data.Value == nil {
 			return nil // Value is optional in the data structure
 		}
-		
+
 		// For EG LPC, only ScaledNumber (power limit) or Duration (failsafe duration) are valid
 		hasValidValue := (data.Value.ScaledNumber != nil) || (data.Value.Duration != nil)
-		
+
 		// If other value types are present, skip this measurement
 		if data.Value.String != nil || data.Value.Boolean != nil || data.Value.DateTime != nil {
 			return fmt.Errorf("DeviceConfiguration Value must be a ScaledNumber or Duration for EG LPC")
 		}
-		
+
 		if !hasValidValue {
 			return internal.ErrSkipMeasurement // Skip if no actual value present
 		}
-		
+
 		return nil
 	}
 }
@@ -89,13 +89,13 @@ func RequireConsumptionCharacteristics() internal.ValidationRule[*model.Electric
 		if data.CharacteristicType == nil {
 			return nil // CharacteristicType is optional, let other validators handle required fields
 		}
-		
+
 		// Check if it's a consumption-related characteristic
 		if *data.CharacteristicType != model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax &&
-		   *data.CharacteristicType != model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax {
+			*data.CharacteristicType != model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax {
 			return fmt.Errorf("CharacteristicType must be a consumption characteristic type (PowerConsumptionNominalMax or ContractualConsumptionNominalMax)")
 		}
-		
+
 		return nil
 	}
 }

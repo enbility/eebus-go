@@ -217,7 +217,7 @@ func (s *MaMPCSuite) Test_deviceMeasurementDataUpdate() {
 
 func (s *MaMPCSuite) Test_deviceMeasurementDataUpdate_EventCallbacks() {
 	// Test missing event callback coverage lines 103,105 (PowerPerPhase), 129,131 (CurrentPerPhase), 138,140 (VoltagePerPhase)
-	
+
 	// First setup measurement descriptions to enable the public methods to succeed
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
@@ -320,7 +320,7 @@ func (s *MaMPCSuite) Test_deviceMeasurementDataUpdate_EventCallbacks() {
 		Entity: s.monitoredEntity,
 		Data:   measData,
 	}
-	
+
 	s.eventCalled = false
 	s.sut.deviceMeasurementDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
@@ -337,7 +337,7 @@ func (s *MaMPCSuite) Test_deviceMeasurementDataUpdate_EventCallbacks() {
 			},
 		},
 	}
-	
+
 	payload.Data = currentData
 	s.eventCalled = false
 	s.sut.deviceMeasurementDataUpdate(payload)
@@ -355,7 +355,7 @@ func (s *MaMPCSuite) Test_deviceMeasurementDataUpdate_EventCallbacks() {
 			},
 		},
 	}
-	
+
 	payload.Data = voltageData
 	s.eventCalled = false
 	s.sut.deviceMeasurementDataUpdate(payload)

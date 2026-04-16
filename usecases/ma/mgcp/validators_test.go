@@ -212,7 +212,7 @@ func TestMGCPValidators(t *testing.T) {
 	t.Run("MGCP validators reject invalid ValueSource types", func(t *testing.T) {
 		invalidSources := []model.MeasurementValueSourceType{
 			"invalidSource",
-			"approximatedValue", 
+			"approximatedValue",
 			"simulatedValue",
 		}
 
@@ -227,7 +227,7 @@ func TestMGCPValidators(t *testing.T) {
 			// Test with power validator (recommended)
 			err := MGCPPowerValidator.Validate(measurement)
 			assert.Error(t, err, "Should reject invalid ValueSource %s", source)
-			
+
 			// Test with energy validator (mandatory)
 			err = MGCPEnergyValidator.Validate(measurement)
 			assert.Error(t, err, "Should reject invalid ValueSource %s", source)

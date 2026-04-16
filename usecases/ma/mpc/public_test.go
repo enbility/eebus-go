@@ -52,7 +52,7 @@ func (s *MaMPCSuite) Test_Power() {
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
 
-	// Test with measurement missing value  
+	// Test with measurement missing value
 	measData = &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
@@ -323,7 +323,7 @@ func (s *MaMPCSuite) Test_PowerPerPhase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.monitoredEntity)
-	assert.NotNil(s.T(), err) // Still invalid - measurements need ValueType/ValueSource  
+	assert.NotNil(s.T(), err) // Still invalid - measurements need ValueType/ValueSource
 	assert.Nil(s.T(), data)
 
 	// Add complete, valid measurement data

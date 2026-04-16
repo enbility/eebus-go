@@ -810,9 +810,9 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ValidationErrors() {
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				// CharacteristicId missing
-				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax), // Use correct type for EMS
-				Value:                  model.NewScaledNumberType(8000),
+				CharacteristicContext: util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:    util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax), // EVSE expects Power
+				Value:                 model.NewScaledNumberType(8000),
 			},
 		},
 	}
@@ -872,8 +872,8 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ValidationErrors() {
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
 				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax), // Use correct type for EMS
-				Value:                  model.NewScaledNumberType(-5000), // Negative value
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax), // EVSE expects Power
+				Value:                  model.NewScaledNumberType(-5000),                                                     // Negative value
 			},
 		},
 	}
@@ -892,8 +892,8 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ValidationErrors() {
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
 				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax), // Use correct type for EMS
-				Value:                  model.NewScaledNumberType(2000000), // Excessive value (2MW > 1MW limit)
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax), // EVSE expects Power
+				Value:                  model.NewScaledNumberType(2000000),                                                   // Excessive value (2MW > 1MW limit)
 			},
 		},
 	}
@@ -905,15 +905,15 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ValidationErrors() {
 	assert.Nil(s.T(), err) // Should accept excessive value per spec
 	assert.Equal(s.T(), 2000000.0, data)
 
-	// Test 6: Valid ContractualConsumptionNominalMax data - should work correctly
-	// Since the test device has no device type (nil), it uses ContractualConsumptionNominalMax
+	// Test 6: Valid PowerConsumptionNominalMax data - should work correctly
+	// monitoredEntity is an EVSE, so characteristicType resolves to PowerConsumptionNominalMax
 	validCharData := &model.ElectricalConnectionCharacteristicListDataType{
 		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
 				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
 				Value:                  model.NewScaledNumberType(8000),
 			},
 		},
@@ -926,15 +926,15 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ValidationErrors() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 8000.0, data)
 
-	// Test 7: Valid ContractualConsumptionNominalMax data - should work correctly
-	// Since the test device has no device type (nil), it uses ContractualConsumptionNominalMax
+	// Test 7: Valid PowerConsumptionNominalMax data - should work correctly
+	// monitoredEntity is an EVSE, so characteristicType resolves to PowerConsumptionNominalMax
 	validCharData = &model.ElectricalConnectionCharacteristicListDataType{
 		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
 				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
 				Value:                  model.NewScaledNumberType(12000),
 			},
 		},
@@ -994,34 +994,22 @@ func (s *EgLPCSuite) Test_FailsafeConsumptionActivePowerLimit_ValidationError() 
 }
 
 func (s *EgLPCSuite) Test_characteristicType_EdgeCases() {
-	// Test characteristicType with nil entity
+	// nil entity -> default to power consumption nominal max
 	result := s.sut.characteristicType(nil)
 	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax, result)
 
-	// Test characteristicType with entity that has nil device
+	// non-CEM entity -> power consumption nominal max
 	mockEntity1 := &spinemocks.EntityRemoteInterface{}
-	mockEntity1.EXPECT().Device().Return(nil).Times(2) // Called twice in the function
-	
+	mockEntity1.EXPECT().EntityType().Return(model.EntityTypeTypeEVSE).Once()
+
 	result = s.sut.characteristicType(mockEntity1)
 	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax, result)
 
-	// Test characteristicType with EMS device type (should return contractual)
-	mockDevice1 := &spinemocks.DeviceRemoteInterface{}
-	emsDeviceType := model.DeviceTypeTypeEnergyManagementSystem
-	mockDevice1.EXPECT().DeviceType().Return(&emsDeviceType).Once()
+	// CEM entity -> contractual consumption nominal max
 	mockEntity2 := &spinemocks.EntityRemoteInterface{}
-	mockEntity2.EXPECT().Device().Return(mockDevice1).Times(2) // Called twice in the function
-	
-	result = s.sut.characteristicType(mockEntity2)
-	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax, result)
+	mockEntity2.EXPECT().EntityType().Return(model.EntityTypeTypeCEM).Once()
 
-	// Test characteristicType with nil device type (should default to contractual)
-	mockDevice2 := &spinemocks.DeviceRemoteInterface{}
-	mockDevice2.EXPECT().DeviceType().Return(nil).Once()
-	mockEntity3 := &spinemocks.EntityRemoteInterface{}
-	mockEntity3.EXPECT().Device().Return(mockDevice2).Times(2) // Called twice in the function
-	
-	result = s.sut.characteristicType(mockEntity3)
+	result = s.sut.characteristicType(mockEntity2)
 	assert.Equal(s.T(), model.ElectricalConnectionCharacteristicTypeTypeContractualConsumptionNominalMax, result)
 }
 
@@ -1065,9 +1053,9 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ErrorCases() {
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				// CharacteristicId missing - should trigger validation error
-				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
-				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
-				Value:                  model.NewScaledNumberType(8000),
+				CharacteristicContext: util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:    util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
+				Value:                 model.NewScaledNumberType(8000),
 			},
 		},
 	}
@@ -1076,6 +1064,6 @@ func (s *EgLPCSuite) Test_ConsumptionNominalMax_ErrorCases() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.ConsumptionNominalMax(s.monitoredEntity)
-	assert.Equal(s.T(), api.ErrDataNotAvailable, err) // Filter won't match without ID
+	assert.Equal(s.T(), api.ErrDataInvalid, err) // Validator rejects missing CharacteristicId
 	assert.Equal(s.T(), 0.0, data)
 }

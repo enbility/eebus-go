@@ -137,7 +137,7 @@ func (s *GcpMGCPSuite) Test_Power() {
 func (s *GcpMGCPSuite) Test_Power_ErrorCases() {
 	// Test case where multiple measurement data entries are returned (len(data) != 1)
 	// This should trigger the missing coverage on line 77-79 in Power()
-	
+
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
 			{

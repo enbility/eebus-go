@@ -82,9 +82,9 @@ func TestBaseValidator(t *testing.T) {
 			WithRule(RequireField(func(ts *TestStruct) *int { return ts.ID }, "ID"))
 
 		items := []*TestStruct{
-			{},                    // Invalid
-			{ID: ptr(1)},         // Valid
-			{ID: ptr(2)},         // Also valid but shouldn't be returned
+			{},           // Invalid
+			{ID: ptr(1)}, // Valid
+			{ID: ptr(2)}, // Also valid but shouldn't be returned
 		}
 
 		result, err := validator.ValidateFirst(items)
@@ -114,10 +114,10 @@ func TestBaseValidator(t *testing.T) {
 			WithRule(RequireField(func(ts *TestStruct) *int { return ts.ID }, "ID"))
 
 		items := []*TestStruct{
-			{},                    // Invalid
-			{ID: ptr(1)},         // Valid
-			{},                    // Invalid
-			{ID: ptr(2)},         // Valid
+			{},           // Invalid
+			{ID: ptr(1)}, // Valid
+			{},           // Invalid
+			{ID: ptr(2)}, // Valid
 		}
 
 		valid, errors := validator.ValidateAll(items)
@@ -158,7 +158,7 @@ func TestBaseValidator(t *testing.T) {
 func TestRequireField(t *testing.T) {
 	t.Run("nil field fails", func(t *testing.T) {
 		rule := RequireField(func(ts *TestStruct) *int { return ts.ID }, "ID")
-		
+
 		err := rule(&TestStruct{})
 		assert.Error(t, err)
 		assert.Equal(t, "ID is required", err.Error())
@@ -166,7 +166,7 @@ func TestRequireField(t *testing.T) {
 
 	t.Run("non-nil field passes", func(t *testing.T) {
 		rule := RequireField(func(ts *TestStruct) *int { return ts.ID }, "ID")
-		
+
 		err := rule(&TestStruct{ID: ptr(42)})
 		assert.NoError(t, err)
 	})
@@ -194,7 +194,7 @@ func TestRequireField(t *testing.T) {
 func TestRequireScaledNumber(t *testing.T) {
 	t.Run("nil ScaledNumber fails", func(t *testing.T) {
 		rule := RequireScaledNumber(func(ts *TestStruct) *model.ScaledNumberType { return ts.Value }, "Value")
-		
+
 		err := rule(&TestStruct{})
 		assert.Error(t, err)
 		assert.Equal(t, "Value is required", err.Error())
@@ -202,14 +202,14 @@ func TestRequireScaledNumber(t *testing.T) {
 
 	t.Run("non-nil ScaledNumber passes", func(t *testing.T) {
 		rule := RequireScaledNumber(func(ts *TestStruct) *model.ScaledNumberType { return ts.Value }, "Value")
-		
+
 		err := rule(&TestStruct{Value: model.NewScaledNumberType(42)})
 		assert.NoError(t, err)
 	})
 
 	t.Run("custom field name in error", func(t *testing.T) {
 		rule := RequireScaledNumber(func(ts *TestStruct) *model.ScaledNumberType { return ts.Min }, "Minimum")
-		
+
 		err := rule(&TestStruct{})
 		assert.Error(t, err)
 		assert.Equal(t, "Minimum is required", err.Error())

@@ -256,7 +256,7 @@ func (s *GcpMGCPSuite) Test_gridMeasurementDataUpdate() {
 
 func (s *GcpMGCPSuite) Test_gridMeasurementDataUpdate_PhaseEventCallbacks() {
 	// Test missing event callback coverage for CurrentPerPhase and VoltagePerPhase
-	
+
 	// Setup measurement descriptions for current and voltage
 	descData := &model.MeasurementDescriptionListDataType{
 		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{

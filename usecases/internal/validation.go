@@ -34,7 +34,7 @@ import (
 )
 
 // ErrSkipMeasurement indicates that a measurement should be skipped during validation
-// This is used for MGCP-003 compliance where measurements with "error" or "outOfRange" 
+// This is used for MGCP-003 compliance where measurements with "error" or "outOfRange"
 // states should be ignored by the Monitoring Appliance
 var ErrSkipMeasurement = errors.New("measurement should be skipped")
 
@@ -164,7 +164,7 @@ func (v *BaseValidator[T]) ValidateFirst(items []T) (T, error) {
 func (v *BaseValidator[T]) ValidateAll(items []T) ([]T, []error) {
 	valid := make([]T, 0, len(items))
 	errors := make([]error, 0)
-	
+
 	for i, item := range items {
 		if err := v.Validate(item); err != nil {
 			errors = append(errors, fmt.Errorf("item %d: %w", i, err))
@@ -172,7 +172,7 @@ func (v *BaseValidator[T]) ValidateAll(items []T) ([]T, []error) {
 			valid = append(valid, item)
 		}
 	}
-	
+
 	return valid, errors
 }
 
@@ -263,17 +263,17 @@ func ValidateMinMax[T any](
 		if value == nil {
 			return nil // Skip if no value
 		}
-		
+
 		val := value.GetValue()
-		
+
 		if minVal := minGetter(item); minVal != nil && val < minVal.GetValue() {
 			return fmt.Errorf("%s %.2f is below minimum %.2f", fieldName, val, minVal.GetValue())
 		}
-		
+
 		if maxVal := maxGetter(item); maxVal != nil && val > maxVal.GetValue() {
 			return fmt.Errorf("%s %.2f is above maximum %.2f", fieldName, val, maxVal.GetValue())
 		}
-		
+
 		return nil
 	}
 }
@@ -289,18 +289,18 @@ func ValidateEnum[T any, E comparable](
 		if value == nil {
 			return nil // Skip if nil
 		}
-		
+
 		// Empty allowed list means "allow everything"
 		if len(allowed) == 0 {
 			return nil
 		}
-		
+
 		for _, a := range allowed {
 			if *value == a {
 				return nil
 			}
 		}
-		
+
 		return fmt.Errorf("%s must be one of allowed values", fieldName)
 	}
 }

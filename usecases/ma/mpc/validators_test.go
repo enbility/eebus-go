@@ -105,12 +105,12 @@ func TestMPCValidators(t *testing.T) {
 	t.Run("frequencyValidator accepts any frequency value", func(t *testing.T) {
 		// Frequency values should be accepted regardless of range since it's not in spec
 		testCases := []float64{
-			50,   // Normal 50Hz
-			60,   // Normal 60Hz
-			44,   // Below typical range
-			66,   // Above typical range
-			100,  // Very high frequency
-			25,   // Very low frequency
+			50,  // Normal 50Hz
+			60,  // Normal 60Hz
+			44,  // Below typical range
+			66,  // Above typical range
+			100, // Very high frequency
+			25,  // Very low frequency
 		}
 
 		for _, freq := range testCases {
