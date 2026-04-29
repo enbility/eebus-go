@@ -403,6 +403,40 @@ func (s *InternalSuite) Test_MeasurementSinglePhaseSpecificDataForFilter() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{"b": 10}, data)
 
+	elParamData = &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = MeasurementPhaseSpecificDataForFilter(
+		s.localEntity,
+		s.monitoredEntity,
+		filter,
+		energyDirection,
+		ucapi.PhaseNameMapping,
+	)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{}, data)
+
+	data, err = MeasurementPhaseSpecificDataForFilter(
+		s.localEntity,
+		s.monitoredEntity,
+		filter,
+		energyDirection,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{
+		model.ElectricalConnectionPhaseNameTypeNone: 10,
+	}, data)
+
 }
 
 func (s *InternalSuite) Test_MeasurementTotalPhaseSpecificDataForFilter() {
