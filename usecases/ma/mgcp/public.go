@@ -79,8 +79,7 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 	}
 
 	for _, k := range data {
-		// If the Monitored Unit is connected to less than three phases, one of the other combinations like "a" or "ab" are allowed instead of "abc".
-		// The values "a", "b", and "c" are permitted if and only if only one phase is connected
+		// Return first element of map (instead of accessing phase mapping "abc" directly) because only 1 ("a", "b", "c") or 2 ("ab", "bc" "ac") phases may be connected
 		return k, nil
 	}
 	// unreachable
