@@ -1,12 +1,97 @@
 package internal
 
 import (
+	"testing"
+
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/spine"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
 )
+
+func Test_PhaseNameFromParameterDescription(t *testing.T) {
+	tests := []struct {
+		name       string
+		param      model.ElectricalConnectionParameterDescriptionDataType
+		allowUnset bool
+		want       model.ElectricalConnectionPhaseNameType
+		wantOK     bool
+	}{
+		{
+			name:       "unset phase allowed",
+			allowUnset: true,
+			want:       model.ElectricalConnectionPhaseNameTypeNone,
+			wantOK:     true,
+		},
+		{
+			name:       "unset phase rejected",
+			allowUnset: false,
+			wantOK:     false,
+		},
+		{
+			name: "phase without reference",
+			param: model.ElectricalConnectionParameterDescriptionDataType{
+				AcMeasuredPhases: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			want:   model.ElectricalConnectionPhaseNameTypeA,
+			wantOK: true,
+		},
+		{
+			name: "phase to neutral",
+			param: model.ElectricalConnectionParameterDescriptionDataType{
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeNeutral),
+			},
+			want:   model.ElectricalConnectionPhaseNameTypeA,
+			wantOK: true,
+		},
+		{
+			name: "phase a to phase b",
+			param: model.ElectricalConnectionParameterDescriptionDataType{
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+			},
+			want:   model.ElectricalConnectionPhaseNameTypeAb,
+			wantOK: true,
+		},
+		{
+			name: "phase b to phase a",
+			param: model.ElectricalConnectionParameterDescriptionDataType{
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			want:   model.ElectricalConnectionPhaseNameTypeAb,
+			wantOK: true,
+		},
+		{
+			name: "phase b to phase c",
+			param: model.ElectricalConnectionParameterDescriptionDataType{
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+			},
+			want:   model.ElectricalConnectionPhaseNameTypeBc,
+			wantOK: true,
+		},
+		{
+			name: "phase a to phase c",
+			param: model.ElectricalConnectionParameterDescriptionDataType{
+				AcMeasuredPhases:        util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+				AcMeasuredInReferenceTo: util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+			},
+			want:   model.ElectricalConnectionPhaseNameTypeAc,
+			wantOK: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, ok := phaseNameFromParameterDescription(tt.param, tt.allowUnset)
+			assert.Equal(t, tt.wantOK, ok)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
 
 func (s *InternalSuite) Test_MeasurementPhaseSpecificDataForFilter() {
 	measurementType := model.MeasurementTypeTypePower
