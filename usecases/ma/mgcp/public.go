@@ -206,7 +206,8 @@ func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) (map[model
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
+	validPhaseNames := append(ucapi.PhaseNameMapping, model.ElectricalConnectionPhaseNameTypeAb, model.ElectricalConnectionPhaseNameTypeAc, model.ElectricalConnectionPhaseNameTypeBc)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", validPhaseNames)
 }
 
 // Scenario 7
