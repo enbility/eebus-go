@@ -41,6 +41,9 @@ func (s *EgLPCSuite) Test_Events() {
 	payload.Data = util.Ptr(model.DeviceConfigurationKeyValueListDataType{})
 	s.sut.HandleEvent(payload)
 
+	payload.Data = util.Ptr(model.ElectricalConnectionCharacteristicListDataType{})
+	s.sut.HandleEvent(payload)
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.Function = model.FunctionTypeDeviceDiagnosisHeartbeatData
@@ -190,5 +193,34 @@ func (s *EgLPCSuite) Test_configurationDataUpdate() {
 	payload.Data = data
 
 	s.sut.configurationDataUpdate(payload)
+	assert.True(s.T(), s.eventCalled)
+}
+
+func (s *EgLPCSuite) Test_electricalConnectionCharacteristicDataUpdate() {
+	payload := spineapi.EventPayload{
+		Ski:    remoteSki,
+		Device: s.remoteDevice,
+		Entity: s.monitoredEntity,
+	}
+	s.sut.electricalConnectionCharacteristicDataUpdate(payload)
+	assert.False(s.T(), s.eventCalled)
+
+	charData := &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
+				CharacteristicContext:  util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+				CharacteristicType:     util.Ptr(model.ElectricalConnectionCharacteristicTypeTypePowerConsumptionNominalMax),
+				Value:                  model.NewScaledNumberType(8000),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionCharacteristicListData, charData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	s.sut.electricalConnectionCharacteristicDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
 }

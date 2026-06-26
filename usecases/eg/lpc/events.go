@@ -41,6 +41,9 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 
 	case *model.DeviceConfigurationKeyValueListDataType:
 		e.configurationDataUpdate(payload)
+
+	case *model.ElectricalConnectionCharacteristicListDataType:
+		e.electricalConnectionCharacteristicDataUpdate(payload)
 	}
 }
 
@@ -91,6 +94,19 @@ func (e *LPC) connected(entity spineapi.EntityRemoteInterface) {
 		}
 	}
 
+	if electricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
+		if !electricalConnection.HasSubscription() {
+			if _, err := electricalConnection.Subscribe(); err != nil {
+				logging.Log().Debug(err)
+			}
+		}
+
+		// get the current characteristics, e.g. the nominal max consumption
+		if _, err := electricalConnection.RequestCharacteristics(nil, nil); err != nil {
+			logging.Log().Debug(err)
+		}
+	}
+
 	if deviceDiagnosis, err := client.NewDeviceDiagnosis(e.LocalEntity, entity); err == nil {
 		if !deviceDiagnosis.HasSubscription() {
 			if _, err := deviceDiagnosis.Subscribe(); err != nil {
@@ -136,6 +152,14 @@ func (e *LPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
 			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
 		}
+	}
+}
+
+// the electrical connection characteristic data was updated
+func (e *LPC) electricalConnectionCharacteristicDataUpdate(payload spineapi.EventPayload) {
+	// only inform about an update if the nominal max consumption is available
+	if _, err := e.ConsumptionNominalMax(payload.Entity); err == nil && e.EventCB != nil {
+		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateConsumptionNominalMax)
 	}
 }
 

@@ -36,4 +36,12 @@ const (
 	//
 	// Use Case LPC, Scenario 3
 	DataUpdateHeartbeat api.EventType = "eg-lpc-DataUpdateHeartbeat"
+
+	// Nominal maximum active (real) power the Controllable System is able to
+	// consume data updated
+	//
+	// Use `ConsumptionNominalMax` to get the current data
+	//
+	// Use Case LPC, Scenario 4
+	DataUpdateConsumptionNominalMax api.EventType = "eg-lpc-DataUpdateConsumptionNominalMax"
 )
