@@ -19,12 +19,12 @@ const (
 
 type OptionalPowerConsumptionInfo struct {
 	PowerSequenceId model.PowerSequenceIdType
-	Power 			*float64
-	MaxPower 		*float64
-	State 			model.PowerSequenceStateType
-	IsPausable 		bool
-	IsStoppable 	bool
-	StartTime 		*time.Time
+	Power           *float64
+	MaxPower        *float64
+	State           model.PowerSequenceStateType
+	IsPausable      bool
+	IsStoppable     bool
+	StartTime       *time.Time
 }
 
 // manufacturer data type

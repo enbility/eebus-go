@@ -33,7 +33,7 @@ func (o *OHPCF) OptionalPowerConsumption(entity spineapi.EntityRemoteInterface) 
 	if len(alt[0].PowerSequence) == 0 {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequence defined)", remoteDataStructureError)
 	}
-	
+
 	seq := alt[0].PowerSequence[0]
 	if seq.Description == nil || seq.Description.SequenceId == nil {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequenceId defined)", remoteDataStructureError)
@@ -42,7 +42,7 @@ func (o *OHPCF) OptionalPowerConsumption(entity spineapi.EntityRemoteInterface) 
 	if seq.State == nil || seq.State.State == nil {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequence state defined)", remoteDataStructureError)
 	}
-	
+
 	if seq.OperatingConstraintsInterrupt == nil {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequence operating interrupt constraints defined)", remoteDataStructureError)
 	}
@@ -91,18 +91,17 @@ func (o *OHPCF) OptionalPowerConsumption(entity spineapi.EntityRemoteInterface) 
 	}
 
 	info := ucapi.OptionalPowerConsumptionInfo{
-		PowerSequenceId: 	seqId,
-		Power: 				power,
-		MaxPower: 			maxPower,
-		State: 				*seq.State.State, // safe to dereference because we validate above
-		IsPausable: 		isPausable,
-		IsStoppable:		isStoppable,
-		StartTime: 			startTime,
+		PowerSequenceId: seqId,
+		Power:           power,
+		MaxPower:        maxPower,
+		State:           *seq.State.State, // safe to dereference because we validate above
+		IsPausable:      isPausable,
+		IsStoppable:     isStoppable,
+		StartTime:       startTime,
 	}
 
 	return &info, nil
 }
-
 
 // The availability of an optional consumption of power [OHPCF-011/1].
 //
@@ -322,7 +321,7 @@ func (o *OHPCF) AbortPowerConsumptionProcess(entity spineapi.EntityRemoteInterfa
 	if err != nil {
 		return nil, err
 	}
-	
+
 	data := &model.SmartEnergyManagementPsDataType{
 		Alternatives: []model.SmartEnergyManagementPsAlternativesType{{
 			PowerSequence: []model.SmartEnergyManagementPsPowerSequenceType{{
@@ -368,7 +367,7 @@ func (o *OHPCF) ResumePowerConsumptionProcess(entity spineapi.EntityRemoteInterf
 	if err != nil {
 		return nil, err
 	}
-	
+
 	data := &model.SmartEnergyManagementPsDataType{
 		Alternatives: []model.SmartEnergyManagementPsAlternativesType{{
 			PowerSequence: []model.SmartEnergyManagementPsPowerSequenceType{{
