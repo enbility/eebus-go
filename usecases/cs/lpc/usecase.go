@@ -43,13 +43,8 @@ var _ ucapi.CsLPCInterface = (*LPC)(nil)
 func NewLPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) *LPC {
 	validActorTypes := []model.UseCaseActorType{model.UseCaseActorTypeEnergyGuard}
 	validEntityTypes := []model.EntityTypeType{
+		model.EntityTypeTypeGridGuard,
 		model.EntityTypeTypeCEM,
-		model.EntityTypeTypeCompressor,
-		model.EntityTypeTypeEVSE,
-		model.EntityTypeTypeHeatPumpAppliance,
-		model.EntityTypeTypeInverter,
-		model.EntityTypeTypeSmartEnergyAppliance,
-		model.EntityTypeTypeSubMeterElectricity,
 	}
 	useCaseScenarios := []api.UseCaseScenario{
 		{

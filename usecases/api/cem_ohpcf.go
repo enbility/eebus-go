@@ -72,14 +72,14 @@ type CemOHPCFInterface interface {
 	//
 	// parameters:
 	//   - startIn: Delay from now until the power consumption starts (0 = start immediately)
-	SchedulePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, startIn time.Duration, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error)
+	SchedulePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, startIn time.Duration, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)
 
 	// stop (abort) the process [OHPCF-022/1].
-	AbortPowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error)
+	AbortPowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)
 
 	// pause the process [OHPCF-022/2].
-	PausePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error)
+	PausePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)
 
 	// resume the process [OHPCF-022/3].
-	ResumePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error)
+	ResumePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)
 }

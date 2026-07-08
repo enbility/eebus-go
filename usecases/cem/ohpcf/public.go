@@ -33,7 +33,7 @@ func (o *OHPCF) OptionalPowerConsumption(entity spineapi.EntityRemoteInterface) 
 	if len(alt[0].PowerSequence) == 0 {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequence defined)", remoteDataStructureError)
 	}
-	
+
 	seq := alt[0].PowerSequence[0]
 	if seq.Description == nil || seq.Description.SequenceId == nil {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequenceId defined)", remoteDataStructureError)
@@ -42,7 +42,7 @@ func (o *OHPCF) OptionalPowerConsumption(entity spineapi.EntityRemoteInterface) 
 	if seq.State == nil || seq.State.State == nil {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequence state defined)", remoteDataStructureError)
 	}
-	
+
 	if seq.OperatingConstraintsInterrupt == nil {
 		return nil, fmt.Errorf("%s(alternative attribute present but no power sequence operating interrupt constraints defined)", remoteDataStructureError)
 	}
@@ -91,18 +91,17 @@ func (o *OHPCF) OptionalPowerConsumption(entity spineapi.EntityRemoteInterface) 
 	}
 
 	info := ucapi.OptionalPowerConsumptionInfo{
-		PowerSequenceId: 	seqId,
-		Power: 				power,
-		MaxPower: 			maxPower,
-		State: 				*seq.State.State, // safe to dereference because we validate above
-		IsPausable: 		isPausable,
-		IsStoppable:		isStoppable,
-		StartTime: 			startTime,
+		PowerSequenceId: seqId,
+		Power:           power,
+		MaxPower:        maxPower,
+		State:           *seq.State.State, // safe to dereference because we validate above
+		IsPausable:      isPausable,
+		IsStoppable:     isStoppable,
+		StartTime:       startTime,
 	}
 
 	return &info, nil
 }
-
 
 // The availability of an optional consumption of power [OHPCF-011/1].
 //
@@ -292,7 +291,7 @@ func (o *OHPCF) PowerConsumptionMinimalPauseDuration(entity spineapi.EntityRemot
 //
 // parameters:
 //   - startIn: Delay from now until the power consumption starts (0 = start immediately)
-func (o *OHPCF) SchedulePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, startIn time.Duration, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error) {
+func (o *OHPCF) SchedulePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, startIn time.Duration, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
 	info, err := o.OptionalPowerConsumption(entity)
 	if err != nil {
 		return nil, err
@@ -317,12 +316,12 @@ func (o *OHPCF) SchedulePowerConsumptionProcess(entity spineapi.EntityRemoteInte
 }
 
 // stop (abort) the process [OHPCF-022/1].
-func (o *OHPCF) AbortPowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error) {
+func (o *OHPCF) AbortPowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
 	info, err := o.OptionalPowerConsumption(entity)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	data := &model.SmartEnergyManagementPsDataType{
 		Alternatives: []model.SmartEnergyManagementPsAlternativesType{{
 			PowerSequence: []model.SmartEnergyManagementPsPowerSequenceType{{
@@ -340,7 +339,7 @@ func (o *OHPCF) AbortPowerConsumptionProcess(entity spineapi.EntityRemoteInterfa
 }
 
 // pause the process [OHPCF-022/2].
-func (o *OHPCF) PausePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error) {
+func (o *OHPCF) PausePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
 	info, err := o.OptionalPowerConsumption(entity)
 	if err != nil {
 		return nil, err
@@ -363,12 +362,12 @@ func (o *OHPCF) PausePowerConsumptionProcess(entity spineapi.EntityRemoteInterfa
 }
 
 // resume the process [OHPCF-022/3].
-func (o *OHPCF) ResumePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error) {
+func (o *OHPCF) ResumePowerConsumptionProcess(entity spineapi.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
 	info, err := o.OptionalPowerConsumption(entity)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	data := &model.SmartEnergyManagementPsDataType{
 		Alternatives: []model.SmartEnergyManagementPsAlternativesType{{
 			PowerSequence: []model.SmartEnergyManagementPsPowerSequenceType{{
@@ -436,7 +435,7 @@ func (o *OHPCF) powerOfType(entity spineapi.EntityRemoteInterface, valueType mod
 	return 0, api.ErrDataNotAvailable
 }
 
-func (o *OHPCF) writeSmartEnergyManagementData(entity spineapi.EntityRemoteInterface, data *model.SmartEnergyManagementPsDataType, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error) {
+func (o *OHPCF) writeSmartEnergyManagementData(entity spineapi.EntityRemoteInterface, data *model.SmartEnergyManagementPsDataType, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
 	if !o.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -456,7 +455,7 @@ func (o *OHPCF) writeSmartEnergyManagementData(entity spineapi.EntityRemoteInter
 		cb := func(msg spineapi.ResponseMessage) {
 			response, ok := msg.Data.(*model.ResultDataType)
 			if ok {
-				resultCB(*response)
+				resultCB(*response, *msgCounter)
 			}
 		}
 		if errCB := smartEnergyManagementPs.AddResponseCallback(*msgCounter, cb); errCB != nil {
