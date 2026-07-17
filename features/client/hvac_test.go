@@ -44,6 +44,8 @@ func (s *HvacSuite) BeforeTest(suiteName, testName string) {
 					model.FunctionTypeHvacOperationModeDescriptionListData,
 					model.FunctionTypeHvacSystemFunctionOperationModeRelationListData,
 					model.FunctionTypeHvacSystemFunctionSetPointRelationListData,
+					model.FunctionTypeHvacOverrunDescriptionListData,
+					model.FunctionTypeHvacOverrunListData,
 				},
 			},
 		},
@@ -106,6 +108,34 @@ func (s *HvacSuite) Test_WriteHvacSystemFunctionListData() {
 		},
 	}
 	counter, err = s.hvac.WriteHvacSystemFunctionListData(data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
+func (s *HvacSuite) Test_RequestHvacOverrunDescriptions() {
+	counter, err := s.hvac.RequestHvacOverrunDescriptions(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
+func (s *HvacSuite) Test_RequestHvacOverruns() {
+	counter, err := s.hvac.RequestHvacOverruns(nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
+
+func (s *HvacSuite) Test_WriteHvacOverrunListData() {
+	counter, err := s.hvac.WriteHvacOverrunListData(nil)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), counter)
+
+	data := []model.HvacOverrunDataType{
+		{
+			OverrunId:     util.Ptr(model.HvacOverrunIdType(1)),
+			OverrunStatus: util.Ptr(model.HvacOverrunStatusTypeActive),
+		},
+	}
+	counter, err = s.hvac.WriteHvacOverrunListData(data)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }

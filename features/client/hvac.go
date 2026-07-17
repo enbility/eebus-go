@@ -74,6 +74,40 @@ func (h *Hvac) RequestHvacSystemFunctionSetpointRelations(
 	return h.requestData(model.FunctionTypeHvacSystemFunctionSetPointRelationListData, selector, elements)
 }
 
+// request FunctionTypeHvacOverrunDescriptionListData from a remote device
+func (h *Hvac) RequestHvacOverrunDescriptions(
+	selector *model.HvacOverrunDescriptionListDataSelectorsType,
+	elements *model.HvacOverrunDescriptionDataElementsType,
+) (*model.MsgCounterType, error) {
+	return h.requestData(model.FunctionTypeHvacOverrunDescriptionListData, selector, elements)
+}
+
+// request FunctionTypeHvacOverrunListData from a remote device
+func (h *Hvac) RequestHvacOverruns(
+	selector *model.HvacOverrunListDataSelectorsType,
+	elements *model.HvacOverrunDataElementsType,
+) (*model.MsgCounterType, error) {
+	return h.requestData(model.FunctionTypeHvacOverrunListData, selector, elements)
+}
+
+// write the given HVAC overrun data to the remote device,
+// e.g. to start or stop an overrun
+func (h *Hvac) WriteHvacOverrunListData(
+	data []model.HvacOverrunDataType,
+) (*model.MsgCounterType, error) {
+	if len(data) == 0 {
+		return nil, api.ErrMissingData
+	}
+
+	cmd := model.CmdType{
+		HvacOverrunListData: &model.HvacOverrunListDataType{
+			HvacOverrunData: data,
+		},
+	}
+
+	return h.remoteDevice.Sender().Write(h.featureLocal.Address(), h.featureRemote.Address(), cmd)
+}
+
 // write the given HVAC system function data to the remote device,
 // e.g. to change the current operation mode of a system function
 func (h *Hvac) WriteHvacSystemFunctionListData(

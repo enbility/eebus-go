@@ -156,6 +156,54 @@ func (h *HvacCommon) GetHvacSystemFunctionSetpointRelationsForFilter(
 	return result, nil
 }
 
+// GetHvacOverrunDescriptionsForFilter returns the overrun descriptions for a given filter
+func (h *HvacCommon) GetHvacOverrunDescriptionsForFilter(
+	filter model.HvacOverrunDescriptionDataType,
+) ([]model.HvacOverrunDescriptionDataType, error) {
+	function := model.FunctionTypeHvacOverrunDescriptionListData
+
+	data, err := featureDataCopyOfType[model.HvacOverrunDescriptionListDataType](h.featureLocal, h.featureRemote, function)
+	if err != nil || data == nil || data.HvacOverrunDescriptionData == nil {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	result := searchFilterInList[model.HvacOverrunDescriptionDataType](data.HvacOverrunDescriptionData, filter)
+
+	return result, nil
+}
+
+// GetHvacOverrunDataForFilter returns the overrun data for a given filter
+func (h *HvacCommon) GetHvacOverrunDataForFilter(
+	filter model.HvacOverrunDataType,
+) ([]model.HvacOverrunDataType, error) {
+	function := model.FunctionTypeHvacOverrunListData
+
+	data, err := featureDataCopyOfType[model.HvacOverrunListDataType](h.featureLocal, h.featureRemote, function)
+	if err != nil || data == nil || data.HvacOverrunData == nil {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	result := searchFilterInList[model.HvacOverrunDataType](data.HvacOverrunData, filter)
+
+	return result, nil
+}
+
+// GetHvacOverrunForId returns the overrun data for a given overrun ID
+func (h *HvacCommon) GetHvacOverrunForId(
+	id model.HvacOverrunIdType,
+) (*model.HvacOverrunDataType, error) {
+	filter := model.HvacOverrunDataType{
+		OverrunId: &id,
+	}
+
+	result, err := h.GetHvacOverrunDataForFilter(filter)
+	if err != nil || len(result) == 0 {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	return util.Ptr(result[0]), nil
+}
+
 // CheckEventPayloadDataForFilter checks if the given event payload data contains
 // system function data matching the given filter
 func (h *HvacCommon) CheckEventPayloadDataForFilter(payloadData any, filter model.HvacSystemFunctionDataType) bool {

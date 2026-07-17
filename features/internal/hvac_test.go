@@ -46,6 +46,8 @@ func (s *HvacSuite) BeforeTest(suiteName, testName string) {
 					model.FunctionTypeHvacOperationModeDescriptionListData,
 					model.FunctionTypeHvacSystemFunctionOperationModeRelationListData,
 					model.FunctionTypeHvacSystemFunctionSetPointRelationListData,
+					model.FunctionTypeHvacOverrunDescriptionListData,
+					model.FunctionTypeHvacOverrunListData,
 				},
 			},
 		},
@@ -246,7 +248,74 @@ func (s *HvacSuite) Test_CheckEventPayloadDataForFilter() {
 	assert.False(s.T(), exists)
 }
 
+func (s *HvacSuite) Test_GetHvacOverruns() {
+	descFilter := model.HvacOverrunDescriptionDataType{}
+	descriptions, err := s.localSut.GetHvacOverrunDescriptionsForFilter(descFilter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), descriptions)
+	descriptions, err = s.remoteSut.GetHvacOverrunDescriptionsForFilter(descFilter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), descriptions)
+
+	filter := model.HvacOverrunDataType{}
+	data, err := s.localSut.GetHvacOverrunDataForFilter(filter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	overrun, err := s.localSut.GetHvacOverrunForId(model.HvacOverrunIdType(1))
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), overrun)
+
+	s.addOverrunData()
+
+	descFilter.OverrunType = util.Ptr(model.HvacOverrunTypeTypeOneTimeDhw)
+	descriptions, err = s.localSut.GetHvacOverrunDescriptionsForFilter(descFilter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(descriptions))
+	descriptions, err = s.remoteSut.GetHvacOverrunDescriptionsForFilter(descFilter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(descriptions))
+
+	data, err = s.localSut.GetHvacOverrunDataForFilter(filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 1, len(data))
+
+	overrun, err = s.localSut.GetHvacOverrunForId(model.HvacOverrunIdType(1))
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), overrun)
+	assert.Equal(s.T(), model.HvacOverrunStatusTypeInactive, *overrun.OverrunStatus)
+
+	overrun, err = s.remoteSut.GetHvacOverrunForId(model.HvacOverrunIdType(10))
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), overrun)
+}
+
 // helpers
+
+func (s *HvacSuite) addOverrunData() {
+	descData := &model.HvacOverrunDescriptionListDataType{
+		HvacOverrunDescriptionData: []model.HvacOverrunDescriptionDataType{
+			{
+				OverrunId:                util.Ptr(model.HvacOverrunIdType(1)),
+				OverrunType:              util.Ptr(model.HvacOverrunTypeTypeOneTimeDhw),
+				AffectedSystemFunctionId: []model.HvacSystemFunctionIdType{1},
+			},
+		},
+	}
+	_ = s.localFeature.UpdateData(model.FunctionTypeHvacOverrunDescriptionListData, descData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeHvacOverrunDescriptionListData, descData, nil, nil)
+
+	fData := &model.HvacOverrunListDataType{
+		HvacOverrunData: []model.HvacOverrunDataType{
+			{
+				OverrunId:     util.Ptr(model.HvacOverrunIdType(1)),
+				OverrunStatus: util.Ptr(model.HvacOverrunStatusTypeInactive),
+			},
+		},
+	}
+	_ = s.localFeature.UpdateData(model.FunctionTypeHvacOverrunListData, fData, nil, nil)
+	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeHvacOverrunListData, fData, nil, nil)
+}
 
 func (s *HvacSuite) addDescriptions() {
 	fData := &model.HvacSystemFunctionDescriptionListDataType{
