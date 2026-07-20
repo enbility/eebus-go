@@ -8,6 +8,7 @@ import (
 	api1 "github.com/enbility/eebus-go/api"
 	api0 "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -478,20 +479,31 @@ func (_c *CaCDSFInterface_RemoveUseCase_Call) RunAndReturn(run func()) *CaCDSFIn
 }
 
 // StartOneTimeDhw provides a mock function for the type CaCDSFInterface
-func (_mock *CaCDSFInterface) StartOneTimeDhw(entity api.EntityRemoteInterface) error {
-	ret := _mock.Called(entity)
+func (_mock *CaCDSFInterface) StartOneTimeDhw(entity api.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
+	ret := _mock.Called(entity, resultCB)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartOneTimeDhw")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface) error); ok {
-		r0 = returnFunc(entity)
-	} else {
-		r0 = ret.Error(0)
+	var r0 *model.MsgCounterType
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)); ok {
+		return returnFunc(entity, resultCB)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, func(result model.ResultDataType, msgCounter model.MsgCounterType)) *model.MsgCounterType); ok {
+		r0 = returnFunc(entity, resultCB)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, func(result model.ResultDataType, msgCounter model.MsgCounterType)) error); ok {
+		r1 = returnFunc(entity, resultCB)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // CaCDSFInterface_StartOneTimeDhw_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StartOneTimeDhw'
@@ -501,48 +513,65 @@ type CaCDSFInterface_StartOneTimeDhw_Call struct {
 
 // StartOneTimeDhw is a helper method to define mock.On call
 //   - entity api.EntityRemoteInterface
-func (_e *CaCDSFInterface_Expecter) StartOneTimeDhw(entity interface{}) *CaCDSFInterface_StartOneTimeDhw_Call {
-	return &CaCDSFInterface_StartOneTimeDhw_Call{Call: _e.mock.On("StartOneTimeDhw", entity)}
+//   - resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)
+func (_e *CaCDSFInterface_Expecter) StartOneTimeDhw(entity interface{}, resultCB interface{}) *CaCDSFInterface_StartOneTimeDhw_Call {
+	return &CaCDSFInterface_StartOneTimeDhw_Call{Call: _e.mock.On("StartOneTimeDhw", entity, resultCB)}
 }
 
-func (_c *CaCDSFInterface_StartOneTimeDhw_Call) Run(run func(entity api.EntityRemoteInterface)) *CaCDSFInterface_StartOneTimeDhw_Call {
+func (_c *CaCDSFInterface_StartOneTimeDhw_Call) Run(run func(entity api.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType))) *CaCDSFInterface_StartOneTimeDhw_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.EntityRemoteInterface
 		if args[0] != nil {
 			arg0 = args[0].(api.EntityRemoteInterface)
 		}
+		var arg1 func(result model.ResultDataType, msgCounter model.MsgCounterType)
+		if args[1] != nil {
+			arg1 = args[1].(func(result model.ResultDataType, msgCounter model.MsgCounterType))
+		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
 }
 
-func (_c *CaCDSFInterface_StartOneTimeDhw_Call) Return(err error) *CaCDSFInterface_StartOneTimeDhw_Call {
-	_c.Call.Return(err)
+func (_c *CaCDSFInterface_StartOneTimeDhw_Call) Return(msgCounterType *model.MsgCounterType, err error) *CaCDSFInterface_StartOneTimeDhw_Call {
+	_c.Call.Return(msgCounterType, err)
 	return _c
 }
 
-func (_c *CaCDSFInterface_StartOneTimeDhw_Call) RunAndReturn(run func(entity api.EntityRemoteInterface) error) *CaCDSFInterface_StartOneTimeDhw_Call {
+func (_c *CaCDSFInterface_StartOneTimeDhw_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)) *CaCDSFInterface_StartOneTimeDhw_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // StopOneTimeDhw provides a mock function for the type CaCDSFInterface
-func (_mock *CaCDSFInterface) StopOneTimeDhw(entity api.EntityRemoteInterface) error {
-	ret := _mock.Called(entity)
+func (_mock *CaCDSFInterface) StopOneTimeDhw(entity api.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
+	ret := _mock.Called(entity, resultCB)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StopOneTimeDhw")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface) error); ok {
-		r0 = returnFunc(entity)
-	} else {
-		r0 = ret.Error(0)
+	var r0 *model.MsgCounterType
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)); ok {
+		return returnFunc(entity, resultCB)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, func(result model.ResultDataType, msgCounter model.MsgCounterType)) *model.MsgCounterType); ok {
+		r0 = returnFunc(entity, resultCB)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, func(result model.ResultDataType, msgCounter model.MsgCounterType)) error); ok {
+		r1 = returnFunc(entity, resultCB)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // CaCDSFInterface_StopOneTimeDhw_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StopOneTimeDhw'
@@ -552,29 +581,35 @@ type CaCDSFInterface_StopOneTimeDhw_Call struct {
 
 // StopOneTimeDhw is a helper method to define mock.On call
 //   - entity api.EntityRemoteInterface
-func (_e *CaCDSFInterface_Expecter) StopOneTimeDhw(entity interface{}) *CaCDSFInterface_StopOneTimeDhw_Call {
-	return &CaCDSFInterface_StopOneTimeDhw_Call{Call: _e.mock.On("StopOneTimeDhw", entity)}
+//   - resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)
+func (_e *CaCDSFInterface_Expecter) StopOneTimeDhw(entity interface{}, resultCB interface{}) *CaCDSFInterface_StopOneTimeDhw_Call {
+	return &CaCDSFInterface_StopOneTimeDhw_Call{Call: _e.mock.On("StopOneTimeDhw", entity, resultCB)}
 }
 
-func (_c *CaCDSFInterface_StopOneTimeDhw_Call) Run(run func(entity api.EntityRemoteInterface)) *CaCDSFInterface_StopOneTimeDhw_Call {
+func (_c *CaCDSFInterface_StopOneTimeDhw_Call) Run(run func(entity api.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType))) *CaCDSFInterface_StopOneTimeDhw_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.EntityRemoteInterface
 		if args[0] != nil {
 			arg0 = args[0].(api.EntityRemoteInterface)
 		}
+		var arg1 func(result model.ResultDataType, msgCounter model.MsgCounterType)
+		if args[1] != nil {
+			arg1 = args[1].(func(result model.ResultDataType, msgCounter model.MsgCounterType))
+		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
 }
 
-func (_c *CaCDSFInterface_StopOneTimeDhw_Call) Return(err error) *CaCDSFInterface_StopOneTimeDhw_Call {
-	_c.Call.Return(err)
+func (_c *CaCDSFInterface_StopOneTimeDhw_Call) Return(msgCounterType *model.MsgCounterType, err error) *CaCDSFInterface_StopOneTimeDhw_Call {
+	_c.Call.Return(msgCounterType, err)
 	return _c
 }
 
-func (_c *CaCDSFInterface_StopOneTimeDhw_Call) RunAndReturn(run func(entity api.EntityRemoteInterface) error) *CaCDSFInterface_StopOneTimeDhw_Call {
+func (_c *CaCDSFInterface_StopOneTimeDhw_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)) *CaCDSFInterface_StopOneTimeDhw_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -620,20 +655,31 @@ func (_c *CaCDSFInterface_UpdateUseCaseAvailability_Call) RunAndReturn(run func(
 }
 
 // WriteOperationMode provides a mock function for the type CaCDSFInterface
-func (_mock *CaCDSFInterface) WriteOperationMode(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType) error {
-	ret := _mock.Called(entity, mode)
+func (_mock *CaCDSFInterface) WriteOperationMode(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
+	ret := _mock.Called(entity, mode, resultCB)
 
 	if len(ret) == 0 {
 		panic("no return value specified for WriteOperationMode")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.HvacOperationModeType) error); ok {
-		r0 = returnFunc(entity, mode)
-	} else {
-		r0 = ret.Error(0)
+	var r0 *model.MsgCounterType
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.HvacOperationModeType, func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)); ok {
+		return returnFunc(entity, mode, resultCB)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.HvacOperationModeType, func(result model.ResultDataType, msgCounter model.MsgCounterType)) *model.MsgCounterType); ok {
+		r0 = returnFunc(entity, mode, resultCB)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, api0.HvacOperationModeType, func(result model.ResultDataType, msgCounter model.MsgCounterType)) error); ok {
+		r1 = returnFunc(entity, mode, resultCB)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // CaCDSFInterface_WriteOperationMode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WriteOperationMode'
@@ -644,11 +690,12 @@ type CaCDSFInterface_WriteOperationMode_Call struct {
 // WriteOperationMode is a helper method to define mock.On call
 //   - entity api.EntityRemoteInterface
 //   - mode api0.HvacOperationModeType
-func (_e *CaCDSFInterface_Expecter) WriteOperationMode(entity interface{}, mode interface{}) *CaCDSFInterface_WriteOperationMode_Call {
-	return &CaCDSFInterface_WriteOperationMode_Call{Call: _e.mock.On("WriteOperationMode", entity, mode)}
+//   - resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)
+func (_e *CaCDSFInterface_Expecter) WriteOperationMode(entity interface{}, mode interface{}, resultCB interface{}) *CaCDSFInterface_WriteOperationMode_Call {
+	return &CaCDSFInterface_WriteOperationMode_Call{Call: _e.mock.On("WriteOperationMode", entity, mode, resultCB)}
 }
 
-func (_c *CaCDSFInterface_WriteOperationMode_Call) Run(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType)) *CaCDSFInterface_WriteOperationMode_Call {
+func (_c *CaCDSFInterface_WriteOperationMode_Call) Run(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType))) *CaCDSFInterface_WriteOperationMode_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.EntityRemoteInterface
 		if args[0] != nil {
@@ -658,20 +705,25 @@ func (_c *CaCDSFInterface_WriteOperationMode_Call) Run(run func(entity api.Entit
 		if args[1] != nil {
 			arg1 = args[1].(api0.HvacOperationModeType)
 		}
+		var arg2 func(result model.ResultDataType, msgCounter model.MsgCounterType)
+		if args[2] != nil {
+			arg2 = args[2].(func(result model.ResultDataType, msgCounter model.MsgCounterType))
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
 }
 
-func (_c *CaCDSFInterface_WriteOperationMode_Call) Return(err error) *CaCDSFInterface_WriteOperationMode_Call {
-	_c.Call.Return(err)
+func (_c *CaCDSFInterface_WriteOperationMode_Call) Return(msgCounterType *model.MsgCounterType, err error) *CaCDSFInterface_WriteOperationMode_Call {
+	_c.Call.Return(msgCounterType, err)
 	return _c
 }
 
-func (_c *CaCDSFInterface_WriteOperationMode_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType) error) *CaCDSFInterface_WriteOperationMode_Call {
+func (_c *CaCDSFInterface_WriteOperationMode_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)) *CaCDSFInterface_WriteOperationMode_Call {
 	_c.Call.Return(run)
 	return _c
 }

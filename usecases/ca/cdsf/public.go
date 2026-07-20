@@ -4,6 +4,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -86,31 +87,38 @@ func (e *CDSF) CurrentOperationMode(entity spineapi.EntityRemoteInterface) (ucap
 }
 
 // set the DHW operation mode of the DHW circuit,
-// returns ErrNotSupported if the operation mode is not changeable or not supported
-func (e *CDSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode ucapi.HvacOperationModeType) error {
+// returns ErrNotSupported if the operation mode is not changeable or not supported.
+//
+// The returned message counter and the resultCB let the caller observe the
+// device result: a non-zero ResultData.ErrorNumber signals a rejected write.
+func (e *CDSF) WriteOperationMode(
+	entity spineapi.EntityRemoteInterface,
+	mode ucapi.HvacOperationModeType,
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntityType(entity) {
-		return api.ErrNoCompatibleEntity
+		return nil, api.ErrNoCompatibleEntity
 	}
 
 	hvac, err := client.NewHvac(e.LocalEntity, entity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	systemFunctionId, err := e.systemFunctionId(entity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	data, err := hvac.GetHvacSystemFunctionForId(systemFunctionId)
 	if err != nil {
-		return api.ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	// only an explicit false blocks the write; an omitted flag is tolerated, as
 	// some devices accept the write without advertising the changeability flag
 	if data.IsOperationModeIdChangeable != nil && !*data.IsOperationModeIdChangeable {
-		return api.ErrNotSupported
+		return nil, api.ErrNotSupported
 	}
 
 	// resolve the requested mode through the DHW system-function relation, so a
@@ -120,7 +128,7 @@ func (e *CDSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode uc
 	}
 	relations, err := hvac.GetHvacSystemFunctionOperationModeRelationsForFilter(relationFilter)
 	if err != nil || len(relations) == 0 {
-		return api.ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	var modeId *model.HvacOperationModeIdType
@@ -140,7 +148,7 @@ func (e *CDSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode uc
 		}
 	}
 	if modeId == nil {
-		return api.ErrNotSupported
+		return nil, api.ErrNotSupported
 	}
 
 	writeData := []model.HvacSystemFunctionDataType{
@@ -150,49 +158,63 @@ func (e *CDSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode uc
 		},
 	}
 
-	_, err = hvac.WriteHvacSystemFunctionListData(writeData)
+	msgCounter, err := hvac.WriteHvacSystemFunctionListData(writeData)
+	e.registerResultCallback(hvac, msgCounter, resultCB)
 
-	return err
+	return msgCounter, err
 }
 
 // Scenario 2
 
 // start the one-time DHW loading overrun of the DHW circuit,
-// returns ErrNotSupported if the overrun status is not changeable
-func (e *CDSF) StartOneTimeDhw(entity spineapi.EntityRemoteInterface) error {
-	return e.writeOverrunStatus(entity, model.HvacOverrunStatusTypeActive)
+// returns ErrNotSupported if the overrun status is not changeable.
+//
+// The returned message counter and the resultCB let the caller observe the
+// device result: a non-zero ResultData.ErrorNumber signals a rejected write.
+func (e *CDSF) StartOneTimeDhw(
+	entity spineapi.EntityRemoteInterface,
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) (*model.MsgCounterType, error) {
+	return e.writeOverrunStatus(entity, model.HvacOverrunStatusTypeActive, resultCB)
 }
 
 // Scenario 3
 
 // stop the one-time DHW loading overrun of the DHW circuit,
-// returns ErrNotSupported if the overrun status is not changeable
-func (e *CDSF) StopOneTimeDhw(entity spineapi.EntityRemoteInterface) error {
-	return e.writeOverrunStatus(entity, model.HvacOverrunStatusTypeInactive)
+// returns ErrNotSupported if the overrun status is not changeable.
+//
+// The returned message counter and the resultCB let the caller observe the
+// device result: a non-zero ResultData.ErrorNumber signals a rejected write.
+func (e *CDSF) StopOneTimeDhw(
+	entity spineapi.EntityRemoteInterface,
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) (*model.MsgCounterType, error) {
+	return e.writeOverrunStatus(entity, model.HvacOverrunStatusTypeInactive, resultCB)
 }
 
 // write the status of the one-time DHW overrun
 func (e *CDSF) writeOverrunStatus(
 	entity spineapi.EntityRemoteInterface,
 	status model.HvacOverrunStatusType,
-) error {
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntityType(entity) {
-		return api.ErrNoCompatibleEntity
+		return nil, api.ErrNoCompatibleEntity
 	}
 
 	hvac, err := client.NewHvac(e.LocalEntity, entity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	overrunId, err := e.overrunId(entity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if data, err := hvac.GetHvacOverrunForId(overrunId); err == nil &&
 		data.IsOverrunStatusChangeable != nil && !*data.IsOverrunStatusChangeable {
-		return api.ErrNotSupported
+		return nil, api.ErrNotSupported
 	}
 
 	writeData := []model.HvacOverrunDataType{
@@ -202,12 +224,35 @@ func (e *CDSF) writeOverrunStatus(
 		},
 	}
 
-	_, err = hvac.WriteHvacOverrunListData(writeData)
+	msgCounter, err := hvac.WriteHvacOverrunListData(writeData)
+	e.registerResultCallback(hvac, msgCounter, resultCB)
 
-	return err
+	return msgCounter, err
 }
 
-// return the id of the one-time DHW overrun affecting the DHW system function
+// register a response callback that surfaces the device result of a write to
+// the caller, so a non-zero ResultData.ErrorNumber can be treated as a rejection
+func (e *CDSF) registerResultCallback(
+	hvac *client.Hvac,
+	msgCounter *model.MsgCounterType,
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) {
+	if resultCB == nil || msgCounter == nil {
+		return
+	}
+
+	cb := func(msg spineapi.ResponseMessage) {
+		if response, ok := msg.Data.(*model.ResultDataType); ok {
+			resultCB(*response, *msgCounter)
+		}
+	}
+	if err := hvac.AddResponseCallback(*msgCounter, cb); err != nil {
+		logging.Log().Debug("failed to add response callback for msgCounter %v: %v", msgCounter, err)
+	}
+}
+
+// return the id of the one-time DHW overrun affecting the DHW system function,
+// returns ErrDataNotAvailable unless exactly one matching overrun exists
 func (e *CDSF) overrunId(entity spineapi.EntityRemoteInterface) (model.HvacOverrunIdType, error) {
 	hvac, err := client.NewHvac(e.LocalEntity, entity)
 	if err != nil {
@@ -227,6 +272,7 @@ func (e *CDSF) overrunId(entity spineapi.EntityRemoteInterface) (model.HvacOverr
 		return 0, api.ErrDataNotAvailable
 	}
 
+	var overrunIds []model.HvacOverrunIdType
 	for _, description := range descriptions {
 		if description.OverrunId == nil {
 			continue
@@ -234,15 +280,22 @@ func (e *CDSF) overrunId(entity spineapi.EntityRemoteInterface) (model.HvacOverr
 
 		for _, affectedId := range description.AffectedSystemFunctionId {
 			if affectedId == systemFunctionId {
-				return *description.OverrunId, nil
+				overrunIds = append(overrunIds, *description.OverrunId)
+				break
 			}
 		}
 	}
 
-	return 0, api.ErrDataNotAvailable
+	// fail closed on an ambiguous result so the wrong overrun is never controlled
+	if len(overrunIds) != 1 {
+		return 0, api.ErrDataNotAvailable
+	}
+
+	return overrunIds[0], nil
 }
 
-// return the id of the DHW system function of the DHW circuit
+// return the id of the DHW system function of the DHW circuit,
+// returns ErrDataNotAvailable unless exactly one matching system function exists
 func (e *CDSF) systemFunctionId(entity spineapi.EntityRemoteInterface) (model.HvacSystemFunctionIdType, error) {
 	hvac, err := client.NewHvac(e.LocalEntity, entity)
 	if err != nil {
@@ -253,7 +306,8 @@ func (e *CDSF) systemFunctionId(entity spineapi.EntityRemoteInterface) (model.Hv
 		SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeDhw),
 	}
 	descriptions, err := hvac.GetHvacSystemFunctionDescriptionsForFilter(descFilter)
-	if err != nil || len(descriptions) == 0 || descriptions[0].SystemFunctionId == nil {
+	// fail closed on an ambiguous result so the wrong system function is never controlled
+	if err != nil || len(descriptions) != 1 || descriptions[0].SystemFunctionId == nil {
 		return 0, api.ErrDataNotAvailable
 	}
 

@@ -41,26 +41,26 @@ func (s *CaCDSFSuite) Test_CurrentOperationMode() {
 }
 
 func (s *CaCDSFSuite) Test_WriteOperationMode() {
-	err := s.sut.WriteOperationMode(s.mockRemoteEntity, ucapi.HvacOperationModeTypeOn)
+	_, err := s.sut.WriteOperationMode(s.mockRemoteEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 
-	err = s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn)
+	_, err = s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 
 	s.addHvacData(util.Ptr(true))
 
-	err = s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn)
+	_, err = s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.Nil(s.T(), err)
 
 	// an unsupported mode cannot be written
-	err = s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeType("invalid"))
+	_, err = s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeType("invalid"), nil)
 	assert.NotNil(s.T(), err)
 }
 
 func (s *CaCDSFSuite) Test_WriteOperationMode_NotChangeable() {
 	s.addHvacData(util.Ptr(false))
 
-	err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn)
+	_, err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 }
 
@@ -68,7 +68,7 @@ func (s *CaCDSFSuite) Test_WriteOperationMode_ChangeabilityOmitted() {
 	// a device may omit the changeability flag but still accept the write
 	s.addHvacData(nil)
 
-	err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn)
+	_, err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.Nil(s.T(), err)
 }
 
@@ -101,34 +101,58 @@ func (s *CaCDSFSuite) Test_WriteOperationMode_UnrelatedMode() {
 	assert.Nil(s.T(), fErr)
 
 	// the relation only lists modes 1, 2, 3, so the unrelated mode must not be written
-	err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOff)
+	_, err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOff, nil)
 	assert.NotNil(s.T(), err)
 }
 
 func (s *CaCDSFSuite) Test_StartStopOneTimeDhw() {
-	err := s.sut.StartOneTimeDhw(s.mockRemoteEntity)
+	_, err := s.sut.StartOneTimeDhw(s.mockRemoteEntity, nil)
 	assert.NotNil(s.T(), err)
 
-	err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity)
+	_, err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity, nil)
 	assert.NotNil(s.T(), err)
 
 	s.addHvacData(util.Ptr(true))
 
-	err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity)
+	_, err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity, nil)
 	assert.NotNil(s.T(), err)
 
 	s.addOverrunData(true)
 
-	err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity)
+	_, err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity, nil)
 	assert.Nil(s.T(), err)
 
-	err = s.sut.StopOneTimeDhw(s.dhwCircuitEntity)
+	_, err = s.sut.StopOneTimeDhw(s.dhwCircuitEntity, nil)
 	assert.Nil(s.T(), err)
 
 	// the overrun status marked not changeable cannot be written
 	s.addOverrunData(false)
 
-	err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity)
+	_, err = s.sut.StartOneTimeDhw(s.dhwCircuitEntity, nil)
+	assert.NotNil(s.T(), err)
+}
+
+func (s *CaCDSFSuite) Test_WriteOperationMode_AmbiguousSystemFunction() {
+	s.addHvacData(util.Ptr(true))
+
+	// two DHW system functions make the id ambiguous, so the write must fail
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.dhwCircuitEntity, model.FeatureTypeTypeHvac, model.RoleTypeServer)
+	descData := &model.HvacSystemFunctionDescriptionListDataType{
+		HvacSystemFunctionDescriptionData: []model.HvacSystemFunctionDescriptionDataType{
+			{
+				SystemFunctionId:   util.Ptr(model.HvacSystemFunctionIdType(1)),
+				SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeDhw),
+			},
+			{
+				SystemFunctionId:   util.Ptr(model.HvacSystemFunctionIdType(2)),
+				SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeDhw),
+			},
+		},
+	}
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeHvacSystemFunctionDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	_, err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 }
 
