@@ -1,6 +1,7 @@
 package cdsf
 
 import (
+	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -154,6 +155,23 @@ func (s *CaCDSFSuite) Test_WriteOperationMode_AmbiguousSystemFunction() {
 
 	_, err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
+}
+
+func (s *CaCDSFSuite) Test_WriteOperationMode_WriteNotAdvertised() {
+	s.addHvacData(util.Ptr(true))
+
+	// re-advertise the system-function list as read-only
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.dhwCircuitEntity, model.FeatureTypeTypeHvac, model.RoleTypeServer)
+	rFeature.SetOperations([]model.FunctionPropertyType{
+		{
+			Function:           util.Ptr(model.FunctionTypeHvacSystemFunctionListData),
+			PossibleOperations: &model.PossibleOperationsType{Read: &model.PossibleOperationsReadType{}},
+		},
+	})
+
+	// the write must be rejected when the remote does not advertise Write()
+	_, err := s.sut.WriteOperationMode(s.dhwCircuitEntity, ucapi.HvacOperationModeTypeOn, nil)
+	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
 }
 
 // helpers
