@@ -41,26 +41,26 @@ func (s *CaCRHSFSuite) Test_CurrentOperationMode() {
 }
 
 func (s *CaCRHSFSuite) Test_WriteOperationMode() {
-	err := s.sut.WriteOperationMode(s.mockRemoteEntity, ucapi.HvacOperationModeTypeOn)
+	_, err := s.sut.WriteOperationMode(s.mockRemoteEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 
-	err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
+	_, err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 
 	s.addHvacData(util.Ptr(true))
 
-	err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
+	_, err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.Nil(s.T(), err)
 
 	// an unsupported mode cannot be written
-	err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeType("invalid"))
+	_, err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeType("invalid"), nil)
 	assert.NotNil(s.T(), err)
 }
 
 func (s *CaCRHSFSuite) Test_WriteOperationMode_NotChangeable() {
 	s.addHvacData(util.Ptr(false))
 
-	err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
+	_, err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 }
 
@@ -68,7 +68,7 @@ func (s *CaCRHSFSuite) Test_WriteOperationMode_ChangeabilityOmitted() {
 	// a device may omit the changeability flag but still accept the write
 	s.addHvacData(nil)
 
-	err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
+	_, err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.Nil(s.T(), err)
 }
 
@@ -101,7 +101,31 @@ func (s *CaCRHSFSuite) Test_WriteOperationMode_UnrelatedMode() {
 	assert.Nil(s.T(), fErr)
 
 	// the relation only lists modes 1, 2, 3, so the unrelated mode must not be written
-	err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOff)
+	_, err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOff, nil)
+	assert.NotNil(s.T(), err)
+}
+
+func (s *CaCRHSFSuite) Test_WriteOperationMode_AmbiguousSystemFunction() {
+	s.addHvacData(util.Ptr(true))
+
+	// two heating system functions make the id ambiguous, so the write must fail
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.hvacRoomEntity, model.FeatureTypeTypeHvac, model.RoleTypeServer)
+	descData := &model.HvacSystemFunctionDescriptionListDataType{
+		HvacSystemFunctionDescriptionData: []model.HvacSystemFunctionDescriptionDataType{
+			{
+				SystemFunctionId:   util.Ptr(model.HvacSystemFunctionIdType(1)),
+				SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeHeating),
+			},
+			{
+				SystemFunctionId:   util.Ptr(model.HvacSystemFunctionIdType(2)),
+				SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeHeating),
+			},
+		},
+	}
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeHvacSystemFunctionDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	_, err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn, nil)
 	assert.NotNil(s.T(), err)
 }
 

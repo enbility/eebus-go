@@ -4,6 +4,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -86,31 +87,38 @@ func (e *CRHSF) CurrentOperationMode(entity spineapi.EntityRemoteInterface) (uca
 }
 
 // set the heating operation mode of the HVAC room,
-// returns ErrNotSupported if the operation mode is not changeable or not supported
-func (e *CRHSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode ucapi.HvacOperationModeType) error {
+// returns ErrNotSupported if the operation mode is not changeable or not supported.
+//
+// The returned message counter and the resultCB let the caller observe the
+// device result: a non-zero ResultData.ErrorNumber signals a rejected write.
+func (e *CRHSF) WriteOperationMode(
+	entity spineapi.EntityRemoteInterface,
+	mode ucapi.HvacOperationModeType,
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntityType(entity) {
-		return api.ErrNoCompatibleEntity
+		return nil, api.ErrNoCompatibleEntity
 	}
 
 	hvac, err := client.NewHvac(e.LocalEntity, entity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	systemFunctionId, err := e.systemFunctionId(entity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	data, err := hvac.GetHvacSystemFunctionForId(systemFunctionId)
 	if err != nil {
-		return api.ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	// only an explicit false blocks the write; an omitted flag is tolerated, as
 	// some devices accept the write without advertising the changeability flag
 	if data.IsOperationModeIdChangeable != nil && !*data.IsOperationModeIdChangeable {
-		return api.ErrNotSupported
+		return nil, api.ErrNotSupported
 	}
 
 	// resolve the requested mode through the room-heating system-function
@@ -120,7 +128,7 @@ func (e *CRHSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode u
 	}
 	relations, err := hvac.GetHvacSystemFunctionOperationModeRelationsForFilter(relationFilter)
 	if err != nil || len(relations) == 0 {
-		return api.ErrDataNotAvailable
+		return nil, api.ErrDataNotAvailable
 	}
 
 	var modeId *model.HvacOperationModeIdType
@@ -140,7 +148,7 @@ func (e *CRHSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode u
 		}
 	}
 	if modeId == nil {
-		return api.ErrNotSupported
+		return nil, api.ErrNotSupported
 	}
 
 	writeData := []model.HvacSystemFunctionDataType{
@@ -150,12 +158,35 @@ func (e *CRHSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode u
 		},
 	}
 
-	_, err = hvac.WriteHvacSystemFunctionListData(writeData)
+	msgCounter, err := hvac.WriteHvacSystemFunctionListData(writeData)
+	e.registerResultCallback(hvac, msgCounter, resultCB)
 
-	return err
+	return msgCounter, err
 }
 
-// return the id of the heating system function of the HVAC room
+// register a response callback that surfaces the device result of a write to
+// the caller, so a non-zero ResultData.ErrorNumber can be treated as a rejection
+func (e *CRHSF) registerResultCallback(
+	hvac *client.Hvac,
+	msgCounter *model.MsgCounterType,
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) {
+	if resultCB == nil || msgCounter == nil {
+		return
+	}
+
+	cb := func(msg spineapi.ResponseMessage) {
+		if response, ok := msg.Data.(*model.ResultDataType); ok {
+			resultCB(*response, *msgCounter)
+		}
+	}
+	if err := hvac.AddResponseCallback(*msgCounter, cb); err != nil {
+		logging.Log().Debug("failed to add response callback for msgCounter %v: %v", msgCounter, err)
+	}
+}
+
+// return the id of the heating system function of the HVAC room,
+// returns ErrDataNotAvailable unless exactly one matching system function exists
 func (e *CRHSF) systemFunctionId(entity spineapi.EntityRemoteInterface) (model.HvacSystemFunctionIdType, error) {
 	hvac, err := client.NewHvac(e.LocalEntity, entity)
 	if err != nil {
@@ -166,7 +197,8 @@ func (e *CRHSF) systemFunctionId(entity spineapi.EntityRemoteInterface) (model.H
 		SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeHeating),
 	}
 	descriptions, err := hvac.GetHvacSystemFunctionDescriptionsForFilter(descFilter)
-	if err != nil || len(descriptions) == 0 || descriptions[0].SystemFunctionId == nil {
+	// fail closed on an ambiguous result so the wrong system function is never controlled
+	if err != nil || len(descriptions) != 1 || descriptions[0].SystemFunctionId == nil {
 		return 0, api.ErrDataNotAvailable
 	}
 
