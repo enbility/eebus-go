@@ -8,6 +8,7 @@ import (
 	api1 "github.com/enbility/eebus-go/api"
 	api0 "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -518,20 +519,31 @@ func (_c *CaCRCSFInterface_UpdateUseCaseAvailability_Call) RunAndReturn(run func
 }
 
 // WriteOperationMode provides a mock function for the type CaCRCSFInterface
-func (_mock *CaCRCSFInterface) WriteOperationMode(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType) error {
-	ret := _mock.Called(entity, mode)
+func (_mock *CaCRCSFInterface) WriteOperationMode(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
+	ret := _mock.Called(entity, mode, resultCB)
 
 	if len(ret) == 0 {
 		panic("no return value specified for WriteOperationMode")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.HvacOperationModeType) error); ok {
-		r0 = returnFunc(entity, mode)
-	} else {
-		r0 = ret.Error(0)
+	var r0 *model.MsgCounterType
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.HvacOperationModeType, func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)); ok {
+		return returnFunc(entity, mode, resultCB)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.HvacOperationModeType, func(result model.ResultDataType, msgCounter model.MsgCounterType)) *model.MsgCounterType); ok {
+		r0 = returnFunc(entity, mode, resultCB)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, api0.HvacOperationModeType, func(result model.ResultDataType, msgCounter model.MsgCounterType)) error); ok {
+		r1 = returnFunc(entity, mode, resultCB)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // CaCRCSFInterface_WriteOperationMode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WriteOperationMode'
@@ -542,11 +554,12 @@ type CaCRCSFInterface_WriteOperationMode_Call struct {
 // WriteOperationMode is a helper method to define mock.On call
 //   - entity api.EntityRemoteInterface
 //   - mode api0.HvacOperationModeType
-func (_e *CaCRCSFInterface_Expecter) WriteOperationMode(entity interface{}, mode interface{}) *CaCRCSFInterface_WriteOperationMode_Call {
-	return &CaCRCSFInterface_WriteOperationMode_Call{Call: _e.mock.On("WriteOperationMode", entity, mode)}
+//   - resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)
+func (_e *CaCRCSFInterface_Expecter) WriteOperationMode(entity interface{}, mode interface{}, resultCB interface{}) *CaCRCSFInterface_WriteOperationMode_Call {
+	return &CaCRCSFInterface_WriteOperationMode_Call{Call: _e.mock.On("WriteOperationMode", entity, mode, resultCB)}
 }
 
-func (_c *CaCRCSFInterface_WriteOperationMode_Call) Run(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType)) *CaCRCSFInterface_WriteOperationMode_Call {
+func (_c *CaCRCSFInterface_WriteOperationMode_Call) Run(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType))) *CaCRCSFInterface_WriteOperationMode_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.EntityRemoteInterface
 		if args[0] != nil {
@@ -556,20 +569,25 @@ func (_c *CaCRCSFInterface_WriteOperationMode_Call) Run(run func(entity api.Enti
 		if args[1] != nil {
 			arg1 = args[1].(api0.HvacOperationModeType)
 		}
+		var arg2 func(result model.ResultDataType, msgCounter model.MsgCounterType)
+		if args[2] != nil {
+			arg2 = args[2].(func(result model.ResultDataType, msgCounter model.MsgCounterType))
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
 }
 
-func (_c *CaCRCSFInterface_WriteOperationMode_Call) Return(err error) *CaCRCSFInterface_WriteOperationMode_Call {
-	_c.Call.Return(err)
+func (_c *CaCRCSFInterface_WriteOperationMode_Call) Return(msgCounterType *model.MsgCounterType, err error) *CaCRCSFInterface_WriteOperationMode_Call {
+	_c.Call.Return(msgCounterType, err)
 	return _c
 }
 
-func (_c *CaCRCSFInterface_WriteOperationMode_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType) error) *CaCRCSFInterface_WriteOperationMode_Call {
+func (_c *CaCRCSFInterface_WriteOperationMode_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, mode api0.HvacOperationModeType, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)) *CaCRCSFInterface_WriteOperationMode_Call {
 	_c.Call.Return(run)
 	return _c
 }
