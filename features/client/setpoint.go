@@ -75,3 +75,10 @@ func (s *Setpoint) WriteSetpointListData(
 
 	return s.remoteDevice.Sender().Write(s.featureLocal.Address(), s.featureRemote.Address(), cmd)
 }
+
+// IsSetpointListDataWritable reports whether the remote feature advertises the
+// write operation for SetpointListData.
+func (s *Setpoint) IsSetpointListDataWritable() bool {
+	operation, ok := s.featureRemote.Operations()[model.FunctionTypeSetpointListData]
+	return ok && operation != nil && operation.Write()
+}
