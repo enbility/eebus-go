@@ -99,6 +99,12 @@ func (h *Hvac) WriteHvacOverrunListData(
 		return nil, api.ErrMissingData
 	}
 
+	// the remote server has to advertise the write operation for this function
+	operation := h.featureRemote.Operations()[model.FunctionTypeHvacOverrunListData]
+	if operation == nil || !operation.Write() {
+		return nil, api.ErrNotSupported
+	}
+
 	cmd := model.CmdType{
 		HvacOverrunListData: &model.HvacOverrunListDataType{
 			HvacOverrunData: data,
@@ -115,6 +121,12 @@ func (h *Hvac) WriteHvacSystemFunctionListData(
 ) (*model.MsgCounterType, error) {
 	if len(data) == 0 {
 		return nil, api.ErrMissingData
+	}
+
+	// the remote server has to advertise the write operation for this function
+	operation := h.featureRemote.Operations()[model.FunctionTypeHvacSystemFunctionListData]
+	if operation == nil || !operation.Write() {
+		return nil, api.ErrNotSupported
 	}
 
 	cmd := model.CmdType{
