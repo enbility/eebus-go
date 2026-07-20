@@ -16,7 +16,7 @@ func (s *CaCRCSFSuite) Test_OperationModes() {
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), data)
 
-	s.addHvacData(true)
+	s.addHvacData(util.Ptr(true))
 
 	data, err = s.sut.OperationModes(s.hvacRoomEntity)
 	assert.Nil(s.T(), err)
@@ -33,7 +33,7 @@ func (s *CaCRCSFSuite) Test_CurrentOperationMode() {
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ucapi.HvacOperationModeType(""), data)
 
-	s.addHvacData(true)
+	s.addHvacData(util.Ptr(true))
 
 	data, err = s.sut.CurrentOperationMode(s.hvacRoomEntity)
 	assert.Nil(s.T(), err)
@@ -47,7 +47,7 @@ func (s *CaCRCSFSuite) Test_WriteOperationMode() {
 	err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
 	assert.NotNil(s.T(), err)
 
-	s.addHvacData(true)
+	s.addHvacData(util.Ptr(true))
 
 	err = s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
 	assert.Nil(s.T(), err)
@@ -58,15 +58,56 @@ func (s *CaCRCSFSuite) Test_WriteOperationMode() {
 }
 
 func (s *CaCRCSFSuite) Test_WriteOperationMode_NotChangeable() {
-	s.addHvacData(false)
+	s.addHvacData(util.Ptr(false))
 
 	err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
 	assert.NotNil(s.T(), err)
 }
 
+func (s *CaCRCSFSuite) Test_WriteOperationMode_ChangeabilityOmitted() {
+	// a device may omit the changeability flag but still accept the write
+	s.addHvacData(nil)
+
+	err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn)
+	assert.Nil(s.T(), err)
+}
+
+func (s *CaCRCSFSuite) Test_WriteOperationMode_UnrelatedMode() {
+	s.addHvacData(util.Ptr(true))
+
+	// add a mode that exists globally but is not related to the cooling function
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.hvacRoomEntity, model.FeatureTypeTypeHvac, model.RoleTypeServer)
+	modeData := &model.HvacOperationModeDescriptionListDataType{
+		HvacOperationModeDescriptionData: []model.HvacOperationModeDescriptionDataType{
+			{
+				OperationModeId:   util.Ptr(model.HvacOperationModeIdType(1)),
+				OperationModeType: util.Ptr(model.HvacOperationModeTypeTypeAuto),
+			},
+			{
+				OperationModeId:   util.Ptr(model.HvacOperationModeIdType(2)),
+				OperationModeType: util.Ptr(model.HvacOperationModeTypeTypeOn),
+			},
+			{
+				OperationModeId:   util.Ptr(model.HvacOperationModeIdType(3)),
+				OperationModeType: util.Ptr(model.HvacOperationModeTypeTypeEco),
+			},
+			{
+				OperationModeId:   util.Ptr(model.HvacOperationModeIdType(4)),
+				OperationModeType: util.Ptr(model.HvacOperationModeTypeTypeOff),
+			},
+		},
+	}
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeHvacOperationModeDescriptionListData, modeData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// the relation only lists modes 1, 2, 3, so the unrelated mode must not be written
+	err := s.sut.WriteOperationMode(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOff)
+	assert.NotNil(s.T(), err)
+}
+
 // helpers
 
-func (s *CaCRCSFSuite) addHvacData(isChangeable bool) {
+func (s *CaCRCSFSuite) addHvacData(isChangeable *bool) {
 	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.hvacRoomEntity, model.FeatureTypeTypeHvac, model.RoleTypeServer)
 
 	descData := &model.HvacSystemFunctionDescriptionListDataType{
@@ -115,7 +156,7 @@ func (s *CaCRCSFSuite) addHvacData(isChangeable bool) {
 			{
 				SystemFunctionId:            util.Ptr(model.HvacSystemFunctionIdType(1)),
 				CurrentOperationModeId:      util.Ptr(model.HvacOperationModeIdType(3)),
-				IsOperationModeIdChangeable: util.Ptr(isChangeable),
+				IsOperationModeIdChangeable: isChangeable,
 			},
 		},
 	}
