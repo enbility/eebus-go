@@ -83,6 +83,12 @@ func (h *Hvac) WriteHvacSystemFunctionListData(
 		return nil, api.ErrMissingData
 	}
 
+	// the remote server has to advertise the write operation for this function
+	operation := h.featureRemote.Operations()[model.FunctionTypeHvacSystemFunctionListData]
+	if operation == nil || !operation.Write() {
+		return nil, api.ErrNotSupported
+	}
+
 	cmd := model.CmdType{
 		HvacSystemFunctionListData: &model.HvacSystemFunctionListDataType{
 			HvacSystemFunctionData: data,
