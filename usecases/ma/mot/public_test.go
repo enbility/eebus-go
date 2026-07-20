@@ -1,6 +1,7 @@
 package mot
 
 import (
+	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -54,7 +55,7 @@ func (s *MaMOTSuite) Test_Temperature() {
 
 	// requested in an unsupported unit
 	_, err = s.sut.Temperature(s.monitoredEntity, model.UnitOfMeasurementTypeW)
-	assert.NotNil(s.T(), err)
+	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
 
 	// announced in degF, requested in degC
 	descData.MeasurementDescriptionData[0].Unit = util.Ptr(model.UnitOfMeasurementTypedegF)
@@ -100,21 +101,21 @@ func (s *MaMOTSuite) Test_convertTemperature() {
 	tc := []struct {
 		from, to model.UnitOfMeasurementType
 		in, out  float64
-		err      bool
+		err      error
 	}{
-		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypedegC, 10, 10, false},
-		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypedegF, 10, 50, false},
-		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypeK, 0, 273.15, false},
-		{model.UnitOfMeasurementTypedegF, model.UnitOfMeasurementTypedegC, 50, 10, false},
-		{model.UnitOfMeasurementTypeK, model.UnitOfMeasurementTypedegC, 273.15, 0, false},
-		{model.UnitOfMeasurementTypeW, model.UnitOfMeasurementTypedegC, 1, 0, true},
-		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypeW, 1, 0, true},
+		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypedegC, 10, 10, nil},
+		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypedegF, 10, 50, nil},
+		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypeK, 0, 273.15, nil},
+		{model.UnitOfMeasurementTypedegF, model.UnitOfMeasurementTypedegC, 50, 10, nil},
+		{model.UnitOfMeasurementTypeK, model.UnitOfMeasurementTypedegC, 273.15, 0, nil},
+		{model.UnitOfMeasurementTypeW, model.UnitOfMeasurementTypedegC, 1, 0, api.ErrDataInvalid},
+		{model.UnitOfMeasurementTypedegC, model.UnitOfMeasurementTypeW, 1, 0, api.ErrNotSupported},
 	}
 
 	for _, tc := range tc {
 		out, err := convertTemperature(tc.in, tc.from, tc.to)
-		if tc.err {
-			assert.NotNil(s.T(), err)
+		if tc.err != nil {
+			assert.ErrorIs(s.T(), err, tc.err)
 			continue
 		}
 		assert.Nil(s.T(), err)
