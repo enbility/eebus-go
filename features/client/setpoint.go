@@ -67,6 +67,12 @@ func (s *Setpoint) WriteSetpointListData(
 		return nil, api.ErrMissingData
 	}
 
+	// the remote server has to advertise the write operation for this function
+	operation := s.featureRemote.Operations()[model.FunctionTypeSetpointListData]
+	if operation == nil || !operation.Write() {
+		return nil, api.ErrNotSupported
+	}
+
 	cmd := model.CmdType{
 		SetpointListData: &model.SetpointListDataType{
 			SetpointData: data,
