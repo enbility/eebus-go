@@ -4,6 +4,7 @@ import (
 	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
+	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -109,34 +110,38 @@ func (e *CRHT) SetpointConstraints(entity spineapi.EntityRemoteInterface) ([]uca
 }
 
 // write the room heating temperature setpoint in degree Celsius for a heating
-// operation mode (on, off or eco), returns ErrNotSupported if it is not changeable
+// operation mode (on, off or eco), returns ErrNotSupported if it is not changeable.
+//
+// The returned message counter and the resultCB let the caller observe the
+// device result: a non-zero ResultData.ErrorNumber signals a rejected write.
 func (e *CRHT) WriteSetpoint(
 	entity spineapi.EntityRemoteInterface,
 	mode ucapi.HvacOperationModeType,
 	degC float64,
-) error {
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntityType(entity) {
-		return api.ErrNoCompatibleEntity
+		return nil, api.ErrNoCompatibleEntity
 	}
 
 	// the setpoints of the "auto" mode are controlled by a timetable of the device
 	if mode == ucapi.HvacOperationModeTypeAuto {
-		return api.ErrNotSupported
+		return nil, api.ErrNotSupported
 	}
 
 	setpointId, err := e.setpointIdForMode(entity, mode)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sp, err := client.NewSetpoint(e.LocalEntity, entity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if data, err := sp.GetSetpointForId(setpointId); err == nil &&
 		data.IsSetpointChangeable != nil && !*data.IsSetpointChangeable {
-		return api.ErrNotSupported
+		return nil, api.ErrNotSupported
 	}
 
 	data := []model.SetpointDataType{
@@ -146,9 +151,31 @@ func (e *CRHT) WriteSetpoint(
 		},
 	}
 
-	_, err = sp.WriteSetpointListData(data)
+	msgCounter, err := sp.WriteSetpointListData(data)
+	registerResultCallback(sp, msgCounter, resultCB)
 
-	return err
+	return msgCounter, err
+}
+
+// register a response callback that surfaces the device result of a write to
+// the caller, so a non-zero ResultData.ErrorNumber can be treated as a rejection
+func registerResultCallback(
+	sp *client.Setpoint,
+	msgCounter *model.MsgCounterType,
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+) {
+	if resultCB == nil || msgCounter == nil {
+		return
+	}
+
+	cb := func(msg spineapi.ResponseMessage) {
+		if response, ok := msg.Data.(*model.ResultDataType); ok {
+			resultCB(*response, *msgCounter)
+		}
+	}
+	if err := sp.AddResponseCallback(*msgCounter, cb); err != nil {
+		logging.Log().Debug("failed to add response callback for msgCounter %v: %v", msgCounter, err)
+	}
 }
 
 // return the ids of the setpoints related to the heating system function
@@ -217,7 +244,8 @@ func (e *CRHT) setpointRelations(
 		SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeHeating),
 	}
 	descriptions, err := hvac.GetHvacSystemFunctionDescriptionsForFilter(descFilter)
-	if err != nil || len(descriptions) == 0 || descriptions[0].SystemFunctionId == nil {
+	// fail closed on an ambiguous result so the wrong system function is never controlled
+	if err != nil || len(descriptions) != 1 || descriptions[0].SystemFunctionId == nil {
 		return nil, api.ErrDataNotAvailable
 	}
 

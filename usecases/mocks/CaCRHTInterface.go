@@ -8,6 +8,7 @@ import (
 	api0 "github.com/enbility/eebus-go/api"
 	api1 "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -520,20 +521,31 @@ func (_c *CaCRHTInterface_UpdateUseCaseAvailability_Call) RunAndReturn(run func(
 }
 
 // WriteSetpoint provides a mock function for the type CaCRHTInterface
-func (_mock *CaCRHTInterface) WriteSetpoint(entity api.EntityRemoteInterface, mode api1.HvacOperationModeType, degC float64) error {
-	ret := _mock.Called(entity, mode, degC)
+func (_mock *CaCRHTInterface) WriteSetpoint(entity api.EntityRemoteInterface, mode api1.HvacOperationModeType, degC float64, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
+	ret := _mock.Called(entity, mode, degC, resultCB)
 
 	if len(ret) == 0 {
 		panic("no return value specified for WriteSetpoint")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api1.HvacOperationModeType, float64) error); ok {
-		r0 = returnFunc(entity, mode, degC)
-	} else {
-		r0 = ret.Error(0)
+	var r0 *model.MsgCounterType
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api1.HvacOperationModeType, float64, func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)); ok {
+		return returnFunc(entity, mode, degC, resultCB)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api1.HvacOperationModeType, float64, func(result model.ResultDataType, msgCounter model.MsgCounterType)) *model.MsgCounterType); ok {
+		r0 = returnFunc(entity, mode, degC, resultCB)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, api1.HvacOperationModeType, float64, func(result model.ResultDataType, msgCounter model.MsgCounterType)) error); ok {
+		r1 = returnFunc(entity, mode, degC, resultCB)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // CaCRHTInterface_WriteSetpoint_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WriteSetpoint'
@@ -545,11 +557,12 @@ type CaCRHTInterface_WriteSetpoint_Call struct {
 //   - entity api.EntityRemoteInterface
 //   - mode api1.HvacOperationModeType
 //   - degC float64
-func (_e *CaCRHTInterface_Expecter) WriteSetpoint(entity interface{}, mode interface{}, degC interface{}) *CaCRHTInterface_WriteSetpoint_Call {
-	return &CaCRHTInterface_WriteSetpoint_Call{Call: _e.mock.On("WriteSetpoint", entity, mode, degC)}
+//   - resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)
+func (_e *CaCRHTInterface_Expecter) WriteSetpoint(entity interface{}, mode interface{}, degC interface{}, resultCB interface{}) *CaCRHTInterface_WriteSetpoint_Call {
+	return &CaCRHTInterface_WriteSetpoint_Call{Call: _e.mock.On("WriteSetpoint", entity, mode, degC, resultCB)}
 }
 
-func (_c *CaCRHTInterface_WriteSetpoint_Call) Run(run func(entity api.EntityRemoteInterface, mode api1.HvacOperationModeType, degC float64)) *CaCRHTInterface_WriteSetpoint_Call {
+func (_c *CaCRHTInterface_WriteSetpoint_Call) Run(run func(entity api.EntityRemoteInterface, mode api1.HvacOperationModeType, degC float64, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType))) *CaCRHTInterface_WriteSetpoint_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.EntityRemoteInterface
 		if args[0] != nil {
@@ -563,21 +576,26 @@ func (_c *CaCRHTInterface_WriteSetpoint_Call) Run(run func(entity api.EntityRemo
 		if args[2] != nil {
 			arg2 = args[2].(float64)
 		}
+		var arg3 func(result model.ResultDataType, msgCounter model.MsgCounterType)
+		if args[3] != nil {
+			arg3 = args[3].(func(result model.ResultDataType, msgCounter model.MsgCounterType))
+		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
 }
 
-func (_c *CaCRHTInterface_WriteSetpoint_Call) Return(err error) *CaCRHTInterface_WriteSetpoint_Call {
-	_c.Call.Return(err)
+func (_c *CaCRHTInterface_WriteSetpoint_Call) Return(msgCounterType *model.MsgCounterType, err error) *CaCRHTInterface_WriteSetpoint_Call {
+	_c.Call.Return(msgCounterType, err)
 	return _c
 }
 
-func (_c *CaCRHTInterface_WriteSetpoint_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, mode api1.HvacOperationModeType, degC float64) error) *CaCRHTInterface_WriteSetpoint_Call {
+func (_c *CaCRHTInterface_WriteSetpoint_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, mode api1.HvacOperationModeType, degC float64, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)) *CaCRHTInterface_WriteSetpoint_Call {
 	_c.Call.Return(run)
 	return _c
 }

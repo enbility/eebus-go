@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/enbility/eebus-go/api"
 	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 // Actor: Configuration Appliance
@@ -43,5 +44,10 @@ type CaCRHTInterface interface {
 	//   - ErrNotSupported if the setpoint is not changeable or the mode is auto
 	//   - ErrDataNotAvailable if the required data is not (yet) available
 	//   - and others
-	WriteSetpoint(entity spineapi.EntityRemoteInterface, mode HvacOperationModeType, degC float64) error
+	WriteSetpoint(
+		entity spineapi.EntityRemoteInterface,
+		mode HvacOperationModeType,
+		degC float64,
+		resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
+	) (*model.MsgCounterType, error)
 }
