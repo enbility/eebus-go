@@ -107,23 +107,46 @@ func (e *CRHSF) WriteOperationMode(entity spineapi.EntityRemoteInterface, mode u
 		return api.ErrDataNotAvailable
 	}
 
-	// the server only accepts changes if isOperationModeIdChangeable is set to true
-	if data.IsOperationModeIdChangeable == nil || !*data.IsOperationModeIdChangeable {
+	// only an explicit false blocks the write; an omitted flag is tolerated, as
+	// some devices accept the write without advertising the changeability flag
+	if data.IsOperationModeIdChangeable != nil && !*data.IsOperationModeIdChangeable {
 		return api.ErrNotSupported
 	}
 
-	modeFilter := model.HvacOperationModeDescriptionDataType{
-		OperationModeType: util.Ptr(model.HvacOperationModeTypeType(mode)),
+	// resolve the requested mode through the room-heating system-function
+	// relation, so a mode that exists globally but is not related is rejected
+	relationFilter := model.HvacSystemFunctionOperationModeRelationDataType{
+		SystemFunctionId: &systemFunctionId,
 	}
-	descriptions, err := hvac.GetHvacOperationModeDescriptionsForFilter(modeFilter)
-	if err != nil || len(descriptions) == 0 || descriptions[0].OperationModeId == nil {
+	relations, err := hvac.GetHvacSystemFunctionOperationModeRelationsForFilter(relationFilter)
+	if err != nil || len(relations) == 0 {
+		return api.ErrDataNotAvailable
+	}
+
+	var modeId *model.HvacOperationModeIdType
+	for _, relation := range relations {
+		for _, id := range relation.OperationModeId {
+			description, err := hvac.GetHvacOperationModeDescriptionForId(id)
+			if err != nil || description.OperationModeType == nil {
+				continue
+			}
+			if ucapi.HvacOperationModeType(*description.OperationModeType) == mode {
+				modeId = util.Ptr(id)
+				break
+			}
+		}
+		if modeId != nil {
+			break
+		}
+	}
+	if modeId == nil {
 		return api.ErrNotSupported
 	}
 
 	writeData := []model.HvacSystemFunctionDataType{
 		{
 			SystemFunctionId:       &systemFunctionId,
-			CurrentOperationModeId: descriptions[0].OperationModeId,
+			CurrentOperationModeId: modeId,
 		},
 	}
 
