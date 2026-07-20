@@ -18,6 +18,7 @@ import (
 // possible errors:
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
+//   - ErrNotSupported if the requested unit is not a supported temperature unit
 //   - and others
 func (e *MRT) Temperature(entity spineapi.EntityRemoteInterface, unit model.UnitOfMeasurementType) (float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
@@ -53,7 +54,8 @@ func (e *MRT) Temperature(entity spineapi.EntityRemoteInterface, unit model.Unit
 }
 
 // convertTemperature converts a temperature value between degC, degF and K.
-// It returns ErrDataInvalid if either unit is not a supported temperature unit.
+// It returns ErrDataInvalid if the announced unit is not a supported temperature
+// unit, and ErrNotSupported if the requested unit is not.
 func convertTemperature(value float64, from, to model.UnitOfMeasurementType) (float64, error) {
 	var celsius float64
 	switch from {
@@ -75,6 +77,6 @@ func convertTemperature(value float64, from, to model.UnitOfMeasurementType) (fl
 	case model.UnitOfMeasurementTypeK:
 		return celsius + 273.15, nil
 	default:
-		return 0, api.ErrDataInvalid
+		return 0, api.ErrNotSupported
 	}
 }
