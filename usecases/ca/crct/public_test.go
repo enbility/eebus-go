@@ -55,33 +55,57 @@ func (s *CaCRCTSuite) Test_SetpointConstraints() {
 }
 
 func (s *CaCRCTSuite) Test_WriteSetpoint() {
-	err := s.sut.WriteSetpoint(s.mockRemoteEntity, ucapi.HvacOperationModeTypeEco, 19)
+	_, err := s.sut.WriteSetpoint(s.mockRemoteEntity, ucapi.HvacOperationModeTypeEco, 19, nil)
 	assert.NotNil(s.T(), err)
 
 	// the setpoints of the auto mode cannot be written
-	err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeAuto, 19)
+	_, err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeAuto, 19, nil)
 	assert.NotNil(s.T(), err)
 
-	err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeEco, 19)
+	_, err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeEco, 19, nil)
 	assert.NotNil(s.T(), err)
 
 	s.addHvacData()
 
-	err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeEco, 19)
+	_, err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeEco, 19, nil)
 	assert.Nil(s.T(), err)
 
 	// the off mode has no setpoint in the test data
-	err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOff, 19)
+	_, err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOff, 19, nil)
 	assert.NotNil(s.T(), err)
 
 	// a setpoint marked not changeable cannot be written
 	s.addSetpointData()
 
-	err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn, 22)
+	_, err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeOn, 22, nil)
 	assert.NotNil(s.T(), err)
 
-	err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeEco, 19)
+	_, err = s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeEco, 19, nil)
 	assert.Nil(s.T(), err)
+}
+
+func (s *CaCRCTSuite) Test_WriteSetpoint_AmbiguousSystemFunction() {
+	s.addHvacData()
+
+	// two cooling system functions make the id ambiguous, so the write must fail
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.hvacRoomEntity, model.FeatureTypeTypeHvac, model.RoleTypeServer)
+	descData := &model.HvacSystemFunctionDescriptionListDataType{
+		HvacSystemFunctionDescriptionData: []model.HvacSystemFunctionDescriptionDataType{
+			{
+				SystemFunctionId:   util.Ptr(model.HvacSystemFunctionIdType(1)),
+				SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeCooling),
+			},
+			{
+				SystemFunctionId:   util.Ptr(model.HvacSystemFunctionIdType(2)),
+				SystemFunctionType: util.Ptr(model.HvacSystemFunctionTypeTypeCooling),
+			},
+		},
+	}
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeHvacSystemFunctionDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	_, err := s.sut.WriteSetpoint(s.hvacRoomEntity, ucapi.HvacOperationModeTypeEco, 19, nil)
+	assert.NotNil(s.T(), err)
 }
 
 // helpers
