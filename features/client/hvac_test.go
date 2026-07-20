@@ -109,3 +109,32 @@ func (s *HvacSuite) Test_WriteHvacSystemFunctionListData() {
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 }
+
+func (s *HvacSuite) Test_WriteHvacSystemFunctionListData_Partial() {
+	localEntity, remoteEntity := setupFeatures(
+		s.T(),
+		s,
+		[]featureFunctions{
+			{
+				featureType: model.FeatureTypeTypeHvac,
+				functions: []model.FunctionType{
+					model.FunctionTypeHvacSystemFunctionListData,
+				},
+				partial: true,
+			},
+		},
+	)
+
+	hvac, err := NewHvac(localEntity, remoteEntity)
+	assert.Nil(s.T(), err)
+
+	data := []model.HvacSystemFunctionDataType{
+		{
+			SystemFunctionId:       util.Ptr(model.HvacSystemFunctionIdType(1)),
+			CurrentOperationModeId: util.Ptr(model.HvacOperationModeIdType(2)),
+		},
+	}
+	counter, err := hvac.WriteHvacSystemFunctionListData(data)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+}
