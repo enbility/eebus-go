@@ -5,6 +5,7 @@ import (
 	"github.com/enbility/eebus-go/features/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 )
 
 type Setpoint struct {
@@ -73,10 +74,28 @@ func (s *Setpoint) WriteSetpointListData(
 		return nil, api.ErrNotSupported
 	}
 
+	// use a partial write when the server supports it, otherwise merge the
+	// modified entries into the cached list and write the complete list, so
+	// unrelated setpoints are not dropped by a full replacement
+	filters := []model.FilterType{*model.NewFilterTypePartial()}
+	if !operation.WritePartial() {
+		filters = nil
+		updateData := &model.SetpointListDataType{
+			SetpointData: data,
+		}
+		if mergedData, err := s.featureRemote.UpdateData(false, model.FunctionTypeSetpointListData, updateData, nil, nil); err == nil {
+			data = mergedData.([]model.SetpointDataType)
+		}
+	}
+
 	cmd := model.CmdType{
 		SetpointListData: &model.SetpointListDataType{
 			SetpointData: data,
 		},
+	}
+	if filters != nil {
+		cmd.Filter = filters
+		cmd.Function = util.Ptr(model.FunctionTypeSetpointListData)
 	}
 
 	return s.remoteDevice.Sender().Write(s.featureLocal.Address(), s.featureRemote.Address(), cmd)

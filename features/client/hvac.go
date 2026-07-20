@@ -5,6 +5,7 @@ import (
 	"github.com/enbility/eebus-go/features/internal"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
+	"github.com/enbility/spine-go/util"
 )
 
 type Hvac struct {
@@ -105,10 +106,28 @@ func (h *Hvac) WriteHvacOverrunListData(
 		return nil, api.ErrNotSupported
 	}
 
+	// use a partial write when the server supports it, otherwise merge the
+	// modified entries into the cached list and write the complete list, so
+	// unrelated overruns are not dropped by a full replacement
+	filters := []model.FilterType{*model.NewFilterTypePartial()}
+	if !operation.WritePartial() {
+		filters = nil
+		updateData := &model.HvacOverrunListDataType{
+			HvacOverrunData: data,
+		}
+		if mergedData, err := h.featureRemote.UpdateData(false, model.FunctionTypeHvacOverrunListData, updateData, nil, nil); err == nil {
+			data = mergedData.([]model.HvacOverrunDataType)
+		}
+	}
+
 	cmd := model.CmdType{
 		HvacOverrunListData: &model.HvacOverrunListDataType{
 			HvacOverrunData: data,
 		},
+	}
+	if filters != nil {
+		cmd.Filter = filters
+		cmd.Function = util.Ptr(model.FunctionTypeHvacOverrunListData)
 	}
 
 	return h.remoteDevice.Sender().Write(h.featureLocal.Address(), h.featureRemote.Address(), cmd)
@@ -129,10 +148,28 @@ func (h *Hvac) WriteHvacSystemFunctionListData(
 		return nil, api.ErrNotSupported
 	}
 
+	// use a partial write when the server supports it, otherwise merge the
+	// modified entries into the cached list and write the complete list, so
+	// unrelated system functions are not dropped by a full replacement
+	filters := []model.FilterType{*model.NewFilterTypePartial()}
+	if !operation.WritePartial() {
+		filters = nil
+		updateData := &model.HvacSystemFunctionListDataType{
+			HvacSystemFunctionData: data,
+		}
+		if mergedData, err := h.featureRemote.UpdateData(false, model.FunctionTypeHvacSystemFunctionListData, updateData, nil, nil); err == nil {
+			data = mergedData.([]model.HvacSystemFunctionDataType)
+		}
+	}
+
 	cmd := model.CmdType{
 		HvacSystemFunctionListData: &model.HvacSystemFunctionListDataType{
 			HvacSystemFunctionData: data,
 		},
+	}
+	if filters != nil {
+		cmd.Filter = filters
+		cmd.Function = util.Ptr(model.FunctionTypeHvacSystemFunctionListData)
 	}
 
 	return h.remoteDevice.Sender().Write(h.featureLocal.Address(), h.featureRemote.Address(), cmd)
