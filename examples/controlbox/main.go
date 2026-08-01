@@ -259,8 +259,7 @@ func (h *controlbox) ServiceAutoTrusted(service api.ServiceInterface, identity s
 
 func (h *controlbox) sendConsumptionLimit(entity spineapi.EntityRemoteInterface) {
 	scenarios := h.uclpc.AvailableScenariosForEntity(entity)
-	if len(scenarios) == 0 ||
-		!slices.Contains(scenarios, 1) {
+	if !slices.Contains(scenarios, 1) {
 		return
 	}
 
@@ -308,8 +307,7 @@ func (h *controlbox) OnLPCEvent(ski string, device spineapi.DeviceRemoteInterfac
 
 func (h *controlbox) sendProductionLimit(entity spineapi.EntityRemoteInterface) {
 	scenarios := h.uclpc.AvailableScenariosForEntity(entity)
-	if len(scenarios) == 0 ||
-		!slices.Contains(scenarios, 1) {
+	if !slices.Contains(scenarios, 1) {
 		return
 	}
 

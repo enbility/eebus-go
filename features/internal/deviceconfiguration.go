@@ -109,7 +109,7 @@ func (d *DeviceConfigurationCommon) GetKeyValueDataForFilter(filter model.Device
 	function := model.FunctionTypeDeviceConfigurationKeyValueListData
 
 	descriptions, err := d.GetKeyValueDescriptionsForFilter(filter)
-	if err != nil || descriptions == nil || len(descriptions) == 0 {
+	if err != nil || len(descriptions) == 0 {
 		return nil, api.ErrDataNotAvailable
 	}
 

@@ -188,14 +188,12 @@ func (e *ElectricalConnectionCommon) GetPermittedValueDataForFilter(
 		if len(set.Value) > 0 {
 			resultDefault = set.Value[0].GetValue()
 		}
-		if set.Range != nil {
-			for _, rangeItem := range set.Range {
-				if rangeItem.Min != nil {
-					resultMin = rangeItem.Min.GetValue()
-				}
-				if rangeItem.Max != nil {
-					resultMax = rangeItem.Max.GetValue()
-				}
+		for _, rangeItem := range set.Range {
+			if rangeItem.Min != nil {
+				resultMin = rangeItem.Min.GetValue()
+			}
+			if rangeItem.Max != nil {
+				resultMax = rangeItem.Max.GetValue()
 			}
 		}
 	}

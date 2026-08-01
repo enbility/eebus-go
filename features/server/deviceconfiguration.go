@@ -96,7 +96,7 @@ func (d *DeviceConfiguration) UpdateKeyValueDataForFilter(
 	if err != nil {
 		return err
 	}
-	if descriptions == nil || len(descriptions) != 1 {
+	if len(descriptions) != 1 {
 		return
 	}
 
