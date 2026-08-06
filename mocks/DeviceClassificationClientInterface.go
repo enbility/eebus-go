@@ -90,3 +90,58 @@ func (_c *DeviceClassificationClientInterface_RequestManufacturerDetails_Call) R
 	_c.Call.Return(run)
 	return _c
 }
+
+// RequestUserData provides a mock function for the type DeviceClassificationClientInterface
+func (_mock *DeviceClassificationClientInterface) RequestUserData() (*model.MsgCounterType, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for RequestUserData")
+	}
+
+	var r0 *model.MsgCounterType
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (*model.MsgCounterType, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() *model.MsgCounterType); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.MsgCounterType)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// DeviceClassificationClientInterface_RequestUserData_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RequestUserData'
+type DeviceClassificationClientInterface_RequestUserData_Call struct {
+	*mock.Call
+}
+
+// RequestUserData is a helper method to define mock.On call
+func (_e *DeviceClassificationClientInterface_Expecter) RequestUserData() *DeviceClassificationClientInterface_RequestUserData_Call {
+	return &DeviceClassificationClientInterface_RequestUserData_Call{Call: _e.mock.On("RequestUserData")}
+}
+
+func (_c *DeviceClassificationClientInterface_RequestUserData_Call) Run(run func()) *DeviceClassificationClientInterface_RequestUserData_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *DeviceClassificationClientInterface_RequestUserData_Call) Return(msgCounterType *model.MsgCounterType, err error) *DeviceClassificationClientInterface_RequestUserData_Call {
+	_c.Call.Return(msgCounterType, err)
+	return _c
+}
+
+func (_c *DeviceClassificationClientInterface_RequestUserData_Call) RunAndReturn(run func() (*model.MsgCounterType, error)) *DeviceClassificationClientInterface_RequestUserData_Call {
+	_c.Call.Return(run)
+	return _c
+}
