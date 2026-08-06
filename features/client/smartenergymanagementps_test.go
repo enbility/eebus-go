@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/enbility/eebus-go/api"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -109,4 +110,18 @@ func (s *SmartEnergyManagementPsSuite) Test_WriteData() {
 	counter, err = s.smartenergymgmtps.WriteData(data)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
+
+	// remote does not advertise write support -> ErrNotSupported
+	localRO, remoteRO := setupFeatures(s.T(), s, []featureFunctions{
+		{
+			featureType: model.FeatureTypeTypeSmartEnergyManagementPs,
+			functions:   []model.FunctionType{model.FunctionTypeSmartEnergyManagementPsData},
+			readOnly:    true,
+		},
+	})
+	roSmartEnergyManagementPs, err := NewSmartEnergyManagementPs(localRO, remoteRO)
+	assert.Nil(s.T(), err)
+	counter, err = roSmartEnergyManagementPs.WriteData(data)
+	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
+	assert.Nil(s.T(), counter)
 }

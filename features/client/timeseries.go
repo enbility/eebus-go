@@ -66,6 +66,12 @@ func (t *TimeSeries) WriteData(data []model.TimeSeriesDataType) (*model.MsgCount
 		return nil, api.ErrMissingData
 	}
 
+	// the remote server feature must advertise write support
+	operation := t.featureRemote.Operations()[model.FunctionTypeTimeSeriesListData]
+	if operation == nil || !operation.Write() {
+		return nil, api.ErrNotSupported
+	}
+
 	cmd := model.CmdType{
 		TimeSeriesListData: &model.TimeSeriesListDataType{
 			TimeSeriesData: data,

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/enbility/eebus-go/api"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -173,6 +174,20 @@ func (s *LoadControlSuite) Test_WriteLimitValues() {
 	counter, err = s.loadControl.WriteLimitData(data, nil, nil)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
+
+	// remote does not advertise write support -> ErrNotSupported
+	localRO, remoteRO := setupFeatures(s.T(), s, []featureFunctions{
+		{
+			featureType: model.FeatureTypeTypeLoadControl,
+			functions:   []model.FunctionType{model.FunctionTypeLoadControlLimitListData},
+			readOnly:    true,
+		},
+	})
+	roLoadControl, err := NewLoadControl(localRO, remoteRO)
+	assert.Nil(s.T(), err)
+	counter, err = roLoadControl.WriteLimitData(data, nil, nil)
+	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
+	assert.Nil(s.T(), counter)
 }
 
 // test with partial support
