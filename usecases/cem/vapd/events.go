@@ -53,7 +53,7 @@ func (e *VAPD) inverterConnected(entity spineapi.EntityRemoteInterface) {
 
 		// get configuration data
 		if _, err := deviceConfiguration.RequestKeyValueDescriptions(nil, nil); err != nil {
-			logging.Log().Error(err)
+			logging.Log().Debug(err)
 		}
 	}
 
@@ -66,11 +66,11 @@ func (e *VAPD) inverterConnected(entity spineapi.EntityRemoteInterface) {
 
 		// get electrical connection parameter
 		if _, err := electricalConnection.RequestDescriptions(nil, nil); err != nil {
-			logging.Log().Error(err)
+			logging.Log().Debug(err)
 		}
 
 		if _, err := electricalConnection.RequestParameterDescriptions(nil, nil); err != nil {
-			logging.Log().Error(err)
+			logging.Log().Debug(err)
 		}
 	}
 
@@ -83,11 +83,11 @@ func (e *VAPD) inverterConnected(entity spineapi.EntityRemoteInterface) {
 
 		// get measurement parameters
 		if _, err := measurement.RequestDescriptions(nil, nil); err != nil {
-			logging.Log().Error(err)
+			logging.Log().Debug(err)
 		}
 
 		if _, err := measurement.RequestConstraints(nil, nil); err != nil {
-			logging.Log().Error(err)
+			logging.Log().Debug(err)
 		}
 	}
 }
@@ -97,7 +97,7 @@ func (e *VAPD) inverterConfigurationDescriptionDataUpdate(entity spineapi.Entity
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
 		if _, err := deviceConfiguration.RequestKeyValues(nil, nil); err != nil {
-			logging.Log().Error("Error getting configuration key values:", err)
+			logging.Log().Debug("Error getting configuration key values:", err)
 		}
 	}
 }
@@ -121,7 +121,7 @@ func (e *VAPD) inverterMeasurementDescriptionDataUpdate(entity spineapi.EntityRe
 	if measurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		// measurement descriptions received, now get the data
 		if _, err := measurement.RequestData(nil, nil); err != nil {
-			logging.Log().Error("Error getting measurement list values:", err)
+			logging.Log().Debug("Error getting measurement list values:", err)
 		}
 	}
 }

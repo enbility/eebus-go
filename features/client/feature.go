@@ -136,8 +136,7 @@ func (f *Feature) requestData(function model.FunctionType, selectors any, elemen
 	fTypes := f.featureRemote.Operations()
 	op, exists := fTypes[function]
 	if !exists || !op.Read() {
-		errWithFunction := fmt.Sprintf("%s %s", api.ErrOperationOnFunctionNotSupported.Error(), function)
-		return nil, errors.New(errWithFunction)
+		return nil, fmt.Errorf("%w %s", api.ErrOperationOnFunctionNotSupported, function)
 	}
 
 	// remove the selectors if the remote does not allow partial reads
