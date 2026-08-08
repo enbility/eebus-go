@@ -72,6 +72,7 @@ func (s *MaMPCSuite) Test_Power() {
 			{
 				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
 				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeAbc),
 			},
 		},
 	}
@@ -146,7 +147,7 @@ func (s *MaMPCSuite) Test_PowerPerPhase() {
 
 	data, err = s.sut.PowerPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -186,7 +187,7 @@ func (s *MaMPCSuite) Test_PowerPerPhase() {
 
 	data, err = s.sut.PowerPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{10, 10, 10}, data)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{"a": 10, "b": 10, "c": 10}, data)
 }
 
 func (s *MaMPCSuite) Test_EnergyConsumed() {
@@ -405,7 +406,7 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 
 	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -445,7 +446,7 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 
 	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{10, 10, 10}, data)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{"a": 10, "b": 10, "c": 10}, data)
 }
 
 func (s *MaMPCSuite) Test_VoltagePerPhase() {
@@ -510,7 +511,7 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 
 	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{}, data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -538,7 +539,7 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 
 	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), []float64{230, 230, 230}, data)
+	assert.Equal(s.T(), map[model.ElectricalConnectionPhaseNameType]float64{"a": 230, "b": 230, "c": 230}, data)
 }
 
 func (s *MaMPCSuite) Test_Frequency() {

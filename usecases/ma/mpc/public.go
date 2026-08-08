@@ -28,6 +28,7 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
 	}
+	// acMeasuredPhases is optional for total active power, therefore we pass nil for validPhaseNameTypes
 	values, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil)
 	if err != nil {
 		return 0, err
@@ -36,7 +37,13 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	return values[0], nil
+	for _, k := range values {
+		// If the Monitored Unit is connected to less than three phases, one of the other combinations like "a" or "ab" are allowed instead of "abc".
+		// The values "a", "b", and "c" are permitted if and only if only one phase is connected
+		return k, nil
+	}
+	// unreachable
+	return 0, api.ErrDataNotAvailable
 }
 
 // return the momentary active phase specific power consumption or production per phase
@@ -45,7 +52,7 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
-func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -157,7 +164,7 @@ func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, er
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
-func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -178,7 +185,7 @@ func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
-func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -188,7 +195,8 @@ func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
+	validPhaseNames := append(ucapi.PhaseNameMapping, model.ElectricalConnectionPhaseNameTypeAb, model.ElectricalConnectionPhaseNameTypeAc, model.ElectricalConnectionPhaseNameTypeBc)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", validPhaseNames)
 }
 
 // Scenario 5

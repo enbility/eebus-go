@@ -21,7 +21,7 @@ func MeasurementPhaseSpecificDataForFilter(
 	measurementFilter model.MeasurementDescriptionDataType,
 	energyDirection model.EnergyDirectionType,
 	validPhaseNameTypes []model.ElectricalConnectionPhaseNameType,
-) ([]float64, error) {
+) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	measurement, err := client.NewMeasurement(localEntity, remoteEntity)
 	electricalConnection, err1 := client.NewElectricalConnection(localEntity, remoteEntity)
 	if err != nil || err1 != nil {
@@ -33,23 +33,32 @@ func MeasurementPhaseSpecificDataForFilter(
 		return nil, api.ErrDataNotAvailable
 	}
 
-	var result []float64
+	result := make(map[model.ElectricalConnectionPhaseNameType]float64, len(validPhaseNameTypes))
 
 	for _, item := range data {
 		if item.Value == nil || item.MeasurementId == nil {
 			continue
 		}
 
-		if validPhaseNameTypes != nil {
-			filter := model.ElectricalConnectionParameterDescriptionDataType{
-				MeasurementId: item.MeasurementId,
-			}
-			param, err := electricalConnection.GetParameterDescriptionsForFilter(filter)
-			if err != nil || len(param) == 0 ||
-				param[0].AcMeasuredPhases == nil ||
-				!slices.Contains(validPhaseNameTypes, *param[0].AcMeasuredPhases) {
-				continue
-			}
+		filter := model.ElectricalConnectionParameterDescriptionDataType{
+			MeasurementId: item.MeasurementId,
+		}
+		param, err := electricalConnection.GetParameterDescriptionsForFilter(filter)
+		if err != nil || len(param) == 0 {
+			// error getting parameter description
+			continue
+		}
+
+		phaseName, ok := phaseNameFromParameterDescription(param[0], validPhaseNameTypes == nil)
+		if !ok {
+			// error getting parameter description
+			continue
+		}
+
+		if validPhaseNameTypes != nil &&
+			!slices.Contains(validPhaseNameTypes, phaseName) {
+			// ignore phase measurements not specified in validPhaseNameTypes
+			continue
 		}
 
 		if energyDirection != "" {
@@ -75,7 +84,7 @@ func MeasurementPhaseSpecificDataForFilter(
 
 		value := item.Value.GetValue()
 
-		result = append(result, value)
+		result[phaseName] = value
 	}
 
 	return result, nil
@@ -105,4 +114,61 @@ func GetPowerTotalMeasurementId(localEntity spineapi.EntityLocalInterface) model
 	}
 
 	return *MeasurementDescriptionData[0].MeasurementId
+}
+
+func phaseNameFromParameterDescription(
+	param model.ElectricalConnectionParameterDescriptionDataType,
+	allowUnset bool,
+) (model.ElectricalConnectionPhaseNameType, bool) {
+	if param.AcMeasuredPhases == nil {
+		if allowUnset {
+			return model.ElectricalConnectionPhaseNameTypeNone, true
+		}
+		return "", false
+	}
+
+	phaseName := *param.AcMeasuredPhases
+	if param.AcMeasuredInReferenceTo == nil {
+		return phaseName, true
+	}
+
+	referencePhaseName := *param.AcMeasuredInReferenceTo
+	if referencePhaseName == phaseName ||
+		referencePhaseName == model.ElectricalConnectionPhaseNameTypeNeutral ||
+		referencePhaseName == model.ElectricalConnectionPhaseNameTypeGround ||
+		referencePhaseName == model.ElectricalConnectionPhaseNameTypeNone {
+		return phaseName, true
+	}
+
+	if combinedPhaseName, ok := phasePairName(phaseName, referencePhaseName); ok {
+		return combinedPhaseName, true
+	}
+
+	return phaseName, true
+}
+
+func phasePairName(
+	phaseName model.ElectricalConnectionPhaseNameType,
+	referencePhaseName model.ElectricalConnectionPhaseNameType,
+) (model.ElectricalConnectionPhaseNameType, bool) {
+	switch {
+	case isPhasePair(phaseName, referencePhaseName, model.ElectricalConnectionPhaseNameTypeA, model.ElectricalConnectionPhaseNameTypeB):
+		return model.ElectricalConnectionPhaseNameTypeAb, true
+	case isPhasePair(phaseName, referencePhaseName, model.ElectricalConnectionPhaseNameTypeB, model.ElectricalConnectionPhaseNameTypeC):
+		return model.ElectricalConnectionPhaseNameTypeBc, true
+	case isPhasePair(phaseName, referencePhaseName, model.ElectricalConnectionPhaseNameTypeA, model.ElectricalConnectionPhaseNameTypeC):
+		return model.ElectricalConnectionPhaseNameTypeAc, true
+	default:
+		return "", false
+	}
+}
+
+func isPhasePair(
+	phaseName model.ElectricalConnectionPhaseNameType,
+	referencePhaseName model.ElectricalConnectionPhaseNameType,
+	first model.ElectricalConnectionPhaseNameType,
+	second model.ElectricalConnectionPhaseNameType,
+) bool {
+	return (phaseName == first && referencePhaseName == second) ||
+		(phaseName == second && referencePhaseName == first)
 }
