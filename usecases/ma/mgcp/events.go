@@ -108,8 +108,11 @@ func (e *MGCP) gridConfigurationDataUpdate(payload spineapi.EventPayload) {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypePvCurtailmentLimitFactor),
 		}
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerLimitationFactor)
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.PowerLimitationFactor(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePowerLimitationFactor)
+			}
 		}
 	}
 }
@@ -131,38 +134,56 @@ func (e *MGCP) gridMeasurementDataUpdate(payload spineapi.EventPayload) {
 		filter := model.MeasurementDescriptionDataType{
 			ScopeType: util.Ptr(model.ScopeTypeTypeACPowerTotal),
 		}
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.Power(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdatePower)
+			}
 		}
 
 		// Scenario 3
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridFeedIn)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyFeedIn)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.EnergyFeedIn(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyFeedIn)
+			}
 		}
 
 		// Scenario 4
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeGridConsumption)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyConsumed)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.EnergyConsumed(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateEnergyConsumed)
+			}
 		}
 
 		// Scenario 5
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACCurrent)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.CurrentPerPhase(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateCurrentPerPhase)
+			}
 		}
 
 		// Scenario 6
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACVoltage)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateVoltagePerPhase)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.VoltagePerPhase(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateVoltagePerPhase)
+			}
 		}
 
 		// Scenario 7
 		filter.ScopeType = util.Ptr(model.ScopeTypeTypeACFrequency)
-		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFrequency)
+		if measurement.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.Frequency(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFrequency)
+			}
 		}
 	}
 }
