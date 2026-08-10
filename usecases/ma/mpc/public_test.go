@@ -1,6 +1,7 @@
 package mpc
 
 import (
+	"github.com/enbility/eebus-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
 	"github.com/stretchr/testify/assert"
@@ -34,11 +35,28 @@ func (s *MaMPCSuite) Test_Power() {
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
 
+	// Test with incomplete measurement data (missing ValueType and ValueSource)
 	measData := &model.MeasurementListDataType{
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(10),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Power(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with measurement missing value
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 			},
 		},
 	}
@@ -80,8 +98,128 @@ func (s *MaMPCSuite) Test_Power() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.Power(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with complete, valid measurement data
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Power(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 10.0, data)
+
+	// Test with valid data but error state - should be rejected
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Power(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with multiple measurements matching the same filter (len(values) != 1 case)
+	descData = &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypePower),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(20),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	elParamData = &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Power(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
+	// Test with all measurements failing validation (empty result after validation)
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeAverageValue), // Wrong ValueType
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Power(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
 }
 
 func (s *MaMPCSuite) Test_PowerPerPhase() {
@@ -145,8 +283,8 @@ func (s *MaMPCSuite) Test_PowerPerPhase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.monitoredEntity)
-	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.NotNil(s.T(), err) // Should fail validation due to missing ValueType/ValueSource
+	assert.Nil(s.T(), data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -182,6 +320,37 @@ func (s *MaMPCSuite) Test_PowerPerPhase() {
 	}
 
 	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.PowerPerPhase(s.monitoredEntity)
+	assert.NotNil(s.T(), err) // Still invalid - measurements need ValueType/ValueSource
+	assert.Nil(s.T(), data)
+
+	// Add complete, valid measurement data
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.PowerPerPhase(s.monitoredEntity)
@@ -236,12 +405,44 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
 
 	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
+	assert.NotNil(s.T(), err) // Need electrical connection setup
+	assert.Equal(s.T(), 0.0, data)
+
+	// Add electrical connection setup for energy measurements
+	elDescData := &model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+			},
+		},
+	}
+
+	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
@@ -252,7 +453,9 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
 			},
 		},
@@ -263,6 +466,88 @@ func (s *MaMPCSuite) Test_EnergyConsumed() {
 
 	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
 	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with multiple measurements matching the same filter (len(values) != 1 case)
+	descData = &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(100),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(200),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	elParamData = &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with a disallowed ValueSource (should fail validation)
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceType("simulatedValue")),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyConsumed(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
 	assert.Equal(s.T(), 0.0, data)
 }
 
@@ -313,12 +598,44 @@ func (s *MaMPCSuite) Test_EnergyProduced() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
 
 	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyProduced(s.monitoredEntity)
+	assert.NotNil(s.T(), err) // Need electrical connection setup
+	assert.Equal(s.T(), 0.0, data)
+
+	// Add electrical connection setup for energy measurements
+	elDescData := &model.ElectricalConnectionDescriptionListDataType{
+		ElectricalConnectionDescriptionData: []model.ElectricalConnectionDescriptionDataType{
+			{
+				ElectricalConnectionId:  util.Ptr(model.ElectricalConnectionIdType(0)),
+				PositiveEnergyDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+			},
+		},
+	}
+
+	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionDescriptionListData, elDescData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.EnergyProduced(s.monitoredEntity)
@@ -329,7 +646,9 @@ func (s *MaMPCSuite) Test_EnergyProduced() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
 			},
 		},
@@ -340,6 +659,68 @@ func (s *MaMPCSuite) Test_EnergyProduced() {
 
 	data, err = s.sut.EnergyProduced(s.monitoredEntity)
 	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test with multiple measurements matching the same filter (len(values) != 1 case)
+	descData = &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(150),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(250),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	elParamData = &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+			},
+		},
+	}
+
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, elParamData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.EnergyProduced(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
 	assert.Equal(s.T(), 0.0, data)
 }
 
@@ -388,14 +769,17 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
 				Value:         model.NewScaledNumberType(10),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
 				Value:         model.NewScaledNumberType(10),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 			},
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
 				Value:         model.NewScaledNumberType(10),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 			},
 		},
 	}
@@ -404,8 +788,8 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
-	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.NotNil(s.T(), err) // Should fail - missing ValueState (required for current)
+	assert.Nil(s.T(), data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -444,8 +828,77 @@ func (s *MaMPCSuite) Test_CurrentPerPhase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
+	assert.NotNil(s.T(), err) // Still missing ValueState
+	assert.Nil(s.T(), data)
+
+	// Add complete, valid current measurement data
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(10),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{10, 10, 10}, data)
+
+	// Per MPC-003, measurements with state error/outOfRange SHALL be ignored.
+	// Only the one with valueState=normal should make it through.
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(15),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(20),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeOutofrange),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(25),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+				ValueState:    util.Ptr(model.MeasurementValueStateTypeNormal),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.CurrentPerPhase(s.monitoredEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{25}, data)
 }
 
 func (s *MaMPCSuite) Test_VoltagePerPhase() {
@@ -509,8 +962,8 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
-	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), 0, len(data))
+	assert.NotNil(s.T(), err) // Should fail - missing ValueType, no range validation
+	assert.Nil(s.T(), data)
 
 	elParamData := &model.ElectricalConnectionParameterDescriptionListDataType{
 		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
@@ -537,8 +990,70 @@ func (s *MaMPCSuite) Test_VoltagePerPhase() {
 	assert.Nil(s.T(), fErr)
 
 	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
+	assert.NotNil(s.T(), err) // Still invalid - missing ValueType
+	assert.Nil(s.T(), data)
+
+	// Add complete, valid voltage measurement data
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), []float64{230, 230, 230}, data)
+
+	// MPC spec places no upper bound on voltage, so 1001 is valid just like 230.
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(1001),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(230),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.VoltagePerPhase(s.monitoredEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), []float64{1001, 230, 230}, data)
 }
 
 func (s *MaMPCSuite) Test_Frequency() {
@@ -588,7 +1103,9 @@ func (s *MaMPCSuite) Test_Frequency() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(50),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 			},
 		},
 	}
@@ -604,7 +1121,9 @@ func (s *MaMPCSuite) Test_Frequency() {
 		MeasurementData: []model.MeasurementDataType{
 			{
 				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
 				Value:         model.NewScaledNumberType(50),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
 				ValueState:    util.Ptr(model.MeasurementValueStateTypeError),
 			},
 		},
@@ -616,4 +1135,126 @@ func (s *MaMPCSuite) Test_Frequency() {
 	data, err = s.sut.Frequency(s.monitoredEntity)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), 0.0, data)
+
+	// Test with multiple measurements matching the same filter (len(values) != 1 case)
+	descData = &model.MeasurementDescriptionListDataType{
+		MeasurementDescriptionData: []model.MeasurementDescriptionDataType{
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(0)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeFrequency),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
+			},
+			{
+				MeasurementId:   util.Ptr(model.MeasurementIdType(1)),
+				MeasurementType: util.Ptr(model.MeasurementTypeTypeFrequency),
+				CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
+				ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(50),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(50.1),
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), api.ErrDataNotAvailable, err)
+	assert.Equal(s.T(), 0.0, data)
+
+	// Test frequency values that would have been out of range if validation existed
+	// These should now succeed since we removed the non-spec range validation
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(44), // 44Hz
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.monitoredEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 44.0, data) // Should succeed now
+
+	// Test high frequency value
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(66), // 66Hz
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.monitoredEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 66.0, data) // Should succeed now
+
+	// Test frequency at boundaries (45Hz and 65Hz - should be valid)
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(45), // At lower boundary
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.monitoredEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 45.0, data) // Should be valid at boundary
+
+	measData = &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				ValueType:     util.Ptr(model.MeasurementValueTypeTypeValue),
+				Value:         model.NewScaledNumberType(65), // At upper boundary
+				ValueSource:   util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeMeasurementListData, measData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.Frequency(s.monitoredEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 65.0, data) // Should be valid at boundary
 }
