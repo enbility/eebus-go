@@ -147,7 +147,7 @@ func (e *LPC) WriteFailsafeConsumptionActivePowerLimit(entity spineapi.EntityRem
 		KeyName: &keyname,
 	}
 	data, err := deviceConfiguration.GetKeyValueDescriptionsForFilter(filter)
-	if err != nil || data == nil || len(data) != 1 {
+	if err != nil || len(data) != 1 {
 		return nil, api.ErrDataNotAvailable
 	}
 

@@ -146,7 +146,7 @@ func (e *LPP) WriteFailsafeProductionActivePowerLimit(entity spineapi.EntityRemo
 		KeyName: &keyname,
 	}
 	data, err := deviceConfiguration.GetKeyValueDescriptionsForFilter(filter)
-	if err != nil || data == nil || len(data) != 1 {
+	if err != nil || len(data) != 1 {
 		return nil, api.ErrDataNotAvailable
 	}
 

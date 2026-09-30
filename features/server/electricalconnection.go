@@ -204,7 +204,7 @@ func (e *ElectricalConnection) UpdateCharacteristic(
 		CharacteristicId:       data.CharacteristicId,
 	}
 	chars, err := e.GetCharacteristicsForFilter(filter)
-	if err != nil || chars == nil || len(chars) != 1 {
+	if err != nil || len(chars) != 1 {
 		return errors.New("no matching element found")
 	}
 
@@ -268,7 +268,7 @@ func (e *ElectricalConnection) UpdatePermittedValueSetForFilters(
 
 	for _, item := range data {
 		descriptions, err := e.GetParameterDescriptionsForFilter(item.Filter)
-		if err != nil || descriptions == nil || len(descriptions) != 1 {
+		if err != nil || len(descriptions) != 1 {
 			return
 		}
 
