@@ -75,6 +75,56 @@ func (s *EgLPCSuite) Test_ConsumptionLimit() {
 	assert.Equal(s.T(), false, data.IsActive)
 }
 
+func (s *EgLPCSuite) Test_ConsumptionLimitWithoutValue() {
+	descData := &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId:        util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitCategory:  util.Ptr(model.LoadControlCategoryTypeObligation),
+				LimitType:      util.Ptr(model.LoadControlLimitTypeTypeSignDependentAbsValueLimit),
+				LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
+				ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
+			},
+		},
+	}
+
+	rFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	_, fErr := rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// an inactive limit is not required to carry a value
+	limitData := &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{
+				LimitId:           util.Ptr(model.LoadControlLimitIdType(0)),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(false),
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err := s.sut.ConsumptionLimit(s.monitoredEntity)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data.Value)
+	assert.Equal(s.T(), true, data.IsChangeable)
+	assert.Equal(s.T(), false, data.IsActive)
+
+	// an active limit without value is not usable
+	limitData.LoadControlLimitData[0].IsLimitActive = util.Ptr(true)
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	data, err = s.sut.ConsumptionLimit(s.monitoredEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, data.Value)
+	assert.Equal(s.T(), false, data.IsChangeable)
+	assert.Equal(s.T(), false, data.IsActive)
+}
+
 func (s *EgLPCSuite) Test_WriteLoadControlLimit() {
 	limit := ucapi.LoadLimit{
 		Value:    6000,
