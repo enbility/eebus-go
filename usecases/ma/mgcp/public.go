@@ -78,7 +78,12 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	return data[0], nil
+	for _, k := range data {
+		// Return first element of map (instead of accessing phase mapping "abc" directly) because only 1 ("a", "b", "c") or 2 ("ab", "bc" "ac") phases may be connected
+		return k, nil
+	}
+	// unreachable
+	return 0, api.ErrDataNotAvailable
 }
 
 // Scenario 3
@@ -170,7 +175,7 @@ func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, e
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
-func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -191,7 +196,7 @@ func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 //   - ErrDataNotAvailable if no such value is (yet) available
 //   - ErrDataInvalid if the currently available data is invalid and should be ignored
 //   - and others
-func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -201,7 +206,8 @@ func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
+	validPhaseNames := append(ucapi.PhaseNameMapping, model.ElectricalConnectionPhaseNameTypeAb, model.ElectricalConnectionPhaseNameTypeAc, model.ElectricalConnectionPhaseNameTypeBc)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", validPhaseNames)
 }
 
 // Scenario 7

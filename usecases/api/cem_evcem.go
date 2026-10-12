@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/enbility/eebus-go/api"
 	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 // Actor: Customer Energy Management
@@ -22,7 +23,7 @@ type CemEVCEMInterface interface {
 	//
 	// parameters:
 	//   - entity: the entity of the EV
-	CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error)
+	CurrentPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error)
 
 	// Scenario 2
 
@@ -30,7 +31,7 @@ type CemEVCEMInterface interface {
 	//
 	// parameters:
 	//   - entity: the entity of the EV
-	PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error)
+	PowerPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error)
 
 	// Scenario 3
 
