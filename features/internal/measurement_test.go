@@ -369,3 +369,21 @@ func (s *MeasurementSuite) addData() {
 	_ = s.localFeature.UpdateData(model.FunctionTypeMeasurementListData, fData, nil, nil)
 	_, _ = s.remoteFeature.UpdateData(true, model.FunctionTypeMeasurementListData, fData, nil, nil)
 }
+
+// an entry with a value state but without value is a data change
+func (s *MeasurementSuite) Test_CheckEventPayloadDataForFilter_ValueStateWithoutValue() {
+	filter := model.MeasurementDescriptionDataType{
+		ScopeType: util.Ptr(model.ScopeTypeTypeStateOfCharge),
+	}
+	s.addDescription()
+
+	list := &model.MeasurementListDataType{
+		MeasurementData: []model.MeasurementDataType{
+			{MeasurementId: util.Ptr(model.MeasurementIdType(1))},
+		},
+	}
+	assert.False(s.T(), s.remoteSut.CheckEventPayloadDataForFilter(list, filter))
+
+	list.MeasurementData[0].ValueState = util.Ptr(model.MeasurementValueStateTypeError)
+	assert.True(s.T(), s.remoteSut.CheckEventPayloadDataForFilter(list, filter))
+}
