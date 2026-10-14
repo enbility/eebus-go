@@ -1,6 +1,8 @@
 package lpc
 
 import (
+	"time"
+
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -124,13 +126,22 @@ func (s *EgLPCSuite) Test_loadControlLimitDataUpdate() {
 	data = &model.LoadControlLimitListDataType{
 		LoadControlLimitData: []model.LoadControlLimitDataType{
 			{
-				LimitId: util.Ptr(model.LoadControlLimitIdType(0)),
-				Value:   model.NewScaledNumberType(16),
+				LimitId:           util.Ptr(model.LoadControlLimitIdType(0)),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(false),
+				Value:             model.NewScaledNumberType(6000),
+				TimePeriod: &model.TimePeriodType{
+					EndTime: model.NewAbsoluteOrRelativeTimeType("PT2H"),
+				},
 			},
 		},
 	}
 
 	payload.Data = data
+
+	// Update the feature with the data so it's actually stored
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, data, nil, nil)
+	assert.Nil(s.T(), fErr)
 
 	s.sut.loadControlLimitDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
@@ -148,12 +159,14 @@ func (s *EgLPCSuite) Test_configurationDataUpdate() {
 	descData := &model.DeviceConfigurationKeyValueDescriptionListDataType{
 		DeviceConfigurationKeyValueDescriptionData: []model.DeviceConfigurationKeyValueDescriptionDataType{
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(1)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(1)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeScaledNumber),
 			},
 			{
-				KeyId:   util.Ptr(model.DeviceConfigurationKeyIdType(2)),
-				KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+				KeyId:     util.Ptr(model.DeviceConfigurationKeyIdType(2)),
+				KeyName:   util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum),
+				ValueType: util.Ptr(model.DeviceConfigurationKeyValueTypeTypeDuration),
 			},
 		},
 	}
@@ -178,16 +191,24 @@ func (s *EgLPCSuite) Test_configurationDataUpdate() {
 		DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
 			{
 				KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(1)),
-				Value: &model.DeviceConfigurationKeyValueValueType{},
+				Value: &model.DeviceConfigurationKeyValueValueType{
+					ScaledNumber: model.NewScaledNumberType(6000),
+				},
 			},
 			{
 				KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(2)),
-				Value: &model.DeviceConfigurationKeyValueValueType{},
+				Value: &model.DeviceConfigurationKeyValueValueType{
+					Duration: model.NewDurationType(time.Hour * 10),
+				},
 			},
 		},
 	}
 
 	payload.Data = data
+
+	// Update the feature with the data so it's actually stored
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeDeviceConfigurationKeyValueListData, data, nil, nil)
+	assert.Nil(s.T(), fErr)
 
 	s.sut.configurationDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)

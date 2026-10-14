@@ -69,7 +69,7 @@ func (e *MGCP) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
 	}
-	data, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil)
+	data, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil, MGCPPowerValidator)
 	if err != nil {
 		return 0, err
 	}
@@ -107,17 +107,14 @@ func (e *MGCP) EnergyFeedIn(entity spineapi.EntityRemoteInterface) (float64, err
 		ScopeType:       util.Ptr(model.ScopeTypeTypeGridFeedIn),
 	}
 	result, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(result) == 0 || result[0].Value == nil {
+	if err != nil || len(result) == 0 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if result[0].ValueState != nil && *result[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	return result[0].Value.GetValue(), nil
+	// Use MGCP-compliant validation per specification requirements
+	// This replaces the previous non-compliant behavior that returned ErrDataInvalid
+	// for non-normal states. Per MGCP-003, such values should be ignored (skipped).
+	return internal.GetMeasurementValue(result, MGCPEnergyValidator)
 }
 
 // Scenario 4
@@ -146,17 +143,14 @@ func (e *MGCP) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, e
 		ScopeType:       util.Ptr(model.ScopeTypeTypeGridConsumption),
 	}
 	result, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(result) == 0 || result[0].Value == nil {
+	if err != nil || len(result) == 0 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if result[0].ValueState != nil && *result[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	return result[0].Value.GetValue(), nil
+	// Use MGCP-compliant validation per specification requirements
+	// This replaces the previous non-compliant behavior that returned ErrDataInvalid
+	// for non-normal states. Per MGCP-003, such values should be ignored (skipped).
+	return internal.GetMeasurementValue(result, MGCPEnergyValidator)
 }
 
 // Scenario 5
@@ -180,7 +174,7 @@ func (e *MGCP) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping, MGCPCurrentValidator)
 }
 
 // Scenario 6
@@ -201,7 +195,7 @@ func (e *MGCP) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping, MGCPVoltageValidator)
 }
 
 // Scenario 7
@@ -228,15 +222,12 @@ func (e *MGCP) Frequency(entity spineapi.EntityRemoteInterface) (float64, error)
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
 	}
 	result, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(result) == 0 || result[0].Value == nil {
+	if err != nil || len(result) == 0 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if result[0].ValueState != nil && *result[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	return result[0].Value.GetValue(), nil
+	// Use MGCP-compliant validation per specification requirements
+	// This replaces the previous non-compliant behavior that returned ErrDataInvalid
+	// for non-normal states. Per MGCP-003, such values should be ignored (skipped).
+	return internal.GetMeasurementValue(result, MGCPFrequencyValidator)
 }
