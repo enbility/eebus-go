@@ -27,11 +27,12 @@ func (s *CsLPPSuite) Test_loadControlServerAndLimitId() {
 }
 
 func (s *CsLPPSuite) Test_loadControlWriteCB() {
-	msg := &spineapi.Message{}
+	msg0 := &spineapi.Message{}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(msg0)
+	assert.False(s.T(), s.eventCalled)
 
-	msg = &spineapi.Message{
+	msg1 := &spineapi.Message{
 		RequestHeader: &model.HeaderType{
 			MsgCounter: util.Ptr(model.MsgCounterType(500)),
 		},
@@ -42,40 +43,96 @@ func (s *CsLPPSuite) Test_loadControlWriteCB() {
 		EntityRemote: s.monitoredEntity,
 	}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(msg1)
+	assert.False(s.T(), s.eventCalled)
 
-	msg.Cmd = model.CmdType{
-		LoadControlLimitListData: &model.LoadControlLimitListDataType{
-			LoadControlLimitData: []model.LoadControlLimitDataType{},
+	msg2 := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(501)),
 		},
-	}
-
-	s.sut.loadControlWriteCB(msg)
-
-	msg.Cmd = model.CmdType{
-		LoadControlLimitListData: &model.LoadControlLimitListDataType{
-			LoadControlLimitData: []model.LoadControlLimitDataType{
-				{},
+		Cmd: model.CmdType{
+			LoadControlLimitListData: &model.LoadControlLimitListDataType{
+				LoadControlLimitData: []model.LoadControlLimitDataType{},
 			},
 		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
 	}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(msg2)
+	assert.False(s.T(), s.eventCalled)
 
-	msg.Cmd = model.CmdType{
-		LoadControlLimitListData: &model.LoadControlLimitListDataType{
-			LoadControlLimitData: []model.LoadControlLimitDataType{
-				{
-					LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
-					IsLimitActive: util.Ptr(true),
-					Value:         model.NewScaledNumberType(1000),
-					TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
+	msg3 := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(502)),
+		},
+		Cmd: model.CmdType{
+			LoadControlLimitListData: &model.LoadControlLimitListDataType{
+				LoadControlLimitData: []model.LoadControlLimitDataType{
+					{},
 				},
 			},
 		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
 	}
 
-	s.sut.loadControlWriteCB(msg)
+	s.sut.loadControlWriteCB(msg3)
+	assert.False(s.T(), s.eventCalled)
+
+	msg4 := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(503)),
+		},
+		Cmd: model.CmdType{
+			LoadControlLimitListData: &model.LoadControlLimitListDataType{
+				LoadControlLimitData: []model.LoadControlLimitDataType{
+					{
+						LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
+						IsLimitActive: util.Ptr(true),
+						Value:         model.NewScaledNumberType(1000),
+						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+
+	s.sut.loadControlWriteCB(msg4)
+	assert.True(s.T(), s.eventCalled)
+
+	msg5 := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(504)),
+		},
+		Cmd: model.CmdType{
+			Filter: []model.FilterType{
+				{
+					CmdControl: &model.CmdControlType{
+						Partial: util.Ptr(model.ElementTagType{}),
+					},
+				},
+			},
+			LoadControlLimitListData: &model.LoadControlLimitListDataType{
+				LoadControlLimitData: []model.LoadControlLimitDataType{
+					{
+						LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
+						IsLimitActive: util.Ptr(true),
+						Value:         model.NewScaledNumberType(5000),
+						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Hour * 3),
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+
+	s.sut.loadControlWriteCB(msg5)
+	assert.True(s.T(), s.eventCalled)
+	s.eventCalled = false
 }
 
 func (s *CsLPPSuite) Test_deviceConfigurationWriteCB() {
