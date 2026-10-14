@@ -91,6 +91,8 @@ func (s *CsLPPSuite) Test_deviceConnected() {
 	s.sut.subscribeHeartbeatWorkaround(payload)
 }
 
+// TC_SPINE_RTS_003: with multiple client entities the CS subscribes to the DeviceDiagnosis
+// server of the entity that created the binding, ignoring the other client entities.
 func (s *CsLPPSuite) Test_multipleDeviceDiagServer() {
 	// multiple entities each with DeviceDiagnosis server
 
