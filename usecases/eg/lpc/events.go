@@ -169,8 +169,11 @@ func (e *LPC) loadControlLimitDataUpdate(payload spineapi.EventPayload) {
 			LimitDirection: util.Ptr(model.EnergyDirectionTypeConsume),
 			ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 		}
-		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
+		if lc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.ConsumptionLimit(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateLimit)
+			}
 		}
 	}
 }
@@ -191,12 +194,18 @@ func (e *LPC) configurationDataUpdate(payload spineapi.EventPayload) {
 		filter := model.DeviceConfigurationKeyValueDescriptionDataType{
 			KeyName: util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeConsumptionActivePowerLimit),
 		}
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeConsumptionActivePowerLimit)
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.FailsafeConsumptionActivePowerLimit(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeConsumptionActivePowerLimit)
+			}
 		}
 		filter.KeyName = util.Ptr(model.DeviceConfigurationKeyNameTypeFailsafeDurationMinimum)
-		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) && e.EventCB != nil {
-			e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeDurationMinimum)
+		if dc.CheckEventPayloadDataForFilter(payload.Data, filter) {
+			// Only fire event if public method succeeds (data is valid and retrievable)
+			if _, err := e.FailsafeDurationMinimum(payload.Entity); err == nil && e.EventCB != nil {
+				e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateFailsafeDurationMinimum)
+			}
 		}
 	}
 }
