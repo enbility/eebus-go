@@ -35,3 +35,14 @@ func (d *DeviceClassificationCommon) GetManufacturerDetails() (*model.DeviceClas
 
 	return data, nil
 }
+
+// get the current user data for a remote device entity
+func (d *DeviceClassificationCommon) GetUserData() (*model.DeviceClassificationUserDataType, error) {
+	function := model.FunctionTypeDeviceClassificationUserData
+	data, err := featureDataCopyOfType[model.DeviceClassificationUserDataType](d.featureLocal, d.featureRemote, function)
+	if err != nil || data == nil {
+		return nil, api.ErrDataNotAvailable
+	}
+
+	return data, nil
+}

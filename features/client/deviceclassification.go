@@ -39,3 +39,8 @@ var _ api.DeviceClassificationClientInterface = (*DeviceClassification)(nil)
 func (d *DeviceClassification) RequestManufacturerDetails() (*model.MsgCounterType, error) {
 	return d.requestData(model.FunctionTypeDeviceClassificationManufacturerData, nil, nil)
 }
+
+// request DeviceClassificationUserData from a remote device entity
+func (d *DeviceClassification) RequestUserData() (*model.MsgCounterType, error) {
+	return d.requestData(model.FunctionTypeDeviceClassificationUserData, nil, nil)
+}
