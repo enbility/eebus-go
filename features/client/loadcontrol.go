@@ -86,9 +86,14 @@ func (l *LoadControl) WriteLimitData(
 	}
 	filters = append(filters, *partialFilter)
 
-	// does the remote server feature not support partials?
+	// the remote server feature must advertise write support
 	operation := l.featureRemote.Operations()[model.FunctionTypeLoadControlLimitListData]
-	if operation == nil || !operation.WritePartial() {
+	if operation == nil || !operation.Write() {
+		return nil, api.ErrNotSupported
+	}
+
+	// does the remote server feature not support partials?
+	if !operation.WritePartial() {
 		filters = nil
 		// we need to send all data
 		updateData := &model.LoadControlLimitListDataType{

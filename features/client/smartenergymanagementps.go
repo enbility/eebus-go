@@ -46,6 +46,12 @@ func (l *SmartEnergyManagementPs) WriteData(data *model.SmartEnergyManagementPsD
 		return nil, api.ErrMissingData
 	}
 
+	// the remote server feature must advertise write support
+	operation := l.featureRemote.Operations()[model.FunctionTypeSmartEnergyManagementPsData]
+	if operation == nil || !operation.Write() {
+		return nil, api.ErrNotSupported
+	}
+
 	cmd := model.CmdType{
 		Function:                    util.Ptr(model.FunctionTypeSmartEnergyManagementPsData),
 		Filter:                      []model.FilterType{*model.NewFilterTypePartial()},

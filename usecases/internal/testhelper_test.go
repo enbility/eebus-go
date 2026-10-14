@@ -171,7 +171,8 @@ func setupDevices(
 			supportedFct := model.FunctionPropertyType{
 				Function: util.Ptr(fct),
 				PossibleOperations: &model.PossibleOperationsType{
-					Read: &model.PossibleOperationsReadType{},
+					Read:  &model.PossibleOperationsReadType{},
+					Write: &model.PossibleOperationsWriteType{},
 				},
 			}
 			supportedFcts = append(supportedFcts, supportedFct)

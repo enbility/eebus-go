@@ -3,6 +3,7 @@ package client
 import (
 	"testing"
 
+	"github.com/enbility/eebus-go/api"
 	shipmocks "github.com/enbility/ship-go/mocks"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/mocks"
@@ -167,6 +168,22 @@ func (s *DeviceConfigurationSuite) Test_WriteValues() {
 	counter, err = s.deviceConfiguration.WriteKeyValues(data)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
+
+	// remote does not advertise write support -> ErrNotSupported
+	mockWriter := shipmocks.NewShipConnectionDataWriterInterface(s.T())
+	mockWriter.EXPECT().WriteShipMessageWithPayload(mock.Anything).Return().Maybe()
+	localRO, remoteRO := setupFeatures(s.T(), mockWriter, []featureFunctions{
+		{
+			featureType: model.FeatureTypeTypeDeviceConfiguration,
+			functions:   []model.FunctionType{model.FunctionTypeDeviceConfigurationKeyValueListData},
+			readOnly:    true,
+		},
+	})
+	roDeviceConfiguration, err := NewDeviceConfiguration(localRO, remoteRO)
+	assert.Nil(s.T(), err)
+	counter, err = roDeviceConfiguration.WriteKeyValues(data)
+	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
+	assert.Nil(s.T(), counter)
 }
 
 // test with partial support
