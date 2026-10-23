@@ -230,6 +230,34 @@ func (s *MuMpcAbcSuite) Test_VoltagePerPhase() {
 	assert.ElementsMatch(s.T(), []float64{5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, values)
 }
 
+// MPC-041/4..6 define the phase to phase voltages as A to B, B to C and C to A
+func (s *MuMpcAbcSuite) Test_VoltagePhaseToPhaseParameterDescriptions() {
+	electricalConnection, err := server.NewElectricalConnection(s.sut.LocalEntity)
+	assert.Nil(s.T(), err)
+
+	tests := []struct {
+		phase                      model.ElectricalConnectionPhaseNameType
+		expectedMeasuredPhase      model.ElectricalConnectionPhaseNameType
+		expectedInReferenceToPhase model.ElectricalConnectionPhaseNameType
+	}{
+		{model.ElectricalConnectionPhaseNameTypeAb, model.ElectricalConnectionPhaseNameTypeA, model.ElectricalConnectionPhaseNameTypeB},
+		{model.ElectricalConnectionPhaseNameTypeBc, model.ElectricalConnectionPhaseNameTypeB, model.ElectricalConnectionPhaseNameTypeC},
+		{model.ElectricalConnectionPhaseNameTypeAc, model.ElectricalConnectionPhaseNameTypeC, model.ElectricalConnectionPhaseNameTypeA},
+	}
+
+	for _, tc := range tests {
+		filter := model.ElectricalConnectionParameterDescriptionDataType{
+			MeasurementId: s.sut.acVoltagePerPhase[tc.phase],
+		}
+		params, err := electricalConnection.GetParameterDescriptionsForFilter(filter)
+		assert.Nil(s.T(), err)
+		if assert.Len(s.T(), params, 1, "phase %s", tc.phase) {
+			assert.Equal(s.T(), tc.expectedMeasuredPhase, *params[0].AcMeasuredPhases, "phase %s", tc.phase)
+			assert.Equal(s.T(), tc.expectedInReferenceToPhase, *params[0].AcMeasuredInReferenceTo, "phase %s", tc.phase)
+		}
+	}
+}
+
 func (s *MuMpcAbcSuite) Test_Frequency() {
 	err := s.sut.Update(
 		s.sut.UpdateDataFrequency(5.0, nil, nil),
