@@ -453,6 +453,11 @@ func (e *MPC) configureMonitorVoltage(
 		case 2:
 			fromPhase := string(string(phase)[0])
 			toPhase := string(string(phase)[1])
+			// MPC-041/6 defines the voltage between phase C and phase A, but the
+			// phase name enum only has "ac", so it is advertised as C to A
+			if phase == model.ElectricalConnectionPhaseNameTypeAc {
+				fromPhase, toPhase = toPhase, fromPhase
+			}
 			parameterDescription = model.ElectricalConnectionParameterDescriptionDataType{
 				ElectricalConnectionId:  electricalConnectionId,
 				MeasurementId:           e.acVoltagePerPhase[phase],
