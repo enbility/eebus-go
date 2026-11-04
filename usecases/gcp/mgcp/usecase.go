@@ -136,7 +136,7 @@ func NewMGCP(
 
 	usecase := usecase.NewUseCaseBase(
 		localEntity,
-		model.UseCaseActorTypeMonitoringAppliance,
+		model.UseCaseActorTypeGridConnectionPoint,
 		model.UseCaseNameTypeMonitoringOfGridConnectionPoint,
 		"1.0.0",
 		"release",
