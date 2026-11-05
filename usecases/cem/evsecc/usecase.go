@@ -67,8 +67,7 @@ func NewEVSECC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEven
 func (e *EVSECC) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
-		model.FeatureTypeTypeDeviceClassification,
-		model.FeatureTypeTypeDeviceDiagnosis,
+		model.FeatureTypeTypeGeneric,
 	}
 
 	for _, feature := range clientFeatures {

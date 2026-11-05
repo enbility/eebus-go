@@ -17,7 +17,9 @@ func (e *EVCC) HandleResponse(responseMsg api.ResponseMessage) {
 	}
 
 	// handle errors coming from the remote EVSE entity
-	if responseMsg.FeatureLocal.Type() == model.FeatureTypeTypeDeviceDiagnosis {
+	// the local client feature is of type Generic, so check the remote server feature type
+	if responseMsg.FeatureRemote != nil &&
+		responseMsg.FeatureRemote.Type() == model.FeatureTypeTypeDeviceDiagnosis {
 		e.handleResultDeviceDiagnosis(responseMsg)
 	}
 }

@@ -6,32 +6,40 @@ import (
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
+	"github.com/stretchr/testify/assert"
 )
 
 func (s *CemEVCCSuite) Test_Results() {
 	localDevice := s.service.LocalDevice()
 	localEntity := localDevice.EntityForType(model.EntityTypeTypeCEM)
-	localFeature := localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient)
+	localFeature := localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeGeneric, model.RoleTypeClient)
+	assert.NotNil(s.T(), localFeature)
+	assert.Nil(s.T(), localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient))
+	remoteFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.evEntity, model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeServer)
+	assert.NotNil(s.T(), remoteFeature)
 
 	errorMsg := spineapi.ResponseMessage{
-		DeviceRemote: s.remoteDevice,
-		EntityRemote: s.evEntity,
-		FeatureLocal: localFeature,
-		Data:         util.Ptr(model.MsgCounterType(0)),
+		DeviceRemote:  s.remoteDevice,
+		EntityRemote:  s.evEntity,
+		FeatureLocal:  localFeature,
+		FeatureRemote: remoteFeature,
+		Data:          util.Ptr(model.MsgCounterType(0)),
 	}
 	s.sut.HandleResponse(errorMsg)
 
 	errorMsg = spineapi.ResponseMessage{
-		EntityRemote: s.evEntity,
-		FeatureLocal: localFeature,
-		Data:         util.Ptr(model.MsgCounterType(0)),
+		EntityRemote:  s.evEntity,
+		FeatureLocal:  localFeature,
+		FeatureRemote: remoteFeature,
+		Data:          util.Ptr(model.MsgCounterType(0)),
 	}
 	s.sut.HandleResponse(errorMsg)
 
 	errorMsg = spineapi.ResponseMessage{
-		DeviceRemote: s.remoteDevice,
-		EntityRemote: s.mockRemoteEntity,
-		FeatureLocal: localFeature,
+		DeviceRemote:  s.remoteDevice,
+		EntityRemote:  s.mockRemoteEntity,
+		FeatureLocal:  localFeature,
+		FeatureRemote: remoteFeature,
 		Data: &model.ResultDataType{
 			ErrorNumber: util.Ptr(model.ErrorNumberTypeNoError),
 		},
