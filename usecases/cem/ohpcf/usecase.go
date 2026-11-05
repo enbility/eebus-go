@@ -59,7 +59,7 @@ func NewOHPCF(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 func (o *OHPCF) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
-		model.FeatureTypeTypeSmartEnergyManagementPs,
+		model.FeatureTypeTypeGeneric,
 	}
 	for _, feature := range clientFeatures {
 		if f := o.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient); f == nil {

@@ -99,11 +99,7 @@ func NewEVCC(
 func (e *EVCC) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
-		model.FeatureTypeTypeDeviceConfiguration,
-		model.FeatureTypeTypeIdentification,
-		model.FeatureTypeTypeDeviceClassification,
-		model.FeatureTypeTypeElectricalConnection,
-		model.FeatureTypeTypeDeviceDiagnosis,
+		model.FeatureTypeTypeGeneric,
 	}
 	for _, feature := range clientFeatures {
 		f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
