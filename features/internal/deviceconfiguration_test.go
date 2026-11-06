@@ -140,6 +140,13 @@ func (s *DeviceConfigurationSuite) Test_CheckEventPayloadDataForFilter() {
 	assert.True(s.T(), exists)
 	exists = s.remoteSut.CheckEventPayloadDataForFilter(keyData, filter)
 	assert.True(s.T(), exists)
+
+	keyData.DeviceConfigurationKeyValueData[0].KeyId = util.Ptr(model.DeviceConfigurationKeyIdType(1))
+
+	exists = s.localSut.CheckEventPayloadDataForFilter(keyData, filter)
+	assert.False(s.T(), exists)
+	exists = s.remoteSut.CheckEventPayloadDataForFilter(keyData, filter)
+	assert.False(s.T(), exists)
 }
 
 func (s *DeviceConfigurationSuite) Test_DescriptionForKeyId() {

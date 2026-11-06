@@ -84,7 +84,9 @@ func (e *ElectricalConnectionCommon) CheckEventPayloadDataForFilterDescriptionLi
 		for _, item := range data.ElectricalConnectionCharacteristicData {
 			if item.ParameterId != nil &&
 				desc.ParameterId != nil &&
-				*item.ParameterId == *desc.ParameterId {
+				*item.ParameterId == *desc.ParameterId &&
+				(item.CharacteristicId == nil || desc.CharacteristicId == nil ||
+					*item.CharacteristicId == *desc.CharacteristicId) {
 				return true
 			}
 		}
