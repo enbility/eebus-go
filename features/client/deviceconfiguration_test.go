@@ -169,7 +169,7 @@ func (s *DeviceConfigurationSuite) Test_WriteValues() {
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 
-	// remote does not advertise write support -> ErrNotSupported
+	// remote does not advertise write support -> ErrOperationOnFunctionNotSupported
 	mockWriter := shipmocks.NewShipConnectionDataWriterInterface(s.T())
 	mockWriter.EXPECT().WriteShipMessageWithPayload(mock.Anything).Return().Maybe()
 	localRO, remoteRO := setupFeatures(s.T(), mockWriter, []featureFunctions{
@@ -182,7 +182,7 @@ func (s *DeviceConfigurationSuite) Test_WriteValues() {
 	roDeviceConfiguration, err := NewDeviceConfiguration(localRO, remoteRO)
 	assert.Nil(s.T(), err)
 	counter, err = roDeviceConfiguration.WriteKeyValues(data)
-	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
+	assert.ErrorIs(s.T(), err, api.ErrOperationOnFunctionNotSupported)
 	assert.Nil(s.T(), counter)
 }
 

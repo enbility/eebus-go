@@ -49,7 +49,7 @@ func (l *SmartEnergyManagementPs) WriteData(data *model.SmartEnergyManagementPsD
 	// the remote server feature must advertise write support
 	operation := l.featureRemote.Operations()[model.FunctionTypeSmartEnergyManagementPsData]
 	if operation == nil || !operation.Write() {
-		return nil, api.ErrNotSupported
+		return nil, api.ErrOperationOnFunctionNotSupported
 	}
 
 	cmd := model.CmdType{

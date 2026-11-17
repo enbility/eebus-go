@@ -89,7 +89,7 @@ func (l *LoadControl) WriteLimitData(
 	// the remote server feature must advertise write support
 	operation := l.featureRemote.Operations()[model.FunctionTypeLoadControlLimitListData]
 	if operation == nil || !operation.Write() {
-		return nil, api.ErrNotSupported
+		return nil, api.ErrOperationOnFunctionNotSupported
 	}
 
 	// does the remote server feature not support partials?

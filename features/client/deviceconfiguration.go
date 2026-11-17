@@ -64,7 +64,7 @@ func (d *DeviceConfiguration) WriteKeyValues(data []model.DeviceConfigurationKey
 	// the remote server feature must advertise write support
 	operation := d.featureRemote.Operations()[model.FunctionTypeDeviceConfigurationKeyValueListData]
 	if operation == nil || !operation.Write() {
-		return nil, api.ErrNotSupported
+		return nil, api.ErrOperationOnFunctionNotSupported
 	}
 
 	// does the remote server feature not support partials?

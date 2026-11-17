@@ -116,7 +116,7 @@ func (s *TimeSeriesSuite) Test_WriteData() {
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 
-	// remote does not advertise write support -> ErrNotSupported
+	// remote does not advertise write support -> ErrOperationOnFunctionNotSupported
 	localRO, remoteRO := setupFeatures(s.T(), s, []featureFunctions{
 		{
 			featureType: model.FeatureTypeTypeTimeSeries,
@@ -127,6 +127,6 @@ func (s *TimeSeriesSuite) Test_WriteData() {
 	roTimeSeries, err := NewTimeSeries(localRO, remoteRO)
 	assert.Nil(s.T(), err)
 	counter, err = roTimeSeries.WriteData(data)
-	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
+	assert.ErrorIs(s.T(), err, api.ErrOperationOnFunctionNotSupported)
 	assert.Nil(s.T(), counter)
 }

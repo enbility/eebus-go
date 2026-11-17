@@ -175,7 +175,7 @@ func (s *LoadControlSuite) Test_WriteLimitValues() {
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 
-	// remote does not advertise write support -> ErrNotSupported
+	// remote does not advertise write support -> ErrOperationOnFunctionNotSupported
 	localRO, remoteRO := setupFeatures(s.T(), s, []featureFunctions{
 		{
 			featureType: model.FeatureTypeTypeLoadControl,
@@ -186,7 +186,7 @@ func (s *LoadControlSuite) Test_WriteLimitValues() {
 	roLoadControl, err := NewLoadControl(localRO, remoteRO)
 	assert.Nil(s.T(), err)
 	counter, err = roLoadControl.WriteLimitData(data, nil, nil)
-	assert.ErrorIs(s.T(), err, api.ErrNotSupported)
+	assert.ErrorIs(s.T(), err, api.ErrOperationOnFunctionNotSupported)
 	assert.Nil(s.T(), counter)
 }
 
