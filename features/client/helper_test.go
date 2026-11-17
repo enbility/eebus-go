@@ -17,6 +17,7 @@ type featureFunctions struct {
 	featureType model.FeatureTypeType
 	functions   []model.FunctionType
 	partial     bool
+	readOnly    bool
 }
 
 type WriteMessageHandler struct {
@@ -160,6 +161,10 @@ func setupFeatures(
 				write = &model.PossibleOperationsWriteType{
 					Partial: &model.ElementTagType{},
 				}
+			}
+
+			if item.readOnly {
+				write = nil
 			}
 
 			supportedFct := model.FunctionPropertyType{
