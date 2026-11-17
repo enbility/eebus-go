@@ -16,13 +16,15 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
+	// compared to other use cases, we don't check for the availability of the scenario here
+	// because we assume that the event types come from compatible entities only
+
 	// subscribe to heartbeat when a remote entity binds to our loadControl server
 	if payload.EventType == spineapi.EventTypeBindingChange &&
 		payload.ChangeType == spineapi.ElementChangeAdd &&
 		payload.LocalFeature != nil &&
 		payload.LocalFeature.Type() == model.FeatureTypeTypeLoadControl &&
-		payload.LocalFeature.Role() == model.RoleTypeServer &&
-		e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
+		payload.LocalFeature.Role() == model.RoleTypeServer {
 		e.subscribeHeartbeat(payload.Entity)
 		return
 	}
@@ -36,10 +38,6 @@ func (e *LPC) HandleEvent(payload spineapi.EventPayload) {
 		payload.ChangeType != spineapi.ElementChangeUpdate ||
 		payload.CmdClassifier == nil ||
 		*payload.CmdClassifier != model.CmdClassifierTypeWrite {
-		return
-	}
-
-	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
 		return
 	}
 
