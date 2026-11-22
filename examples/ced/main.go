@@ -206,8 +206,7 @@ func (h *controlbox) ServiceAutoTrusted(service api.ServiceInterface, identity s
 
 func (h *controlbox) sendLimit(entity spineapi.EntityRemoteInterface) {
 	scenarios := h.uclpc.AvailableScenariosForEntity(entity)
-	if len(scenarios) == 0 ||
-		!slices.Contains(scenarios, 1) {
+	if !slices.Contains(scenarios, 1) {
 		return
 	}
 

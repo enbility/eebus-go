@@ -105,7 +105,7 @@ func (m *Measurement) UpdateDataForFilters(
 
 	for _, item := range data {
 		descriptions, err := m.GetDescriptionsForFilter(item.Filter)
-		if err != nil || descriptions == nil || len(descriptions) != 1 {
+		if err != nil || len(descriptions) != 1 {
 			return
 		}
 

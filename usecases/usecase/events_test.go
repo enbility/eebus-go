@@ -66,6 +66,8 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 	result = s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1)
 	assert.False(s.T(), result)
 
+	// TC_SPINE_RTC_003: even with useCaseAvailable=false the client (EG) must
+	// ignore the flag and register the use case support.
 	data = &model.NodeManagementUseCaseDataType{}
 	data.AddUseCaseSupport(
 		*feature.Address(),
@@ -80,7 +82,7 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 	s.uc.useCaseDataUpdate(payload)
 
 	result = s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1)
-	assert.False(s.T(), result)
+	assert.True(s.T(), result)
 
 	data = &model.NodeManagementUseCaseDataType{}
 	data.AddUseCaseSupport(

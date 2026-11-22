@@ -55,14 +55,12 @@ func (u *UseCaseBase) useCaseDataUpdate(
 		}
 
 		for _, support := range uc.UseCaseSupport {
-			// UseCaseAvailable should only be checkd for client functionality
-			// of a use acse. But as there are devices (e.g. Porsche PMCC) that
-			// also use it for the server side, we need to check it always.
+			// Per SPINE-TS-UCD-01 (TC_SPINE_RTC_003), the client (EG) side must
+			// ignore the UseCaseAvailable flag entirely and proceed with setup,
+			// even when the remote server reports UseCaseAvailable=false.
 			if support.UseCaseName == nil ||
 				*support.UseCaseName != u.UseCaseName ||
-				support.ScenarioSupport == nil &&
-					len(support.ScenarioSupport) == 0 ||
-				(support.UseCaseAvailable != nil && !*support.UseCaseAvailable) {
+				support.ScenarioSupport == nil {
 				continue
 			}
 

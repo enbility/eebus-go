@@ -151,8 +151,7 @@ func (e *LPP) loadControlWriteCB(msg *spineapi.Message) {
 	data := msg.Cmd.LoadControlLimitListData
 
 	// we assume there is always only one limit
-	if data == nil || data.LoadControlLimitData == nil ||
-		len(data.LoadControlLimitData) == 0 {
+	if data == nil || len(data.LoadControlLimitData) == 0 {
 		logging.Log().Debug("LPP loadControlWriteCB: no data")
 		return
 	}
