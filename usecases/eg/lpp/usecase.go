@@ -2,6 +2,7 @@ package lpp
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -69,6 +70,10 @@ func NewLPP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 
 	uc := &LPP{
 		UseCaseBase: usecase,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.connected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

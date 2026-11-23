@@ -2,6 +2,7 @@ package mgcp
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	usecase "github.com/enbility/eebus-go/usecases/usecase"
@@ -99,6 +100,10 @@ func NewMGCP(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 
 	uc := &MGCP{
 		UseCaseBase: usecase,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.gridConnected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

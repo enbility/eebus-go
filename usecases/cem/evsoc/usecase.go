@@ -2,6 +2,7 @@ package evsoc
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	usecase "github.com/enbility/eebus-go/usecases/usecase"
@@ -52,6 +53,10 @@ func NewEVSOC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 
 	uc := &EVSOC{
 		UseCaseBase: usecase,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.evConnected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

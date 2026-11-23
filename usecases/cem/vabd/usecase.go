@@ -2,6 +2,7 @@ package vabd
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -77,6 +78,10 @@ func NewVABD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 
 	uc := &VABD{
 		UseCaseBase: usecase,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.inverterConnected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

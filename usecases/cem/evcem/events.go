@@ -2,7 +2,6 @@ package evcem
 
 import (
 	"github.com/enbility/eebus-go/features/client"
-	internal "github.com/enbility/eebus-go/usecases/internal"
 	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -17,15 +16,15 @@ func (e *EVCEM) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityAdded(payload) {
-		e.evConnected(payload.Entity)
-		return
-	}
-
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return
 	}
+
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
+		return
+	}
+
 	switch payload.Data.(type) {
 	case *model.ElectricalConnectionDescriptionListDataType:
 		e.evElectricalConnectionDescriptionDataUpdate(payload)

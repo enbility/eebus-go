@@ -2,7 +2,6 @@ package vapd
 
 import (
 	"github.com/enbility/eebus-go/features/client"
-	"github.com/enbility/eebus-go/usecases/internal"
 	"github.com/enbility/ship-go/logging"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -17,13 +16,12 @@ func (e *VAPD) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityAdded(payload) {
-		e.inverterConnected(payload.Entity)
+	if payload.EventType != spineapi.EventTypeDataChange ||
+		payload.ChangeType != spineapi.ElementChangeUpdate {
 		return
 	}
 
-	if payload.EventType != spineapi.EventTypeDataChange ||
-		payload.ChangeType != spineapi.ElementChangeUpdate {
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
 		return
 	}
 

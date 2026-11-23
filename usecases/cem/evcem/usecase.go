@@ -2,6 +2,7 @@ package evcem
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	usecase "github.com/enbility/eebus-go/usecases/usecase"
@@ -76,6 +77,10 @@ func NewEVCEM(
 	uc := &EVCEM{
 		UseCaseBase: usecase,
 		service:     service,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.evConnected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

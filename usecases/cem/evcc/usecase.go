@@ -2,6 +2,7 @@ package evcc
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -89,6 +90,10 @@ func NewEVCC(
 	uc := &EVCC{
 		UseCaseBase: usecase,
 		service:     service,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.evConnected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

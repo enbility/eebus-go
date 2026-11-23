@@ -26,8 +26,6 @@ type LPC struct {
 	pendingDeviceConfigs   map[model.MsgCounterType]*spineapi.Message
 
 	heartbeatDiag *features.DeviceDiagnosis
-
-	heartbeatKeoWorkaround bool // required because KEO Stack uses multiple identical entities for the same functionality, and it is not clear which to use
 }
 
 var _ ucapi.CsLPCInterface = (*LPC)(nil)

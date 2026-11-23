@@ -21,6 +21,10 @@ func (e *OSCEV) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
+		return
+	}
+
 	switch payload.Data.(type) {
 	case *model.ElectricalConnectionPermittedValueSetListDataType:
 		e.evElectricalPermittedValuesUpdate(payload)

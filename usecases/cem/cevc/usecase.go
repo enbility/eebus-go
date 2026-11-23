@@ -2,6 +2,7 @@ package cevc
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
@@ -75,6 +76,10 @@ func NewCEVC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 
 	uc := &CEVC{
 		UseCaseBase: usecase,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.evConnected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

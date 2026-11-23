@@ -27,6 +27,14 @@ func (s *GcpMGCPSuite) Test_Events() {
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
 
+	// test scenario gate rejects data changes without scenarios
+	payload.EventType = spineapi.EventTypeDataChange
+	payload.ChangeType = spineapi.ElementChangeUpdate
+	payload.Data = &model.DeviceConfigurationKeyValueDescriptionListDataType{}
+	s.sut.HandleEvent(payload)
+
+	s.setUpUseCaseScenarios()
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.Data = util.Ptr(model.DeviceConfigurationKeyValueDescriptionListDataType{})
@@ -171,4 +179,37 @@ func (s *GcpMGCPSuite) Test_gridMeasurementDataUpdate() {
 
 	s.sut.gridMeasurementDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
+}
+
+func (s *GcpMGCPSuite) setUpUseCaseScenarios() {
+	address := &model.FeatureAddressType{
+		Device:  s.smgwEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeGridConnectionPoint,
+		model.UseCaseNameTypeMonitoringOfGridConnectionPoint,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3, 4, 5, 6, 7})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.smgwEntity,
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+	s.sut.UseCaseBase.HandleEvent(payload)
+}
+
+func (s *GcpMGCPSuite) Test_gridConnected() {
+	s.sut.gridConnected(s.smgwEntity)
 }

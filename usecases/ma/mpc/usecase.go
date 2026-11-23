@@ -2,6 +2,7 @@ package mpc
 
 import (
 	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	usecase "github.com/enbility/eebus-go/usecases/usecase"
@@ -91,6 +92,10 @@ func NewMPC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCa
 
 	uc := &MPC{
 		UseCaseBase: usecase,
+	}
+
+	uc.OnScenariosChanged = func(entity spineapi.EntityRemoteInterface, scenarios []uint) {
+		uc.deviceConnected(entity)
 	}
 
 	_ = localEntity.Device().Events().Subscribe(uc)

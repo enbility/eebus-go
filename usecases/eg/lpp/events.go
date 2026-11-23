@@ -15,11 +15,6 @@ func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 		return
 	}
 
-	if internal.IsEntityAdded(payload) {
-		e.connected(payload.Entity)
-		return
-	}
-
 	if internal.IsHeartbeat(payload) && e.EventCB != nil {
 		e.EventCB(payload.Ski, payload.Device, payload.Entity, DataUpdateHeartbeat)
 		return
@@ -27,6 +22,10 @@ func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 
 	if payload.EventType != spineapi.EventTypeDataChange ||
 		payload.ChangeType != spineapi.ElementChangeUpdate {
+		return
+	}
+
+	if !e.IsScenarioAvailableAtEntity(payload.Entity, 1) {
 		return
 	}
 

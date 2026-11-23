@@ -27,6 +27,14 @@ func (s *CemEVSOCSuite) Test_Events() {
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
 
+	// test scenario gate rejects data changes without scenarios
+	payload.EventType = spineapi.EventTypeDataChange
+	payload.ChangeType = spineapi.ElementChangeUpdate
+	payload.Data = &model.MeasurementListDataType{}
+	s.sut.HandleEvent(payload)
+
+	s.setUpUseCaseScenarios()
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.Data = util.Ptr(model.MeasurementListDataType{})
@@ -102,4 +110,37 @@ func (s *CemEVSOCSuite) Test_evMeasurementDataUpdate() {
 
 	s.sut.evMeasurementDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
+}
+
+func (s *CemEVSOCSuite) Test_evConnected() {
+	s.sut.evConnected(s.evEntity)
+}
+
+func (s *CemEVSOCSuite) setUpUseCaseScenarios() {
+	address := &model.FeatureAddressType{
+		Device:  s.evEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeEV,
+		model.UseCaseNameTypeEVStateOfCharge,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.evEntity,
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+	s.sut.UseCaseBase.HandleEvent(payload)
 }

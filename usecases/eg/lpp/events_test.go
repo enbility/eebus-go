@@ -27,6 +27,14 @@ func (s *EgLPPSuite) Test_Events() {
 	payload.ChangeType = spineapi.ElementChangeAdd
 	s.sut.HandleEvent(payload)
 
+	// test scenario gate rejects data changes without scenarios
+	payload.EventType = spineapi.EventTypeDataChange
+	payload.ChangeType = spineapi.ElementChangeUpdate
+	payload.Data = &model.LoadControlLimitListDataType{}
+	s.sut.HandleEvent(payload)
+
+	s.setUpUseCaseScenarios()
+
 	payload.EventType = spineapi.EventTypeDataChange
 	payload.ChangeType = spineapi.ElementChangeUpdate
 	payload.Data = util.Ptr(model.LoadControlLimitDescriptionListDataType{})
@@ -191,4 +199,37 @@ func (s *EgLPPSuite) Test_configurationDataUpdate() {
 
 	s.sut.configurationDataUpdate(payload)
 	assert.True(s.T(), s.eventCalled)
+}
+
+func (s *EgLPPSuite) setUpUseCaseScenarios() {
+	address := &model.FeatureAddressType{
+		Device:  s.monitoredEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		model.FeatureAddressType{},
+		model.UseCaseActorTypeControllableSystem,
+		model.UseCaseNameTypeLimitationOfPowerProduction,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3, 4})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.monitoredEntity,
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+	s.sut.UseCaseBase.HandleEvent(payload)
+}
+
+func (s *EgLPPSuite) Test_connected() {
+	s.sut.connected(s.monitoredEntity)
 }
