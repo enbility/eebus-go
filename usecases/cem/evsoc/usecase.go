@@ -62,8 +62,7 @@ func NewEVSOC(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEvent
 func (e *EVSOC) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
-		model.FeatureTypeTypeElectricalConnection,
-		model.FeatureTypeTypeMeasurement,
+		model.FeatureTypeTypeGeneric,
 	}
 	for _, feature := range clientFeatures {
 		if f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient); f == nil {

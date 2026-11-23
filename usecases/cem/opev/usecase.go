@@ -73,8 +73,7 @@ func NewOPEV(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 func (e *OPEV) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
-		model.FeatureTypeTypeLoadControl,
-		model.FeatureTypeTypeElectricalConnection,
+		model.FeatureTypeTypeGeneric,
 	}
 	for _, feature := range clientFeatures {
 		if f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient); f == nil {

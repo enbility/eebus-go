@@ -228,8 +228,8 @@ func (e *LPC) deviceConfigurationWriteCB(msg *spineapi.Message) {
 
 func (e *LPC) AddFeatures() error {
 	// client features
-	if f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeDeviceDiagnosis, model.RoleTypeClient); f == nil {
-		return errors.New("feature not found: DeviceDiagnosis")
+	if f := e.LocalEntity.GetOrAddFeature(model.FeatureTypeTypeGeneric, model.RoleTypeClient); f == nil {
+		return errors.New("feature not found: Generic")
 	}
 
 	// server features
