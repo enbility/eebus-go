@@ -109,7 +109,8 @@ func (l *LoadControl) WriteLimitData(
 	if filters != nil {
 		cmd.Filter = filters
 		cmd.Function = util.Ptr(model.FunctionTypeLoadControlLimitListData)
+		return l.remoteDevice.Sender().Write(l.featureLocal.Address(), l.featureRemote.Address(), cmd)
 	}
 
-	return l.remoteDevice.Sender().Write(l.featureLocal.Address(), l.featureRemote.Address(), cmd)
+	return l.writeFullList(model.FunctionTypeLoadControlLimitListData, cmd.LoadControlLimitListData, cmd)
 }

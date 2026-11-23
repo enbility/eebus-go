@@ -1,12 +1,13 @@
 package vapd
 
 import (
+	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	"github.com/enbility/eebus-go/usecases/usecase"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
-	"github.com/enbility/spine-go/spine"
 )
 
 type VAPD struct {
@@ -63,6 +64,7 @@ func NewVAPD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		UseCaseSupportUpdate,
 		validActorTypes,
 		validEntityTypes,
+		false,
 	)
 
 	uc := &VAPD{
@@ -73,12 +75,12 @@ func NewVAPD(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventC
 		uc.inverterConnected(entity)
 	}
 
-	_ = spine.Events.Subscribe(uc)
+	_ = localEntity.Device().Events().Subscribe(uc)
 
 	return uc
 }
 
-func (e *VAPD) AddFeatures() {
+func (e *VAPD) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeDeviceConfiguration,
@@ -86,6 +88,10 @@ func (e *VAPD) AddFeatures() {
 		model.FeatureTypeTypeMeasurement,
 	}
 	for _, feature := range clientFeatures {
-		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
+		if f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient); f == nil {
+			return errors.New("could not add feature: " + string(feature))
+		}
 	}
+
+	return nil
 }

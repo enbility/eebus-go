@@ -3,6 +3,7 @@ package evcc
 import (
 	"fmt"
 
+	shipapi "github.com/enbility/ship-go/api"
 	"github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 )
@@ -52,6 +53,7 @@ func (e *EVCC) handleResultDeviceDiagnosis(responseMsg api.ResponseMessage) {
 		if result.Description != nil {
 			errorText = fmt.Sprintf("%s - %s", errorText, string(*result.Description))
 		}
-		e.service.DisconnectSKI(responseMsg.DeviceRemote.Ski(), errorText)
+		identity := shipapi.NewServiceIdentity(responseMsg.DeviceRemote.Ski(), "", "")
+		e.service.DisconnectService(identity, errorText)
 	}
 }

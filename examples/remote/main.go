@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"flag"
+	"github.com/enbility/eebus-go/usecases/cem/ohpcf"
 	"log"
 	"net"
 	"os"
@@ -86,7 +87,7 @@ func main() {
 			model.EntityTypeTypeGridGuard,
 			model.EntityTypeTypeCEM,
 		},
-		23292, certificate, time.Second*4)
+		23292, certificate, time.Second*4, nil, nil)
 	if *iface != "" {
 		configuration.SetInterfaces([]string{*iface})
 		log.Printf("waiting until %v is up", iface)
@@ -134,6 +135,13 @@ func main() {
 
 	err = r.RegisterUseCase(model.EntityTypeTypeCEM, "CEM-EVSECC", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
 		return evsecc.NewEVSECC(localEntity, eventCB)
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = r.RegisterUseCase(model.EntityTypeTypeCEM, "CEM-OHPCF", func(localEntity spineapi.EntityLocalInterface, eventCB api.EntityEventCallback) api.UseCaseInterface {
+		return ohpcf.NewOHPCF(localEntity, eventCB)
 	})
 	if err != nil {
 		log.Fatal(err)

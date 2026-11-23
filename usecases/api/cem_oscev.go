@@ -48,7 +48,7 @@ type CemOSCEVInterface interface {
 	WriteLoadControlLimits(
 		entity spineapi.EntityRemoteInterface,
 		limits []LoadLimitsPhase,
-		resultCB func(result model.ResultDataType),
+		resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
 	) (*model.MsgCounterType, error)
 
 	// Scenario 2

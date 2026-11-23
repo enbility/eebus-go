@@ -77,17 +77,21 @@ func (s *Service) Setup() error {
 		return err
 	}
 
+	fingerprint, err := cert.FingerprintFromCertificate(leaf)
+	if err != nil {
+		return err
+	}
+
 	// Initialize the local service
 	// The ShipID is defined in SHIP Spec 3. as
 	//   Each SHIP node has a globally unique SHIP ID. The SHIP ID is used to uniquely identify a SHIP node,
 	//   e.g. in its service discovery. This ID is present in the mDNS/DNS-SD local service discovery;
 	// In SHIP 13.4.6.2 the accessMethods.id is defined as
 	//   The originator's unique ID
-	// I assume those two to mean the same.
-	// TODO: clarify
-	s.localService = shipapi.NewServiceDetails(ski)
-	s.localService.SetShipID(sd.Identifier())
-	s.localService.SetDeviceType(string(sd.DeviceType()))
+	s.localService, err = shipapi.NewServiceDetails(ski, fingerprint, sd.Identifier())
+	if err != nil {
+		return err
+	}
 
 	logging.Log().Info("Local SKI:", ski)
 
@@ -148,24 +152,32 @@ func (s *Service) Setup() error {
 	)
 
 	// Setup connections hub with mDNS and websocket connection handling
-	s.connectionsHub = hub.NewHub(s, s.mdns, s.configuration.Port(), s.configuration.Certificate(), s.localService)
+	s.connectionsHub, err = hub.NewHub(s, s.mdns, s.configuration.Port(), s.configuration.Certificate(), s.localService, sd.PairingConfig(), sd.RingBufferPersistence())
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // Starts the service
-func (s *Service) Start() {
+//
+// Returns error with description of the error that cannot be recovered from
+func (s *Service) Start() error {
 	s.muxRunning.Lock()
 	defer s.muxRunning.Unlock()
 
 	// make sure we do not start twice while the service is already running
 	if s.isRunning {
-		return
+		return nil
 	}
 
-	s.connectionsHub.Start()
+	if err := s.connectionsHub.Start(); err != nil {
+		return err
+	}
 
 	s.isRunning = true
+	return nil
 }
 
 // Shutdown all services and stop the server.
@@ -193,11 +205,22 @@ func (s *Service) IsRunning() bool {
 }
 
 // add a use case to the service
-func (s *Service) AddUseCase(useCase api.UseCaseInterface) {
+//
+// returns an error when adding features to the entity fails
+//
+// errors should not occur during normal usage of eebus-go, and should
+// generally be considered fatal implementation errors
+//
+// see usecase.AddFeatures() for more information
+func (s *Service) AddUseCase(useCase api.UseCaseInterface) error {
 	s.usecases = append(s.usecases, useCase)
 
-	useCase.AddFeatures()
+	if err := useCase.AddFeatures(); err != nil {
+		return err
+	}
 	useCase.AddUseCase()
+
+	return nil
 }
 
 func (s *Service) Configuration() *api.Configuration {
@@ -221,14 +244,13 @@ func (s *Service) SetLogging(logger logging.LoggingInterface) {
 	logging.SetLogging(logger)
 }
 
-// Get the current pairing details for a given SKI
-func (s *Service) PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail {
-	return s.connectionsHub.PairingDetailForSki(ski)
+// Get the current pairing details for a given ServiceIdentity
+func (s *Service) PairingDetailFor(identity shipapi.ServiceIdentity) *shipapi.ConnectionStateDetail {
+	return s.connectionsHub.PairingDetailFor(identity)
 }
 
-// Returns the Service detail of a given remote SKI
-func (s *Service) RemoteServiceForSKI(ski string) *shipapi.ServiceDetails {
-	return s.connectionsHub.ServiceForSKI(ski)
+func (s *Service) RemoteServiceFor(identity shipapi.ServiceIdentity) *shipapi.ServiceDetails {
+	return s.connectionsHub.ServiceFor(identity)
 }
 
 func (s *Service) SetAutoAccept(value bool) {
@@ -240,32 +262,34 @@ func (s *Service) IsAutoAcceptEnabled() bool {
 	return s.localService.AutoAccept()
 }
 
-// Returns the QR code text for the service
-// as defined in SHIP Requirements for Installation Process V1.0.0
-func (s *Service) QRCodeText() string {
-	return s.mdns.QRCodeText()
+// Generate a QR code string.
+// Must be called after Setup().
+func (s *Service) QRCodeText() (string, error) {
+	if s.connectionsHub == nil {
+		return "", errors.New("service not set up, call Setup() first")
+	}
+
+	return s.connectionsHub.GeneratePairingQR()
 }
 
-// Sets the SKI as being paired
-// and connect it if paired and not currently being connected
-func (s *Service) RegisterRemoteSKI(ski, shipID string) {
-	s.connectionsHub.RegisterRemoteSKI(ski, shipID)
+// Pair a remote service using ServiceIdentity
+func (s *Service) RegisterRemoteService(identity shipapi.ServiceIdentity) {
+	s.connectionsHub.RegisterRemoteService(identity)
 }
 
-// Sets the SKI as not being paired
-// and disconnects it if connected
-func (s *Service) UnregisterRemoteSKI(ski string) {
-	s.connectionsHub.UnregisterRemoteSKI(ski)
+// Unpair a remote service using ServiceIdentity
+func (s *Service) UnregisterRemoteService(identity shipapi.ServiceIdentity) {
+	s.connectionsHub.UnregisterRemoteService(identity)
 }
 
-// Close a connection to a remote SKI
-func (s *Service) DisconnectSKI(ski string, reason string) {
-	s.connectionsHub.DisconnectSKI(ski, reason)
+// Disconnect a connection using ServiceIdentity
+func (s *Service) DisconnectService(identity shipapi.ServiceIdentity, reason string) {
+	s.connectionsHub.DisconnectService(identity, reason)
 }
 
-// Cancels the pairing process for a SKI
-func (s *Service) CancelPairingWithSKI(ski string) {
-	s.connectionsHub.CancelPairingWithSKI(ski)
+// Cancels the pairing process for a ServiceIdentity
+func (s *Service) CancelPairing(identity shipapi.ServiceIdentity) {
+	s.connectionsHub.CancelPairing(identity)
 }
 
 // Define wether the user is able to react to an incoming pairing request
@@ -280,4 +304,39 @@ func (s *Service) UserIsAbleToApproveOrCancelPairingRequests(allow bool) {
 	defer s.mux.Unlock()
 
 	s.isPairingPossible = allow
+}
+
+// Calculate SHA-256 fingerprint of local certificate
+func (s *Service) GetLocalCertificateFingerprint() (string, error) {
+	return s.connectionsHub.GetLocalCertificateFingerprint()
+}
+
+// Start announcing pairing to a specific target device
+// Used by devZ only.
+func (s *Service) StartAnnouncementTo(target shipapi.PairingTarget) error {
+	return s.connectionsHub.StartAnnouncementTo(target)
+}
+
+// Stop announcing pairing to a specific target device
+// Used by devZ only.
+func (s *Service) StopAnnouncementTo(shipID string) error {
+	return s.connectionsHub.StopAnnouncementTo(shipID)
+}
+
+// Return true if currently announcing to a specific target device
+// Used by devZ only.
+func (s *Service) IsAnnouncingTo(shipID string) bool {
+	return s.connectionsHub.IsAnnouncingTo(shipID)
+}
+
+// SHIP Pairing: Get Active Announcements.
+// Used by devZ only.
+func (s *Service) GetActiveAnnouncements() []string {
+	return s.connectionsHub.GetActiveAnnouncements()
+}
+
+// SHIP Pairing: Get the SHIP ID and Fingerprint of controlbox paired via SHIP Pairing
+// Used by devA only.
+func (s *Service) GetTrustedAddCuDevice() *shipapi.ServiceDetails {
+	return s.connectionsHub.GetTrustedAddCuDevice()
 }

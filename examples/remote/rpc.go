@@ -17,16 +17,16 @@ type Remote struct {
 	rpc     *jsonrpc2.Server
 	service *service.Service
 
-	connections    []*jsonrpc2.Connection
-	remoteServices []shipapi.RemoteService
+	connections        []*jsonrpc2.Connection
+	remoteMdnsServices []shipapi.RemoteMdnsService
 
 	rpcServices map[string]rpcServiceFunc
 }
 
 func NewRemote(configuration *api.Configuration) (*Remote, error) {
 	r := Remote{
-		connections:    []*jsonrpc2.Connection{},
-		remoteServices: []shipapi.RemoteService{},
+		connections:        []*jsonrpc2.Connection{},
+		remoteMdnsServices: []shipapi.RemoteMdnsService{},
 
 		rpcServices: make(map[string]rpcServiceFunc),
 	}
@@ -76,8 +76,8 @@ func (r *Remote) registerDynamicReceiverProxy(name string) error {
 	return nil
 }
 
-func (r Remote) RemoteServices() []shipapi.RemoteService {
-	return r.remoteServices
+func (r Remote) RemoteMdnsServices() []shipapi.RemoteMdnsService {
+	return r.remoteMdnsServices
 }
 
 func (r Remote) ConnectedDevices() []string {
@@ -164,15 +164,15 @@ func (r *Remote) handleRPC(ctx context.Context, req *jsonrpc2.Request) (interfac
 }
 
 // Implement api.ServiceReaderInterface
-func (r Remote) RemoteSKIConnected(service api.ServiceInterface, ski string) {
-	// necessary because RemoteSKIConnected is called before remote device actually exists
+func (r Remote) RemoteServiceConnected(service api.ServiceInterface, identity shipapi.ServiceIdentity) {
+	// necessary because RemoteServiceConnected is called before remote device actually exists
 	go func() {
 		params := make(map[string]interface{}, 1)
-		params["ski"] = ski
+		params["identity"] = identity
 
 		for {
 			// wait until RemoteDevice available for SKI
-			device := service.LocalDevice().RemoteDeviceForSki(ski)
+			device := service.LocalDevice().RemoteDeviceForSki(identity.SKI)
 			if device != nil && device.Address() != nil {
 				params["device"] = *device.Address()
 				break
@@ -181,38 +181,63 @@ func (r Remote) RemoteSKIConnected(service api.ServiceInterface, ski string) {
 		}
 
 		for _, conn := range r.connections {
-			_ = conn.Notify(context.Background(), "remote/RemoteSKIConnected", params)
+			_ = conn.Notify(context.Background(), "remote/RemoteServiceConnected", params)
 		}
 	}()
 }
 
-func (r Remote) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {
+func (r Remote) RemoteServiceDisconnected(service api.ServiceInterface, identity shipapi.ServiceIdentity) {
 	params := make(map[string]interface{}, 1)
-	params["ski"] = ski
+	params["identity"] = identity
 	for _, conn := range r.connections {
-		_ = conn.Notify(context.Background(), "remote/RemoteSKIDisconnected", params)
+		_ = conn.Notify(context.Background(), "remote/RemoteServiceDisconnected", params)
 	}
 }
 
-func (r *Remote) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteService) {
-	r.remoteServices = entries
+func (r *Remote) VisibleRemoteMdnsServicesUpdated(service api.ServiceInterface, entries []shipapi.RemoteMdnsService) {
+	r.remoteMdnsServices = entries
 
 	for _, conn := range r.connections {
-		_ = conn.Notify(context.Background(), "remote/VisibleRemoteServicesUpdated", entries)
+		_ = conn.Notify(context.Background(), "remote/VisibleRemoteMdnsServicesUpdated", entries)
 	}
 }
 
-func (r Remote) ServiceShipIDUpdate(ski string, shipID string) {
-	params := make(map[string]interface{}, 2)
-	params["ski"] = ski
-	params["shipID"] = shipID
+func (r Remote) ServiceUpdated(identity shipapi.ServiceIdentity) {
+	params := make(map[string]interface{}, 1)
+	params["identity"] = identity
 
 	for _, conn := range r.connections {
-		_ = conn.Notify(context.Background(), "remote/ServiceShipIDUpdate", params)
+		_ = conn.Notify(context.Background(), "remote/ServiceUpdated", params)
 	}
 }
 
-func (r Remote) ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail) {
+func (r Remote) ServicePairingDetailUpdate(identity shipapi.ServiceIdentity, detail *shipapi.ConnectionStateDetail) {
+}
+
+func (r Remote) ServiceAutoTrustFailed(service api.ServiceInterface, identity shipapi.ServiceIdentity, reason error) {
+	params := make(map[string]interface{}, 1)
+	params["identity"] = identity
+	params["reason"] = reason.Error()
+	for _, conn := range r.connections {
+		_ = conn.Notify(context.Background(), "remote/ServiceAutoTrustFailed", params)
+	}
+}
+
+func (r Remote) ServiceAutoTrustRemoved(service api.ServiceInterface, identity shipapi.ServiceIdentity, reason string) {
+	params := make(map[string]interface{}, 1)
+	params["identity"] = identity
+	params["reason"] = reason
+	for _, conn := range r.connections {
+		_ = conn.Notify(context.Background(), "remote/ServiceAutoTrustRemoved", params)
+	}
+}
+
+func (r Remote) ServiceAutoTrusted(service api.ServiceInterface, identity shipapi.ServiceIdentity) {
+	params := make(map[string]interface{}, 1)
+	params["identity"] = identity
+	for _, conn := range r.connections {
+		_ = conn.Notify(context.Background(), "remote/ServiceAutoTrusted", params)
+	}
 }
 
 // Logging interface

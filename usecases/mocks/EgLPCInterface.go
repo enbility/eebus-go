@@ -42,9 +42,20 @@ func (_m *EgLPCInterface) EXPECT() *EgLPCInterface_Expecter {
 }
 
 // AddFeatures provides a mock function for the type EgLPCInterface
-func (_mock *EgLPCInterface) AddFeatures() {
-	_mock.Called()
-	return
+func (_mock *EgLPCInterface) AddFeatures() error {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddFeatures")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func() error); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // EgLPCInterface_AddFeatures_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddFeatures'
@@ -64,13 +75,13 @@ func (_c *EgLPCInterface_AddFeatures_Call) Run(run func()) *EgLPCInterface_AddFe
 	return _c
 }
 
-func (_c *EgLPCInterface_AddFeatures_Call) Return() *EgLPCInterface_AddFeatures_Call {
-	_c.Call.Return()
+func (_c *EgLPCInterface_AddFeatures_Call) Return(err error) *EgLPCInterface_AddFeatures_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *EgLPCInterface_AddFeatures_Call) RunAndReturn(run func()) *EgLPCInterface_AddFeatures_Call {
-	_c.Run(run)
+func (_c *EgLPCInterface_AddFeatures_Call) RunAndReturn(run func() error) *EgLPCInterface_AddFeatures_Call {
+	_c.Call.Return(run)
 	return _c
 }
 
@@ -745,7 +756,7 @@ func (_c *EgLPCInterface_UpdateUseCaseAvailability_Call) RunAndReturn(run func(a
 }
 
 // WriteConsumptionLimit provides a mock function for the type EgLPCInterface
-func (_mock *EgLPCInterface) WriteConsumptionLimit(entity api.EntityRemoteInterface, limit api0.LoadLimit, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error) {
+func (_mock *EgLPCInterface) WriteConsumptionLimit(entity api.EntityRemoteInterface, limit api0.LoadLimit, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
 	ret := _mock.Called(entity, limit, resultCB)
 
 	if len(ret) == 0 {
@@ -754,17 +765,17 @@ func (_mock *EgLPCInterface) WriteConsumptionLimit(entity api.EntityRemoteInterf
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.LoadLimit, func(result model.ResultDataType)) (*model.MsgCounterType, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.LoadLimit, func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)); ok {
 		return returnFunc(entity, limit, resultCB)
 	}
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.LoadLimit, func(result model.ResultDataType)) *model.MsgCounterType); ok {
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, api0.LoadLimit, func(result model.ResultDataType, msgCounter model.MsgCounterType)) *model.MsgCounterType); ok {
 		r0 = returnFunc(entity, limit, resultCB)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, api0.LoadLimit, func(result model.ResultDataType)) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, api0.LoadLimit, func(result model.ResultDataType, msgCounter model.MsgCounterType)) error); ok {
 		r1 = returnFunc(entity, limit, resultCB)
 	} else {
 		r1 = ret.Error(1)
@@ -780,12 +791,12 @@ type EgLPCInterface_WriteConsumptionLimit_Call struct {
 // WriteConsumptionLimit is a helper method to define mock.On call
 //   - entity api.EntityRemoteInterface
 //   - limit api0.LoadLimit
-//   - resultCB func(result model.ResultDataType)
+//   - resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)
 func (_e *EgLPCInterface_Expecter) WriteConsumptionLimit(entity interface{}, limit interface{}, resultCB interface{}) *EgLPCInterface_WriteConsumptionLimit_Call {
 	return &EgLPCInterface_WriteConsumptionLimit_Call{Call: _e.mock.On("WriteConsumptionLimit", entity, limit, resultCB)}
 }
 
-func (_c *EgLPCInterface_WriteConsumptionLimit_Call) Run(run func(entity api.EntityRemoteInterface, limit api0.LoadLimit, resultCB func(result model.ResultDataType))) *EgLPCInterface_WriteConsumptionLimit_Call {
+func (_c *EgLPCInterface_WriteConsumptionLimit_Call) Run(run func(entity api.EntityRemoteInterface, limit api0.LoadLimit, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType))) *EgLPCInterface_WriteConsumptionLimit_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.EntityRemoteInterface
 		if args[0] != nil {
@@ -795,9 +806,9 @@ func (_c *EgLPCInterface_WriteConsumptionLimit_Call) Run(run func(entity api.Ent
 		if args[1] != nil {
 			arg1 = args[1].(api0.LoadLimit)
 		}
-		var arg2 func(result model.ResultDataType)
+		var arg2 func(result model.ResultDataType, msgCounter model.MsgCounterType)
 		if args[2] != nil {
-			arg2 = args[2].(func(result model.ResultDataType))
+			arg2 = args[2].(func(result model.ResultDataType, msgCounter model.MsgCounterType))
 		}
 		run(
 			arg0,
@@ -813,7 +824,7 @@ func (_c *EgLPCInterface_WriteConsumptionLimit_Call) Return(msgCounterType *mode
 	return _c
 }
 
-func (_c *EgLPCInterface_WriteConsumptionLimit_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, limit api0.LoadLimit, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error)) *EgLPCInterface_WriteConsumptionLimit_Call {
+func (_c *EgLPCInterface_WriteConsumptionLimit_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, limit api0.LoadLimit, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)) *EgLPCInterface_WriteConsumptionLimit_Call {
 	_c.Call.Return(run)
 	return _c
 }

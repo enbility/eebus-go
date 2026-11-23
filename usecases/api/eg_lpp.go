@@ -37,7 +37,7 @@ type EgLPPInterface interface {
 	WriteProductionLimit(
 		entity spineapi.EntityRemoteInterface,
 		limit LoadLimit,
-		resultCB func(result model.ResultDataType),
+		resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
 	) (*model.MsgCounterType, error)
 
 	// Scenario 2
@@ -65,8 +65,6 @@ type EgLPPInterface interface {
 	// parameters:
 	//   - entity: the entity of the e.g. EVSE
 	//
-	// return values:
-	//   - negative values are used for production
 	FailsafeDurationMinimum(entity spineapi.EntityRemoteInterface) (time.Duration, error)
 
 	// send new Failsafe Duration Minimum

@@ -51,7 +51,7 @@ func (e *LPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 		ScopeType:      util.Ptr(model.ScopeTypeTypeActivePowerLimit),
 	}
 	limitDescriptions, err := loadControl.GetLimitDescriptionsForFilter(filter)
-	if err != nil || len(limitDescriptions) != 1 {
+	if err != nil || len(limitDescriptions) != 1 || limitDescriptions[0].LimitId == nil {
 		return
 	}
 
@@ -83,7 +83,7 @@ func (e *LPC) ConsumptionLimit(entity spineapi.EntityRemoteInterface) (
 func (e *LPC) WriteConsumptionLimit(
 	entity spineapi.EntityRemoteInterface,
 	limit ucapi.LoadLimit,
-	resultCB func(result model.ResultDataType),
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
 ) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
@@ -147,7 +147,7 @@ func (e *LPC) WriteFailsafeConsumptionActivePowerLimit(entity spineapi.EntityRem
 		KeyName: &keyname,
 	}
 	data, err := deviceConfiguration.GetKeyValueDescriptionsForFilter(filter)
-	if err != nil || data == nil || len(data) != 1 {
+	if err != nil || len(data) != 1 {
 		return nil, api.ErrDataNotAvailable
 	}
 

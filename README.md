@@ -43,7 +43,7 @@ This includes example code for sending an LPC limit 5 seconds after connecting t
 #### First Run
 
 ```sh
-go run examples/controlbox/main.go 4713
+go run examples/controlbox/main.go -port 4713
 ```
 
 `4713` is the example server port that this process should listen on
@@ -53,12 +53,13 @@ The certificate and key and the local SKI will be generated and printed. You sho
 #### General Usage
 
 ```sh
-Usage: go run examples/controlbox/main.go <serverport> <remoteski> <certfile> <keyfile>
+Usage: go run examples/controlbox/main.go -port <serverport> [-certpath <certfile>] [-keypath <keyfile>] [-remoteski <remoteski>] [-target <pairing target>] [-target <pairing target>...]
 ```
 
 - `remoteski` is the SKI of the remote device or service you want to connect to
 - `certfile` is a local file containing the generated certificate in the first usage run
 - `keyfile` is a local file containing the generated key in the first usage run
+- `pairing target` can be a SHIP QR Code or in this format: `SKI=...,Fingerprint=...,ShipID=...,Secret=hex`
 
 ### HEMS
 
@@ -67,7 +68,7 @@ This includes example code for accepting LPC and LPP limits from a control box, 
 #### First Run
 
 ```sh
-go run examples/hems/main.go 4714
+go run examples/hems/main.go -port 4714
 ```
 
 `4714` is the example server port that this process should listen on
@@ -77,12 +78,13 @@ The certificate and key and the local SKI will be generated and printed. You sho
 #### General Usage
 
 ```sh
-Usage: go run examples/hems/main.go <serverport> <remoteski> <certfile> <keyfile>
+Usage: go run examples/hems/main.go -port <serverport> [-certpath <certfile>] [-keypath <keyfile>] [-remoteski <remoteski>] [-secret <secret>]
 ```
 
 - `remoteski` is the SKI of the remote device or service you want to connect to
 - `certfile` is a local file containing the generated certificate in the first usage run
 - `keyfile` is a local file containing the generated key in the first usage run
+- `secret` is a hexadecimal secret key as specified by SHIP Pairing Service Specificiation
 
 ### EVSE
 
@@ -91,7 +93,7 @@ This includes example code for accepting LPC from a control box.
 #### First Run
 
 ```sh
-go run examples/hems/main.go 4715
+go run examples/hems/main.go -port 4715
 ```
 
 `4715` is the example server port that this process should listen on
@@ -101,12 +103,13 @@ The certificate and key and the local SKI will be generated and printed. You sho
 #### General Usage
 
 ```sh
-Usage: go run examples/evse/main.go <serverport> <remoteski> <certfile> <keyfile>
+Usage: go run examples/evse/main.go -port <serverport> [-certpath <certfile>] [-keypath <keyfile>] [-remoteski <remoteski>] [-secret <secret>]
 ```
 
 - `remoteski` is the SKI of the remote device or service you want to connect to
 - `certfile` is a local file containing the generated certificate in the first usage run
 - `keyfile` is a local file containing the generated key in the first usage run
+- `secret` is a hexadecimal secret key as specified by SHIP Pairing Service Specificiation
 
 ### Explanation
 

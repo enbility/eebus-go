@@ -1,12 +1,13 @@
 package evcem
 
 import (
+	"errors"
+
 	"github.com/enbility/eebus-go/api"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	usecase "github.com/enbility/eebus-go/usecases/usecase"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
-	"github.com/enbility/spine-go/spine"
 )
 
 type EVCEM struct {
@@ -69,7 +70,9 @@ func NewEVCEM(
 		eventCB,
 		UseCaseSupportUpdate,
 		validActorTypes,
-		validEntityTypes)
+		validEntityTypes,
+		false,
+	)
 
 	uc := &EVCEM{
 		UseCaseBase: usecase,
@@ -80,18 +83,22 @@ func NewEVCEM(
 		uc.evConnected(entity)
 	}
 
-	_ = spine.Events.Subscribe(uc)
+	_ = localEntity.Device().Events().Subscribe(uc)
 
 	return uc
 }
 
-func (e *EVCEM) AddFeatures() {
+func (e *EVCEM) AddFeatures() error {
 	// client features
 	var clientFeatures = []model.FeatureTypeType{
 		model.FeatureTypeTypeElectricalConnection,
 		model.FeatureTypeTypeMeasurement,
 	}
 	for _, feature := range clientFeatures {
-		_ = e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient)
+		if f := e.LocalEntity.GetOrAddFeature(feature, model.RoleTypeClient); f == nil {
+			return errors.New("failed to add feature: " + string(feature))
+		}
 	}
+
+	return nil
 }

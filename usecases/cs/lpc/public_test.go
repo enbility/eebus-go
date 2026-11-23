@@ -170,3 +170,46 @@ func (s *CsLPCSuite) Test_ConsumptionNominalMax() {
 	assert.Equal(s.T(), 10.0, value)
 	assert.Nil(s.T(), err)
 }
+
+func (s *CsLPCSuite) Test_PendingDeviceConfigurations() {
+	data := s.sut.PendingDeviceConfigurations()
+	assert.Equal(s.T(), 0, len(data))
+
+	msgCounter := model.MsgCounterType(500)
+
+	msg := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(msgCounter),
+		},
+		Cmd: model.CmdType{
+			DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{
+				DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
+					{
+						KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+						Value: &model.DeviceConfigurationKeyValueValueType{
+							ScaledNumber: model.NewScaledNumberType(1000),
+						},
+						IsValueChangeable: util.Ptr(true),
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+
+	s.sut.deviceConfigurationWriteCB(msg)
+
+	data = s.sut.PendingDeviceConfigurations()
+	assert.Equal(s.T(), 1, len(data))
+
+	s.sut.ApproveOrDenyDeviceConfiguration(model.MsgCounterType(499), true, "")
+
+	data = s.sut.PendingDeviceConfigurations()
+	assert.Equal(s.T(), 1, len(data))
+
+	s.sut.ApproveOrDenyDeviceConfiguration(msgCounter, false, "leave me alone")
+
+	data = s.sut.PendingDeviceConfigurations()
+	assert.Equal(s.T(), 0, len(data))
+}

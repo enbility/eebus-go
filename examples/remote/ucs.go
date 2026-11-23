@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/enbility/eebus-go/api"
 	spineapi "github.com/enbility/spine-go/api"
@@ -31,7 +32,10 @@ func (r *Remote) RegisterUseCase(entityType model.EntityTypeType, usecaseId stri
 	) {
 		r.PropagateEvent(identifier, ski, device, entity, event)
 	})
-	r.service.AddUseCase(uc)
+	err := r.service.AddUseCase(uc)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return r.registerStaticReceiverProxy(usecaseId, uc)
 }

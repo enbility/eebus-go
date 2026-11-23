@@ -23,6 +23,10 @@ func (s *UseCaseSuite) Test() {
 	result = s.uc.IsCompatibleEntityType(payload.Entity)
 	assert.True(s.T(), result)
 
+	s.uc.allEntityTypesValid = true
+	result = s.uc.IsCompatibleEntityType(payload.Entity)
+	assert.True(s.T(), result)
+
 	usecaseFilter := model.UseCaseFilterType{
 		Actor:       useCaseActor,
 		UseCaseName: useCaseName,

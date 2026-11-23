@@ -102,7 +102,7 @@ func (e *OSCEV) LoadControlLimits(entity spineapi.EntityRemoteInterface) (
 func (e *OSCEV) WriteLoadControlLimits(
 	entity spineapi.EntityRemoteInterface,
 	limits []ucapi.LoadLimitsPhase,
-	resultCB func(result model.ResultDataType),
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
 ) (*model.MsgCounterType, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity

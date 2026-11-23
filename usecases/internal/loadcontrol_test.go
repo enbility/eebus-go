@@ -846,10 +846,12 @@ func (s *InternalSuite) Test_WriteLoadControlLimit() {
 
 	s.mux.Lock()
 	cbInvoked := false
+	cbMsgCounter := model.MsgCounterType(1_000_000)
 	s.mux.Unlock()
-	cb := func(result model.ResultDataType) {
+	cb := func(result model.ResultDataType, msgCounter model.MsgCounterType) {
 		s.mux.Lock()
 		cbInvoked = true
+		cbMsgCounter = msgCounter
 		s.mux.Unlock()
 	}
 	msgCounter, err = WriteLoadControlLimit(s.localEntity, s.monitoredEntity, filter, loadLimit, cb)
@@ -876,6 +878,7 @@ func (s *InternalSuite) Test_WriteLoadControlLimit() {
 	time.Sleep(time.Millisecond * 200)
 	s.mux.Lock()
 	assert.True(s.T(), cbInvoked)
+	assert.Equal(s.T(), *msgCounter, cbMsgCounter)
 	s.mux.Unlock()
 
 	loadLimit = ucapi.LoadLimit{
@@ -1125,10 +1128,12 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 
 				s.mux.Lock()
 				cbInvoked := false
+				cbMsgCounter := model.MsgCounterType(1_000_000)
 				s.mux.Unlock()
-				cb := func(result model.ResultDataType) {
+				cb := func(result model.ResultDataType, msgCounter model.MsgCounterType) {
 					s.mux.Lock()
 					cbInvoked = true
+					cbMsgCounter = msgCounter
 					s.mux.Unlock()
 				}
 				msgCounter, err = WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, phaseLimitValues, cb)
@@ -1159,8 +1164,171 @@ func (s *InternalSuite) Test_WriteLoadControlLimits() {
 				time.Sleep(time.Millisecond * 200)
 				s.mux.Lock()
 				assert.True(s.T(), cbInvoked)
+				assert.Equal(s.T(), *msgCounter, cbMsgCounter)
 				s.mux.Unlock()
 			}
 		})
 	}
+}
+
+// Regression for https://github.com/enbility/eebus-go/issues/217 — a remote may
+// expose more than one ElectricalConnectionParameterDescription per phase (e.g.
+// voltage and current). The resolver must pick the description whose
+// MeasurementId is referenced by a LoadControlLimitDescription rather than
+// blindly using the first entry.
+func (s *InternalSuite) Test_LoadControl_MultipleParameterDescriptionsPerPhase() {
+	filter := model.LoadControlLimitDescriptionDataType{
+		LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+		LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+		ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
+	}
+
+	// Limit descriptions reference only current measurements (ids 0/1/2).
+	descData := &model.LoadControlLimitDescriptionListDataType{
+		LoadControlLimitDescriptionData: []model.LoadControlLimitDescriptionDataType{
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
+				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				MeasurementId: util.Ptr(model.MeasurementIdType(0)),
+				LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
+			},
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(1)),
+				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				MeasurementId: util.Ptr(model.MeasurementIdType(1)),
+				LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
+			},
+			{
+				LimitId:       util.Ptr(model.LoadControlLimitIdType(2)),
+				LimitCategory: util.Ptr(model.LoadControlCategoryTypeObligation),
+				MeasurementId: util.Ptr(model.MeasurementIdType(2)),
+				LimitType:     util.Ptr(model.LoadControlLimitTypeTypeMaxValueLimit),
+				ScopeType:     util.Ptr(model.ScopeTypeTypeSelfConsumption),
+			},
+		},
+	}
+	rLcFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	_, fErr := rLcFeature.UpdateData(true, model.FunctionTypeLoadControlLimitDescriptionListData, descData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// For each phase, a non-matching parameter description (voltage, ids 10/11/12)
+	// is listed BEFORE the current description (ids 0/1/2). With the legacy
+	// behavior, elParamDescs[0] is voltage and resolution fails.
+	paramData := &model.ElectricalConnectionParameterDescriptionListDataType{
+		ElectricalConnectionParameterDescriptionData: []model.ElectricalConnectionParameterDescriptionDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(10)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(10)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(0)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeA),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(11)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(11)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(1)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeB),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(12)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(12)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				MeasurementId:          util.Ptr(model.MeasurementIdType(2)),
+				AcMeasuredPhases:       util.Ptr(model.ElectricalConnectionPhaseNameTypeC),
+			},
+		},
+	}
+	rElFeature := s.remoteDevice.FeatureByEntityTypeAndRole(s.monitoredEntity, model.FeatureTypeTypeElectricalConnection, model.RoleTypeServer)
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionParameterDescriptionListData, paramData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	limitData := &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{
+				LimitId:           util.Ptr(model.LoadControlLimitIdType(0)),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(true),
+				Value:             model.NewScaledNumberType(11),
+			},
+			{
+				LimitId:           util.Ptr(model.LoadControlLimitIdType(1)),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(true),
+				Value:             model.NewScaledNumberType(12),
+			},
+			{
+				LimitId:           util.Ptr(model.LoadControlLimitIdType(2)),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(true),
+				Value:             model.NewScaledNumberType(13),
+			},
+		},
+	}
+	_, fErr = rLcFeature.UpdateData(true, model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	permData := &model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				PermittedValueSet: []model.ScaledNumberSetType{
+					{Range: []model.ScaledNumberRangeType{{Min: model.NewScaledNumberType(6), Max: model.NewScaledNumberType(16)}}},
+				},
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(1)),
+				PermittedValueSet: []model.ScaledNumberSetType{
+					{Range: []model.ScaledNumberRangeType{{Min: model.NewScaledNumberType(6), Max: model.NewScaledNumberType(16)}}},
+				},
+			},
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(2)),
+				PermittedValueSet: []model.ScaledNumberSetType{
+					{Range: []model.ScaledNumberRangeType{{Min: model.NewScaledNumberType(6), Max: model.NewScaledNumberType(16)}}},
+				},
+			},
+		},
+	}
+	_, fErr = rElFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, permData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	// Read path: the resolver must walk past voltage descriptions and return
+	// the current limit value for each phase.
+	data, err := LoadControlLimits(s.localEntity, s.monitoredEntity, filter)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 3, len(data))
+	assert.Equal(s.T(), 11.0, data[0].Value)
+	assert.Equal(s.T(), 12.0, data[1].Value)
+	assert.Equal(s.T(), 13.0, data[2].Value)
+
+	// Write path: must resolve to the current LimitId for each phase.
+	writeLimits := []ucapi.LoadLimitsPhase{
+		{Phase: model.ElectricalConnectionPhaseNameTypeA, IsActive: true, Value: 10},
+		{Phase: model.ElectricalConnectionPhaseNameTypeB, IsActive: true, Value: 10},
+		{Phase: model.ElectricalConnectionPhaseNameTypeC, IsActive: true, Value: 10},
+	}
+	msgCounter, err := WriteLoadControlPhaseLimits(s.localEntity, s.monitoredEntity, filter, writeLimits, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), msgCounter)
 }

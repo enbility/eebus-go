@@ -175,6 +175,56 @@ func (s *LoadControlSuite) Test_WriteLimitValues() {
 	assert.NotNil(s.T(), counter)
 }
 
+// a full write persists the merged list right away and restores it when rejected
+func (s *LoadControlSuite) Test_WriteLimitValues_Persist() {
+	rF := s.remoteEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+
+	_, fErr := rF.UpdateData(true, model.FunctionTypeLoadControlLimitListData, &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{LimitId: util.Ptr(model.LoadControlLimitIdType(1)), IsLimitActive: util.Ptr(false), Value: model.NewScaledNumberType(16)},
+			{LimitId: util.Ptr(model.LoadControlLimitIdType(2)), IsLimitActive: util.Ptr(true), Value: model.NewScaledNumberType(6)},
+		},
+	}, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	counter, err := s.loadControl.WriteLimitData([]model.LoadControlLimitDataType{
+		{LimitId: util.Ptr(model.LoadControlLimitIdType(1)), IsLimitActive: util.Ptr(true), Value: model.NewScaledNumberType(10)},
+	}, nil, nil)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), counter)
+
+	limits := func() []model.LoadControlLimitDataType {
+		return rF.DataCopy(model.FunctionTypeLoadControlLimitListData).(*model.LoadControlLimitListDataType).LoadControlLimitData
+	}
+
+	// the written limit is known before the remote notifies, the other one is kept
+	data := limits()
+	assert.Equal(s.T(), 2, len(data))
+	assert.True(s.T(), *data[0].IsLimitActive)
+	assert.Equal(s.T(), 10.0, data[0].Value.GetValue())
+	assert.Equal(s.T(), 6.0, data[1].Value.GetValue())
+
+	// a rejected write restores the previous state
+	lF := s.localEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeClient)
+	lF.HandleMessage(&spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter:          util.Ptr(model.MsgCounterType(100)),
+			MsgCounterReference: counter,
+		},
+		CmdClassifier: model.CmdClassifierTypeResult,
+		Cmd: model.CmdType{
+			ResultData: &model.ResultDataType{ErrorNumber: util.Ptr(model.ErrorNumberType(7))},
+		},
+		FeatureRemote: rF,
+		EntityRemote:  s.remoteEntity,
+		DeviceRemote:  s.remoteEntity.Device(),
+	})
+	assert.Eventually(s.T(), func() bool {
+		data := limits()
+		return !*data[0].IsLimitActive && data[0].Value.GetValue() == 16
+	}, time.Second, 10*time.Millisecond)
+}
+
 // test with partial support
 func (s *LoadControlSuite) Test_WriteLimitValues_Partial() {
 	counter, err := s.loadControlPartial.WriteLimitData(nil, nil, nil)

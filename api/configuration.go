@@ -93,6 +93,12 @@ type Configuration struct {
 
 	// Optional set which mDNS providers should be used
 	mdnsProviderSelection mdns.MdnsProviderSelection
+
+	// SHIP pairing configuration (optional, set before Setup)
+	pairingConfig *shipapi.PairingConfig
+
+	// Ring buffer persistence for SHIP pairing replay protection (optional, set before Setup)
+	ringBufferPersistence shipapi.RingBufferPersistence
 }
 
 // Setup a Configuration with the required parameters
@@ -108,7 +114,8 @@ type Configuration struct {
 //   - port: The port address of the websocket server, required
 //   - certificate: The certificate used for the service and its connections, required
 //   - heartbeatTimeout: The timeout to be used for sending heartbeats and applied to all local entities created on setup of the service
-//   - mdnsProviderSelection: Optional set which mDNS providers should be used, default is `mdns.MdnsProviderSelectionAll`
+//   - pairingConfig: Optional SHIP Pairing configuration. Pass nil if SHIP Pairing should not be used
+//   - ringBufferPersistence: Interface to Pairing ring buffer persistence. SHALL be set if pairingConfig is set to listener mode (i.e. devA). See ship-go examples on how to create an implementation of this interface
 //
 // Returns:
 //   - *Configuration: The created configuration
@@ -124,6 +131,8 @@ func NewConfiguration(
 	port int,
 	certificate tls.Certificate,
 	heartbeatTimeout time.Duration,
+	pairingConfig *shipapi.PairingConfig,
+	ringBufferPersistence shipapi.RingBufferPersistence,
 ) (*Configuration, error) {
 	configuration := &Configuration{
 		certificate:           certificate,
@@ -175,6 +184,14 @@ func NewConfiguration(
 
 	// set default
 	configuration.featureSet = model.NetworkManagementFeatureSetTypeSmart
+
+	configuration.pairingConfig = pairingConfig
+	if pc := configuration.pairingConfig; pc != nil &&
+		(pc.Mode == shipapi.PairingModeListener || pc.Mode == shipapi.PairingModeBoth) &&
+		ringBufferPersistence == nil {
+		return nil, fmt.Errorf("ringBufferPersistence interface %s for pairing mode listener", isRequired)
+	}
+	configuration.ringBufferPersistence = ringBufferPersistence
 
 	return configuration, nil
 }
@@ -303,4 +320,12 @@ func (s *Configuration) SetCertificate(cert tls.Certificate) {
 // Returns the heartbeat timeout
 func (s *Configuration) HeartbeatTimeout() time.Duration {
 	return s.heartbeatTimeout
+}
+
+func (s *Configuration) PairingConfig() *shipapi.PairingConfig {
+	return s.pairingConfig
+}
+
+func (s *Configuration) RingBufferPersistence() shipapi.RingBufferPersistence {
+	return s.ringBufferPersistence
 }

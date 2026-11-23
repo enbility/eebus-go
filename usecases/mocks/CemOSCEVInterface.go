@@ -40,9 +40,20 @@ func (_m *CemOSCEVInterface) EXPECT() *CemOSCEVInterface_Expecter {
 }
 
 // AddFeatures provides a mock function for the type CemOSCEVInterface
-func (_mock *CemOSCEVInterface) AddFeatures() {
-	_mock.Called()
-	return
+func (_mock *CemOSCEVInterface) AddFeatures() error {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddFeatures")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func() error); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // CemOSCEVInterface_AddFeatures_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddFeatures'
@@ -62,13 +73,13 @@ func (_c *CemOSCEVInterface_AddFeatures_Call) Run(run func()) *CemOSCEVInterface
 	return _c
 }
 
-func (_c *CemOSCEVInterface_AddFeatures_Call) Return() *CemOSCEVInterface_AddFeatures_Call {
-	_c.Call.Return()
+func (_c *CemOSCEVInterface_AddFeatures_Call) Return(err error) *CemOSCEVInterface_AddFeatures_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *CemOSCEVInterface_AddFeatures_Call) RunAndReturn(run func()) *CemOSCEVInterface_AddFeatures_Call {
-	_c.Run(run)
+func (_c *CemOSCEVInterface_AddFeatures_Call) RunAndReturn(run func() error) *CemOSCEVInterface_AddFeatures_Call {
+	_c.Call.Return(run)
 	return _c
 }
 
@@ -643,7 +654,7 @@ func (_c *CemOSCEVInterface_UpdateUseCaseAvailability_Call) RunAndReturn(run fun
 }
 
 // WriteLoadControlLimits provides a mock function for the type CemOSCEVInterface
-func (_mock *CemOSCEVInterface) WriteLoadControlLimits(entity api.EntityRemoteInterface, limits []api0.LoadLimitsPhase, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error) {
+func (_mock *CemOSCEVInterface) WriteLoadControlLimits(entity api.EntityRemoteInterface, limits []api0.LoadLimitsPhase, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error) {
 	ret := _mock.Called(entity, limits, resultCB)
 
 	if len(ret) == 0 {
@@ -652,17 +663,17 @@ func (_mock *CemOSCEVInterface) WriteLoadControlLimits(entity api.EntityRemoteIn
 
 	var r0 *model.MsgCounterType
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, []api0.LoadLimitsPhase, func(result model.ResultDataType)) (*model.MsgCounterType, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, []api0.LoadLimitsPhase, func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)); ok {
 		return returnFunc(entity, limits, resultCB)
 	}
-	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, []api0.LoadLimitsPhase, func(result model.ResultDataType)) *model.MsgCounterType); ok {
+	if returnFunc, ok := ret.Get(0).(func(api.EntityRemoteInterface, []api0.LoadLimitsPhase, func(result model.ResultDataType, msgCounter model.MsgCounterType)) *model.MsgCounterType); ok {
 		r0 = returnFunc(entity, limits, resultCB)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.MsgCounterType)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, []api0.LoadLimitsPhase, func(result model.ResultDataType)) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(api.EntityRemoteInterface, []api0.LoadLimitsPhase, func(result model.ResultDataType, msgCounter model.MsgCounterType)) error); ok {
 		r1 = returnFunc(entity, limits, resultCB)
 	} else {
 		r1 = ret.Error(1)
@@ -678,12 +689,12 @@ type CemOSCEVInterface_WriteLoadControlLimits_Call struct {
 // WriteLoadControlLimits is a helper method to define mock.On call
 //   - entity api.EntityRemoteInterface
 //   - limits []api0.LoadLimitsPhase
-//   - resultCB func(result model.ResultDataType)
+//   - resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)
 func (_e *CemOSCEVInterface_Expecter) WriteLoadControlLimits(entity interface{}, limits interface{}, resultCB interface{}) *CemOSCEVInterface_WriteLoadControlLimits_Call {
 	return &CemOSCEVInterface_WriteLoadControlLimits_Call{Call: _e.mock.On("WriteLoadControlLimits", entity, limits, resultCB)}
 }
 
-func (_c *CemOSCEVInterface_WriteLoadControlLimits_Call) Run(run func(entity api.EntityRemoteInterface, limits []api0.LoadLimitsPhase, resultCB func(result model.ResultDataType))) *CemOSCEVInterface_WriteLoadControlLimits_Call {
+func (_c *CemOSCEVInterface_WriteLoadControlLimits_Call) Run(run func(entity api.EntityRemoteInterface, limits []api0.LoadLimitsPhase, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType))) *CemOSCEVInterface_WriteLoadControlLimits_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.EntityRemoteInterface
 		if args[0] != nil {
@@ -693,9 +704,9 @@ func (_c *CemOSCEVInterface_WriteLoadControlLimits_Call) Run(run func(entity api
 		if args[1] != nil {
 			arg1 = args[1].([]api0.LoadLimitsPhase)
 		}
-		var arg2 func(result model.ResultDataType)
+		var arg2 func(result model.ResultDataType, msgCounter model.MsgCounterType)
 		if args[2] != nil {
-			arg2 = args[2].(func(result model.ResultDataType))
+			arg2 = args[2].(func(result model.ResultDataType, msgCounter model.MsgCounterType))
 		}
 		run(
 			arg0,
@@ -711,7 +722,7 @@ func (_c *CemOSCEVInterface_WriteLoadControlLimits_Call) Return(msgCounterType *
 	return _c
 }
 
-func (_c *CemOSCEVInterface_WriteLoadControlLimits_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, limits []api0.LoadLimitsPhase, resultCB func(result model.ResultDataType)) (*model.MsgCounterType, error)) *CemOSCEVInterface_WriteLoadControlLimits_Call {
+func (_c *CemOSCEVInterface_WriteLoadControlLimits_Call) RunAndReturn(run func(entity api.EntityRemoteInterface, limits []api0.LoadLimitsPhase, resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType)) (*model.MsgCounterType, error)) *CemOSCEVInterface_WriteLoadControlLimits_Call {
 	_c.Call.Return(run)
 	return _c
 }

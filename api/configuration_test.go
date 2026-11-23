@@ -35,7 +35,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err := NewConfiguration("", brand, model, serial,
 		categories,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, 0, certificate, heartbeatTimeout)
+		entityTypes, 0, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -43,7 +43,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration("", brand, model, serial,
 		categories,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -51,7 +51,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration(vendor, "", model, serial,
 		categories,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -59,7 +59,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration(vendor, brand, "", serial,
 		categories,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -67,7 +67,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration(vendor, brand, model, "",
 		categories,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -75,7 +75,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration(vendor, brand, model, serial,
 		nil,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -83,7 +83,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration(vendor, brand, model, serial,
 		categories,
 		"",
-		entityTypes, port, certificate, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -91,7 +91,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration(vendor, brand, model, serial,
 		categories,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		[]spinemodel.EntityTypeType{}, port, certificate, heartbeatTimeout)
+		[]spinemodel.EntityTypeType{}, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.Nil(s.T(), config)
 	assert.NotNil(s.T(), err)
@@ -99,7 +99,7 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config, err = NewConfiguration(vendor, brand, model, serial,
 		categories,
 		spinemodel.DeviceTypeTypeEnergyManagementSystem,
-		entityTypes, port, certificate, heartbeatTimeout)
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
 
 	assert.NotNil(s.T(), config)
 	assert.Nil(s.T(), err)
@@ -168,4 +168,70 @@ func (s *ConfigurationSuite) Test_Configuration() {
 	config.SetCertificate(testCert)
 	certValue := config.Certificate()
 	assert.Equal(s.T(), testCert, certValue)
+}
+
+func (s *ConfigurationSuite) Test_PairingConfig() {
+	certificate, _ := cert.CreateCertificate("unit", "org", "DE", "CN")
+	vendor := "vendor"
+	brand := "brand"
+	model := "model"
+	serial := "serial"
+	categories := []shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem}
+	port := 4567
+	heartbeatTimeout := time.Second * 4
+	entityTypes := []spinemodel.EntityTypeType{spinemodel.EntityTypeTypeCEM}
+
+	// nil pairing config should work
+	config, err := NewConfiguration(vendor, brand, model, serial,
+		categories, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+		entityTypes, port, certificate, heartbeatTimeout, nil, nil)
+	assert.NotNil(s.T(), config)
+	assert.Nil(s.T(), err)
+	assert.Nil(s.T(), config.PairingConfig())
+	assert.Nil(s.T(), config.RingBufferPersistence())
+
+	// PairingModeListener without RingBufferPersistence should error
+	pairingConfig := &shipapi.PairingConfig{
+		Mode: shipapi.PairingModeListener,
+	}
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		categories, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+		entityTypes, port, certificate, heartbeatTimeout, pairingConfig, nil)
+	assert.Nil(s.T(), config)
+	assert.NotNil(s.T(), err)
+	assert.Contains(s.T(), err.Error(), "ringBufferPersistence")
+
+	// PairingModeBoth without RingBufferPersistence should error
+	pairingConfigBoth := &shipapi.PairingConfig{
+		Mode: shipapi.PairingModeBoth,
+	}
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		categories, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+		entityTypes, port, certificate, heartbeatTimeout, pairingConfigBoth, nil)
+	assert.Nil(s.T(), config)
+	assert.NotNil(s.T(), err)
+	assert.Contains(s.T(), err.Error(), "ringBufferPersistence")
+
+	// PairingModeAnnouncer without RingBufferPersistence should succeed
+	pairingConfigAnnouncer := &shipapi.PairingConfig{
+		Mode: shipapi.PairingModeAnnouncer,
+	}
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		categories, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+		entityTypes, port, certificate, heartbeatTimeout, pairingConfigAnnouncer, nil)
+	assert.NotNil(s.T(), config)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), config.PairingConfig())
+	assert.Equal(s.T(), shipapi.PairingModeAnnouncer, config.PairingConfig().Mode)
+	assert.Nil(s.T(), config.RingBufferPersistence())
+
+	// PairingModeOff without RingBufferPersistence should succeed
+	pairingConfigOff := &shipapi.PairingConfig{
+		Mode: shipapi.PairingModeOff,
+	}
+	config, err = NewConfiguration(vendor, brand, model, serial,
+		categories, spinemodel.DeviceTypeTypeEnergyManagementSystem,
+		entityTypes, port, certificate, heartbeatTimeout, pairingConfigOff, nil)
+	assert.NotNil(s.T(), config)
+	assert.Nil(s.T(), err)
 }

@@ -38,9 +38,20 @@ func (_m *CemVABDInterface) EXPECT() *CemVABDInterface_Expecter {
 }
 
 // AddFeatures provides a mock function for the type CemVABDInterface
-func (_mock *CemVABDInterface) AddFeatures() {
-	_mock.Called()
-	return
+func (_mock *CemVABDInterface) AddFeatures() error {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddFeatures")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func() error); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // CemVABDInterface_AddFeatures_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddFeatures'
@@ -60,13 +71,13 @@ func (_c *CemVABDInterface_AddFeatures_Call) Run(run func()) *CemVABDInterface_A
 	return _c
 }
 
-func (_c *CemVABDInterface_AddFeatures_Call) Return() *CemVABDInterface_AddFeatures_Call {
-	_c.Call.Return()
+func (_c *CemVABDInterface_AddFeatures_Call) Return(err error) *CemVABDInterface_AddFeatures_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *CemVABDInterface_AddFeatures_Call) RunAndReturn(run func()) *CemVABDInterface_AddFeatures_Call {
-	_c.Run(run)
+func (_c *CemVABDInterface_AddFeatures_Call) RunAndReturn(run func() error) *CemVABDInterface_AddFeatures_Call {
+	_c.Call.Return(run)
 	return _c
 }
 

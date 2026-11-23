@@ -135,6 +135,94 @@ func (s *CsLPCSuite) Test_loadControlWriteCB() {
 	s.eventCalled = false
 }
 
+func (s *CsLPCSuite) Test_deviceConfigurationWriteCB() {
+	// Header missing
+	msg := &spineapi.Message{}
+	s.sut.deviceConfigurationWriteCB(msg)
+	assert.False(s.T(), s.eventCalled)
+
+	// MsgCounter missing
+	msg = &spineapi.Message{RequestHeader: &model.HeaderType{}}
+	s.sut.deviceConfigurationWriteCB(msg)
+	assert.False(s.T(), s.eventCalled)
+
+	// Message is invalid (DeviceConfigurationKeyValueData missing)
+	msg = &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(600)),
+		},
+		Cmd: model.CmdType{
+			DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+	s.sut.deviceConfigurationWriteCB(msg)
+	assert.False(s.T(), s.eventCalled)
+
+	// Unrelated KeyId
+	msg = &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(603)),
+		},
+		Cmd: model.CmdType{
+			DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{
+				DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
+					{
+						KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(2)),
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+	s.sut.deviceConfigurationWriteCB(msg)
+	assert.False(s.T(), s.eventCalled)
+
+	// Failsafe consumption active power limit write -> approval required.
+	msg = &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(603)),
+		},
+		Cmd: model.CmdType{
+			DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{
+				DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
+					{
+						KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+	s.sut.deviceConfigurationWriteCB(msg)
+	assert.True(s.T(), s.eventCalled)
+	s.eventCalled = false
+
+	// Failsafe duration minimum write -> approval required.
+	msg = &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(604)),
+		},
+		Cmd: model.CmdType{
+			DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{
+				DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
+					{
+						KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(1)),
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+	s.sut.deviceConfigurationWriteCB(msg)
+	assert.True(s.T(), s.eventCalled)
+	s.eventCalled = false
+}
+
 func (s *CsLPCSuite) Test_UpdateUseCaseAvailability() {
 	s.sut.UpdateUseCaseAvailability(true)
 }

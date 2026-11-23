@@ -50,7 +50,7 @@ func (s *CemEVSECCSuite) BeforeTest(suiteName, testName string) {
 		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
-		9999, cert, time.Second*4)
+		9999, cert, time.Second*4, nil, nil)
 
 	serviceHandler := mocks.NewServiceReaderInterface(s.T())
 	serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return().Maybe()
@@ -73,7 +73,7 @@ func (s *CemEVSECCSuite) BeforeTest(suiteName, testName string) {
 
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeCEM)
 	s.sut = NewEVSECC(localEntity, s.Event)
-	s.sut.AddFeatures()
+	_ = s.sut.AddFeatures()
 	s.sut.AddUseCase()
 
 	var entities []spineapi.EntityRemoteInterface

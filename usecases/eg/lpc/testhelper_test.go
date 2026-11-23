@@ -50,7 +50,7 @@ func (s *EgLPCSuite) BeforeTest(suiteName, testName string) {
 		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
-		9999, cert, time.Second*4)
+		9999, cert, time.Second*4, nil, nil)
 
 	serviceHandler := mocks.NewServiceReaderInterface(s.T())
 	serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return().Maybe()
@@ -63,6 +63,7 @@ func (s *EgLPCSuite) BeforeTest(suiteName, testName string) {
 	mockRemoteFeature := spinemocks.NewFeatureRemoteInterface(s.T())
 	mockRemoteDevice.EXPECT().FeatureByEntityTypeAndRole(mock.Anything, mock.Anything, mock.Anything).Return(mockRemoteFeature).Maybe()
 	mockRemoteDevice.EXPECT().Ski().Return(remoteSki).Maybe()
+	mockRemoteDevice.EXPECT().DeviceType().Return(util.Ptr(model.DeviceTypeTypeChargingStation)).Maybe()
 	s.mockRemoteEntity.EXPECT().Device().Return(mockRemoteDevice).Maybe()
 	s.mockRemoteEntity.EXPECT().EntityType().Return(mock.Anything).Maybe()
 	entityAddress := &model.EntityAddressType{}

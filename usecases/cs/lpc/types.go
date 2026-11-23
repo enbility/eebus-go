@@ -17,11 +17,19 @@ const (
 
 	// An incoming load control obligation limit needs to be approved or denied
 	//
-	// Use `PendingConsumptionLimits` to get the currently pending write approval requests
-	// and invoke `ApproveOrDenyConsumptionLimit` for each
+	// Use `PendingConsumptionLimits` to get the currently pending consumption limits
+	// awaiting approval and invoke `ApproveOrDenyConsumptionLimit` for each
 	//
 	// Use Case LPC, Scenario 1
-	WriteApprovalRequired api.EventType = "cs-lpc-WriteApprovalRequired"
+	LimitWriteApprovalRequired api.EventType = "cs-lpc-LimitWriteApprovalRequired"
+
+	// An incoming device configuration write needs to be approved or denied
+	//
+	// Use `PendingDeviceConfigurations` to get the currently pending device configurations
+	// awaiting approval and invoke `ApproveOrDenyDeviceConfiguration` for each
+	//
+	// Use Case LPC, Scenario 1
+	ConfigurationWriteApprovalRequired api.EventType = "cs-lpc-ConfigurationWriteApprovalRequired"
 
 	// Failsafe limit for the consumed active (real) power of the
 	// Controllable System data update received

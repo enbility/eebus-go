@@ -44,7 +44,7 @@ func (s *ElectricalConnectionSuite) BeforeTest(suiteName, testName string) {
 		[]shipapi.DeviceCategoryType{shipapi.DeviceCategoryTypeEnergyManagementSystem},
 		model.DeviceTypeTypeEnergyManagementSystem,
 		[]model.EntityTypeType{model.EntityTypeTypeCEM},
-		9999, cert, time.Second*4)
+		9999, cert, time.Second*4, nil, nil)
 
 	serviceHandler := mocks.NewServiceReaderInterface(s.T())
 	serviceHandler.EXPECT().ServicePairingDetailUpdate(mock.Anything, mock.Anything).Return().Maybe()
@@ -117,6 +117,40 @@ func (s *ElectricalConnectionSuite) Test_Description() {
 	data, err = s.sut.GetDescriptionsForFilter(filter)
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), data)
+}
+
+func (s *ElectricalConnectionSuite) Test_GetOrAddIdForDescription() {
+	filter := model.ElectricalConnectionDescriptionDataType{}
+
+	data, err := s.sut.GetDescriptionsForFilter(filter)
+	assert.NotNil(s.T(), err)
+	assert.Nil(s.T(), data)
+
+	desc1 := model.ElectricalConnectionDescriptionDataType{
+		PowerSupplyType: util.Ptr(model.ElectricalConnectionVoltageTypeTypeDc),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+	}
+
+	eConnectionId, err := s.sut.GetOrAddIdForDescription(desc1)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), model.ElectricalConnectionIdType(1), *eConnectionId)
+
+	eConnectionId, err = s.sut.GetOrAddIdForDescription(desc1)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), model.ElectricalConnectionIdType(1), *eConnectionId)
+
+	desc2 := model.ElectricalConnectionDescriptionDataType{
+		PowerSupplyType: util.Ptr(model.ElectricalConnectionVoltageTypeTypeAc),
+		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
+	}
+
+	eConnectionId2, err := s.sut.GetOrAddIdForDescription(desc2)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), model.ElectricalConnectionIdType(2), *eConnectionId2)
+
+	eConnectionId, err = s.sut.GetOrAddIdForDescription(desc1)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), model.ElectricalConnectionIdType(1), *eConnectionId)
 }
 
 func (s *ElectricalConnectionSuite) Test_ParameterDescription() {

@@ -60,6 +60,39 @@ func (e *ElectricalConnectionCommon) CheckEventPayloadDataForFilter(payloadData 
 	return false
 }
 
+// check if spine.EventPayload Data contains data for a given filter
+//
+// data type will be checked for model.ElectricalConnectionCharacteristicListDataType,
+// filter type will be checked for model.ElectricalConnectionCharacteristicDataType
+func (e *ElectricalConnectionCommon) CheckEventPayloadDataForFilterDescriptionList(payloadData any, filter any) bool {
+	if payloadData == nil {
+		return false
+	}
+
+	data, ok := payloadData.(*model.ElectricalConnectionCharacteristicListDataType)
+	filterData, ok2 := filter.(model.ElectricalConnectionCharacteristicDataType)
+	if !ok || !ok2 {
+		return false
+	}
+
+	descs, err := e.GetCharacteristicsForFilter(filterData)
+	if err != nil {
+		return false
+	}
+
+	for _, desc := range descs {
+		for _, item := range data.ElectricalConnectionCharacteristicData {
+			if item.ParameterId != nil &&
+				desc.ParameterId != nil &&
+				*item.ParameterId == *desc.ParameterId {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // Get the description for a given filter
 //
 // Returns an error if no matching description is found
@@ -155,14 +188,12 @@ func (e *ElectricalConnectionCommon) GetPermittedValueDataForFilter(
 		if len(set.Value) > 0 {
 			resultDefault = set.Value[0].GetValue()
 		}
-		if set.Range != nil {
-			for _, rangeItem := range set.Range {
-				if rangeItem.Min != nil {
-					resultMin = rangeItem.Min.GetValue()
-				}
-				if rangeItem.Max != nil {
-					resultMax = rangeItem.Max.GetValue()
-				}
+		for _, rangeItem := range set.Range {
+			if rangeItem.Min != nil {
+				resultMin = rangeItem.Min.GetValue()
+			}
+			if rangeItem.Max != nil {
+				resultMax = rangeItem.Max.GetValue()
 			}
 		}
 	}

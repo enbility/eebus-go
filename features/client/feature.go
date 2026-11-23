@@ -122,6 +122,33 @@ func (f *Feature) AddResultCallback(function func(msg spineapi.ResponseMessage))
 	f.featureLocal.AddResultCallback(function)
 }
 
+// writeFullList sends a write replacing the remote's complete list data and persists it
+// as the remote's state right away, restoring the previous state if the write is rejected.
+func (f *Feature) writeFullList(function model.FunctionType, data any, cmd model.CmdType) (*model.MsgCounterType, error) {
+	msgCounter, err := f.remoteDevice.Sender().Write(f.featureLocal.Address(), f.featureRemote.Address(), cmd)
+	if err != nil || msgCounter == nil {
+		return msgCounter, err
+	}
+
+	// the remote notifies the change only after the result, so a follow-up write
+	// built in between would merge into the stale cache and revert this one
+	prev := f.featureRemote.DataCopy(function)
+	_, _ = f.featureRemote.UpdateData(true, function, data, nil, nil)
+
+	// nothing to restore if the remote's state was unknown before
+	if prev == nil {
+		return msgCounter, nil
+	}
+
+	_ = f.featureLocal.AddResponseCallback(*msgCounter, func(msg spineapi.ResponseMessage) {
+		if res, ok := msg.Data.(*model.ResultDataType); ok && model.NewErrorTypeFromResult(res) != nil {
+			_, _ = f.featureRemote.UpdateData(true, function, prev, nil, nil)
+		}
+	})
+
+	return msgCounter, nil
+}
+
 // helper method which adds checking if the feature is available and the operation is allowed
 // selectors and elements are used if specific data should be requested by using
 // model.FilterType DataSelectors (selectors) and/or DataElements (elements)

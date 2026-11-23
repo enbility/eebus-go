@@ -66,6 +66,9 @@ func (e *CEVC) WriteIncentiveTableDescriptions(entity spineapi.EntityRemoteInter
 		logging.Log().Error(err)
 		return err
 	}
+	if len(descriptions) == 0 {
+		return api.ErrDataNotAvailable
+	}
 
 	// default tariff
 	//

@@ -50,25 +50,39 @@ func LoadControlLimits(
 		filter := model.ElectricalConnectionParameterDescriptionDataType{
 			AcMeasuredPhases: &phaseName,
 		}
-		elParamDesc, err := evElectricalConnection.GetParameterDescriptionsForFilter(filter)
-		if err != nil || len(elParamDesc) == 0 || elParamDesc[0].MeasurementId == nil {
+		elParamDescs, err := evElectricalConnection.GetParameterDescriptionsForFilter(filter)
+		if err != nil || len(elParamDescs) == 0 {
 			// there is no data for this phase, the phase may not exist
 			// so do not add id to the result
 			continue
 		}
 
+		// A phase may have several parameter descriptions (e.g. current, voltage, power).
+		// Pick the one whose MeasurementId is referenced by one of the limit descriptions —
+		// blindly using elParamDescs[0] would resolve the limit against the wrong measurement
+		// type when a conformant remote lists them in an unexpected order.
+		var paramDesc *model.ElectricalConnectionParameterDescriptionDataType
 		var limitDesc *model.LoadControlLimitDescriptionDataType
-		for _, desc := range limitDescriptions {
-			if desc.MeasurementId != nil &&
-				elParamDesc[0].MeasurementId != nil &&
-				*desc.MeasurementId == *elParamDesc[0].MeasurementId {
+		for _, pd := range elParamDescs {
+			if pd.MeasurementId == nil {
+				continue
+			}
+			for _, desc := range limitDescriptions {
+				if desc.MeasurementId == nil || *desc.MeasurementId != *pd.MeasurementId {
+					continue
+				}
+				safePD := pd
 				safeDesc := desc
+				paramDesc = &safePD
 				limitDesc = &safeDesc
+				break
+			}
+			if limitDesc != nil {
 				break
 			}
 		}
 
-		if limitDesc == nil || limitDesc.LimitId == nil {
+		if paramDesc == nil || limitDesc == nil || limitDesc.LimitId == nil {
 			return
 		}
 
@@ -81,7 +95,7 @@ func LoadControlLimits(
 		if limitIdData.Value == nil || (limitIdData.IsLimitActive != nil && !*limitIdData.IsLimitActive) {
 			// report maximum possible if no limit is available or the limit is not active
 			filter := model.ElectricalConnectionPermittedValueSetDataType{
-				ParameterId: elParamDesc[0].ParameterId,
+				ParameterId: paramDesc.ParameterId,
 			}
 			_, dataMax, _, err := evElectricalConnection.GetPermittedValueDataForFilter(filter)
 			if err != nil {
@@ -127,7 +141,7 @@ func WriteLoadControlLimit(
 	remoteEntity spineapi.EntityRemoteInterface,
 	filter model.LoadControlLimitDescriptionDataType,
 	limit ucapi.LoadLimit,
-	resultCB func(result model.ResultDataType),
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
 ) (*model.MsgCounterType, error) {
 	loadControl, err := client.NewLoadControl(localEntity, remoteEntity)
 	if err != nil {
@@ -181,7 +195,7 @@ func WriteLoadControlLimit(
 		cb := func(msg spineapi.ResponseMessage) {
 			response, ok := msg.Data.(*model.ResultDataType)
 			if ok {
-				resultCB(*response)
+				resultCB(*response, *msgCounter)
 			}
 		}
 		if errCB := loadControl.AddResponseCallback(*msgCounter, cb); errCB != nil {
@@ -224,7 +238,7 @@ func WriteLoadControlPhaseLimits(
 	remoteEntity spineapi.EntityRemoteInterface,
 	filter model.LoadControlLimitDescriptionDataType,
 	limits []ucapi.LoadLimitsPhase,
-	resultCB func(result model.ResultDataType),
+	resultCB func(result model.ResultDataType, msgCounter model.MsgCounterType),
 ) (*model.MsgCounterType, error) {
 	loadControl, err := client.NewLoadControl(localEntity, remoteEntity)
 	electricalConnection, err2 := client.NewElectricalConnection(localEntity, remoteEntity)
@@ -244,23 +258,37 @@ func WriteLoadControlPhaseLimits(
 		filter2 := model.ElectricalConnectionParameterDescriptionDataType{
 			AcMeasuredPhases: util.Ptr(phaseLimit.Phase),
 		}
-		elParamDesc, err := electricalConnection.GetParameterDescriptionsForFilter(filter2)
-		if err != nil || len(elParamDesc) == 0 || elParamDesc[0].MeasurementId == nil {
+		elParamDescs, err := electricalConnection.GetParameterDescriptionsForFilter(filter2)
+		if err != nil || len(elParamDescs) == 0 {
 			continue
 		}
 
+		// A phase may have several parameter descriptions (e.g. current, voltage, power).
+		// Pick the one whose MeasurementId is referenced by one of the limit descriptions —
+		// blindly using elParamDescs[0] would resolve the limit against the wrong measurement
+		// type when a conformant remote lists them in an unexpected order.
+		var paramDesc *model.ElectricalConnectionParameterDescriptionDataType
 		var limitDesc *model.LoadControlLimitDescriptionDataType
-		for _, desc := range limitDescriptions {
-			if desc.MeasurementId != nil &&
-				elParamDesc[0].MeasurementId != nil &&
-				*desc.MeasurementId == *elParamDesc[0].MeasurementId {
+		for _, pd := range elParamDescs {
+			if pd.MeasurementId == nil {
+				continue
+			}
+			for _, desc := range limitDescriptions {
+				if desc.MeasurementId == nil || *desc.MeasurementId != *pd.MeasurementId {
+					continue
+				}
+				safePD := pd
 				safeDesc := desc
+				paramDesc = &safePD
 				limitDesc = &safeDesc
+				break
+			}
+			if limitDesc != nil {
 				break
 			}
 		}
 
-		if limitDesc == nil || limitDesc.LimitId == nil {
+		if paramDesc == nil || paramDesc.ParameterId == nil || limitDesc == nil || limitDesc.LimitId == nil {
 			continue
 		}
 
@@ -277,7 +305,7 @@ func WriteLoadControlPhaseLimits(
 
 		// electricalPermittedValueSet contains the allowed min, max and the default values per phase
 		limit := electricalConnection.AdjustValueToBeWithinPermittedValuesForParameterId(
-			phaseLimit.Value, *elParamDesc[0].ParameterId)
+			phaseLimit.Value, *paramDesc.ParameterId)
 
 		newLimit := model.LoadControlLimitDataType{
 			LimitId:       limitDesc.LimitId,
@@ -293,7 +321,7 @@ func WriteLoadControlPhaseLimits(
 		cb := func(msg spineapi.ResponseMessage) {
 			response, ok := msg.Data.(*model.ResultDataType)
 			if ok {
-				resultCB(*response)
+				resultCB(*response, *msgCounter)
 			}
 		}
 

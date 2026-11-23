@@ -72,6 +72,17 @@ type CsLPCInterface interface {
 	//   - changeable: boolean if the client service can change this value
 	SetFailsafeDurationMinimum(duration time.Duration, changeable bool) (resultErr error)
 
+	// return the currently pending incoming device configuration writes
+	PendingDeviceConfigurations() map[model.MsgCounterType][]PendingDeviceConfiguration
+
+	// accept or deny an incoming device configuration writes
+	//
+	// parameters:
+	//  - msg: the incoming write message
+	//  - approve: if the write limit for msg should be approved or not
+	//  - reason: the reason why the approval is denied, otherwise an empty string
+	ApproveOrDenyDeviceConfiguration(msgCounter model.MsgCounterType, approve bool, reason string)
+
 	// Scenario 3
 
 	// start sending heartbeat from the local entity supporting this usecase

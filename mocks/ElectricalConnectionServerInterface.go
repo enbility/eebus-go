@@ -503,6 +503,68 @@ func (_c *ElectricalConnectionServerInterface_GetDescriptionsForFilter_Call) Run
 	return _c
 }
 
+// GetOrAddIdForDescription provides a mock function for the type ElectricalConnectionServerInterface
+func (_mock *ElectricalConnectionServerInterface) GetOrAddIdForDescription(electricalConnectionDescription model.ElectricalConnectionDescriptionDataType) (*model.ElectricalConnectionIdType, error) {
+	ret := _mock.Called(electricalConnectionDescription)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrAddIdForDescription")
+	}
+
+	var r0 *model.ElectricalConnectionIdType
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(model.ElectricalConnectionDescriptionDataType) (*model.ElectricalConnectionIdType, error)); ok {
+		return returnFunc(electricalConnectionDescription)
+	}
+	if returnFunc, ok := ret.Get(0).(func(model.ElectricalConnectionDescriptionDataType) *model.ElectricalConnectionIdType); ok {
+		r0 = returnFunc(electricalConnectionDescription)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.ElectricalConnectionIdType)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(model.ElectricalConnectionDescriptionDataType) error); ok {
+		r1 = returnFunc(electricalConnectionDescription)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrAddIdForDescription'
+type ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call struct {
+	*mock.Call
+}
+
+// GetOrAddIdForDescription is a helper method to define mock.On call
+//   - electricalConnectionDescription model.ElectricalConnectionDescriptionDataType
+func (_e *ElectricalConnectionServerInterface_Expecter) GetOrAddIdForDescription(electricalConnectionDescription interface{}) *ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call {
+	return &ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call{Call: _e.mock.On("GetOrAddIdForDescription", electricalConnectionDescription)}
+}
+
+func (_c *ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call) Run(run func(electricalConnectionDescription model.ElectricalConnectionDescriptionDataType)) *ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 model.ElectricalConnectionDescriptionDataType
+		if args[0] != nil {
+			arg0 = args[0].(model.ElectricalConnectionDescriptionDataType)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call) Return(electricalConnectionIdType *model.ElectricalConnectionIdType, err error) *ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call {
+	_c.Call.Return(electricalConnectionIdType, err)
+	return _c
+}
+
+func (_c *ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call) RunAndReturn(run func(electricalConnectionDescription model.ElectricalConnectionDescriptionDataType) (*model.ElectricalConnectionIdType, error)) *ElectricalConnectionServerInterface_GetOrAddIdForDescription_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetParameterDescriptionsForFilter provides a mock function for the type ElectricalConnectionServerInterface
 func (_mock *ElectricalConnectionServerInterface) GetParameterDescriptionsForFilter(filter model.ElectricalConnectionParameterDescriptionDataType) ([]model.ElectricalConnectionParameterDescriptionDataType, error) {
 	ret := _mock.Called(filter)

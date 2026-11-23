@@ -84,7 +84,8 @@ func (d *DeviceConfiguration) WriteKeyValues(data []model.DeviceConfigurationKey
 	if filters != nil {
 		cmd.Filter = filters
 		cmd.Function = util.Ptr(model.FunctionTypeDeviceConfigurationKeyValueListData)
+		return d.remoteDevice.Sender().Write(d.featureLocal.Address(), d.featureRemote.Address(), cmd)
 	}
 
-	return d.remoteDevice.Sender().Write(d.featureLocal.Address(), d.featureRemote.Address(), cmd)
+	return d.writeFullList(model.FunctionTypeDeviceConfigurationKeyValueListData, cmd.DeviceConfigurationKeyValueListData, cmd)
 }

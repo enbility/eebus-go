@@ -1,4 +1,4 @@
 package api
 
-// type for cem and usecase specfic event names
+// EventType is used for the usecase specific event names
 type EventType string

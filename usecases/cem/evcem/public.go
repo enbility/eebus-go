@@ -128,6 +128,7 @@ func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 			}
 			elParam, err := evElectricalConnection.GetParameterDescriptionsForFilter(filter)
 			if err != nil || len(elParam) == 0 ||
+				elParam[0].AcMeasuredPhases == nil ||
 				*elParam[0].AcMeasuredPhases != phase {
 				continue
 			}

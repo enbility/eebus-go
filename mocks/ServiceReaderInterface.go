@@ -37,33 +37,33 @@ func (_m *ServiceReaderInterface) EXPECT() *ServiceReaderInterface_Expecter {
 	return &ServiceReaderInterface_Expecter{mock: &_m.Mock}
 }
 
-// RemoteSKIConnected provides a mock function for the type ServiceReaderInterface
-func (_mock *ServiceReaderInterface) RemoteSKIConnected(service api.ServiceInterface, ski string) {
-	_mock.Called(service, ski)
+// RemoteServiceConnected provides a mock function for the type ServiceReaderInterface
+func (_mock *ServiceReaderInterface) RemoteServiceConnected(service api.ServiceInterface, identity api0.ServiceIdentity) {
+	_mock.Called(service, identity)
 	return
 }
 
-// ServiceReaderInterface_RemoteSKIConnected_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteSKIConnected'
-type ServiceReaderInterface_RemoteSKIConnected_Call struct {
+// ServiceReaderInterface_RemoteServiceConnected_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteServiceConnected'
+type ServiceReaderInterface_RemoteServiceConnected_Call struct {
 	*mock.Call
 }
 
-// RemoteSKIConnected is a helper method to define mock.On call
+// RemoteServiceConnected is a helper method to define mock.On call
 //   - service api.ServiceInterface
-//   - ski string
-func (_e *ServiceReaderInterface_Expecter) RemoteSKIConnected(service interface{}, ski interface{}) *ServiceReaderInterface_RemoteSKIConnected_Call {
-	return &ServiceReaderInterface_RemoteSKIConnected_Call{Call: _e.mock.On("RemoteSKIConnected", service, ski)}
+//   - identity api0.ServiceIdentity
+func (_e *ServiceReaderInterface_Expecter) RemoteServiceConnected(service interface{}, identity interface{}) *ServiceReaderInterface_RemoteServiceConnected_Call {
+	return &ServiceReaderInterface_RemoteServiceConnected_Call{Call: _e.mock.On("RemoteServiceConnected", service, identity)}
 }
 
-func (_c *ServiceReaderInterface_RemoteSKIConnected_Call) Run(run func(service api.ServiceInterface, ski string)) *ServiceReaderInterface_RemoteSKIConnected_Call {
+func (_c *ServiceReaderInterface_RemoteServiceConnected_Call) Run(run func(service api.ServiceInterface, identity api0.ServiceIdentity)) *ServiceReaderInterface_RemoteServiceConnected_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.ServiceInterface
 		if args[0] != nil {
 			arg0 = args[0].(api.ServiceInterface)
 		}
-		var arg1 string
+		var arg1 api0.ServiceIdentity
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(api0.ServiceIdentity)
 		}
 		run(
 			arg0,
@@ -73,43 +73,43 @@ func (_c *ServiceReaderInterface_RemoteSKIConnected_Call) Run(run func(service a
 	return _c
 }
 
-func (_c *ServiceReaderInterface_RemoteSKIConnected_Call) Return() *ServiceReaderInterface_RemoteSKIConnected_Call {
+func (_c *ServiceReaderInterface_RemoteServiceConnected_Call) Return() *ServiceReaderInterface_RemoteServiceConnected_Call {
 	_c.Call.Return()
 	return _c
 }
 
-func (_c *ServiceReaderInterface_RemoteSKIConnected_Call) RunAndReturn(run func(service api.ServiceInterface, ski string)) *ServiceReaderInterface_RemoteSKIConnected_Call {
+func (_c *ServiceReaderInterface_RemoteServiceConnected_Call) RunAndReturn(run func(service api.ServiceInterface, identity api0.ServiceIdentity)) *ServiceReaderInterface_RemoteServiceConnected_Call {
 	_c.Run(run)
 	return _c
 }
 
-// RemoteSKIDisconnected provides a mock function for the type ServiceReaderInterface
-func (_mock *ServiceReaderInterface) RemoteSKIDisconnected(service api.ServiceInterface, ski string) {
-	_mock.Called(service, ski)
+// RemoteServiceDisconnected provides a mock function for the type ServiceReaderInterface
+func (_mock *ServiceReaderInterface) RemoteServiceDisconnected(service api.ServiceInterface, identity api0.ServiceIdentity) {
+	_mock.Called(service, identity)
 	return
 }
 
-// ServiceReaderInterface_RemoteSKIDisconnected_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteSKIDisconnected'
-type ServiceReaderInterface_RemoteSKIDisconnected_Call struct {
+// ServiceReaderInterface_RemoteServiceDisconnected_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoteServiceDisconnected'
+type ServiceReaderInterface_RemoteServiceDisconnected_Call struct {
 	*mock.Call
 }
 
-// RemoteSKIDisconnected is a helper method to define mock.On call
+// RemoteServiceDisconnected is a helper method to define mock.On call
 //   - service api.ServiceInterface
-//   - ski string
-func (_e *ServiceReaderInterface_Expecter) RemoteSKIDisconnected(service interface{}, ski interface{}) *ServiceReaderInterface_RemoteSKIDisconnected_Call {
-	return &ServiceReaderInterface_RemoteSKIDisconnected_Call{Call: _e.mock.On("RemoteSKIDisconnected", service, ski)}
+//   - identity api0.ServiceIdentity
+func (_e *ServiceReaderInterface_Expecter) RemoteServiceDisconnected(service interface{}, identity interface{}) *ServiceReaderInterface_RemoteServiceDisconnected_Call {
+	return &ServiceReaderInterface_RemoteServiceDisconnected_Call{Call: _e.mock.On("RemoteServiceDisconnected", service, identity)}
 }
 
-func (_c *ServiceReaderInterface_RemoteSKIDisconnected_Call) Run(run func(service api.ServiceInterface, ski string)) *ServiceReaderInterface_RemoteSKIDisconnected_Call {
+func (_c *ServiceReaderInterface_RemoteServiceDisconnected_Call) Run(run func(service api.ServiceInterface, identity api0.ServiceIdentity)) *ServiceReaderInterface_RemoteServiceDisconnected_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.ServiceInterface
 		if args[0] != nil {
 			arg0 = args[0].(api.ServiceInterface)
 		}
-		var arg1 string
+		var arg1 api0.ServiceIdentity
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(api0.ServiceIdentity)
 		}
 		run(
 			arg0,
@@ -119,19 +119,169 @@ func (_c *ServiceReaderInterface_RemoteSKIDisconnected_Call) Run(run func(servic
 	return _c
 }
 
-func (_c *ServiceReaderInterface_RemoteSKIDisconnected_Call) Return() *ServiceReaderInterface_RemoteSKIDisconnected_Call {
+func (_c *ServiceReaderInterface_RemoteServiceDisconnected_Call) Return() *ServiceReaderInterface_RemoteServiceDisconnected_Call {
 	_c.Call.Return()
 	return _c
 }
 
-func (_c *ServiceReaderInterface_RemoteSKIDisconnected_Call) RunAndReturn(run func(service api.ServiceInterface, ski string)) *ServiceReaderInterface_RemoteSKIDisconnected_Call {
+func (_c *ServiceReaderInterface_RemoteServiceDisconnected_Call) RunAndReturn(run func(service api.ServiceInterface, identity api0.ServiceIdentity)) *ServiceReaderInterface_RemoteServiceDisconnected_Call {
+	_c.Run(run)
+	return _c
+}
+
+// ServiceAutoTrustFailed provides a mock function for the type ServiceReaderInterface
+func (_mock *ServiceReaderInterface) ServiceAutoTrustFailed(service api.ServiceInterface, identity api0.ServiceIdentity, reason error) {
+	_mock.Called(service, identity, reason)
+	return
+}
+
+// ServiceReaderInterface_ServiceAutoTrustFailed_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ServiceAutoTrustFailed'
+type ServiceReaderInterface_ServiceAutoTrustFailed_Call struct {
+	*mock.Call
+}
+
+// ServiceAutoTrustFailed is a helper method to define mock.On call
+//   - service api.ServiceInterface
+//   - identity api0.ServiceIdentity
+//   - reason error
+func (_e *ServiceReaderInterface_Expecter) ServiceAutoTrustFailed(service interface{}, identity interface{}, reason interface{}) *ServiceReaderInterface_ServiceAutoTrustFailed_Call {
+	return &ServiceReaderInterface_ServiceAutoTrustFailed_Call{Call: _e.mock.On("ServiceAutoTrustFailed", service, identity, reason)}
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrustFailed_Call) Run(run func(service api.ServiceInterface, identity api0.ServiceIdentity, reason error)) *ServiceReaderInterface_ServiceAutoTrustFailed_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 api.ServiceInterface
+		if args[0] != nil {
+			arg0 = args[0].(api.ServiceInterface)
+		}
+		var arg1 api0.ServiceIdentity
+		if args[1] != nil {
+			arg1 = args[1].(api0.ServiceIdentity)
+		}
+		var arg2 error
+		if args[2] != nil {
+			arg2 = args[2].(error)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrustFailed_Call) Return() *ServiceReaderInterface_ServiceAutoTrustFailed_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrustFailed_Call) RunAndReturn(run func(service api.ServiceInterface, identity api0.ServiceIdentity, reason error)) *ServiceReaderInterface_ServiceAutoTrustFailed_Call {
+	_c.Run(run)
+	return _c
+}
+
+// ServiceAutoTrustRemoved provides a mock function for the type ServiceReaderInterface
+func (_mock *ServiceReaderInterface) ServiceAutoTrustRemoved(service api.ServiceInterface, identity api0.ServiceIdentity, reason string) {
+	_mock.Called(service, identity, reason)
+	return
+}
+
+// ServiceReaderInterface_ServiceAutoTrustRemoved_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ServiceAutoTrustRemoved'
+type ServiceReaderInterface_ServiceAutoTrustRemoved_Call struct {
+	*mock.Call
+}
+
+// ServiceAutoTrustRemoved is a helper method to define mock.On call
+//   - service api.ServiceInterface
+//   - identity api0.ServiceIdentity
+//   - reason string
+func (_e *ServiceReaderInterface_Expecter) ServiceAutoTrustRemoved(service interface{}, identity interface{}, reason interface{}) *ServiceReaderInterface_ServiceAutoTrustRemoved_Call {
+	return &ServiceReaderInterface_ServiceAutoTrustRemoved_Call{Call: _e.mock.On("ServiceAutoTrustRemoved", service, identity, reason)}
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrustRemoved_Call) Run(run func(service api.ServiceInterface, identity api0.ServiceIdentity, reason string)) *ServiceReaderInterface_ServiceAutoTrustRemoved_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 api.ServiceInterface
+		if args[0] != nil {
+			arg0 = args[0].(api.ServiceInterface)
+		}
+		var arg1 api0.ServiceIdentity
+		if args[1] != nil {
+			arg1 = args[1].(api0.ServiceIdentity)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrustRemoved_Call) Return() *ServiceReaderInterface_ServiceAutoTrustRemoved_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrustRemoved_Call) RunAndReturn(run func(service api.ServiceInterface, identity api0.ServiceIdentity, reason string)) *ServiceReaderInterface_ServiceAutoTrustRemoved_Call {
+	_c.Run(run)
+	return _c
+}
+
+// ServiceAutoTrusted provides a mock function for the type ServiceReaderInterface
+func (_mock *ServiceReaderInterface) ServiceAutoTrusted(service api.ServiceInterface, identity api0.ServiceIdentity) {
+	_mock.Called(service, identity)
+	return
+}
+
+// ServiceReaderInterface_ServiceAutoTrusted_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ServiceAutoTrusted'
+type ServiceReaderInterface_ServiceAutoTrusted_Call struct {
+	*mock.Call
+}
+
+// ServiceAutoTrusted is a helper method to define mock.On call
+//   - service api.ServiceInterface
+//   - identity api0.ServiceIdentity
+func (_e *ServiceReaderInterface_Expecter) ServiceAutoTrusted(service interface{}, identity interface{}) *ServiceReaderInterface_ServiceAutoTrusted_Call {
+	return &ServiceReaderInterface_ServiceAutoTrusted_Call{Call: _e.mock.On("ServiceAutoTrusted", service, identity)}
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrusted_Call) Run(run func(service api.ServiceInterface, identity api0.ServiceIdentity)) *ServiceReaderInterface_ServiceAutoTrusted_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 api.ServiceInterface
+		if args[0] != nil {
+			arg0 = args[0].(api.ServiceInterface)
+		}
+		var arg1 api0.ServiceIdentity
+		if args[1] != nil {
+			arg1 = args[1].(api0.ServiceIdentity)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrusted_Call) Return() *ServiceReaderInterface_ServiceAutoTrusted_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ServiceReaderInterface_ServiceAutoTrusted_Call) RunAndReturn(run func(service api.ServiceInterface, identity api0.ServiceIdentity)) *ServiceReaderInterface_ServiceAutoTrusted_Call {
 	_c.Run(run)
 	return _c
 }
 
 // ServicePairingDetailUpdate provides a mock function for the type ServiceReaderInterface
-func (_mock *ServiceReaderInterface) ServicePairingDetailUpdate(ski string, detail *api0.ConnectionStateDetail) {
-	_mock.Called(ski, detail)
+func (_mock *ServiceReaderInterface) ServicePairingDetailUpdate(identity api0.ServiceIdentity, detail *api0.ConnectionStateDetail) {
+	_mock.Called(identity, detail)
 	return
 }
 
@@ -141,17 +291,17 @@ type ServiceReaderInterface_ServicePairingDetailUpdate_Call struct {
 }
 
 // ServicePairingDetailUpdate is a helper method to define mock.On call
-//   - ski string
+//   - identity api0.ServiceIdentity
 //   - detail *api0.ConnectionStateDetail
-func (_e *ServiceReaderInterface_Expecter) ServicePairingDetailUpdate(ski interface{}, detail interface{}) *ServiceReaderInterface_ServicePairingDetailUpdate_Call {
-	return &ServiceReaderInterface_ServicePairingDetailUpdate_Call{Call: _e.mock.On("ServicePairingDetailUpdate", ski, detail)}
+func (_e *ServiceReaderInterface_Expecter) ServicePairingDetailUpdate(identity interface{}, detail interface{}) *ServiceReaderInterface_ServicePairingDetailUpdate_Call {
+	return &ServiceReaderInterface_ServicePairingDetailUpdate_Call{Call: _e.mock.On("ServicePairingDetailUpdate", identity, detail)}
 }
 
-func (_c *ServiceReaderInterface_ServicePairingDetailUpdate_Call) Run(run func(ski string, detail *api0.ConnectionStateDetail)) *ServiceReaderInterface_ServicePairingDetailUpdate_Call {
+func (_c *ServiceReaderInterface_ServicePairingDetailUpdate_Call) Run(run func(identity api0.ServiceIdentity, detail *api0.ConnectionStateDetail)) *ServiceReaderInterface_ServicePairingDetailUpdate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 api0.ServiceIdentity
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(api0.ServiceIdentity)
 		}
 		var arg1 *api0.ConnectionStateDetail
 		if args[1] != nil {
@@ -170,84 +320,78 @@ func (_c *ServiceReaderInterface_ServicePairingDetailUpdate_Call) Return() *Serv
 	return _c
 }
 
-func (_c *ServiceReaderInterface_ServicePairingDetailUpdate_Call) RunAndReturn(run func(ski string, detail *api0.ConnectionStateDetail)) *ServiceReaderInterface_ServicePairingDetailUpdate_Call {
+func (_c *ServiceReaderInterface_ServicePairingDetailUpdate_Call) RunAndReturn(run func(identity api0.ServiceIdentity, detail *api0.ConnectionStateDetail)) *ServiceReaderInterface_ServicePairingDetailUpdate_Call {
 	_c.Run(run)
 	return _c
 }
 
-// ServiceShipIDUpdate provides a mock function for the type ServiceReaderInterface
-func (_mock *ServiceReaderInterface) ServiceShipIDUpdate(ski string, shipdID string) {
-	_mock.Called(ski, shipdID)
+// ServiceUpdated provides a mock function for the type ServiceReaderInterface
+func (_mock *ServiceReaderInterface) ServiceUpdated(identity api0.ServiceIdentity) {
+	_mock.Called(identity)
 	return
 }
 
-// ServiceReaderInterface_ServiceShipIDUpdate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ServiceShipIDUpdate'
-type ServiceReaderInterface_ServiceShipIDUpdate_Call struct {
+// ServiceReaderInterface_ServiceUpdated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ServiceUpdated'
+type ServiceReaderInterface_ServiceUpdated_Call struct {
 	*mock.Call
 }
 
-// ServiceShipIDUpdate is a helper method to define mock.On call
-//   - ski string
-//   - shipdID string
-func (_e *ServiceReaderInterface_Expecter) ServiceShipIDUpdate(ski interface{}, shipdID interface{}) *ServiceReaderInterface_ServiceShipIDUpdate_Call {
-	return &ServiceReaderInterface_ServiceShipIDUpdate_Call{Call: _e.mock.On("ServiceShipIDUpdate", ski, shipdID)}
+// ServiceUpdated is a helper method to define mock.On call
+//   - identity api0.ServiceIdentity
+func (_e *ServiceReaderInterface_Expecter) ServiceUpdated(identity interface{}) *ServiceReaderInterface_ServiceUpdated_Call {
+	return &ServiceReaderInterface_ServiceUpdated_Call{Call: _e.mock.On("ServiceUpdated", identity)}
 }
 
-func (_c *ServiceReaderInterface_ServiceShipIDUpdate_Call) Run(run func(ski string, shipdID string)) *ServiceReaderInterface_ServiceShipIDUpdate_Call {
+func (_c *ServiceReaderInterface_ServiceUpdated_Call) Run(run func(identity api0.ServiceIdentity)) *ServiceReaderInterface_ServiceUpdated_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 api0.ServiceIdentity
 		if args[0] != nil {
-			arg0 = args[0].(string)
-		}
-		var arg1 string
-		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg0 = args[0].(api0.ServiceIdentity)
 		}
 		run(
 			arg0,
-			arg1,
 		)
 	})
 	return _c
 }
 
-func (_c *ServiceReaderInterface_ServiceShipIDUpdate_Call) Return() *ServiceReaderInterface_ServiceShipIDUpdate_Call {
+func (_c *ServiceReaderInterface_ServiceUpdated_Call) Return() *ServiceReaderInterface_ServiceUpdated_Call {
 	_c.Call.Return()
 	return _c
 }
 
-func (_c *ServiceReaderInterface_ServiceShipIDUpdate_Call) RunAndReturn(run func(ski string, shipdID string)) *ServiceReaderInterface_ServiceShipIDUpdate_Call {
+func (_c *ServiceReaderInterface_ServiceUpdated_Call) RunAndReturn(run func(identity api0.ServiceIdentity)) *ServiceReaderInterface_ServiceUpdated_Call {
 	_c.Run(run)
 	return _c
 }
 
-// VisibleRemoteServicesUpdated provides a mock function for the type ServiceReaderInterface
-func (_mock *ServiceReaderInterface) VisibleRemoteServicesUpdated(service api.ServiceInterface, entries []api0.RemoteService) {
+// VisibleRemoteMdnsServicesUpdated provides a mock function for the type ServiceReaderInterface
+func (_mock *ServiceReaderInterface) VisibleRemoteMdnsServicesUpdated(service api.ServiceInterface, entries []api0.RemoteMdnsService) {
 	_mock.Called(service, entries)
 	return
 }
 
-// ServiceReaderInterface_VisibleRemoteServicesUpdated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VisibleRemoteServicesUpdated'
-type ServiceReaderInterface_VisibleRemoteServicesUpdated_Call struct {
+// ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VisibleRemoteMdnsServicesUpdated'
+type ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call struct {
 	*mock.Call
 }
 
-// VisibleRemoteServicesUpdated is a helper method to define mock.On call
+// VisibleRemoteMdnsServicesUpdated is a helper method to define mock.On call
 //   - service api.ServiceInterface
-//   - entries []api0.RemoteService
-func (_e *ServiceReaderInterface_Expecter) VisibleRemoteServicesUpdated(service interface{}, entries interface{}) *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call {
-	return &ServiceReaderInterface_VisibleRemoteServicesUpdated_Call{Call: _e.mock.On("VisibleRemoteServicesUpdated", service, entries)}
+//   - entries []api0.RemoteMdnsService
+func (_e *ServiceReaderInterface_Expecter) VisibleRemoteMdnsServicesUpdated(service interface{}, entries interface{}) *ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call {
+	return &ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call{Call: _e.mock.On("VisibleRemoteMdnsServicesUpdated", service, entries)}
 }
 
-func (_c *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call) Run(run func(service api.ServiceInterface, entries []api0.RemoteService)) *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call {
+func (_c *ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call) Run(run func(service api.ServiceInterface, entries []api0.RemoteMdnsService)) *ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 api.ServiceInterface
 		if args[0] != nil {
 			arg0 = args[0].(api.ServiceInterface)
 		}
-		var arg1 []api0.RemoteService
+		var arg1 []api0.RemoteMdnsService
 		if args[1] != nil {
-			arg1 = args[1].([]api0.RemoteService)
+			arg1 = args[1].([]api0.RemoteMdnsService)
 		}
 		run(
 			arg0,
@@ -257,12 +401,12 @@ func (_c *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call) Run(run func
 	return _c
 }
 
-func (_c *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call) Return() *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call {
+func (_c *ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call) Return() *ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call {
 	_c.Call.Return()
 	return _c
 }
 
-func (_c *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call) RunAndReturn(run func(service api.ServiceInterface, entries []api0.RemoteService)) *ServiceReaderInterface_VisibleRemoteServicesUpdated_Call {
+func (_c *ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call) RunAndReturn(run func(service api.ServiceInterface, entries []api0.RemoteMdnsService)) *ServiceReaderInterface_VisibleRemoteMdnsServicesUpdated_Call {
 	_c.Run(run)
 	return _c
 }

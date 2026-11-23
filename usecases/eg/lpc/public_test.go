@@ -124,7 +124,7 @@ func (s *EgLPCSuite) Test_WriteLoadControlLimit() {
 	assert.Nil(s.T(), err)
 
 	limit.Duration = time.Duration(time.Hour * 2)
-	_, err = s.sut.WriteConsumptionLimit(s.monitoredEntity, limit, func(result model.ResultDataType) {})
+	_, err = s.sut.WriteConsumptionLimit(s.monitoredEntity, limit, func(result model.ResultDataType, msgCounter model.MsgCounterType) {})
 	assert.Nil(s.T(), err)
 }
 

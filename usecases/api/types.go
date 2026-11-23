@@ -17,6 +17,16 @@ const (
 	EVChargeStateTypeFinished  EVChargeStateType = "finished"
 )
 
+type OptionalPowerConsumptionInfo struct {
+	PowerSequenceId model.PowerSequenceIdType
+	Power 			*float64
+	MaxPower 		*float64
+	State 			model.PowerSequenceStateType
+	IsPausable 		bool
+	IsStoppable 	bool
+	StartTime 		*time.Time
+}
+
 // manufacturer data type
 type ManufacturerData struct {
 	DeviceName                     string
@@ -165,4 +175,22 @@ type IncentiveTariffDescription struct {
 type DurationSlotValue struct {
 	Duration time.Duration // Duration of this slot
 	Value    float64       // Energy Cost or Power Limit
+}
+
+type CompressorPowerConsumptionStateType string
+
+const (
+	CompressorPowerConsumptionStateAvailable CompressorPowerConsumptionStateType = "available"
+	CompressorPowerConsumptionStateScheduled CompressorPowerConsumptionStateType = "scheduled"
+	CompressorPowerConsumptionStateRunning   CompressorPowerConsumptionStateType = "running"
+	CompressorPowerConsumptionStatePaused    CompressorPowerConsumptionStateType = "paused"
+	CompressorPowerConsumptionStateCompleted CompressorPowerConsumptionStateType = "completed"
+	CompressorPowerConsumptionStateStopped   CompressorPowerConsumptionStateType = "stopped" // (aborted)
+)
+
+type PendingDeviceConfiguration struct {
+	Description       model.DeviceConfigurationKeyValueDescriptionDataType `json:"description"`
+	KeyName           model.DeviceConfigurationKeyNameType                 `json:"keyName"`
+	Value             *model.DeviceConfigurationKeyValueValueType          `json:"value,omitempty"`
+	IsValueChangeable *bool                                                `json:"isValueChangeable,omitempty"`
 }

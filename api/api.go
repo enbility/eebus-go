@@ -15,11 +15,15 @@ import (
 //
 // implemented by service, used by the eebus service implementation
 type ServiceInterface interface {
-	// setup the service
+	// Setup the service
+	//
+	// Returns error with description of the error that cannot be recovered from
 	Setup() error
 
 	// start the service
-	Start()
+	//
+	// Returns error with description of the error that cannot be recovered from
+	Start() error
 
 	// shutdown the service
 	Shutdown()
@@ -28,7 +32,7 @@ type ServiceInterface interface {
 	IsRunning() bool
 
 	// add a use case to the service
-	AddUseCase(useCase UseCaseInterface)
+	AddUseCase(useCase UseCaseInterface) error
 
 	// set logging interface
 	SetLogging(logger logging.LoggingInterface)
@@ -44,8 +48,11 @@ type ServiceInterface interface {
 
 	// Passthough functions to HubInterface
 
-	// Provide the current pairing state for a SKI
-	PairingDetailForSki(ski string) *shipapi.ConnectionStateDetail
+	// Provide the current pairing state for a ServiceIdentity
+	PairingDetailFor(identity shipapi.ServiceIdentity) *shipapi.ConnectionStateDetail
+
+	// Return the remote service details for a given ServiceIdentity
+	RemoteServiceFor(identity shipapi.ServiceIdentity) *shipapi.ServiceDetails
 
 	// Defines wether incoming pairing requests should be automatically accepted or not
 	//
@@ -55,36 +62,36 @@ type ServiceInterface interface {
 	// Returns if the service has auto accept enabled or not
 	IsAutoAcceptEnabled() bool
 
-	// Returns the QR code text for the service
-	// as defined in SHIP Requirements for Installation Process V1.0.0
-	QRCodeText() string
+	// Generate a QR code string
+	//
+	// If a pairing config with a secret is set: generates SHIP Pairing Service QR format
+	// Otherwise: generates standard SHIP QR format
+	//
+	// Must be called after Setup() as it requires the hub to be initialized.
+	QRCodeText() (string, error)
 
-	// Returns the Service detail of a remote SKI
-	RemoteServiceForSKI(ski string) *shipapi.ServiceDetails
-
-	// Pair a remote service based on the SKI
+	// Pair a remote service using ServiceIdentity
 	//
 	// Parameters:
-	// - ski: the SKI of the remote service (required)
-	// - shipID: the SHIP ID of the remote service (optional)
+	// - identity: ServiceIdentity containing SKI, fingerprint, and/or SHIP ID
 	//
 	// Note: The SHIP ID is optional, but should be provided if available.
 	// if provided, it will be used to validate the remote service is
 	// providing this SHIP ID during the handshake process and will reject
 	// the connection if it does not match.
-	RegisterRemoteSKI(ski, shipID string)
+	RegisterRemoteService(identity shipapi.ServiceIdentity)
 
-	// Sets the SKI as not being paired
-	UnregisterRemoteSKI(ski string)
+	// Unpair a remote service using ServiceIdentity
+	UnregisterRemoteService(identity shipapi.ServiceIdentity)
 
-	// Disconnect from a connected remote SKI
-	DisconnectSKI(ski string, reason string)
+	// Disconnect a connection using ServiceIdentity
+	DisconnectService(identity shipapi.ServiceIdentity, reason string)
 
-	// Cancels the pairing process for a SKI
+	// Cancels the pairing process for a ServiceIdentity
 	//
 	// This should be called while the service is running and the end
 	// user wants to cancel/disallow an incoming pairing request
-	CancelPairingWithSKI(ski string)
+	CancelPairing(identity shipapi.ServiceIdentity)
 
 	// Define wether the user is able to react to an incoming pairing request
 	//
@@ -94,6 +101,46 @@ type ServiceInterface interface {
 	// Default is set to false, meaning every incoming pairing request will be
 	// automatically denied
 	UserIsAbleToApproveOrCancelPairingRequests(allow bool)
+
+	// Calculate SHA-256 fingerprint of local certificate
+	GetLocalCertificateFingerprint() (string, error)
+
+	// **************************
+	// SHIP Pairing Service APIs
+	// **************************
+
+	// Start announcing pairing to a specific target device
+	// Used by devZ only.
+	//
+	// Parameters:
+	//  - target: Pairing target
+	StartAnnouncementTo(target shipapi.PairingTarget) error
+
+	// Stop announcing pairing to a specific target device
+	// Used by devZ only.
+	//
+	// Parameters:
+	//  - shipID: Target SHIP ID
+	StopAnnouncementTo(shipID string) error
+
+	// Return true if currently announcing to a specific target device
+	// Used by devZ only.
+	//
+	// Parameters:
+	//  - shipID: Target SHIP ID
+	IsAnnouncingTo(shipID string) bool
+
+	// SHIP Pairing: Get Active Announcements.
+	// Used by devZ only.
+	//
+	// Returns: List of SHIP IDs currently being announced to
+	GetActiveAnnouncements() []string
+
+	// SHIP Pairing: Get the SHIP ID and Fingerprint of controlbox paired via SHIP Pairing
+	// Used by devA only.
+	//
+	// Returns: the ServiceDetails of any trusted AddCu device. Or nil if none
+	GetTrustedAddCuDevice() *shipapi.ServiceDetails
 }
 
 // interface for receiving data for specific events from Service
@@ -103,22 +150,36 @@ type ServiceInterface interface {
 //
 // implemented by the eebus service implementation, used by service
 type ServiceReaderInterface interface {
-	// report a connection to a SKI
-	RemoteSKIConnected(service ServiceInterface, ski string)
+	// report a connection to a remote service
+	RemoteServiceConnected(service ServiceInterface, identity shipapi.ServiceIdentity)
 
-	// report a disconnection to a SKI
-	RemoteSKIDisconnected(service ServiceInterface, ski string)
+	// report a disconnection from a remote service
+	RemoteServiceDisconnected(service ServiceInterface, identity shipapi.ServiceIdentity)
 
 	// report all currently visible EEBUS services
-	VisibleRemoteServicesUpdated(service ServiceInterface, entries []shipapi.RemoteService)
+	VisibleRemoteMdnsServicesUpdated(service ServiceInterface, entries []shipapi.RemoteMdnsService)
 
-	// Provides the SHIP ID the remote service reported during the handshake process
-	// This needs to be persisted and passed on for future remote service connections
-	// when using `PairRemoteService`
-	ServiceShipIDUpdate(ski string, shipdID string)
+	// report that service information has been updated
+	// This includes updates to ShipID, fingerprint, or other service details
+	// discovered during handshake
+	ServiceUpdated(identity shipapi.ServiceIdentity)
 
 	// Provides the current pairing state for the remote service
 	// This is called whenever the state changes and can be used to
 	// provide user information for the pairing/connection process
-	ServicePairingDetailUpdate(ski string, detail *shipapi.ConnectionStateDetail)
+	ServicePairingDetailUpdate(identity shipapi.ServiceIdentity, detail *shipapi.ConnectionStateDetail)
+
+	// ****************************
+	// SHIP Pairing Service Events
+	// ****************************
+
+	// Called when a device is automatically trusted via SHIP pairing
+	ServiceAutoTrusted(service ServiceInterface, identity shipapi.ServiceIdentity)
+
+	// Called when SHIP pairing fails for a device
+	ServiceAutoTrustFailed(service ServiceInterface, identity shipapi.ServiceIdentity, reason error)
+
+	// Called when device trust is automatically removed
+	// This can happen due to device replacement timeout or new device pairing
+	ServiceAutoTrustRemoved(service ServiceInterface, identity shipapi.ServiceIdentity, reason string)
 }
