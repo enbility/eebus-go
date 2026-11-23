@@ -89,6 +89,37 @@ func (s *MgcpUsecaseSuite) Test_RequiredParameters() {
 	}
 }
 
+// MGCP TS 3.2.2.1: the actor SHALL be denoted as "GridConnectionPoint"
+func (s *MgcpUsecaseSuite) Test_UseCaseActor() {
+	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
+
+	mgcp, err := NewMGCP(
+		localEntity,
+		s.Event,
+		nil,
+		&MonitorPowerConfig{ValueSource: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue)},
+		&MonitorEnergyConfig{
+			ValueSourceProduction:  util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+			ValueSourceConsumption: util.Ptr(model.MeasurementValueSourceTypeMeasuredValue),
+		},
+		nil,
+		nil,
+		nil,
+	)
+	assert.Nil(s.T(), err)
+
+	mgcp.AddUseCase()
+
+	filter := model.UseCaseFilterType{
+		Actor:       model.UseCaseActorTypeGridConnectionPoint,
+		UseCaseName: model.UseCaseNameTypeMonitoringOfGridConnectionPoint,
+	}
+	assert.True(s.T(), localEntity.HasUseCaseSupport(filter))
+
+	filter.Actor = model.UseCaseActorTypeMonitoringAppliance
+	assert.False(s.T(), localEntity.HasUseCaseSupport(filter))
+}
+
 func (s *MgcpUsecaseSuite) Test_OptionalParameters() {
 	localEntity := s.service.LocalDevice().EntityForType(model.EntityTypeTypeGridGuard)
 	assert.NotNil(s.T(), localEntity)
