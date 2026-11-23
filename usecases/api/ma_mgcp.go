@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/enbility/eebus-go/api"
 	spineapi "github.com/enbility/spine-go/api"
+	"github.com/enbility/spine-go/model"
 )
 
 // Actor: Monitoring Appliance
@@ -66,7 +67,7 @@ type MaMGCPInterface interface {
 	// return values:
 	//   - positive values are used for consumption
 	//   - negative values are used for production
-	CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error)
+	CurrentPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error)
 
 	// Scenario 6
 
@@ -74,7 +75,7 @@ type MaMGCPInterface interface {
 	//
 	// parameters:
 	//   - entity: the entity of the device (e.g. SMGW)
-	VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error)
+	VoltagePerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error)
 
 	// Scenario 7
 

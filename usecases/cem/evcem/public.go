@@ -40,7 +40,7 @@ func (e *EVCEM) PhasesConnected(entity spineapi.EntityRemoteInterface) (uint, er
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -61,7 +61,7 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 		return nil, api.ErrDataNotAvailable
 	}
 
-	var result []float64
+	result := make(map[model.ElectricalConnectionPhaseNameType]float64)
 
 	for _, phase := range ucapi.PhaseNameMapping {
 		for _, item := range data {
@@ -73,13 +73,11 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 				MeasurementId: item.MeasurementId,
 			}
 			elParam, err := evElectricalConnection.GetParameterDescriptionsForFilter(filter)
-			if err != nil || len(elParam) == 0 ||
-				elParam[0].AcMeasuredPhases == nil || *elParam[0].AcMeasuredPhases != phase {
+			if err != nil || len(elParam) == 0 || elParam[0].AcMeasuredPhases == nil || *elParam[0].AcMeasuredPhases != phase {
 				continue
 			}
 
-			phaseValue := item.Value.GetValue()
-			result = append(result, phaseValue)
+			result[phase] = item.Value.GetValue()
 		}
 	}
 
@@ -91,7 +89,7 @@ func (e *EVCEM) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float6
 // possible errors:
 //   - ErrDataNotAvailable if no such measurement is (yet) available
 //   - and others
-func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, error) {
+func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) (map[model.ElectricalConnectionPhaseNameType]float64, error) {
 	if !e.IsCompatibleEntityType(entity) {
 		return nil, api.ErrNoCompatibleEntity
 	}
@@ -115,7 +113,7 @@ func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 		return nil, api.ErrDataNotAvailable
 	}
 
-	var result []float64
+	result := make(map[model.ElectricalConnectionPhaseNameType]float64)
 
 	for _, phase := range ucapi.PhaseNameMapping {
 		for _, item := range data {
@@ -133,8 +131,7 @@ func (e *EVCEM) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 				continue
 			}
 
-			phaseValue := item.Value.GetValue()
-			result = append(result, phaseValue)
+			result[phase] = item.Value.GetValue()
 		}
 	}
 
