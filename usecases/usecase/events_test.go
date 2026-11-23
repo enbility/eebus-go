@@ -352,8 +352,8 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate_UseCaseUnavailable() {
 
 	s.uc.useCaseDataUpdate(payload)
 
-	// Scenarios should be cleared
-	assert.False(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
+	// Scenarios must still be available because the client must ignore the useCaseAvailable=false flag
+	assert.True(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
 }
 
 func (s *UseCaseSuite) Test_useCaseDataUpdate_PMCP() {
