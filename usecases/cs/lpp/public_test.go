@@ -30,6 +30,45 @@ func (s *CsLPPSuite) Test_LoadControlLimit() {
 	assert.Nil(s.T(), err)
 }
 
+func (s *CsLPPSuite) Test_LoadControlLimitWithoutValue() {
+	_, limitId, err := s.sut.loadControlServerAndLimitId()
+	assert.Nil(s.T(), err)
+
+	f := s.sut.LocalEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+
+	// an inactive limit is not required to carry a value
+	limitData := &model.LoadControlLimitListDataType{
+		LoadControlLimitData: []model.LoadControlLimitDataType{
+			{
+				LimitId:           util.Ptr(limitId),
+				IsLimitChangeable: util.Ptr(true),
+				IsLimitActive:     util.Ptr(false),
+			},
+		},
+	}
+
+	fErr := f.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	limit, err := s.sut.ProductionLimit()
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 0.0, limit.Value)
+	assert.Equal(s.T(), true, limit.IsChangeable)
+	assert.Equal(s.T(), false, limit.IsActive)
+
+	// an active limit without value is not usable
+	limitData.LoadControlLimitData[0].IsLimitActive = util.Ptr(true)
+
+	fErr = f.UpdateData(model.FunctionTypeLoadControlLimitListData, limitData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	limit, err = s.sut.ProductionLimit()
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, limit.Value)
+	assert.Equal(s.T(), false, limit.IsChangeable)
+	assert.Equal(s.T(), false, limit.IsActive)
+}
+
 func (s *CsLPPSuite) Test_PendingProductionLimits() {
 	data := s.sut.PendingProductionLimits()
 	assert.Equal(s.T(), 0, len(data))

@@ -56,13 +56,21 @@ func (e *LPP) ProductionLimit(entity spineapi.EntityRemoteInterface) (
 	}
 
 	value, err := loadControl.GetLimitDataForId(*limitDescriptions[0].LimitId)
-	if err != nil || value.Value == nil {
+	if err != nil {
 		return
 	}
 
-	limit.Value = value.Value.GetValue()
+	// an inactive limit is not required to carry a value
+	isActive := value.IsLimitActive != nil && *value.IsLimitActive
+	if value.Value == nil && isActive {
+		return
+	}
+
+	if value.Value != nil {
+		limit.Value = value.Value.GetValue()
+	}
 	limit.IsChangeable = (value.IsLimitChangeable != nil && *value.IsLimitChangeable)
-	limit.IsActive = (value.IsLimitActive != nil && *value.IsLimitActive)
+	limit.IsActive = isActive
 	if value.TimePeriod != nil && value.TimePeriod.EndTime != nil {
 		if duration, err := value.TimePeriod.GetDuration(); err == nil {
 			limit.Duration = duration
