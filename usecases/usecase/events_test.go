@@ -1,6 +1,9 @@
 package usecase
 
 import (
+	"slices"
+	"sync"
+
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -220,4 +223,55 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate_PMCP() {
 
 	result = s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1)
 	assert.True(s.T(), result)
+}
+
+func (s *UseCaseSuite) Test_useCaseDataUpdate_Concurrent() {
+	// unsorted on purpose: the shared slice must not be sorted in place by concurrent events
+	serverFeatures := []model.FeatureTypeType{
+		model.FeatureTypeTypeLoadControl,
+		model.FeatureTypeTypeElectricalConnection,
+	}
+	s.uc.useCaseScenarios[0].ServerFeatures = slices.Clone(serverFeatures)
+
+	feature := s.monitoredEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	address := &model.FeatureAddressType{
+		Device:  s.monitoredEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		*feature.Address(),
+		model.UseCaseActorTypeEV,
+		useCaseName,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	// pre-register the expected result so the concurrent updates do not modify the entity scenarios
+	s.uc.updateRemoteEntityScenarios(s.monitoredEntity, []model.UseCaseScenarioSupportType{1, 2, 3})
+
+	payload := spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.remoteDevice.Entities()[0],
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	}
+
+	var wg sync.WaitGroup
+	for range 2 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			s.uc.HandleEvent(payload)
+		}()
+	}
+	wg.Wait()
+
+	assert.Equal(s.T(), serverFeatures, s.uc.useCaseScenarios[0].ServerFeatures)
+	assert.True(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
 }

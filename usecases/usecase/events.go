@@ -102,7 +102,7 @@ func (u *UseCaseBase) useCaseDataUpdate(
 					}
 
 					// check if the required server features are available
-					requiredServerFeatures := u.requiredServerFeaturesForScenario(scenario.Scenario)
+					requiredServerFeatures := slices.Clone(u.requiredServerFeaturesForScenario(scenario.Scenario))
 					foundMatchingServerFeatures := []model.FeatureTypeType{}
 					for _, feature := range entity.Features() {
 						if feature.Role() != model.RoleTypeServer ||
