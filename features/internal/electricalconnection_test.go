@@ -151,6 +151,38 @@ func (s *ElectricalConnectionSuite) Test_CheckEventPayloadDataForFilter() {
 	assert.True(s.T(), exists)
 }
 
+func (s *ElectricalConnectionSuite) Test_CheckEventPayloadDataForFilterDescriptionList() {
+	filter := model.ElectricalConnectionCharacteristicDataType{
+		CharacteristicContext: util.Ptr(model.ElectricalConnectionCharacteristicContextTypeEntity),
+		CharacteristicType:    util.Ptr(model.ElectricalConnectionCharacteristicTypeTypeEnergyCapacityNominalMax),
+	}
+
+	payload := &model.ElectricalConnectionCharacteristicListDataType{
+		ElectricalConnectionCharacteristicData: []model.ElectricalConnectionCharacteristicDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				CharacteristicId:       util.Ptr(model.ElectricalConnectionCharacteristicIdType(0)),
+				Value:                  model.NewScaledNumberType(100),
+			},
+		},
+	}
+
+	exists := s.remoteSut.CheckEventPayloadDataForFilterDescriptionList(nil, filter)
+	assert.False(s.T(), exists)
+	exists = s.remoteSut.CheckEventPayloadDataForFilterDescriptionList(payload, filter)
+	assert.False(s.T(), exists)
+
+	s.addCharacteristics()
+
+	exists = s.remoteSut.CheckEventPayloadDataForFilterDescriptionList(payload, filter)
+	assert.True(s.T(), exists)
+
+	payload.ElectricalConnectionCharacteristicData[0].CharacteristicId = util.Ptr(model.ElectricalConnectionCharacteristicIdType(1))
+	exists = s.remoteSut.CheckEventPayloadDataForFilterDescriptionList(payload, filter)
+	assert.False(s.T(), exists)
+}
+
 func (s *ElectricalConnectionSuite) Test_GetDescriptions() {
 	filter := model.ElectricalConnectionDescriptionDataType{}
 	data, err := s.localSut.GetDescriptionsForFilter(filter)

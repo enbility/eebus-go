@@ -49,10 +49,11 @@ func (m *MeasurementCommon) CheckEventPayloadDataForFilter(payloadData any, filt
 			continue
 		}
 
+		// a value state without value marks the value as invalid
 		for _, item := range data.MeasurementData {
 			if item.MeasurementId != nil &&
 				*item.MeasurementId == *desc.MeasurementId &&
-				item.Value != nil {
+				(item.Value != nil || item.ValueState != nil) {
 				return true
 			}
 		}
