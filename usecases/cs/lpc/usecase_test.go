@@ -226,3 +226,69 @@ func (s *CsLPCSuite) Test_deviceConfigurationWriteCB() {
 func (s *CsLPCSuite) Test_UpdateUseCaseAvailability() {
 	s.sut.UpdateUseCaseAvailability(true)
 }
+
+func (s *CsLPCSuite) Test_PendingWritesRemovedOnDisconnect() {
+	limitMsg := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(700)),
+		},
+		Cmd: model.CmdType{
+			LoadControlLimitListData: &model.LoadControlLimitListDataType{
+				LoadControlLimitData: []model.LoadControlLimitDataType{
+					{
+						LimitId:       util.Ptr(model.LoadControlLimitIdType(0)),
+						IsLimitActive: util.Ptr(true),
+						Value:         model.NewScaledNumberType(1000),
+						TimePeriod:    model.NewTimePeriodTypeWithRelativeEndTime(time.Minute * 2),
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+	configMsg := &spineapi.Message{
+		RequestHeader: &model.HeaderType{
+			MsgCounter: util.Ptr(model.MsgCounterType(701)),
+		},
+		Cmd: model.CmdType{
+			DeviceConfigurationKeyValueListData: &model.DeviceConfigurationKeyValueListDataType{
+				DeviceConfigurationKeyValueData: []model.DeviceConfigurationKeyValueDataType{
+					{
+						KeyId: util.Ptr(model.DeviceConfigurationKeyIdType(0)),
+						Value: &model.DeviceConfigurationKeyValueValueType{
+							ScaledNumber: model.NewScaledNumberType(1000),
+						},
+					},
+				},
+			},
+		},
+		DeviceRemote: s.remoteDevice,
+		EntityRemote: s.monitoredEntity,
+	}
+
+	s.sut.loadControlWriteCB(limitMsg)
+	s.sut.deviceConfigurationWriteCB(configMsg)
+	assert.Equal(s.T(), 1, len(s.sut.PendingConsumptionLimits()))
+	assert.Equal(s.T(), 1, len(s.sut.PendingDeviceConfigurations()))
+
+	s.sut.HandleEvent(spineapi.EventPayload{
+		Ski:        remoteSki,
+		Device:     s.remoteDevice,
+		EventType:  spineapi.EventTypeDeviceChange,
+		ChangeType: spineapi.ElementChangeRemove,
+	})
+	assert.Equal(s.T(), 0, len(s.sut.PendingConsumptionLimits()))
+	assert.Equal(s.T(), 0, len(s.sut.PendingDeviceConfigurations()))
+
+	// message counters restart after a reconnect, a reused counter must require approval again
+	s.eventCalled = false
+	s.sut.loadControlWriteCB(limitMsg)
+	assert.True(s.T(), s.eventCalled)
+	assert.Equal(s.T(), 1, len(s.sut.PendingConsumptionLimits()))
+
+	s.eventCalled = false
+	s.sut.deviceConfigurationWriteCB(configMsg)
+	assert.True(s.T(), s.eventCalled)
+	assert.Equal(s.T(), 1, len(s.sut.PendingDeviceConfigurations()))
+}
