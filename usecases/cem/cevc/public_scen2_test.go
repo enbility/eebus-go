@@ -94,6 +94,27 @@ func (s *CemCEVCSuite) Test_WritePowerLimits() {
 	err = s.sut.WritePowerLimits(s.evEntity, data)
 	assert.NotNil(s.T(), err)
 
+	// a range without a max value must not panic
+	elPermDesc = &model.ElectricalConnectionPermittedValueSetListDataType{
+		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
+			{
+				ElectricalConnectionId: util.Ptr(model.ElectricalConnectionIdType(0)),
+				ParameterId:            util.Ptr(model.ElectricalConnectionParameterIdType(0)),
+				PermittedValueSet: []model.ScaledNumberSetType{
+					{
+						Range: []model.ScaledNumberRangeType{{}},
+					},
+				},
+			},
+		},
+	}
+
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeElectricalConnectionPermittedValueSetListData, elPermDesc, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	err = s.sut.WritePowerLimits(s.evEntity, data)
+	assert.NotNil(s.T(), err)
+
 	elPermDesc = &model.ElectricalConnectionPermittedValueSetListDataType{
 		ElectricalConnectionPermittedValueSetData: []model.ElectricalConnectionPermittedValueSetDataType{
 			{

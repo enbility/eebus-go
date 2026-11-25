@@ -166,7 +166,7 @@ func (e *CEVC) defaultPowerLimits(entity spineapi.EntityRemoteInterface) ([]ucap
 		return nil, err
 	}
 
-	if len(permitted[0].PermittedValueSet) == 0 || len(permitted[0].PermittedValueSet[0].Range) == 0 {
+	if len(permitted[0].PermittedValueSet) == 0 || len(permitted[0].PermittedValueSet[0].Range) == 0 || permitted[0].PermittedValueSet[0].Range[0].Max == nil {
 		text := "No permitted value set available"
 		logging.Log().Error(text)
 		return nil, errors.New(text)
