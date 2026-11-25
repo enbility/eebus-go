@@ -94,7 +94,7 @@ func (e *CEVC) EnergyDemand(entity spineapi.EntityRemoteInterface) (ucapi.Demand
 	}
 
 	// we need at least a time series slot
-	if data[0].TimeSeriesSlot == nil {
+	if len(data[0].TimeSeriesSlot) == 0 {
 		return demand, api.ErrDataNotAvailable
 	}
 
