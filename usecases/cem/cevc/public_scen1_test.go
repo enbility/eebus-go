@@ -210,6 +210,22 @@ func (s *CemCEVCSuite) Test_EnergySingleDemand() {
 	timeData = &model.TimeSeriesListDataType{
 		TimeSeriesData: []model.TimeSeriesDataType{
 			{
+				TimeSeriesId:   util.Ptr(model.TimeSeriesIdType(0)),
+				TimeSeriesSlot: []model.TimeSeriesSlotType{},
+			},
+		},
+	}
+
+	_, fErr = rTimeFeature.UpdateData(true, model.FunctionTypeTimeSeriesListData, timeData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	demand, err = s.sut.EnergyDemand(s.evEntity)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), 0.0, demand.OptDemand)
+
+	timeData = &model.TimeSeriesListDataType{
+		TimeSeriesData: []model.TimeSeriesDataType{
+			{
 				TimeSeriesId: util.Ptr(model.TimeSeriesIdType(0)),
 				TimeSeriesSlot: []model.TimeSeriesSlotType{
 					{
