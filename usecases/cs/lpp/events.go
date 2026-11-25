@@ -1,6 +1,8 @@
 package lpp
 
 import (
+	"maps"
+
 	"github.com/enbility/eebus-go/features/client"
 	"github.com/enbility/eebus-go/features/server"
 	internal "github.com/enbility/eebus-go/usecases/internal"
@@ -14,6 +16,11 @@ import (
 func (e *LPP) HandleEvent(payload spineapi.EventPayload) {
 	if internal.IsDeviceConnected(payload) {
 		e.deviceConnected(payload)
+		return
+	}
+
+	if internal.IsDeviceDisconnected(payload) {
+		e.deviceDisconnected(payload)
 		return
 	}
 
@@ -120,6 +127,21 @@ func (e *LPP) deviceConnected(payload spineapi.EventPayload) {
 	// according to KEO the subscription should be done on the entity that requests a binding to
 	// the local loadControlLimit server feature
 	e.heartbeatKeoWorkaround = true
+}
+
+// a remote device was disconnected, drop its pending write approvals
+func (e *LPP) deviceDisconnected(payload spineapi.EventPayload) {
+	fromDevice := func(_ model.MsgCounterType, msg *spineapi.Message) bool {
+		return msg.DeviceRemote.Ski() == payload.Ski
+	}
+
+	e.pendingMux.Lock()
+	maps.DeleteFunc(e.pendingLimits, fromDevice)
+	e.pendingMux.Unlock()
+
+	e.pendingDeviceConfigMux.Lock()
+	maps.DeleteFunc(e.pendingDeviceConfigs, fromDevice)
+	e.pendingDeviceConfigMux.Unlock()
 }
 
 // subscribe to the DeviceDiagnosis Server of the entity that created a binding
