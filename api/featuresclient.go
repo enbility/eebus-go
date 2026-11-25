@@ -5,6 +5,9 @@ import "github.com/enbility/spine-go/model"
 type DeviceClassificationClientInterface interface {
 	// request DeviceClassificationManufacturerData from a remote device entity
 	RequestManufacturerDetails() (*model.MsgCounterType, error)
+
+	// request DeviceClassificationUserData from a remote device entity
+	RequestUserData() (*model.MsgCounterType, error)
 }
 
 type DeviceConfigurationClientInterface interface {

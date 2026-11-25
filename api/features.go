@@ -36,6 +36,9 @@ type FeatureServerInterface interface {
 type DeviceClassificationCommonInterface interface {
 	// get the current manufacturer details for a remote device entity
 	GetManufacturerDetails() (*model.DeviceClassificationManufacturerDataType, error)
+
+	// get the current user data for a remote device entity
+	GetUserData() (*model.DeviceClassificationUserDataType, error)
 }
 
 // Common interface for DeviceConfigurationClientInterface and DeviceConfigurationServerInterface
