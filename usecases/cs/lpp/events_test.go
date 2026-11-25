@@ -91,6 +91,23 @@ func (s *CsLPPSuite) Test_deviceConnected() {
 	s.sut.subscribeHeartbeatWorkaround(payload)
 }
 
+func (s *CsLPPSuite) Test_deviceConnected_ConcurrentHeartbeatRead() {
+	payload := spineapi.EventPayload{
+		Device: s.remoteDevice,
+		Entity: s.monitoredEntity,
+	}
+
+	// SPINE delivers events on their own goroutine while the application may query the heartbeat
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		s.sut.deviceConnected(payload)
+	}()
+
+	_ = s.sut.IsHeartbeatWithinDuration()
+	<-done
+}
+
 func (s *CsLPPSuite) Test_multipleDeviceDiagServer() {
 	// multiple entities each with DeviceDiagnosis server
 

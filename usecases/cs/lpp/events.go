@@ -101,7 +101,9 @@ func (e *LPP) deviceConnected(payload spineapi.EventPayload) {
 	// we only found one matching entity, as it should be, subscribe
 	if len(deviceDiagEntities) == 1 {
 		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, deviceDiagEntities[0]); err == nil {
+			e.heartbeatMux.Lock()
 			e.heartbeatDiag = localDeviceDiag
+			e.heartbeatMux.Unlock()
 			if !localDeviceDiag.HasSubscription() {
 				if _, err := localDeviceDiag.Subscribe(); err != nil {
 					logging.Log().Debug(err)
@@ -119,15 +121,23 @@ func (e *LPP) deviceConnected(payload spineapi.EventPayload) {
 	// we found more than one matching entity, this is not good
 	// according to KEO the subscription should be done on the entity that requests a binding to
 	// the local loadControlLimit server feature
+	e.heartbeatMux.Lock()
 	e.heartbeatKeoWorkaround = true
+	e.heartbeatMux.Unlock()
 }
 
 // subscribe to the DeviceDiagnosis Server of the entity that created a binding
 func (e *LPP) subscribeHeartbeatWorkaround(payload spineapi.EventPayload) {
+	e.heartbeatMux.Lock()
+	keoWorkaround := e.heartbeatKeoWorkaround
+	e.heartbeatMux.Unlock()
+
 	// is the workaround is needed?
-	if e.heartbeatKeoWorkaround {
+	if keoWorkaround {
 		if localDeviceDiag, err := client.NewDeviceDiagnosis(e.LocalEntity, payload.Entity); err == nil {
+			e.heartbeatMux.Lock()
 			e.heartbeatDiag = localDeviceDiag
+			e.heartbeatMux.Unlock()
 			if !localDeviceDiag.HasSubscription() {
 				if _, err := localDeviceDiag.Subscribe(); err != nil {
 					logging.Log().Debug(err)
