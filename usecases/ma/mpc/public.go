@@ -2,7 +2,6 @@ package mpc
 
 import (
 	"github.com/enbility/eebus-go/api"
-	"github.com/enbility/eebus-go/features/client"
 	ucapi "github.com/enbility/eebus-go/usecases/api"
 	internal "github.com/enbility/eebus-go/usecases/internal"
 	spineapi "github.com/enbility/spine-go/api"
@@ -28,7 +27,7 @@ func (e *MPC) Power(entity spineapi.EntityRemoteInterface) (float64, error) {
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPowerTotal),
 	}
-	values, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil)
+	values, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil, powerValidator)
 	if err != nil {
 		return 0, err
 	}
@@ -55,7 +54,7 @@ func (e *MPC) PowerPerPhase(entity spineapi.EntityRemoteInterface) ([]float64, e
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACPower),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping, powerValidator)
 }
 
 // Scenario 2
@@ -73,34 +72,20 @@ func (e *MPC) EnergyConsumed(entity spineapi.EntityRemoteInterface) (float64, er
 		return 0, api.ErrNoCompatibleEntity
 	}
 
-	measurement, err := client.NewMeasurement(e.LocalEntity, entity)
-	if err != nil {
-		return 0, err
-	}
-
 	filter := model.MeasurementDescriptionDataType{
 		MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyConsumed),
 	}
-	values, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(values) == 0 {
+	values, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil, energyValidator)
+	if err != nil {
+		return 0, err
+	}
+	if len(values) != 1 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// we assume thre is only one result
-	value := values[0].Value
-	if value == nil {
-		return 0, api.ErrDataNotAvailable
-	}
-
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if values[0].ValueState != nil && *values[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	return value.GetValue(), nil
+	return values[0], nil
 }
 
 // return the total feed in energy
@@ -116,34 +101,20 @@ func (e *MPC) EnergyProduced(entity spineapi.EntityRemoteInterface) (float64, er
 		return 0, api.ErrNoCompatibleEntity
 	}
 
-	measurement, err := client.NewMeasurement(e.LocalEntity, entity)
-	if err != nil {
-		return 0, err
-	}
-
 	filter := model.MeasurementDescriptionDataType{
 		MeasurementType: util.Ptr(model.MeasurementTypeTypeEnergy),
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACEnergyProduced),
 	}
-	values, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(values) == 0 {
+	values, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, nil, energyValidator)
+	if err != nil {
+		return 0, err
+	}
+	if len(values) != 1 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// we assume thre is only one result
-	value := values[0].Value
-	if value == nil {
-		return 0, api.ErrDataNotAvailable
-	}
-
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if values[0].ValueState != nil && *values[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	return value.GetValue(), nil
+	return values[0], nil
 }
 
 // Scenario 3
@@ -167,7 +138,7 @@ func (e *MPC) CurrentPerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACCurrent),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, model.EnergyDirectionTypeConsume, ucapi.PhaseNameMapping, currentValidator)
 }
 
 // Scenario 4
@@ -188,7 +159,7 @@ func (e *MPC) VoltagePerPhase(entity spineapi.EntityRemoteInterface) ([]float64,
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACVoltage),
 	}
-	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping)
+	return internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", ucapi.PhaseNameMapping, voltageValidator)
 }
 
 // Scenario 5
@@ -204,29 +175,18 @@ func (e *MPC) Frequency(entity spineapi.EntityRemoteInterface) (float64, error) 
 		return 0, api.ErrNoCompatibleEntity
 	}
 
-	measurement, err := client.NewMeasurement(e.LocalEntity, entity)
-	if err != nil {
-		return 0, err
-	}
-
 	filter := model.MeasurementDescriptionDataType{
 		MeasurementType: util.Ptr(model.MeasurementTypeTypeFrequency),
 		CommodityType:   util.Ptr(model.CommodityTypeTypeElectricity),
 		ScopeType:       util.Ptr(model.ScopeTypeTypeACFrequency),
 	}
-	data, err := measurement.GetDataForFilter(filter)
-	if err != nil || len(data) == 0 || data[0].Value == nil {
+	values, err := internal.MeasurementPhaseSpecificDataForFilter(e.LocalEntity, entity, filter, "", nil, frequencyValidator)
+	if err != nil {
+		return 0, err
+	}
+	if len(values) != 1 {
 		return 0, api.ErrDataNotAvailable
 	}
 
-	// if the value state is set and not normal, the value is not valid and should be ignored
-	// therefore we return an error
-	if data[0].ValueState != nil && *data[0].ValueState != model.MeasurementValueStateTypeNormal {
-		return 0, api.ErrDataInvalid
-	}
-
-	// take the first item
-	value := data[0].Value
-
-	return value.GetValue(), nil
+	return values[0], nil
 }
