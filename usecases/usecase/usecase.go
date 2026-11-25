@@ -155,6 +155,11 @@ func (u *UseCaseBase) entityScenarioIndicesOfDevice(device spineapi.DeviceRemote
 	u.mux.Lock()
 	defer u.mux.Unlock()
 
+	return u.entityScenarioIndicesOfDeviceLocked(device)
+}
+
+// same as entityScenarioIndicesOfDevice, the caller must hold u.mux
+func (u *UseCaseBase) entityScenarioIndicesOfDeviceLocked(device spineapi.DeviceRemoteInterface) []int {
 	indices := []int{}
 
 	for i, remoteEntityScenarios := range u.availableEntityScenarios {
@@ -176,6 +181,11 @@ func (u *UseCaseBase) entitiyScenarioIndexOfEntity(entity spineapi.EntityRemoteI
 	u.mux.Lock()
 	defer u.mux.Unlock()
 
+	return u.entitiyScenarioIndexOfEntityLocked(entity)
+}
+
+// same as entitiyScenarioIndexOfEntity, the caller must hold u.mux
+func (u *UseCaseBase) entitiyScenarioIndexOfEntityLocked(entity spineapi.EntityRemoteInterface) (int, []uint) {
 	for i, remoteEntityScenarios := range u.availableEntityScenarios {
 		if entity != nil && entity.Address() != nil &&
 			remoteEntityScenarios.Entity != nil && remoteEntityScenarios.Entity.Address() != nil &&
@@ -200,25 +210,25 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 		scenarioValues = append(scenarioValues, uint(scenario))
 	}
 
-	i, _ := u.entitiyScenarioIndexOfEntity(entity)
+	// lookup and change in one critical section, otherwise a concurrent
+	// removal can invalidate the index
+	u.mux.Lock()
+	i, _ := u.entitiyScenarioIndexOfEntityLocked(entity)
 	if i == -1 {
 		newItem := api.RemoteEntityScenarios{
 			Entity:    entity,
 			Scenarios: scenarioValues,
 		}
 
-		u.mux.Lock()
 		u.availableEntityScenarios = append(u.availableEntityScenarios, newItem)
-		u.mux.Unlock()
 
 		updateEvent = true
 	} else if i >= 0 && slices.Compare(u.availableEntityScenarios[i].Scenarios, scenarioValues) != 0 {
-		u.mux.Lock()
 		u.availableEntityScenarios[i].Scenarios = scenarioValues
-		u.mux.Unlock()
 
 		updateEvent = true
 	}
+	u.mux.Unlock()
 
 	if updateEvent && u.EventCB != nil {
 		u.EventCB(entity.Device().Ski(), entity.Device(), entity, u.useCaseUpdateEvent)
@@ -227,11 +237,16 @@ func (u *UseCaseBase) updateRemoteEntityScenarios(
 
 // remove all remote entities of a device from the use case
 func (u *UseCaseBase) removeDeviceFromAvailableEntityScenarios(device spineapi.DeviceRemoteInterface) {
-	indicies := u.entityScenarioIndicesOfDevice(device)
+	// lookup and removal in one critical section, otherwise a concurrent
+	// removal (e.g. two disconnect events of the same device) uses stale
+	// indices and panics with "slice bounds out of range"
+	u.mux.Lock()
+	indicies := u.entityScenarioIndicesOfDeviceLocked(device)
 
 	for i := len(indicies) - 1; i >= 0; i-- {
-		u.removeEntityIndexFromAvailableEntityScenarios(indicies[i])
+		u.removeEntityIndexFromAvailableEntityScenariosLocked(indicies[i])
 	}
+	u.mux.Unlock()
 
 	if u.EventCB != nil && len(indicies) > 0 {
 		u.EventCB(device.Ski(), device, nil, u.useCaseUpdateEvent)
@@ -240,9 +255,14 @@ func (u *UseCaseBase) removeDeviceFromAvailableEntityScenarios(device spineapi.D
 
 // remove a remote entity from the use case
 func (u *UseCaseBase) removeEntityFromAvailableEntityScenarios(entity spineapi.EntityRemoteInterface) {
-	if i, _ := u.entitiyScenarioIndexOfEntity(entity); i >= 0 {
-		u.removeEntityIndexFromAvailableEntityScenarios(i)
+	u.mux.Lock()
+	i, _ := u.entitiyScenarioIndexOfEntityLocked(entity)
+	if i >= 0 {
+		u.removeEntityIndexFromAvailableEntityScenariosLocked(i)
+	}
+	u.mux.Unlock()
 
+	if i >= 0 {
 		if u.EventCB != nil {
 			remoteDevice := entity.Device()
 			u.EventCB(remoteDevice.Ski(), remoteDevice, entity, u.useCaseUpdateEvent)
@@ -251,10 +271,9 @@ func (u *UseCaseBase) removeEntityFromAvailableEntityScenarios(entity spineapi.E
 }
 
 // do the actual removal of the entity from the available entity scenarios
-func (u *UseCaseBase) removeEntityIndexFromAvailableEntityScenarios(index int) {
-	u.mux.Lock()
+// the caller must hold u.mux
+func (u *UseCaseBase) removeEntityIndexFromAvailableEntityScenariosLocked(index int) {
 	u.availableEntityScenarios = append(u.availableEntityScenarios[:index], u.availableEntityScenarios[index+1:]...)
-	u.mux.Unlock()
 }
 
 // return the required server features for a use case scenario
