@@ -51,6 +51,16 @@ func (s *CemCEVCSuite) Test_TimeSlotConstraints() {
 	assert.Equal(s.T(), time.Duration(1*time.Hour), constraints.MaxSlotDuration)
 	assert.Equal(s.T(), time.Duration(1*time.Minute), constraints.SlotDurationStepSize)
 	assert.Equal(s.T(), err, nil)
+
+	// an empty constraints list must not panic
+	constData = &model.TimeSeriesConstraintsListDataType{
+		TimeSeriesConstraintsData: []model.TimeSeriesConstraintsDataType{},
+	}
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeTimeSeriesConstraintsListData, constData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	_, err = s.sut.TimeSlotConstraints(s.evEntity)
+	assert.NotNil(s.T(), err)
 }
 
 func (s *CemCEVCSuite) Test_WritePowerLimits() {
