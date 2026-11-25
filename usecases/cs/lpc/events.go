@@ -132,7 +132,7 @@ func (e *LPC) deviceConnected(payload spineapi.EventPayload) {
 // a remote device was disconnected, drop its pending write approvals
 func (e *LPC) deviceDisconnected(payload spineapi.EventPayload) {
 	fromDevice := func(_ model.MsgCounterType, msg *spineapi.Message) bool {
-		return msg.DeviceRemote != nil && msg.DeviceRemote.Ski() == payload.Ski
+		return msg.DeviceRemote.Ski() == payload.Ski
 	}
 
 	e.pendingMux.Lock()
