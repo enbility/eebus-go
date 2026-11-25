@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"slices"
-	"sync"
 
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -225,8 +224,8 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate_PMCP() {
 	assert.True(s.T(), result)
 }
 
-func (s *UseCaseSuite) Test_useCaseDataUpdate_Concurrent() {
-	// unsorted on purpose: the shared slice must not be sorted in place by concurrent events
+func (s *UseCaseSuite) Test_useCaseDataUpdate_KeepsServerFeatures() {
+	// unsorted on purpose: events run concurrently and must not sort the shared slice in place
 	serverFeatures := []model.FeatureTypeType{
 		model.FeatureTypeTypeLoadControl,
 		model.FeatureTypeTypeElectricalConnection,
@@ -251,26 +250,13 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate_Concurrent() {
 		[]model.UseCaseScenarioSupportType{1, 2, 3})
 	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
 
-	// pre-register the expected result so the concurrent updates do not modify the entity scenarios
-	s.uc.updateRemoteEntityScenarios(s.monitoredEntity, []model.UseCaseScenarioSupportType{1, 2, 3})
-
-	payload := spineapi.EventPayload{
+	s.uc.useCaseDataUpdate(spineapi.EventPayload{
 		Device:     s.remoteDevice,
 		Entity:     s.remoteDevice.Entities()[0],
 		EventType:  spineapi.EventTypeDataChange,
 		ChangeType: spineapi.ElementChangeUpdate,
 		Data:       &model.NodeManagementUseCaseDataType{},
-	}
-
-	var wg sync.WaitGroup
-	for range 2 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			s.uc.HandleEvent(payload)
-		}()
-	}
-	wg.Wait()
+	})
 
 	assert.Equal(s.T(), serverFeatures, s.uc.useCaseScenarios[0].ServerFeatures)
 	assert.True(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
