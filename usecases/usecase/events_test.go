@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"slices"
+
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
 	"github.com/enbility/spine-go/util"
@@ -220,4 +222,42 @@ func (s *UseCaseSuite) Test_useCaseDataUpdate_PMCP() {
 
 	result = s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1)
 	assert.True(s.T(), result)
+}
+
+func (s *UseCaseSuite) Test_useCaseDataUpdate_KeepsServerFeatures() {
+	// unsorted on purpose: events run concurrently and must not sort the shared slice in place
+	serverFeatures := []model.FeatureTypeType{
+		model.FeatureTypeTypeLoadControl,
+		model.FeatureTypeTypeElectricalConnection,
+	}
+	s.uc.useCaseScenarios[0].ServerFeatures = slices.Clone(serverFeatures)
+
+	feature := s.monitoredEntity.FeatureOfTypeAndRole(model.FeatureTypeTypeLoadControl, model.RoleTypeServer)
+	address := &model.FeatureAddressType{
+		Device:  s.monitoredEntity.Device().Address(),
+		Entity:  []model.AddressEntityType{0},
+		Feature: util.Ptr(model.AddressFeatureType(0)),
+	}
+	nodeFeature := s.remoteDevice.FeatureByAddress(address)
+	data := &model.NodeManagementUseCaseDataType{}
+	data.AddUseCaseSupport(
+		*feature.Address(),
+		model.UseCaseActorTypeEV,
+		useCaseName,
+		"1.0.0",
+		"release",
+		true,
+		[]model.UseCaseScenarioSupportType{1, 2, 3})
+	_, _ = nodeFeature.UpdateData(true, model.FunctionTypeNodeManagementUseCaseData, data, nil, nil)
+
+	s.uc.useCaseDataUpdate(spineapi.EventPayload{
+		Device:     s.remoteDevice,
+		Entity:     s.remoteDevice.Entities()[0],
+		EventType:  spineapi.EventTypeDataChange,
+		ChangeType: spineapi.ElementChangeUpdate,
+		Data:       &model.NodeManagementUseCaseDataType{},
+	})
+
+	assert.Equal(s.T(), serverFeatures, s.uc.useCaseScenarios[0].ServerFeatures)
+	assert.True(s.T(), s.uc.IsScenarioAvailableAtEntity(s.monitoredEntity, 1))
 }
