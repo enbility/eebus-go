@@ -25,6 +25,7 @@ type LPP struct {
 	pendingDeviceConfigMux sync.Mutex
 	pendingDeviceConfigs   map[model.MsgCounterType]*spineapi.Message
 
+	heartbeatMux  sync.Mutex
 	heartbeatDiag *features.DeviceDiagnosis
 
 	heartbeatKeoWorkaround bool // required because KEO Stack uses multiple identical entities for the same functionality, and it is not clear which to use

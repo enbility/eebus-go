@@ -315,11 +315,15 @@ func (e *LPC) StopHeartbeat() {
 }
 
 func (e *LPC) IsHeartbeatWithinDuration() bool {
-	if e.heartbeatDiag == nil {
+	e.heartbeatMux.Lock()
+	heartbeatDiag := e.heartbeatDiag
+	e.heartbeatMux.Unlock()
+
+	if heartbeatDiag == nil {
 		return false
 	}
 
-	return e.heartbeatDiag.IsHeartbeatWithinDuration(2 * time.Minute)
+	return heartbeatDiag.IsHeartbeatWithinDuration(2 * time.Minute)
 }
 
 // Scenario 4
