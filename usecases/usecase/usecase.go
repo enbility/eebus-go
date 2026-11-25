@@ -128,7 +128,7 @@ func (u *UseCaseBase) RemoteEntitiesScenarios() []api.RemoteEntityScenarios {
 	u.mux.Lock()
 	defer u.mux.Unlock()
 
-	return u.availableEntityScenarios
+	return slices.Clone(u.availableEntityScenarios)
 }
 
 // return the currently available scenarios for the use case for a remote entity
