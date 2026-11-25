@@ -144,7 +144,7 @@ func (e *EVCC) evConfigurationDescriptionDataUpdate(entity spineapi.EntityRemote
 	if evDeviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
 		if _, err := evDeviceConfiguration.RequestKeyValues(nil, nil); err != nil {
-			logging.Log().Error("Error getting configuration key values:", err)
+			logging.Log().Debug("Error getting configuration key values:", err)
 		}
 	}
 }
@@ -201,7 +201,7 @@ func (e *EVCC) evManufacturerDataUpdate(payload spineapi.EventPayload) {
 func (e *EVCC) evElectricalParamerDescriptionUpdate(entity spineapi.EntityRemoteInterface) {
 	if evElectricalConnection, err := client.NewElectricalConnection(e.LocalEntity, entity); err == nil {
 		if _, err := evElectricalConnection.RequestPermittedValueSets(nil, nil); err != nil {
-			logging.Log().Error("Error getting electrical permitted values:", err)
+			logging.Log().Debug("Error getting electrical permitted values:", err)
 		}
 	}
 }

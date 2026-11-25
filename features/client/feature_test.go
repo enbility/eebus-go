@@ -3,6 +3,7 @@ package client
 import (
 	"testing"
 
+	"github.com/enbility/eebus-go/api"
 	shipapi "github.com/enbility/ship-go/api"
 	spineapi "github.com/enbility/spine-go/api"
 	"github.com/enbility/spine-go/model"
@@ -161,8 +162,9 @@ func (s *FeatureSuite) Test_requestData() {
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), counter)
 
+	// the remote does not support this function, the sentinel must stay matchable
 	counter, err = s.testFeature2.requestData(model.FunctionTypeMeasurementDescriptionListData, nil, nil)
-	assert.NotNil(s.T(), err)
+	assert.ErrorIs(s.T(), err, api.ErrOperationOnFunctionNotSupported)
 	assert.Nil(s.T(), counter)
 
 	counter, err = s.testFeature2.requestData(model.FunctionTypeLoadControlLimitListData, nil, nil)

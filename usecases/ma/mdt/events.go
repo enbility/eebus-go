@@ -45,11 +45,11 @@ func (e *MDT) deviceConnected(entity spineapi.EntityRemoteInterface) {
 
 		// get measurement parameters
 		if _, err := measurement.RequestDescriptions(nil, nil); err != nil {
-			logging.Log().Error(err)
+			logging.Log().Debug(err)
 		}
 
 		if _, err := measurement.RequestConstraints(nil, nil); err != nil {
-			logging.Log().Error(err)
+			logging.Log().Debug(err)
 		}
 	}
 }
@@ -59,7 +59,7 @@ func (e *MDT) deviceMeasurementDescriptionDataUpdate(entity spineapi.EntityRemot
 	if measurement, err := client.NewMeasurement(e.LocalEntity, entity); err == nil {
 		// measurement descriptions received, now get the data
 		if _, err := measurement.RequestData(nil, nil); err != nil {
-			logging.Log().Error("Error getting measurement list values:", err)
+			logging.Log().Debug("Error getting measurement list values:", err)
 		}
 	}
 }

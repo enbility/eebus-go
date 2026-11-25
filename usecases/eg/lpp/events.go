@@ -181,7 +181,7 @@ func (e *LPP) configurationDescriptionDataUpdate(entity spineapi.EntityRemoteInt
 	if deviceConfiguration, err := client.NewDeviceConfiguration(e.LocalEntity, entity); err == nil {
 		// key value descriptions received, now get the data
 		if _, err := deviceConfiguration.RequestKeyValues(nil, nil); err != nil {
-			logging.Log().Error("Error getting configuration key values:", err)
+			logging.Log().Debug("Error getting configuration key values:", err)
 		}
 	}
 }
