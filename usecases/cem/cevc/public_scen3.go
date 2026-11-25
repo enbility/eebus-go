@@ -31,6 +31,10 @@ func (e *CEVC) IncentiveConstraints(entity spineapi.EntityRemoteInterface) (ucap
 		return result, err
 	}
 
+	if len(constraints) == 0 {
+		return result, api.ErrDataNotAvailable
+	}
+
 	// only use the first constraint
 	constraint := constraints[0]
 

@@ -58,6 +58,16 @@ func (s *CemCEVCSuite) Test_IncentiveConstraints() {
 	assert.Equal(s.T(), uint(1), constraints.MinSlots)
 	assert.Equal(s.T(), uint(0), constraints.MaxSlots)
 	assert.Equal(s.T(), err, nil)
+
+	// an empty constraints list must not panic
+	constData = &model.IncentiveTableConstraintsDataType{
+		IncentiveTableConstraints: []model.IncentiveTableConstraintsType{},
+	}
+	_, fErr = rFeature.UpdateData(true, model.FunctionTypeIncentiveTableConstraintsData, constData, nil, nil)
+	assert.Nil(s.T(), fErr)
+
+	_, err = s.sut.IncentiveConstraints(s.evEntity)
+	assert.NotNil(s.T(), err)
 }
 
 func (s *CemCEVCSuite) Test_WriteIncentiveTableDescriptions() {
