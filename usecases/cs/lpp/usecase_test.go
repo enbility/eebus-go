@@ -102,6 +102,7 @@ func (s *CsLPPSuite) Test_loadControlWriteCB() {
 
 	s.sut.loadControlWriteCB(msg4)
 	assert.True(s.T(), s.eventCalled)
+	s.eventCalled = false
 
 	msg5 := &spineapi.Message{
 		RequestHeader: &model.HeaderType{
