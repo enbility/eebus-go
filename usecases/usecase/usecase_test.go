@@ -96,6 +96,20 @@ func (s *UseCaseSuite) Test_RemoveDeviceScenarios() {
 	assert.Equal(s.T(), 0, len(scenarios))
 }
 
+func (s *UseCaseSuite) Test_RemoteEntitiesScenariosIsCopy() {
+	s.uc.updateRemoteEntityScenarios(s.evseEntity, []model.UseCaseScenarioSupportType{1})
+	s.uc.updateRemoteEntityScenarios(s.monitoredEntity, []model.UseCaseScenarioSupportType{2})
+
+	result := s.uc.RemoteEntitiesScenarios()
+	assert.Equal(s.T(), 2, len(result))
+
+	s.uc.removeEntityFromAvailableEntityScenarios(s.evseEntity)
+
+	assert.Equal(s.T(), s.evseEntity, result[0].Entity)
+	assert.Equal(s.T(), s.monitoredEntity, result[1].Entity)
+	assert.Equal(s.T(), 1, len(s.uc.RemoteEntitiesScenarios()))
+}
+
 func (s *UseCaseSuite) Test_AvailableScenarios() {
 	result := s.uc.RemoteEntitiesScenarios()
 	assert.Equal(s.T(), 0, len(result))
