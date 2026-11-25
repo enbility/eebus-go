@@ -30,6 +30,7 @@ func (s *UseCaseSuite) Test_HandleEvent() {
 	s.uc.HandleEvent(payload)
 }
 
+// TC_SPINE_RTS_003: deduce use-case support per remote entity
 func (s *UseCaseSuite) Test_useCaseDataUpdate() {
 	payload := spineapi.EventPayload{
 		Device:     s.remoteDevice,
