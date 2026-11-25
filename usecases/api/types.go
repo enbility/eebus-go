@@ -194,3 +194,49 @@ type PendingDeviceConfiguration struct {
 	Value             *model.DeviceConfigurationKeyValueValueType          `json:"value,omitempty"`
 	IsValueChangeable *bool                                                `json:"isValueChangeable,omitempty"`
 }
+
+// operation mode of an HVAC system function
+type HvacOperationModeType string
+
+const (
+	HvacOperationModeTypeAuto HvacOperationModeType = "auto"
+	HvacOperationModeTypeOn   HvacOperationModeType = "on"
+	HvacOperationModeTypeOff  HvacOperationModeType = "off"
+	HvacOperationModeTypeEco  HvacOperationModeType = "eco"
+)
+
+// HVAC temperature setpoint, e.g. for a room or domestic hot water
+type Setpoint struct {
+	// the setpoint identifier
+	Id uint
+
+	// the setpoint temperature value
+	Value float64
+
+	// the minimum allowed temperature value
+	MinValue float64
+
+	// the maximum allowed temperature value
+	MaxValue float64
+
+	// whether the setpoint is currently active
+	IsActive bool
+
+	// whether the setpoint may be changed by a client
+	IsChangeable bool
+}
+
+// constraints for an HVAC temperature setpoint
+type SetpointConstraints struct {
+	// the setpoint identifier
+	Id uint
+
+	// the minimum allowed temperature value
+	MinValue float64
+
+	// the maximum allowed temperature value
+	MaxValue float64
+
+	// the step size for temperature value changes
+	StepSize float64
+}
